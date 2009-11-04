@@ -332,7 +332,6 @@ HannTable_generate(HannTable *self) {
     
     for(i=0; i<self->size; i++) {
         val = 0.5 + (cosf(TWOPI * (i - halfSize) / self->size) * 0.5);
-        printf("%f\n", val);
         self->data[i] = val;
     }
     val = self->data[0];
