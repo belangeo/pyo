@@ -1,9 +1,18 @@
+# -*- coding: utf-8 -*-
+
+#
+# Use this script as your PYTHONSTARTUP
+#
+
 from pyo import *
 import random
 
 s = Server(44100, 1, 1024)
 
-example = 5
+# start the python interpreter and enter :
+# >>> s.start()
+# to listen the selected example
+example = 4
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -19,8 +28,8 @@ elif example == 2:
     f = Biquad(a, b, c, 0).out()
 elif example == 3:
     a = Noise(.5).play()    
-    b = Osc(HarmTable(), .3, 500, 1000).play()
-    c = Osc(HarmTable(), 1, 18, 20).play()
+    b = Osc(HarmTable(), 9.98, 500, 1000).play()
+    c = Osc(HarmTable(), 20, 18, 20).play()
     f = Biquad(a, b, c, 0).out()
 elif example == 4:
     t = HarmTable()
@@ -28,17 +37,17 @@ elif example == 4:
     b = Osc(t, 1, .48, .5).play()
     d = Disto(a, b).out()
 elif example == 5:
-    a = Noise(.5).out()
-    b = Osc(HannTable(), .5).play()
-    a *= b  
+    a = Osc(HannTable(), .5).play()
+    b = Noise(a).out()
 elif example == 6:
-    t = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_s.aif')
+    # only mono sounds play at the right speed for now...
+    t = SndTable('/Users/olipet/Desktop/sons/bâsémàj.aif')
     a = Osc(t, t.getRate()).out()
-    #b = Osc(HarmTable(), 20, 500, 750).play()
-    #c = Osc(HarmTable(), 19.65, 20, 22).play()
-    #f = Biquad(a, b, c).out()
+    b = Osc(HarmTable(), .1, 500, 750).play()
+    c = Osc(HarmTable(), .65, 20, 22).play()
+    f = Biquad(a, b, c).out()
 
-    
+   
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

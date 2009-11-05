@@ -15,7 +15,6 @@
 static void
 TableStream_dealloc(TableStream* self)
 {
-    free(self->data);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -26,12 +25,6 @@ TableStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     MAKE_NEW_TABLESTREAM(self, type, NULL);
     return (PyObject *)self;
 }
-
-void
-TableStream_allocateDataMemory(TableStream *self, int size)
-{
-    self->data = (float *)realloc(self->data, (size) * sizeof(float));    
-}    
 
 int
 TableStream_getSize(TableStream *self)
@@ -194,7 +187,6 @@ HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
 
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
-    TableStream_allocateDataMemory(self->tablestream, self->size+1);
     HarmTable_generate(self);
         
     Py_INCREF(self);
@@ -221,7 +213,6 @@ HarmTable_setSize(HarmTable *self, PyObject *value)
 
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
-    TableStream_allocateDataMemory(self->tablestream, self->size+1);
     
     HarmTable_generate(self);
     
@@ -391,7 +382,6 @@ HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
-    TableStream_allocateDataMemory(self->tablestream, self->size+1);
     HannTable_generate(self);
     
     Py_INCREF(self);
@@ -418,7 +408,6 @@ HannTable_setSize(HannTable *self, PyObject *value)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
-    TableStream_allocateDataMemory(self->tablestream, self->size+1);
     
     HannTable_generate(self);
     
@@ -531,7 +520,6 @@ SndTable_loadSound(SndTable *self) {
     self->data[self->size+1] = val;  
 
     TableStream_setSize(self->tablestream, self->size);
-    TableStream_allocateDataMemory(self->tablestream, self->size+1);
     TableStream_setData(self->tablestream, self->data);
 }
 
