@@ -77,12 +77,6 @@ Stream_getData(Stream *self)
 }    
 
 void
-Stream_allocateDataMemory(Stream *self, int bufsize)
-{
-    self->data = (float *)realloc(self->data, (bufsize) * sizeof(float));    
-}    
-
-void
 Stream_setData(Stream *self, float *data)
 {
     self->data = data;
