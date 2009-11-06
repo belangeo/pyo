@@ -7,12 +7,12 @@
 from pyo import *
 import random
 
-s = Server(44100, 1, 1024)
+s = Server(44100, 2, 1024)
 
 # start the python interpreter and enter :
 # >>> s.start()
 # to listen the selected example
-example = 4
+example = 6
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -40,12 +40,10 @@ elif example == 5:
     a = Osc(HannTable(), .5).play()
     b = Noise(a).out()
 elif example == 6:
-    # only mono sounds play at the right speed for now...
-    t = SndTable('/Users/olipet/Desktop/sons/bâsémàj.aif')
-    a = Osc(t, t.getRate()).out()
-    b = Osc(HarmTable(), .1, 500, 750).play()
-    c = Osc(HarmTable(), .65, 20, 22).play()
-    f = Biquad(a, b, c).out()
+    # load stereo sound into buffers and play them
+    for i in range(2):
+        t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff', i)
+        a = Osc(t, t.getRate()).out(i)
 
    
 class FreqMod:

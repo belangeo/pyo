@@ -18,7 +18,6 @@ extern int Stream_getStreamActive(Stream *self);
 extern int Stream_getStreamChnl(Stream *self);
 extern int Stream_getStreamToDac(Stream *self);
 extern float * Stream_getData(Stream *self);
-extern void Stream_allocateDataMemory(Stream *self, int bufsize);
 extern void Stream_setData(Stream * self, float *data);
 extern void Stream_setFunctionPtr(Stream *self, void *ptr);
 extern void Stream_callFunction(Stream *self);

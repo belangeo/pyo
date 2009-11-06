@@ -484,14 +484,14 @@ typedef struct {
     pyo_table_HEAD
     char *path;
     int sndSr;
+    int chnl;
 } SndTable;
 
 static void
 SndTable_loadSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    int num, num_items;
-    int f,c;
+    int i, num, num_items, num_chnls;
     float val;
         
     /* Open the WAV file. */
@@ -502,20 +502,25 @@ SndTable_loadSound(SndTable *self) {
         printf("Failed to open the file.\n");
     }
     /* Print some of the info, and figure out how much data to read. */
-    f = info.frames;
+    self->size = info.frames;
     self->sndSr = info.samplerate;
-    c = info.channels;
-    printf("frames=%d\n",f);
-    printf("samplerate=%d\n", self->sndSr);
-    printf("channels=%d\n",c);
-    num_items = f*c;
-    printf("num_items=%d\n",num_items);
+    num_chnls = info.channels;
+    printf("samples = %d\n", self->size);
+    printf("samplingrate = %d\n", self->sndSr);
+    printf("channels = %d\n", num_chnls);
+    num_items = self->size * num_chnls;
+    //printf("num_items=%d\n",num_items);
     /* Allocate space for the data to be read, then read it. */
-    self->data = (float *)realloc(self->data, (num_items+1) * sizeof(float));
-    num = sf_read_float(sf, self->data, num_items);
-    self->size = num;
+    self->data = (float *)realloc(self->data, (self->size + 1) * sizeof(float));
+    float tmp[num_items];
+    num = sf_read_float(sf, tmp, num_items);
     sf_close(sf);
-    printf("Read %d items\n",num);
+    for (i=0; i<num_items; i++) {
+        if ((i % num_chnls) == self->chnl) {
+            self->data[(int)(i/num_chnls)] = tmp[i];
+        }    
+    }
+    //printf("Read %d items\n",num);
     val = self->data[0];
     self->data[self->size+1] = val;  
 
@@ -555,6 +560,8 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SndTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
+    
+    self->chnl = 0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
     
@@ -564,9 +571,9 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 SndTable_init(SndTable *self, PyObject *args, PyObject *kwds)
 {    
-    static char *kwlist[] = {"path", NULL};
+    static char *kwlist[] = {"path", "chnl", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &self->path))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &self->path, &self->chnl))
         return -1; 
     
     SndTable_loadSound(self);

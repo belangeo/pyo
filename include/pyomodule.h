@@ -52,7 +52,6 @@
     self->data = (float *)realloc(self->data, (self->bufsize) * sizeof(float)); \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
-    Stream_allocateDataMemory(self->stream, self->bufsize); \
     Stream_setFunctionPtr(self->stream, _compute_next_data_frame);
 
 
