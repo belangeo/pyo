@@ -454,7 +454,7 @@ PyTypeObject DistoType = {
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
     "Disto objects. Arctan distortion.",           /* tp_doc */
     (traverseproc)Disto_traverse,   /* tp_traverse */
     (inquiry)Disto_clear,           /* tp_clear */

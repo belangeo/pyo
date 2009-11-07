@@ -1,6 +1,7 @@
 #include <Python.h>
 #include "structmember.h"
 #include "portaudio.h"
+#include "sndfile.h"
 #include "streammodule.h"
 
 #define SERVER_MODULE
@@ -30,6 +31,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
 {
  
     float *out = (float*)outputBuffer;
+    float *in = (float*)inputBuffer;
      
     int i, j;
     int todac;
@@ -40,12 +42,16 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     float old;
     
     /* avoid unused variable warnings */
-    (void) inputBuffer;
+    //(void) inputBuffer;
     (void) timeInfo;
     (void) statusFlags;
  
     float buffer[nchnls][framesPerBuffer];
     memset(&buffer, 0, sizeof(buffer));
+    
+    for (i=0; i<framesPerBuffer*nchnls; i++) {
+        my_server->input_buffer[i] = in[i];
+    }
     
     PyGILState_STATE s = PyGILState_Ensure();
     for (i=0; i<count; i++) {
@@ -71,9 +77,12 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     
     for (i=0; i<framesPerBuffer; i++){
         for (j=0; j<nchnls; j++) {
-            *out++ = buffer[j][i];
+            out[i*nchnls+j] = buffer[j][i];
         }
     }
+    
+    if (my_server->record == 1)
+        sf_write_float(my_server->recfile, out, framesPerBuffer * nchnls);
 
     return paContinue;
 }
@@ -114,6 +123,7 @@ Server_clear(Server *self)
 static void
 Server_dealloc(Server* self)
 {
+    free(self->input_buffer);
     Server_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -125,6 +135,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Server *)type->tp_alloc(type, 0);
     self->samplingRate = 44100.0;
     self->nchnls = 1;
+    self->record = 0;
     self->bufferSize = 64;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
@@ -136,6 +147,7 @@ static int
 Server_init(Server *self, PyObject *args, PyObject *kwds)
 {
     PaError err;
+    int i;
 
     static char *kwlist[] = {"sr", "nchnls", "bufferSize", NULL};
 
@@ -157,7 +169,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     PaStreamParameters inputParameters;
     memset(&inputParameters, 0, sizeof(inputParameters));
     inputParameters.device = Pa_GetDefaultInputDevice(); // default input device 
-    inputParameters.channelCount = 1;
+    inputParameters.channelCount = self->nchnls;
     inputParameters.sampleFormat = paFloat32;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
     inputParameters.hostApiSpecificStreamInfo = NULL;
@@ -165,7 +177,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     PaStreamParameters outputParameters;
     memset(&outputParameters, 0, sizeof(outputParameters));
     outputParameters.device = Pa_GetDefaultOutputDevice(); // default output device 
-    outputParameters.channelCount = 1;
+    outputParameters.channelCount = self->nchnls;
     outputParameters.sampleFormat = paFloat32;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
@@ -173,8 +185,13 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     err = Pa_IsFormatSupported(&inputParameters, &outputParameters, self->samplingRate);
     portaudio_assert(err, "Pa_IsFormatSupported");
 
-    err = Pa_OpenDefaultStream(&self->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
-//    err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, 44100.0, 256, paClipOff, NULL, NULL);
+    self->input_buffer = (float *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(float));
+    for (i=0; i<self->bufferSize*self->nchnls; i++) {
+        self->input_buffer[i] = 0.;
+    }    
+
+    err = Pa_OpenDefaultStream(&self->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
+    //err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paClipOff, callback, NULL);
     portaudio_assert(err, "Pa_OpenStream");
 
     return 0;
@@ -185,9 +202,15 @@ static PyObject *
 Server_start(Server *self, PyObject *args)
 {
     PaError err;
+    int i;
 	/* Ensure Python is set up for threading */
 	PyEval_InitThreads();
 
+    //self->input_buffer = (float *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(float));
+    //for (i=0; i<self->bufferSize; i++) {
+    //    self->input_buffer[i] = 0.;
+   // }
+    
     err = Pa_StartStream(self->stream);
     portaudio_assert(err, "Pa_StartStream");
 
@@ -201,13 +224,50 @@ static PyObject *
 Server_stop(Server *self)
 {
     PaError err;
+
+    //free(self->input_buffer);
+
     err = Pa_StopStream(self->stream);
     portaudio_assert(err, "Pa_StopStream");
 
     self->server_started = 0;
+    
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+static PyObject *
+Server_start_rec(Server *self, PyObject *args)
+{
+    char *path = getenv("HOME");
+    strncat(path, "/pyo_rec.aif", strlen("/pyo_rec.aif"));
+    
+    /* Prepare sfinfo */
+    self->recinfo.samplerate = (int)self->samplingRate;
+    self->recinfo.channels = self->nchnls;
+    self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
+    
+    /* Open the output file. */
+    if (! (self->recfile = sf_open(path, SFM_WRITE, &self->recinfo))) {   
+        printf ("Not able to open output file %s.\n", path) ;
+    }
+    
+    self->record = 1;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_stop_rec(Server *self, PyObject *args)
+{
+    self->record = 0;
+    sf_close(self->recfile);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *
 Server_addStream(Server *self, PyObject *args)
 {
@@ -228,6 +288,11 @@ Server_addStream(Server *self, PyObject *args)
     
     Py_INCREF(Py_None);
     return Py_None;    
+}
+
+float *
+Server_getInputBuffer(Server *self) {
+    return (float *)self->input_buffer;
 }
 
 static PyObject *
@@ -258,6 +323,8 @@ Server_getStreams(Server *self)
 static PyMethodDef Server_methods[] = {
 	{"start", (PyCFunction)Server_start, METH_VARARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
+    {"recstart", (PyCFunction)Server_start_rec, METH_NOARGS, "Start automatic output recording."},
+    {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
     {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
                                                                 This is for internal use and must never be called the user."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},

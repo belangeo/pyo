@@ -244,7 +244,7 @@ sizeof(Noise),         /*tp_basicsize*/
 0,                         /*tp_getattro*/
 0,                         /*tp_setattro*/
 0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
 "Noise objects. White noise generator.",           /* tp_doc */
 (traverseproc)Noise_traverse,   /* tp_traverse */
 (inquiry)Noise_clear,           /* tp_clear */
