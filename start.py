@@ -8,9 +8,9 @@
 from pyo import *
 import random
 
-s = Server(44100, 2, 1024)
+s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=1)
 
-example = 2
+example = 7
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -48,8 +48,10 @@ elif example == 6:
 elif example == 7:
     # on OS X, need a device that supports duplex mode (or an aggregate device!)
     a = Input().play()
-    b = Osc(HarmTable(), 2, .4, .5).play()
+    b = Osc(HarmTable(), 2, .45, .5).play()
     c = Disto(a, b, .6, .1).out()
+    d = Osc(HarmTable(), 1.5, .45, .5).play()
+    e = Disto(a, d, .6, .1).out(1)
    
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
