@@ -14,6 +14,7 @@ typedef struct {
     float samplingRate;
     int nchnls;
     int bufferSize;
+    int duplex;
     int server_started;
     int stream_count;
     int record;

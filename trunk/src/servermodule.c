@@ -31,8 +31,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
 {
  
     float *out = (float*)outputBuffer;
-    float *in = (float*)inputBuffer;
-     
+    
     int i, j;
     int todac;
     int count = my_server->stream_count;
@@ -42,16 +41,20 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     float old;
     
     /* avoid unused variable warnings */
-    //(void) inputBuffer;
     (void) timeInfo;
     (void) statusFlags;
  
+    if (my_server->duplex == 1) {
+        float *in = (float*)inputBuffer;
+        for (i=0; i<framesPerBuffer*nchnls; i++) {
+            my_server->input_buffer[i] = in[i];
+        }
+    }    
+    else 
+        (void) inputBuffer;
+    
     float buffer[nchnls][framesPerBuffer];
     memset(&buffer, 0, sizeof(buffer));
-    
-    for (i=0; i<framesPerBuffer*nchnls; i++) {
-        my_server->input_buffer[i] = in[i];
-    }
     
     PyGILState_STATE s = PyGILState_Ensure();
     for (i=0; i<count; i++) {
@@ -137,6 +140,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->nchnls = 1;
     self->record = 0;
     self->bufferSize = 64;
+    self->duplex = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -149,9 +153,9 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     PaError err;
     int i;
 
-    static char *kwlist[] = {"sr", "nchnls", "bufferSize", NULL};
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fii", kwlist, &self->samplingRate, &self->nchnls, &self->bufferSize))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fiii", kwlist, &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex))
         return -1;
 
     self->server_started = 0;
@@ -190,7 +194,10 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         self->input_buffer[i] = 0.;
     }    
 
-    err = Pa_OpenDefaultStream(&self->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
+    if (self->duplex == 1)
+        err = Pa_OpenDefaultStream(&self->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
+    else
+        err = Pa_OpenDefaultStream(&self->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
     //err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paClipOff, callback, NULL);
     portaudio_assert(err, "Pa_OpenStream");
 
@@ -205,12 +212,7 @@ Server_start(Server *self, PyObject *args)
     int i;
 	/* Ensure Python is set up for threading */
 	PyEval_InitThreads();
-
-    //self->input_buffer = (float *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(float));
-    //for (i=0; i<self->bufferSize; i++) {
-    //    self->input_buffer[i] = 0.;
-   // }
-    
+ 
     err = Pa_StartStream(self->stream);
     portaudio_assert(err, "Pa_StartStream");
 
@@ -224,8 +226,6 @@ static PyObject *
 Server_stop(Server *self)
 {
     PaError err;
-
-    //free(self->input_buffer);
 
     err = Pa_StopStream(self->stream);
     portaudio_assert(err, "Pa_StopStream");
