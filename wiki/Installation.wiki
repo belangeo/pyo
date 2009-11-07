@@ -6,6 +6,8 @@ To install pyo, you will need the following dependencies:
 
 The easiest way to get portaudio and libsndfile is to install [http://csound.sourceforge.net/ csound], it will install those libraries for you.
 
+Please note that under Mac OS X you will need to install the developer tools to compile pyo.
+
 =Compilation=
 Once you have all the required dependencies, you can download pyo's source checking out the source code here:
 {{{
