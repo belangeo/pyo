@@ -1,5 +1,3 @@
-#pyo installation procedures.
-
 To install pyo, you will need the following dependencies:
   * [http://www.python.org/download Python 2.6.x Python 2.6.x]
   * [http://www.portaudio.com portaudio]
