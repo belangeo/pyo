@@ -13,6 +13,7 @@
 #include "streammodule.h"
 #include "dummymodule.h"
 #include "tablemodule.h"
+#include "inputmodule.h"
 #include "oscmodule.h"
 #include "sinemodule.h"
 #include "noisemodule.h"
@@ -112,6 +113,11 @@ initpyo(void)
         return;
     Py_INCREF(&SndTableType);
     PyModule_AddObject(m, "SndTable", (PyObject *)&SndTableType);
+
+    if (PyType_Ready(&InputType) < 0)
+        return;
+    Py_INCREF(&InputType);
+    PyModule_AddObject(m, "Input", (PyObject *)&InputType);
     
     if (PyType_Ready(&OscType) < 0)
         return;

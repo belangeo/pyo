@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include "portaudio.h"
+#include "sndfile.h"    
 
 typedef struct {
     PyObject_HEAD
@@ -15,6 +16,10 @@ typedef struct {
     int bufferSize;
     int server_started;
     int stream_count;
+    int record;
+    float *input_buffer;
+    SNDFILE *recfile;
+    SF_INFO recinfo;
 } Server;
 
 PyObject * PyServer_get_server();
@@ -26,6 +31,7 @@ static int Server_init(Server *self, PyObject *args, PyObject *kwds);
 static PyObject * Server_start(Server *self, PyObject *args);
 static PyObject * Server_stop(Server *self);    
 static PyObject * Server_addStream(Server *self, PyObject *args);
+extern float * Server_getInputBuffer(Server *self);    
 static PyObject * Server_getSamplingRate(Server *self);
 static PyObject * Server_getBufferSize(Server *self);
 static PyObject * Server_getStreams(Server *self);

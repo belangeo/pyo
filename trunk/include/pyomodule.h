@@ -15,6 +15,7 @@
     PyObject *add; \
     Stream *add_stream; \
     int bufsize; \
+    int nchnls; \
     float sr; \
     float *data; 
 
@@ -49,6 +50,7 @@
     self->add = PyFloat_FromDouble(0); \
     self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
     self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
     self->data = (float *)realloc(self->data, (self->bufsize) * sizeof(float)); \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
