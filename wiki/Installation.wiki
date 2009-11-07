@@ -5,3 +5,28 @@ To install pyo, you will need the following dependencies:
   * [http://www.mega-nerd.com/libsndfile libsndfile]
 
 The easiest way to get portaudio and libsndfile is to install [http://csound.sourceforge.net/ csound], it will install those libraries for you.
+
+=Compilation=
+Once you have all the required dependencies, you can download pyo's source checking out the source code here:
+{{{
+svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
+}}}
+
+In pyo's directory you then need to build the extension : 
+{{{
+python setup.py build_ext --inplace
+}}}
+
+If compilation went well you should see a pyo.so file in your pyo directory.
+You can now test that it works by going in the python interpreter and doing the following :
+
+{{{
+python
+>>> from start import *
+>>> s.start()
+}}}
+
+This should play the first example, to stop it:
+{{{
+>>> s.stop()
+}}}
