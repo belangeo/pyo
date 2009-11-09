@@ -14,6 +14,7 @@
 #include "dummymodule.h"
 #include "tablemodule.h"
 #include "inputmodule.h"
+#include "fadermodule.h"
 #include "oscmodule.h"
 #include "sinemodule.h"
 #include "noisemodule.h"
@@ -118,6 +119,11 @@ initpyo(void)
         return;
     Py_INCREF(&InputType);
     PyModule_AddObject(m, "Input", (PyObject *)&InputType);
+
+    if (PyType_Ready(&FaderType) < 0)
+        return;
+    Py_INCREF(&FaderType);
+    PyModule_AddObject(m, "Fader", (PyObject *)&FaderType);
     
     if (PyType_Ready(&OscType) < 0)
         return;

@@ -8,9 +8,9 @@
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=1)
+s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0)
 
-example = 7
+example = 8
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -52,7 +52,15 @@ elif example == 7:
     c = Disto(a, b, .6, .1).out()
     d = Osc(HarmTable(), 1.5, .45, .5).play()
     e = Disto(a, d, .6, .1).out(1)
-   
+elif example == 8:
+    # Fader -> .play() starts fadein
+    # dur=0 means wait for stop method to start fadeout
+    # positive values will trigger fadeout automatically
+    f1 = Fader(fadein=.02,fadeout=1, dur=0).play()
+    a = Osc(HarmTable(), 500, f1).out()
+    f2 = Fader(fadein=1, fadeout=1, dur=5, mul=.5).play()
+    b = Osc(HarmTable(), 750, f2).out()
+       
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier
