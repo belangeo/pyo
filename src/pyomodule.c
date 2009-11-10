@@ -20,6 +20,7 @@
 #include "noisemodule.h"
 #include "biquadmodule.h"
 #include "distomodule.h"
+#include "midictlmodule.h"
 
 /* Portaudio stuff */
 static void portaudio_assert(PaError ecode, const char* cmdName) {
@@ -149,5 +150,10 @@ initpyo(void)
         return;
     Py_INCREF(&DistoType);
     PyModule_AddObject(m, "Disto", (PyObject *)&DistoType);
+
+    if (PyType_Ready(&MidictlType) < 0)
+        return;
+    Py_INCREF(&MidictlType);
+    PyModule_AddObject(m, "Midictl", (PyObject *)&MidictlType);
     
 }
