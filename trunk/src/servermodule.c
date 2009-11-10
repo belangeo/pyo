@@ -1,6 +1,7 @@
 #include <Python.h>
 #include "structmember.h"
 #include "portaudio.h"
+#include "portmidi.h"
 #include "sndfile.h"
 #include "streammodule.h"
 
@@ -9,6 +10,18 @@
 #undef SERVER_MODULE
 
 static Server *my_server = NULL;
+
+/* Portmidi get input events */
+static void portmidiGetEvents(Server *self) 
+{
+    PmError status, length;	
+    while (status = Pm_Poll(self->in))		// For all messages in queue
+    {
+        if (status == TRUE) {	// If no error
+            length = Pm_Read(self->in, self->midibuf,1);	// Read the next message
+        }
+    }
+}
 
 /* Portaudio stuff */
 static void portaudio_assert(PaError ecode, const char* cmdName) {
@@ -43,7 +56,11 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     /* avoid unused variable warnings */
     (void) timeInfo;
     (void) statusFlags;
- 
+
+    if (my_server->withPortMidi == 1) {
+        portmidiGetEvents((Server *)my_server);
+    }
+    
     if (my_server->duplex == 1) {
         float *in = (float*)inputBuffer;
         for (i=0; i<framesPerBuffer*nchnls; i++) {
@@ -151,6 +168,7 @@ static int
 Server_init(Server *self, PyObject *args, PyObject *kwds)
 {
     PaError err;
+    PmError pmerr;
     int i;
 
     static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", NULL};
@@ -201,6 +219,49 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     //err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paClipOff, callback, NULL);
     portaudio_assert(err, "Pa_OpenStream");
 
+    pmerr = Pm_Initialize();
+    if (pmerr) {
+        printf("could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
+        self->withPortMidi = 0;
+    }    
+    else {
+        printf("PortMidi initialized.\n");
+        self->withPortMidi = 1;
+    }    
+
+    if (self->withPortMidi == 1) {
+        int num_devices = Pm_CountDevices();
+        if (num_devices > 0) {
+            const PmDeviceInfo *info = Pm_GetDeviceInfo(0);
+            if (info->input) {
+                pmerr = Pm_OpenInput(&self->in, 0, NULL, 100, NULL, NULL);
+                if (pmerr) {
+                    printf("could not open midi input %d (%s): %s\nPortmidi closed\n", 0, info->name, Pm_GetErrorText(pmerr));
+                    self->withPortMidi = 0;
+                    Pm_Terminate();
+                }    
+                else
+                    printf("Midi Input (%s) opened.\n", info->name);
+            }
+            else {
+                printf("Something wrong with midi device!\nPortmidi closed\n");
+                self->withPortMidi = 0;
+                Pm_Terminate();
+            }    
+        }    
+        else {
+            printf("No midi device founded!\nPortmidi closed\n");
+            self->withPortMidi = 0;
+            Pm_Terminate();
+        }    
+    }
+    if (self->withPortMidi == 1) {
+        Pm_SetFilter(self->in, PM_FILT_ACTIVE | PM_FILT_CLOCK);
+        while (Pm_Poll(self->in)) {
+            Pm_Read(self->in, self->midibuf, 1);
+        }
+    }
+    
     return 0;
 }
 
@@ -293,6 +354,11 @@ Server_addStream(Server *self, PyObject *args)
 float *
 Server_getInputBuffer(Server *self) {
     return (float *)self->input_buffer;
+}
+
+PmEvent *
+Server_getMidiEventBuffer(Server *self) {
+    return (PmEvent *)self->midibuf;
 }
 
 static PyObject *

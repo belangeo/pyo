@@ -5,16 +5,20 @@ extern "C" {
 #endif
 
 #include "portaudio.h"
+#include "portmidi.h"
 #include "sndfile.h"    
 
 typedef struct {
     PyObject_HEAD
     PyObject *streams;
     PaStream *stream;
+    PmStream *in;
+    PmEvent midibuf[1];
     float samplingRate;
     int nchnls;
     int bufferSize;
     int duplex;
+    int withPortMidi;
     int server_started;
     int stream_count;
     int record;
@@ -33,6 +37,7 @@ static PyObject * Server_start(Server *self, PyObject *args);
 static PyObject * Server_stop(Server *self);    
 static PyObject * Server_addStream(Server *self, PyObject *args);
 extern float * Server_getInputBuffer(Server *self);    
+extern PmEvent * Server_getMidiEventBuffer(Server *self);    
 static PyObject * Server_getSamplingRate(Server *self);
 static PyObject * Server_getBufferSize(Server *self);
 static PyObject * Server_getStreams(Server *self);
@@ -43,5 +48,5 @@ extern PyTypeObject ServerType;
 }
 #endif
 
-#endif /* !defined(Py_SERVERMODULE_H */
+#endif /* !defined(Py_SERVERMODULE_H) */
 

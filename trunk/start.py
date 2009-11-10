@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0)
 
-example = 8
+example = 9
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -60,6 +60,13 @@ elif example == 8:
     a = Osc(HarmTable(), 500, f1).out()
     f2 = Fader(fadein=1, fadeout=1, dur=5, mul=.5).play()
     b = Osc(HarmTable(), 750, f2).out()
+elif example == 9:
+    # need a MIDI device connected (and portmidi installed)
+    t = HarmTable([1])
+    m = Midictl(74, 250, 1000).play()
+    a = Osc(t, m, .5).out()
+    m2 = Midictl(75, 250, 1000).play()
+    a2 = Osc(t, m2, .5).out()
        
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
