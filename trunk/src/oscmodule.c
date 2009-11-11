@@ -4,6 +4,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 #include "tablemodule.h"
 
 typedef struct {
@@ -193,6 +194,10 @@ static PyObject * Osc_play(Osc *self) { PLAY };
 static PyObject * Osc_out(Osc *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Osc_stop(Osc *self) { STOP };
 
+static PyObject * Osc_multiply(Osc *self, PyObject *arg) { MULTIPLY };
+static PyObject * Osc_inplace_multiply(Osc *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Osc_add(Osc *self, PyObject *arg) { ADD };
+static PyObject * Osc_inplace_add(Osc *self, PyObject *arg) { INPLACE_ADD };
 
 static PyObject *
 Osc_getTable(Osc* self)
@@ -200,38 +205,6 @@ Osc_getTable(Osc* self)
     Py_INCREF(self->table);
     return self->table;
 };
-
-static PyObject *
-Osc_multiply(Osc *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Osc_inplace_multiply(Osc *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Osc_add(Osc *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Osc_inplace_add(Osc *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
 
 static PyObject *
 Osc_setFreq(Osc *self, PyObject *arg)

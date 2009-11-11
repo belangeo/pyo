@@ -4,6 +4,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 #include "portmidi.h"
 
 typedef struct {
@@ -104,9 +105,6 @@ Midictl_clear(Midictl *self)
 static void
 Midictl_dealloc(Midictl* self)
 {
-	Pm_Close(self->in);
-	Pm_Terminate();    
-    
     free(self->data);
     Midictl_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -169,38 +167,10 @@ static PyObject * Midictl_play(Midictl *self) { PLAY };
 static PyObject * Midictl_out(Midictl *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Midictl_stop(Midictl *self) { STOP };
 
-
-static PyObject *
-Midictl_multiply(Midictl *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Midictl_inplace_multiply(Midictl *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Midictl_add(Midictl *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Midictl_inplace_add(Midictl *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Midictl_multiply(Midictl *self, PyObject *arg) { MULTIPLY };
+static PyObject * Midictl_inplace_multiply(Midictl *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Midictl_add(Midictl *self, PyObject *arg) { ADD };
+static PyObject * Midictl_inplace_add(Midictl *self, PyObject *arg) { INPLACE_ADD };
 
 static PyMemberDef Midictl_members[] = {
     {"server", T_OBJECT_EX, offsetof(Midictl, server), 0, "Pyo server."},

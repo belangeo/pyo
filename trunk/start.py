@@ -61,13 +61,25 @@ elif example == 8:
     f2 = Fader(fadein=1, fadeout=1, dur=5, mul=.5).play()
     b = Osc(HarmTable(), 750, f2).out()
 elif example == 9:
-    # need a MIDI device connected (and portmidi installed)
+    # need a MIDI device available (and portmidi installed)
     t = HarmTable([1])
-    m = Midictl(74, 250, 1000).play()
+    m = Midictl(ctlnumber=74, minscale=250, maxscale=1000).play()
     a = Osc(t, m, .5).out()
-    m2 = Midictl(75, 250, 1000).play()
-    a2 = Osc(t, m2, .5).out()
-       
+    a1 = Osc(t, m * 1.25, .5).out()
+    a2 = Osc(t, m * 1.5, .5).out()
+    # inplace_multiply and inplace_addition are the same as calling object.setMul or setAdd
+    # object *= 1.5
+    # multiply and add create a dummy object and call setMul or setAdd on Dummy, leaving original object unmodified
+    # dummy = object * 1.5
+    # In two case, right argument can be another pyo object
+elif example == 10:
+    # Sine phase shift
+    a = Sine(freq=1, phase=0, mul=.5, add=.5).play()
+    b = Sine(freq=1, phase=.5, mul=.5, add=.5).play()
+    t = HarmTable([1,0,.3,0,.2])
+    osc1 = Osc(t, 200, a).out()
+    osc2 = Osc(t, 300, b).out()
+           
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

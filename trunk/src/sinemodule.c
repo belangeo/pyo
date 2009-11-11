@@ -11,41 +11,87 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *freq;
     Stream *freq_stream;
-    int modebuffer[3];
+    PyObject *phase;
+    Stream *phase_stream;
+    int modebuffer[4];
     float pointerPos;
 } Sine;
 
 static void
-Sine_readframes_i(Sine *self) {
-    float w, delta, fr, val;
+Sine_readframes_ii(Sine *self) {
+    float w, delta, fr, ph, val;
     int i;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
+    ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
     w = TWOPI * fr;
     delta = 1. / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        val = sinf(w * self->pointerPos);
+        val = sinf(w * self->pointerPos + ph);
         self->data[i] = val;
         self->pointerPos += delta;
     }
+    if (self->pointerPos > 1.0)
+        self->pointerPos -= 1.0;
 }
 
 static void
-Sine_readframes_a(Sine *self) {
-    float w, delta, val;
+Sine_readframes_ai(Sine *self) {
+    float w, delta, ph, val;
     int i;
 
     delta = 1. / self->sr;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
+    ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
 
     for (i=0; i<self->bufsize; i++) {
         w = TWOPI * fr[i];
-        val = sinf(w * self->pointerPos);
+        val = sinf(w * self->pointerPos + ph);
         self->data[i] = val;
         self->pointerPos += delta;
     }
+    if (self->pointerPos > 1.0)
+        self->pointerPos -= 1.0;
+}
+
+static void
+Sine_readframes_ia(Sine *self) {
+    float w, delta, fr, val;
+    int i;
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    w = TWOPI * fr;
+    delta = 1. / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = sinf(w * self->pointerPos + (ph[i] * TWOPI));
+        self->data[i] = val;
+        self->pointerPos += delta;
+    }
+    if (self->pointerPos > 1.0)
+        self->pointerPos -= 1.0;
+}
+
+static void
+Sine_readframes_aa(Sine *self) {
+    float w, delta, val;
+    int i;
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    delta = 1. / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        w = TWOPI * fr[i];
+        val = sinf(w * self->pointerPos + (ph[i] * TWOPI));
+        self->data[i] = val;
+        self->pointerPos += delta;
+    }
+    if (self->pointerPos > 1.0)
+        self->pointerPos -= 1.0;
 }
 
 static void Sine_postprocessing_ii(Sine *self) { POST_PROCESSING_II };
@@ -57,17 +103,24 @@ static void
 _setProcMode(Sine *self)
 {
     int procmode, muladdmode;
-    procmode = self->modebuffer[2];
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
 	switch (procmode) {
         case 0:        
-            self->proc_func_ptr = Sine_readframes_i;
+            self->proc_func_ptr = Sine_readframes_ii;
             break;
         case 1:    
-            self->proc_func_ptr = Sine_readframes_a;
+            self->proc_func_ptr = Sine_readframes_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = Sine_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Sine_readframes_aa;
             break;
     } 
+    
 	switch (muladdmode) {
         case 0:
             self->muladd_func_ptr = Sine_postprocessing_ii;
@@ -98,6 +151,8 @@ Sine_traverse(Sine *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->freq);    
     Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->phase);    
+    Py_VISIT(self->phase_stream);    
     return 0;
 }
 
@@ -107,6 +162,8 @@ Sine_clear(Sine *self)
     pyo_CLEAR
     Py_CLEAR(self->freq);    
     Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->phase);    
+    Py_CLEAR(self->phase_stream);    
     return 0;
 }
 
@@ -125,9 +182,11 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Sine *)type->tp_alloc(type, 0);
 
     self->freq = PyFloat_FromDouble(1000);
+    self->phase = PyFloat_FromDouble(0.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
     self->pointerPos = 0.;
     
     INIT_OBJECT_COMMON
@@ -138,15 +197,19 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Sine_init(Sine *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *freqtmp=NULL, *phasetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"freq", "mul", "add", NULL};
+    static char *kwlist[] = {"freq", "phase", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &freqtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &phasetmp, &multmp, &addtmp))
         return -1; 
 
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (phasetmp) {
+        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
     }
     
     if (multmp) {
@@ -177,49 +240,10 @@ static PyObject * Sine_play(Sine *self) { PLAY };
 static PyObject * Sine_out(Sine *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Sine_stop(Sine *self) { STOP };
 
-static PyObject *
-Sine_multiply(Sine *self, PyObject *arg)
-{
-    Dummy *dummy;
-    MAKE_NEW_DUMMY(dummy, &DummyType, NULL);
-    Dummy_initialize(dummy);
-    PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); 
-    Py_INCREF(self);
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); 
-    
-    Py_INCREF(dummy);
-    return (PyObject *)dummy;
-}
-
-static PyObject *
-Sine_inplace_multiply(Sine *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Sine_add(Sine *self, PyObject *arg)
-{
-    Dummy *dummy;
-    MAKE_NEW_DUMMY(dummy, &DummyType, NULL);
-    Dummy_initialize(dummy);
-    PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); 
-    Py_INCREF(self);
-    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); 
-    
-    Py_INCREF(dummy);
-    return (PyObject *)dummy;
-}
-
-static PyObject *
-Sine_inplace_add(Sine *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Sine_multiply(Sine *self, PyObject *arg) { MULTIPLY };
+static PyObject * Sine_inplace_multiply(Sine *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Sine_add(Sine *self, PyObject *arg) { ADD };
+static PyObject * Sine_inplace_add(Sine *self, PyObject *arg) { INPLACE_ADD };
 
 static PyObject *
 Sine_setFreq(Sine *self, PyObject *arg)
@@ -255,10 +279,45 @@ Sine_setFreq(Sine *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Sine_setPhase(Sine *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->phase);
+	if (isNumber == 1) {
+		self->phase = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->phase = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->phase_stream);
+        self->phase_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    _setProcMode(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Sine_members[] = {
 {"server", T_OBJECT_EX, offsetof(Sine, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Sine, stream), 0, "Stream object."},
 {"freq", T_OBJECT_EX, offsetof(Sine, freq), 0, "Frequency in cycle per second."},
+{"phase", T_OBJECT_EX, offsetof(Sine, phase), 0, "Phase of signal (0 -> 1)"},
 {"mul", T_OBJECT_EX, offsetof(Sine, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(Sine, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
@@ -271,6 +330,7 @@ static PyMethodDef Sine_methods[] = {
 {"out", (PyCFunction)Sine_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Sine_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Sine_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
+{"setPhase", (PyCFunction)Sine_setPhase, METH_O, "Sets oscillator phase between 0 and 1."},
 {"setMul", (PyCFunction)Sine_setMul, METH_O, "Sets Sine mul factor."},
 {"setAdd", (PyCFunction)Sine_setAdd, METH_O, "Sets Sine add factor."},
 {NULL}  /* Sentinel */

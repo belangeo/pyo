@@ -143,6 +143,10 @@ Server_clear(Server *self)
 static void
 Server_dealloc(Server* self)
 {
+    if (self->withPortMidi == 1) {
+        Pm_Close(self->in);
+        Pm_Terminate();
+    }    
     free(self->input_buffer);
     Server_clear(self);
     self->ob_type->tp_free((PyObject*)self);

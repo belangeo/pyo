@@ -4,6 +4,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -362,38 +363,10 @@ static PyObject * Biquad_play(Biquad *self) { PLAY };
 static PyObject * Biquad_out(Biquad *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Biquad_stop(Biquad *self) { STOP };
 
-static PyObject *
-Biquad_multiply(Biquad *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Biquad_inplace_multiply(Biquad *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-
-static PyObject *
-Biquad_add(Biquad *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Biquad_inplace_add(Biquad *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Biquad_multiply(Biquad *self, PyObject *arg) { MULTIPLY };
+static PyObject * Biquad_inplace_multiply(Biquad *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Biquad_add(Biquad *self, PyObject *arg) { ADD };
+static PyObject * Biquad_inplace_add(Biquad *self, PyObject *arg) { INPLACE_ADD };
 
 static PyObject *
 Biquad_setFreq(Biquad *self, PyObject *arg)
