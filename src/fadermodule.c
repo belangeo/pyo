@@ -3,6 +3,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -215,37 +216,10 @@ Fader_stop(Fader *self)
     return Py_None;
 }
 
-static PyObject *
-Fader_multiply(Fader *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Fader_inplace_multiply(Fader *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Fader_add(Fader *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Fader_inplace_add(Fader *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Fader_multiply(Fader *self, PyObject *arg) { MULTIPLY };
+static PyObject * Fader_inplace_multiply(Fader *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Fader_add(Fader *self, PyObject *arg) { ADD };
+static PyObject * Fader_inplace_add(Fader *self, PyObject *arg) { INPLACE_ADD };
 
 static PyObject *
 Fader_setFadein(Fader *self, PyObject *arg)

@@ -4,6 +4,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -127,38 +128,10 @@ static PyObject * Input_play(Input *self) { PLAY };
 static PyObject * Input_out(Input *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Input_stop(Input *self) { STOP };
 
-
-static PyObject *
-Input_multiply(Input *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Input_inplace_multiply(Input *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Input_add(Input *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Input_inplace_add(Input *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Input_multiply(Input *self, PyObject *arg) { MULTIPLY };
+static PyObject * Input_inplace_multiply(Input *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Input_add(Input *self, PyObject *arg) { ADD };
+static PyObject * Input_inplace_add(Input *self, PyObject *arg) { INPLACE_ADD };
 
 static PyMemberDef Input_members[] = {
     {"server", T_OBJECT_EX, offsetof(Input, server), 0, "Pyo server."},

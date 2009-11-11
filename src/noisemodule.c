@@ -3,6 +3,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -130,37 +131,10 @@ static PyObject * Noise_play(Noise *self) { PLAY };
 static PyObject * Noise_out(Noise *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Noise_stop(Noise *self) { STOP };
 
-static PyObject *
-Noise_multiply(Noise *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Noise_inplace_multiply(Noise *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Noise_add(Noise *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Noise_inplace_add(Noise *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Noise_multiply(Noise *self, PyObject *arg) { MULTIPLY };
+static PyObject * Noise_inplace_multiply(Noise *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Noise_add(Noise *self, PyObject *arg) { ADD };
+static PyObject * Noise_inplace_add(Noise *self, PyObject *arg) { INPLACE_ADD };
 
 static PyMemberDef Noise_members[] = {
 {"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},

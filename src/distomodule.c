@@ -4,6 +4,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -265,38 +266,10 @@ static PyObject * Disto_play(Disto *self) { PLAY };
 static PyObject * Disto_out(Disto *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Disto_stop(Disto *self) { STOP };
 
-
-static PyObject *
-Disto_multiply(Disto *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Disto_inplace_multiply(Disto *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Disto_add(Disto *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Disto_inplace_add(Disto *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Disto_multiply(Disto *self, PyObject *arg) { MULTIPLY };
+static PyObject * Disto_inplace_multiply(Disto *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Disto_add(Disto *self, PyObject *arg) { ADD };
+static PyObject * Disto_inplace_add(Disto *self, PyObject *arg) { INPLACE_ADD };
 
 static PyObject *
 Disto_setDrive(Disto *self, PyObject *arg)

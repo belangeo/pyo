@@ -1,6 +1,7 @@
 #include "Python.h"
 
 /* Constants */
+#define PI 3.14159265
 #define TWOPI 6.2831853
 
 /* object headers */
@@ -143,6 +144,37 @@
 \
     Py_INCREF(Py_None); \
     return Py_None; 
+
+/* Multiply, Add, inplace_multiply & inplace_add */
+#define MULTIPLY \
+    Dummy *dummy; \
+    MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
+    Dummy_initialize(dummy); \
+    PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
+    Py_INCREF(self); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
+    return (PyObject *)dummy;
+
+#define INPLACE_MULTIPLY \
+    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg); \
+    Py_INCREF(self); \
+    return (PyObject *)self;
+
+#define ADD \
+    Dummy *dummy; \
+    MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
+    Dummy_initialize(dummy); \
+    PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
+    Py_INCREF(self); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
+    return (PyObject *)dummy;
+
+#define INPLACE_ADD \
+    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg); \
+    Py_INCREF(self); \
+    return (PyObject *)self;
 
 /* PLAY, OUT, STOP */
 #define PLAY \

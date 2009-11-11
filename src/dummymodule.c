@@ -141,38 +141,10 @@ static PyObject * Dummy_play(Dummy *self) { PLAY };
 static PyObject * Dummy_out(Dummy *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Dummy_stop(Dummy *self) { STOP };
 
-static PyObject *
-Dummy_multiply(Dummy *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Dummy_inplace_multiply(Dummy *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-
-static PyObject *
-Dummy_add(Dummy *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
-
-static PyObject *
-Dummy_inplace_add(Dummy *self, PyObject *arg)
-{
-    PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg);
-    Py_INCREF(self);
-    return (PyObject *)self;
-}
+static PyObject * Dummy_multiply(Dummy *self, PyObject *arg) { MULTIPLY };
+static PyObject * Dummy_inplace_multiply(Dummy *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Dummy_add(Dummy *self, PyObject *arg) { ADD };
+static PyObject * Dummy_inplace_add(Dummy *self, PyObject *arg) { INPLACE_ADD };
 
 static PyMemberDef Dummy_members[] = {
     {"server", T_OBJECT_EX, offsetof(Dummy, server), 0, "Pyo server."},
