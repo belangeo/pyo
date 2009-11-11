@@ -13,14 +13,6 @@
 #include "streammodule.h"
 #include "dummymodule.h"
 #include "tablemodule.h"
-#include "inputmodule.h"
-#include "fadermodule.h"
-#include "oscmodule.h"
-#include "sinemodule.h"
-#include "noisemodule.h"
-#include "biquadmodule.h"
-#include "distomodule.h"
-#include "midictlmodule.h"
 
 /* Portaudio stuff */
 static void portaudio_assert(PaError ecode, const char* cmdName) {

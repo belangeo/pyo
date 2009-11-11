@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0)
 
-example = 9
+example = 10
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -47,7 +47,7 @@ elif example == 6:
         a = Osc(t, t.getRate()).out(i)
 elif example == 7:
     # on OS X, need a device that supports duplex mode (or an aggregate device!)
-    a = Input().play()
+    a = Input(mul=.5).play()
     b = Osc(HarmTable(), 2, .45, .5).play()
     c = Disto(a, b, .6, .1).out()
     d = Osc(HarmTable(), 1.5, .45, .5).play()
