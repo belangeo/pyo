@@ -1,5 +1,22 @@
 #include "Python.h"
 
+extern PyTypeObject SineType;
+extern PyTypeObject OscType;
+extern PyTypeObject NoiseType;
+extern PyTypeObject InputType;
+
+extern PyTypeObject FaderType;
+extern PyTypeObject BiquadType;
+extern PyTypeObject DistoType;
+
+extern PyTypeObject MidictlType;
+
+extern PyTypeObject DummyType;
+
+extern PyTypeObject HarmTableType;
+extern PyTypeObject HannTableType;
+extern PyTypeObject SndTableType;
+
 /* Constants */
 #define PI 3.14159265
 #define TWOPI 6.2831853
