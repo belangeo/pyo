@@ -136,7 +136,7 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|fffOO", kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|ffOO", kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &multmp, &addtmp))
         return -1; 
  
     if (multmp) {
@@ -237,7 +237,7 @@ static PyNumberMethods Midictl_as_number = {
 PyTypeObject MidictlType = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
-    "pyo.Midictl",         /*tp_name*/
+    "_pyo.Midictl_base",         /*tp_name*/
     sizeof(Midictl),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)Midictl_dealloc, /*tp_dealloc*/

@@ -151,6 +151,8 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
 
+    Stream_setStreamActive(self->stream, 0);
+    
     self->sampleToSec = 1. / self->sr;
     self->bufsizeToSec = self->sampleToSec * self->bufsize;
     
@@ -311,7 +313,7 @@ static PyNumberMethods Fader_as_number = {
 PyTypeObject FaderType = {
 PyObject_HEAD_INIT(NULL)
 0,                         /*ob_size*/
-"pyo.Fader",         /*tp_name*/
+"_pyo.Fader_base",         /*tp_name*/
 sizeof(Fader),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
 (destructor)Fader_dealloc, /*tp_dealloc*/

@@ -528,7 +528,7 @@ static PyNumberMethods Biquad_as_number = {
 PyTypeObject BiquadType = {
     PyObject_HEAD_INIT(NULL)
     0,                                              /*ob_size*/
-    "pyo.Biquad",                                   /*tp_name*/
+    "_pyo.Biquad_base",                                   /*tp_name*/
     sizeof(Biquad),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
     (destructor)Biquad_dealloc,                     /*tp_dealloc*/

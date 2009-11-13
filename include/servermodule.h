@@ -33,7 +33,7 @@ static int Server_clear(Server *self);
 static void Server_dealloc(Server* self);    
 static PyObject * Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int Server_init(Server *self, PyObject *args, PyObject *kwds);
-static PyObject * Server_start(Server *self, PyObject *args);
+static PyObject * Server_start(Server *self);
 static PyObject * Server_stop(Server *self);    
 static PyObject * Server_addStream(Server *self, PyObject *args);
 extern float * Server_getInputBuffer(Server *self);    

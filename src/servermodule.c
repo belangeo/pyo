@@ -103,7 +103,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     
     if (my_server->record == 1)
         sf_write_float(my_server->recfile, out, framesPerBuffer * nchnls);
-
+    
     return paContinue;
 }
 
@@ -271,7 +271,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
 
 
 static PyObject *
-Server_start(Server *self, PyObject *args)
+Server_start(Server *self)
 {
     PaError err;
     int i;
@@ -391,7 +391,7 @@ Server_getStreams(Server *self)
 }
 
 static PyMethodDef Server_methods[] = {
-	{"start", (PyCFunction)Server_start, METH_VARARGS, "Starts the server's callback loop."},
+	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
     {"recstart", (PyCFunction)Server_start_rec, METH_NOARGS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
@@ -412,7 +412,7 @@ static PyMemberDef Server_members[] = {
 PyTypeObject ServerType = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
-    "pyo.Server",         /*tp_name*/
+    "_pyo.Server",         /*tp_name*/
     sizeof(Server),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)Server_dealloc, /*tp_dealloc*/

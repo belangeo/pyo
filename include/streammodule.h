@@ -27,8 +27,8 @@ extern PyTypeObject StreamType;
   (self) = (Stream *)(type)->tp_alloc((type), 0);	\
   if ((self) == rt_error) { return rt_error; }	\
 						\
-  (self)->chnl = (self)->active = (self)->todac = 0
-
+  (self)->chnl = (self)->todac = 0; \
+  (self)->active = 1;
 
 #ifdef __STREAM_MODULE
 /* include from stream.c */

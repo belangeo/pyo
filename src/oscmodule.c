@@ -308,7 +308,7 @@ static PyNumberMethods Osc_as_number = {
 PyTypeObject OscType = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
-    "pyo.Osc",         /*tp_name*/
+    "_pyo.Osc_base",         /*tp_name*/
     sizeof(Osc),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)Osc_dealloc, /*tp_dealloc*/
