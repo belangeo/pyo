@@ -67,16 +67,16 @@ static PyMethodDef pyo_functions[] = {
 };
 
 PyMODINIT_FUNC
-initpyo(void)
+init_pyo(void)
 {
     PyObject *m;
     
-    m = Py_InitModule3("pyo", pyo_functions, "Python digital signal processing module.");
+    m = Py_InitModule3("_pyo", pyo_functions, "Python digital signal processing module.");
 
     if (PyType_Ready(&ServerType) < 0)
         return;
     Py_INCREF(&ServerType);
-    PyModule_AddObject(m, "Server", (PyObject *)&ServerType);
+    PyModule_AddObject(m, "Server_base", (PyObject *)&ServerType);
 
     if (PyType_Ready(&StreamType) < 0)
         return;
@@ -86,7 +86,12 @@ initpyo(void)
     if (PyType_Ready(&DummyType) < 0)
         return;
     Py_INCREF(&DummyType);
-    PyModule_AddObject(m, "Dummy", (PyObject *)&DummyType);
+    PyModule_AddObject(m, "Dummy_base", (PyObject *)&DummyType);
+
+    if (PyType_Ready(&MixType) < 0)
+        return;
+    Py_INCREF(&MixType);
+    PyModule_AddObject(m, "Mix_base", (PyObject *)&MixType);
     
     if (PyType_Ready(&TableStreamType) < 0)
         return;
@@ -111,41 +116,41 @@ initpyo(void)
     if (PyType_Ready(&InputType) < 0)
         return;
     Py_INCREF(&InputType);
-    PyModule_AddObject(m, "Input", (PyObject *)&InputType);
+    PyModule_AddObject(m, "Input_base", (PyObject *)&InputType);
 
     if (PyType_Ready(&FaderType) < 0)
         return;
     Py_INCREF(&FaderType);
-    PyModule_AddObject(m, "Fader", (PyObject *)&FaderType);
+    PyModule_AddObject(m, "Fader_base", (PyObject *)&FaderType);
     
     if (PyType_Ready(&OscType) < 0)
         return;
     Py_INCREF(&OscType);
-    PyModule_AddObject(m, "Osc", (PyObject *)&OscType);
+    PyModule_AddObject(m, "Osc_base", (PyObject *)&OscType);
 
     if (PyType_Ready(&SineType) < 0)
         return;
     Py_INCREF(&SineType);
-    PyModule_AddObject(m, "Sine", (PyObject *)&SineType);
+    PyModule_AddObject(m, "Sine_base", (PyObject *)&SineType);
 
     if (PyType_Ready(&NoiseType) < 0)
         return;
     Py_INCREF(&NoiseType);
-    PyModule_AddObject(m, "Noise", (PyObject *)&NoiseType);
+    PyModule_AddObject(m, "Noise_base", (PyObject *)&NoiseType);
     
     if (PyType_Ready(&BiquadType) < 0)
         return;
     Py_INCREF(&BiquadType);
-    PyModule_AddObject(m, "Biquad", (PyObject *)&BiquadType);
+    PyModule_AddObject(m, "Biquad_base", (PyObject *)&BiquadType);
 
     if (PyType_Ready(&DistoType) < 0)
         return;
     Py_INCREF(&DistoType);
-    PyModule_AddObject(m, "Disto", (PyObject *)&DistoType);
+    PyModule_AddObject(m, "Disto_base", (PyObject *)&DistoType);
 
     if (PyType_Ready(&MidictlType) < 0)
         return;
     Py_INCREF(&MidictlType);
-    PyModule_AddObject(m, "Midictl", (PyObject *)&MidictlType);
+    PyModule_AddObject(m, "Midictl_base", (PyObject *)&MidictlType);
     
 }

@@ -19,79 +19,74 @@ typedef struct {
 
 static void
 Sine_readframes_ii(Sine *self) {
-    float w, delta, fr, ph, val;
+    float delta, fr, ph, val;
     int i;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
-    w = TWOPI * fr;
-    delta = 1. / self->sr;
+    delta = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        val = sinf(w * self->pointerPos + ph);
+        if (self->pointerPos > 1.0)
+            self->pointerPos -= 1.0;
+        val = sinf(self->pointerPos * TWOPI + ph);
         self->data[i] = val;
         self->pointerPos += delta;
     }
-    if (self->pointerPos > 1.0)
-        self->pointerPos -= 1.0;
 }
 
 static void
 Sine_readframes_ai(Sine *self) {
-    float w, delta, ph, val;
+    float delta, ph, val;
     int i;
-
-    delta = 1. / self->sr;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
     ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
 
     for (i=0; i<self->bufsize; i++) {
-        w = TWOPI * fr[i];
-        val = sinf(w * self->pointerPos + ph);
+        delta = fr[i] / self->sr;
+        if (self->pointerPos > 1.0)
+            self->pointerPos -= 1.0;
+        val = sinf(self->pointerPos * TWOPI + ph);
         self->data[i] = val;
         self->pointerPos += delta;
     }
-    if (self->pointerPos > 1.0)
-        self->pointerPos -= 1.0;
 }
 
 static void
 Sine_readframes_ia(Sine *self) {
-    float w, delta, fr, val;
+    float delta, fr, val;
     int i;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     float *ph = Stream_getData((Stream *)self->phase_stream);
-    w = TWOPI * fr;
-    delta = 1. / self->sr;
+    delta = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        val = sinf(w * self->pointerPos + (ph[i] * TWOPI));
+        if (self->pointerPos > 1.0)
+            self->pointerPos -= 1.0;
+        val = sinf(self->pointerPos * TWOPI + (ph[i] * TWOPI));
         self->data[i] = val;
         self->pointerPos += delta;
     }
-    if (self->pointerPos > 1.0)
-        self->pointerPos -= 1.0;
 }
 
 static void
 Sine_readframes_aa(Sine *self) {
-    float w, delta, val;
+    float delta, val;
     int i;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
     float *ph = Stream_getData((Stream *)self->phase_stream);
-    delta = 1. / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        w = TWOPI * fr[i];
-        val = sinf(w * self->pointerPos + (ph[i] * TWOPI));
+        delta = fr[i] / self->sr;
+        if (self->pointerPos > 1.0)
+            self->pointerPos -= 1.0;
+        val = sinf(self->pointerPos * TWOPI + (ph[i] * TWOPI));
         self->data[i] = val;
         self->pointerPos += delta;
     }
-    if (self->pointerPos > 1.0)
-        self->pointerPos -= 1.0;
 }
 
 static void Sine_postprocessing_ii(Sine *self) { POST_PROCESSING_II };
@@ -381,7 +376,7 @@ static PyNumberMethods Sine_as_number = {
 PyTypeObject SineType = {
 PyObject_HEAD_INIT(NULL)
 0,                         /*ob_size*/
-"pyo.Sine",         /*tp_name*/
+"_pyo.Sine_base",         /*tp_name*/
 sizeof(Sine),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
 (destructor)Sine_dealloc, /*tp_dealloc*/

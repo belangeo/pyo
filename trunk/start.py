@@ -10,34 +10,31 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0)
 
-example = 10
+example = 9
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
-    w = [Osc(t, random.uniform(196,204), .01).out() for i in range(100)]
-    x = [Osc(t, random.uniform(296,304), .006).out(1) for i in range(100)]
-    y = [Osc(t, random.uniform(396,404), .003).out() for i in range(100)]
-    z = [Osc(t, random.uniform(496,504), .002).out(1) for i in range(100)]
+    w = Osc(t, [random.uniform(196,204) for i in range(100)], .01).out()
+    x = Osc(t, [random.uniform(296,304) for i in range(100)], .006).out(1)
+    y = Osc(t, [random.uniform(396,404) for i in range(100)], .003).out()
+    z = Osc(t, [random.uniform(496,504) for i in range(100)], .002).out(1)
 elif example == 2:
     t = HarmTable([1-(i*.01) for i in range(100)])
-    a = Osc(t, 30, .001).play()
-    b1 = Osc(HarmTable(), .23, 500, 1000).play()
-    b2 = Osc(HarmTable(), .22, 500, 1000).play()
-    c = Osc(HarmTable(), 1, 18, 20).play()
+    a = Osc(t, 30, .001)
+    b1 = Osc(HarmTable(), [.22, .23], 500, 1000)
     f = Biquad(a, b1, 20, 0).out(0)
-    g = Biquad(a, b2, 20, 0).out(1)
 elif example == 3:
-    a = Noise(.5).play()    
-    b = Osc(HarmTable(), 9.98, 500, 1000).play()
-    c = Osc(HarmTable(), 20, 18, 20).play()
+    a = Noise(.5)  
+    b = Osc(HarmTable(), 9.98, 500, 1000)
+    c = Osc(HarmTable(), 20, 18, 20)
     f = Biquad(a, b, c, 0).out()
 elif example == 4:
     t = HarmTable()
-    a = Osc(t, 300).play()
-    b = Osc(t, 1, .48, .5).play()
+    a = Osc(t, 300)
+    b = Osc(t, 1, .48, .5)
     d = Disto(a, b).out()
 elif example == 5:
-    a = Osc(HannTable(), .5).play()
+    a = Osc(HannTable(), .5)
     b = Noise(a).out()
 elif example == 6:
     # load stereo sound into buffers and play them
@@ -47,19 +44,19 @@ elif example == 6:
         a = Osc(t, t.getRate()).out(i)
 elif example == 7:
     # on OS X, need a device that supports duplex mode (or an aggregate device!)
-    a = Input(mul=.5).play()
-    b = Osc(HarmTable(), 2, .45, .5).play()
+    a = Input(mul=.5)
+    b = Osc(HarmTable(), 2, .45, .5)
     c = Disto(a, b, .6, .1).out()
-    d = Osc(HarmTable(), 1.5, .45, .5).play()
+    d = Osc(HarmTable(), 1.5, .45, .5)
     e = Disto(a, d, .6, .1).out(1)
 elif example == 8:
     # Fader -> .play() starts fadein
     # dur=0 means wait for stop method to start fadeout
     # positive values will trigger fadeout automatically
-    f1 = Fader(fadein=.02,fadeout=1, dur=0).play()
-    a = Osc(HarmTable(), 500, f1).out()
-    f2 = Fader(fadein=1, fadeout=1, dur=5, mul=.5).play()
-    b = Osc(HarmTable(), 750, f2).out()
+    f1 = Fader(fadein=.02,fadeout=1, dur=0, mul=.3).play()
+    a = Osc(HarmTable(), [250,500], f1).out()
+    f2 = Fader(fadein=1, fadeout=1, dur=5, mul=.2).play()
+    b = Osc(HarmTable(), [375,625], f2).out(1)
 elif example == 9:
     # need a MIDI device available (and portmidi installed)
     t = HarmTable([1])
@@ -74,12 +71,15 @@ elif example == 9:
     # In two case, right argument can be another pyo object
 elif example == 10:
     # Sine phase shift
-    a = Sine(freq=1, phase=0, mul=.5, add=.5).play()
-    b = Sine(freq=1, phase=.5, mul=.5, add=.5).play()
+    a = Sine(freq=1, phase=0, mul=.5, add=.5)
+    b = Sine(freq=1, phase=.5, mul=.5, add=.5)
     t = HarmTable([1,0,.3,0,.2])
     osc1 = Osc(t, 200, a).out()
     osc2 = Osc(t, 300, b).out()
-           
+elif example == 11:
+    mod = Sine([random.uniform(.5, 3) for i in range(10)], 0, .3, .3)
+    a = Sine([random.uniform(400,1000) for i in range(10)], 0, .1)
+              
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

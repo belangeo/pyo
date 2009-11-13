@@ -213,7 +213,7 @@ static PyNumberMethods Dummy_as_number = {
 PyTypeObject DummyType = {
     PyObject_HEAD_INIT(NULL)
     0,                                              /*ob_size*/
-    "pyo.Dummy",                                   /*tp_name*/
+    "_pyo.Dummy_base",                                   /*tp_name*/
     sizeof(Dummy),                                 /*tp_basicsize*/
     0,                                              /*tp_itemsize*/
     (destructor)Dummy_dealloc,                     /*tp_dealloc*/

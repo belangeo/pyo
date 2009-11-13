@@ -409,7 +409,7 @@ static PyNumberMethods Disto_as_number = {
 PyTypeObject DistoType = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
-    "pyo.Disto",         /*tp_name*/
+    "_pyo.Disto_base",         /*tp_name*/
     sizeof(Disto),         /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)Disto_dealloc, /*tp_dealloc*/

@@ -3,13 +3,13 @@ import os
 
 source_files = ["src/pyomodule.c", "src/servermodule.c", "src/streammodule.c", "src/tablemodule.c", "src/oscmodule.c",
                 "src/sinemodule.c", "src/biquadmodule.c", "src/noisemodule.c", "src/distomodule.c", "src/dummymodule.c",
-                "src/inputmodule.c", "src/fadermodule.c", "src/midictlmodule.c"]
+                "src/inputmodule.c", "src/fadermodule.c", "src/midictlmodule.c", "src/mixmodule.c"]
 include_dirs = ['include']
 libraries = ['portaudio', 'portmidi', 'sndfile']
 
-extension = [Extension("pyo", source_files, include_dirs=include_dirs, libraries=libraries)]
+extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries)]
 
-setup(  name = "pyo",
+setup(  name = "_pyo",
         version = "0.01",
         ext_modules = extension)
          

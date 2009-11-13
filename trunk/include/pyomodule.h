@@ -1,4 +1,5 @@
 #include "Python.h"
+#include <math.h>
 
 extern PyTypeObject SineType;
 extern PyTypeObject OscType;
@@ -12,14 +13,14 @@ extern PyTypeObject DistoType;
 extern PyTypeObject MidictlType;
 
 extern PyTypeObject DummyType;
+extern PyTypeObject MixType;
 
 extern PyTypeObject HarmTableType;
 extern PyTypeObject HannTableType;
 extern PyTypeObject SndTableType;
 
 /* Constants */
-#define PI 3.14159265
-#define TWOPI 6.2831853
+#define TWOPI (2 * M_PI)
 
 /* object headers */
 #define pyo_audio_HEAD \
@@ -73,7 +74,6 @@ extern PyTypeObject SndTableType;
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
     Stream_setFunctionPtr(self->stream, _compute_next_data_frame);
-
 
 /* GETS & SETS */
 #define GET_SERVER \
@@ -196,6 +196,7 @@ extern PyTypeObject SndTableType;
 /* PLAY, OUT, STOP */
 #define PLAY \
     Stream_setStreamActive(self->stream, 1); \
+    Stream_setStreamToDac(self->stream, 0); \
     Py_INCREF(self); \
     return (PyObject *)self;
 
@@ -207,7 +208,7 @@ extern PyTypeObject SndTableType;
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &chnltmp)) \
         return PyInt_FromLong(-1); \
  \
-    Stream_setStreamChnl(self->stream, chnltmp); \
+    Stream_setStreamChnl(self->stream, chnltmp % self->nchnls); \
     Stream_setStreamToDac(self->stream, 1); \
     Stream_setStreamActive(self->stream, 1); \
     Py_INCREF(self); \
