@@ -19,6 +19,9 @@ extern PyTypeObject HarmTableType;
 extern PyTypeObject HannTableType;
 extern PyTypeObject SndTableType;
 
+extern PyTypeObject OscSendType;
+extern PyTypeObject OscReceiveType;
+
 /* Constants */
 #define TWOPI (2 * M_PI)
 

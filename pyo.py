@@ -60,7 +60,7 @@ class Server:
         return self._server.getBufferSize()
 
 ######################################################################
-### PyoObject -> base class for pyo object
+### PyoObject -> base class for pyo objects
 ######################################################################
 class PyoObject:
     def __init__(self):
@@ -234,4 +234,31 @@ class Midictl(PyoObject):
 
     def out(self, chnl=0):
         pass
-         
+
+######################################################################
+### Open Sound Control
+######################################################################                                       
+class OscSend(PyoObject):
+    def __init__(self, input, port, address, host="127.0.0.1"):    
+        input, port, address, host, lmax = _convertArgsToLists(input, port, address, host)
+        self._base_objs = [OscSend_base(_wrap(input,i), _wrap(port,i), _wrap(address,i), _wrap(host,i)) for i in range(lmax)]
+            
+    def out(self, chnl=0):
+        pass
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+        
+class OscReceive(PyoObject):
+    def __init__(self, port, address, mul=1, add=0):    
+        port, address, mul, add, lmax = _convertArgsToLists(port, address, mul, add)
+        self._base_objs = [OscReceive_base(_wrap(port,i), _wrap(address,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
+            
+    def out(self, chnl=0):
+        pass
+        
+        
+             
