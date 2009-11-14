@@ -152,5 +152,15 @@ init_pyo(void)
         return;
     Py_INCREF(&MidictlType);
     PyModule_AddObject(m, "Midictl_base", (PyObject *)&MidictlType);
+
+    if (PyType_Ready(&OscSendType) < 0)
+        return;
+    Py_INCREF(&OscSendType);
+    PyModule_AddObject(m, "OscSend_base", (PyObject *)&OscSendType);
+
+    if (PyType_Ready(&OscReceiveType) < 0)
+        return;
+    Py_INCREF(&OscReceiveType);
+    PyModule_AddObject(m, "OscReceive_base", (PyObject *)&OscReceiveType);
     
 }

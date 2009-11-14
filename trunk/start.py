@@ -8,9 +8,9 @@
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0)
+s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0)
 
-example = 9
+example = 0
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -77,9 +77,18 @@ elif example == 10:
     osc1 = Osc(t, 200, a).out()
     osc2 = Osc(t, 300, b).out()
 elif example == 11:
-    mod = Sine([random.uniform(.5, 3) for i in range(10)], 0, .3, .3)
-    a = Sine([random.uniform(400,1000) for i in range(10)], 0, .1)
-              
+    mod = Sine([random.uniform(.5, 3) for i in range(10)], 0, .1, .1)
+    a = Sine([random.uniform(400,1000) for i in range(10)], 0, .1).out()
+    a *= mod
+elif example == 12:
+    # Open Sound Control sending values
+    a = Sine([1,1.5], 0, 100, [600, 1000])
+    b = OscSend(a, 10000, ['/pit1','/pit2'])
+elif example == 13:
+    # Open Sound Control receiving values
+    a = OscReceive(port=[10001, 10002], address=['/pitch', '/amp'])
+    b = Sine(a[0], 0, a[1]).out()
+                   
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier
