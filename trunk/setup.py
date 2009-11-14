@@ -8,7 +8,7 @@ source_files = ["src/pyomodule.c", "src/servermodule.c", "src/streammodule.c", "
 include_dirs = ['include']
 libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 
-extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries)]
+extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, extra_link_args=["-mmacosx-version-min=10.4"])]
 
 setup(  name = "_pyo",
         version = "0.01",
