@@ -5,12 +5,11 @@
 #include "streammodule.h"
 #include "servermodule.h"
 #include "dummymodule.h"
-#include "lo/lo.h"
+#include "oscreceivermodule.h"
 
 typedef struct {
     pyo_audio_HEAD
-    lo_server osc_server;
-    int port;
+    PyObject *input;
     PyObject *address_path;
     float oldValue;
     float value;
@@ -44,25 +43,12 @@ _setProcMode(OscReceive *self)
     }    
 }
 
-void error(int num, const char *msg, const char *path)
-{
-    printf("liblo server error %d in path %s: %s\n", num, path, msg);
-}
-
-int OscReceive_handler(const char *path, const char *types, lo_arg **argv, int argc,
-                void *data, void *user_data)
-{
-    OscReceive *self = user_data;
-    self->oldValue = self->value;
-    self->value = argv[0]->f;
-    return 0;
-}
-
 static void
 _compute_next_data_frame(OscReceive *self)
 {
     int i;
-    lo_server_recv_noblock(self->osc_server, 0);
+    self->oldValue = self->value;
+    self->value = OscReceiver_getValue((OscReceiver *)self->input, self->address_path);
     float step = (self->value - self->oldValue) / self->bufsize;
     
     for (i=0; i<self->bufsize; i++) {
@@ -90,7 +76,6 @@ OscReceive_clear(OscReceive *self)
 static void
 OscReceive_dealloc(OscReceive* self)
 {
-    lo_server_free(self->osc_server);
     free(self->data);
     OscReceive_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -115,12 +100,16 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 OscReceive_init(OscReceive *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *pathtmp, *multmp=NULL, *addtmp=NULL;;
+    PyObject *inputtmp=NULL, *pathtmp=NULL, *multmp=NULL, *addtmp=NULL;;
 
-    static char *kwlist[] = {"port", "address", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "address", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO|OO", kwlist, &self->port, &pathtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &pathtmp, &multmp, &addtmp))
         return -1; 
+
+    Py_XDECREF(self->input);
+    Py_INCREF(inputtmp);
+    self->input = inputtmp;
 
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -141,13 +130,7 @@ OscReceive_init(OscReceive *self, PyObject *args, PyObject *kwds)
     Py_INCREF(pathtmp);    
     Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
-    
-    char buf[20];
-    sprintf(buf, "%i", self->port);
-    self->osc_server = lo_server_new(buf, error);
-    
-    lo_server_add_method(self->osc_server, PyString_AsString(self->address_path), "f", OscReceive_handler, self);
-
+        
     _setProcMode(self);
 
     _compute_next_data_frame((OscReceive *)self);
