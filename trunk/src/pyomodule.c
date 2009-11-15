@@ -162,5 +162,10 @@ init_pyo(void)
         return;
     Py_INCREF(&OscReceiveType);
     PyModule_AddObject(m, "OscReceive_base", (PyObject *)&OscReceiveType);
+
+    if (PyType_Ready(&OscReceiverType) < 0)
+        return;
+    Py_INCREF(&OscReceiverType);
+    PyModule_AddObject(m, "OscReceiver_base", (PyObject *)&OscReceiverType);
     
 }

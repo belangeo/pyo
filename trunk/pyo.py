@@ -254,8 +254,9 @@ class OscSend(PyoObject):
         
 class OscReceive(PyoObject):
     def __init__(self, port, address, mul=1, add=0):    
-        port, address, mul, add, lmax = _convertArgsToLists(port, address, mul, add)
-        self._base_objs = [OscReceive_base(_wrap(port,i), _wrap(address,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
+        address, mul, add, lmax = _convertArgsToLists(address, mul, add)
+        self._mainReceiver = OscReceiver_base(port, address)
+        self._base_objs = [OscReceive_base(self._mainReceiver, _wrap(address,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
             
     def out(self, chnl=0):
         pass

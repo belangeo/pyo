@@ -21,6 +21,7 @@ extern PyTypeObject SndTableType;
 
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
+extern PyTypeObject OscReceiverType;
 
 /* Constants */
 #define TWOPI (2 * M_PI)

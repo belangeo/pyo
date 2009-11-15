@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0)
 
-example = 1
+example = 13
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -86,7 +86,7 @@ elif example == 12:
     b = OscSend(a, 10000, ['/pit1','/pit2'])
 elif example == 13:
     # Open Sound Control receiving values
-    a = OscReceive(port=[10001, 10002], address=['/pitch', '/amp'])
+    a = OscReceive(port=10001, address=['/pitch', '/amp'])
     b = Sine(a[0], 0, a[1]).out()
                    
 class FreqMod:
