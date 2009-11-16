@@ -87,7 +87,7 @@ elif example == 12:
 elif example == 13:
     # Open Sound Control receiving values
     a = OscReceive(port=10001, address=['/pitch', '/amp'])
-    b = Sine(a[0], 0, a[1]).out()
+    b = Sine(a['/pitch'], 0, a['/amp']).out()
                    
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):

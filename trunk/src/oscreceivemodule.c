@@ -47,13 +47,13 @@ static void
 _compute_next_data_frame(OscReceive *self)
 {
     int i;
-    self->oldValue = self->value;
     self->value = OscReceiver_getValue((OscReceiver *)self->input, self->address_path);
     float step = (self->value - self->oldValue) / self->bufsize;
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = self->oldValue + step;
     }  
+    self->oldValue = self->value;
     
     Stream_setData(self->stream, self->data);    
     (*self->muladd_func_ptr)(self);
