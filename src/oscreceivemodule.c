@@ -200,7 +200,7 @@ static void OscReceive_postprocessing_ia(OscReceive *self) { POST_PROCESSING_IA 
 static void OscReceive_postprocessing_aa(OscReceive *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(OscReceive *self)
+OscReceive_setProcMode(OscReceive *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -272,6 +272,7 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscReceive_compute_next_data_frame);
+    self->mode_func_ptr = OscReceive_setProcMode;
 
     return (PyObject *)self;
 }
@@ -310,7 +311,7 @@ OscReceive_init(OscReceive *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->address_path);
     self->address_path = pathtmp;
         
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
 
     OscReceive_compute_next_data_frame((OscReceive *)self);
 

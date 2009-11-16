@@ -79,7 +79,7 @@ static void Fader_postprocessing_ia(Fader *self) { POST_PROCESSING_IA };
 static void Fader_postprocessing_aa(Fader *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Fader *self)
+Fader_setProcMode(Fader *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -151,7 +151,8 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
-
+    self->mode_func_ptr = Fader_setProcMode;
+    
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
@@ -182,7 +183,7 @@ Fader_init(Fader *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0;

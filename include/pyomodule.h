@@ -31,6 +31,7 @@ extern PyTypeObject OscReceiverType;
     PyObject_HEAD \
     PyObject *server; \
     Stream *stream; \
+    void (*mode_func_ptr)(); \
     void (*proc_func_ptr)(); \
     void (*muladd_func_ptr)(); \
     PyObject *mul; \
@@ -129,7 +130,7 @@ extern PyTypeObject OscReceiverType;
         self->modebuffer[0] = 1; \
     } \
  \
-    _setProcMode(self); \
+    (*self->mode_func_ptr)(self); \
  \
     Py_INCREF(Py_None); \
     return Py_None; 
@@ -160,7 +161,7 @@ extern PyTypeObject OscReceiverType;
         self->modebuffer[1] = 1; \
     } \
 \
-    _setProcMode(self); \
+    (*self->mode_func_ptr)(self); \
 \
     Py_INCREF(Py_None); \
     return Py_None; 
