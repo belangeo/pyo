@@ -106,7 +106,7 @@ _setProcMode(Fader *self)
 }
 
 static void
-_compute_next_data_frame(Fader *self)
+Fader_compute_next_data_frame(Fader *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
@@ -150,6 +150,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentTime = 0.0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Fader_compute_next_data_frame);
 
     Stream_setStreamActive(self->stream, 0);
     

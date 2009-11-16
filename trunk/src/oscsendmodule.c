@@ -18,7 +18,7 @@ typedef struct {
 } OscSend;
 
 static void
-_compute_next_data_frame(OscSend *self)
+OscSend_compute_next_data_frame(OscSend *self)
 {
     float *in = Stream_getData((Stream *)self->input_stream);
     float value = in[0];
@@ -63,6 +63,7 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->host = NULL;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, OscSend_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -100,7 +101,7 @@ OscSend_init(OscSend *self, PyObject *args, PyObject *kwds)
     sprintf(buf, "%i", self->port);
     self->address = lo_address_new(self->host, buf);
     
-    _compute_next_data_frame((OscSend *)self);
+    OscSend_compute_next_data_frame((OscSend *)self);
 
     Py_INCREF(self);
     return 0;

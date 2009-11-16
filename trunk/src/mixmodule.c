@@ -40,7 +40,7 @@ _setProcMode(Mix *self)
 }
 
 static void
-_compute_next_data_frame(Mix *self)
+Mix_compute_next_data_frame(Mix *self)
 {   
     int i, j;
     float old;
@@ -99,6 +99,7 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Mix_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -130,7 +131,7 @@ Mix_init(Mix *self, PyObject *args, PyObject *kwds)
 
     _setProcMode(self);
 
-    _compute_next_data_frame((Mix *)self);
+    Mix_compute_next_data_frame((Mix *)self);
 
     Py_INCREF(self);
     return 0;

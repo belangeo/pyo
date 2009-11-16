@@ -251,7 +251,7 @@ _setProcMode(Biquad *self)
 }
 
 static void
-_compute_next_data_frame(Biquad *self)
+Biquad_compute_next_data_frame(Biquad *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
@@ -306,6 +306,7 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->init = 1;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Biquad_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -348,7 +349,7 @@ Biquad_init(Biquad *self, PyObject *args, PyObject *kwds)
 
     _setProcMode(self);
 
-    _compute_next_data_frame((Biquad *)self);
+    Biquad_compute_next_data_frame((Biquad *)self);
 
     Py_INCREF(self);
     return 0;

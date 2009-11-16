@@ -155,7 +155,7 @@ _setProcMode(Disto *self)
 }
 
 static void
-_compute_next_data_frame(Disto *self)
+Disto_compute_next_data_frame(Disto *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
@@ -209,6 +209,7 @@ Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->y1 = 0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Disto_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -251,7 +252,7 @@ Disto_init(Disto *self, PyObject *args, PyObject *kwds)
 
     _setProcMode(self);
 
-    _compute_next_data_frame((Disto *)self);
+    Disto_compute_next_data_frame((Disto *)self);
 
     Py_INCREF(self);
     return 0;

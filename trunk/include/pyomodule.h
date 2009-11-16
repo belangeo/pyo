@@ -76,8 +76,7 @@ extern PyTypeObject OscReceiverType;
     self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
     self->data = (float *)realloc(self->data, (self->bufsize) * sizeof(float)); \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
-    Stream_setStreamObject(self->stream, (PyObject *)self); \
-    Stream_setFunctionPtr(self->stream, _compute_next_data_frame);
+    Stream_setStreamObject(self->stream, (PyObject *)self);
 
 /* GETS & SETS */
 #define GET_SERVER \

@@ -71,7 +71,7 @@ void translateMidi(Midictl *self, PmEvent buffer[1])
 }    
     
 static void
-_compute_next_data_frame(Midictl *self)
+Midictl_compute_next_data_frame(Midictl *self)
 {   
     PmEvent *tmp;
     int i;
@@ -125,6 +125,7 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Midictl_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -152,7 +153,7 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
 
     _setProcMode(self);
 
-    _compute_next_data_frame((Midictl *)self);
+    Midictl_compute_next_data_frame((Midictl *)self);
 
     Py_INCREF(self);
     return 0;
