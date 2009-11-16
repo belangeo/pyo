@@ -18,7 +18,7 @@ static void Input_postprocessing_ia(Input *self) { POST_PROCESSING_IA };
 static void Input_postprocessing_aa(Input *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Input *self)
+Input_setProcMode(Input *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -87,7 +87,8 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Input_compute_next_data_frame);
-
+    self->mode_func_ptr = Input_setProcMode;
+    
     return (PyObject *)self;
 }
 
@@ -112,7 +113,7 @@ Input_init(Input *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
 
     Input_compute_next_data_frame((Input *)self);
 

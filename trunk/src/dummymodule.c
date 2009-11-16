@@ -12,7 +12,7 @@ static void Dummy_postprocessing_ia(Dummy *self) { POST_PROCESSING_IA };
 static void Dummy_postprocessing_aa(Dummy *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Dummy *self)
+Dummy_setProcMode(Dummy *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -94,6 +94,7 @@ Dummy_initialize(Dummy *self)
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
+    self->mode_func_ptr = Dummy_setProcMode;
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -126,7 +127,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     Py_XDECREF(self->input_stream);
     self->input_stream = (Stream *)streamtmp;
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
     Dummy_compute_next_data_frame((Dummy *)self);
 
     Py_INCREF(Py_None);

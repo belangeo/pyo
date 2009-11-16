@@ -27,7 +27,7 @@ static void Noise_postprocessing_ia(Noise *self) { POST_PROCESSING_IA };
 static void Noise_postprocessing_aa(Noise *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Noise *self)
+Noise_setProcMode(Noise *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -89,7 +89,8 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Noise_compute_next_data_frame);
-
+    self->mode_func_ptr = Noise_setProcMode;
+    
     return (PyObject *)self;
 }
 
@@ -114,7 +115,7 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
     
     srand((unsigned)(time(0)));
     Noise_compute_next_data_frame((Noise *)self);

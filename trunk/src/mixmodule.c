@@ -18,7 +18,7 @@ static void Mix_postprocessing_ia(Mix *self) { POST_PROCESSING_IA };
 static void Mix_postprocessing_aa(Mix *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Mix *self)
+Mix_setProcMode(Mix *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -100,7 +100,8 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Mix_compute_next_data_frame);
-
+    self->mode_func_ptr = Mix_setProcMode;
+    
     return (PyObject *)self;
 }
 
@@ -129,7 +130,7 @@ Mix_init(Mix *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
 
     Mix_compute_next_data_frame((Mix *)self);
 

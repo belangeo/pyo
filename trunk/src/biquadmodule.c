@@ -198,7 +198,7 @@ static void Biquad_postprocessing_ia(Biquad *self) { POST_PROCESSING_IA };
 static void Biquad_postprocessing_aa(Biquad *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Biquad *self)
+Biquad_setProcMode(Biquad *self)
 {
     int procmode, muladdmode;
     procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
@@ -307,7 +307,7 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Biquad_compute_next_data_frame);
-
+    self->mode_func_ptr = Biquad_setProcMode;
     return (PyObject *)self;
 }
 
@@ -347,7 +347,7 @@ Biquad_init(Biquad *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
 
     Biquad_compute_next_data_frame((Biquad *)self);
 
@@ -397,7 +397,7 @@ Biquad_setFreq(Biquad *self, PyObject *arg)
 		self->modebuffer[2] = 1;
 	}
     
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
     
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -431,7 +431,7 @@ Biquad_setQ(Biquad *self, PyObject *arg)
 		self->modebuffer[3] = 1;
 	}
     
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
     
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -452,7 +452,7 @@ Biquad_setType(Biquad *self, PyObject *arg)
 		self->filtertype = PyInt_AsLong(arg);
 	}
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
     
 	Py_INCREF(Py_None);
 	return Py_None;

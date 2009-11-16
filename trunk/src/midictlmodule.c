@@ -24,7 +24,7 @@ static void Midictl_postprocessing_ia(Midictl *self) { POST_PROCESSING_IA };
 static void Midictl_postprocessing_aa(Midictl *self) { POST_PROCESSING_AA };
 
 static void
-_setProcMode(Midictl *self)
+Midictl_setProcMode(Midictl *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
@@ -126,7 +126,8 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Midictl_compute_next_data_frame);
-
+    self->mode_func_ptr = Midictl_setProcMode;
+    
     return (PyObject *)self;
 }
 
@@ -151,7 +152,7 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    _setProcMode(self);
+    (*self->mode_func_ptr)(self);
 
     Midictl_compute_next_data_frame((Midictl *)self);
 
