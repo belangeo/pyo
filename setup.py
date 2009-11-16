@@ -1,10 +1,14 @@
 from distutils.core import setup, Extension
 import os
 
-source_files = ["src/pyomodule.c", "src/servermodule.c", "src/streammodule.c", "src/tablemodule.c", "src/oscilmodule.c",
-                "src/filtremodule.c", "src/noisemodule.c", "src/distomodule.c", "src/dummymodule.c",
-                "src/inputmodule.c", "src/fadermodule.c", "src/midictlmodule.c", "src/mixmodule.c",
-                "src/oscmodule.c"]
+path = 'src/engine/'
+files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c']
+source_files = [path + f for f in files]
+path = 'src/objects/'
+files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 
+        'inputmodule.c', 'fadermodule.c', 'midictlmodule.c', 'oscmodule.c']
+source_files = source_files + [path + f for f in files]
+
 include_dirs = ['include']
 libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 
