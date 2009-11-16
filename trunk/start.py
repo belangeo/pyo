@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0)
 
-example = 2
+example = 12
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])

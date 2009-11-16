@@ -2,8 +2,8 @@ from distutils.core import setup, Extension
 import os
 
 source_files = ["src/pyomodule.c", "src/servermodule.c", "src/streammodule.c", "src/tablemodule.c", "src/oscilmodule.c",
-                "src/biquadmodule.c", "src/noisemodule.c", "src/distomodule.c", "src/dummymodule.c",
-                "src/inputmodule.c", "src/fadermodule.c", "src/midictlmodule.c", "src/mixmodule.c", "src/oscsendmodule.c",
+                "src/filtremodule.c", "src/noisemodule.c", "src/distomodule.c", "src/dummymodule.c",
+                "src/inputmodule.c", "src/fadermodule.c", "src/midictlmodule.c", "src/mixmodule.c",
                 "src/oscreceivemodule.c"]
 include_dirs = ['include']
 libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
