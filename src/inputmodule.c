@@ -40,7 +40,7 @@ _setProcMode(Input *self)
 }
 
 static void
-_compute_next_data_frame(Input *self)
+Input_compute_next_data_frame(Input *self)
 {   
     int i;
     float *tmp;
@@ -86,6 +86,7 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Input_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -113,7 +114,7 @@ Input_init(Input *self, PyObject *args, PyObject *kwds)
 
     _setProcMode(self);
 
-    _compute_next_data_frame((Input *)self);
+    Input_compute_next_data_frame((Input *)self);
 
     Py_INCREF(self);
     return 0;

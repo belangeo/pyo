@@ -133,7 +133,7 @@ _setProcMode(Sine *self)
 }
 
 static void
-_compute_next_data_frame(Sine *self)
+Sine_compute_next_data_frame(Sine *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
@@ -185,6 +185,7 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointerPos = 0.;
     
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Sine_compute_next_data_frame);
     
     return (PyObject *)self;
 }
@@ -220,7 +221,7 @@ Sine_init(Sine *self, PyObject *args, PyObject *kwds)
 
     _setProcMode(self);
     
-    _compute_next_data_frame((Sine *)self);
+    Sine_compute_next_data_frame((Sine *)self);
     
     Py_INCREF(self);
     return 0;

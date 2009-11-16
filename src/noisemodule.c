@@ -49,7 +49,7 @@ _setProcMode(Noise *self)
 }
 
 static void
-_compute_next_data_frame(Noise *self)
+Noise_compute_next_data_frame(Noise *self)
 {
     Noise_generate(self); 
     (*self->muladd_func_ptr)(self);
@@ -88,6 +88,7 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Noise_compute_next_data_frame);
 
     return (PyObject *)self;
 }
@@ -116,7 +117,7 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
     _setProcMode(self);
     
     srand((unsigned)(time(0)));
-    _compute_next_data_frame((Noise *)self);
+    Noise_compute_next_data_frame((Noise *)self);
     
     Py_INCREF(self);
     return 0;

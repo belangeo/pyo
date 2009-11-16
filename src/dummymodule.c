@@ -34,7 +34,7 @@ _setProcMode(Dummy *self)
 }
 
 static void
-_compute_next_data_frame(Dummy *self)
+Dummy_compute_next_data_frame(Dummy *self)
 {
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -93,6 +93,7 @@ Dummy_initialize(Dummy *self)
 	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -126,7 +127,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     self->input_stream = (Stream *)streamtmp;
 
     _setProcMode(self);
-    _compute_next_data_frame((Dummy *)self);
+    Dummy_compute_next_data_frame((Dummy *)self);
 
     Py_INCREF(Py_None);
     return Py_None;
