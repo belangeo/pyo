@@ -85,7 +85,7 @@ OscReceiver_init(OscReceiver *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"port", "address", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO|", kwlist, &self->port, &pathtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO", kwlist, &self->port, &pathtmp))
         return -1; 
     
     Py_INCREF(self->stream);
