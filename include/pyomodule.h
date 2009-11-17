@@ -83,7 +83,7 @@ extern PyTypeObject OscReceiverType;
 /* GETS & SETS */
 #define GET_SERVER \
     if (self->server == NULL) { \
-        PyErr_SetString(PyExc_TypeError, "No server founded!"); \
+        PyErr_SetString(PyExc_TypeError, "No server found!"); \
         return PyInt_FromLong(-1); \
     } \
     Py_INCREF(self->server); \
@@ -91,7 +91,7 @@ extern PyTypeObject OscReceiverType;
 
 #define GET_STREAM \
     if (self->stream == NULL) { \
-        PyErr_SetString(PyExc_TypeError, "No stream founded!"); \
+        PyErr_SetString(PyExc_TypeError, "No stream found!"); \
         return PyInt_FromLong(-1); \
     } \
     Py_INCREF(self->stream); \
@@ -99,7 +99,7 @@ extern PyTypeObject OscReceiverType;
 
 #define GET_TABLE_STREAM \
     if (self->tablestream == NULL) { \
-        PyErr_SetString(PyExc_TypeError, "No table stream founded!"); \
+        PyErr_SetString(PyExc_TypeError, "No table stream found!"); \
         return PyInt_FromLong(-1); \
     } \
     Py_INCREF(self->tablestream); \
