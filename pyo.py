@@ -225,13 +225,17 @@ class Disto(PyoObject):
         [obj.setSlope(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
 class Delay(PyoObject):
-    def __init__(self, input, delay=0, maxdelay=44100, mul=1, add=0):
-        input, delay, maxdelay, mul, add, lmax = _convertArgsToLists(input, delay, maxdelay, mul, add)
-        self._base_objs = [Delay_base(_wrap(input,i), _wrap(delay,i), _wrap(maxdelay,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
+    def __init__(self, input, delay=0, feedback=0, maxdelay=44100, mul=1, add=0):
+        input, delay, feedback, maxdelay, mul, add, lmax = _convertArgsToLists(input, delay, feedback, maxdelay, mul, add)
+        self._base_objs = [Delay_base(_wrap(input,i), _wrap(delay,i), _wrap(feedback,i), _wrap(maxdelay,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setDelay(self, x):
         x, lmax = _convertArgsToLists(x)
         [obj.setDelay(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        x, lmax = _convertArgsToLists(x)
+        [obj.setFeedback(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
 
 ######################################################################

@@ -12,35 +12,188 @@ typedef struct {
     Stream *input_stream;
     PyObject *delay;
     Stream *delay_stream;
-    int maxdelay;
+    PyObject *feedback;
+    Stream *feedback_stream;
+    float maxdelay;
+    long size;
     int in_count;
     int out_count;
-    int modebuffer[3];
+    int modebuffer[4];
     float *buffer; // samples memory
 } Delay;
 
 static void
-Delay_process_i(Delay *self) {
-    float val;
+Delay_process_ii(Delay *self) {
+    float val, x, x1, xind, frac;
     int i, ind;
 
     float del = PyFloat_AS_DOUBLE(self->delay);
+    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    
+    if (del < 0.)
+        del = 0.;
+    else if (del > self->maxdelay)
+        del = self->maxdelay;
+    float sampdel = del * self->sr;
+
+    if (feed < 0)
+        feed = 0;
+    else if (feed > 1)
+        feed = 1;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->out_count += 1;
-        if (self->out_count > self->maxdelay)
-            self->out_count = 0;
-        if (self->out_count < 0)
-            val = 0;
-        else
-            val = self->buffer[self->out_count];
+        xind = self->out_count + (self->size - sampdel);
+        if (xind < 0)
+            xind = self->size - xind;
+        else if (xind >= self->size)
+            xind -= self->size;
+        ind = (int)xind;
+        frac = xind - ind;
+        x = self->buffer[ind];
+        x1 = self->buffer[ind+1];
+        val = x + (x1 - x) * frac;
         self->data[i] = val;
+        self->out_count++;
+        if (self->out_count >= self->size)
+            self->out_count -= self->size;
+        
+        self->buffer[self->in_count++] = in[i] + (val * feed);
+        if (self->in_count >= self->size)
+            self->in_count -= self->size;
     }
 }
 
 static void
-Delay_process_a(Delay *self) {
+Delay_process_ai(Delay *self) {
+    float val, x, x1, xind, frac, sampdel, del;
+    int i, ind;
+
+    float *delobj = Stream_getData((Stream *)self->delay_stream);    
+    float feed = PyFloat_AS_DOUBLE(self->feedback);
+
+    if (feed < 0)
+        feed = 0;
+    else if (feed > 1)
+        feed = 1;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        del = delobj[i];
+        if (del < 0.)
+            del = 0.;
+        else if (del > self->maxdelay)
+            del = self->maxdelay;
+        sampdel = del * self->sr;
+        xind = self->out_count + (self->size - sampdel);
+        if (xind < 0)
+            xind = self->size - xind;
+        else if (xind >= self->size)
+            xind -= self->size;
+        ind = (int)xind;
+        frac = xind - ind;
+        x = self->buffer[ind];
+        x1 = self->buffer[ind+1];
+        val = x + (x1 - x) * frac;
+        self->data[i] = val;
+        self->out_count++;
+        if (self->out_count >= self->size)
+            self->out_count -= self->size;
+        
+        self->buffer[self->in_count++] = in[i]  + (val * feed);
+        if (self->in_count >= self->size)
+            self->in_count -= self->size;
+    }
+}
+
+static void
+Delay_process_ia(Delay *self) {
+    float val, x, x1, xind, frac, feed;
+    int i, ind;
+    
     float del = PyFloat_AS_DOUBLE(self->delay);
+    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    
+    if (del < 0.)
+        del = 0.;
+    else if (del > self->maxdelay)
+        del = self->maxdelay;
+    float sampdel = del * self->sr;
+       
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        xind = self->out_count + (self->size - sampdel);
+        if (xind < 0)
+            xind = self->size - xind;
+        else if (xind >= self->size)
+            xind -= self->size;
+        ind = (int)xind;
+        frac = xind - ind;
+        x = self->buffer[ind];
+        x1 = self->buffer[ind+1];
+        val = x + (x1 - x) * frac;
+        self->data[i] = val;
+        self->out_count++;
+        if (self->out_count >= self->size)
+            self->out_count -= self->size;
+
+        feed = fdb[i];
+        if (feed < 0)
+            feed = 0;
+        else if (feed > 1)
+            feed = 1;
+        
+        self->buffer[self->in_count++] = in[i] + (val * feed);
+        if (self->in_count >= self->size)
+            self->in_count -= self->size;
+    }
+}
+
+static void
+Delay_process_aa(Delay *self) {
+    float val, x, x1, xind, frac, sampdel, feed, del;
+    int i, ind;
+    
+    float *delobj = Stream_getData((Stream *)self->delay_stream);    
+    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+  
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        del = delobj[i];
+        if (del < 0.)
+            del = 0.;
+        else if (del > self->maxdelay)
+            del = self->maxdelay;
+        sampdel = del * self->sr;
+        xind = self->out_count + (self->size - sampdel);
+        if (xind < 0)
+            xind = self->size - xind;
+        else if (xind >= self->size)
+            xind -= self->size;
+        ind = (int)xind;
+        frac = xind - ind;
+        x = self->buffer[ind];
+        x1 = self->buffer[ind+1];
+        val = x + (x1 - x) * frac;
+        self->data[i] = val;
+        self->out_count++;
+        if (self->out_count >= self->size)
+            self->out_count -= self->size;
+        
+        feed = fdb[i];
+        if (feed < 0)
+            feed = 0;
+        else if (feed > 1)
+            feed = 1;
+        
+        self->buffer[self->in_count++] = in[i] + (val * feed);
+        if (self->in_count >= self->size)
+            self->in_count -= self->size;
+    }
 }
 
 static void Delay_postprocessing_ii(Delay *self) { POST_PROCESSING_II };
@@ -52,15 +205,21 @@ static void
 Delay_setProcMode(Delay *self)
 {
     int procmode, muladdmode;
-    procmode = self->modebuffer[1];
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
         case 0:    
-            self->proc_func_ptr = Delay_process_i;
+            self->proc_func_ptr = Delay_process_ii;
             break;
         case 1:    
-            self->proc_func_ptr = Delay_process_a;
+            self->proc_func_ptr = Delay_process_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = Delay_process_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Delay_process_aa;
             break;
     } 
 	switch (muladdmode) {
@@ -82,15 +241,6 @@ Delay_setProcMode(Delay *self)
 static void
 Delay_compute_next_data_frame(Delay *self)
 {
-    int i, ind;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    for (i=0; i<self->bufsize; i++) {
-        self->in_count += 1;
-        if (self->in_count >= self->maxdelay)
-            self->in_count = 0;
-        self->buffer[self->in_count] = in[i];
-    }
-
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
@@ -103,6 +253,8 @@ Delay_traverse(Delay *self, visitproc visit, void *arg)
     Py_VISIT(self->input);
     Py_VISIT(self->delay);    
     Py_VISIT(self->delay_stream);    
+    Py_VISIT(self->feedback);    
+    Py_VISIT(self->feedback_stream);    
     return 0;
 }
 
@@ -113,6 +265,8 @@ Delay_clear(Delay *self)
     Py_CLEAR(self->input);
     Py_CLEAR(self->delay);    
     Py_CLEAR(self->delay_stream);    
+    Py_CLEAR(self->feedback);    
+    Py_CLEAR(self->feedback_stream);    
     return 0;
 }
 
@@ -131,13 +285,15 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Delay *self;
     self = (Delay *)type->tp_alloc(type, 0);
 
-    self->delay = PyInt_FromLong(0);
-    self->maxdelay = 44100;
-    self->in_count = -1;
-    self->out_count = -1;
+    self->delay = PyFloat_FromDouble(0);
+    self->feedback = PyFloat_FromDouble(0);
+    self->maxdelay = 1;
+    self->in_count = 0;
+    self->out_count = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Delay_compute_next_data_frame);
@@ -149,12 +305,12 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Delay_init(Delay *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
     int i;
     
-    static char *kwlist[] = {"input", "delay", "maxdelay", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "delay", "feedback", "maxdelay", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiOO", kwlist, &inputtmp, &delaytmp, &self->maxdelay, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxdelay, &multmp, &addtmp))
         return -1; 
 
     Py_XDECREF(self->input);
@@ -164,11 +320,14 @@ Delay_init(Delay *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input_stream);
     self->input_stream = (Stream *)input_streamtmp;
 
-    printf("input stream loaded\n");
     if (delaytmp) {
         PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
     }
- 
+
+    if (feedbacktmp) {
+        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+    }
+    
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -180,8 +339,10 @@ Delay_init(Delay *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer = (float *)realloc(self->buffer, self->maxdelay * sizeof(float));
-    for (i=0; i<self->maxdelay; i++) {
+    self->size = self->maxdelay * self->sr + 0.5;
+
+    self->buffer = (float *)realloc(self->buffer, (self->size+1) * sizeof(float));
+    for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
     }    
 
@@ -218,14 +379,13 @@ Delay_setDelay(Delay *self, PyObject *arg)
 	}
     
 	int isNumber = PyNumber_Check(arg);
-	
+
 	tmp = arg;
 	Py_INCREF(tmp);
 	Py_DECREF(self->delay);
 	if (isNumber == 1) {
 		self->delay = PyNumber_Float(tmp);
-        float del = PyFloat_AS_DOUBLE(self->delay);
-        self->modebuffer[1] = 0;
+        self->modebuffer[2] = 0;
 	}
 	else {
 		self->delay = tmp;
@@ -233,7 +393,41 @@ Delay_setDelay(Delay *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->delay_stream);
         self->delay_stream = (Stream *)streamtmp;
-		self->modebuffer[1] = 1;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Delay_setFeedback(Delay *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->feedback);
+	if (isNumber == 1) {
+		self->feedback = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->feedback = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->feedback_stream);
+        self->feedback_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
 	}
     
     (*self->mode_func_ptr)(self);
@@ -246,20 +440,21 @@ static PyMemberDef Delay_members[] = {
     {"server", T_OBJECT_EX, offsetof(Delay, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Delay, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Delay, input), 0, "Input sound object."},
-    {"delay", T_OBJECT_EX, offsetof(Delay, delay), 0, "Delay time in samples."},
+    {"delay", T_OBJECT_EX, offsetof(Delay, delay), 0, "Delay time in seconds."},
+    {"feedback", T_OBJECT_EX, offsetof(Delay, feedback), 0, "Feedback value."},
     {"mul", T_OBJECT_EX, offsetof(Delay, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(Delay, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef Delay_methods[] = {
-    //{"getInput", (PyCFunction)Delay_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
     {"play", (PyCFunction)Delay_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Delay_stop, METH_NOARGS, "Stops computing."},
-	{"setDelay", (PyCFunction)Delay_setDelay, METH_O, "Sets delay time in samples."},
+	{"setDelay", (PyCFunction)Delay_setDelay, METH_O, "Sets delay time in seconds."},
+    {"setFeedback", (PyCFunction)Delay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 	{"setMul", (PyCFunction)Delay_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Delay_setAdd, METH_O, "Sets oscillator add factor."},
     {NULL}  /* Sentinel */
