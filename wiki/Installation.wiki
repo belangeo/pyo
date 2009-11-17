@@ -11,6 +11,12 @@ The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [
 
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
 
+Under 10.6 if compilation fails, you might want to try installing csound 5.10 instead of 5.11.  Also, setting your Python installation to 32 bits may help, to do so :
+
+{{{
+defaults write com.apple.versioner.python Prefer-32-Bit -bool yes
+}}}
+
 =Compilation=
 Once you have all the required dependencies, you can download pyo's source checking out the source code here:
 {{{
