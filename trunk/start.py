@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0)
 
-example = 12
+example = 13
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -88,7 +88,12 @@ elif example == 13:
     # Open Sound Control receiving values
     a = OscReceive(port=10001, address=['/pitch', '/amp'])
     b = Sine(a['/pitch'], 0, a['/amp']).out()
-                   
+elif example == 14:  
+    t = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_m.aif', 0)
+    a = Osc(t, t.getRate())
+    b = Osc(t, t.getRate()).out()
+    Delay(a, 44100).out()
+                 
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

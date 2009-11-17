@@ -9,6 +9,7 @@ extern PyTypeObject InputType;
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
 extern PyTypeObject DistoType;
+extern PyTypeObject DelayType;
 
 extern PyTypeObject MidictlType;
 
