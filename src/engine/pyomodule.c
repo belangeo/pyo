@@ -148,6 +148,11 @@ init_pyo(void)
     Py_INCREF(&DistoType);
     PyModule_AddObject(m, "Disto_base", (PyObject *)&DistoType);
 
+    if (PyType_Ready(&DelayType) < 0)
+        return;
+    Py_INCREF(&DelayType);
+    PyModule_AddObject(m, "Delay_base", (PyObject *)&DelayType);
+    
     if (PyType_Ready(&MidictlType) < 0)
         return;
     Py_INCREF(&MidictlType);
