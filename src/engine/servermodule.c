@@ -254,7 +254,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
             }    
         }    
         else {
-            printf("No midi device founded!\nPortmidi closed\n");
+            printf("No midi device found!\nPortmidi closed\n");
             self->withPortMidi = 0;
             Pm_Terminate();
         }    
