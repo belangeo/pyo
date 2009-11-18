@@ -8,7 +8,8 @@ from _pyo import *
 def _convertArgsToLists(*args):
     first = True
     for i in args:
-        if isinstance(i, PyoObject): pass   
+        if isinstance(i, PyoObject): pass  
+        elif isinstance(i, PyoTableObject): pass 
         elif type(i) != ListType: i = [i]
             
         if first: tup = (i,)
@@ -60,9 +61,9 @@ class Server:
         return self._server.getBufferSize()
 
 ######################################################################
-### PyoObject -> base class for pyo objects
+### PyoObject -> base class for pyo sound objects
 ######################################################################
-class PyoObject:
+class PyoObject(object):
     def __init__(self):
         pass
 
@@ -111,8 +112,8 @@ class PyoObject:
     def stop(self):
         [obj.stop() for obj in self._base_objs]
 
-    def mix(self):
-        return Mix(self)
+    def mix(self, voices=1):
+        return Mix(self, voices)
         
     def setMul(self, x):
         x, lmax = _convertArgsToLists(x)
@@ -122,17 +123,116 @@ class PyoObject:
         x, lmax = _convertArgsToLists(x)
         [obj.setAdd(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    @property
+    def mul(self):
+        pass
+
+    @property
+    def add(self):
+        pass
+        
+    @mul.setter
+    def mul(self, x):
+        self.setMul(x)
+        
+    @add.setter
+    def add(self, x):
+        self.setAdd(x)
+            
+######################################################################
+### PyoTableObject -> base class for pyo table objects
+######################################################################
+class PyoTableObject(object):
+    def __init__(self):
+        pass
+
+    def __getitem__(self, i):
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+ 
+    def __len__(self):
+        return len(self._base_objs)
+
+    def getBaseObjects(self):
+        return self._base_objs
+
 ######################################################################
 ### Internal classes -> Used by pyo
 ######################################################################
 class Mix(PyoObject):
-    def __init__(self, input, mul=1, add=0):
-        self._base_objs = [Mix_base(input.getBaseObjects())]
+    def __init__(self, input, voices=1, mul=1, add=0):
+        input_objs = input.getBaseObjects()
+        if voices < 1: voices = 1
+        elif voices > len(input_objs): voices = len(input_objs)
+        sub_lists = [[]] * voices
+        [sub_lists[i % voices].append(obj) for i, obj in enumerate(input_objs)]
+        self._base_objs = [Mix_base(l) for l in sub_lists]
         
 class Dummy(PyoObject):
     def __init__(self, objs_list):
         self._base_objs = objs_list
 
+######################################################################
+### Tables
+######################################################################                                       
+class HarmTable(PyoTableObject):
+    def __init__(self, list=[1.], size=8192):
+        self._size = size
+        self._base_objs = [HarmTable_base(list, size)]
+        
+    def setSize(self, size):
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def getSize(self):
+        return self._size
+        
+    def replace(self, list):        
+        [obj.replace(list) for obj in self._base_objs]
+
+    @property
+    def size(self):
+        pass
+
+    @size.setter
+    def size(self, x):
+        self.setSize(x)
+        
+class HannTable(PyoTableObject):
+    def __init__(self, size=8192):
+        self._size = size
+        self._base_objs = [HannTable_base(size)]
+
+    def setSize(self, size):
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def getSize(self):
+        return self._size
+
+    @property
+    def size(self):
+        pass
+
+    @size.setter
+    def size(self, x):
+        self.setSize(x)
+
+class SndTable(PyoTableObject):
+    def __init__(self, path, chnl=None):
+        self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path)
+        if chnl == None:
+            self._base_objs = [SndTable_base(path, i) for i in range(self._snd_chnls)]
+        else:
+            self._base_objs = [SndTable_base(path, chnl)]
+                
+    def getSize(self):
+        return self._snd_size
+        
+    def getRate(self):
+        return self._base_objs[0].getRate()
+
+            
 ######################################################################
 ### Sources
 ######################################################################                                       
@@ -148,6 +248,22 @@ class Sine(PyoObject):
     def setPhase(self, x):
         x, lmax = _convertArgsToLists(x)
         [obj.setPhase(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def freq(self):
+        pass
+
+    @property
+    def phase(self):
+        pass
+
+    @freq.setter
+    def freq(self, x):
+        self.setFreq(x)
+
+    @phase.setter
+    def phase(self, x):
+        self.setPhase(x)
  
 class Osc(PyoObject):
     def __init__(self, table, freq=1000, mul=1, add=0):
@@ -157,6 +273,14 @@ class Osc(PyoObject):
     def setFreq(self, x):
         x, lmax = _convertArgsToLists(x)
         [obj.setFreq(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def freq(self):
+        pass
+
+    @freq.setter
+    def freq(self, x):
+        self.setFreq(x)
 
 class Input(PyoObject):
     def __init__(self, chnl, mul, add):                
@@ -191,6 +315,30 @@ class Fader(PyoObject):
         x, lmax = _convertArgsToLists(x)
         [obj.setDur(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    @property
+    def fadein(self):
+        pass
+
+    @property
+    def fadeout(self):
+        pass
+
+    @property
+    def dur(self):
+        pass
+
+    @fadein.setter
+    def fadein(self, x):
+        self.setFadein(x)
+
+    @fadeout.setter
+    def fadeout(self, x):
+        self.setFadeout(x)
+
+    @dur.setter
+    def dur(self, x):
+        self.setDur(x)
+
 ######################################################################
 ### Effects
 ######################################################################                                       
@@ -211,6 +359,30 @@ class Biquad(PyoObject):
         x, lmax = _convertArgsToLists(x)
         [obj.setType(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    @property
+    def freq(self):
+        pass
+
+    @property
+    def q(self):
+        pass
+
+    @property
+    def type(self):
+        pass
+
+    @freq.setter
+    def freq(self, x):
+        self.setFreq(x)
+
+    @q.setter
+    def q(self, x):
+        self.setQ(x)
+
+    @type.setter
+    def type(self, x):
+        self.setType(x)
+
 class Disto(PyoObject):
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
         input, drive, slope, mul, add, lmax = _convertArgsToLists(input, drive, slope, mul, add)
@@ -223,6 +395,22 @@ class Disto(PyoObject):
     def setSlope(self, x):
         x, lmax = _convertArgsToLists(x)
         [obj.setSlope(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def drive(self):
+        pass
+
+    @property
+    def slope(self):
+        pass
+
+    @drive.setter
+    def drive(self, x):
+        self.setDrive(x)
+
+    @slope.setter
+    def slope(self, x):
+        self.setSlope(x)
 
 class Delay(PyoObject):
     def __init__(self, input, delay=0, feedback=0, maxdelay=44100, mul=1, add=0):
@@ -237,6 +425,21 @@ class Delay(PyoObject):
         x, lmax = _convertArgsToLists(x)
         [obj.setFeedback(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    @property
+    def delay(self):
+        pass
+
+    @property
+    def feedback(self):
+        pass
+
+    @delay.setter
+    def delay(self, x):
+        self.setDelay(x)
+
+    @feedback.setter
+    def feedback(self, x):
+        self.setFeedback(x)
 
 ######################################################################
 ### MIDI
