@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 0
+example = 14
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -88,9 +88,11 @@ elif example == 13:
     a = OscReceive(port=10001, address=['/pitch', '/amp'])
     b = Sine(a['/pitch'], 0, a['/amp']).out()
 elif example == 14:  
-    t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff', 0)
+    t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
     a = Osc(t, t.getRate())
-    d = Delay(a, delay=[.00125, .0025, .005, .0075], feedback=.999, maxdelay=2, mul=.2)
+    si = Sine(.1, 0, .25, .5)
+    fad = Fader(20, 20, mul=.9).play()
+    d = Delay(a, delay=si, feedback=fad, maxdelay=1, mul=.1).out()
     f = Biquad(d.mix(2), 2500, 2).out()
                  
 class FreqMod:

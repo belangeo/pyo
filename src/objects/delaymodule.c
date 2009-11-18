@@ -17,7 +17,6 @@ typedef struct {
     float maxdelay;
     long size;
     int in_count;
-    int out_count;
     int modebuffer[4];
     float *buffer; // samples memory
 } Delay;
@@ -44,24 +43,19 @@ Delay_process_ii(Delay *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        xind = self->out_count + (self->size - sampdel);
+        xind = self->in_count - sampdel;
         if (xind < 0)
-            xind = self->size - xind;
-        else if (xind >= self->size)
-            xind -= self->size;
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
         x1 = self->buffer[ind+1];
         val = x + (x1 - x) * frac;
         self->data[i] = val;
-        self->out_count++;
-        if (self->out_count >= self->size)
-            self->out_count -= self->size;
         
         self->buffer[self->in_count++] = in[i] + (val * feed);
-        if (self->in_count >= self->size)
-            self->in_count -= self->size;
+        if (self->in_count == self->size)
+            self->in_count = 0;
     }
 }
 
@@ -87,24 +81,19 @@ Delay_process_ai(Delay *self) {
         else if (del > self->maxdelay)
             del = self->maxdelay;
         sampdel = del * self->sr;
-        xind = self->out_count + (self->size - sampdel);
+        xind = self->in_count - sampdel;
         if (xind < 0)
-            xind = self->size - xind;
-        else if (xind >= self->size)
-            xind -= self->size;
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
         x1 = self->buffer[ind+1];
         val = x + (x1 - x) * frac;
         self->data[i] = val;
-        self->out_count++;
-        if (self->out_count >= self->size)
-            self->out_count -= self->size;
         
         self->buffer[self->in_count++] = in[i]  + (val * feed);
-        if (self->in_count >= self->size)
-            self->in_count -= self->size;
+        if (self->in_count == self->size)
+            self->in_count = 0;
     }
 }
 
@@ -125,20 +114,15 @@ Delay_process_ia(Delay *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        xind = self->out_count + (self->size - sampdel);
+        xind = self->in_count - sampdel;
         if (xind < 0)
-            xind = self->size - xind;
-        else if (xind >= self->size)
-            xind -= self->size;
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
         x1 = self->buffer[ind+1];
         val = x + (x1 - x) * frac;
         self->data[i] = val;
-        self->out_count++;
-        if (self->out_count >= self->size)
-            self->out_count -= self->size;
 
         feed = fdb[i];
         if (feed < 0)
@@ -147,8 +131,8 @@ Delay_process_ia(Delay *self) {
             feed = 1;
         
         self->buffer[self->in_count++] = in[i] + (val * feed);
-        if (self->in_count >= self->size)
-            self->in_count -= self->size;
+        if (self->in_count == self->size)
+            self->in_count = 0;
     }
 }
 
@@ -169,20 +153,15 @@ Delay_process_aa(Delay *self) {
         else if (del > self->maxdelay)
             del = self->maxdelay;
         sampdel = del * self->sr;
-        xind = self->out_count + (self->size - sampdel);
+        xind = self->in_count - sampdel;
         if (xind < 0)
-            xind = self->size - xind;
-        else if (xind >= self->size)
-            xind -= self->size;
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
         x1 = self->buffer[ind+1];
         val = x + (x1 - x) * frac;
         self->data[i] = val;
-        self->out_count++;
-        if (self->out_count >= self->size)
-            self->out_count -= self->size;
         
         feed = fdb[i];
         if (feed < 0)
@@ -191,8 +170,8 @@ Delay_process_aa(Delay *self) {
             feed = 1;
         
         self->buffer[self->in_count++] = in[i] + (val * feed);
-        if (self->in_count >= self->size)
-            self->in_count -= self->size;
+        if (self->in_count == self->size)
+            self->in_count = 0;
     }
 }
 
@@ -289,7 +268,6 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->feedback = PyFloat_FromDouble(0);
     self->maxdelay = 1;
     self->in_count = 0;
-    self->out_count = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
