@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 14
+example = 16
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -94,7 +94,18 @@ elif example == 14:
     fad = Fader(20, 20, mul=.9).play()
     d = Delay(a, delay=si, feedback=fad, maxdelay=1, mul=.1).out()
     f = Biquad(d.mix(2), 2500, 2).out()
-                 
+elif example == 15:
+    a = Noise(.5)
+    t = HarmTable([1-(i*.01) for i in range(100)])
+    b = Osc(t, 30, .01) 
+    f = Biquad(a, 1000, 10).out()
+elif example == 16:
+    t1 = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_s.aif')
+    t2 = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
+    a = Osc(t1, t1.getRate(), .7)                 
+    b = Osc(t2, t2.getRate(), .7)
+    d = Delay(a, .25, .8, maxdelay=1).out()
+    
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier
