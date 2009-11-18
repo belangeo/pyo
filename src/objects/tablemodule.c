@@ -53,7 +53,7 @@ TableStream_setSize(TableStream *self, int size)
 PyTypeObject TableStreamType = {
 PyObject_HEAD_INIT(NULL)
 0, /*ob_size*/
-"pyo.TableStream", /*tp_name*/
+"_pyo.TableStream", /*tp_name*/
 sizeof(TableStream), /*tp_basicsize*/
 0, /*tp_itemsize*/
 (destructor)TableStream_dealloc, /*tp_dealloc*/
@@ -268,7 +268,7 @@ static PyMethodDef HarmTable_methods[] = {
 PyTypeObject HarmTableType = {
 PyObject_HEAD_INIT(NULL)
 0,                         /*ob_size*/
-"pyo.HarmTable",         /*tp_name*/
+"_pyo.HarmTable_base",         /*tp_name*/
 sizeof(HarmTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
 (destructor)HarmTable_dealloc, /*tp_dealloc*/
@@ -438,7 +438,7 @@ static PyMethodDef HannTable_methods[] = {
 PyTypeObject HannTableType = {
 PyObject_HEAD_INIT(NULL)
 0,                         /*ob_size*/
-"pyo.HannTable",         /*tp_name*/
+"_pyo.HannTable_base",         /*tp_name*/
 sizeof(HannTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
 (destructor)HannTable_dealloc, /*tp_dealloc*/
@@ -615,7 +615,7 @@ static PyMethodDef SndTable_methods[] = {
 PyTypeObject SndTableType = {
 PyObject_HEAD_INIT(NULL)
 0,                         /*ob_size*/
-"pyo.SndTable",         /*tp_name*/
+"_pyo.SndTable_base",         /*tp_name*/
 sizeof(SndTable),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
 (destructor)SndTable_dealloc, /*tp_dealloc*/

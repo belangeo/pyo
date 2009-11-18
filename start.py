@@ -8,9 +8,9 @@
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0)
+s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 14
+example = 0
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -39,9 +39,8 @@ elif example == 5:
 elif example == 6:
     # load stereo sound into buffers and play them
     # set the Server to use 2 channels
-    for i in range(2):
-        t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff', i)
-        a = Osc(t, t.getRate()).out(i)
+    t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
+    a = Osc(t, t.getRate()).out()
 elif example == 7:
     # on OS X, need a device that supports duplex mode (or an aggregate device!)
     a = Input(mul=.5)
@@ -91,10 +90,8 @@ elif example == 13:
 elif example == 14:  
     t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff', 0)
     a = Osc(t, t.getRate())
-    b = Osc(t, t.getRate()).out()
-    cdel = Sine(.2, 0, .1, .5)
-    cfeed = Fader(fadein=10, fadeout=10, mul=.9).play()
-    d = Delay(a, delay=.005, feedback=cfeed, maxdelay=2, mul=.3).out(1)
+    d = Delay(a, delay=[.00125, .0025, .005, .0075], feedback=.999, maxdelay=2, mul=.2)
+    f = Biquad(d.mix(2), 2500, 2).out()
                  
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):

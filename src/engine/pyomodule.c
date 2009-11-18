@@ -8,6 +8,7 @@
 
 #include <Python.h>
 #include "portaudio.h"
+#include "sndfile.h"
 #include "pyomodule.h"
 #include "servermodule.h"
 #include "streammodule.h"
@@ -60,9 +61,36 @@ portaudio_list_devices(){
     return Py_None;
 }
 
+/* Libsndfile stuff */
+static PyObject *
+sndinfo(PyObject *self, PyObject *args) {
+    
+    SNDFILE *sf;
+    SF_INFO info;
+    char *path;
+
+    if (! PyArg_ParseTuple(args, "s", &path))
+        return NULL;
+
+    /* Open the sound file. */
+    info.format = 0;
+    sf = sf_open(path, SFM_READ, &info);
+    if (sf == NULL)
+    {
+        printf("Failed to open the file.\n");
+    }
+
+    PyObject *sndinfo = PyTuple_Pack(3, PyInt_FromLong(info.frames), PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels));
+    sf_close(sf);
+    return sndinfo;
+}    
+
+    
+
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices found by Portaudio."},
+{"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, sampling rate and number of channels of the given sound file."},
 {NULL, NULL, 0, NULL},
 };
 
@@ -101,17 +129,17 @@ init_pyo(void)
     if (PyType_Ready(&HarmTableType) < 0)
         return;
     Py_INCREF(&HarmTableType);
-    PyModule_AddObject(m, "HarmTable", (PyObject *)&HarmTableType);
+    PyModule_AddObject(m, "HarmTable_base", (PyObject *)&HarmTableType);
 
     if (PyType_Ready(&HannTableType) < 0)
         return;
     Py_INCREF(&HannTableType);
-    PyModule_AddObject(m, "HannTable", (PyObject *)&HannTableType);
+    PyModule_AddObject(m, "HannTable_base", (PyObject *)&HannTableType);
     
     if (PyType_Ready(&SndTableType) < 0)
         return;
     Py_INCREF(&SndTableType);
-    PyModule_AddObject(m, "SndTable", (PyObject *)&SndTableType);
+    PyModule_AddObject(m, "SndTable_base", (PyObject *)&SndTableType);
 
     if (PyType_Ready(&InputType) < 0)
         return;
