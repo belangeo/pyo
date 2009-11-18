@@ -15,6 +15,7 @@ extern PyTypeObject MidictlType;
 
 extern PyTypeObject DummyType;
 extern PyTypeObject MixType;
+extern PyTypeObject InputFaderType;
 
 extern PyTypeObject HarmTableType;
 extern PyTypeObject HannTableType;

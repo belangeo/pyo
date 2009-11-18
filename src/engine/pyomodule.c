@@ -120,6 +120,11 @@ init_pyo(void)
         return;
     Py_INCREF(&MixType);
     PyModule_AddObject(m, "Mix_base", (PyObject *)&MixType);
+
+    if (PyType_Ready(&InputFaderType) < 0)
+        return;
+    Py_INCREF(&InputFaderType);
+    PyModule_AddObject(m, "InputFader_base", (PyObject *)&InputFaderType);
     
     if (PyType_Ready(&TableStreamType) < 0)
         return;
