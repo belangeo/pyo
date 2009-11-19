@@ -20,11 +20,22 @@ typedef struct {
 
 static void InputFader_setProcMode(InputFader *self) {};
 
-static void InputFader_process_first(InputFader *self) 
+static void InputFader_process_only_first(InputFader *self) 
 {
     int i;
     float amp;
     float *in = Stream_getData((Stream *)self->input1_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = in[i];
+    }
+}
+
+static void InputFader_process_only_second(InputFader *self) 
+{
+    int i;
+    float amp;
+    float *in = Stream_getData((Stream *)self->input2_stream);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
@@ -49,6 +60,9 @@ static void InputFader_process_one(InputFader *self)
 
         self->data[i] = in1[i] * val + in2[i] * (1 - val);
     }
+    if (val == 1.)
+        self->proc_func_ptr = InputFader_process_only_first;
+
 }
 
 static void InputFader_process_two(InputFader *self) 
@@ -69,6 +83,8 @@ static void InputFader_process_two(InputFader *self)
         
         self->data[i] = in2[i] * val + in1[i] * (1 - val);
     }
+    if (val == 1.)
+        self->proc_func_ptr = InputFader_process_only_second;
 }
 
 static void
@@ -124,7 +140,7 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     Stream_setFunctionPtr(self->stream, InputFader_compute_next_data_frame);
     self->mode_func_ptr = InputFader_setProcMode;
-    self->proc_func_ptr = InputFader_process_first;
+    self->proc_func_ptr = InputFader_process_only_first;
     
     return (PyObject *)self;
 }
