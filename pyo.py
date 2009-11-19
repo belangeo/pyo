@@ -255,10 +255,10 @@ class NewTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
 class TableRec(PyoObject):
-    def __init__(self, input, table):
+    def __init__(self, input, table, fadetime=0):
         self._in_fader = InputFader(input)
-        in_fader, table, lmax = _convertArgsToLists(self._in_fader, table)
-        self._base_objs = [TableRec_base(_wrap(in_fader,i), _wrap(table,i)) for i in range(len(table))]
+        in_fader, table, fadetime, lmax = _convertArgsToLists(self._in_fader, table, fadetime)
+        self._base_objs = [TableRec_base(_wrap(in_fader,i), _wrap(table,i), _wrap(fadetime,i)) for i in range(len(table))]
 
     def out(self, chnl=0):
         pass

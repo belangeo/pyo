@@ -822,18 +822,22 @@ NewTable_members,             /* tp_members */
 NewTable_new,                 /* tp_new */
 };
 
+/* TableRec object definition */
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
     NewTable *table;
     int pointer;
+    float fadetime;
+    float fadeInSample;
 } TableRec;
 
 static void
 TableRec_compute_next_data_frame(TableRec *self)
 {
-    int i, num;
+    int i, num, upBound;
+    float sclfade, val;
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     
     if ((size - self->pointer) >= self->bufsize)
@@ -841,18 +845,27 @@ TableRec_compute_next_data_frame(TableRec *self)
     else
         num = size - self->pointer;
     
-    if (self->pointer < size) {    
+    if (self->pointer < size) {   
+        sclfade = 1. / self->fadetime;
+        upBound = size - self->fadeInSample;
+        
         float buffer[num];
         memset(&buffer, 0, sizeof(buffer));
         float *in = Stream_getData((Stream *)self->input_stream);
         
         for (i=0; i<num; i++) {
-            buffer[i] = in[i];
+            if (self->pointer < self->fadeInSample)
+                val = self->pointer / self->fadeInSample;
+            else if (self->pointer > upBound)
+                val = (size - self->pointer) / self->fadeInSample;
+            else
+                val = 1.;
+            buffer[i] = in[i] * val;
             self->pointer++;
         }
         
         NewTable_recordChunk((NewTable *)self->table, buffer, num);
-    }    
+    } 
 }
 
 static int
@@ -890,10 +903,11 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TableRec *)type->tp_alloc(type, 0);
     
     self->pointer = 0;
+    self->fadetime = 0.;
     
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
 
+    Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 0);
 
     return (PyObject *)self;
@@ -905,9 +919,9 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
     int i;
     PyObject *inputtmp, *input_streamtmp, *tabletmp;
     
-    static char *kwlist[] = {"input", "table", NULL};
+    static char *kwlist[] = {"input", "table", "fadetime", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|fi", kwlist, &inputtmp, &tabletmp, &self->fadetime))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -922,11 +936,15 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    if ((self->fadetime * self->sr) > (size * 0.5))
+        self->fadetime = size * 0.5 / self->sr;
+    self->fadeInSample = roundf(self->fadetime * self->sr + 0.5);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.;
     }    
-    //TableRec_compute_next_data_frame((TableRec *)self);
     
     Py_INCREF(self);
     return 0;
