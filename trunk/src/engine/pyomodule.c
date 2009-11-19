@@ -146,6 +146,17 @@ init_pyo(void)
     Py_INCREF(&SndTableType);
     PyModule_AddObject(m, "SndTable_base", (PyObject *)&SndTableType);
 
+    if (PyType_Ready(&NewTableType) < 0)
+        return;
+    Py_INCREF(&NewTableType);
+    PyModule_AddObject(m, "NewTable_base", (PyObject *)&NewTableType);
+
+    if (PyType_Ready(&TableRecType) < 0)
+        return;
+    Py_INCREF(&TableRecType);
+    PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
+    
+    
     if (PyType_Ready(&InputType) < 0)
         return;
     Py_INCREF(&InputType);

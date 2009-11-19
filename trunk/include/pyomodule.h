@@ -20,6 +20,8 @@ extern PyTypeObject InputFaderType;
 extern PyTypeObject HarmTableType;
 extern PyTypeObject HannTableType;
 extern PyTypeObject SndTableType;
+extern PyTypeObject NewTableType;
+extern PyTypeObject TableRecType;
 
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;

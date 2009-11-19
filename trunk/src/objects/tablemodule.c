@@ -2,7 +2,9 @@
 #include "structmember.h"
 #include <math.h>
 #include "pyomodule.h"
+#include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 #include "sndfile.h"
 
 #define __TABLE_MODULE
@@ -653,3 +655,350 @@ SndTable_members,             /* tp_members */
 0,                         /* tp_alloc */
 SndTable_new,                 /* tp_new */
 };
+
+/***********************/
+/* NewTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    float length;
+    int pointer;
+} NewTable;
+
+static PyObject *
+NewTable_recordChunk(NewTable *self, float *data, int datasize)
+{
+    int i;
+
+    for (i=0; i<datasize; i++) {
+        self->data[self->pointer++] = data[i];
+        if (self->pointer == self->size)
+            self->pointer = 0;
+    }    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static int
+NewTable_traverse(NewTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+NewTable_clear(NewTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+NewTable_dealloc(NewTable* self)
+{
+    free(self->data);
+    NewTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    NewTable *self;
+    
+    self = (NewTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->pointer = 0;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
+{    
+    int i;
+    static char *kwlist[] = {"length", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|i", kwlist, &self->length))
+        return -1; 
+
+    float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    self->size = (int)(self->length * sr + 0.5);
+    self->data = (float *)realloc(self->data, (self->size + 1) * sizeof(float));
+
+    for (i=0; i<(self->size+1); i++) {
+        self->data[i] = 0.;
+    }
+    
+    TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
+
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * NewTable_getServer(NewTable* self) { GET_SERVER };
+static PyObject * NewTable_getTableStream(NewTable* self) { GET_TABLE_STREAM };
+
+static PyObject *
+NewTable_getSize(NewTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+NewTable_getLength(NewTable *self)
+{
+    return PyFloat_FromDouble(self->length);
+};
+
+static PyObject *
+NewTable_getRate(NewTable *self)
+{
+    float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    return PyFloat_FromDouble(sr / self->size);
+};
+
+static PyMemberDef NewTable_members[] = {
+{"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
+{"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef NewTable_methods[] = {
+{"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
+{"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
+{"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject NewTableType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.NewTable_base",         /*tp_name*/
+sizeof(NewTable),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)NewTable_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,                         /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+"NewTable objects. Generates an empty table.",  /* tp_doc */
+(traverseproc)NewTable_traverse,   /* tp_traverse */
+(inquiry)NewTable_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+NewTable_methods,             /* tp_methods */
+NewTable_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)NewTable_init,      /* tp_init */
+0,                         /* tp_alloc */
+NewTable_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    NewTable *table;
+    int pointer;
+} TableRec;
+
+static void
+TableRec_compute_next_data_frame(TableRec *self)
+{
+    int i, num;
+    int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    
+    if ((size - self->pointer) >= self->bufsize)
+        num = self->bufsize;
+    else
+        num = size - self->pointer;
+    
+    if (self->pointer < size) {    
+        float buffer[num];
+        memset(&buffer, 0, sizeof(buffer));
+        float *in = Stream_getData((Stream *)self->input_stream);
+        
+        for (i=0; i<num; i++) {
+            buffer[i] = in[i];
+            self->pointer++;
+        }
+        
+        NewTable_recordChunk((NewTable *)self->table, buffer, num);
+    }    
+}
+
+static int
+TableRec_traverse(TableRec *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->table);
+    return 0;
+}
+
+static int 
+TableRec_clear(TableRec *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->table);
+    return 0;
+}
+
+static void
+TableRec_dealloc(TableRec* self)
+{
+    free(self->data);
+    TableRec_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TableRec *self;
+    self = (TableRec *)type->tp_alloc(type, 0);
+    
+    self->pointer = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
+
+    Stream_setStreamActive(self->stream, 0);
+
+    return (PyObject *)self;
+}
+
+static int
+TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp;
+    
+    static char *kwlist[] = {"input", "table", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    Py_XDECREF(self->table);
+    self->table = (NewTable *)tabletmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.;
+    }    
+    //TableRec_compute_next_data_frame((TableRec *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TableRec_getServer(TableRec* self) { GET_SERVER };
+static PyObject * TableRec_getStream(TableRec* self) { GET_STREAM };
+
+static PyObject * TableRec_play(TableRec *self) 
+{ 
+    self->pointer = 0;
+    PLAY 
+};
+
+static PyObject * TableRec_stop(TableRec *self) { STOP };
+
+static PyMemberDef TableRec_members[] = {
+{"server", T_OBJECT_EX, offsetof(TableRec, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(TableRec, input), 0, "Input sound object."},
+{"table", T_OBJECT_EX, offsetof(TableRec, table), 0, "Table to record in."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableRec_methods[] = {
+//{"getInput", (PyCFunction)TableRec_getTable, METH_NOARGS, "Returns input sound object."},
+{"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)TableRec_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TableRec_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TableRecType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TableRec_base",         /*tp_name*/
+sizeof(TableRec),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TableRec_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TableRec objects. Record audio input in a table object.",           /* tp_doc */
+(traverseproc)TableRec_traverse,   /* tp_traverse */
+(inquiry)TableRec_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TableRec_methods,             /* tp_methods */
+TableRec_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)TableRec_init,      /* tp_init */
+0,                         /* tp_alloc */
+TableRec_new,                 /* tp_new */
+};
+

@@ -241,7 +241,45 @@ class SndTable(PyoTableObject):
     def getRate(self):
         return self._base_objs[0].getRate()
 
-            
+class NewTable(PyoTableObject):
+    def __init__(self, length, chnls=1):
+        self._base_objs = [NewTable_base(length) for i in range(chnls)]
+                
+    def getSize(self):
+        return self._base_objs[0].getSize()
+
+    def getLength(self):
+        return self._base_objs[0].getLength()
+             
+    def getRate(self):
+        return self._base_objs[0].getRate()
+
+class TableRec(PyoObject):
+    def __init__(self, input, table):
+        self._in_fader = InputFader(input)
+        in_fader, table, lmax = _convertArgsToLists(self._in_fader, table)
+        self._base_objs = [TableRec_base(_wrap(in_fader,i), _wrap(table,i)) for i in range(len(table))]
+
+    def out(self, chnl=0):
+        pass
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        self._in_fader.setInput(x, fadetime)
+      
+    @property
+    def input(self):
+        pass
+
+    @input.setter
+    def input(self, x):
+        self.setInput(x)
+                    
 ######################################################################
 ### Sources
 ######################################################################                                       
@@ -292,7 +330,7 @@ class Osc(PyoObject):
         self.setFreq(x)
 
 class Input(PyoObject):
-    def __init__(self, chnl, mul, add):                
+    def __init__(self, chnl, mul=1, add=0):                
         chnl, mul, add, lmax = _convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(_wrap(chnl,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
