@@ -110,6 +110,8 @@ Midictl_dealloc(Midictl* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * Midictl_deleteStream(Midictl *self) { DELETE_STREAM };
+
 static PyObject *
 Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -186,6 +188,7 @@ static PyMethodDef Midictl_methods[] = {
     //{"getMidictl", (PyCFunction)Midictl_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Midictl_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Midictl_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},

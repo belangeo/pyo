@@ -75,6 +75,8 @@ Input_dealloc(Input* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * Input_deleteStream(Input *self) { DELETE_STREAM };
+
 static PyObject *
 Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -147,6 +149,7 @@ static PyMethodDef Input_methods[] = {
     //{"getInput", (PyCFunction)Input_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Input_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Input_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Input_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Input_stop, METH_NOARGS, "Stops computing."},

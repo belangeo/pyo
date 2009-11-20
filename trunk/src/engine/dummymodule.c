@@ -50,6 +50,7 @@ Dummy_traverse(Dummy *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -58,6 +59,7 @@ Dummy_clear(Dummy *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -68,6 +70,8 @@ Dummy_dealloc(Dummy* self)
     Dummy_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
+
+static PyObject * Dummy_deleteStream(Dummy *self) { DELETE_STREAM };
 
 PyObject *
 Dummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -158,9 +162,9 @@ static PyMemberDef Dummy_members[] = {
 };
 
 static PyMethodDef Dummy_methods[] = {
-    //{"getInput", (PyCFunction)Dummy_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Dummy_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Dummy_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Dummy_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Dummy_stop, METH_NOARGS, "Stops computing."},

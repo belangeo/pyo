@@ -71,6 +71,11 @@ extern PyTypeObject OscReceiverType;
     Py_CLEAR(self->add); \
     Py_CLEAR(self->add_stream);    
 
+#define DELETE_STREAM \
+    Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
+    Py_INCREF(Py_None); \
+    return Py_None;
+
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
     self->server = PyServer_get_server(); \
@@ -81,7 +86,9 @@ extern PyTypeObject OscReceiverType;
     self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
     self->data = (float *)realloc(self->data, (self->bufsize) * sizeof(float)); \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
-    Stream_setStreamObject(self->stream, (PyObject *)self);
+    Stream_setStreamObject(self->stream, (PyObject *)self); \
+    Stream_setStreamId(self->stream, Stream_getNewStreamId());
+
 
 /* GETS & SETS */
 #define GET_SERVER \

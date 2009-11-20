@@ -230,6 +230,7 @@ Delay_traverse(Delay *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
     Py_VISIT(self->delay);    
     Py_VISIT(self->delay_stream);    
     Py_VISIT(self->feedback);    
@@ -242,6 +243,7 @@ Delay_clear(Delay *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);    
     Py_CLEAR(self->delay);    
     Py_CLEAR(self->delay_stream);    
     Py_CLEAR(self->feedback);    
@@ -257,6 +259,8 @@ Delay_dealloc(Delay* self)
     Delay_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
+
+static PyObject * Delay_deleteStream(Delay *self) { DELETE_STREAM };
 
 static PyObject *
 Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -428,6 +432,7 @@ static PyMemberDef Delay_members[] = {
 static PyMethodDef Delay_methods[] = {
     {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Delay_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Delay_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Delay_stop, METH_NOARGS, "Stops computing."},

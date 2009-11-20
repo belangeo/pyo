@@ -124,6 +124,8 @@ InputFader_dealloc(InputFader* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * InputFader_deleteStream(InputFader *self) { DELETE_STREAM };
+
 static PyObject *
 InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -214,38 +216,25 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
 
 static PyObject * InputFader_getServer(InputFader* self) { GET_SERVER };
 static PyObject * InputFader_getStream(InputFader* self) { GET_STREAM };
-//static PyObject * InputFader_setMul(InputFader *self, PyObject *arg) { SET_MUL };	
-//static PyObject * InputFader_setAdd(InputFader *self, PyObject *arg) { SET_ADD };	
 
 static PyObject * InputFader_play(InputFader *self) { PLAY };
-//static PyObject * InputFader_out(InputFader *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * InputFader_stop(InputFader *self) { STOP };
-
-//static PyObject * InputFader_multiply(InputFader *self, PyObject *arg) { MULTIPLY };
-//static PyObject * InputFader_inplace_multiply(InputFader *self, PyObject *arg) { INPLACE_MULTIPLY };
-//static PyObject * InputFader_add(InputFader *self, PyObject *arg) { ADD };
-//static PyObject * InputFader_inplace_add(InputFader *self, PyObject *arg) { INPLACE_ADD };
 
 static PyMemberDef InputFader_members[] = {
     {"server", T_OBJECT_EX, offsetof(InputFader, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(InputFader, stream), 0, "Stream object."},
     {"input1", T_OBJECT_EX, offsetof(InputFader, input1), 0, "First input."},
     {"input2", T_OBJECT_EX, offsetof(InputFader, input2), 0, "Second input."},
-//    {"mul", T_OBJECT_EX, offsetof(InputFader, mul), 0, "Mul factor."},
-//    {"add", T_OBJECT_EX, offsetof(InputFader, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyMethodDef InputFader_methods[] = {
-    //{"getInputFader", (PyCFunction)InputFader_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)InputFader_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)InputFader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)InputFader_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS, "Crossfade between current stream and given stream."},
-//    {"out", (PyCFunction)InputFader_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)InputFader_stop, METH_NOARGS, "Stops computing."},
-//	{"setMul", (PyCFunction)InputFader_setMul, METH_O, "Sets oscillator mul factor."},
-//	{"setAdd", (PyCFunction)InputFader_setAdd, METH_O, "Sets oscillator add factor."},
     {NULL}  /* Sentinel */
 };
 

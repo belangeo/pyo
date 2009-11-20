@@ -167,6 +167,7 @@ Disto_traverse(Disto *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
     Py_VISIT(self->drive);    
     Py_VISIT(self->drive_stream);    
     Py_VISIT(self->slope);    
@@ -179,6 +180,7 @@ Disto_clear(Disto *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->drive);    
     Py_CLEAR(self->drive_stream);    
     Py_CLEAR(self->slope);    
@@ -193,6 +195,8 @@ Disto_dealloc(Disto* self)
     Disto_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
+
+static PyObject * Disto_deleteStream(Disto *self) { DELETE_STREAM };
 
 static PyObject *
 Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -356,6 +360,7 @@ static PyMethodDef Disto_methods[] = {
     //{"getInput", (PyCFunction)Disto_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Disto_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Disto_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Disto_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Disto_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Disto_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Disto_stop, METH_NOARGS, "Stops computing."},

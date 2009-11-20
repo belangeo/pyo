@@ -65,6 +65,8 @@ OscReceiver_dealloc(OscReceiver* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * OscReceiver_deleteStream(OscReceiver *self) { DELETE_STREAM };
+
 static PyObject *
 OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -137,6 +139,7 @@ static PyMemberDef OscReceiver_members[] = {
 static PyMethodDef OscReceiver_methods[] = {
 {"getServer", (PyCFunction)OscReceiver_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscReceiver_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)OscReceiver_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {NULL}  /* Sentinel */
 };
 
@@ -259,6 +262,8 @@ OscReceive_dealloc(OscReceive* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * OscReceive_deleteStream(OscReceive *self) { DELETE_STREAM };
+
 static PyObject *
 OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -343,6 +348,7 @@ static PyMemberDef OscReceive_members[] = {
 static PyMethodDef OscReceive_methods[] = {
     {"getServer", (PyCFunction)OscReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscReceive_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)OscReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)OscReceive_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)OscReceive_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)OscReceive_setMul, METH_O, "Sets oscillator mul factor."},
@@ -482,6 +488,8 @@ OscSend_dealloc(OscSend* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * OscSend_deleteStream(OscSend *self) { DELETE_STREAM };
+
 static PyObject *
 OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -556,6 +564,7 @@ static PyMemberDef OscSend_members[] = {
 static PyMethodDef OscSend_methods[] = {
 {"getServer", (PyCFunction)OscSend_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscSend_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)OscSend_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)OscSend_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)OscSend_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */

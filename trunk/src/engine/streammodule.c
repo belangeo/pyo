@@ -5,6 +5,14 @@
 #include "streammodule.h"
 #undef __STREAM_MODULE
 
+int stream_id = 1;
+
+int 
+Stream_getNewStreamId() 
+{
+    return stream_id++;
+}
+
 static void
 Stream_dealloc(Stream* self)
 {
@@ -50,6 +58,12 @@ Stream_getStreamObject(Stream *self)
 {
     Py_INCREF(self->streamobject);
     return self->streamobject;
+}
+
+int
+Stream_getStreamId(Stream *self)
+{
+    return self->sid;
 }
 
 int
