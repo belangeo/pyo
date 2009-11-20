@@ -349,8 +349,27 @@ Server_addStream(Server *self, PyObject *args)
     Py_INCREF(tmp);
     PyList_Append(self->streams, tmp);
 
-    self->stream_count += 1;
+    self->stream_count++;
     
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+PyObject *
+Server_removeStream(Server *self, int id)
+{
+    int i, sid;
+    Stream *stream_tmp;
+    
+    for (i=0; i<self->stream_count; i++) {
+        stream_tmp = (Stream *)PyList_GET_ITEM(my_server->streams, i);
+        sid = Stream_getStreamId(stream_tmp);
+        if (sid == id) {
+            PySequence_DelItem(self->streams, i);
+            self->stream_count--;
+            break;
+        }
+    }
     Py_INCREF(Py_None);
     return Py_None;    
 }
@@ -396,7 +415,9 @@ static PyMethodDef Server_methods[] = {
     {"recstart", (PyCFunction)Server_start_rec, METH_NOARGS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
     {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
-                                                                This is for internal use and must never be called the user."},
+                                                                This is for internal use and must never be called by the user."},
+    {"removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Adds an audio stream to the server. \
+                                                                This is for internal use and must never be called by the user."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
     {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of channels."},

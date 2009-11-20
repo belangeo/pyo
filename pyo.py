@@ -98,6 +98,11 @@ class PyoObject(object):
     def __len__(self):
         return len(self._base_objs)
 
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        
     def getBaseObjects(self):
         return self._base_objs
         

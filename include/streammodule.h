@@ -4,16 +4,19 @@ typedef struct {
     PyObject_HEAD
     PyObject *streamobject;
     void (*funcptr)();
+    int sid;
     int chnl;
     int active;
     int todac;
     float *data;
 } Stream;
 
+extern int Stream_getNewStreamId();
 static void Stream_dealloc(Stream* self);
 static PyObject * Stream_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
 static int Stream_init(Stream *self, PyObject *args, PyObject *kwds);
 extern PyObject * Stream_getStreamObject(Stream *self);
+extern int Stream_getStreamId(Stream *self);
 extern int Stream_getStreamActive(Stream *self);
 extern int Stream_getStreamChnl(Stream *self);
 extern int Stream_getStreamToDac(Stream *self);
@@ -27,7 +30,7 @@ extern PyTypeObject StreamType;
   (self) = (Stream *)(type)->tp_alloc((type), 0);	\
   if ((self) == rt_error) { return rt_error; }	\
 						\
-  (self)->chnl = (self)->todac = 0; \
+  (self)->sid = (self)->chnl = (self)->todac = 0; \
   (self)->active = 1;
 
 #ifdef __STREAM_MODULE
@@ -37,6 +40,7 @@ extern PyTypeObject StreamType;
 /* include from other modules to use API */
 
 #define Stream_setStreamObject(op, v) (((Stream *)(op))->streamobject = (v))
+#define Stream_setStreamId(op, v) (((Stream *)(op))->sid = (v))
 #define Stream_setStreamChnl(op, v) (((Stream *)(op))->chnl = (v))
 #define Stream_setStreamActive(op, v) (((Stream *)(op))->active = (v))
 #define Stream_setStreamToDac(op, v) (((Stream *)(op))->todac = (v))

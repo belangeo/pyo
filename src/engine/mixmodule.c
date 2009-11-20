@@ -89,6 +89,8 @@ Mix_dealloc(Mix* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * Mix_deleteStream(Mix *self) { DELETE_STREAM };
+
 static PyObject *
 Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -164,6 +166,7 @@ static PyMethodDef Mix_methods[] = {
     //{"getMix", (PyCFunction)Mix_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Mix_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Mix_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mix_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Mix_stop, METH_NOARGS, "Stops computing."},

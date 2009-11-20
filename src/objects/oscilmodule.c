@@ -171,6 +171,8 @@ Sine_dealloc(Sine* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * Sine_deleteStream(Sine *self) { DELETE_STREAM };
+
 static PyObject *
 Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -324,6 +326,7 @@ static PyMemberDef Sine_members[] = {
 static PyMethodDef Sine_methods[] = {
 {"getServer", (PyCFunction)Sine_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Sine_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Sine_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Sine_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Sine_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Sine_stop, METH_NOARGS, "Stops computing."},
@@ -544,6 +547,8 @@ Osc_dealloc(Osc* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * Osc_deleteStream(Osc *self) { DELETE_STREAM };
+
 static PyObject *
 Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -668,6 +673,7 @@ static PyMethodDef Osc_methods[] = {
     {"getTable", (PyCFunction)Osc_getTable, METH_NOARGS, "Returns waveform table object."},
     {"getServer", (PyCFunction)Osc_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Osc_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Osc_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Osc_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Osc_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Osc_stop, METH_NOARGS, "Stops computing."},

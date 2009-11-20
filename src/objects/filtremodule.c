@@ -263,6 +263,7 @@ Biquad_traverse(Biquad *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     Py_VISIT(self->freq);    
     Py_VISIT(self->freq_stream);    
     Py_VISIT(self->q);    
@@ -275,6 +276,7 @@ Biquad_clear(Biquad *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
     Py_CLEAR(self->freq);    
     Py_CLEAR(self->freq_stream);    
     Py_CLEAR(self->q);    
@@ -289,6 +291,8 @@ Biquad_dealloc(Biquad* self)
     Biquad_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
+
+static PyObject * Biquad_deleteStream(Biquad *self) { DELETE_STREAM };
 
 static PyObject *
 Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -473,6 +477,7 @@ static PyMethodDef Biquad_methods[] = {
     //{"getInput", (PyCFunction)Biquad_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Biquad_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Biquad_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Biquad_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Biquad_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Biquad_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Biquad_stop, METH_NOARGS, "Stops computing."},

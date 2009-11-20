@@ -135,6 +135,8 @@ Fader_dealloc(Fader* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * Fader_deleteStream(Fader *self) { DELETE_STREAM };
+
 static PyObject *
 Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -260,6 +262,7 @@ static PyMemberDef Fader_members[] = {
 static PyMethodDef Fader_methods[] = {
 {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Fader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Fader_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Fader_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},

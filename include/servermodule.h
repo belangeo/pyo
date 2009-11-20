@@ -36,6 +36,7 @@ static int Server_init(Server *self, PyObject *args, PyObject *kwds);
 static PyObject * Server_start(Server *self);
 static PyObject * Server_stop(Server *self);    
 static PyObject * Server_addStream(Server *self, PyObject *args);
+extern PyObject * Server_removeStream(Server *self, int sid);
 extern float * Server_getInputBuffer(Server *self);    
 extern PmEvent * Server_getMidiEventBuffer(Server *self);    
 static PyObject * Server_getSamplingRate(Server *self);
