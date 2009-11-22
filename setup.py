@@ -6,7 +6,7 @@ files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mi
 source_files = [path + f for f in files]
 path = 'src/objects/'
 files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 
-        'inputmodule.c', 'fadermodule.c', 'midictlmodule.c', 'oscmodule.c', 'delaymodule.c']
+        'inputmodule.c', 'fadermodule.c', 'midictlmodule.c', 'oscmodule.c', 'delaymodule.c', 'sfplayermodule.c']
 source_files = source_files + [path + f for f in files]
 
 include_dirs = ['include']

@@ -334,6 +334,43 @@ class Osc(PyoObject):
     def freq(self, x):
         self.setFreq(x)
 
+class SfPlayer(PyoObject):
+    def __init__(self, path, speed=1, loop=False, offset=0, mul=1, add=0):
+        path, speed, loop, offset, mul, add, lmax = _convertArgsToLists(path, speed, loop, offset, mul, add)
+        self._base_objs = []
+        self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        for i in range(lmax * self._snd_chnls):
+            j = i / self._snd_chnls
+            if _wrap(loop, j): loop_state = 1
+            else: loop_state = 0 
+            self._base_objs.append(SfPlayer_base(_wrap(path,j), _wrap(speed,j), loop_state, _wrap(offset,j), i % self._snd_chnls, _wrap(mul,j), _wrap(add,j)))
+
+    def setSpeed(self, x):
+        x, lmax = _convertArgsToLists(x)
+        [obj.setSpeed(_wrap(x,i/self._snd_chnls)) for i, obj in enumerate(self._base_objs)]
+
+    def setLoop(self, x):
+        x, lmax = _convertArgsToLists(x)
+        for i, obj in enumerate(self._base_objs):
+            if _wrap(x,i/self._snd_chnls): obj.setLoop(1)
+            else: obj.setLoop(0)
+
+    @property
+    def speed(self):
+        pass
+
+    @property
+    def loop(self):
+        pass
+
+    @speed.setter
+    def speed(self, x):
+        self.setSpeed(x)
+
+    @loop.setter
+    def loop(self, x):
+        self.setLoop(x)
+
 class Input(PyoObject):
     def __init__(self, chnl, mul=1, add=0):                
         chnl, mul, add, lmax = _convertArgsToLists(chnl, mul, add)
