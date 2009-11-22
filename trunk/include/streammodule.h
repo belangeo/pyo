@@ -12,9 +12,6 @@ typedef struct {
 } Stream;
 
 extern int Stream_getNewStreamId();
-static void Stream_dealloc(Stream* self);
-static PyObject * Stream_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-static int Stream_init(Stream *self, PyObject *args, PyObject *kwds);
 extern PyObject * Stream_getStreamObject(Stream *self);
 extern int Stream_getStreamId(Stream *self);
 extern int Stream_getStreamActive(Stream *self);

@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 18
+example = 14
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -93,7 +93,7 @@ elif example == 14:
     si = Sine(.1, 0, .25, .5)
     fad = Fader(20, 20, mul=.9).play()
     d = Delay(a, delay=si, feedback=fad, maxdelay=1, mul=.1).out()
-    f = Biquad(d.mix(2), 2500, 2).out()
+    f = Biquad(d.mix(1), 2500, 2).out()
 elif example == 15:
     a = Noise(.5)
     t = HarmTable([1-(i*.01) for i in range(100)])
