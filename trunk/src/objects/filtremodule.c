@@ -103,7 +103,7 @@ Biquad_filters_ii(Biquad *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
 
     if (self->init == 1) {
-        self->x1 = self->x2 = self->y1 = self->y2 = in[i];
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
@@ -124,7 +124,7 @@ Biquad_filters_ai(Biquad *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
-        self->x1 = self->x2 = self->y1 = self->y2 = in[i];
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
 
@@ -149,7 +149,7 @@ Biquad_filters_ia(Biquad *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
-        self->x1 = self->x2 = self->y1 = self->y2 = in[i];
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
@@ -174,7 +174,7 @@ Biquad_filters_aa(Biquad *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
-        self->x1 = self->x2 = self->y1 = self->y2 = in[i];
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
 
