@@ -5,6 +5,7 @@ extern PyTypeObject SineType;
 extern PyTypeObject OscType;
 extern PyTypeObject NoiseType;
 extern PyTypeObject InputType;
+extern PyTypeObject SfPlayerType;
 
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;

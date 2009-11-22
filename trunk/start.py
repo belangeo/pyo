@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 0
+example = 18
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -118,6 +118,9 @@ elif example == 17:
     c = Osc(t1, t1.getRate()).out()
     # call:
     # b.play()
+elif example == 18:
+    a = Sine(.1, 0, .25, 1)
+    sf = SfPlayer('/Users/olipet/Desktop/sons/baseballmajeur_s.aif', a, 1, 2.154, mul=.3).out()
         
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
