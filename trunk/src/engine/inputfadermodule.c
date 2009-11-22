@@ -23,7 +23,6 @@ static void InputFader_setProcMode(InputFader *self) {};
 static void InputFader_process_only_first(InputFader *self) 
 {
     int i;
-    float amp;
     float *in = Stream_getData((Stream *)self->input1_stream);
     
     for (i=0; i<self->bufsize; i++) {
@@ -34,7 +33,6 @@ static void InputFader_process_only_first(InputFader *self)
 static void InputFader_process_only_second(InputFader *self) 
 {
     int i;
-    float amp;
     float *in = Stream_getData((Stream *)self->input2_stream);
     
     for (i=0; i<self->bufsize; i++) {

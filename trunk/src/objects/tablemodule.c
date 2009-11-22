@@ -110,7 +110,7 @@ HarmTable_generate(HarmTable *self) {
     float factor, amplitude, val;
     
     ampsize = PyList_Size(self->amplist);
-    factor = 1. / (self->size * 0.5) * Py_MATH_PI;
+    factor = 1. / (self->size * 0.5) * PI;
     
     for(i=0; i<self->size; i++) {
         val = 0;
@@ -374,9 +374,7 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static int
 HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *amplist=NULL;
-    
+{    
     static char *kwlist[] = {"size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
