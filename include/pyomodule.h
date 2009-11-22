@@ -29,6 +29,7 @@ extern PyTypeObject OscReceiveType;
 extern PyTypeObject OscReceiverType;
 
 /* Constants */
+#define PI M_PI
 #define TWOPI (2 * M_PI)
 
 /* object headers */
