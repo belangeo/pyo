@@ -549,11 +549,6 @@ static PyObject * OscSend_getStream(OscSend* self) { GET_STREAM };
 static PyObject * OscSend_play(OscSend *self) { PLAY };
 static PyObject * OscSend_stop(OscSend *self) { STOP };
 
-static PyObject * OscSend_multiply(OscSend *self, PyObject *arg) { MULTIPLY };
-static PyObject * OscSend_inplace_multiply(OscSend *self, PyObject *arg) { INPLACE_MULTIPLY };
-static PyObject * OscSend_add(OscSend *self, PyObject *arg) { ADD };
-static PyObject * OscSend_inplace_add(OscSend *self, PyObject *arg) { INPLACE_ADD };
-
 static PyMemberDef OscSend_members[] = {
 {"server", T_OBJECT_EX, offsetof(OscSend, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(OscSend, stream), 0, "Stream object."},
