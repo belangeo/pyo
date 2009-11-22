@@ -276,7 +276,6 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     float offset = 0.;
     PyObject *speedtmp=NULL, *multmp=NULL, *addtmp=NULL;
     

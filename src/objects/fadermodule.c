@@ -269,7 +269,7 @@ static PyMethodDef Fader_methods[] = {
 {"setAdd", (PyCFunction)Fader_setAdd, METH_O, "Sets Fader add factor."},
 {"setFadein", (PyCFunction)Fader_setFadein, METH_O, "Sets fadein time in seconds."},
 {"setFadeout", (PyCFunction)Fader_setFadeout, METH_O, "Sets fadeout time in seconds."},
-{"setDur", (PyCFunction)Fader_setAdd, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
+{"setDur", (PyCFunction)Fader_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
 {NULL}  /* Sentinel */
 };
 

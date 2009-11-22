@@ -46,7 +46,6 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     float *out = (float*)outputBuffer;
     
     int i, j;
-    int todac;
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
     Stream *stream_tmp;
@@ -274,7 +273,7 @@ static PyObject *
 Server_start(Server *self)
 {
     PaError err;
-    int i;
+
 	/* Ensure Python is set up for threading */
 	PyEval_InitThreads();
  
