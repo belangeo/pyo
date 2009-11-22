@@ -8,7 +8,7 @@ typedef struct {
     int modebuffer[2]; // need at least 2 slots for mul & add 
 } Dummy;
 
-extern PyObject * Dummy_initialise(Dummy *self);
+extern PyObject * Dummy_initialize(Dummy *self);
 
 #define MAKE_NEW_DUMMY(self, type, rt_error)	\
 (self) = (Dummy *)(type)->tp_alloc((type), 0);	\
