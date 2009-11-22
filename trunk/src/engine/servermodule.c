@@ -85,8 +85,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
             int chnl = Stream_getStreamChnl(stream_tmp);
             for (j=0; j<framesPerBuffer; j++) {
                 old = buffer[chnl][j];
-                buffer[chnl][j] = *data + old;
-                *data++;
+                buffer[chnl][j] = *data++ + old;
             }
         } 
         Stream_callFunction(stream_tmp);
