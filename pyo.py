@@ -335,26 +335,55 @@ class Osc(PyoObject):
         self.setFreq(x)
 
 class SfPlayer(PyoObject):
-    def __init__(self, path, speed=1, loop=False, offset=0, mul=1, add=0):
-        path, speed, loop, offset, mul, add, lmax = _convertArgsToLists(path, speed, loop, offset, mul, add)
+    def __init__(self, path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0):
+        path, speed, loop, offset, interp, mul, add, lmax = _convertArgsToLists(path, speed, loop, offset, interp, mul, add)
         self._base_objs = []
         self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        self._base_players = [SfPlayer_base(_wrap(path,i), _wrap(speed,i), _wrap(loop,i), _wrap(offset,i), _wrap(interp,i)) for i in range(lmax)]
         for i in range(lmax * self._snd_chnls):
             j = i / self._snd_chnls
-            if _wrap(loop, j): loop_state = 1
-            else: loop_state = 0 
-            self._base_objs.append(SfPlayer_base(_wrap(path,j), _wrap(speed,j), loop_state, _wrap(offset,j), i % self._snd_chnls, _wrap(mul,j), _wrap(add,j)))
+            self._base_objs.append(SfPlay_base(_wrap(self._base_players,j), i % self._snd_chnls, _wrap(mul,j), _wrap(add,j)))
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._base_players:
+            obj.deleteStream()
+            del obj
+                        
+    def play(self):
+        self._base_players = [obj.play() for obj in self._base_players]
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        return self
+
+    def out(self, chnl=0):
+        self._base_players = [obj.play() for obj in self._base_players]
+        self._base_objs = [obj.out(chnl+i) for i, obj in enumerate(self._base_objs)]
+        return self
+    
+    def stop(self):
+        [obj.stop() for obj in self._base_players]
+        [obj.stop() for obj in self._base_objs]
 
     def setSpeed(self, x):
         x, lmax = _convertArgsToLists(x)
-        [obj.setSpeed(_wrap(x,i/self._snd_chnls)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSpeed(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setLoop(self, x):
         x, lmax = _convertArgsToLists(x)
-        for i, obj in enumerate(self._base_objs):
-            if _wrap(x,i/self._snd_chnls): obj.setLoop(1)
+        for i, obj in enumerate(self._base_players):
+            if _wrap(x,i): obj.setLoop(1)
             else: obj.setLoop(0)
 
+    def setOffset(self, x):
+        x, lmax = _convertArgsToLists(x)
+        [obj.setOffset(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setInterp(self, x):
+        x, lmax = _convertArgsToLists(x)
+        [obj.setInterp(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
+                    
     @property
     def speed(self):
         pass
@@ -363,6 +392,14 @@ class SfPlayer(PyoObject):
     def loop(self):
         pass
 
+    @property
+    def offset(self):
+        pass
+
+    @property
+    def interp(self):
+        pass
+             
     @speed.setter
     def speed(self, x):
         self.setSpeed(x)
@@ -370,6 +407,14 @@ class SfPlayer(PyoObject):
     @loop.setter
     def loop(self, x):
         self.setLoop(x)
+
+    @offset.setter
+    def offset(self, x):
+        self.setOffset(x)
+
+    @interp.setter
+    def interp(self, x):
+        self.setInterp(x)
 
 class Input(PyoObject):
     def __init__(self, chnl, mul=1, add=0):                

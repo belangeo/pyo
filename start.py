@@ -119,8 +119,8 @@ elif example == 17:
     # call:
     # b.play()
 elif example == 18:
-    a = Sine(.1, 0, .25, 1)
-    sf = SfPlayer('/Users/olipet/Desktop/sons/baseballmajeur_s.aif', a, 1, 2.154, mul=.3).out()
+    a = Sine(.1, 0, .25, -1)
+    sf = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', speed=a, loop=True, offset=0, interp=2, mul=.5).out()
         
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
