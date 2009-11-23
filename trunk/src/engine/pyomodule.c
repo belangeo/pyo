@@ -171,6 +171,11 @@ init_pyo(void)
         return;
     Py_INCREF(&SfPlayerType);
     PyModule_AddObject(m, "SfPlayer_base", (PyObject *)&SfPlayerType);
+
+    if (PyType_Ready(&SfPlayType) < 0)
+        return;
+    Py_INCREF(&SfPlayType);
+    PyModule_AddObject(m, "SfPlay_base", (PyObject *)&SfPlayType);
     
     if (PyType_Ready(&OscType) < 0)
         return;
