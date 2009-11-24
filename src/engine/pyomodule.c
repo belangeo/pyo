@@ -197,6 +197,11 @@ init_pyo(void)
     Py_INCREF(&BiquadType);
     PyModule_AddObject(m, "Biquad_base", (PyObject *)&BiquadType);
 
+    if (PyType_Ready(&PortType) < 0)
+        return;
+    Py_INCREF(&PortType);
+    PyModule_AddObject(m, "Port_base", (PyObject *)&PortType);
+    
     if (PyType_Ready(&DistoType) < 0)
         return;
     Py_INCREF(&DistoType);

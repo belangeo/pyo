@@ -59,10 +59,11 @@ elif example == 8:
 elif example == 9:
     # need a MIDI device available (and portmidi installed)
     t = HarmTable([1])
-    m = Midictl(ctlnumber=74, minscale=250, maxscale=1000).play()
-    a = Osc(t, m, .5).out()
-    a1 = Osc(t, m * 1.25, .5).out()
-    a2 = Osc(t, m * 1.5, .5).out()
+    m = Midictl(ctlnumber=74, minscale=250, maxscale=1000)
+    p = Port(m, .1)
+    a = Osc(t, p, .5).out()
+    a1 = Osc(t, p * 1.25, .5).out()
+    a2 = Osc(t, p * 1.5, .5).out()
     # inplace_multiply and inplace_addition are the same as calling object.setMul or setAdd
     # object *= 1.5
     # multiply and add create a dummy object and call setMul or setAdd on Dummy, leaving original object unmodified

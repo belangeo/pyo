@@ -573,3 +573,333 @@ PyTypeObject BiquadType = {
     Biquad_new,                                     /* tp_new */
 };
 
+/* Performs portamento on audio signal */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *time;
+    Stream *time_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+    float y1; // sample memory
+} Port;
+
+static void
+Port_filters_i(Port *self) {
+    float val;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float time = PyFloat_AS_DOUBLE(self->time);
+    float factor = 1. / (time * self->sr);
+
+    for (i=0; i<self->bufsize; i++) {
+        val = self->y1 + (*in++ - self->y1) * factor;
+        self->y1 = val;
+        self->data[i] = val;
+    }
+}
+
+static void
+Port_filters_a(Port *self) {
+    float val, factor;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *time = Stream_getData((Stream *)self->time_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        factor = *time++ * self->sr;        
+        val = self->y1 + (*in++ - self->y1) / factor;
+        self->y1 = val;
+        self->data[i] = val;
+    }
+}
+
+static void Port_postprocessing_ii(Port *self) { POST_PROCESSING_II };
+static void Port_postprocessing_ai(Port *self) { POST_PROCESSING_AI };
+static void Port_postprocessing_ia(Port *self) { POST_PROCESSING_IA };
+static void Port_postprocessing_aa(Port *self) { POST_PROCESSING_AA };
+
+static void
+Port_setProcMode(Port *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Port_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Port_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Port_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Port_postprocessing_ai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Port_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Port_postprocessing_aa;
+            break;
+    }    
+}
+
+static void
+Port_compute_next_data_frame(Port *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Port_traverse(Port *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->time);    
+    Py_VISIT(self->time_stream);    
+    return 0;
+}
+
+static int 
+Port_clear(Port *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->time);    
+    Py_CLEAR(self->time_stream);    
+    return 0;
+}
+
+static void
+Port_dealloc(Port* self)
+{
+    free(self->data);
+    Port_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Port_deleteStream(Port *self) { DELETE_STREAM };
+
+static PyObject *
+Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Port *self;
+    self = (Port *)type->tp_alloc(type, 0);
+    
+    self->time = PyFloat_FromDouble(0.05);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    self->y1 = 0.;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Port_compute_next_data_frame);
+    self->mode_func_ptr = Port_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Port_init(Port *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *timetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "time", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &timetmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (timetmp) {
+        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Port_compute_next_data_frame((Port *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Port_getServer(Port* self) { GET_SERVER };
+static PyObject * Port_getStream(Port* self) { GET_STREAM };
+static PyObject * Port_setMul(Port *self, PyObject *arg) { SET_MUL };	
+static PyObject * Port_setAdd(Port *self, PyObject *arg) { SET_ADD };	
+
+static PyObject * Port_play(Port *self) { PLAY };
+static PyObject * Port_out(Port *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Port_stop(Port *self) { STOP };
+
+static PyObject * Port_multiply(Port *self, PyObject *arg) { MULTIPLY };
+static PyObject * Port_inplace_multiply(Port *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Port_add(Port *self, PyObject *arg) { ADD };
+static PyObject * Port_inplace_add(Port *self, PyObject *arg) { INPLACE_ADD };
+
+static PyObject *
+Port_setTime(Port *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->time);
+	if (isNumber == 1) {
+		self->time = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->time = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->time_stream);
+        self->time_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Port_members[] = {
+{"server", T_OBJECT_EX, offsetof(Port, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Port, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Port, input), 0, "Input sound object."},
+{"time", T_OBJECT_EX, offsetof(Port, time), 0, "Portamento time in seconds."},
+{"mul", T_OBJECT_EX, offsetof(Port, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Port, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Port_methods[] = {
+{"getServer", (PyCFunction)Port_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Port_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Port_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Port_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Port_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Port_stop, METH_NOARGS, "Stops computing."},
+{"setTime", (PyCFunction)Port_setTime, METH_O, "Sets portamento time in seconds."},
+{"setMul", (PyCFunction)Port_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Port_setAdd, METH_O, "Sets oscillator add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Port_as_number = {
+(binaryfunc)Port_add,                         /*nb_add*/
+0,                                              /*nb_subtract*/
+(binaryfunc)Port_multiply,                    /*nb_multiply*/
+0,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Port_inplace_add,                 /*inplace_add*/
+0,                                              /*inplace_subtract*/
+(binaryfunc)Port_inplace_multiply,            /*inplace_multiply*/
+0,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject PortType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Port_base",                                   /*tp_name*/
+sizeof(Port),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Port_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Port_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Port objects. Generates a portamento filter.",           /* tp_doc */
+(traverseproc)Port_traverse,                  /* tp_traverse */
+(inquiry)Port_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Port_methods,                                 /* tp_methods */
+Port_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Port_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Port_new,                                     /* tp_new */
+};
+
