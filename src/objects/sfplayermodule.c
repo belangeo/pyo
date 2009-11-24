@@ -70,15 +70,17 @@ float *reverseArray(float *orig, int b)
 static void
 SfPlayer_readframes_i(SfPlayer *self) {
     float sp, frac, bufpos, delta;
-    int i, j, buflen, shortbuflen, bufindex;
+    int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
 
     sp = PyFloat_AS_DOUBLE(self->speed);
 
     delta = fabsf(sp * self->srScale);
 
+    totlen = self->sndChnls*buflen;
+    
     buflen = (int)(self->bufsize * delta) + 10;
-    float buffer[self->sndChnls*buflen];
+    float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
 
     if (sp > 0) {
@@ -100,19 +102,20 @@ SfPlayer_readframes_i(SfPlayer *self) {
             }
             else { /* wrap around and read new samples if loop */
                 int pad = buflen - shortbuflen;
-                float buftemp[pad*self->sndChnls];
+                int padlen = pad*self->sndChnls;
+                float buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos, SEEK_SET);
-                sf_read_float(self->sf, buftemp, pad*self->sndChnls);
-                for (i=0; i<(pad*self->sndChnls); i++) {
+                sf_read_float(self->sf, buftemp, padlen);
+                for (i=0; i<(padlen); i++) {
                     buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
                 }
             }    
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, buflen*self->sndChnls);
+            sf_read_float(self->sf, buffer, totlen);
     
         /* de-interleave samples */
-        for (i=0; i<(self->sndChnls*buflen); i++) {
+        for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
     
@@ -141,37 +144,36 @@ SfPlayer_readframes_i(SfPlayer *self) {
         /* if not enough samples to read in the file */
         if ((index-buflen) < 0) {
             shortbuflen = index;
+            int pad = buflen - shortbuflen;
+            int padlen = pad*self->sndChnls;
 
             if (self->loop == 0) { /* with zero padding if noloop */
-                int pad = buflen - shortbuflen;
-                for (i=0; i<pad*self->sndChnls; i++) {
+                for (i=0; i<padlen; i++) {
                     buffer[i] = 0.;
                 }
             }
             else { /* wrap around and read new samples if loop */
-                int pad = buflen - shortbuflen;
-                float buftemp[pad*self->sndChnls];
+                float buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos-pad, SEEK_SET);
-                sf_read_float(self->sf, buftemp, pad*self->sndChnls);
-                for (i=0; i<(pad*self->sndChnls); i++) {
+                sf_read_float(self->sf, buftemp, padlen);
+                for (i=0; i<padlen; i++) {
                     buffer[i] = buftemp[i];
                 }
             }
             
             float buftemp2[shortbuflen*self->sndChnls];
-            int pad = buflen - shortbuflen;
             sf_seek(self->sf, 0, SEEK_SET); /* sets position pointer in the file */
             sf_read_float(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
-                buffer[i+pad*self->sndChnls] = buftemp2[i];
+                buffer[i+padlen] = buftemp2[i];
             }    
         }
         else /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, buflen*self->sndChnls);
+            sf_read_float(self->sf, buffer, totlen);
         
         /* de-interleave samples */
-        for (i=0; i<(self->sndChnls*buflen); i++) {
+        for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
         
@@ -208,7 +210,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
 static void
 SfPlayer_readframes_a(SfPlayer *self) {
     float frac, bufpos, delta;
-    int i, j, buflen, shortbuflen, bufindex;
+    int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
     
     float *spobj = Stream_getData((Stream *)self->speed_stream);
@@ -220,7 +222,8 @@ SfPlayer_readframes_a(SfPlayer *self) {
     delta = fabsf(maxi) * self->srScale;
 
     buflen = (int)(self->bufsize * delta) + 10;
-    float buffer[self->sndChnls*buflen];
+    totlen = self->sndChnls*buflen;
+    float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
 
     if (maxi > 0) {
@@ -242,19 +245,20 @@ SfPlayer_readframes_a(SfPlayer *self) {
             }
             else { /* wrap around and read new samples if loop */
                 int pad = buflen - shortbuflen;
-                float buftemp[pad*self->sndChnls];
+                int padlen = pad*self->sndChnls;
+                float buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos, SEEK_SET);
-                sf_read_float(self->sf, buftemp, pad*self->sndChnls);
-                for (i=0; i<(pad*self->sndChnls); i++) {
+                sf_read_float(self->sf, buftemp, padlen);
+                for (i=0; i<padlen; i++) {
                     buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
                 }
             }
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, buflen*self->sndChnls);
+            sf_read_float(self->sf, buffer, totlen);
     
         /* de-interleave samples */
-        for (i=0; i<(self->sndChnls*buflen); i++) {
+        for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
     
@@ -284,30 +288,30 @@ SfPlayer_readframes_a(SfPlayer *self) {
         /* if not enough samples to read in the file */
         if ((index-buflen) < 0) {
             shortbuflen = index;
+            int pad = buflen - shortbuflen;
+            int padlen = pad*self->sndChnls;
             //sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
             if (self->loop == 0) { /* with zero padding if noloop */
-                int pad = buflen - shortbuflen;
-                for (i=0; i<pad*self->sndChnls; i++) {
+                for (i=0; i<padlen; i++) {
                     buffer[i] = 0.;
                 }
             }
             else { /* wrap around and read new samples if loop */
-                int pad = buflen - shortbuflen;
-                float buftemp[pad*self->sndChnls];
+                float buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos-pad, SEEK_SET);
-                sf_read_float(self->sf, buftemp, pad*self->sndChnls);
-                for (i=0; i<(pad*self->sndChnls); i++) {
+                sf_read_float(self->sf, buftemp, padlen);
+                for (i=0; i<padlen; i++) {
                     buffer[i] = buftemp[i];
                 }
             }
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, buflen*self->sndChnls);
+            sf_read_float(self->sf, buffer, totlen);
         }
         
         /* de-interleave samples */
-        for (i=0; i<(self->sndChnls*buflen); i++) {
+        for (i=0; i<totlen; i++) {
             buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
         }
 
@@ -361,7 +365,6 @@ static void
 SfPlayer_compute_next_data_frame(SfPlayer *self)
 {
     (*self->proc_func_ptr)(self); 
-    //Stream_setData(self->stream, self->data);
 }
 
 static int

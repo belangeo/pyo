@@ -571,7 +571,7 @@ class Disto(PyoObject):
         self.setSlope(x)
 
 class Delay(PyoObject):
-    def __init__(self, input, delay=0, feedback=0, maxdelay=44100, mul=1, add=0):
+    def __init__(self, input, delay=0, feedback=0, maxdelay=1, mul=1, add=0):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = _convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Delay_base(_wrap(in_fader,i), _wrap(delay,i), _wrap(feedback,i), _wrap(maxdelay,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
