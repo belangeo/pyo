@@ -10,6 +10,7 @@ extern PyTypeObject SfPlayType;
 
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
+extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
 extern PyTypeObject DelayType;
 

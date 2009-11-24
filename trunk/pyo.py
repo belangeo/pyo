@@ -473,6 +473,35 @@ class Fader(PyoObject):
     def dur(self, x):
         self.setDur(x)
 
+class Port(PyoObject):
+    def __init__(self, input, time=0.05, mul=1, add=0):
+        self._in_fader = InputFader(input)
+        in_fader, time, mul, add, lmax = _convertArgsToLists(self._in_fader, time, mul, add)
+        self._base_objs = [Port_base(_wrap(in_fader,i), _wrap(time,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        self._in_fader.setInput(x, fadetime)
+        
+    def setTime(self, x):
+        x, lmax = _convertArgsToLists(x)
+        [obj.setTime(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        pass
+
+    @input.setter
+    def input(self, x):
+        self.setInput(x)
+
+    @property
+    def time(self):
+        pass
+
+    @time.setter
+    def time(self, x):
+        self.setTime(x)
+
 ######################################################################
 ### Effects
 ######################################################################                                       
