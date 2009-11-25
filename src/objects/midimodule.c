@@ -46,7 +46,7 @@ Midictl_setProcMode(Midictl *self)
 }
 
 // Take MIDI events and translate them into OpenGL parameters
-void translateMidi(Midictl *self, PmEvent buffer[1])
+void translateMidi(Midictl *self, PmEvent buffer[10])
 {
 	int status = Pm_MessageStatus(buffer[0].message);	// Temp note event holders
 	int number = Pm_MessageData1(buffer[0].message);
