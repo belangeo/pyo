@@ -122,7 +122,10 @@ elif example == 17:
 elif example == 18:
     a = Sine(.1, 0, .25, -1)
     sf = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', speed=a, loop=True, offset=0, interp=4, mul=.5).out()
-        
+elif example == 19:
+    a = Notein(mul=.5)
+    b = Sine(a['pitch'], 0, a['velocity']).out()
+            
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

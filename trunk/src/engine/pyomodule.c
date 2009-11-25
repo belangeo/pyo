@@ -217,6 +217,16 @@ init_pyo(void)
     Py_INCREF(&MidictlType);
     PyModule_AddObject(m, "Midictl_base", (PyObject *)&MidictlType);
 
+    if (PyType_Ready(&MidiNoteType) < 0)
+        return;
+    Py_INCREF(&MidiNoteType);
+    PyModule_AddObject(m, "MidiNote_base", (PyObject *)&MidiNoteType);
+
+    if (PyType_Ready(&NoteinType) < 0)
+        return;
+    Py_INCREF(&NoteinType);
+    PyModule_AddObject(m, "Notein_base", (PyObject *)&NoteinType);
+    
     if (PyType_Ready(&OscSendType) < 0)
         return;
     Py_INCREF(&OscSendType);
