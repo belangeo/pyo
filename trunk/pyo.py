@@ -290,9 +290,10 @@ class TableRec(PyoObject):
 ######################################################################                                       
 class Sine(PyoObject):
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
+        self._mul = mul
         freq, phase, mul, add, lmax = _convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Sine_base(_wrap(freq,i), _wrap(phase,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
-       
+
     def setFreq(self, x):
         x, lmax = _convertArgsToLists(x)
         [obj.setFreq(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -604,7 +605,7 @@ class Delay(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = _convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Delay_base(_wrap(in_fader,i), _wrap(delay,i), _wrap(feedback,i), _wrap(maxdelay,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
-
+        
     def setInput(self, x, fadetime=0.05):
         self._in_fader.setInput(x, fadetime)
 

@@ -18,7 +18,7 @@ static void portmidiGetEvents(Server *self)
     while (status = Pm_Poll(self->in))		// For all messages in queue
     {
         if (status == TRUE) {	// If no error
-            length = Pm_Read(self->in, self->midibuf,1);	// Read the next message
+            length = Pm_Read(self->in, self->midibuf, 1);	// Read the next message
         }
     }
 }
