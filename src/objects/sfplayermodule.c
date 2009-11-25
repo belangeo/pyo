@@ -75,11 +75,10 @@ SfPlayer_readframes_i(SfPlayer *self) {
 
     sp = PyFloat_AS_DOUBLE(self->speed);
 
-    delta = fabsf(sp * self->srScale);
-
-    totlen = self->sndChnls*buflen;
+    delta = fabsf(sp) * self->srScale;
     
     buflen = (int)(self->bufsize * delta) + 10;
+    totlen = self->sndChnls*buflen;
     float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
 
@@ -348,9 +347,9 @@ SfPlayer_readframes_a(SfPlayer *self) {
 static void
 SfPlayer_setProcMode(SfPlayer *self)
 {
-    int procmode, muladdmode;
+    int procmode;
     procmode = self->modebuffer[2];
-    
+
 	switch (procmode) {
         case 0:        
             self->proc_func_ptr = SfPlayer_readframes_i;
