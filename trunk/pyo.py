@@ -69,22 +69,26 @@ class PyoObject(object):
 
     def __add__(self, x):
         x, lmax = _convertArgsToLists(x)
-        return Dummy([obj + _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        self._add_dummy = Dummy([obj + _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        return self._add_dummy
         
     def __radd__(self, x):
         x, lmax = _convertArgsToLists(x)
-        return Dummy([obj + _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        self._add_dummy = Dummy([obj + _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        return self._add_dummy
             
     def __iadd__(self, x):
         self.setAdd(x)
 
     def __mul__(self, x):
         x, lmax = _convertArgsToLists(x)
-        return Dummy([obj * _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        self._mul_dummy = Dummy([obj * _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        return self._mul_dummy
         
     def __rmul__(self, x):
         x, lmax = _convertArgsToLists(x)
-        return Dummy([obj * _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        self._mul_dummy = Dummy([obj * _wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        return self._mul_dummy
             
     def __imul__(self, x):
         self.setMul(x)
@@ -118,31 +122,27 @@ class PyoObject(object):
         [obj.stop() for obj in self._base_objs]
 
     def mix(self, voices=1):
-        return Mix(self, voices)
+        self._mix = Mix(self, voices)
+        return self._mix
         
     def setMul(self, x):
+        self._mul = x
         x, lmax = _convertArgsToLists(x)
         [obj.setMul(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setAdd(self, x):
+        self._add = x
         x, lmax = _convertArgsToLists(x)
         [obj.setAdd(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def mul(self):
-        pass
-
+    def mul(self): return self._mul
     @property
-    def add(self):
-        pass
-        
+    def add(self): return self._add
     @mul.setter
-    def mul(self, x):
-        self.setMul(x)
-        
+    def mul(self, x): self.setMul(x)
     @add.setter
-    def add(self, x):
-        self.setAdd(x)
+    def add(self, x): self.setAdd(x)
             
 ######################################################################
 ### PyoTableObject -> base class for pyo table objects
@@ -168,6 +168,7 @@ class PyoTableObject(object):
 ######################################################################
 class Mix(PyoObject):
     def __init__(self, input, voices=1, mul=1, add=0):
+        self._input = input
         input_objs = input.getBaseObjects()
         if voices < 1: voices = 1
         elif voices > len(input_objs): voices = len(input_objs)
@@ -181,10 +182,12 @@ class Dummy(PyoObject):
 
 class InputFader(PyoObject):
     def __init__(self, input):
+        self._input = input
         input, lmax = _convertArgsToLists(input)
         self._base_objs = [InputFader_base(_wrap(input,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        self._input = x
         x, lmax = _convertArgsToLists(x)
         [obj.setInput(_wrap(x,i), fadetime) for i, obj in enumerate(self._base_objs)]
          
@@ -197,6 +200,7 @@ class HarmTable(PyoTableObject):
         self._base_objs = [HarmTable_base(list, size)]
         
     def setSize(self, size):
+        self._size = size
         [obj.setSize(size) for obj in self._base_objs]
     
     def getSize(self):
@@ -206,12 +210,9 @@ class HarmTable(PyoTableObject):
         [obj.replace(list) for obj in self._base_objs]
 
     @property
-    def size(self):
-        pass
-
+    def size(self): return self._size
     @size.setter
-    def size(self, x):
-        self.setSize(x)
+    def size(self, x): self.setSize(x)
         
 class HannTable(PyoTableObject):
     def __init__(self, size=8192):
@@ -219,18 +220,16 @@ class HannTable(PyoTableObject):
         self._base_objs = [HannTable_base(size)]
 
     def setSize(self, size):
+        self._size = size
         [obj.setSize(size) for obj in self._base_objs]
     
-    def getSize(self):
+    def getSize(self): 
         return self._size
 
     @property
-    def size(self):
-        pass
-
+    def size(self): return self._size
     @size.setter
-    def size(self, x):
-        self.setSize(x)
+    def size(self, x): self.setSize(x)
 
 class SndTable(PyoTableObject):
     def __init__(self, path, chnl=None):
@@ -261,6 +260,8 @@ class NewTable(PyoTableObject):
 
 class TableRec(PyoObject):
     def __init__(self, input, table, fadetime=0):
+        self._input - input
+        self._table = table
         self._in_fader = InputFader(input)
         in_fader, table, fadetime, lmax = _convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(_wrap(in_fader,i), _wrap(table,i), _wrap(fadetime,i)) for i in range(len(table))]
@@ -275,68 +276,72 @@ class TableRec(PyoObject):
         pass    
 
     def setInput(self, x, fadetime=0.05):
+        self._input = x
         self._in_fader.setInput(x, fadetime)
       
     @property
-    def input(self):
-        pass
-
+    def input(self): return self._input
     @input.setter
-    def input(self, x):
-        self.setInput(x)
+    def input(self, x): self.setInput(x)
                     
 ######################################################################
 ### Sources
 ######################################################################                                       
 class Sine(PyoObject):
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
+        self._freq = freq
+        self._phase = phase
         self._mul = mul
+        self._add = add
         freq, phase, mul, add, lmax = _convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Sine_base(_wrap(freq,i), _wrap(phase,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setFreq(self, x):
+        self._freq = x
         x, lmax = _convertArgsToLists(x)
         [obj.setFreq(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setPhase(self, x):
+        self._phase = x
         x, lmax = _convertArgsToLists(x)
         [obj.setPhase(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def freq(self):
-        pass
-
+    def freq(self): return self._freq
     @property
-    def phase(self):
-        pass
-
+    def phase(self): return self._phase
     @freq.setter
-    def freq(self, x):
-        self.setFreq(x)
-
+    def freq(self, x): self.setFreq(x)
     @phase.setter
-    def phase(self, x):
-        self.setPhase(x)
+    def phase(self, x): self.setPhase(x)
  
 class Osc(PyoObject):
     def __init__(self, table, freq=1000, mul=1, add=0):
+        self._table = table
+        self._freq = freq
+        self._mul = mul
+        self._add = add
         table, freq, mul, add, lmax = _convertArgsToLists(table, freq, mul, add)
         self._base_objs = [Osc_base(_wrap(table,i), _wrap(freq,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setFreq(self, x):
+        self._freq = x
         x, lmax = _convertArgsToLists(x)
         [obj.setFreq(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def freq(self):
-        pass
-
+    def freq(self): return self._freq
     @freq.setter
-    def freq(self, x):
-        self.setFreq(x)
+    def freq(self, x): self.setFreq(x)
 
 class SfPlayer(PyoObject):
     def __init__(self, path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0):
+        self._speed = speed
+        self._loop = loop
+        self._offset = offset
+        self._interp = interp
+        self._mul = mul
+        self._add = add
         path, speed, loop, offset, interp, mul, add, lmax = _convertArgsToLists(path, speed, loop, offset, interp, mul, add)
         self._base_objs = []
         self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path[0])
@@ -368,62 +373,56 @@ class SfPlayer(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     def setSpeed(self, x):
+        self._speed = x
         x, lmax = _convertArgsToLists(x)
         [obj.setSpeed(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setLoop(self, x):
+        self._loop = x
         x, lmax = _convertArgsToLists(x)
         for i, obj in enumerate(self._base_players):
             if _wrap(x,i): obj.setLoop(1)
             else: obj.setLoop(0)
 
     def setOffset(self, x):
+        self._offset = x
         x, lmax = _convertArgsToLists(x)
         [obj.setOffset(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
+        self.interp = x
         x, lmax = _convertArgsToLists(x)
         [obj.setInterp(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
                     
     @property
-    def speed(self):
-        pass
-
+    def speed(self): return self._speed
     @property
-    def loop(self):
-        pass
-
+    def loop(self): return self._loop
     @property
-    def offset(self):
-        pass
-
+    def offset(self): return self._offset
     @property
-    def interp(self):
-        pass
-             
+    def interp(self): return self._interp
     @speed.setter
-    def speed(self, x):
-        self.setSpeed(x)
-
+    def speed(self, x): self.setSpeed(x)
     @loop.setter
-    def loop(self, x):
-        self.setLoop(x)
-
+    def loop(self, x): self.setLoop(x)
     @offset.setter
-    def offset(self, x):
-        self.setOffset(x)
-
+    def offset(self, x): self.setOffset(x)
     @interp.setter
-    def interp(self, x):
-        self.setInterp(x)
+    def interp(self, x): self.setInterp(x)
 
 class Input(PyoObject):
     def __init__(self, chnl, mul=1, add=0):                
+        self._chnl = chnl
+        self._mul = mul
+        self._add = add
         chnl, mul, add, lmax = _convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(_wrap(chnl,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
 class Noise(PyoObject):
     def __init__(self, mul=1, add=0):                
+        self._mul = mul
+        self._add = add
         mul, add, lmax = _convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(_wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
@@ -432,6 +431,11 @@ class Noise(PyoObject):
 ######################################################################                                       
 class Fader(PyoObject):
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
+        self._fadein = fadein
+        self._fadeout = fadeout
+        self._dur = dur
+        self._mul = mul
+        self._add = add
         fadein, fadeout, dur, mul, add, lmax = _convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(_wrap(fadein,i), _wrap(fadeout,i), _wrap(dur,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
@@ -439,213 +443,195 @@ class Fader(PyoObject):
         pass
 
     def setFadein(self, x):
+        self._fadein = x
         x, lmax = _convertArgsToLists(x)
         [obj.setFadein(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setFadeout(self, x):
+        self._fadeout = x
         x, lmax = _convertArgsToLists(x)
         [obj.setFadeout(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
+        self._dur = x
         x, lmax = _convertArgsToLists(x)
         [obj.setDur(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def fadein(self):
-        pass
-
+    def fadein(self): return self._fadein
     @property
-    def fadeout(self):
-        pass
-
+    def fadeout(self): return self._fadeout
     @property
-    def dur(self):
-        pass
-
+    def dur(self): return self._dur
     @fadein.setter
-    def fadein(self, x):
-        self.setFadein(x)
-
+    def fadein(self, x): self.setFadein(x)
     @fadeout.setter
-    def fadeout(self, x):
-        self.setFadeout(x)
-
+    def fadeout(self, x): self.setFadeout(x)
     @dur.setter
-    def dur(self, x):
-        self.setDur(x)
+    def dur(self, x): self.setDur(x)
 
 class Port(PyoObject):
     def __init__(self, input, time=0.05, mul=1, add=0):
+        self._input = input
+        self._time = time
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
         in_fader, time, mul, add, lmax = _convertArgsToLists(self._in_fader, time, mul, add)
         self._base_objs = [Port_base(_wrap(in_fader,i), _wrap(time,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        self._input = x
         self._in_fader.setInput(x, fadetime)
         
     def setTime(self, x):
+        self._time = x
         x, lmax = _convertArgsToLists(x)
         [obj.setTime(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def input(self):
-        pass
-
+    def input(self): return self._input
     @input.setter
-    def input(self, x):
-        self.setInput(x)
-
+    def input(self, x): self.setInput(x)
     @property
-    def time(self):
-        pass
-
+    def time(self): return self._time
     @time.setter
-    def time(self, x):
-        self.setTime(x)
+    def time(self, x): self.setTime(x)
 
 ######################################################################
 ### Effects
 ######################################################################                                       
 class Biquad(PyoObject):
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._type = type
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
         in_fader, freq, q, type, mul, add, lmax = _convertArgsToLists(self._in_fader, freq, q, type, mul, add)
         self._base_objs = [Biquad_base(_wrap(in_fader,i), _wrap(freq,i), _wrap(q,i), _wrap(type,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        self._input = x
         self._in_fader.setInput(x, fadetime)
         
     def setFreq(self, x):
+        self._freq = x
         x, lmax = _convertArgsToLists(x)
         [obj.setFreq(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
+        self.q = x
         x, lmax = _convertArgsToLists(x)
         [obj.setQ(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
+        self._type = x
         x, lmax = _convertArgsToLists(x)
         [obj.setType(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def input(self):
-        pass
-
+    def input(self): return self._input
     @input.setter
-    def input(self, x):
-        self.setInput(x)
-
+    def input(self, x): self.setInput(x)
     @property
-    def freq(self):
-        pass
-
-    @property
-    def q(self):
-        pass
-
-    @property
-    def type(self):
-        pass
-
+    def freq(self): return self._freq
     @freq.setter
-    def freq(self, x):
-        self.setFreq(x)
-
+    def freq(self, x): self.setFreq(x)
+    @property
+    def q(self): return self._q
     @q.setter
-    def q(self, x):
-        self.setQ(x)
-
+    def q(self, x): self.setQ(x)
+    @property
+    def type(self): return self._type
     @type.setter
-    def type(self, x):
-        self.setType(x)
+    def type(self, x): self.setType(x)
 
 class Disto(PyoObject):
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
+        self._input = input
+        self._drive = drive
+        self._slope = slope
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
         in_fader, drive, slope, mul, add, lmax = _convertArgsToLists(self._in_fader, drive, slope, mul, add)
         self._base_objs = [Disto_base(_wrap(in_fader,i), _wrap(drive,i), _wrap(slope,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        self._input = x
         self._in_fader.setInput(x, fadetime)
  
     def setDrive(self, x):
+        self._drive = x
         x, lmax = _convertArgsToLists(x)
         [obj.setDrive(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setSlope(self, x):
+        self._slope = x
         x, lmax = _convertArgsToLists(x)
         [obj.setSlope(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def input(self):
-        pass
-
+    def input(self): return self._input
     @input.setter
-    def input(self, x):
-        self.setInput(x)
-
+    def input(self, x): self.setInput(x)
     @property
-    def drive(self):
-        pass
-
-    @property
-    def slope(self):
-        pass
-
+    def drive(self): return self._drive
     @drive.setter
-    def drive(self, x):
-        self.setDrive(x)
-
+    def drive(self, x): self.setDrive(x)
+    @property
+    def slope(self): return self._slope
     @slope.setter
-    def slope(self, x):
-        self.setSlope(x)
+    def slope(self, x): self.setSlope(x)
 
 class Delay(PyoObject):
     def __init__(self, input, delay=0, feedback=0, maxdelay=1, mul=1, add=0):
+        self._input = input
+        self._delay = delay
+        self._feedback = feedback
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = _convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Delay_base(_wrap(in_fader,i), _wrap(delay,i), _wrap(feedback,i), _wrap(maxdelay,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
         
     def setInput(self, x, fadetime=0.05):
+        self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setDelay(self, x):
+        self._delay = x
         x, lmax = _convertArgsToLists(x)
         [obj.setDelay(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setFeedback(self, x):
+        self._feedback = x
         x, lmax = _convertArgsToLists(x)
         [obj.setFeedback(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def input(self):
-        pass
-
+    def input(self): return self._input
     @input.setter
-    def input(self, x):
-        self.setInput(x)
- 
+    def input(self, x): self.setInput(x) 
     @property
-    def delay(self):
-        pass
-
-    @property
-    def feedback(self):
-        pass
-
+    def delay(self): return self._delay
     @delay.setter
-    def delay(self, x):
-        self.setDelay(x)
-
+    def delay(self, x): self.setDelay(x)
+    @property
+    def feedback(self): return self._feedback
     @feedback.setter
-    def feedback(self, x):
-        self.setFeedback(x)
+    def feedback(self, x): self.setFeedback(x)
 
 ######################################################################
 ### MIDI
 ######################################################################                                       
 class Midictl(PyoObject):
     def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
+        self._mul = mul
+        self._add = add
         ctlnumber, minscale, maxscale, mul, add, lmax = _convertArgsToLists(ctlnumber, minscale, maxscale, mul, add)
         self._base_objs = [Midictl_base(_wrap(ctlnumber,i), _wrap(minscale,i), _wrap(maxscale,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
@@ -655,6 +641,8 @@ class Midictl(PyoObject):
 class Notein(PyoObject):
     def __init__(self, voices=10, mul=1, add=0):
         self._voices = voices
+        self._mul = mul
+        self._add = add
         mul, add, lmax = _convertArgsToLists(mul, add)
         self._base_handler = MidiNote_base(self._voices)
         self._base_objs = []
@@ -693,9 +681,14 @@ class Notein(PyoObject):
 ######################################################################                                       
 class OscSend(PyoObject):
     def __init__(self, input, port, address, host="127.0.0.1"):    
+        self._input = input
         self._in_fader = InputFader(input)
         in_fader, port, address, host, lmax = _convertArgsToLists(self._in_fader, port, address, host)
         self._base_objs = [OscSend_base(_wrap(in_fader,i), _wrap(port,i), _wrap(address,i), _wrap(host,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
             
     def out(self, chnl=0):
         pass
@@ -707,15 +700,14 @@ class OscSend(PyoObject):
         pass    
 
     @property
-    def input(self):
-        pass
-
+    def input(self): return self._input
     @input.setter
-    def input(self, x):
-        self.setInput(x)
+    def input(self, x): self.setInput(x)
          
 class OscReceive(PyoObject):
     def __init__(self, port, address, mul=1, add=0):    
+        self._mul = mul
+        self._add = add
         address, mul, add, lmax = _convertArgsToLists(address, mul, add)
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
