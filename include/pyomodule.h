@@ -15,6 +15,8 @@ extern PyTypeObject DistoType;
 extern PyTypeObject DelayType;
 
 extern PyTypeObject MidictlType;
+extern PyTypeObject MidiNoteType;
+extern PyTypeObject NoteinType;
 
 extern PyTypeObject DummyType;
 extern PyTypeObject MixType;
