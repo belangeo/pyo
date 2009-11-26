@@ -13,7 +13,8 @@ typedef struct {
     PyObject *streams;
     PaStream *stream;
     PmStream *in;
-    PmEvent midibuf[1];
+    PmEvent midiEvents[200];
+    int midi_count;
     float samplingRate;
     int nchnls;
     int bufferSize;
@@ -31,6 +32,7 @@ PyObject * PyServer_get_server();
 extern PyObject * Server_removeStream(Server *self, int sid);
 extern float * Server_getInputBuffer(Server *self);    
 extern PmEvent * Server_getMidiEventBuffer(Server *self);    
+extern int Server_getMidiEventCount(Server *self);    
 extern PyTypeObject ServerType;    
     
 

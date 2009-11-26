@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 14
+example = 9
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -59,8 +59,8 @@ elif example == 8:
 elif example == 9:
     # need a MIDI device available (and portmidi installed)
     t = HarmTable([1])
-    m = Midictl(ctlnumber=74, minscale=250, maxscale=1000)
-    p = Port(m, .1)
+    m = Midictl(ctlnumber=[74,71], minscale=250, maxscale=1000)
+    p = Port(m, .02)
     a = Osc(t, p, .5).out()
     a1 = Osc(t, p * 1.25, .5).out()
     a2 = Osc(t, p * 1.5, .5).out()
@@ -124,7 +124,7 @@ elif example == 18:
     sf = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', speed=1, loop=True, offset=0, interp=2, mul=.5).out()
 elif example == 19:
     a = Notein(mul=.5, voices=10)
-    b = Sine(a['pitch'], 0, Port(a['velocity'], .1)).out()
+    b = Sine(a['pitch'], 0, Port(a['velocity'], .01)).out()
             
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):

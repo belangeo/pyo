@@ -14,13 +14,17 @@ static Server *my_server = NULL;
 /* Portmidi get input events */
 static void portmidiGetEvents(Server *self) 
 {
-    PmError status, length;	
-    while (status = Pm_Poll(self->in))		// For all messages in queue
-    {
-        if (status == TRUE) {	// If no error
-            length = Pm_Read(self->in, self->midibuf, 1);	// Read the next message
-        }
-    }
+    PmError result;
+    PmEvent buffer;
+
+    do {
+        result = Pm_Poll(self->in);
+        if (result) {
+            if (Pm_Read(self->in, &buffer, 1) == pmBufferOverflow) 
+                continue;
+            self->midiEvents[self->midi_count++] = buffer;
+        }    
+    } while (result);  
 }
 
 /* Portaudio stuff */
@@ -101,7 +105,8 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     
     if (my_server->record == 1)
         sf_write_float(my_server->recfile, out, framesPerBuffer * nchnls);
-    
+
+    my_server->midi_count = 0;
     return paContinue;
 }
 
@@ -221,6 +226,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     //err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paClipOff, callback, NULL);
     portaudio_assert(err, "Pa_OpenStream");
 
+    /* Initializing MIDI */    
     pmerr = Pm_Initialize();
     if (pmerr) {
         printf("could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
@@ -258,10 +264,8 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         }    
     }
     if (self->withPortMidi == 1) {
+        self->midi_count = 0;
         Pm_SetFilter(self->in, PM_FILT_ACTIVE | PM_FILT_CLOCK);
-        while (Pm_Poll(self->in)) {
-            Pm_Read(self->in, self->midibuf, 1);
-        }
     }
     
     return 0;
@@ -379,7 +383,12 @@ Server_getInputBuffer(Server *self) {
 
 PmEvent *
 Server_getMidiEventBuffer(Server *self) {
-    return (PmEvent *)self->midibuf;
+    return (PmEvent *)self->midiEvents;
+}
+
+int
+Server_getMidiEventCount(Server *self) {
+    return self->midi_count;
 }
 
 static PyObject *

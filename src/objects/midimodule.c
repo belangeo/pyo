@@ -45,39 +45,34 @@ Midictl_setProcMode(Midictl *self)
     }    
 }
 
-// Take MIDI events and translate them into OpenGL parameters
-void translateMidi(Midictl *self, PmEvent buffer[10])
+// Take MIDI events and translate them...
+void translateMidi(Midictl *self, PmEvent *buffer, int count)
 {
-	int status = Pm_MessageStatus(buffer[0].message);	// Temp note event holders
-	int number = Pm_MessageData1(buffer[0].message);
-	int value = Pm_MessageData2(buffer[0].message);
+    int i;
+    for (i=count-1; i>=0; i--) {
+        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = Pm_MessageData1(buffer[i].message);
+        int value = Pm_MessageData2(buffer[i].message);
 
-    if (status == 0xB0 && number == self->ctlnumber) {
-        self->oldValue = self->value;
-        self->value = (value / 127.) * (self->maxscale - self->minscale) + self->minscale;
+        if (status == 0xB0 && number == self->ctlnumber) {
+            self->oldValue = self->value;
+            self->value = (value / 127.) * (self->maxscale - self->minscale) + self->minscale;
+            break;
+        }
     }    
-/*	
-    switch (status)
-	{
-        case 0x90:					// It's a note!
-            printf("%i, %i\n",pitch, velocity);
-            self->freq = 8.175798 * powf(1.0594633, pitch);
-            break;
-        case 0xB0:					// It's a controller!
-            printf("%i, %i\n",pitch, velocity);
-            break;
-    }
-*/ 
-}    
-    
+}
+
 static void
 Midictl_compute_next_data_frame(Midictl *self)
 {   
     PmEvent *tmp;
-    int i;
+    int i, count;
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
-    translateMidi((Midictl *)self, tmp);
+    count = Server_getMidiEventCount((Server *)self->server);
+
+    if (count > 0)
+        translateMidi((Midictl *)self, tmp, count);
     float step = (self->value - self->oldValue) / self->bufsize;
 
     for (i=0; i<self->bufsize; i++) {
@@ -327,38 +322,43 @@ int whichVoice(int *buf, int pitch, int len) {
 }
 
 // Take MIDI events and keep track of notes
-void grabMidiNotes(MidiNote *self, PmEvent buffer[1])
+void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
 {
     int i, voice;
-	int status = Pm_MessageStatus(buffer[0].message);	// Temp note event holders
-	int pitch = Pm_MessageData1(buffer[0].message);
-	int velocity = Pm_MessageData2(buffer[0].message);
+    for (i=0; i<count; i++) {
+        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+        int pitch = Pm_MessageData1(buffer[i].message);
+        int velocity = Pm_MessageData2(buffer[i].message);
     
-    if (status == 0x90) {
-        if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0) {
-            voice = firstEmpty(self->notebuf, self->voices);
-            if (voice > -1) {
-                self->notebuf[voice*2] = pitch;
-                self->notebuf[voice*2+1] = velocity;
-                //printf("%i, %i, %i, %i, %i, %i, %i, %i\n", self->notebuf[0], self->notebuf[1], self->notebuf[2], self->notebuf[3], self->notebuf[4], self->notebuf[5], self->notebuf[6], self->notebuf[7]);
+        if (status == 0x90) {
+            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0) {
+                voice = firstEmpty(self->notebuf, self->voices);
+                if (voice > -1) {
+                    self->notebuf[voice*2] = pitch;
+                    self->notebuf[voice*2+1] = velocity;
+                    //printf("%i, %i, %i, %i, %i, %i, %i, %i\n", self->notebuf[0], self->notebuf[1], self->notebuf[2], self->notebuf[3], self->notebuf[4], self->notebuf[5], self->notebuf[6], self->notebuf[7]);
+                }    
             }    
-        }    
-        else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0) {
-            voice = whichVoice(self->notebuf, pitch, self->voices);
-            self->notebuf[voice*2] = -1;
-            self->notebuf[voice*2+1] = 0;
-            //printf("%i, %i, %i, %i, %i, %i, %i, %i\n", self->notebuf[0], self->notebuf[1], self->notebuf[2], self->notebuf[3], self->notebuf[4], self->notebuf[5], self->notebuf[6], self->notebuf[7]);
+            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0) {
+                voice = whichVoice(self->notebuf, pitch, self->voices);
+                self->notebuf[voice*2] = -1;
+                self->notebuf[voice*2+1] = 0;
+                //printf("%i, %i, %i, %i, %i, %i, %i, %i\n", self->notebuf[0], self->notebuf[1], self->notebuf[2], self->notebuf[3], self->notebuf[4], self->notebuf[5], self->notebuf[6], self->notebuf[7]);
+            }
         }
-    }
+    }    
 }    
 
 static void
 MidiNote_compute_next_data_frame(MidiNote *self)
 {   
     PmEvent *tmp;
+    int count;
     
     tmp = Server_getMidiEventBuffer((Server *)self->server);
-    grabMidiNotes((MidiNote *)self, tmp);  
+    count = Server_getMidiEventCount((Server *)self->server);
+    if (count > 0)
+        grabMidiNotes((MidiNote *)self, tmp, count);  
 }
 
 static int
