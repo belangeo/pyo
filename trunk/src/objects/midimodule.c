@@ -280,6 +280,11 @@ typedef struct {
     pyo_audio_HEAD
     int *notebuf; /* pitch, velocity, ... */
     int voices;
+    int vcount;
+    int scale; /* 0 = midi, 1 = hertz, 2 = transpo */
+    int first;
+    int last;
+    int centralkey;
 } MidiNote;
 
 static void
@@ -298,6 +303,7 @@ pitchIsIn(int *buf, int pitch, int len) {
     return isIn;
 }
 
+/* no more used */
 int firstEmpty(int *buf, int len) {
     int i;
     int voice = -1;
@@ -330,20 +336,29 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
         int pitch = Pm_MessageData1(buffer[i].message);
         int velocity = Pm_MessageData2(buffer[i].message);
     
-        if (status == 0x90) {
-            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0) {
-                voice = firstEmpty(self->notebuf, self->voices);
-                if (voice > -1) {
-                    self->notebuf[voice*2] = pitch;
-                    self->notebuf[voice*2+1] = velocity;
-                    //printf("%i, %i, %i, %i, %i, %i, %i, %i\n", self->notebuf[0], self->notebuf[1], self->notebuf[2], self->notebuf[3], self->notebuf[4], self->notebuf[5], self->notebuf[6], self->notebuf[7]);
-                }    
+        //printf("%i, %i, %i\n", status, pitch, velocity);
+        if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80) {
+            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0 && pitch >= self->first && pitch <= self->last) {
+                //printf("%i, %i, %i\n", status, pitch, velocity);
+                //voice = firstEmpty(self->notebuf, self->voices);
+                voice = self->vcount;
+                self->vcount++;
+                if (self->vcount == self->voices) 
+                    self->vcount = 0;
+                self->notebuf[voice*2] = pitch;
+                self->notebuf[voice*2+1] = velocity;
             }    
-            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0) {
+            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0 && pitch >= self->first && pitch <= self->last) {
+                //printf("%i, %i, %i\n", status, pitch, velocity);
                 voice = whichVoice(self->notebuf, pitch, self->voices);
                 self->notebuf[voice*2] = -1;
-                self->notebuf[voice*2+1] = 0;
-                //printf("%i, %i, %i, %i, %i, %i, %i, %i\n", self->notebuf[0], self->notebuf[1], self->notebuf[2], self->notebuf[3], self->notebuf[4], self->notebuf[5], self->notebuf[6], self->notebuf[7]);
+                self->notebuf[voice*2+1] = 0.;
+            }
+            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && (status & 0xF0) == 0x80 && pitch >= self->first && pitch <= self->last) {
+                //printf("%i, %i, %i\n", status, pitch, velocity);
+                voice = whichVoice(self->notebuf, pitch, self->voices);
+                self->notebuf[voice*2] = -1;
+                self->notebuf[voice*2+1] = 0.;
             }
         }
     }    
@@ -393,6 +408,10 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (MidiNote *)type->tp_alloc(type, 0);
 
     self->voices = 10;
+    self->vcount = 0;
+    self->scale = 0;
+    self->first = 0;
+    self->last = 127;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiNote_compute_next_data_frame);
@@ -407,9 +426,9 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
     int i;
     PyObject *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"voices", NULL};
+    static char *kwlist[] = {"voices", "scale", "first", "last", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->voices))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", kwlist, &self->voices, &self->scale, &self->first, &self->last))
         return -1; 
 
     Py_INCREF(self->stream);
@@ -421,6 +440,8 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
         self->notebuf[i*2] = -1;
         self->notebuf[i*2+1] = 0;
     }
+
+    self->centralkey = (self->first + self->last) / 2;
     
     (*self->mode_func_ptr)(self);
     
@@ -430,9 +451,23 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-int MidiNote_getValue(MidiNote *self, int voice, int which)
+float MidiNote_getValue(MidiNote *self, int voice, int which)
 {
-    return self->notebuf[voice*2+which];
+    float val;
+    int midival = self->notebuf[voice*2+which];
+    if (which == 0 && midival != -1) {
+        if (self->scale == 0)
+            val = midival;
+        else if (self->scale == 1)
+            val = 8.175798 * powf(1.0594633, midival);
+        else if (self->scale == 2)
+            val = powf(1.0594633, midival - self->centralkey);
+    }
+    else if (which == 0)
+        val = (float)midival;
+    else if (which == 1)
+        val = (float)midival / 127.;
+    return val;
 }
 
 static PyObject * MidiNote_getServer(MidiNote* self) { GET_SERVER };
@@ -506,8 +541,6 @@ typedef struct {
     int modebuffer[2];
     int voice;
     int mode; /* 0 = pitch, 1 = velocity */
-    int scale; /* 0 = midi, 1 = hertz, 2 = transpo */
-    int centralkey;
 } Notein;
 
 static void Notein_postprocessing_ii(Notein *self) { POST_PROCESSING_II };
@@ -541,19 +574,19 @@ static void
 Notein_compute_next_data_frame(Notein *self)
 {
     int i;
-    int tmp = MidiNote_getValue(self->handler, self->voice, self->mode);
+    float tmp = MidiNote_getValue(self->handler, self->voice, self->mode);
     
     if (self->mode == 0 && tmp != -1) {
         for (i=0; i<self->bufsize; i++) {
-            self->data[i] = 8.175798 * powf(1.0594633, tmp);
-        }   
+            self->data[i] = tmp;
+        }    
     } 
     else if (self->mode == 1) {
         for (i=0; i<self->bufsize; i++) {
-            self->data[i] = tmp / 127.;;
+            self->data[i] = tmp;
         }         
+        (*self->muladd_func_ptr)(self);
     }    
-    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -591,8 +624,6 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->voice = 0;
     self->mode = 0;
-    self->scale = 0;
-    self->centralkey = 69;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     
@@ -609,9 +640,9 @@ Notein_init(Notein *self, PyObject *args, PyObject *kwds)
     int i;
     PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"handler", "voice", "mode", "scale", "centralkey", "mul", "add", NULL};
+    static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiiiOO", kwlist, &handlertmp, &self->voice, &self->mode, &self->scale, &self->centralkey, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->handler);
