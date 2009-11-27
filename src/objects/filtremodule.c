@@ -578,37 +578,108 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    PyObject *time;
-    Stream *time_stream;
-    int modebuffer[3]; // need at least 2 slots for mul & add 
+    PyObject *risetime;
+    PyObject *falltime;
+    Stream *risetime_stream;
+    Stream *falltime_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
     float y1; // sample memory
+    float x1;
+    int dir;
 } Port;
 
+void direction(Port *self, float val)
+{
+    if (val == self->x1)
+        return;
+    
+    if (val > self->x1) {
+        self->x1 = val;
+        self->dir = 1;
+    }    
+    if (val < self->x1) {
+        self->x1 = val;
+        self->dir = 0;
+    }
+}    
+    
 static void
-Port_filters_i(Port *self) {
+Port_filters_ii(Port *self) {
     float val;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
-    float time = PyFloat_AS_DOUBLE(self->time);
-    float factor = 1. / (time * self->sr);
+    float risetime = PyFloat_AS_DOUBLE(self->risetime);
+    float falltime = PyFloat_AS_DOUBLE(self->falltime);
+    float risefactor = 1. / (risetime * self->sr);
+    float fallfactor = 1. / (falltime * self->sr);
+    float factors[2] = {fallfactor, risefactor};
 
     for (i=0; i<self->bufsize; i++) {
-        val = self->y1 + (*in++ - self->y1) * factor;
+        direction(self, in[i]);
+        val = self->y1 + (in[i] - self->y1) * factors[self->dir];
         self->y1 = val;
         self->data[i] = val;
     }
 }
 
 static void
-Port_filters_a(Port *self) {
-    float val, factor;
+Port_filters_ai(Port *self) {
+    float val, risefactor;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
-    float *time = Stream_getData((Stream *)self->time_stream);
+    float *risetime = Stream_getData((Stream *)self->risetime_stream);
+    float falltime = PyFloat_AS_DOUBLE(self->falltime);
+    float fallfactor = 1. / (falltime * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
-        factor = *time++ * self->sr;        
-        val = self->y1 + (*in++ - self->y1) / factor;
+        direction(self, in[i]);
+        risefactor = *risetime++ * self->sr;  
+        if (self->dir == 1)
+            val = self->y1 + (*in++ - self->y1) / risefactor;
+        else
+            val = self->y1 + (*in++ - self->y1) / fallfactor;
+        self->y1 = val;
+        self->data[i] = val;
+    }
+}
+
+static void
+Port_filters_ia(Port *self) {
+    float val, fallfactor;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *falltime = Stream_getData((Stream *)self->falltime_stream);
+    float risetime = PyFloat_AS_DOUBLE(self->risetime);
+    float risefactor = 1. / (risetime * self->sr);
+    
+    for (i=0; i<self->bufsize; i++) {
+        direction(self, in[i]);
+        fallfactor = *falltime++ * self->sr;  
+        if (self->dir == 1)
+            val = self->y1 + (*in++ - self->y1) / risefactor;
+        else
+            val = self->y1 + (*in++ - self->y1) / fallfactor;
+        self->y1 = val;
+        self->data[i] = val;
+    }
+}
+
+static void
+Port_filters_aa(Port *self) {
+    float val, risefactor, fallfactor;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *risetime = Stream_getData((Stream *)self->risetime_stream);
+    float *falltime = Stream_getData((Stream *)self->falltime_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        direction(self, in[i]);
+        risefactor = *risetime++ * self->sr;  
+        fallfactor = *falltime++ * self->sr;  
+        if (self->dir == 1)
+            val = self->y1 + (*in++ - self->y1) / risefactor;
+        else
+            val = self->y1 + (*in++ - self->y1) / fallfactor;
         self->y1 = val;
         self->data[i] = val;
     }
@@ -623,15 +694,21 @@ static void
 Port_setProcMode(Port *self)
 {
     int procmode, muladdmode;
-    procmode = self->modebuffer[2];
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (procmode) {
         case 0:    
-            self->proc_func_ptr = Port_filters_i;
+            self->proc_func_ptr = Port_filters_ii;
             break;
         case 1:    
-            self->proc_func_ptr = Port_filters_a;
+            self->proc_func_ptr = Port_filters_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = Port_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Port_filters_aa;
             break;
     } 
 	switch (muladdmode) {
@@ -664,8 +741,10 @@ Port_traverse(Port *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->time);    
-    Py_VISIT(self->time_stream);    
+    Py_VISIT(self->risetime);    
+    Py_VISIT(self->risetime_stream);    
+    Py_VISIT(self->falltime);    
+    Py_VISIT(self->falltime_stream);    
     return 0;
 }
 
@@ -675,8 +754,10 @@ Port_clear(Port *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->time);    
-    Py_CLEAR(self->time_stream);    
+    Py_CLEAR(self->risetime);    
+    Py_CLEAR(self->risetime_stream);    
+    Py_CLEAR(self->falltime);    
+    Py_CLEAR(self->falltime_stream);    
     return 0;
 }
 
@@ -696,11 +777,15 @@ Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Port *self;
     self = (Port *)type->tp_alloc(type, 0);
     
-    self->time = PyFloat_FromDouble(0.05);
+    self->risetime = PyFloat_FromDouble(0.05);
+    self->falltime = PyFloat_FromDouble(0.05);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
     self->y1 = 0.;
+    self->x1 = 0.;
+    self->dir = 1;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Port_compute_next_data_frame);
@@ -711,11 +796,11 @@ Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Port_init(Port *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *timetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "time", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "risetime", "falltime", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &timetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -725,10 +810,14 @@ Port_init(Port *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input_stream);
     self->input_stream = (Stream *)input_streamtmp;
     
-    if (timetmp) {
-        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+    if (risetimetmp) {
+        PyObject_CallMethod((PyObject *)self, "setRiseTime", "O", risetimetmp);
     }
 
+    if (falltimetmp) {
+        PyObject_CallMethod((PyObject *)self, "setFallTime", "O", falltimetmp);
+    }
+    
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -763,7 +852,7 @@ static PyObject * Port_add(Port *self, PyObject *arg) { ADD };
 static PyObject * Port_inplace_add(Port *self, PyObject *arg) { INPLACE_ADD };
 
 static PyObject *
-Port_setTime(Port *self, PyObject *arg)
+Port_setRiseTime(Port *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 	
@@ -776,18 +865,52 @@ Port_setTime(Port *self, PyObject *arg)
 	
 	tmp = arg;
 	Py_INCREF(tmp);
-	Py_DECREF(self->time);
+	Py_DECREF(self->risetime);
 	if (isNumber == 1) {
-		self->time = PyNumber_Float(tmp);
+		self->risetime = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
 	}
 	else {
-		self->time = tmp;
-        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
+		self->risetime = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->risetime, "_getStream", NULL);
         Py_INCREF(streamtmp);
-        Py_XDECREF(self->time_stream);
-        self->time_stream = (Stream *)streamtmp;
+        Py_XDECREF(self->risetime_stream);
+        self->risetime_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Port_setFallTime(Port *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->falltime);
+	if (isNumber == 1) {
+		self->falltime = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->falltime = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->falltime, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->falltime_stream);
+        self->falltime_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
 	}
     
     (*self->mode_func_ptr)(self);
@@ -800,7 +923,8 @@ static PyMemberDef Port_members[] = {
 {"server", T_OBJECT_EX, offsetof(Port, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Port, stream), 0, "Stream object."},
 {"input", T_OBJECT_EX, offsetof(Port, input), 0, "Input sound object."},
-{"time", T_OBJECT_EX, offsetof(Port, time), 0, "Portamento time in seconds."},
+{"risetime", T_OBJECT_EX, offsetof(Port, risetime), 0, "Rising portamento time in seconds."},
+{"falltime", T_OBJECT_EX, offsetof(Port, falltime), 0, "Falling portamento time in seconds."},
 {"mul", T_OBJECT_EX, offsetof(Port, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(Port, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
@@ -813,7 +937,8 @@ static PyMethodDef Port_methods[] = {
 {"play", (PyCFunction)Port_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Port_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Port_stop, METH_NOARGS, "Stops computing."},
-{"setTime", (PyCFunction)Port_setTime, METH_O, "Sets portamento time in seconds."},
+{"setRiseTime", (PyCFunction)Port_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
+{"setFallTime", (PyCFunction)Port_setFallTime, METH_O, "Sets falling portamento time in seconds."},
 {"setMul", (PyCFunction)Port_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Port_setAdd, METH_O, "Sets oscillator add factor."},
 {NULL}  /* Sentinel */

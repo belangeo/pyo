@@ -471,32 +471,42 @@ class Fader(PyoObject):
     def dur(self, x): self.setDur(x)
 
 class Port(PyoObject):
-    def __init__(self, input, time=0.05, mul=1, add=0):
+    def __init__(self, input, risetime=0.05, falltime=0.05, mul=1, add=0):
         self._input = input
-        self._time = time
+        self._risetime = risetime
+        self._falltime = falltime
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, time, mul, add, lmax = _convertArgsToLists(self._in_fader, time, mul, add)
-        self._base_objs = [Port_base(_wrap(in_fader,i), _wrap(time,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
+        in_fader, risetime, falltime, mul, add, lmax = _convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
+        self._base_objs = [Port_base(_wrap(in_fader,i), _wrap(risetime,i), _wrap(falltime,i), _wrap(mul,i), _wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         self._input = x
         self._in_fader.setInput(x, fadetime)
         
-    def setTime(self, x):
-        self._time = x
+    def setRiseTime(self, x):
+        self._risetime = x
         x, lmax = _convertArgsToLists(x)
-        [obj.setTime(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setRiseTime(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFallTime(self, x):
+        self._falltime = x
+        x, lmax = _convertArgsToLists(x)
+        [obj.setFallTime(_wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def input(self): return self._input
     @input.setter
     def input(self, x): self.setInput(x)
     @property
-    def time(self): return self._time
-    @time.setter
-    def time(self, x): self.setTime(x)
+    def risetime(self): return self._risetime
+    @risetime.setter
+    def risetime(self, x): self.setRiseTime(x)
+    @property
+    def falltime(self): return self._falltime
+    @falltime.setter
+    def falltime(self, x): self.setFallTime(x)
 
 ######################################################################
 ### Effects
@@ -639,16 +649,21 @@ class Midictl(PyoObject):
         pass
 
 class Notein(PyoObject):
-    def __init__(self, voices=10, mul=1, add=0):
+    def __init__(self, voices=10, scale=0, first=0, last=127, mul=1, add=0):
+        self._pitch_dummy = None
+        self._velocity_dummy = None
         self._voices = voices
+        self._scale = scale
+        self._first = first
+        self._last = last
         self._mul = mul
         self._add = add
         mul, add, lmax = _convertArgsToLists(mul, add)
-        self._base_handler = MidiNote_base(self._voices)
+        self._base_handler = MidiNote_base(self._voices, self._scale, self._first, self._last)
         self._base_objs = []
         for i in range(lmax * voices):
-            self._base_objs.append(Notein_base(self._base_handler, i, 0, 0, 0, 1, 0))
-            self._base_objs.append(Notein_base(self._base_handler, i, 1, 0, 0, _wrap(mul,0), _wrap(add,0)))
+            self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
+            self._base_objs.append(Notein_base(self._base_handler, i, 1, _wrap(mul,i), _wrap(add,i)))
 
     def __del__(self):
         for obj in self._base_objs:
@@ -659,9 +674,13 @@ class Notein(PyoObject):
 
     def __getitem__(self, str):
         if str == 'pitch':
-            return [self._base_objs[i*2] for i in range(self._voices)]
+            if self._pitch_dummy == None:
+                self._pitch_dummy = Dummy([self._base_objs[i*2] for i in range(self._voices)])
+            return self._pitch_dummy
         if str == 'velocity':
-            return [self._base_objs[i*2+1] for i in range(self._voices)]
+            if self._velocity_dummy == None:
+                self._velocity_dummy = Dummy([self._base_objs[i*2+1] for i in range(self._voices)])
+            return self._velocity_dummy
                         
     def play(self):
         self._base_handler.play()
