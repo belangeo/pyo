@@ -10,7 +10,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 
-example = 20
+example = 0
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -136,7 +136,10 @@ elif example == 20:
     a1 = Notein(voices=5, scale=2, first=12, last=23, mul=.7)
     p1 = Port(a1['velocity'], .001, 1)
     b1 = SfPlayer('/Users/olipet/Desktop/sons/dash.aif', a1['pitch'], loop=True, mul=p1).out()
-    
+elif example == 21:
+    a = Sine(.1, 0, .25, 1)
+    b = SfMarkerShuffler('/Users/olipet/Desktop/voix.aif', speed=a).out()
+        
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

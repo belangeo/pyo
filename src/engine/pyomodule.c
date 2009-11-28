@@ -176,6 +176,17 @@ init_pyo(void)
         return;
     Py_INCREF(&SfPlayType);
     PyModule_AddObject(m, "SfPlay_base", (PyObject *)&SfPlayType);
+
+    if (PyType_Ready(&SfMarkerShufflerType) < 0)
+        return;
+    Py_INCREF(&SfMarkerShufflerType);
+    PyModule_AddObject(m, "SfMarkerShuffler_base", (PyObject *)&SfMarkerShufflerType);
+    
+    if (PyType_Ready(&SfMarkerShuffleType) < 0)
+        return;
+    Py_INCREF(&SfMarkerShuffleType);
+    PyModule_AddObject(m, "SfMarkerShuffle_base", (PyObject *)&SfMarkerShuffleType);
+    
     
     if (PyType_Ready(&OscType) < 0)
         return;

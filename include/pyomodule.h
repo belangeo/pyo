@@ -7,6 +7,8 @@ extern PyTypeObject NoiseType;
 extern PyTypeObject InputType;
 extern PyTypeObject SfPlayerType;
 extern PyTypeObject SfPlayType;
+extern PyTypeObject SfMarkerShufflerType;
+extern PyTypeObject SfMarkerShuffleType;
 
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
