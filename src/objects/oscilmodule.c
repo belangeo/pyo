@@ -444,7 +444,7 @@ Osc_readframes_i(Osc *self) {
         self->pointerPos = fmodf((self->pointerPos + inc), size);
         if (self->pointerPos < 0)
             self->pointerPos = size + self->pointerPos;
-        ipart = (int)(self->pointerPos;
+        ipart = (int)self->pointerPos;
         fpart = self->pointerPos - ipart;
         x = tablelist[ipart];
         x1 = tablelist[ipart+1];
