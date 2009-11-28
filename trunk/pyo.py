@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from types import ListType
+import aifc
 from _pyo import *
 
 ######################################################################
@@ -408,6 +409,70 @@ class SfPlayer(PyoObject):
     def loop(self, x): self.setLoop(x)
     @offset.setter
     def offset(self, x): self.setOffset(x)
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
+
+class SfMarkerShuffler(PyoObject):
+    def __init__(self, path, speed=1, interp=0, mul=1, add=0):
+        self._speed = speed
+        self._interp = interp
+        self._mul = mul
+        self._add = add
+        path, speed, interp, mul, add, lmax = _convertArgsToLists(path, speed, interp, mul, add)
+        self._base_players = []
+        self._base_objs = []
+        self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        for i in range(lmax):
+            try:
+                sf = aifc.open(_wrap(path,i))
+                markerstmp = sf.getmarkers()
+                sf.close()
+                markers = [m[1] for m in markerstmp]
+            except:
+                markers = []    
+            self._base_players.append(SfMarkerShuffler_base(_wrap(path,i), markers, _wrap(speed,i), _wrap(interp,i)))
+        for i in range(lmax * self._snd_chnls):
+            j = i / self._snd_chnls
+            self._base_objs.append(SfMarkerShuffle_base(_wrap(self._base_players,j), i % self._snd_chnls, _wrap(mul,j), _wrap(add,j)))
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._base_players:
+            obj.deleteStream()
+            del obj
+                        
+    def play(self):
+        self._base_players = [obj.play() for obj in self._base_players]
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        return self
+
+    def out(self, chnl=0):
+        self._base_players = [obj.play() for obj in self._base_players]
+        self._base_objs = [obj.out(chnl+i) for i, obj in enumerate(self._base_objs)]
+        return self
+    
+    def stop(self):
+        [obj.stop() for obj in self._base_players]
+        [obj.stop() for obj in self._base_objs]
+
+    def setSpeed(self, x):
+        self._speed = x
+        x, lmax = _convertArgsToLists(x)
+        [obj.setSpeed(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setInterp(self, x):
+        self.interp = x
+        x, lmax = _convertArgsToLists(x)
+        [obj.setInterp(_wrap(x,i)) for i, obj in enumerate(self._base_players)]
+                    
+    @property
+    def speed(self): return self._speed
+    @property
+    def interp(self): return self._interp
+    @speed.setter
+    def speed(self, x): self.setSpeed(x)
     @interp.setter
     def interp(self, x): self.setInterp(x)
 
