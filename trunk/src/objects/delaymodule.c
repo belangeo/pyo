@@ -179,6 +179,8 @@ static void Delay_postprocessing_ii(Delay *self) { POST_PROCESSING_II };
 static void Delay_postprocessing_ai(Delay *self) { POST_PROCESSING_AI };
 static void Delay_postprocessing_ia(Delay *self) { POST_PROCESSING_IA };
 static void Delay_postprocessing_aa(Delay *self) { POST_PROCESSING_AA };
+static void Delay_postprocessing_ireva(Delay *self) { POST_PROCESSING_IREVA };
+static void Delay_postprocessing_areva(Delay *self) { POST_PROCESSING_AREVA };
 
 static void
 Delay_setProcMode(Delay *self)
@@ -213,6 +215,12 @@ Delay_setProcMode(Delay *self)
             break;
         case 11:    
             self->muladd_func_ptr = Delay_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Delay_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Delay_postprocessing_areva;
             break;
     }    
 }
@@ -340,6 +348,7 @@ static PyObject * Delay_getServer(Delay* self) { GET_SERVER };
 static PyObject * Delay_getStream(Delay* self) { GET_STREAM };
 static PyObject * Delay_setMul(Delay *self, PyObject *arg) { SET_MUL };	
 static PyObject * Delay_setAdd(Delay *self, PyObject *arg) { SET_ADD };	
+static PyObject * Delay_setSub(Delay *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Delay_play(Delay *self) { PLAY };
 static PyObject * Delay_out(Delay *self, PyObject *args, PyObject *kwds) { OUT };
@@ -349,6 +358,8 @@ static PyObject * Delay_multiply(Delay *self, PyObject *arg) { MULTIPLY };
 static PyObject * Delay_inplace_multiply(Delay *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Delay_add(Delay *self, PyObject *arg) { ADD };
 static PyObject * Delay_inplace_add(Delay *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Delay_sub(Delay *self, PyObject *arg) { SUB };
+static PyObject * Delay_inplace_sub(Delay *self, PyObject *arg) { INPLACE_SUB };
 
 static PyObject *
 Delay_setDelay(Delay *self, PyObject *arg)
@@ -440,12 +451,13 @@ static PyMethodDef Delay_methods[] = {
     {"setFeedback", (PyCFunction)Delay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 	{"setMul", (PyCFunction)Delay_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Delay_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Delay_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Delay_as_number = {
     (binaryfunc)Delay_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)Delay_sub,                 /*nb_subtract*/
     (binaryfunc)Delay_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -468,7 +480,7 @@ static PyNumberMethods Delay_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)Delay_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)Delay_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Delay_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/

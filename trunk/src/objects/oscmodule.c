@@ -201,6 +201,8 @@ static void OscReceive_postprocessing_ii(OscReceive *self) { POST_PROCESSING_II 
 static void OscReceive_postprocessing_ai(OscReceive *self) { POST_PROCESSING_AI };
 static void OscReceive_postprocessing_ia(OscReceive *self) { POST_PROCESSING_IA };
 static void OscReceive_postprocessing_aa(OscReceive *self) { POST_PROCESSING_AA };
+static void OscReceive_postprocessing_ireva(OscReceive *self) { POST_PROCESSING_IREVA };
+static void OscReceive_postprocessing_areva(OscReceive *self) { POST_PROCESSING_AREVA };
 
 static void
 OscReceive_setProcMode(OscReceive *self)
@@ -220,6 +222,12 @@ OscReceive_setProcMode(OscReceive *self)
             break;
         case 11:    
             self->muladd_func_ptr = OscReceive_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = OscReceive_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = OscReceive_postprocessing_areva;
             break;
     }    
 }
@@ -328,6 +336,7 @@ static PyObject * OscReceive_getServer(OscReceive* self) { GET_SERVER };
 static PyObject * OscReceive_getStream(OscReceive* self) { GET_STREAM };
 static PyObject * OscReceive_setMul(OscReceive *self, PyObject *arg) { SET_MUL };	
 static PyObject * OscReceive_setAdd(OscReceive *self, PyObject *arg) { SET_ADD };	
+static PyObject * OscReceive_setSub(OscReceive *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * OscReceive_play(OscReceive *self) { PLAY };
 static PyObject * OscReceive_stop(OscReceive *self) { STOP };
@@ -336,6 +345,8 @@ static PyObject * OscReceive_multiply(OscReceive *self, PyObject *arg) { MULTIPL
 static PyObject * OscReceive_inplace_multiply(OscReceive *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * OscReceive_add(OscReceive *self, PyObject *arg) { ADD };
 static PyObject * OscReceive_inplace_add(OscReceive *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * OscReceive_sub(OscReceive *self, PyObject *arg) { SUB };
+static PyObject * OscReceive_inplace_sub(OscReceive *self, PyObject *arg) { INPLACE_SUB };
 
 static PyMemberDef OscReceive_members[] = {
     {"server", T_OBJECT_EX, offsetof(OscReceive, server), 0, "Pyo server."},
@@ -353,12 +364,13 @@ static PyMethodDef OscReceive_methods[] = {
     {"stop", (PyCFunction)OscReceive_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)OscReceive_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)OscReceive_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)OscReceive_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods OscReceive_as_number = {
     (binaryfunc)OscReceive_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)OscReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscReceive_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -381,7 +393,7 @@ static PyNumberMethods OscReceive_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)OscReceive_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)OscReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscReceive_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/

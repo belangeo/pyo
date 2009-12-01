@@ -77,6 +77,8 @@ static void Fader_postprocessing_ii(Fader *self) { POST_PROCESSING_II };
 static void Fader_postprocessing_ai(Fader *self) { POST_PROCESSING_AI };
 static void Fader_postprocessing_ia(Fader *self) { POST_PROCESSING_IA };
 static void Fader_postprocessing_aa(Fader *self) { POST_PROCESSING_AA };
+static void Fader_postprocessing_ireva(Fader *self) { POST_PROCESSING_IREVA };
+static void Fader_postprocessing_areva(Fader *self) { POST_PROCESSING_AREVA };
 
 static void
 Fader_setProcMode(Fader *self)
@@ -101,6 +103,12 @@ Fader_setProcMode(Fader *self)
             break;
         case 11:    
             self->muladd_func_ptr = Fader_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Fader_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Fader_postprocessing_areva;
             break;
     }    
 }
@@ -200,6 +208,7 @@ static PyObject * Fader_getServer(Fader* self) { GET_SERVER };
 static PyObject * Fader_getStream(Fader* self) { GET_STREAM };
 static PyObject * Fader_setMul(Fader *self, PyObject *arg) { SET_MUL };	
 static PyObject * Fader_setAdd(Fader *self, PyObject *arg) { SET_ADD };	
+static PyObject * Fader_setSub(Fader *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Fader_play(Fader *self) 
 {
@@ -226,6 +235,8 @@ static PyObject * Fader_multiply(Fader *self, PyObject *arg) { MULTIPLY };
 static PyObject * Fader_inplace_multiply(Fader *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Fader_add(Fader *self, PyObject *arg) { ADD };
 static PyObject * Fader_inplace_add(Fader *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Fader_sub(Fader *self, PyObject *arg) { SUB };
+static PyObject * Fader_inplace_sub(Fader *self, PyObject *arg) { INPLACE_SUB };
 
 static PyObject *
 Fader_setFadein(Fader *self, PyObject *arg)
@@ -267,6 +278,7 @@ static PyMethodDef Fader_methods[] = {
 {"stop", (PyCFunction)Fader_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
 {"setAdd", (PyCFunction)Fader_setAdd, METH_O, "Sets Fader add factor."},
+{"setSub", (PyCFunction)Fader_setSub, METH_O, "Sets inverse add factor."},
 {"setFadein", (PyCFunction)Fader_setFadein, METH_O, "Sets fadein time in seconds."},
 {"setFadeout", (PyCFunction)Fader_setFadeout, METH_O, "Sets fadeout time in seconds."},
 {"setDur", (PyCFunction)Fader_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
@@ -275,7 +287,7 @@ static PyMethodDef Fader_methods[] = {
 
 static PyNumberMethods Fader_as_number = {
 (binaryfunc)Fader_add,                      /*nb_add*/
-0,                 /*nb_subtract*/
+(binaryfunc)Fader_sub,                 /*nb_subtract*/
 (binaryfunc)Fader_multiply,                 /*nb_multiply*/
 0,                   /*nb_divide*/
 0,                /*nb_remainder*/
@@ -298,7 +310,7 @@ static PyNumberMethods Fader_as_number = {
 0,                       /*nb_oct*/
 0,                       /*nb_hex*/
 (binaryfunc)Fader_inplace_add,              /*inplace_add*/
-0,         /*inplace_subtract*/
+(binaryfunc)Fader_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Fader_inplace_multiply,         /*inplace_multiply*/
 0,           /*inplace_divide*/
 0,        /*inplace_remainder*/

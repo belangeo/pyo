@@ -129,7 +129,7 @@ class SfMarkerShuffler(PyoObject):
         [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
-        self.interp = x
+        self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
                     

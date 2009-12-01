@@ -196,6 +196,11 @@ init_pyo(void)
     Py_INCREF(&MixType);
     PyModule_AddObject(m, "Mix_base", (PyObject *)&MixType);
 
+    if (PyType_Ready(&SigType) < 0)
+        return;
+    Py_INCREF(&SigType);
+    PyModule_AddObject(m, "Sig_base", (PyObject *)&SigType);
+    
     if (PyType_Ready(&InputFaderType) < 0)
         return;
     Py_INCREF(&InputFaderType);

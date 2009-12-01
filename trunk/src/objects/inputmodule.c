@@ -16,6 +16,8 @@ static void Input_postprocessing_ii(Input *self) { POST_PROCESSING_II };
 static void Input_postprocessing_ai(Input *self) { POST_PROCESSING_AI };
 static void Input_postprocessing_ia(Input *self) { POST_PROCESSING_IA };
 static void Input_postprocessing_aa(Input *self) { POST_PROCESSING_AA };
+static void Input_postprocessing_ireva(Input *self) { POST_PROCESSING_IREVA };
+static void Input_postprocessing_areva(Input *self) { POST_PROCESSING_AREVA };
 
 static void
 Input_setProcMode(Input *self)
@@ -35,6 +37,12 @@ Input_setProcMode(Input *self)
             break;
         case 11:    
             self->muladd_func_ptr = Input_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Input_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Input_postprocessing_areva;
             break;
     }    
 }
@@ -127,6 +135,7 @@ static PyObject * Input_getServer(Input* self) { GET_SERVER };
 static PyObject * Input_getStream(Input* self) { GET_STREAM };
 static PyObject * Input_setMul(Input *self, PyObject *arg) { SET_MUL };	
 static PyObject * Input_setAdd(Input *self, PyObject *arg) { SET_ADD };	
+static PyObject * Input_setSub(Input *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Input_play(Input *self) { PLAY };
 static PyObject * Input_out(Input *self, PyObject *args, PyObject *kwds) { OUT };
@@ -136,6 +145,8 @@ static PyObject * Input_multiply(Input *self, PyObject *arg) { MULTIPLY };
 static PyObject * Input_inplace_multiply(Input *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Input_add(Input *self, PyObject *arg) { ADD };
 static PyObject * Input_inplace_add(Input *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Input_sub(Input *self, PyObject *arg) { SUB };
+static PyObject * Input_inplace_sub(Input *self, PyObject *arg) { INPLACE_SUB };
 
 static PyMemberDef Input_members[] = {
     {"server", T_OBJECT_EX, offsetof(Input, server), 0, "Pyo server."},
@@ -146,7 +157,6 @@ static PyMemberDef Input_members[] = {
 };
 
 static PyMethodDef Input_methods[] = {
-    //{"getInput", (PyCFunction)Input_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Input_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
@@ -155,12 +165,13 @@ static PyMethodDef Input_methods[] = {
     {"stop", (PyCFunction)Input_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Input_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Input_as_number = {
     (binaryfunc)Input_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)Input_sub,                 /*nb_subtract*/
     (binaryfunc)Input_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -183,7 +194,7 @@ static PyNumberMethods Input_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)Input_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)Input_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Input_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/

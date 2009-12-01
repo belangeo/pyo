@@ -22,6 +22,8 @@ static void Midictl_postprocessing_ii(Midictl *self) { POST_PROCESSING_II };
 static void Midictl_postprocessing_ai(Midictl *self) { POST_PROCESSING_AI };
 static void Midictl_postprocessing_ia(Midictl *self) { POST_PROCESSING_IA };
 static void Midictl_postprocessing_aa(Midictl *self) { POST_PROCESSING_AA };
+static void Midictl_postprocessing_ireva(Midictl *self) { POST_PROCESSING_IREVA };
+static void Midictl_postprocessing_areva(Midictl *self) { POST_PROCESSING_AREVA };
 
 static void
 Midictl_setProcMode(Midictl *self)
@@ -41,6 +43,12 @@ Midictl_setProcMode(Midictl *self)
             break;
         case 11:    
             self->muladd_func_ptr = Midictl_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Midictl_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Midictl_postprocessing_areva;
             break;
     }    
 }
@@ -161,6 +169,7 @@ static PyObject * Midictl_getServer(Midictl* self) { GET_SERVER };
 static PyObject * Midictl_getStream(Midictl* self) { GET_STREAM };
 static PyObject * Midictl_setMul(Midictl *self, PyObject *arg) { SET_MUL };	
 static PyObject * Midictl_setAdd(Midictl *self, PyObject *arg) { SET_ADD };	
+static PyObject * Midictl_setSub(Midictl *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Midictl_play(Midictl *self) { PLAY };
 static PyObject * Midictl_out(Midictl *self, PyObject *args, PyObject *kwds) { OUT };
@@ -170,6 +179,8 @@ static PyObject * Midictl_multiply(Midictl *self, PyObject *arg) { MULTIPLY };
 static PyObject * Midictl_inplace_multiply(Midictl *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Midictl_add(Midictl *self, PyObject *arg) { ADD };
 static PyObject * Midictl_inplace_add(Midictl *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Midictl_sub(Midictl *self, PyObject *arg) { SUB };
+static PyObject * Midictl_inplace_sub(Midictl *self, PyObject *arg) { INPLACE_SUB };
 
 static PyMemberDef Midictl_members[] = {
     {"server", T_OBJECT_EX, offsetof(Midictl, server), 0, "Pyo server."},
@@ -189,12 +200,13 @@ static PyMethodDef Midictl_methods[] = {
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Midictl_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Midictl_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Midictl_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Midictl_as_number = {
     (binaryfunc)Midictl_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)Midictl_sub,                 /*nb_subtract*/
     (binaryfunc)Midictl_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -217,7 +229,7 @@ static PyNumberMethods Midictl_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)Midictl_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)Midictl_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Midictl_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/
@@ -547,6 +559,8 @@ static void Notein_postprocessing_ii(Notein *self) { POST_PROCESSING_II };
 static void Notein_postprocessing_ai(Notein *self) { POST_PROCESSING_AI };
 static void Notein_postprocessing_ia(Notein *self) { POST_PROCESSING_IA };
 static void Notein_postprocessing_aa(Notein *self) { POST_PROCESSING_AA };
+static void Notein_postprocessing_ireva(Notein *self) { POST_PROCESSING_IREVA };
+static void Notein_postprocessing_areva(Notein *self) { POST_PROCESSING_AREVA };
 
 static void
 Notein_setProcMode(Notein *self)
@@ -566,6 +580,12 @@ Notein_setProcMode(Notein *self)
             break;
         case 11:    
             self->muladd_func_ptr = Notein_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Notein_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Notein_postprocessing_areva;
             break;
     }    
 }
@@ -676,6 +696,7 @@ static PyObject * Notein_getServer(Notein* self) { GET_SERVER };
 static PyObject * Notein_getStream(Notein* self) { GET_STREAM };
 static PyObject * Notein_setMul(Notein *self, PyObject *arg) { SET_MUL };	
 static PyObject * Notein_setAdd(Notein *self, PyObject *arg) { SET_ADD };	
+static PyObject * Notein_setSub(Notein *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Notein_play(Notein *self) { PLAY };
 static PyObject * Notein_out(Notein *self, PyObject *args, PyObject *kwds) { OUT };
@@ -685,6 +706,8 @@ static PyObject * Notein_multiply(Notein *self, PyObject *arg) { MULTIPLY };
 static PyObject * Notein_inplace_multiply(Notein *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Notein_add(Notein *self, PyObject *arg) { ADD };
 static PyObject * Notein_inplace_add(Notein *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Notein_sub(Notein *self, PyObject *arg) { SUB };
+static PyObject * Notein_inplace_sub(Notein *self, PyObject *arg) { INPLACE_SUB };
 
 static PyMemberDef Notein_members[] = {
 {"server", T_OBJECT_EX, offsetof(Notein, server), 0, "Pyo server."},
@@ -703,12 +726,13 @@ static PyMethodDef Notein_methods[] = {
 {"stop", (PyCFunction)Notein_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
 {"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},
+{"setSub", (PyCFunction)Notein_setSub, METH_O, "Sets inverse add factor."},
 {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Notein_as_number = {
 (binaryfunc)Notein_add,                      /*nb_add*/
-0,                 /*nb_subtract*/
+(binaryfunc)Notein_sub,                 /*nb_subtract*/
 (binaryfunc)Notein_multiply,                 /*nb_multiply*/
 0,                   /*nb_divide*/
 0,                /*nb_remainder*/
@@ -731,7 +755,7 @@ static PyNumberMethods Notein_as_number = {
 0,                       /*nb_oct*/
 0,                       /*nb_hex*/
 (binaryfunc)Notein_inplace_add,              /*inplace_add*/
-0,         /*inplace_subtract*/
+(binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
 0,           /*inplace_divide*/
 0,        /*inplace_remainder*/

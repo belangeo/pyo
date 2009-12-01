@@ -16,6 +16,8 @@ static void Mix_postprocessing_ii(Mix *self) { POST_PROCESSING_II };
 static void Mix_postprocessing_ai(Mix *self) { POST_PROCESSING_AI };
 static void Mix_postprocessing_ia(Mix *self) { POST_PROCESSING_IA };
 static void Mix_postprocessing_aa(Mix *self) { POST_PROCESSING_AA };
+static void Mix_postprocessing_ireva(Mix *self) { POST_PROCESSING_IREVA };
+static void Mix_postprocessing_areva(Mix *self) { POST_PROCESSING_AREVA };
 
 static void
 Mix_setProcMode(Mix *self)
@@ -35,6 +37,12 @@ Mix_setProcMode(Mix *self)
             break;
         case 11:    
             self->muladd_func_ptr = Mix_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Mix_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Mix_postprocessing_areva;
             break;
     }    
 }
@@ -144,6 +152,7 @@ static PyObject * Mix_getServer(Mix* self) { GET_SERVER };
 static PyObject * Mix_getStream(Mix* self) { GET_STREAM };
 static PyObject * Mix_setMul(Mix *self, PyObject *arg) { SET_MUL };	
 static PyObject * Mix_setAdd(Mix *self, PyObject *arg) { SET_ADD };	
+static PyObject * Mix_setSub(Mix *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Mix_play(Mix *self) { PLAY };
 static PyObject * Mix_out(Mix *self, PyObject *args, PyObject *kwds) { OUT };
@@ -153,6 +162,8 @@ static PyObject * Mix_multiply(Mix *self, PyObject *arg) { MULTIPLY };
 static PyObject * Mix_inplace_multiply(Mix *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Mix_add(Mix *self, PyObject *arg) { ADD };
 static PyObject * Mix_inplace_add(Mix *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Mix_sub(Mix *self, PyObject *arg) { SUB };
+static PyObject * Mix_inplace_sub(Mix *self, PyObject *arg) { INPLACE_SUB };
 
 static PyMemberDef Mix_members[] = {
     {"server", T_OBJECT_EX, offsetof(Mix, server), 0, "Pyo server."},
@@ -172,12 +183,13 @@ static PyMethodDef Mix_methods[] = {
     {"stop", (PyCFunction)Mix_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Mix_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Mix_as_number = {
     (binaryfunc)Mix_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)Mix_sub,                 /*nb_subtract*/
     (binaryfunc)Mix_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -200,7 +212,7 @@ static PyNumberMethods Mix_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)Mix_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)Mix_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mix_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/
