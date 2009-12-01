@@ -10,6 +10,8 @@ static void Dummy_postprocessing_ii(Dummy *self) { POST_PROCESSING_II };
 static void Dummy_postprocessing_ai(Dummy *self) { POST_PROCESSING_AI };
 static void Dummy_postprocessing_ia(Dummy *self) { POST_PROCESSING_IA };
 static void Dummy_postprocessing_aa(Dummy *self) { POST_PROCESSING_AA };
+static void Dummy_postprocessing_ireva(Dummy *self) { POST_PROCESSING_IREVA };
+static void Dummy_postprocessing_areva(Dummy *self) { POST_PROCESSING_AREVA };
 
 static void
 Dummy_setProcMode(Dummy *self)
@@ -29,6 +31,12 @@ Dummy_setProcMode(Dummy *self)
             break;
         case 11:    
             self->muladd_func_ptr = Dummy_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Dummy_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Dummy_postprocessing_areva;
             break;
     }  
 }
@@ -142,6 +150,7 @@ static PyObject * Dummy_getServer(Dummy* self) { GET_SERVER };
 static PyObject * Dummy_getStream(Dummy* self) { GET_STREAM };
 static PyObject * Dummy_setMul(Dummy *self, PyObject *arg) { SET_MUL };	
 static PyObject * Dummy_setAdd(Dummy *self, PyObject *arg) { SET_ADD };	
+static PyObject * Dummy_setSub(Dummy *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Dummy_play(Dummy *self) { PLAY };
 static PyObject * Dummy_out(Dummy *self, PyObject *args, PyObject *kwds) { OUT };
@@ -151,6 +160,8 @@ static PyObject * Dummy_multiply(Dummy *self, PyObject *arg) { MULTIPLY };
 static PyObject * Dummy_inplace_multiply(Dummy *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Dummy_add(Dummy *self, PyObject *arg) { ADD };
 static PyObject * Dummy_inplace_add(Dummy *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Dummy_sub(Dummy *self, PyObject *arg) { SUB };
+static PyObject * Dummy_inplace_sub(Dummy *self, PyObject *arg) { INPLACE_SUB };
 
 static PyMemberDef Dummy_members[] = {
     {"server", T_OBJECT_EX, offsetof(Dummy, server), 0, "Pyo server."},
@@ -171,12 +182,13 @@ static PyMethodDef Dummy_methods[] = {
 	{"setInput", (PyCFunction)Dummy_setInput, METH_O, "Sets the input sound object."},
 	{"setMul", (PyCFunction)Dummy_setMul, METH_O, "Sets mul factor."},
 	{"setAdd", (PyCFunction)Dummy_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Dummy_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Dummy_as_number = {
     (binaryfunc)Dummy_add,                         /*nb_add*/
-    0,                                              /*nb_subtract*/
+    (binaryfunc)Dummy_sub,                         /*nb_subtract*/
     (binaryfunc)Dummy_multiply,                    /*nb_multiply*/
     0,                                              /*nb_divide*/
     0,                                              /*nb_remainder*/
@@ -199,7 +211,7 @@ static PyNumberMethods Dummy_as_number = {
     0,                                              /*nb_oct*/
     0,                                              /*nb_hex*/
     (binaryfunc)Dummy_inplace_add,                 /*inplace_add*/
-    0,                                              /*inplace_subtract*/
+    (binaryfunc)Dummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Dummy_inplace_multiply,            /*inplace_multiply*/
     0,                                              /*inplace_divide*/
     0,                                              /*inplace_remainder*/

@@ -94,6 +94,8 @@ static void Sine_postprocessing_ii(Sine *self) { POST_PROCESSING_II };
 static void Sine_postprocessing_ai(Sine *self) { POST_PROCESSING_AI };
 static void Sine_postprocessing_ia(Sine *self) { POST_PROCESSING_IA };
 static void Sine_postprocessing_aa(Sine *self) { POST_PROCESSING_AA };
+static void Sine_postprocessing_ireva(Sine *self) { POST_PROCESSING_IREVA };
+static void Sine_postprocessing_areva(Sine *self) { POST_PROCESSING_AREVA };
 
 static void
 Sine_setProcMode(Sine *self)
@@ -129,6 +131,12 @@ Sine_setProcMode(Sine *self)
             break;
         case 11:    
             self->muladd_func_ptr = Sine_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Sine_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Sine_postprocessing_areva;
             break;
     }    
 }
@@ -235,6 +243,7 @@ static PyObject * Sine_getServer(Sine* self) { GET_SERVER };
 static PyObject * Sine_getStream(Sine* self) { GET_STREAM };
 static PyObject * Sine_setMul(Sine *self, PyObject *arg) { SET_MUL };	
 static PyObject * Sine_setAdd(Sine *self, PyObject *arg) { SET_ADD };	
+static PyObject * Sine_setSub(Sine *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Sine_play(Sine *self) { PLAY };
 static PyObject * Sine_out(Sine *self, PyObject *args, PyObject *kwds) { OUT };
@@ -244,6 +253,8 @@ static PyObject * Sine_multiply(Sine *self, PyObject *arg) { MULTIPLY };
 static PyObject * Sine_inplace_multiply(Sine *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Sine_add(Sine *self, PyObject *arg) { ADD };
 static PyObject * Sine_inplace_add(Sine *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Sine_sub(Sine *self, PyObject *arg) { SUB };
+static PyObject * Sine_inplace_sub(Sine *self, PyObject *arg) { INPLACE_SUB };
 
 static PyObject *
 Sine_setFreq(Sine *self, PyObject *arg)
@@ -334,12 +345,13 @@ static PyMethodDef Sine_methods[] = {
 {"setPhase", (PyCFunction)Sine_setPhase, METH_O, "Sets oscillator phase between 0 and 1."},
 {"setMul", (PyCFunction)Sine_setMul, METH_O, "Sets Sine mul factor."},
 {"setAdd", (PyCFunction)Sine_setAdd, METH_O, "Sets Sine add factor."},
+{"setSub", (PyCFunction)Sine_setSub, METH_O, "Sets inverse add factor."},
 {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Sine_as_number = {
 (binaryfunc)Sine_add,                      /*nb_add*/
-0,                 /*nb_subtract*/
+(binaryfunc)Sine_sub,                 /*nb_subtract*/
 (binaryfunc)Sine_multiply,                 /*nb_multiply*/
 0,                   /*nb_divide*/
 0,                /*nb_remainder*/
@@ -347,7 +359,7 @@ static PyNumberMethods Sine_as_number = {
 0,                   /*nb_power*/
 0,                  /*nb_neg*/
 0,                /*nb_pos*/
-0,                  /*(unaryfunc)array_abs,*/
+0,                  /*(unaryfunc)array_abs*/
 0,                    /*nb_nonzero*/
 0,                    /*nb_invert*/
 0,               /*nb_lshift*/
@@ -362,7 +374,7 @@ static PyNumberMethods Sine_as_number = {
 0,                       /*nb_oct*/
 0,                       /*nb_hex*/
 (binaryfunc)Sine_inplace_add,              /*inplace_add*/
-0,         /*inplace_subtract*/
+(binaryfunc)Sine_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Sine_inplace_multiply,         /*inplace_multiply*/
 0,           /*inplace_divide*/
 0,        /*inplace_remainder*/
@@ -479,6 +491,8 @@ static void Osc_postprocessing_ii(Osc *self) { POST_PROCESSING_II };
 static void Osc_postprocessing_ai(Osc *self) { POST_PROCESSING_AI };
 static void Osc_postprocessing_ia(Osc *self) { POST_PROCESSING_IA };
 static void Osc_postprocessing_aa(Osc *self) { POST_PROCESSING_AA };
+static void Osc_postprocessing_ireva(Osc *self) { POST_PROCESSING_IREVA };
+static void Osc_postprocessing_areva(Osc *self) { POST_PROCESSING_AREVA };
 
 static void
 Osc_setProcMode(Osc *self)
@@ -507,6 +521,12 @@ Osc_setProcMode(Osc *self)
             break;
         case 11:    
             self->muladd_func_ptr = Osc_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Osc_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Osc_postprocessing_areva;
             break;
     }    
 }
@@ -608,6 +628,7 @@ static PyObject * Osc_getServer(Osc* self) { GET_SERVER };
 static PyObject * Osc_getStream(Osc* self) { GET_STREAM };
 static PyObject * Osc_setMul(Osc *self, PyObject *arg) { SET_MUL };	
 static PyObject * Osc_setAdd(Osc *self, PyObject *arg) { SET_ADD };	
+static PyObject * Osc_setSub(Osc *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Osc_play(Osc *self) { PLAY };
 static PyObject * Osc_out(Osc *self, PyObject *args, PyObject *kwds) { OUT };
@@ -617,6 +638,8 @@ static PyObject * Osc_multiply(Osc *self, PyObject *arg) { MULTIPLY };
 static PyObject * Osc_inplace_multiply(Osc *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Osc_add(Osc *self, PyObject *arg) { ADD };
 static PyObject * Osc_inplace_add(Osc *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Osc_sub(Osc *self, PyObject *arg) { SUB };
+static PyObject * Osc_inplace_sub(Osc *self, PyObject *arg) { INPLACE_SUB };
 
 static PyObject *
 Osc_getTable(Osc* self)
@@ -680,12 +703,13 @@ static PyMethodDef Osc_methods[] = {
 	{"setFreq", (PyCFunction)Osc_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 	{"setMul", (PyCFunction)Osc_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Osc_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Osc_setSub, METH_O, "Sets oscillator inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Osc_as_number = {
     (binaryfunc)Osc_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)Osc_sub,                 /*nb_subtract*/
     (binaryfunc)Osc_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -708,7 +732,7 @@ static PyNumberMethods Osc_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)Osc_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)Osc_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Osc_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/

@@ -116,6 +116,8 @@ static void Disto_postprocessing_ii(Disto *self) { POST_PROCESSING_II };
 static void Disto_postprocessing_ai(Disto *self) { POST_PROCESSING_AI };
 static void Disto_postprocessing_ia(Disto *self) { POST_PROCESSING_IA };
 static void Disto_postprocessing_aa(Disto *self) { POST_PROCESSING_AA };
+static void Disto_postprocessing_ireva(Disto *self) { POST_PROCESSING_IREVA };
+static void Disto_postprocessing_areva(Disto *self) { POST_PROCESSING_AREVA };
 
 static void
 Disto_setProcMode(Disto *self)
@@ -150,6 +152,12 @@ Disto_setProcMode(Disto *self)
             break;
         case 11:    
             self->muladd_func_ptr = Disto_postprocessing_aa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Disto_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Disto_postprocessing_areva;
             break;
     }    
 }
@@ -267,6 +275,7 @@ static PyObject * Disto_getServer(Disto* self) { GET_SERVER };
 static PyObject * Disto_getStream(Disto* self) { GET_STREAM };
 static PyObject * Disto_setMul(Disto *self, PyObject *arg) { SET_MUL };	
 static PyObject * Disto_setAdd(Disto *self, PyObject *arg) { SET_ADD };	
+static PyObject * Disto_setSub(Disto *self, PyObject *arg) { SET_SUB };	
 
 static PyObject * Disto_play(Disto *self) { PLAY };
 static PyObject * Disto_out(Disto *self, PyObject *args, PyObject *kwds) { OUT };
@@ -276,6 +285,8 @@ static PyObject * Disto_multiply(Disto *self, PyObject *arg) { MULTIPLY };
 static PyObject * Disto_inplace_multiply(Disto *self, PyObject *arg) { INPLACE_MULTIPLY };
 static PyObject * Disto_add(Disto *self, PyObject *arg) { ADD };
 static PyObject * Disto_inplace_add(Disto *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Disto_sub(Disto *self, PyObject *arg) { SUB };
+static PyObject * Disto_inplace_sub(Disto *self, PyObject *arg) { INPLACE_SUB };
 
 static PyObject *
 Disto_setDrive(Disto *self, PyObject *arg)
@@ -368,12 +379,13 @@ static PyMethodDef Disto_methods[] = {
     {"setSlope", (PyCFunction)Disto_setSlope, METH_O, "Sets lowpass filter slope factor."},
 	{"setMul", (PyCFunction)Disto_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Disto_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Disto_setSub, METH_O, "Sets inverse add factor."},
     {NULL}  /* Sentinel */
 };
 
 static PyNumberMethods Disto_as_number = {
     (binaryfunc)Disto_add,                      /*nb_add*/
-    0,                 /*nb_subtract*/
+    (binaryfunc)Disto_sub,                 /*nb_subtract*/
     (binaryfunc)Disto_multiply,                 /*nb_multiply*/
     0,                   /*nb_divide*/
     0,                /*nb_remainder*/
@@ -396,7 +408,7 @@ static PyNumberMethods Disto_as_number = {
     0,                       /*nb_oct*/
     0,                       /*nb_hex*/
     (binaryfunc)Disto_inplace_add,              /*inplace_add*/
-    0,         /*inplace_subtract*/
+    (binaryfunc)Disto_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Disto_inplace_multiply,         /*inplace_multiply*/
     0,           /*inplace_divide*/
     0,        /*inplace_remainder*/

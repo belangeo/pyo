@@ -48,7 +48,22 @@ class PyoObject(object):
             
     def __iadd__(self, x):
         self.setAdd(x)
+        return self
 
+    def __sub__(self, x):
+        x, lmax = convertArgsToLists(x)
+        self._add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        return self._add_dummy
+
+    def __rsub__(self, x):
+        x, lmax = convertArgsToLists(x)
+        self._add_dummy = Dummy([Sig(wrap(x,i)) - obj for i, obj in enumerate(self._base_objs)])
+        return self._add_dummy
+
+    def __isub__(self, x):
+        self.setSub(x)
+        return self
+ 
     def __mul__(self, x):
         x, lmax = convertArgsToLists(x)
         self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
@@ -61,7 +76,8 @@ class PyoObject(object):
             
     def __imul__(self, x):
         self.setMul(x)
-
+        return self
+        
     def __getitem__(self, i):
         if i < len(self._base_objs):
             return self._base_objs[i]
@@ -104,6 +120,11 @@ class PyoObject(object):
         x, lmax = convertArgsToLists(x)
         [obj.setAdd(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setSub(self, x):
+        self._add = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     @property
     def mul(self): return self._mul
     @property
@@ -138,6 +159,8 @@ class PyoTableObject(object):
 class Mix(PyoObject):
     def __init__(self, input, voices=1, mul=1, add=0):
         self._input = input
+        self._mul = mul
+        self._add = add
         input_objs = input.getBaseObjects()
         if voices < 1: voices = 1
         elif voices > len(input_objs): voices = len(input_objs)
@@ -159,3 +182,22 @@ class InputFader(PyoObject):
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i), fadetime) for i, obj in enumerate(self._base_objs)]
+
+class Sig(PyoObject):
+    def __init__(self, value, mul=1, add=0):
+        self._value = value
+        self._mul = mul
+        self._add = add
+        value, mul ,add, lmax = convertArgsToLists(value, mul, add)
+        self._base_objs = [Sig_base(wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setValue(self, x):
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+    
+    @property
+    def value(self): return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)    
+        
+        

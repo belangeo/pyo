@@ -22,6 +22,7 @@ extern PyTypeObject NoteinType;
 
 extern PyTypeObject DummyType;
 extern PyTypeObject MixType;
+extern PyTypeObject SigType;
 extern PyTypeObject InputFaderType;
 
 extern PyTypeObject HarmTableType;
@@ -185,6 +186,37 @@ extern PyTypeObject OscReceiverType;
     Py_INCREF(Py_None); \
     return Py_None; 
 
+#define SET_SUB \
+    PyObject *tmp, *streamtmp; \
+ \
+    if (arg == NULL) { \
+        Py_INCREF(Py_None); \
+        return Py_None; \
+    } \
+ \
+    int isNumber = PyNumber_Check(arg); \
+ \
+    tmp = arg; \
+    Py_INCREF(tmp); \
+    Py_DECREF(self->add); \
+    if (isNumber == 1) { \
+        self->add = PyNumber_Multiply(PyNumber_Float(tmp), PyFloat_FromDouble(-1)); \
+        self->modebuffer[1] = 0; \
+    } \
+    else { \
+        self->add = tmp; \
+        streamtmp = PyObject_CallMethod((PyObject *)self->add, "_getStream", NULL); \
+        Py_INCREF(streamtmp); \
+        Py_XDECREF(self->add_stream); \
+        self->add_stream = (Stream *)streamtmp; \
+        self->modebuffer[1] = 2; \
+    } \
+ \
+    (*self->mode_func_ptr)(self); \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; 
+
 /* Multiply, Add, inplace_multiply & inplace_add */
 #define MULTIPLY \
     Dummy *dummy; \
@@ -215,6 +247,22 @@ extern PyTypeObject OscReceiverType;
     PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg); \
     Py_INCREF(self); \
     return (PyObject *)self;
+
+#define SUB \
+    Dummy *dummy; \
+    MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
+    Dummy_initialize(dummy); \
+    PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
+    Py_INCREF(self); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
+    return (PyObject *)dummy;
+
+#define INPLACE_SUB \
+    PyObject_CallMethod((PyObject *)self, "setSub", "O", arg); \
+    Py_INCREF(self); \
+    return (PyObject *)self;
+
 
 /* PLAY, OUT, STOP */
 #define PLAY \
@@ -254,10 +302,12 @@ extern PyTypeObject OscReceiverType;
     int i; \
     mul = PyFloat_AS_DOUBLE(self->mul); \
     add = PyFloat_AS_DOUBLE(self->add); \
-    for (i=0; i<self->bufsize; i++) { \
-        old = self->data[i]; \
-        val = mul * old + add; \
-        self->data[i] = val; \
+    if (mul != 1 || add != 0) { \
+        for (i=0; i<self->bufsize; i++) { \
+            old = self->data[i]; \
+            val = mul * old + add; \
+            self->data[i] = val; \
+        } \
     }
 
 #define POST_PROCESSING_AI \
@@ -290,6 +340,28 @@ extern PyTypeObject OscReceiverType;
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         val = mul[i] * old + add[i]; \
+        self->data[i] = val; \
+    }
+
+#define POST_PROCESSING_IREVA \
+    float mul, old, val; \
+    int i; \
+    mul = PyFloat_AS_DOUBLE(self->mul); \
+    float *add = Stream_getData((Stream *)self->add_stream); \
+    for (i=0; i<self->bufsize; i++) { \
+        old = self->data[i]; \
+        val = mul * old - add[i]; \
+        self->data[i] = val; \
+    } 
+
+#define POST_PROCESSING_AREVA \
+    float old, val; \
+    int i; \
+    float *mul = Stream_getData((Stream *)self->mul_stream); \
+    float *add = Stream_getData((Stream *)self->add_stream); \
+    for (i=0; i<self->bufsize; i++) { \
+        old = self->data[i]; \
+        val = mul[i] * old - add[i]; \
         self->data[i] = val; \
     }
 
