@@ -27,6 +27,9 @@ static void Noise_postprocessing_ia(Noise *self) { POST_PROCESSING_IA };
 static void Noise_postprocessing_aa(Noise *self) { POST_PROCESSING_AA };
 static void Noise_postprocessing_ireva(Noise *self) { POST_PROCESSING_IREVA };
 static void Noise_postprocessing_areva(Noise *self) { POST_PROCESSING_AREVA };
+static void Noise_postprocessing_revai(Noise *self) { POST_PROCESSING_REVAI };
+static void Noise_postprocessing_revaa(Noise *self) { POST_PROCESSING_REVAA };
+static void Noise_postprocessing_revareva(Noise *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Noise_setProcMode(Noise *self)
@@ -35,11 +38,14 @@ Noise_setProcMode(Noise *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = Noise_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = Noise_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Noise_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = Noise_postprocessing_ia;
@@ -47,13 +53,19 @@ Noise_setProcMode(Noise *self)
         case 11:    
             self->muladd_func_ptr = Noise_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = Noise_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = Noise_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = Noise_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Noise_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -139,6 +151,7 @@ static PyObject * Noise_getStream(Noise* self) { GET_STREAM };
 static PyObject * Noise_setMul(Noise *self, PyObject *arg) { SET_MUL };	
 static PyObject * Noise_setAdd(Noise *self, PyObject *arg) { SET_ADD };	
 static PyObject * Noise_setSub(Noise *self, PyObject *arg) { SET_SUB };	
+static PyObject * Noise_setDiv(Noise *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Noise_play(Noise *self) { PLAY };
 static PyObject * Noise_out(Noise *self, PyObject *args, PyObject *kwds) { OUT };
@@ -150,6 +163,8 @@ static PyObject * Noise_add(Noise *self, PyObject *arg) { ADD };
 static PyObject * Noise_inplace_add(Noise *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Noise_sub(Noise *self, PyObject *arg) { SUB };
 static PyObject * Noise_inplace_sub(Noise *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Noise_div(Noise *self, PyObject *arg) { DIV };
+static PyObject * Noise_inplace_div(Noise *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Noise_members[] = {
 {"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},
@@ -169,6 +184,7 @@ static PyMethodDef Noise_methods[] = {
 {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
 {"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},
 {"setSub", (PyCFunction)Noise_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Noise_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -176,7 +192,7 @@ static PyNumberMethods Noise_as_number = {
 (binaryfunc)Noise_add,                      /*nb_add*/
 (binaryfunc)Noise_sub,                 /*nb_subtract*/
 (binaryfunc)Noise_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)Noise_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -199,7 +215,7 @@ static PyNumberMethods Noise_as_number = {
 (binaryfunc)Noise_inplace_add,              /*inplace_add*/
 (binaryfunc)Noise_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Noise_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)Noise_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/

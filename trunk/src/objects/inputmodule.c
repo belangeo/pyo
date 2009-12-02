@@ -18,6 +18,9 @@ static void Input_postprocessing_ia(Input *self) { POST_PROCESSING_IA };
 static void Input_postprocessing_aa(Input *self) { POST_PROCESSING_AA };
 static void Input_postprocessing_ireva(Input *self) { POST_PROCESSING_IREVA };
 static void Input_postprocessing_areva(Input *self) { POST_PROCESSING_AREVA };
+static void Input_postprocessing_revai(Input *self) { POST_PROCESSING_REVAI };
+static void Input_postprocessing_revaa(Input *self) { POST_PROCESSING_REVAA };
+static void Input_postprocessing_revareva(Input *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Input_setProcMode(Input *self)
@@ -32,11 +35,17 @@ Input_setProcMode(Input *self)
         case 1:    
             self->muladd_func_ptr = Input_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Input_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Input_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Input_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Input_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Input_postprocessing_ireva;
@@ -44,7 +53,10 @@ Input_setProcMode(Input *self)
         case 21:    
             self->muladd_func_ptr = Input_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Input_postprocessing_revareva;
+            break;
+    } 
 }
 
 static void
@@ -136,6 +148,7 @@ static PyObject * Input_getStream(Input* self) { GET_STREAM };
 static PyObject * Input_setMul(Input *self, PyObject *arg) { SET_MUL };	
 static PyObject * Input_setAdd(Input *self, PyObject *arg) { SET_ADD };	
 static PyObject * Input_setSub(Input *self, PyObject *arg) { SET_SUB };	
+static PyObject * Input_setDiv(Input *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Input_play(Input *self) { PLAY };
 static PyObject * Input_out(Input *self, PyObject *args, PyObject *kwds) { OUT };
@@ -147,6 +160,8 @@ static PyObject * Input_add(Input *self, PyObject *arg) { ADD };
 static PyObject * Input_inplace_add(Input *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Input_sub(Input *self, PyObject *arg) { SUB };
 static PyObject * Input_inplace_sub(Input *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Input_div(Input *self, PyObject *arg) { DIV };
+static PyObject * Input_inplace_div(Input *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Input_members[] = {
     {"server", T_OBJECT_EX, offsetof(Input, server), 0, "Pyo server."},
@@ -166,6 +181,7 @@ static PyMethodDef Input_methods[] = {
 	{"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Input_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Input_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -173,7 +189,7 @@ static PyNumberMethods Input_as_number = {
     (binaryfunc)Input_add,                      /*nb_add*/
     (binaryfunc)Input_sub,                 /*nb_subtract*/
     (binaryfunc)Input_multiply,                 /*nb_multiply*/
-    0,                   /*nb_divide*/
+    (binaryfunc)Input_div,                   /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -196,7 +212,7 @@ static PyNumberMethods Input_as_number = {
     (binaryfunc)Input_inplace_add,              /*inplace_add*/
     (binaryfunc)Input_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Input_inplace_multiply,         /*inplace_multiply*/
-    0,           /*inplace_divide*/
+    (binaryfunc)Input_inplace_div,           /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/

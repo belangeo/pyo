@@ -96,6 +96,9 @@ static void Sine_postprocessing_ia(Sine *self) { POST_PROCESSING_IA };
 static void Sine_postprocessing_aa(Sine *self) { POST_PROCESSING_AA };
 static void Sine_postprocessing_ireva(Sine *self) { POST_PROCESSING_IREVA };
 static void Sine_postprocessing_areva(Sine *self) { POST_PROCESSING_AREVA };
+static void Sine_postprocessing_revai(Sine *self) { POST_PROCESSING_REVAI };
+static void Sine_postprocessing_revaa(Sine *self) { POST_PROCESSING_REVAA };
+static void Sine_postprocessing_revareva(Sine *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Sine_setProcMode(Sine *self)
@@ -120,11 +123,14 @@ Sine_setProcMode(Sine *self)
     } 
     
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = Sine_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = Sine_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Sine_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = Sine_postprocessing_ia;
@@ -132,13 +138,19 @@ Sine_setProcMode(Sine *self)
         case 11:    
             self->muladd_func_ptr = Sine_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = Sine_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = Sine_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = Sine_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Sine_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -244,6 +256,7 @@ static PyObject * Sine_getStream(Sine* self) { GET_STREAM };
 static PyObject * Sine_setMul(Sine *self, PyObject *arg) { SET_MUL };	
 static PyObject * Sine_setAdd(Sine *self, PyObject *arg) { SET_ADD };	
 static PyObject * Sine_setSub(Sine *self, PyObject *arg) { SET_SUB };	
+static PyObject * Sine_setDiv(Sine *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Sine_play(Sine *self) { PLAY };
 static PyObject * Sine_out(Sine *self, PyObject *args, PyObject *kwds) { OUT };
@@ -255,6 +268,8 @@ static PyObject * Sine_add(Sine *self, PyObject *arg) { ADD };
 static PyObject * Sine_inplace_add(Sine *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Sine_sub(Sine *self, PyObject *arg) { SUB };
 static PyObject * Sine_inplace_sub(Sine *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Sine_div(Sine *self, PyObject *arg) { DIV };
+static PyObject * Sine_inplace_div(Sine *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Sine_setFreq(Sine *self, PyObject *arg)
@@ -346,6 +361,7 @@ static PyMethodDef Sine_methods[] = {
 {"setMul", (PyCFunction)Sine_setMul, METH_O, "Sets Sine mul factor."},
 {"setAdd", (PyCFunction)Sine_setAdd, METH_O, "Sets Sine add factor."},
 {"setSub", (PyCFunction)Sine_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Sine_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -353,7 +369,7 @@ static PyNumberMethods Sine_as_number = {
 (binaryfunc)Sine_add,                      /*nb_add*/
 (binaryfunc)Sine_sub,                 /*nb_subtract*/
 (binaryfunc)Sine_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)Sine_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -376,7 +392,7 @@ static PyNumberMethods Sine_as_number = {
 (binaryfunc)Sine_inplace_add,              /*inplace_add*/
 (binaryfunc)Sine_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Sine_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)Sine_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -493,6 +509,9 @@ static void Osc_postprocessing_ia(Osc *self) { POST_PROCESSING_IA };
 static void Osc_postprocessing_aa(Osc *self) { POST_PROCESSING_AA };
 static void Osc_postprocessing_ireva(Osc *self) { POST_PROCESSING_IREVA };
 static void Osc_postprocessing_areva(Osc *self) { POST_PROCESSING_AREVA };
+static void Osc_postprocessing_revai(Osc *self) { POST_PROCESSING_REVAI };
+static void Osc_postprocessing_revaa(Osc *self) { POST_PROCESSING_REVAA };
+static void Osc_postprocessing_revareva(Osc *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Osc_setProcMode(Osc *self)
@@ -516,11 +535,17 @@ Osc_setProcMode(Osc *self)
         case 1:    
             self->muladd_func_ptr = Osc_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Osc_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Osc_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Osc_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Osc_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Osc_postprocessing_ireva;
@@ -528,7 +553,10 @@ Osc_setProcMode(Osc *self)
         case 21:    
             self->muladd_func_ptr = Osc_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Osc_postprocessing_revareva;
+            break;
+    } 
 }
 
 static void
@@ -629,6 +657,7 @@ static PyObject * Osc_getStream(Osc* self) { GET_STREAM };
 static PyObject * Osc_setMul(Osc *self, PyObject *arg) { SET_MUL };	
 static PyObject * Osc_setAdd(Osc *self, PyObject *arg) { SET_ADD };	
 static PyObject * Osc_setSub(Osc *self, PyObject *arg) { SET_SUB };	
+static PyObject * Osc_setDiv(Osc *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Osc_play(Osc *self) { PLAY };
 static PyObject * Osc_out(Osc *self, PyObject *args, PyObject *kwds) { OUT };
@@ -640,6 +669,8 @@ static PyObject * Osc_add(Osc *self, PyObject *arg) { ADD };
 static PyObject * Osc_inplace_add(Osc *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Osc_sub(Osc *self, PyObject *arg) { SUB };
 static PyObject * Osc_inplace_sub(Osc *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Osc_div(Osc *self, PyObject *arg) { DIV };
+static PyObject * Osc_inplace_div(Osc *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Osc_getTable(Osc* self)
@@ -704,6 +735,7 @@ static PyMethodDef Osc_methods[] = {
 	{"setMul", (PyCFunction)Osc_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Osc_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Osc_setSub, METH_O, "Sets oscillator inverse add factor."},
+    {"setDiv", (PyCFunction)Osc_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -711,7 +743,7 @@ static PyNumberMethods Osc_as_number = {
     (binaryfunc)Osc_add,                      /*nb_add*/
     (binaryfunc)Osc_sub,                 /*nb_subtract*/
     (binaryfunc)Osc_multiply,                 /*nb_multiply*/
-    0,                   /*nb_divide*/
+    (binaryfunc)Osc_div,                   /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -734,7 +766,7 @@ static PyNumberMethods Osc_as_number = {
     (binaryfunc)Osc_inplace_add,              /*inplace_add*/
     (binaryfunc)Osc_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Osc_inplace_multiply,         /*inplace_multiply*/
-    0,           /*inplace_divide*/
+    (binaryfunc)Osc_inplace_div,           /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/

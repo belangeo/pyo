@@ -79,6 +79,9 @@ static void Fader_postprocessing_ia(Fader *self) { POST_PROCESSING_IA };
 static void Fader_postprocessing_aa(Fader *self) { POST_PROCESSING_AA };
 static void Fader_postprocessing_ireva(Fader *self) { POST_PROCESSING_IREVA };
 static void Fader_postprocessing_areva(Fader *self) { POST_PROCESSING_AREVA };
+static void Fader_postprocessing_revai(Fader *self) { POST_PROCESSING_REVAI };
+static void Fader_postprocessing_revaa(Fader *self) { POST_PROCESSING_REVAA };
+static void Fader_postprocessing_revareva(Fader *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Fader_setProcMode(Fader *self)
@@ -92,11 +95,14 @@ Fader_setProcMode(Fader *self)
         self->proc_func_ptr = Fader_generate_auto;        
         
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = Fader_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = Fader_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Fader_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = Fader_postprocessing_ia;
@@ -104,13 +110,19 @@ Fader_setProcMode(Fader *self)
         case 11:    
             self->muladd_func_ptr = Fader_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = Fader_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = Fader_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = Fader_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Fader_postprocessing_revareva;
+            break;
+    }   
 }
 
 static void
@@ -209,6 +221,7 @@ static PyObject * Fader_getStream(Fader* self) { GET_STREAM };
 static PyObject * Fader_setMul(Fader *self, PyObject *arg) { SET_MUL };	
 static PyObject * Fader_setAdd(Fader *self, PyObject *arg) { SET_ADD };	
 static PyObject * Fader_setSub(Fader *self, PyObject *arg) { SET_SUB };	
+static PyObject * Fader_setDiv(Fader *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Fader_play(Fader *self) 
 {
@@ -237,6 +250,8 @@ static PyObject * Fader_add(Fader *self, PyObject *arg) { ADD };
 static PyObject * Fader_inplace_add(Fader *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Fader_sub(Fader *self, PyObject *arg) { SUB };
 static PyObject * Fader_inplace_sub(Fader *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Fader_div(Fader *self, PyObject *arg) { DIV };
+static PyObject * Fader_inplace_div(Fader *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Fader_setFadein(Fader *self, PyObject *arg)
@@ -282,6 +297,7 @@ static PyMethodDef Fader_methods[] = {
 {"setFadein", (PyCFunction)Fader_setFadein, METH_O, "Sets fadein time in seconds."},
 {"setFadeout", (PyCFunction)Fader_setFadeout, METH_O, "Sets fadeout time in seconds."},
 {"setDur", (PyCFunction)Fader_setDur, METH_O, "Sets duration in seconds (0 means wait for stop method to start fadeout)."},
+{"setDiv", (PyCFunction)Fader_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -289,7 +305,7 @@ static PyNumberMethods Fader_as_number = {
 (binaryfunc)Fader_add,                      /*nb_add*/
 (binaryfunc)Fader_sub,                 /*nb_subtract*/
 (binaryfunc)Fader_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)Fader_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -312,7 +328,7 @@ static PyNumberMethods Fader_as_number = {
 (binaryfunc)Fader_inplace_add,              /*inplace_add*/
 (binaryfunc)Fader_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Fader_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)Fader_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/

@@ -118,6 +118,9 @@ static void Disto_postprocessing_ia(Disto *self) { POST_PROCESSING_IA };
 static void Disto_postprocessing_aa(Disto *self) { POST_PROCESSING_AA };
 static void Disto_postprocessing_ireva(Disto *self) { POST_PROCESSING_IREVA };
 static void Disto_postprocessing_areva(Disto *self) { POST_PROCESSING_AREVA };
+static void Disto_postprocessing_revai(Disto *self) { POST_PROCESSING_REVAI };
+static void Disto_postprocessing_revaa(Disto *self) { POST_PROCESSING_REVAA };
+static void Disto_postprocessing_revareva(Disto *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Disto_setProcMode(Disto *self)
@@ -147,11 +150,17 @@ Disto_setProcMode(Disto *self)
         case 1:    
             self->muladd_func_ptr = Disto_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Disto_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Disto_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Disto_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Disto_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Disto_postprocessing_ireva;
@@ -159,7 +168,10 @@ Disto_setProcMode(Disto *self)
         case 21:    
             self->muladd_func_ptr = Disto_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Disto_postprocessing_revareva;
+            break;
+    }   
 }
 
 static void
@@ -276,6 +288,7 @@ static PyObject * Disto_getStream(Disto* self) { GET_STREAM };
 static PyObject * Disto_setMul(Disto *self, PyObject *arg) { SET_MUL };	
 static PyObject * Disto_setAdd(Disto *self, PyObject *arg) { SET_ADD };	
 static PyObject * Disto_setSub(Disto *self, PyObject *arg) { SET_SUB };	
+static PyObject * Disto_setDiv(Disto *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Disto_play(Disto *self) { PLAY };
 static PyObject * Disto_out(Disto *self, PyObject *args, PyObject *kwds) { OUT };
@@ -287,6 +300,8 @@ static PyObject * Disto_add(Disto *self, PyObject *arg) { ADD };
 static PyObject * Disto_inplace_add(Disto *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Disto_sub(Disto *self, PyObject *arg) { SUB };
 static PyObject * Disto_inplace_sub(Disto *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Disto_div(Disto *self, PyObject *arg) { DIV };
+static PyObject * Disto_inplace_div(Disto *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Disto_setDrive(Disto *self, PyObject *arg)
@@ -368,7 +383,6 @@ static PyMemberDef Disto_members[] = {
 };
 
 static PyMethodDef Disto_methods[] = {
-    //{"getInput", (PyCFunction)Disto_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Disto_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Disto_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Disto_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
@@ -380,6 +394,7 @@ static PyMethodDef Disto_methods[] = {
 	{"setMul", (PyCFunction)Disto_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Disto_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Disto_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Disto_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -387,7 +402,7 @@ static PyNumberMethods Disto_as_number = {
     (binaryfunc)Disto_add,                      /*nb_add*/
     (binaryfunc)Disto_sub,                 /*nb_subtract*/
     (binaryfunc)Disto_multiply,                 /*nb_multiply*/
-    0,                   /*nb_divide*/
+    (binaryfunc)Disto_div,                   /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -410,7 +425,7 @@ static PyNumberMethods Disto_as_number = {
     (binaryfunc)Disto_inplace_add,              /*inplace_add*/
     (binaryfunc)Disto_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Disto_inplace_multiply,         /*inplace_multiply*/
-    0,           /*inplace_divide*/
+    (binaryfunc)Disto_inplace_div,           /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/

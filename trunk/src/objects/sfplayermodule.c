@@ -657,6 +657,9 @@ static void SfPlay_postprocessing_ia(SfPlay *self) { POST_PROCESSING_IA };
 static void SfPlay_postprocessing_aa(SfPlay *self) { POST_PROCESSING_AA };
 static void SfPlay_postprocessing_ireva(SfPlay *self) { POST_PROCESSING_IREVA };
 static void SfPlay_postprocessing_areva(SfPlay *self) { POST_PROCESSING_AREVA };
+static void SfPlay_postprocessing_revai(SfPlay *self) { POST_PROCESSING_REVAI };
+static void SfPlay_postprocessing_revaa(SfPlay *self) { POST_PROCESSING_REVAA };
+static void SfPlay_postprocessing_revareva(SfPlay *self) { POST_PROCESSING_REVAREVA };
 
 static void
 SfPlay_setProcMode(SfPlay *self)
@@ -665,11 +668,14 @@ SfPlay_setProcMode(SfPlay *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = SfPlay_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = SfPlay_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = SfPlay_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = SfPlay_postprocessing_ia;
@@ -677,13 +683,19 @@ SfPlay_setProcMode(SfPlay *self)
         case 11:    
             self->muladd_func_ptr = SfPlay_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = SfPlay_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = SfPlay_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = SfPlay_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = SfPlay_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -781,6 +793,7 @@ static PyObject * SfPlay_getStream(SfPlay* self) { GET_STREAM };
 static PyObject * SfPlay_setMul(SfPlay *self, PyObject *arg) { SET_MUL };	
 static PyObject * SfPlay_setAdd(SfPlay *self, PyObject *arg) { SET_ADD };	
 static PyObject * SfPlay_setSub(SfPlay *self, PyObject *arg) { SET_SUB };	
+static PyObject * SfPlay_setDiv(SfPlay *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * SfPlay_play(SfPlay *self) { PLAY };
 static PyObject * SfPlay_out(SfPlay *self, PyObject *args, PyObject *kwds) { OUT };
@@ -792,6 +805,8 @@ static PyObject * SfPlay_add(SfPlay *self, PyObject *arg) { ADD };
 static PyObject * SfPlay_inplace_add(SfPlay *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * SfPlay_sub(SfPlay *self, PyObject *arg) { SUB };
 static PyObject * SfPlay_inplace_sub(SfPlay *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * SfPlay_div(SfPlay *self, PyObject *arg) { DIV };
+static PyObject * SfPlay_inplace_div(SfPlay *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef SfPlay_members[] = {
 {"server", T_OBJECT_EX, offsetof(SfPlay, server), 0, "Pyo server."},
@@ -811,6 +826,7 @@ static PyMethodDef SfPlay_methods[] = {
 {"setMul", (PyCFunction)SfPlay_setMul, METH_O, "Sets SfPlay mul factor."},
 {"setAdd", (PyCFunction)SfPlay_setAdd, METH_O, "Sets SfPlay add factor."},
 {"setSub", (PyCFunction)SfPlay_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)SfPlay_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -818,7 +834,7 @@ static PyNumberMethods SfPlay_as_number = {
 (binaryfunc)SfPlay_add,                      /*nb_add*/
 (binaryfunc)SfPlay_sub,                 /*nb_subtract*/
 (binaryfunc)SfPlay_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)SfPlay_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -841,7 +857,7 @@ static PyNumberMethods SfPlay_as_number = {
 (binaryfunc)SfPlay_inplace_add,              /*inplace_add*/
 (binaryfunc)SfPlay_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfPlay_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)SfPlay_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/
@@ -1519,6 +1535,9 @@ static void SfMarkerShuffle_postprocessing_ia(SfMarkerShuffle *self) { POST_PROC
 static void SfMarkerShuffle_postprocessing_aa(SfMarkerShuffle *self) { POST_PROCESSING_AA };
 static void SfMarkerShuffle_postprocessing_ireva(SfMarkerShuffle *self) { POST_PROCESSING_IREVA };
 static void SfMarkerShuffle_postprocessing_areva(SfMarkerShuffle *self) { POST_PROCESSING_AREVA };
+static void SfMarkerShuffle_postprocessing_revai(SfMarkerShuffle *self) { POST_PROCESSING_REVAI };
+static void SfMarkerShuffle_postprocessing_revaa(SfMarkerShuffle *self) { POST_PROCESSING_REVAA };
+static void SfMarkerShuffle_postprocessing_revareva(SfMarkerShuffle *self) { POST_PROCESSING_REVAREVA };
 
 static void
 SfMarkerShuffle_setProcMode(SfMarkerShuffle *self)
@@ -1527,11 +1546,14 @@ SfMarkerShuffle_setProcMode(SfMarkerShuffle *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ia;
@@ -1539,13 +1561,19 @@ SfMarkerShuffle_setProcMode(SfMarkerShuffle *self)
         case 11:    
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = SfMarkerShuffle_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = SfMarkerShuffle_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -1643,6 +1671,7 @@ static PyObject * SfMarkerShuffle_getStream(SfMarkerShuffle* self) { GET_STREAM 
 static PyObject * SfMarkerShuffle_setMul(SfMarkerShuffle *self, PyObject *arg) { SET_MUL };	
 static PyObject * SfMarkerShuffle_setAdd(SfMarkerShuffle *self, PyObject *arg) { SET_ADD };	
 static PyObject * SfMarkerShuffle_setSub(SfMarkerShuffle *self, PyObject *arg) { SET_SUB };	
+static PyObject * SfMarkerShuffle_setDiv(SfMarkerShuffle *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * SfMarkerShuffle_play(SfMarkerShuffle *self) { PLAY };
 static PyObject * SfMarkerShuffle_out(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { OUT };
@@ -1654,6 +1683,8 @@ static PyObject * SfMarkerShuffle_add(SfMarkerShuffle *self, PyObject *arg) { AD
 static PyObject * SfMarkerShuffle_inplace_add(SfMarkerShuffle *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * SfMarkerShuffle_sub(SfMarkerShuffle *self, PyObject *arg) { SUB };
 static PyObject * SfMarkerShuffle_inplace_sub(SfMarkerShuffle *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * SfMarkerShuffle_div(SfMarkerShuffle *self, PyObject *arg) { DIV };
+static PyObject * SfMarkerShuffle_inplace_div(SfMarkerShuffle *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef SfMarkerShuffle_members[] = {
 {"server", T_OBJECT_EX, offsetof(SfMarkerShuffle, server), 0, "Pyo server."},
@@ -1673,6 +1704,7 @@ static PyMethodDef SfMarkerShuffle_methods[] = {
 {"setMul", (PyCFunction)SfMarkerShuffle_setMul, METH_O, "Sets SfMarkerShuffle mul factor."},
 {"setAdd", (PyCFunction)SfMarkerShuffle_setAdd, METH_O, "Sets SfMarkerShuffle add factor."},
 {"setSub", (PyCFunction)SfMarkerShuffle_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)SfMarkerShuffle_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -1680,7 +1712,7 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 (binaryfunc)SfMarkerShuffle_add,                      /*nb_add*/
 (binaryfunc)SfMarkerShuffle_sub,                 /*nb_subtract*/
 (binaryfunc)SfMarkerShuffle_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)SfMarkerShuffle_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -1701,9 +1733,9 @@ static PyNumberMethods SfMarkerShuffle_as_number = {
 0,                       /*nb_oct*/
 0,                       /*nb_hex*/
 (binaryfunc)SfMarkerShuffle_inplace_add,              /*inplace_add*/
-(binaryfunc)SfMarkerShuffle_inplace_add,         /*inplace_subtract*/
+(binaryfunc)SfMarkerShuffle_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)SfMarkerShuffle_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)SfMarkerShuffle_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/

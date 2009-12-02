@@ -17,6 +17,9 @@ static void Sig_postprocessing_ia(Sig *self) { POST_PROCESSING_IA };
 static void Sig_postprocessing_aa(Sig *self) { POST_PROCESSING_AA };
 static void Sig_postprocessing_ireva(Sig *self) { POST_PROCESSING_IREVA };
 static void Sig_postprocessing_areva(Sig *self) { POST_PROCESSING_AREVA };
+static void Sig_postprocessing_revai(Sig *self) { POST_PROCESSING_REVAI };
+static void Sig_postprocessing_revaa(Sig *self) { POST_PROCESSING_REVAA };
+static void Sig_postprocessing_revareva(Sig *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Sig_setProcMode(Sig *self)
@@ -25,11 +28,14 @@ Sig_setProcMode(Sig *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = Sig_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = Sig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Sig_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = Sig_postprocessing_ia;
@@ -37,13 +43,19 @@ Sig_setProcMode(Sig *self)
         case 11:    
             self->muladd_func_ptr = Sig_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = Sig_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = Sig_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = Sig_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Sig_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -159,6 +171,7 @@ static PyObject * Sig_getStream(Sig* self) { GET_STREAM };
 static PyObject * Sig_setMul(Sig *self, PyObject *arg) { SET_MUL };	
 static PyObject * Sig_setAdd(Sig *self, PyObject *arg) { SET_ADD };	
 static PyObject * Sig_setSub(Sig *self, PyObject *arg) { SET_SUB };	
+static PyObject * Sig_setDiv(Sig *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Sig_play(Sig *self) { PLAY };
 static PyObject * Sig_stop(Sig *self) { STOP };
@@ -169,6 +182,8 @@ static PyObject * Sig_add(Sig *self, PyObject *arg) { ADD };
 static PyObject * Sig_inplace_add(Sig *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Sig_sub(Sig *self, PyObject *arg) { SUB };
 static PyObject * Sig_inplace_sub(Sig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Sig_div(Sig *self, PyObject *arg) { DIV };
+static PyObject * Sig_inplace_div(Sig *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Sig_members[] = {
 {"server", T_OBJECT_EX, offsetof(Sig, server), 0, "Pyo server."},
@@ -188,6 +203,7 @@ static PyMethodDef Sig_methods[] = {
 {"setMul", (PyCFunction)Sig_setMul, METH_O, "Sets Sig mul factor."},
 {"setAdd", (PyCFunction)Sig_setAdd, METH_O, "Sets Sig add factor."},
 {"setSub", (PyCFunction)Sig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Sig_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -195,7 +211,7 @@ static PyNumberMethods Sig_as_number = {
 (binaryfunc)Sig_add,                      /*nb_add*/
 (binaryfunc)Sig_sub,                 /*nb_subtract*/
 (binaryfunc)Sig_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)Sig_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -218,7 +234,7 @@ static PyNumberMethods Sig_as_number = {
 (binaryfunc)Sig_inplace_add,              /*inplace_add*/
 (binaryfunc)Sig_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Sig_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)Sig_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/

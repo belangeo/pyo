@@ -968,7 +968,6 @@ static PyMemberDef TableRec_members[] = {
 };
 
 static PyMethodDef TableRec_methods[] = {
-//{"getInput", (PyCFunction)TableRec_getTable, METH_NOARGS, "Returns input sound object."},
 {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)TableRec_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
