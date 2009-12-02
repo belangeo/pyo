@@ -81,3 +81,28 @@ class Port(PyoObject):
     def falltime(self): return self._falltime
     @falltime.setter
     def falltime(self, x): self.setFallTime(x)
+
+class Metro(PyoObject):
+    def __init__(self, time=1):
+        self._time = time
+        time, lmax = convertArgsToLists(time)
+        self._base_objs = [Metro_base(wrap(time,i)) for i in range(lmax)]
+
+    def setTime(self, x):
+        self._time = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, x=0):
+        pass
+        
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+        
+    @property
+    def time(self): return self._time
+    @time.setter
+    def time(self, x): self.setTime(x)
