@@ -12,6 +12,9 @@ static void Dummy_postprocessing_ia(Dummy *self) { POST_PROCESSING_IA };
 static void Dummy_postprocessing_aa(Dummy *self) { POST_PROCESSING_AA };
 static void Dummy_postprocessing_ireva(Dummy *self) { POST_PROCESSING_IREVA };
 static void Dummy_postprocessing_areva(Dummy *self) { POST_PROCESSING_AREVA };
+static void Dummy_postprocessing_revai(Dummy *self) { POST_PROCESSING_REVAI };
+static void Dummy_postprocessing_revaa(Dummy *self) { POST_PROCESSING_REVAA };
+static void Dummy_postprocessing_revareva(Dummy *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Dummy_setProcMode(Dummy *self)
@@ -26,11 +29,17 @@ Dummy_setProcMode(Dummy *self)
         case 1:    
             self->muladd_func_ptr = Dummy_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Dummy_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Dummy_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Dummy_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Dummy_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Dummy_postprocessing_ireva;
@@ -38,7 +47,10 @@ Dummy_setProcMode(Dummy *self)
         case 21:    
             self->muladd_func_ptr = Dummy_postprocessing_areva;
             break;
-    }  
+        case 22:    
+            self->muladd_func_ptr = Dummy_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -151,6 +163,7 @@ static PyObject * Dummy_getStream(Dummy* self) { GET_STREAM };
 static PyObject * Dummy_setMul(Dummy *self, PyObject *arg) { SET_MUL };	
 static PyObject * Dummy_setAdd(Dummy *self, PyObject *arg) { SET_ADD };	
 static PyObject * Dummy_setSub(Dummy *self, PyObject *arg) { SET_SUB };	
+static PyObject * Dummy_setDiv(Dummy *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Dummy_play(Dummy *self) { PLAY };
 static PyObject * Dummy_out(Dummy *self, PyObject *args, PyObject *kwds) { OUT };
@@ -162,6 +175,8 @@ static PyObject * Dummy_add(Dummy *self, PyObject *arg) { ADD };
 static PyObject * Dummy_inplace_add(Dummy *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Dummy_sub(Dummy *self, PyObject *arg) { SUB };
 static PyObject * Dummy_inplace_sub(Dummy *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Dummy_div(Dummy *self, PyObject *arg) { DIV };
+static PyObject * Dummy_inplace_div(Dummy *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Dummy_members[] = {
     {"server", T_OBJECT_EX, offsetof(Dummy, server), 0, "Pyo server."},
@@ -183,6 +198,7 @@ static PyMethodDef Dummy_methods[] = {
 	{"setMul", (PyCFunction)Dummy_setMul, METH_O, "Sets mul factor."},
 	{"setAdd", (PyCFunction)Dummy_setAdd, METH_O, "Sets add factor."},
     {"setSub", (PyCFunction)Dummy_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Dummy_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -190,7 +206,7 @@ static PyNumberMethods Dummy_as_number = {
     (binaryfunc)Dummy_add,                         /*nb_add*/
     (binaryfunc)Dummy_sub,                         /*nb_subtract*/
     (binaryfunc)Dummy_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_divide*/
+    (binaryfunc)Dummy_div,                          /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -213,7 +229,7 @@ static PyNumberMethods Dummy_as_number = {
     (binaryfunc)Dummy_inplace_add,                 /*inplace_add*/
     (binaryfunc)Dummy_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Dummy_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_divide*/
+    (binaryfunc)Dummy_inplace_div,                  /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/

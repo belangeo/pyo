@@ -198,6 +198,9 @@ static void Biquad_postprocessing_ia(Biquad *self) { POST_PROCESSING_IA };
 static void Biquad_postprocessing_aa(Biquad *self) { POST_PROCESSING_AA };
 static void Biquad_postprocessing_ireva(Biquad *self) { POST_PROCESSING_IREVA };
 static void Biquad_postprocessing_areva(Biquad *self) { POST_PROCESSING_AREVA };
+static void Biquad_postprocessing_revai(Biquad *self) { POST_PROCESSING_REVAI };
+static void Biquad_postprocessing_revaa(Biquad *self) { POST_PROCESSING_REVAA };
+static void Biquad_postprocessing_revareva(Biquad *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Biquad_setProcMode(Biquad *self)
@@ -243,11 +246,17 @@ Biquad_setProcMode(Biquad *self)
         case 1:    
             self->muladd_func_ptr = Biquad_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Biquad_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Biquad_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Biquad_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Biquad_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Biquad_postprocessing_ireva;
@@ -255,7 +264,10 @@ Biquad_setProcMode(Biquad *self)
         case 21:    
             self->muladd_func_ptr = Biquad_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Biquad_postprocessing_revareva;
+            break;
+    }   
 }
 
 static void
@@ -372,6 +384,7 @@ static PyObject * Biquad_getStream(Biquad* self) { GET_STREAM };
 static PyObject * Biquad_setMul(Biquad *self, PyObject *arg) { SET_MUL };	
 static PyObject * Biquad_setAdd(Biquad *self, PyObject *arg) { SET_ADD };	
 static PyObject * Biquad_setSub(Biquad *self, PyObject *arg) { SET_SUB };	
+static PyObject * Biquad_setDiv(Biquad *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Biquad_play(Biquad *self) { PLAY };
 static PyObject * Biquad_out(Biquad *self, PyObject *args, PyObject *kwds) { OUT };
@@ -383,6 +396,8 @@ static PyObject * Biquad_add(Biquad *self, PyObject *arg) { ADD };
 static PyObject * Biquad_inplace_add(Biquad *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Biquad_sub(Biquad *self, PyObject *arg) { SUB };
 static PyObject * Biquad_inplace_sub(Biquad *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Biquad_div(Biquad *self, PyObject *arg) { DIV };
+static PyObject * Biquad_inplace_div(Biquad *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Biquad_setFreq(Biquad *self, PyObject *arg)
@@ -485,7 +500,6 @@ static PyMemberDef Biquad_members[] = {
 };
 
 static PyMethodDef Biquad_methods[] = {
-    //{"getInput", (PyCFunction)Biquad_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Biquad_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Biquad_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Biquad_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
@@ -498,6 +512,7 @@ static PyMethodDef Biquad_methods[] = {
 	{"setMul", (PyCFunction)Biquad_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Biquad_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Biquad_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Biquad_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -505,7 +520,7 @@ static PyNumberMethods Biquad_as_number = {
     (binaryfunc)Biquad_add,                         /*nb_add*/
     (binaryfunc)Biquad_add,                         /*nb_subtract*/
     (binaryfunc)Biquad_multiply,                    /*nb_multiply*/
-    0,                                              /*nb_divide*/
+    (binaryfunc)Biquad_div,                                              /*nb_divide*/
     0,                                              /*nb_remainder*/
     0,                                              /*nb_divmod*/
     0,                                              /*nb_power*/
@@ -528,7 +543,7 @@ static PyNumberMethods Biquad_as_number = {
     (binaryfunc)Biquad_inplace_add,                 /*inplace_add*/
     (binaryfunc)Biquad_inplace_sub,                 /*inplace_subtract*/
     (binaryfunc)Biquad_inplace_multiply,            /*inplace_multiply*/
-    0,                                              /*inplace_divide*/
+    (binaryfunc)Biquad_inplace_div,                                              /*inplace_divide*/
     0,                                              /*inplace_remainder*/
     0,                                              /*inplace_power*/
     0,                                              /*inplace_lshift*/
@@ -703,6 +718,9 @@ static void Port_postprocessing_ia(Port *self) { POST_PROCESSING_IA };
 static void Port_postprocessing_aa(Port *self) { POST_PROCESSING_AA };
 static void Port_postprocessing_ireva(Port *self) { POST_PROCESSING_IREVA };
 static void Port_postprocessing_areva(Port *self) { POST_PROCESSING_AREVA };
+static void Port_postprocessing_revai(Port *self) { POST_PROCESSING_REVAI };
+static void Port_postprocessing_revaa(Port *self) { POST_PROCESSING_REVAA };
+static void Port_postprocessing_revareva(Port *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Port_setProcMode(Port *self)
@@ -732,11 +750,17 @@ Port_setProcMode(Port *self)
         case 1:    
             self->muladd_func_ptr = Port_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Port_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Port_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Port_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Port_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Port_postprocessing_ireva;
@@ -744,7 +768,10 @@ Port_setProcMode(Port *self)
         case 21:    
             self->muladd_func_ptr = Port_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Port_postprocessing_revareva;
+            break;
+    }  
 }
 
 static void
@@ -862,6 +889,7 @@ static PyObject * Port_getStream(Port* self) { GET_STREAM };
 static PyObject * Port_setMul(Port *self, PyObject *arg) { SET_MUL };	
 static PyObject * Port_setAdd(Port *self, PyObject *arg) { SET_ADD };	
 static PyObject * Port_setSub(Port *self, PyObject *arg) { SET_SUB };	
+static PyObject * Port_setDiv(Port *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Port_play(Port *self) { PLAY };
 static PyObject * Port_out(Port *self, PyObject *args, PyObject *kwds) { OUT };
@@ -873,6 +901,8 @@ static PyObject * Port_add(Port *self, PyObject *arg) { ADD };
 static PyObject * Port_inplace_add(Port *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Port_sub(Port *self, PyObject *arg) { SUB };
 static PyObject * Port_inplace_sub(Port *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Port_div(Port *self, PyObject *arg) { DIV };
+static PyObject * Port_inplace_div(Port *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Port_setRiseTime(Port *self, PyObject *arg)
@@ -965,6 +995,7 @@ static PyMethodDef Port_methods[] = {
 {"setMul", (PyCFunction)Port_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Port_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Port_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Port_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -972,7 +1003,7 @@ static PyNumberMethods Port_as_number = {
 (binaryfunc)Port_add,                         /*nb_add*/
 (binaryfunc)Port_sub,                         /*nb_subtract*/
 (binaryfunc)Port_multiply,                    /*nb_multiply*/
-0,                                              /*nb_divide*/
+(binaryfunc)Port_div,                                              /*nb_divide*/
 0,                                              /*nb_remainder*/
 0,                                              /*nb_divmod*/
 0,                                              /*nb_power*/
@@ -995,7 +1026,7 @@ static PyNumberMethods Port_as_number = {
 (binaryfunc)Port_inplace_add,                 /*inplace_add*/
 (binaryfunc)Port_inplace_sub,                 /*inplace_subtract*/
 (binaryfunc)Port_inplace_multiply,            /*inplace_multiply*/
-0,                                              /*inplace_divide*/
+(binaryfunc)Port_inplace_div,                                              /*inplace_divide*/
 0,                                              /*inplace_remainder*/
 0,                                              /*inplace_power*/
 0,                                              /*inplace_lshift*/

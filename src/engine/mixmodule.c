@@ -18,6 +18,9 @@ static void Mix_postprocessing_ia(Mix *self) { POST_PROCESSING_IA };
 static void Mix_postprocessing_aa(Mix *self) { POST_PROCESSING_AA };
 static void Mix_postprocessing_ireva(Mix *self) { POST_PROCESSING_IREVA };
 static void Mix_postprocessing_areva(Mix *self) { POST_PROCESSING_AREVA };
+static void Mix_postprocessing_revai(Mix *self) { POST_PROCESSING_REVAI };
+static void Mix_postprocessing_revaa(Mix *self) { POST_PROCESSING_REVAA };
+static void Mix_postprocessing_revareva(Mix *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Mix_setProcMode(Mix *self)
@@ -32,11 +35,17 @@ Mix_setProcMode(Mix *self)
         case 1:    
             self->muladd_func_ptr = Mix_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Mix_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Mix_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Mix_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Mix_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Mix_postprocessing_ireva;
@@ -44,7 +53,10 @@ Mix_setProcMode(Mix *self)
         case 21:    
             self->muladd_func_ptr = Mix_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Mix_postprocessing_revareva;
+            break;
+    }   
 }
 
 static void
@@ -153,6 +165,7 @@ static PyObject * Mix_getStream(Mix* self) { GET_STREAM };
 static PyObject * Mix_setMul(Mix *self, PyObject *arg) { SET_MUL };	
 static PyObject * Mix_setAdd(Mix *self, PyObject *arg) { SET_ADD };	
 static PyObject * Mix_setSub(Mix *self, PyObject *arg) { SET_SUB };	
+static PyObject * Mix_setDiv(Mix *self, PyObject *arg) { SET_DIV };
 
 static PyObject * Mix_play(Mix *self) { PLAY };
 static PyObject * Mix_out(Mix *self, PyObject *args, PyObject *kwds) { OUT };
@@ -164,6 +177,8 @@ static PyObject * Mix_add(Mix *self, PyObject *arg) { ADD };
 static PyObject * Mix_inplace_add(Mix *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Mix_sub(Mix *self, PyObject *arg) { SUB };
 static PyObject * Mix_inplace_sub(Mix *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Mix_div(Mix *self, PyObject *arg) { DIV };
+static PyObject * Mix_inplace_div(Mix *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Mix_members[] = {
     {"server", T_OBJECT_EX, offsetof(Mix, server), 0, "Pyo server."},
@@ -174,7 +189,6 @@ static PyMemberDef Mix_members[] = {
 };
 
 static PyMethodDef Mix_methods[] = {
-    //{"getMix", (PyCFunction)Mix_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Mix_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
@@ -184,6 +198,7 @@ static PyMethodDef Mix_methods[] = {
 	{"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Mix_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Mix_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -191,7 +206,7 @@ static PyNumberMethods Mix_as_number = {
     (binaryfunc)Mix_add,                      /*nb_add*/
     (binaryfunc)Mix_sub,                 /*nb_subtract*/
     (binaryfunc)Mix_multiply,                 /*nb_multiply*/
-    0,                   /*nb_divide*/
+    (binaryfunc)Mix_div,                   /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -214,7 +229,7 @@ static PyNumberMethods Mix_as_number = {
     (binaryfunc)Mix_inplace_add,              /*inplace_add*/
     (binaryfunc)Mix_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Mix_inplace_multiply,         /*inplace_multiply*/
-    0,           /*inplace_divide*/
+    (binaryfunc)Mix_inplace_div,           /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/

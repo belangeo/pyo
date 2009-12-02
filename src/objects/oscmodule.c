@@ -203,6 +203,9 @@ static void OscReceive_postprocessing_ia(OscReceive *self) { POST_PROCESSING_IA 
 static void OscReceive_postprocessing_aa(OscReceive *self) { POST_PROCESSING_AA };
 static void OscReceive_postprocessing_ireva(OscReceive *self) { POST_PROCESSING_IREVA };
 static void OscReceive_postprocessing_areva(OscReceive *self) { POST_PROCESSING_AREVA };
+static void OscReceive_postprocessing_revai(OscReceive *self) { POST_PROCESSING_REVAI };
+static void OscReceive_postprocessing_revaa(OscReceive *self) { POST_PROCESSING_REVAA };
+static void OscReceive_postprocessing_revareva(OscReceive *self) { POST_PROCESSING_REVAREVA };
 
 static void
 OscReceive_setProcMode(OscReceive *self)
@@ -217,11 +220,17 @@ OscReceive_setProcMode(OscReceive *self)
         case 1:    
             self->muladd_func_ptr = OscReceive_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = OscReceive_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = OscReceive_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = OscReceive_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = OscReceive_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = OscReceive_postprocessing_ireva;
@@ -229,7 +238,10 @@ OscReceive_setProcMode(OscReceive *self)
         case 21:    
             self->muladd_func_ptr = OscReceive_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = OscReceive_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -337,6 +349,7 @@ static PyObject * OscReceive_getStream(OscReceive* self) { GET_STREAM };
 static PyObject * OscReceive_setMul(OscReceive *self, PyObject *arg) { SET_MUL };	
 static PyObject * OscReceive_setAdd(OscReceive *self, PyObject *arg) { SET_ADD };	
 static PyObject * OscReceive_setSub(OscReceive *self, PyObject *arg) { SET_SUB };	
+static PyObject * OscReceive_setDiv(OscReceive *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * OscReceive_play(OscReceive *self) { PLAY };
 static PyObject * OscReceive_stop(OscReceive *self) { STOP };
@@ -347,6 +360,8 @@ static PyObject * OscReceive_add(OscReceive *self, PyObject *arg) { ADD };
 static PyObject * OscReceive_inplace_add(OscReceive *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * OscReceive_sub(OscReceive *self, PyObject *arg) { SUB };
 static PyObject * OscReceive_inplace_sub(OscReceive *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * OscReceive_div(OscReceive *self, PyObject *arg) { DIV };
+static PyObject * OscReceive_inplace_div(OscReceive *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef OscReceive_members[] = {
     {"server", T_OBJECT_EX, offsetof(OscReceive, server), 0, "Pyo server."},
@@ -365,6 +380,7 @@ static PyMethodDef OscReceive_methods[] = {
     {"setMul", (PyCFunction)OscReceive_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)OscReceive_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)OscReceive_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)OscReceive_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -372,7 +388,7 @@ static PyNumberMethods OscReceive_as_number = {
     (binaryfunc)OscReceive_add,                      /*nb_add*/
     (binaryfunc)OscReceive_sub,                 /*nb_subtract*/
     (binaryfunc)OscReceive_multiply,                 /*nb_multiply*/
-    0,                   /*nb_divide*/
+    (binaryfunc)OscReceive_div,                   /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -395,7 +411,7 @@ static PyNumberMethods OscReceive_as_number = {
     (binaryfunc)OscReceive_inplace_add,              /*inplace_add*/
     (binaryfunc)OscReceive_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)OscReceive_inplace_multiply,         /*inplace_multiply*/
-    0,           /*inplace_divide*/
+    (binaryfunc)OscReceive_inplace_div,           /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/

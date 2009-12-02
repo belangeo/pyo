@@ -24,6 +24,9 @@ static void Midictl_postprocessing_ia(Midictl *self) { POST_PROCESSING_IA };
 static void Midictl_postprocessing_aa(Midictl *self) { POST_PROCESSING_AA };
 static void Midictl_postprocessing_ireva(Midictl *self) { POST_PROCESSING_IREVA };
 static void Midictl_postprocessing_areva(Midictl *self) { POST_PROCESSING_AREVA };
+static void Midictl_postprocessing_revai(Midictl *self) { POST_PROCESSING_REVAI };
+static void Midictl_postprocessing_revaa(Midictl *self) { POST_PROCESSING_REVAA };
+static void Midictl_postprocessing_revareva(Midictl *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Midictl_setProcMode(Midictl *self)
@@ -38,11 +41,17 @@ Midictl_setProcMode(Midictl *self)
         case 1:    
             self->muladd_func_ptr = Midictl_postprocessing_ai;
             break;
+        case 2:    
+            self->muladd_func_ptr = Midictl_postprocessing_revai;
+            break;
         case 10:        
             self->muladd_func_ptr = Midictl_postprocessing_ia;
             break;
         case 11:    
             self->muladd_func_ptr = Midictl_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Midictl_postprocessing_revaa;
             break;
         case 20:        
             self->muladd_func_ptr = Midictl_postprocessing_ireva;
@@ -50,7 +59,10 @@ Midictl_setProcMode(Midictl *self)
         case 21:    
             self->muladd_func_ptr = Midictl_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Midictl_postprocessing_revareva;
+            break;
+    }
 }
 
 // Take MIDI events and translate them...
@@ -170,6 +182,7 @@ static PyObject * Midictl_getStream(Midictl* self) { GET_STREAM };
 static PyObject * Midictl_setMul(Midictl *self, PyObject *arg) { SET_MUL };	
 static PyObject * Midictl_setAdd(Midictl *self, PyObject *arg) { SET_ADD };	
 static PyObject * Midictl_setSub(Midictl *self, PyObject *arg) { SET_SUB };	
+static PyObject * Midictl_setDiv(Midictl *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Midictl_play(Midictl *self) { PLAY };
 static PyObject * Midictl_out(Midictl *self, PyObject *args, PyObject *kwds) { OUT };
@@ -181,6 +194,8 @@ static PyObject * Midictl_add(Midictl *self, PyObject *arg) { ADD };
 static PyObject * Midictl_inplace_add(Midictl *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Midictl_sub(Midictl *self, PyObject *arg) { SUB };
 static PyObject * Midictl_inplace_sub(Midictl *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Midictl_div(Midictl *self, PyObject *arg) { DIV };
+static PyObject * Midictl_inplace_div(Midictl *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Midictl_members[] = {
     {"server", T_OBJECT_EX, offsetof(Midictl, server), 0, "Pyo server."},
@@ -201,6 +216,7 @@ static PyMethodDef Midictl_methods[] = {
 	{"setMul", (PyCFunction)Midictl_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Midictl_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Midictl_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Midictl_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -208,7 +224,7 @@ static PyNumberMethods Midictl_as_number = {
     (binaryfunc)Midictl_add,                      /*nb_add*/
     (binaryfunc)Midictl_sub,                 /*nb_subtract*/
     (binaryfunc)Midictl_multiply,                 /*nb_multiply*/
-    0,                   /*nb_divide*/
+    (binaryfunc)Midictl_div,                   /*nb_divide*/
     0,                /*nb_remainder*/
     0,                   /*nb_divmod*/
     0,                   /*nb_power*/
@@ -231,7 +247,7 @@ static PyNumberMethods Midictl_as_number = {
     (binaryfunc)Midictl_inplace_add,              /*inplace_add*/
     (binaryfunc)Midictl_inplace_sub,         /*inplace_subtract*/
     (binaryfunc)Midictl_inplace_multiply,         /*inplace_multiply*/
-    0,           /*inplace_divide*/
+    (binaryfunc)Midictl_inplace_div,           /*inplace_divide*/
     0,        /*inplace_remainder*/
     0,           /*inplace_power*/
     0,       /*inplace_lshift*/
@@ -561,6 +577,9 @@ static void Notein_postprocessing_ia(Notein *self) { POST_PROCESSING_IA };
 static void Notein_postprocessing_aa(Notein *self) { POST_PROCESSING_AA };
 static void Notein_postprocessing_ireva(Notein *self) { POST_PROCESSING_IREVA };
 static void Notein_postprocessing_areva(Notein *self) { POST_PROCESSING_AREVA };
+static void Notein_postprocessing_revai(Notein *self) { POST_PROCESSING_REVAI };
+static void Notein_postprocessing_revaa(Notein *self) { POST_PROCESSING_REVAA };
+static void Notein_postprocessing_revareva(Notein *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Notein_setProcMode(Notein *self)
@@ -569,11 +588,14 @@ Notein_setProcMode(Notein *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
 	switch (muladdmode) {
-        case 0:
+        case 0:        
             self->muladd_func_ptr = Notein_postprocessing_ii;
             break;
-        case 1:   
+        case 1:    
             self->muladd_func_ptr = Notein_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Notein_postprocessing_revai;
             break;
         case 10:        
             self->muladd_func_ptr = Notein_postprocessing_ia;
@@ -581,13 +603,19 @@ Notein_setProcMode(Notein *self)
         case 11:    
             self->muladd_func_ptr = Notein_postprocessing_aa;
             break;
+        case 12:    
+            self->muladd_func_ptr = Notein_postprocessing_revaa;
+            break;
         case 20:        
             self->muladd_func_ptr = Notein_postprocessing_ireva;
             break;
         case 21:    
             self->muladd_func_ptr = Notein_postprocessing_areva;
             break;
-    }    
+        case 22:    
+            self->muladd_func_ptr = Notein_postprocessing_revareva;
+            break;
+    }
 }
 
 static void
@@ -697,6 +725,7 @@ static PyObject * Notein_getStream(Notein* self) { GET_STREAM };
 static PyObject * Notein_setMul(Notein *self, PyObject *arg) { SET_MUL };	
 static PyObject * Notein_setAdd(Notein *self, PyObject *arg) { SET_ADD };	
 static PyObject * Notein_setSub(Notein *self, PyObject *arg) { SET_SUB };	
+static PyObject * Notein_setDiv(Notein *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Notein_play(Notein *self) { PLAY };
 static PyObject * Notein_out(Notein *self, PyObject *args, PyObject *kwds) { OUT };
@@ -708,6 +737,8 @@ static PyObject * Notein_add(Notein *self, PyObject *arg) { ADD };
 static PyObject * Notein_inplace_add(Notein *self, PyObject *arg) { INPLACE_ADD };
 static PyObject * Notein_sub(Notein *self, PyObject *arg) { SUB };
 static PyObject * Notein_inplace_sub(Notein *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Notein_div(Notein *self, PyObject *arg) { DIV };
+static PyObject * Notein_inplace_div(Notein *self, PyObject *arg) { INPLACE_DIV };
 
 static PyMemberDef Notein_members[] = {
 {"server", T_OBJECT_EX, offsetof(Notein, server), 0, "Pyo server."},
@@ -727,6 +758,7 @@ static PyMethodDef Notein_methods[] = {
 {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
 {"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},
 {"setSub", (PyCFunction)Notein_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Notein_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -734,7 +766,7 @@ static PyNumberMethods Notein_as_number = {
 (binaryfunc)Notein_add,                      /*nb_add*/
 (binaryfunc)Notein_sub,                 /*nb_subtract*/
 (binaryfunc)Notein_multiply,                 /*nb_multiply*/
-0,                   /*nb_divide*/
+(binaryfunc)Notein_div,                   /*nb_divide*/
 0,                /*nb_remainder*/
 0,                   /*nb_divmod*/
 0,                   /*nb_power*/
@@ -757,7 +789,7 @@ static PyNumberMethods Notein_as_number = {
 (binaryfunc)Notein_inplace_add,              /*inplace_add*/
 (binaryfunc)Notein_inplace_sub,         /*inplace_subtract*/
 (binaryfunc)Notein_inplace_multiply,         /*inplace_multiply*/
-0,           /*inplace_divide*/
+(binaryfunc)Notein_inplace_div,           /*inplace_divide*/
 0,        /*inplace_remainder*/
 0,           /*inplace_power*/
 0,       /*inplace_lshift*/

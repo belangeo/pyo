@@ -217,6 +217,40 @@ extern PyTypeObject OscReceiverType;
     Py_INCREF(Py_None); \
     return Py_None; 
 
+#define SET_DIV \
+    PyObject *tmp, *streamtmp; \
+ \
+    if (arg == NULL) { \
+        Py_INCREF(Py_None); \
+        return Py_None; \
+    } \
+ \
+    int isNumber = PyNumber_Check(arg); \
+ \
+    tmp = arg; \
+    Py_INCREF(tmp); \
+    if (isNumber == 1) { \
+        if (PyFloat_AsDouble(PyNumber_Float(tmp)) != 0.) { \
+            Py_DECREF(self->mul); \
+            self->mul = PyNumber_Divide(PyFloat_FromDouble(1.), PyNumber_Float(tmp)); \
+            self->modebuffer[0] = 0; \
+        } \
+    } \
+    else { \
+        Py_DECREF(self->mul); \
+        self->mul = tmp; \
+        streamtmp = PyObject_CallMethod((PyObject *)self->mul, "_getStream", NULL); \
+        Py_INCREF(streamtmp); \
+        Py_XDECREF(self->mul_stream); \
+        self->mul_stream = (Stream *)streamtmp; \
+        self->modebuffer[0] = 2; \
+    } \
+ \
+    (*self->mode_func_ptr)(self); \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; 
+
 /* Multiply, Add, inplace_multiply & inplace_add */
 #define MULTIPLY \
     Dummy *dummy; \
@@ -263,6 +297,20 @@ extern PyTypeObject OscReceiverType;
     Py_INCREF(self); \
     return (PyObject *)self;
 
+#define DIV \
+    Dummy *dummy; \
+    MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
+    Dummy_initialize(dummy); \
+    PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
+    Py_INCREF(self); \
+    PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
+    Py_INCREF(dummy); \
+    return (PyObject *)dummy;
+
+#define INPLACE_DIV \
+    PyObject_CallMethod((PyObject *)self, "setDiv", "O", arg); \
+    Py_INCREF(self); \
+    return (PyObject *)self;
 
 /* PLAY, OUT, STOP */
 #define PLAY \
@@ -343,6 +391,34 @@ extern PyTypeObject OscReceiverType;
         self->data[i] = val; \
     }
 
+#define POST_PROCESSING_REVAI \
+    float tmp, add, old, val; \
+    int i; \
+    float *mul = Stream_getData((Stream *)self->mul_stream); \
+    add = PyFloat_AS_DOUBLE(self->add); \
+    for (i=0; i<self->bufsize; i++) { \
+        old = self->data[i]; \
+        tmp = mul[i]; \
+        if (tmp < 0.0002 && tmp > -0.0002) \
+            tmp = 0.0002; \
+        val = tmp * old + add; \
+        self->data[i] = val; \
+    }
+
+#define POST_PROCESSING_REVAA \
+    float tmp, old, val; \
+    int i; \
+    float *mul = Stream_getData((Stream *)self->mul_stream); \
+    float *add = Stream_getData((Stream *)self->add_stream); \
+    for (i=0; i<self->bufsize; i++) { \
+        old = self->data[i]; \
+        tmp = mul[i]; \
+        if (tmp < 0.0002 && tmp > -0.0002) \
+            tmp = 0.0002; \
+        val = tmp * old + add[i]; \
+        self->data[i] = val; \
+    }
+
 #define POST_PROCESSING_IREVA \
     float mul, old, val; \
     int i; \
@@ -362,6 +438,20 @@ extern PyTypeObject OscReceiverType;
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         val = mul[i] * old - add[i]; \
+        self->data[i] = val; \
+    }
+
+#define POST_PROCESSING_REVAREVA \
+    float tmp, old, val; \
+    int i; \
+    float *mul = Stream_getData((Stream *)self->mul_stream); \
+    float *add = Stream_getData((Stream *)self->add_stream); \
+    for (i=0; i<self->bufsize; i++) { \
+        old = self->data[i]; \
+        tmp = mul[i]; \
+        if (tmp < 0.0002 && tmp > -0.0002) \
+            tmp = 0.0002; \
+        val = tmp * old - add[i]; \
         self->data[i] = val; \
     }
 

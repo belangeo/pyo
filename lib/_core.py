@@ -77,6 +77,20 @@ class PyoObject(object):
     def __imul__(self, x):
         self.setMul(x)
         return self
+ 
+    def __div__(self, x):
+        x, lmax = convertArgsToLists(x)
+        self._mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        return self._mul_dummy
+
+    def __rdiv__(self, x):
+        x, lmax = convertArgsToLists(x)
+        self._mul_dummy = Dummy([Sig(wrap(x,i)) / obj for i, obj in enumerate(self._base_objs)])
+        return self._mul_dummy
+
+    def __idiv__(self, x):
+        self.setDiv(x)
+        return self
         
     def __getitem__(self, i):
         if i < len(self._base_objs):
@@ -124,6 +138,11 @@ class PyoObject(object):
         self._add = x
         x, lmax = convertArgsToLists(x)
         [obj.setSub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDiv(self, x):
+        self._mul = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDiv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
     def mul(self): return self._mul
