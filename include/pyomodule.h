@@ -10,6 +10,8 @@ extern PyTypeObject SfPlayType;
 extern PyTypeObject SfMarkerShufflerType;
 extern PyTypeObject SfMarkerShuffleType;
 
+extern PyTypeObject MetroType;
+
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
 extern PyTypeObject PortType;

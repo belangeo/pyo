@@ -242,6 +242,11 @@ init_pyo(void)
     Py_INCREF(&InputType);
     PyModule_AddObject(m, "Input_base", (PyObject *)&InputType);
 
+    if (PyType_Ready(&MetroType) < 0)
+        return;
+    Py_INCREF(&MetroType);
+    PyModule_AddObject(m, "Metro_base", (PyObject *)&MetroType);
+    
     if (PyType_Ready(&FaderType) < 0)
         return;
     Py_INCREF(&FaderType);
