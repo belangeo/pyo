@@ -338,4 +338,14 @@ init_pyo(void)
     Py_INCREF(&OscReceiverType);
     PyModule_AddObject(m, "OscReceiver_base", (PyObject *)&OscReceiverType);
     
+    if (PyType_Ready(&TrigRandType) < 0)
+        return;
+    Py_INCREF(&TrigRandType);
+    PyModule_AddObject(m, "TrigRand_base", (PyObject *)&TrigRandType);
+
+    if (PyType_Ready(&TrigEnvType) < 0)
+        return;
+    Py_INCREF(&TrigEnvType);
+    PyModule_AddObject(m, "TrigEnv_base", (PyObject *)&TrigEnvType);
+    
 }

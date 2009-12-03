@@ -6,3 +6,4 @@ from lib.midi import *
 from lib.OSC import *
 from lib.sfplayer import *
 from lib.table import *
+from lib.trigger import *
