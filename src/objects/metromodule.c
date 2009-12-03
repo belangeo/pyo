@@ -12,6 +12,7 @@ typedef struct {
     int modebuffer[1];
     float sampleToSec;
     float currentTime;
+    int init;
 } Metro;
 
 static void
@@ -73,6 +74,10 @@ static void
 Metro_compute_next_data_frame(Metro *self)
 {
     (*self->proc_func_ptr)(self); 
+    if (self->init == 1) {
+        self->data[0] = 1;
+        self->init = 0;
+    }    
     Stream_setData(self->stream, self->data);
 }
 
@@ -112,6 +117,7 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
+    self->init = 1;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Metro_compute_next_data_frame);
@@ -151,7 +157,13 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 static PyObject * Metro_getServer(Metro* self) { GET_SERVER };
 static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
 
-static PyObject * Metro_play(Metro *self) { PLAY };
+static PyObject * 
+Metro_play(Metro *self) 
+{ 
+    self->init = 1;
+    PLAY 
+};
+
 static PyObject * Metro_stop(Metro *self) { STOP };
 
 static PyObject *
