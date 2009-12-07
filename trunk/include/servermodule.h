@@ -19,6 +19,9 @@ typedef struct {
     int nchnls;
     int bufferSize;
     int duplex;
+    int input;
+    int output;
+    int midi_input;
     int withPortMidi;
     int server_started;
     int stream_count;

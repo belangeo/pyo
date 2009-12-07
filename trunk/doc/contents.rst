@@ -4,8 +4,9 @@ Pyo documentation contents
 =============================
 
 .. toctree::
-
-    pyo
-    PyoObject
+    :numbered:
+    
+    lib/pyo
+    lib/PyoObject
 
 
