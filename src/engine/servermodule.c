@@ -120,6 +120,26 @@ PyServer_get_server()
     return (PyObject *)my_server;
 }
 
+
+static PyObject *
+Server_shut_down(Server *self)
+{
+    if (self->withPortMidi == 1) {
+        Pm_Close(self->in);
+        Pm_Terminate();
+    } 
+    
+    PaError err;
+    err = Pa_CloseStream(self->stream);
+    portaudio_assert(err, "Pa_CloseStream");
+    
+    err = Pa_Terminate();
+    portaudio_assert(err, "Pa_Terminate");
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
@@ -130,14 +150,7 @@ Server_traverse(Server *self, visitproc visit, void *arg)
 
 static int 
 Server_clear(Server *self)
-{
-    PaError err;
-    err = Pa_CloseStream(self->stream);
-    portaudio_assert(err, "Pa_CloseStream");
-            
-    err = Pa_Terminate();
-    portaudio_assert(err, "Pa_Terminate");
-    
+{    
     Py_CLEAR(self->stream);
     Py_CLEAR(self->streams);
     return 0;
@@ -145,11 +158,8 @@ Server_clear(Server *self)
 
 static void
 Server_dealloc(Server* self)
-{
-    if (self->withPortMidi == 1) {
-        Pm_Close(self->in);
-        Pm_Terminate();
-    }    
+{  
+    Server_shut_down(self);
     free(self->input_buffer);
     Server_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -165,6 +175,9 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->record = 0;
     self->bufferSize = 64;
     self->duplex = 0;
+    self->input = -1;
+    self->output = -1;
+    self->midi_input = -1;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -174,14 +187,98 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Server_init(Server *self, PyObject *args, PyObject *kwds)
 {
-    PaError err;
-    PmError pmerr;
-    int i;
 
     static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fiii", kwlist, &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex))
         return -1;
+
+    return 0;
+}
+
+static PyObject *
+Server_setInputDevice(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->input = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setOutputDevice(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->output = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setMidiInputDevice(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->midi_input = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setSamplingRate(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->samplingRate = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setNchnls(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->nchnls = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setBufferSize(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->bufferSize = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setDuplex(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->duplex = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_boot(Server *self)
+{
+    PaError err;
+    PmError pmerr;
+    int i;
 
     self->server_started = 0;
     self->stream_count = 0;
@@ -197,7 +294,10 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     // -- setup input and output -- 
     PaStreamParameters inputParameters;
     memset(&inputParameters, 0, sizeof(inputParameters));
-    inputParameters.device = Pa_GetDefaultInputDevice(); // default input device 
+    if (self->input == -1)
+        inputParameters.device = Pa_GetDefaultInputDevice(); // default input device
+    else
+        inputParameters.device = self->input; // default input device
     inputParameters.channelCount = self->nchnls;
     inputParameters.sampleFormat = paFloat32;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
@@ -205,7 +305,10 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
 
     PaStreamParameters outputParameters;
     memset(&outputParameters, 0, sizeof(outputParameters));
-    outputParameters.device = Pa_GetDefaultOutputDevice(); // default output device 
+    if (self->output == -1)
+        outputParameters.device = Pa_GetDefaultOutputDevice(); // default output device 
+    else
+        outputParameters.device = self->output; // default output device 
     outputParameters.channelCount = self->nchnls;
     outputParameters.sampleFormat = paFloat32;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
@@ -219,11 +322,14 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         self->input_buffer[i] = 0.;
     }    
 
-    if (self->duplex == 1)
-        err = Pa_OpenDefaultStream(&self->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
+    if (self->input == -1 && self->output == -1) {
+        if (self->duplex == 1)
+            err = Pa_OpenDefaultStream(&self->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
+        else
+            err = Pa_OpenDefaultStream(&self->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
+    }
     else
-        err = Pa_OpenDefaultStream(&self->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, callback, NULL);
-    //err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paClipOff, callback, NULL);
+        err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, callback, NULL);
     portaudio_assert(err, "Pa_OpenStream");
 
     /* Initializing MIDI */    
@@ -240,9 +346,11 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     if (self->withPortMidi == 1) {
         int num_devices = Pm_CountDevices();
         if (num_devices > 0) {
-            const PmDeviceInfo *info = Pm_GetDeviceInfo(0);
+            if (self->midi_input == -1 || self->midi_input >= num_devices)
+                self->midi_input = 0;
+            const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
             if (info->input) {
-                pmerr = Pm_OpenInput(&self->in, 0, NULL, 100, NULL, NULL);
+                pmerr = Pm_OpenInput(&self->in, self->midi_input, NULL, 100, NULL, NULL);
                 if (pmerr) {
                     printf("could not open midi input %d (%s): %s\nPortmidi closed\n", 0, info->name, Pm_GetErrorText(pmerr));
                     self->withPortMidi = 0;
@@ -268,7 +376,8 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         Pm_SetFilter(self->in, PM_FILT_ACTIVE | PM_FILT_CLOCK);
     }
     
-    return 0;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 
@@ -294,10 +403,10 @@ Server_stop(Server *self)
 {
     PaError err;
 
-    err = Pa_StopStream(self->stream);
-    portaudio_assert(err, "Pa_StopStream");
-
     self->server_started = 0;
+
+    err = Pa_AbortStream(self->stream);
+    portaudio_assert(err, "Pa_StopStream");
     
     Py_INCREF(Py_None);
     return Py_None;
@@ -417,6 +526,15 @@ Server_getStreams(Server *self)
 }
 
 static PyMethodDef Server_methods[] = {
+    {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
+    {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
+    {"setMidiInputDevice", (PyCFunction)Server_setMidiInputDevice, METH_O, "Sets MIDI input device."},
+    {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
+    {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
+    {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
+    {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
+    {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
+    {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
 	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
     {"recstart", (PyCFunction)Server_start_rec, METH_NOARGS, "Start automatic output recording."},

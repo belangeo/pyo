@@ -22,7 +22,6 @@ libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
              extra_link_args=["-mmacosx-version-min=10.4"])]
 
-print build_with_doc
 if build_with_doc:
     command_class = {'build_sphinx': BuildDoc}
 else:

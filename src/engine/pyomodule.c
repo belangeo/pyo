@@ -89,8 +89,7 @@ portaudio_get_default_input(){
     if (err >= 0)
         Pa_Terminate();
     
-    Py_INCREF(Py_None);
-    return Py_None;
+    return PyInt_FromLong(i);
 }
 
 static PyObject*
@@ -109,8 +108,7 @@ portaudio_get_default_output(){
     if (err >= 0)
         Pa_Terminate();
     
-    Py_INCREF(Py_None);
-    return Py_None;
+    return PyInt_FromLong(i);
 }
 
 static PyObject *
