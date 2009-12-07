@@ -173,7 +173,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->samplingRate = 44100.0;
     self->nchnls = 1;
     self->record = 0;
-    self->bufferSize = 64;
+    self->bufferSize = 256;
     self->duplex = 0;
     self->input = -1;
     self->output = -1;
