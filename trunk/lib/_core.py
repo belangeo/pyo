@@ -282,7 +282,7 @@ class PyoTableObject(object):
     obj[x] : Return table stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
 
     """
-     def __init__(self):
+    def __init__(self):
         pass
 
     def __getitem__(self, i):
