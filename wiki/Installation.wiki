@@ -28,7 +28,7 @@ In pyo's directory you then need to build the extension :
 python setup.py build_ext --inplace
 }}}
 
-If compilation went well you should see a pyo.so file in your pyo directory.
+If compilation went well you should see a _pyo.so file in your pyo directory.
 You can now test that it works by going in the python interpreter and doing the following :
 
 {{{
@@ -40,4 +40,18 @@ python
 This should play the first example, to stop it:
 {{{
 >>> s.stop()
+}}}
+
+=Building documentation=
+
+Pyo documentation is built with [http://sphinx.pocoo.org/ Sphinx]. Sphinx can be installed with:
+
+{{{
+easy_install sphinx
+}}}
+
+To build the manual, run:
+ 
+{{{
+python setup.py --command-packages sphinx build_sphinx
 }}}
