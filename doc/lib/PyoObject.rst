@@ -80,8 +80,8 @@
 
 .. attribute:: PyoObject.mul
 
-    float or PyoObject. Multiplication factor.
+    float or :class:`PyoObject`. Multiplication factor.
 
 .. attribute:: PyoObject.add
 
-    float or PyoObject. Addition factor.
+    float or :class:`PyoObject`. Addition factor.
