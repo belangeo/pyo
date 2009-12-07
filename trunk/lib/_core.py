@@ -6,6 +6,11 @@ from _pyo import *
 ### Utilities
 ######################################################################
 def convertArgsToLists(*args):
+    """
+    Convert all arguments to list if not already a list or a PyoObject. 
+    Return new args and maximum list length.
+    
+    """
     first = True
     for i in args:
         if isinstance(i, PyoObject): pass  
@@ -23,6 +28,10 @@ def convertArgsToLists(*args):
     return tup
 
 def wrap(arg, i):
+    """
+    Return value a position `i` from `arg` with wrap around `arg` length.
+    
+    """
     x = arg[i % len(arg)]
     if isinstance(x, PyoObject):
         return x[0]
@@ -33,6 +42,49 @@ def wrap(arg, i):
 ### PyoObject -> base class for pyo sound objects
 ######################################################################
 class PyoObject(object):
+    """
+    Base class for all pyo objects that manipulate vectors of samples.
+    
+    User should never instantiates an object of this class.
+
+    **Attributes**
+
+    mul : float or PyoObject
+        Multiplication factor.
+    add : float or PyoObject
+        Addition factor.
+
+    **Methods**
+
+    play() : Start processing without sending samples to output. This method is called automatically
+        at the object creation.
+    stop() : Stop processing.
+    out(chnl) : Start processing and send samples to audio output beginning at `chnl`.
+    mix(voices) : Mix object's audio streams into `voices` streams and return the Mix object.
+    setMul(x) : Replace the `mul` attribute.
+    setAdd(x) : Replace the `add` attribute.
+    setDiv(x) : Replace and inverse the `mul` attribute.
+    setSub(x) : Replace and inverse the `add` attribute.
+    
+    **Notes**
+
+    Other operations :
+    
+    len(obj) : Return the number of audio streams in an object.
+    obj[x] : Return stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
+    del obj : Perform a clean delete of the object.
+    
+    Mathematics :
+    
+    Multiplication, addition, division and substraction can be applied between pyo objects
+    or between pyo object and number. Return a Dummy object with the result of the operation.
+    `b = a * 0.5` creates a Dummy object `b` with `mul` attribute set to 0.5 and leave `a` untouched.
+    
+    Inplace multiplication, addition, division and substraction can be applied between pyo 
+    objects or between pyo object and number. These operations will replace the `mul` or `add`
+    factor of the object. `a *= 0.5` replace `mul` attribute of `a`.
+    
+    """
     def __init__(self):
         pass
 
@@ -107,39 +159,100 @@ class PyoObject(object):
             del obj
         
     def getBaseObjects(self):
+        """Return a list of audio Stream objects."""
         return self._base_objs
         
     def play(self):
+        """Start processing without sending samples to output. This method is called automatically
+        at the object creation."""
         self._base_objs = [obj.play() for obj in self._base_objs]
         return self
 
     def out(self, chnl=0):
+        """
+        Start processing and send samples to audio output beginning at `chnl`.
+        
+        **Parameters**
+
+        chnl : int, optional
+            Physical output assigned to the first audio stream of the object. 
+            Successive streams increment output number and wrap around the
+            global number of channels. Default to 0.
+        
+        """
         self._base_objs = [obj.out(chnl+i) for i, obj in enumerate(self._base_objs)]
         return self
     
     def stop(self):
+        """Stop processing."""
         [obj.stop() for obj in self._base_objs]
 
     def mix(self, voices=1):
+        """Mix object's audio streams into `voices` streams and return the Mix object.
+        
+        **Parameters**
+
+        voices : int, optional
+            Number of audio streams of the Mix object created by this method. If more
+            than 1, object's streams are alternated and added into Mix object's streams. 
+            Default to 1.
+            
+        """
         self._mix = Mix(self, voices)
         return self._mix
         
     def setMul(self, x):
+        """Replace the `mul` attribute.
+        
+        **Parameters**
+
+        
+        x : float or PyoObject
+            New `mul` attribute.
+        
+        """
         self._mul = x
         x, lmax = convertArgsToLists(x)
         [obj.setMul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setAdd(self, x):
+        """Replace the `add` attribute.
+                
+        **Parameters**
+
+        
+        x : float or PyoObject
+            New `add` attribute.
+        
+        """
         self._add = x
         x, lmax = convertArgsToLists(x)
         [obj.setAdd(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setSub(self, x):
+        """Replace and inverse the `mul` attribute.
+        
+        **Parameters**
+
+        
+        x : float or PyoObject
+            New inversed `mul` attribute.
+        
+        """
         self._add = x
         x, lmax = convertArgsToLists(x)
         [obj.setSub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setDiv(self, x):
+        """Replace and inverse the `add` attribute.
+                
+        **Parameters**
+
+        
+        x : float or PyoObject
+            New inversed `add` attribute.
+        
+        """
         self._mul = x
         x, lmax = convertArgsToLists(x)
         [obj.setDiv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -157,7 +270,19 @@ class PyoObject(object):
 ### PyoTableObject -> base class for pyo table objects
 ######################################################################
 class PyoTableObject(object):
-    def __init__(self):
+    """
+    Base class for all pyo table objects. A table object object is a buffer memory
+    to store precomputed samples. 
+    
+    User should never instantiates an object of this class.
+ 
+    Operations allowed on all table objects :
+    
+    len(obj) : Return the number of table streams in an object.
+    obj[x] : Return table stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
+
+    """
+     def __init__(self):
         pass
 
     def __getitem__(self, i):
@@ -170,6 +295,7 @@ class PyoTableObject(object):
         return len(self._base_objs)
 
     def getBaseObjects(self):
+        """Return a list of table Stream objects."""
         return self._base_objs
 
 ######################################################################
