@@ -44,7 +44,7 @@ This should play the first example, to stop it:
 
 =Building documentation=
 
-Pyo documentation is built with [http://sphinx.pocoo.org/ Sphinx]. Sphinx can be installed with:
+Pyo documentation is created with [http://sphinx.pocoo.org/ Sphinx]. Sphinx can be installed with:
 
 {{{
 easy_install sphinx
