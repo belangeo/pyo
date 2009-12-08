@@ -50,7 +50,6 @@ class Fader(PyoObject):
         
         **Parameters**
 
-        
         x : float or PyoObject
             new `fadein` attribute.
         
@@ -64,7 +63,6 @@ class Fader(PyoObject):
         
         **Parameters**
 
-        
         x : float or PyoObject
             new `fadeout` attribute.
         
@@ -78,7 +76,6 @@ class Fader(PyoObject):
         
         **Parameters**
 
-        
         x : float or PyoObject
             new `dur` attribute.
         
@@ -194,7 +191,7 @@ class Metro(PyoObject):
     
     **Attributes**
 
-    time : float or signal, optional
+    time : float or PyoObject, optional
         Time, in seconds, between each trigger. Default to 1.
         
     **Methods**

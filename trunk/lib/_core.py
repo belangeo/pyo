@@ -74,7 +74,7 @@ class PyoObject(object):
     obj[x] : Return stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
     del obj : Perform a clean delete of the object.
     
-    Mathematics :
+    Arithmetics :
     
     Multiplication, addition, division and substraction can be applied between pyo objects
     or between pyo object and number. Return a Dummy object with the result of the operation.
@@ -206,7 +206,6 @@ class PyoObject(object):
         
         **Parameters**
 
-        
         x : float or PyoObject
             New `mul` attribute.
         
@@ -220,7 +219,6 @@ class PyoObject(object):
                 
         **Parameters**
 
-        
         x : float or PyoObject
             New `add` attribute.
         
@@ -234,7 +232,6 @@ class PyoObject(object):
         
         **Parameters**
 
-        
         x : float or PyoObject
             New inversed `mul` attribute.
         
@@ -248,7 +245,6 @@ class PyoObject(object):
                 
         **Parameters**
 
-        
         x : float or PyoObject
             New inversed `add` attribute.
         
@@ -298,6 +294,13 @@ class PyoTableObject(object):
         """Return a list of table Stream objects."""
         return self._base_objs
 
+    def getSize(self):
+        """
+        Return table size in samples.
+        
+        """
+        return self._size
+   
 ######################################################################
 ### Internal classes -> Used by pyo
 ######################################################################

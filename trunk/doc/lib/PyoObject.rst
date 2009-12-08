@@ -19,39 +19,39 @@
     
 .. method:: PyoObject.out(chnl=0)
 
-    :param chnl: float or :class:`PyoObject`, optional 
-
     Start processing and send samples to audio output beginning at *chnl*.
+
+    :param chnl: float or :class:`PyoObject`, optional 
     
 .. method:: PyoObject.mix(voices=1)
 
-    :param voices: float or :class:`PyoObject`, optional
-
     Mix object's audio streams into *voices* streams and return the Mix object.
+
+    :param voices: float or :class:`PyoObject`, optional
     
 .. method:: PyoObject.setMul(x)
 
-    :param x: float or :class:`PyoObject`
-
     Replace the *mul* attribute.
+
+    :param x: float or :class:`PyoObject`
     
 .. method:: PyoObject.setAdd(x)
 
-    :param x: float or :class:`PyoObject`
-
     Replace the *add* attribute.
+
+    :param x: float or :class:`PyoObject`
     
 .. method:: PyoObject.setDiv(x)
 
-    :param x: float or :class:`PyoObject`
-
     Replace and inverse the *mul* attribute.
+
+    :param x: float or :class:`PyoObject`
     
 .. method:: PyoObject.setSub(x)
 
-    :param x: float or :class:`PyoObject`
-
     Replace and inverse the *add* attribute.
+
+    :param x: float or :class:`PyoObject`
     
 
 .. note::
@@ -63,8 +63,10 @@
     obj[x] : Return stream *x* of the object. *x* is a number from 0 to len(obj) - 1.
     
     del obj : Perform a clean delete of the object.
+   
+.. note::
     
-    **Mathematics**
+    **Arithmetics**
     
     Multiplication, addition, division and substraction can be applied between pyo objects
     or between pyo object and number. Return a Dummy object with the result of the operation.
@@ -85,3 +87,13 @@
 .. attribute:: PyoObject.add
 
     float or :class:`PyoObject`. Addition factor.
+
+
+**Child objects**
+
+.. toctree::
+    :numbered:
+
+    Fader
+    Metro
+    Port

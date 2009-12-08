@@ -27,6 +27,16 @@
 
 .. function:: pyo.sndinfo(path)
 
-    :param path: file's path
-
     Return information about a soundfile in the form of a tuple (# frames, sampling rate, # channels).
+
+    :param path: file's path
+    
+    
+**Module objects**
+
+.. toctree::
+    :numbered:
+
+    Server
+    PyoObject
+    PyoTableObject

@@ -4,18 +4,54 @@ from _core import *
 ### Tables
 ######################################################################                                       
 class HarmTable(PyoTableObject):
+    """
+    Generate composite waveforms made up of weighted sums of simple sinusoids.
+    
+    **Parameters**
+    
+    list : list, optional
+        Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Default to [1].
+    size : int, optional
+        Table size in samples. Default to 8192.
+        
+    **Methods**
+    
+    setSize(size) : Change the size of the table. This will erase previously drawn waveform.
+    replace(list) : Redraw waveform according to the new `list` parameter.
+    
+    **Attributes**
+    
+    size : int
+        Table size in samples.
+
+    """
     def __init__(self, list=[1.], size=8192):
         self._size = size
         self._base_objs = [HarmTable_base(list, size)]
         
     def setSize(self, size):
+        """
+        Change the size of the table. This will erase previously drawn waveform.
+        
+        **Parameters**
+        
+        size : int
+            New table size in samples.
+        
+        """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
     
-    def getSize(self):
-        return self._size
+    def replace(self, list):
+        """
+        Redraw waveform according to a new set of harmonics relative strengths.
         
-    def replace(self, list):        
+        **Parameters**
+        
+        list : list
+            Relative strengths of the fixed harmonic partial numbers 1,2,3, etc.
+
+        """      
         [obj.replace(list) for obj in self._base_objs]
 
     @property
@@ -24,16 +60,40 @@ class HarmTable(PyoTableObject):
     def size(self, x): self.setSize(x)
         
 class HannTable(PyoTableObject):
+    """
+    Generate Hanning window. 
+    
+    **Parameters**
+    
+    size : int, optional
+        Table size in samples. Default to 8192.
+        
+    **Methods**
+    
+    setSize(size) : Change the size of the table. This will redraw the envelope.
+    
+    **Attributes**
+    
+    size : int
+        Table size in samples.
+
+    """
     def __init__(self, size=8192):
         self._size = size
         self._base_objs = [HannTable_base(size)]
 
     def setSize(self, size):
+        """
+        Change the size of the table. This will redraw the envelope.
+        
+        **Parameters**
+        
+        size : int
+            New table size in samples.
+        
+        """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
-    
-    def getSize(self): 
-        return self._size
 
     @property
     def size(self): return self._size
@@ -42,15 +102,12 @@ class HannTable(PyoTableObject):
 
 class SndTable(PyoTableObject):
     def __init__(self, path, chnl=None):
-        self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path)
+        self._size, self._snd_sr, self._snd_chnls = sndinfo(path)
         if chnl == None:
             self._base_objs = [SndTable_base(path, i) for i in range(self._snd_chnls)]
         else:
             self._base_objs = [SndTable_base(path, chnl)]
-                
-    def getSize(self):
-        return self._snd_size
-        
+
     def getRate(self):
         return self._base_objs[0].getRate()
 
