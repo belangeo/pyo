@@ -92,8 +92,6 @@
 **Child objects**
 
 .. toctree::
-    :numbered:
+    :glob:
 
-    Fader
-    Metro
-    Port
+    *

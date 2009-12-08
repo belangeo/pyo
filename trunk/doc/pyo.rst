@@ -35,8 +35,7 @@
 **Module objects**
 
 .. toctree::
-    :numbered:
 
     Server
-    PyoObject
-    PyoTableObject
+    PyoObject/PyoObject
+    PyoTableObject/PyoTableObject
