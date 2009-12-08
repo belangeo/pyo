@@ -6,6 +6,6 @@ Pyo documentation contents
 .. toctree::
     :numbered:
     
-    lib/pyo
+    pyo
 
 

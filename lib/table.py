@@ -101,6 +101,25 @@ class HannTable(PyoTableObject):
     def size(self, x): self.setSize(x)
 
 class SndTable(PyoTableObject):
+    """
+    Load data from a soundfile into a function table.
+    
+    If `chnl` is None, the table will contain as many sub tables as necessary 
+    to read all channels of the sound.
+    
+    **Parameters**
+    
+    path : string
+        Full path name of the sound.
+    chnl : int, optional
+        Channel number to read in. The default, None, denotes read all channels.
+
+    **Methods**
+    
+    getRate() : Return the frequency in cps at which the sound will be read 
+    at its original pitch.
+
+    """
     def __init__(self, path, chnl=None):
         self._size, self._snd_sr, self._snd_chnls = sndinfo(path)
         if chnl == None:
@@ -112,6 +131,25 @@ class SndTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
 class NewTable(PyoTableObject):
+    """
+    Create an empty table ready for recording. See `TableRec` to write samples in 
+    the table.
+    
+    **Parameters**
+    
+    length : float
+        Length of the table in seconds.
+    chnls : int, optional
+        How many channels will be handled by the table. Default to 1.
+        
+    **Methods**    
+    
+    getSize() : Return the length of the table in samples.
+    getLength() : Return the length of the table in seconds.
+    getRate() : Return the frequency in cps to give an oscillator to read the sound 
+        at its original pitch.
+
+    """
     def __init__(self, length, chnls=1):
         self._base_objs = [NewTable_base(length) for i in range(chnls)]
                 

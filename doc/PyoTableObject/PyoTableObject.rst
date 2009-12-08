@@ -24,7 +24,6 @@
 **Child objects**
 
 .. toctree::
-    :numbered:
-
-    HarmTable
-    HannTable
+    :glob:
+    
+    *
