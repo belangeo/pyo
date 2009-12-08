@@ -74,43 +74,43 @@
     
 .. method:: Server.setInputDevice(x)
 
-    :param x: int, Number of the audio device listed by Portaudio.
-    
     Set the audio input device number. See :func:`pyo.pa_list_devices`.
 
+    :param x: int, Number of the audio device listed by Portaudio.
+    
 .. method:: Server.setOutputDevice(x)
+
+    Set the audio output device number. See :func:`pyo.pa_list_devices`.
 
     :param x: int, Number of the audio device listed by Portaudio.
     
-    Set the audio output device number. See :func:`pyo.pa_list_devices`.
-
 .. method:: Server.setMidiInputDevice(x)
+
+    Set the MIDI input device number. See :func:`pyo.pm_list_devices`.
 
     :param x: int, Number of the MIDI device listed by Portmidi.
     
-    Set the MIDI input device number. See :func:`pyo.pm_list_devices`.
-
 .. method:: Server.setSamplingRate(x)
+
+    Set the sampling rate used by the server.
 
     :param x: int, sampling rate.
     
-    Set the sampling rate used by the server.
-
 .. method:: Server.setBufferSize(x)
+
+    Set the buffer size used by the server.
 
     :param x: int, buffer size.
     
-    Set the buffer size used by the server.
-
 .. method:: Server.setNchnls(x)
+
+    Set the number of channels used by the server.
 
     :param x: int, number of channels.
     
-    Set the number of channels used by the server.
-
 .. method:: Server.setDuplex(x)
 
-    :param x: int {0, 1}, duplex mode.
-    
     Set the duplex mode used by the server. 0 is output only, 1 is both ways.
+
+    :param x: int {0, 1}, duplex mode.
     

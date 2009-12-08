@@ -1,0 +1,31 @@
+:class:`Metro` --- Regular ticks
+================================
+
+.. class:: Metro(time=1)
+
+    Parent class : :class:`PyoObject`
+
+    Generate isochronous trigger signals.
+    
+    A trigger is an audio signal with a value of 1 surounded by 0s.
+
+    :param time: float or :class:`PyoObject`, optional
+    
+    Time, in seconds, between each trigger. Default to 1.
+
+
+.. method:: Metro.setTime(x)
+
+    Replace the `time` attribute.
+
+    :param x: float or :class:`PyoObject`
+
+
+.. note::
+
+    Method out() is bypassed. :class:`Metro` signal can't be sent to audio outs. 
+    :class:`Metro` has no `mul` and `add` attributes.
+    
+.. attribute:: Metro.time
+
+    float or :class:`PyoObject`. Time, in seconds, between each trigger.

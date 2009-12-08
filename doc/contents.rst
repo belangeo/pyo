@@ -7,7 +7,5 @@ Pyo documentation contents
     :numbered:
     
     lib/pyo
-    lib/Server
-    lib/PyoObject
 
 
