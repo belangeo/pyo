@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 22
+example = 10
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -72,11 +72,12 @@ elif example == 9:
     # In two case, right argument can be another pyo object
 elif example == 10:
     # Sine phase shift
-    a = Sine(freq=1, phase=0, mul=.5, add=.5)
-    b = Sine(freq=1, phase=.5, mul=.5, add=.5)
+    t1 = HarmTable()
+    a = Osc(t1, freq=1, phase=0, mul=.5, add=.5)
+    b = Osc(t1, freq=1, phase=.5, mul=.5, add=.5)
     t = HarmTable([1,0,.3,0,.2])
-    osc1 = Osc(t, 200, a).out()
-    osc2 = Osc(t, 300, b).out()
+    osc1 = Osc(t, 400, 0, a).out()
+    osc2 = Osc(t, 500, 0, b).out()
 elif example == 11:
     mod = Sine([random.uniform(.5, 3) for i in range(10)], 0, .1, .1)
     a = Sine([random.uniform(400,1000) for i in range(10)], 0, .1).out()
