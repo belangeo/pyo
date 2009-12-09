@@ -5,6 +5,10 @@ from _pyo import *
 ######################################################################
 ### Utilities
 ######################################################################
+class Call_example:
+    def __init__(self, callback):
+        self.__call__ = callback
+        
 def convertArgsToLists(*args):
     """
     Convert all arguments to list if not already a list or a PyoObject. 
