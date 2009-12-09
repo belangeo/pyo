@@ -9,7 +9,7 @@ class Fader(PyoObject):
     
     The play() method starts the envelope and is not called at the object creation.
     
-    **Attributes**
+    **Parameters**
 
     fadein : float or PyoObject, optional
         Rising time of the envelope in seconds. Default to 0.01.

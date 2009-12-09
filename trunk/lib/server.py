@@ -148,6 +148,7 @@ class Server:
 
         """
         self._server.boot()
+        return self._server
         
     def start(self):
         """
