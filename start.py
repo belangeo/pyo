@@ -9,9 +9,9 @@ from pyo import *
 import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
-#s.boot()
+s.boot()
 
-example = 0
+example = 22
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -142,15 +142,14 @@ elif example == 21:
     b = SfMarkerShuffler('/Users/olipet/Desktop/voix.aif', speed=1, interp=4, mul=.5).out()
 elif example == 22:
     a = Sine([.05, .075], 0, .125, .25)
-    b = Metro(a)
-    c = Delay(b, [.005, .0075], .98, 1, mul=.6).out()
+    b = Metro(.125, poly=8)
+    c = Delay(b, [(i+1)*.001 for i in range(8)], .98, 1, mul=.6).out()
 elif example == 23:
     t = HarmTable([1,0,.3,0,.15,0,.1,0,0,.04,0,0,.02])
-    a = Metro(.5)
-    b = Port(TrigRand([a]*10, 200, 400), 1, 1)
-    w1 = Osc(t, b * [random.uniform(.994, 1.006) for i in range(10)], .1).out()
-    w2 = Osc(t, b * [random.uniform(1.99, 2.01) for i in range(10)], .05).out()
-    w3 = Osc(t, b * [random.uniform(.496, .504) for i in range(10)], .2).out()
+    sine = Sine(.2, 0, .125, .65)
+    a = Metro(.125, 8)
+    b = TrigEnv(a, HannTable(), .45)
+    w1 = Osc(t, [100,125,150,175], b).out()
 elif example == 24:
     a = Metro(1)
     #t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
@@ -158,7 +157,33 @@ elif example == 24:
     d = Sine(.1, 0, .25, .75)
     e = TrigEnv(a, t, d, .5)
     b = Noise(e).out()
+elif example == 25:
+    t = HarmTable([1,0,0,.2,0,0,.1,0,0,.05])
+    w1 = Osc(t, 250, .1).out()
     
+    def pat():
+        l = t.list
+        ll = len(l)
+        newl = []
+        for i, val in enumerate(l):
+            off = random.uniform(-.01, .01)
+            newval = val + off
+            maxamp = ((ll - i) / float(ll))
+            if newval < 0: newval = 0
+            elif newval > maxamp: newval = maxamp
+            newl.append(newval)
+        t.list = newl
+        
+    p = PyPattern(pat, .125)
+    
+elif example == 26:
+    t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
+    a = Osc(t, 250, .5).out()
+    def pat():
+        a.freq = random.randint(200, 400)
+        
+    p = Pattern(pat, .125)
+        
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier

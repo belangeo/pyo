@@ -23,9 +23,12 @@ class HarmTable(PyoTableObject):
     
     size : int
         Table size in samples.
+    list : list
+        Relative strengths of the fixed harmonic partial numbers.
 
     """
     def __init__(self, list=[1.], size=8192):
+        self._list = list
         self._size = size
         self._base_objs = [HarmTable_base(list, size)]
         
@@ -52,13 +55,18 @@ class HarmTable(PyoTableObject):
             Relative strengths of the fixed harmonic partial numbers 1,2,3, etc.
 
         """      
+        self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
     @property
     def size(self): return self._size
     @size.setter
     def size(self, x): self.setSize(x)
-        
+    @property
+    def list(self): return self._list
+    @list.setter
+    def list(self, x): self.replace(x)
+    
 class HannTable(PyoTableObject):
     """
     Generate Hanning window. 
@@ -163,6 +171,32 @@ class NewTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
 class TableRec(PyoObject):
+    """
+    TableRec is for writing samples into a previously created NewTable. See `NewTable` to create
+    an empty table.
+
+    **Parameters**
+
+    input : PyoObject
+        Audio signal to write in the table.
+    table : PyoTableObject
+        The table where to write samples.
+    fadetime : float, optional
+        Fade time, in seconds, at the beginning and the ending of the recording. Default to 0.
+    
+    **Methods**
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    play() : Start the recording at the beginning of the table.
+    stop() : Stop the recording. Otherwise, record through the end of the table.
+
+    **Notes**
+
+    Methods out() is bypassed. TableRec returns no signal.
+    
+    TableRec has no `mul` and `add` attributes.
+    
+    """
     def __init__(self, input, table, fadetime=0):
         self._input - input
         self._table = table
@@ -180,6 +214,17 @@ class TableRec(PyoObject):
         pass    
 
     def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        **Parameters**
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
         self._input = x
         self._in_fader.setInput(x, fadetime)
       

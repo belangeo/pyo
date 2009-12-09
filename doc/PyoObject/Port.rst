@@ -1,7 +1,7 @@
 :class:`Port` --- Exponential portamento
 ========================================
 
-.. class:: Port(input, risetime=0.05, falltime=0.05, dur=0, mul=1, add=0)
+.. class:: Port(input, risetime=0.05, falltime=0.05, mul=1, add=0)
 
     Parent class : :class:`PyoObject`
 
@@ -28,9 +28,9 @@
 
     New input signal to process.
 
-    :param fadetime: float
+    :param fadetime: float, optional
 
-    Crossfade time between old and new input.
+    Crossfade time between old and new input. Default to 0.05.
 
 .. method:: Port.setRiseTime(x)
 

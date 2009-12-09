@@ -39,14 +39,15 @@ class TrigRand(PyoObject):
     def max(self, x): self.setMax(x)
 
 class TrigEnv(PyoObject):
-    def __init__(self, input, dur=1, mul=1, add=0):
+    def __init__(self, input, table, dur=1, mul=1, add=0):
         self._input = input
+        self._table = table
         self._dur = dur
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, dur, mul, add, lmax = convertArgsToLists(self._in_fader, dur, mul, add)
-        self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, table, dur, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, mul, add)
+        self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         self._input = x
