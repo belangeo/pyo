@@ -13,7 +13,7 @@ source_files = [path + f for f in files]
 path = 'src/objects/'
 files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 'sigmodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'oscmodule.c', 'delaymodule.c', 'sfplayermodule.c',
-        'metromodule.c', 'trigmodule.c']
+        'metromodule.c', 'trigmodule.c', 'patternmodule.c']
 source_files = source_files + [path + f for f in files]
 
 include_dirs = ['include']

@@ -7,137 +7,126 @@
 
 typedef struct {
     pyo_audio_HEAD
+    PyObject *callable;
     PyObject *time;
     Stream *time_stream;
     int modebuffer[1];
     float sampleToSec;
     float currentTime;
-    float offset;
     int init;
-    int flag;
-} Metro;
+} Pattern;
 
 static void
-Metro_generate_i(Metro *self) {
-    float val, tm, off;
-    int i;
+Pattern_generate_i(Pattern *self) {
+    float tm;
+    int i, flag;
     
+    flag = 0;
     tm = PyFloat_AS_DOUBLE(self->time);
-    off = tm * self->offset;
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= tm) {
-            val = 0;
+            flag = 1;
             self->currentTime = 0.;
-            self->flag = 1;
         }    
-        else if (self->currentTime >= off && self->flag == 1) {
-            val = 1;
-            self->flag = 0;
-        }    
-        else
-            val = 0;
-        
-        self->data[i] = val;
+
         self->currentTime += self->sampleToSec;
+    }
+    if (flag == 1 || self->init == 1) {
+        PyObject_CallFunctionObjArgs(self->callable, NULL);
+        self->init = 0;
     }
 }
 
 static void
-Metro_generate_a(Metro *self) {
-    float val, off;
-    int i;
+Pattern_generate_a(Pattern *self) {
+    float val;
+    int i, flag;
     
     float *tm = Stream_getData((Stream *)self->time_stream);
     
+    flag = 0;
     for (i=0; i<self->bufsize; i++) {
-        off = tm[i] * self->offset;
         if (self->currentTime >= tm[i]) {
-            val = 0;
+            flag = 1;
             self->currentTime = 0.;
-            self->flag = 1;
-        }
-        else if (self->currentTime >= off && self->flag == 1) {
-            val = 1;
-            self->flag = 0;
         }    
-        else
-            val = 0;
         
-        self->data[i] = val;
         self->currentTime += self->sampleToSec;
     }
+    if (flag == 1 || self->init == 1) {
+        PyObject_CallFunctionObjArgs(self->callable, NULL);
+        self->init = 0;
+    }    
 }
 
 
 static void
-Metro_setProcMode(Metro *self)
+Pattern_setProcMode(Pattern *self)
 {
     int procmode = self->modebuffer[0];
     switch (procmode) {
         case 0:        
-            self->proc_func_ptr = Metro_generate_i;
+            self->proc_func_ptr = Pattern_generate_i;
             break;
         case 1:    
-            self->proc_func_ptr = Metro_generate_a;
+            self->proc_func_ptr = Pattern_generate_a;
             break;
     }
 }
 
 static void
-Metro_compute_next_data_frame(Metro *self)
+Pattern_compute_next_data_frame(Pattern *self)
 {
-    (*self->proc_func_ptr)(self); 
-    //if (self->init == 1) {
-    //    self->data[0] = 1;
-    //    self->init = 0;
-    //}    
-    Stream_setData(self->stream, self->data);
+    (*self->proc_func_ptr)(self);     
 }
 
 static int
-Metro_traverse(Metro *self, visitproc visit, void *arg)
+Pattern_traverse(Pattern *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->callable);
     Py_VISIT(self->time);    
     Py_VISIT(self->time_stream);    
     return 0;
 }
 
 static int 
-Metro_clear(Metro *self)
+Pattern_clear(Pattern *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->callable);
     Py_CLEAR(self->time);    
     Py_CLEAR(self->time_stream);
     return 0;
 }
 
 static void
-Metro_dealloc(Metro* self)
+Pattern_dealloc(Pattern* self)
 {
     free(self->data);
-    Metro_clear(self);
+    Pattern_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Metro_deleteStream(Metro *self) { DELETE_STREAM };
+static PyObject * Pattern_deleteStream(Pattern *self) { DELETE_STREAM };
 
 static PyObject *
-Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+Pattern_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    Metro *self;
-    self = (Metro *)type->tp_alloc(type, 0);
+    Pattern *self;
+    self = (Pattern *)type->tp_alloc(type, 0);
     
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
     self->init = 1;
-    self->flag = 1;
 
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Metro_compute_next_data_frame);
-    self->mode_func_ptr = Metro_setProcMode;
+    Stream_setFunctionPtr(self->stream, Pattern_compute_next_data_frame);
+    self->mode_func_ptr = Pattern_setProcMode;
 
+    Stream_setStreamActive(self->stream, 0);
+    
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
     
@@ -145,15 +134,21 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static int
-Metro_init(Metro *self, PyObject *args, PyObject *kwds)
+Pattern_init(Pattern *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *timetmp=NULL;
+    PyObject *timetmp=NULL, *calltmp=NULL;
     
-    static char *kwlist[] = {"time", "offset", NULL};
+    static char *kwlist[] = {"callable", "time", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Of", kwlist, &timetmp, &self->offset))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &calltmp, &timetmp))
         return -1; 
-
+ 
+    if (! PyFunction_Check(calltmp))
+        return -1;
+    
+    Py_XDECREF(self->callable);
+    self->callable = calltmp;
+    
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
@@ -163,26 +158,26 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
     
-    Metro_compute_next_data_frame((Metro *)self);
+    Pattern_compute_next_data_frame((Pattern *)self);
     
     Py_INCREF(self);
     return 0;
 }
 
-static PyObject * Metro_getServer(Metro* self) { GET_SERVER };
-static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
+static PyObject * Pattern_getServer(Pattern* self) { GET_SERVER };
+static PyObject * Pattern_getStream(Pattern* self) { GET_STREAM };
 
 static PyObject * 
-Metro_play(Metro *self) 
+Pattern_play(Pattern *self) 
 { 
     self->init = 1;
     PLAY 
 };
 
-static PyObject * Metro_stop(Metro *self) { STOP };
+static PyObject * Pattern_stop(Pattern *self) { STOP };
 
 static PyObject *
-Metro_setTime(Metro *self, PyObject *arg)
+Pattern_setTime(Pattern *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 	
@@ -215,30 +210,30 @@ Metro_setTime(Metro *self, PyObject *arg)
 	return Py_None;
 }	
 
-static PyMemberDef Metro_members[] = {
-{"server", T_OBJECT_EX, offsetof(Metro, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(Metro, stream), 0, "Stream object."},
-{"time", T_OBJECT_EX, offsetof(Metro, time), 0, "Metro time factor."},
+static PyMemberDef Pattern_members[] = {
+{"server", T_OBJECT_EX, offsetof(Pattern, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Pattern, stream), 0, "Stream object."},
+{"time", T_OBJECT_EX, offsetof(Pattern, time), 0, "Pattern time factor."},
 {NULL}  /* Sentinel */
 };
 
-static PyMethodDef Metro_methods[] = {
-{"getServer", (PyCFunction)Metro_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)Metro_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Metro_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Metro_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)Metro_stop, METH_NOARGS, "Stops computing."},
-{"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
+static PyMethodDef Pattern_methods[] = {
+{"getServer", (PyCFunction)Pattern_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Pattern_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Pattern_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Pattern_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Pattern_stop, METH_NOARGS, "Stops computing."},
+{"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
 {NULL}  /* Sentinel */
 };
 
-PyTypeObject MetroType = {
+PyTypeObject PatternType = {
 PyObject_HEAD_INIT(NULL)
 0,                         /*ob_size*/
-"_pyo.Metro_base",         /*tp_name*/
-sizeof(Metro),         /*tp_basicsize*/
+"_pyo.Pattern_base",         /*tp_name*/
+sizeof(Pattern),         /*tp_basicsize*/
 0,                         /*tp_itemsize*/
-(destructor)Metro_dealloc, /*tp_dealloc*/
+(destructor)Pattern_dealloc, /*tp_dealloc*/
 0,                         /*tp_print*/
 0,                         /*tp_getattr*/
 0,                         /*tp_setattr*/
@@ -254,23 +249,23 @@ sizeof(Metro),         /*tp_basicsize*/
 0,                         /*tp_setattro*/
 0,                         /*tp_as_buffer*/
 Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Metro objects. Create a metronome.",           /* tp_doc */
-(traverseproc)Metro_traverse,   /* tp_traverse */
-(inquiry)Metro_clear,           /* tp_clear */
+"Pattern objects. Create a metronome.",           /* tp_doc */
+(traverseproc)Pattern_traverse,   /* tp_traverse */
+(inquiry)Pattern_clear,           /* tp_clear */
 0,		               /* tp_richcompare */
 0,		               /* tp_weaklistoffset */
 0,		               /* tp_iter */
 0,		               /* tp_iternext */
-Metro_methods,             /* tp_methods */
-Metro_members,             /* tp_members */
+Pattern_methods,             /* tp_methods */
+Pattern_members,             /* tp_members */
 0,                      /* tp_getset */
 0,                         /* tp_base */
 0,                         /* tp_dict */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Metro_init,      /* tp_init */
+(initproc)Pattern_init,      /* tp_init */
 0,                         /* tp_alloc */
-Metro_new,                 /* tp_new */
+Pattern_new,                 /* tp_new */
 };
 

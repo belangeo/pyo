@@ -40,6 +40,8 @@ extern PyTypeObject OscReceiverType;
 extern PyTypeObject TrigRandType;
 extern PyTypeObject TrigEnvType;
 
+extern PyTypeObject PatternType;
+
 /* Constants */
 #define PI M_PI
 #define TWOPI (2 * M_PI)

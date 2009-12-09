@@ -23,7 +23,7 @@
     
     New table size in samples.
 
-.. method HarmTable.replace(list)
+.. method:: HarmTable.replace(list)
 
     Redraw waveform according to a new set of harmonics relative strengths.
     
@@ -34,3 +34,7 @@
 .. attribute:: HarmTable.size
 
     int. Table size in samples.
+    
+.. attribute:: HarmTable.list
+    
+    list. Relative strengths of the fixed harmonic partial numbers.

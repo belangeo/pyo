@@ -345,5 +345,10 @@ init_pyo(void)
         return;
     Py_INCREF(&TrigEnvType);
     PyModule_AddObject(m, "TrigEnv_base", (PyObject *)&TrigEnvType);
+
+    if (PyType_Ready(&PatternType) < 0)
+        return;
+    Py_INCREF(&PatternType);
+    PyModule_AddObject(m, "Pattern_base", (PyObject *)&PatternType);
     
 }

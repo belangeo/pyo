@@ -7,3 +7,6 @@ from lib.OSC import *
 from lib.sfplayer import *
 from lib.table import *
 from lib.trigger import *
+
+from lib.pattern import *
+from lib.pypattern import *
