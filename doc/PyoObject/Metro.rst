@@ -1,7 +1,7 @@
 :class:`Metro` --- Regular ticks
 ================================
 
-.. class:: Metro(time=1)
+.. class:: Metro(time=1, poly=1)
 
     Parent class : :class:`PyoObject`
 
@@ -29,6 +29,7 @@
 .. note::
 
     Method out() is bypassed. :class:`Metro` signal can't be sent to audio outs. 
+    
     :class:`Metro` has no `mul` and `add` attributes.
     
 .. attribute:: Metro.time

@@ -455,51 +455,119 @@ typedef struct {
     PyObject *table;
     PyObject *freq;
     Stream *freq_stream;
-    int modebuffer[3];
+    PyObject *phase;
+    Stream *phase_stream;
+    int modebuffer[4];
     float pointerPos;
 } Osc;
 
 static void
-Osc_readframes_i(Osc *self) {
-    float fr, inc, fpart, val, x, x1;
+Osc_readframes_ii(Osc *self) {
+    float fr, ph, pos, inc, fpart, x, x1;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
 
     fr = PyFloat_AS_DOUBLE(self->freq);
+    ph = PyFloat_AS_DOUBLE(self->phase);
     inc = fr * size / self->sr;
+
+    ph *= size;
     for (i=0; i<self->bufsize; i++) {
-        self->pointerPos = fmodf((self->pointerPos + inc), size);
+        self->pointerPos += inc;
         if (self->pointerPos < 0)
             self->pointerPos = size + self->pointerPos;
-        ipart = (int)self->pointerPos;
-        fpart = self->pointerPos - ipart;
+        else if (self->pointerPos >= size)
+            self->pointerPos -= size;
+        pos = fmodf((self->pointerPos + ph), size);
+        ipart = (int)pos;
+        fpart = pos - ipart;
         x = tablelist[ipart];
         x1 = tablelist[ipart+1];
-        val = x + (x1 - x) * fpart;
-        self->data[i] = val;
+        self->data[i] = x + (x1 - x) * fpart;
     }
 }
 
 static void
-Osc_readframes_a(Osc *self) {
-    float inc, fpart, val, x, x1;
+Osc_readframes_ai(Osc *self) {
+    float inc, ph, pos, fpart, x, x1, sizeOnSr;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
+    ph = PyFloat_AS_DOUBLE(self->phase);
+    ph *= size;
+    
+    sizeOnSr = size / self->sr;
     for (i=0; i<self->bufsize; i++) {
-        inc = fr[i] * size / self->sr;
-        self->pointerPos = fmodf((self->pointerPos + inc), size);
+        inc = fr[i] * sizeOnSr;
+        self->pointerPos += inc;
         if (self->pointerPos < 0)
             self->pointerPos = size + self->pointerPos;
-        ipart = (int)self->pointerPos;
-        fpart = self->pointerPos - ipart;
+        else if (self->pointerPos >= size)
+            self->pointerPos -= size;
+        pos = fmodf((self->pointerPos + ph), size);
+        ipart = (int)pos;
+        fpart = pos - ipart;
         x = tablelist[ipart];
         x1 = tablelist[ipart+1];
-        val = x + (x1 - x) * fpart;
-        self->data[i] = val;
+        self->data[i] = x + (x1 - x) * fpart;
+    }
+}
+
+static void
+Osc_readframes_ia(Osc *self) {
+    float fr, pha, pos, inc, fpart, x, x1;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    inc = fr * size / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        pha = ph[i] * size;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = size + self->pointerPos;
+        else if (self->pointerPos >= size)
+            self->pointerPos -= size;
+        pos = fmodf((self->pointerPos + pha), size);
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        x = tablelist[ipart];
+        x1 = tablelist[ipart+1];
+        self->data[i] = x + (x1 - x) * fpart;
+    }
+}
+
+static void
+Osc_readframes_aa(Osc *self) {
+    float inc, pha, pos, fpart, x, x1, sizeOnSr;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+
+    sizeOnSr = size / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] * sizeOnSr;
+        pha = ph[i] * size;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = size + self->pointerPos;
+        else if (self->pointerPos >= size)
+            self->pointerPos -= size;
+        pos = fmodf((self->pointerPos + pha), size);
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        x = tablelist[ipart];
+        x1 = tablelist[ipart+1];
+        self->data[i] = x + (x1 - x) * fpart;
     }
 }
 
@@ -517,15 +585,21 @@ static void
 Osc_setProcMode(Osc *self)
 {
     int procmode, muladdmode;
-    procmode = self->modebuffer[2];
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
 	switch (procmode) {
         case 0:        
-            self->proc_func_ptr = Osc_readframes_i;
+            self->proc_func_ptr = Osc_readframes_ii;
             break;
         case 1:    
-            self->proc_func_ptr = Osc_readframes_a;
+            self->proc_func_ptr = Osc_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Osc_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Osc_readframes_aa;
             break;
     } 
 	switch (muladdmode) {
@@ -572,6 +646,8 @@ Osc_traverse(Osc *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->table);
+    Py_VISIT(self->phase);    
+    Py_VISIT(self->phase_stream);    
     Py_VISIT(self->freq);    
     Py_VISIT(self->freq_stream);    
     return 0;
@@ -582,6 +658,8 @@ Osc_clear(Osc *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->table);
+    Py_CLEAR(self->phase);    
+    Py_CLEAR(self->phase_stream);    
     Py_CLEAR(self->freq);    
     Py_CLEAR(self->freq_stream);    
     return 0;
@@ -604,9 +682,11 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Osc *)type->tp_alloc(type, 0);
 
     self->freq = PyFloat_FromDouble(1000);
+    self->phase = PyFloat_FromDouble(0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
     self->pointerPos = 0.;
 
     INIT_OBJECT_COMMON
@@ -619,20 +699,24 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Osc_init(Osc *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *tabletmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *tabletmp, *freqtmp=NULL, *phasetmp=NULL, *multmp=NULL, *addtmp=NULL;
 
-    static char *kwlist[] = {"table", "freq", "mul", "add", NULL};
+    static char *kwlist[] = {"table", "freq", "phase", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &tabletmp, &freqtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &tabletmp, &freqtmp, &phasetmp, &multmp, &addtmp))
         return -1; 
 
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
     
+    if (phasetmp) {
+        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+    }
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
-
+    
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -713,11 +797,46 @@ Osc_setFreq(Osc *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Osc_setPhase(Osc *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->phase);
+	if (isNumber == 1) {
+		self->phase = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->phase = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->phase_stream);
+        self->phase_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Osc_members[] = {
     {"server", T_OBJECT_EX, offsetof(Osc, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Osc, stream), 0, "Stream object."},
     {"table", T_OBJECT_EX, offsetof(Osc, table), 0, "Waveform table."},
     {"freq", T_OBJECT_EX, offsetof(Osc, freq), 0, "Frequency in cycle per second."},
+    {"phase", T_OBJECT_EX, offsetof(Osc, phase), 0, "Oscillator phase."},
     {"mul", T_OBJECT_EX, offsetof(Osc, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(Osc, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -732,6 +851,7 @@ static PyMethodDef Osc_methods[] = {
     {"out", (PyCFunction)Osc_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Osc_stop, METH_NOARGS, "Stops computing."},
 	{"setFreq", (PyCFunction)Osc_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
+    {"setPhase", (PyCFunction)Osc_setPhase, METH_O, "Sets oscillator phase."},
 	{"setMul", (PyCFunction)Osc_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Osc_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Osc_setSub, METH_O, "Sets oscillator inverse add factor."},
