@@ -136,7 +136,7 @@ class Port(PyoObject):
         x : PyoObject
             New signal to process.
         fadetime : float, optional
-            Crossfade time between old and new input.
+            Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x

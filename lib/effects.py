@@ -4,6 +4,32 @@ from _core import *
 ### Effects
 ######################################################################                                       
 class Biquad(PyoObject):
+    """
+    A sweepable general purpose biquadratic digital filter. 
+    
+    **Parameters**
+    
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Cutoff or center frequency of the filter. Default to 1000.
+    q : float or PyoObject, optional
+        Q of the filter, defined, for bandpass filters, as bandwidth/cutoff. Should be between 1 and 500. Default to 1.
+    type : int, optional
+        Filter type. Four possible values :
+            0 = lowpass (default)
+            1 = highpass
+            2 = bandpass
+            3 = bandstop
+
+    **Methods**
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setType(x) : Replace the `type` attribute.
+
+    """
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
         self._input = input
         self._freq = freq
@@ -16,20 +42,58 @@ class Biquad(PyoObject):
         self._base_objs = [Biquad_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        **Parameters**
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
         self._input = x
         self._in_fader.setInput(x, fadetime)
         
     def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
         self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 1 and 500.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
         self.q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setType(self, x):
+        """
+        Replace the `type` attribute.
+        
+        **Parameters**
+
+        x : int
+            New `type` attribute. 0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop.
+
+        """
         self._type = x
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
