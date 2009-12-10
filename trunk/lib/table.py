@@ -108,6 +108,80 @@ class HannTable(PyoTableObject):
     @size.setter
     def size(self, x): self.setSize(x)
 
+class LinTable(PyoTableObject):
+    """
+    Construct a table from segments of straight lines in breakpoint fashion.
+    
+    **Parameters**
+    
+    list : list, optional
+        List of tuples indicating location and value of each points in the table. 
+        The default, [(0,0.), (8191, 1.)], creates a straight line from 0.0 at location 0
+        to 1.0 at the end of the table (size - 1). Location must be integer.
+    size : int, optional
+        Table size in samples. Default to 8192.
+        
+    **Methods**
+    
+    setSize(size) : Change the size of the table and rescale the envelope.
+    replace(list) : Draw a new envelope according to the new `list` parameter.
+
+    **note**
+    
+    Locations in the list must be in increasing order. If the last value is less 
+    than size, then the rest will be set to zero. 
+    
+    **Attributes**
+    
+    size : int
+        Table size in samples.
+    list : list
+        List of tuples [(location, value), ...].
+
+    """
+    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        self._size = size
+        self._base_objs = [LinTable_base(list, size)]
+        
+    def setSize(self, size):
+        """
+        Change the size of the table and rescale the envelope.
+        
+        **Parameters**
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def replace(self, list):
+        """
+        Draw a new envelope according to the new `list` parameter.
+        
+        **Parameters**
+        
+        list : list
+            List of tuples indicating location and value of each points in the table. 
+            Location must be integer.
+
+        """      
+        self._list = list
+        [obj.replace(list) for obj in self._base_objs]
+
+    def getPoints(self):
+        return self._base_objs[0].getPoints()
+        
+    @property
+    def size(self): return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+    @property
+    def list(self): return self.getPoints()
+    @list.setter
+    def list(self, x): self.replace(x)
+
 class SndTable(PyoTableObject):
     """
     Load data from a soundfile into a function table.

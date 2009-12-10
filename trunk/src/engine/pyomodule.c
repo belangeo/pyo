@@ -218,6 +218,11 @@ init_pyo(void)
         return;
     Py_INCREF(&HannTableType);
     PyModule_AddObject(m, "HannTable_base", (PyObject *)&HannTableType);
+
+    if (PyType_Ready(&LinTableType) < 0)
+        return;
+    Py_INCREF(&LinTableType);
+    PyModule_AddObject(m, "LinTable_base", (PyObject *)&LinTableType);
     
     if (PyType_Ready(&SndTableType) < 0)
         return;
