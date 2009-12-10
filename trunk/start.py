@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 1
+example = 27
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -189,7 +189,7 @@ elif example == 27:
     met = Metro(.125, 8)
     env = LinTable([(0,0), (5,1), (50,.25), (200,.1), (8191,0)])
     trig = TrigEnv(met, env)
-    snd = SndTable("/Users/olipet/Desktop/sons/rumble.aif")
+    snd = SndTable("/Users/olipet/Desktop/sons/cacanne4.aiff")
     outs = Osc(snd, [snd.getRate()*random.uniform(.95,1.1) for i in range(8)], 
                 [i/8. for i in range(8)], trig).out()
     

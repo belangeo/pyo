@@ -1,5 +1,5 @@
-:class:`TableRec` --- Writes samples in table
-=============================================
+:class:`TableRec` --- Writes samples in a table object
+======================================================
 
 .. class:: TableRec(input, table, fadetime=0)
 
