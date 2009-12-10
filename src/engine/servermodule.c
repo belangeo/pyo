@@ -193,6 +193,9 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fiii", kwlist, &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex))
         return -1;
 
+    self->recpath = getenv("HOME");
+    strncat(self->recpath, "/pyo_rec.aif", strlen("/pyo_rec.aif"));
+
     return 0;
 }
 
@@ -414,18 +417,15 @@ Server_stop(Server *self)
 
 static PyObject *
 Server_start_rec(Server *self, PyObject *args)
-{
-    char *path = getenv("HOME");
-    strncat(path, "/pyo_rec.aif", strlen("/pyo_rec.aif"));
-    
+{    
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->samplingRate;
     self->recinfo.channels = self->nchnls;
     self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
     
     /* Open the output file. */
-    if (! (self->recfile = sf_open(path, SFM_WRITE, &self->recinfo))) {   
-        printf ("Not able to open output file %s.\n", path) ;
+    if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
+        printf ("Not able to open output file %s.\n", self->recpath) ;
     }
     
     self->record = 1;

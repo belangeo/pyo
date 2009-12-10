@@ -156,6 +156,7 @@ class Server:
         
         """
         self._server.start()
+        return self._server
     
     def stop(self):
         """
