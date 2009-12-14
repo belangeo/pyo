@@ -4,6 +4,25 @@ from _core import *
 ### MIDI
 ######################################################################                                       
 class Midictl(PyoObject):
+    """
+    Get the current value of a MIDI channel controller.
+    
+    Get the current value of a controller and optionally map it onto specified range.
+    
+    **Parameters**
+    
+    ctlnumber : int
+        Midi channel. Initialisation time only.
+    minscale : float, optional
+        Low range for mapping. Initialisation time only.
+    maxscale : float, optional
+        High range for mapping. Initialisation time only.
+        
+    **Notes**
+    
+    Methods out() is bypassed. Midictl signal can't be sent to audio outs.
+
+    """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
         self._mul = mul
         self._add = add
@@ -14,17 +33,45 @@ class Midictl(PyoObject):
         pass
 
 class Notein(PyoObject):
-    def __init__(self, voices=10, scale=0, first=0, last=127, mul=1, add=0):
+    """
+    Generates MIDI note messages.
+    
+    From a MIDI device, takes the notes in the range defined with `first` and `last` parameters,
+    and output `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
+    
+    **Parameters**
+    
+    poly : int, optional
+        Number of streams of polyphonie generated. Default to 10.
+    scale : int, optional
+        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. In the transpo mode, the central key,
+        the key where there is no transposition, is (first + last) / 2.
+    first : int, optional
+        Lowest MIDI range. Default to 0.
+    last : int, optional
+        Highest MIDI range. Default to 127.
+        
+    **Notes**
+    
+    Pitch and velocity are two seperated set of streams. User should call :
+    
+    Notein['pitch'] to retreive pitch streams.
+    Notein['velocity'] to retreive velocity streams.    
+
+    Velocity is automatically scaled between 0 and 1.
+    
+    """
+    def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):
         self._pitch_dummy = None
         self._velocity_dummy = None
-        self._voices = voices
+        self._poly = poly
         self._scale = scale
         self._first = first
         self._last = last
         self._mul = mul
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
-        self._base_handler = MidiNote_base(self._voices, self._scale, self._first, self._last)
+        self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last)
         self._base_objs = []
         for i in range(lmax * voices):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))

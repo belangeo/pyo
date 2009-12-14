@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 27
+example = 0
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -125,17 +125,17 @@ elif example == 18:
     a = Sine(.1, 0, .25, 1)
     sf = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', speed=1, loop=True, offset=0, interp=2, mul=.5).out()
 elif example == 19:
-    a = Notein(voices=10, scale=1, mul=.5)
+    a = Notein(poly=10, scale=1, mul=.5)
     p = Port(a['velocity'], .001, .5)
     b = Sine(a['pitch'], 0, p).out()
     c = Sine(a['pitch'] * 0.997, 0, p).out()
     d = Sine(a['pitch'] * 1.005, 0, p).out()
     e = Sine(a['pitch'] * 0.993, 0, p).out()
 elif example == 20:
-    a = Notein(voices=5, scale=2, first=0, last=11, mul=.7)
+    a = Notein(poly=5, scale=2, first=0, last=11, mul=.7)
     p = Port(a['velocity'], .001, 1)
     b = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', a['pitch'], loop=True, mul=p).out()
-    a1 = Notein(voices=5, scale=2, first=12, last=23, mul=.7)
+    a1 = Notein(poly=5, scale=2, first=12, last=23, mul=.7)
     p1 = Port(a1['velocity'], .001, 1)
     b1 = SfPlayer('/Users/olipet/Desktop/sons/dash.aif', a1['pitch'], loop=True, mul=p1).out()
 elif example == 21:
