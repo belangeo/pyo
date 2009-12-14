@@ -165,3 +165,7 @@ class Noise(PyoObject):
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def demo():
+        execfile("demos/Noise_demo.py")
+    demo = Call_example(demo)
