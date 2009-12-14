@@ -72,8 +72,9 @@ o_ex4 = Sine(freq=o_ex1, phase=o_ex2, mul=o_ex3).out()
 
 funcs = {1: ex1, 2: ex2, 3: ex3, 4: ex4}
 
+print "\n** A Server must be started !"
 while True:
-    rep = input("""
+    rep = input("""    
 Choose a demo :
 
 Simple sine : 1

@@ -25,7 +25,7 @@
     
 .. method:: PyoObject.mix(voices=1)
 
-    Mix object's audio streams into *voices* streams and return the Mix object.
+    Mixes object's audio streams into *voices* streams and return the Mix object.
 
     :param voices: float or :class:`PyoObject`, optional
     

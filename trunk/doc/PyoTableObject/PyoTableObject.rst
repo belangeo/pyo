@@ -3,7 +3,7 @@
 
 .. class:: PyoTableObject()
 
-    Base class for all pyo table objects. A table object object is a buffer memory
+    Base class for all pyo table objects. A table object is a buffer memory
     to store precomputed samples.
 
     User should never instantiates an object of this class.

@@ -151,6 +151,10 @@ class Input(PyoObject):
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def demo():
+        execfile("demos/Input_demo.py")
+    demo = Call_example(demo)
+
 class Noise(PyoObject):
     def __init__(self, mul=1, add=0):                
         """
