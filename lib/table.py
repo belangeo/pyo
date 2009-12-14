@@ -197,7 +197,8 @@ class SndTable(PyoTableObject):
         Channel number to read in. The default, None, denotes read all channels.
 
     **Methods**
-    
+
+    setSound(path) : Load a new sound in the table.
     getRate() : Return the frequency in cps at which the sound will be read 
     at its original pitch.
 
@@ -209,6 +210,24 @@ class SndTable(PyoTableObject):
         else:
             self._base_objs = [SndTable_base(path, chnl)]
 
+    def setSound(self, path):
+        """
+        Load a new sound in the table.
+        
+        Keeps the number of channels of the sound loaded at initialisation.
+        If the new sound has less channels, it will wrap around and load the 
+        same channels many times. If the new sound has more channels, latest 
+        channels will be skipped.
+        
+        **Parameters**
+        
+        path : string
+            Full path name of the new sound.
+
+        """
+        _size, _snd_sr, _snd_chnls = sndinfo(path)
+        [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
+        
     def getRate(self):
         return self._base_objs[0].getRate()
 
@@ -272,7 +291,7 @@ class TableRec(PyoObject):
     
     """
     def __init__(self, input, table, fadetime=0):
-        self._input - input
+        self._input = input
         self._table = table
         self._in_fader = InputFader(input)
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)

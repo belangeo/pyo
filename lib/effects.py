@@ -116,6 +116,29 @@ class Biquad(PyoObject):
     def type(self, x): self.setType(x)
 
 class Disto(PyoObject):
+    """
+    Arctan distortion.
+    
+    Apply an arctan distortion on input signal with control on the drive. 
+    
+    **Parameters**
+    
+    input : PyoObject
+        Input signal to process.
+    drive : float or PyoObject, optional
+        Amount of distortion applied on the signal, between 0 and 1. 
+        Default to 0.75.
+    slope : float or PyoObject, optional
+        Slope of a lowpass filter applied after distortion, between 0 and 1. 
+        Default to 0.5.
+
+    **Methods**
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setDrive(x) : Replace the `drive` attribute.
+    setSlope(x) : Replace the `slope` attribute.
+
+    """
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
         self._input = input
         self._drive = drive
@@ -127,15 +150,44 @@ class Disto(PyoObject):
         self._base_objs = [Disto_base(wrap(in_fader,i), wrap(drive,i), wrap(slope,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        **Parameters**
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
         self._input = x
         self._in_fader.setInput(x, fadetime)
  
     def setDrive(self, x):
+        """
+        Replace the `drive` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `drive` attribute.
+
+        """
         self._drive = x
         x, lmax = convertArgsToLists(x)
         [obj.setDrive(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setSlope(self, x):
+        """
+        Replace the `slope` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `slope` attribute.
+
+        """
         self._slope = x
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
@@ -154,7 +206,28 @@ class Disto(PyoObject):
     def slope(self, x): self.setSlope(x)
 
 class Delay(PyoObject):
-    def __init__(self, input, delay=0, feedback=0, maxdelay=1, mul=1, add=0):
+    """
+    Sweepable recursive delay.
+    
+    **Parameters**
+    
+    input : PyoObject
+        Input signal to delayed.
+    delay : float or PyoObject, optional
+        Delay time in seconds. Default to 0.25.
+    feedback : float or PyoObject, optional
+        Amount of output signal sent back into the delay line. Default to 0.
+    maxdelay : float, optional
+        Maximum delay length in seconds. Available only at initialisation. Default to 1.
+
+    **Methods**
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setDelay(x) : Replace the `delay` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+
+    """
+    def __init__(self, input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0):
         self._input = input
         self._delay = delay
         self._feedback = feedback
@@ -165,15 +238,44 @@ class Delay(PyoObject):
         self._base_objs = [Delay_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         
     def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        **Parameters**
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     def setDelay(self, x):
+        """
+        Replace the `delay` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `delay` attribute.
+
+        """
         self._delay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `feedback` attribute.
+
+        """
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]

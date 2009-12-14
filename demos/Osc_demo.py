@@ -95,6 +95,7 @@ o_ex2 = Osc(table=t_ex1, freq=400, mul=env_ex2).out()
 
 funcs = {1: ex1, 2: ex2, 3: ex3, 4: ex4}
 
+print "\n** A Server must be started !"
 while True:
     rep = input("""
 Choose a demo :

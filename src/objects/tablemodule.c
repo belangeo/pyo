@@ -847,6 +847,22 @@ static PyObject * SndTable_getServer(SndTable* self) { GET_SERVER };
 static PyObject * SndTable_getTableStream(SndTable* self) { GET_TABLE_STREAM };
 
 static PyObject *
+SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"path", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "si", kwlist, &self->path, &self->chnl)) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }    
+    
+    SndTable_loadSound(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 SndTable_getSize(SndTable *self)
 {
     return PyInt_FromLong(self->size);
@@ -868,6 +884,7 @@ static PyMemberDef SndTable_members[] = {
 static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS, "Load a new sound in the table."},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
 {NULL}  /* Sentinel */

@@ -10,3 +10,10 @@ from lib.trigger import *
 
 from lib.pattern import *
 from lib.pypattern import *
+
+from lib.bandsplitter import *
+
+import sys
+
+def quit():
+    sys.exit()

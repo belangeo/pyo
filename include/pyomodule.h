@@ -43,6 +43,9 @@ extern PyTypeObject TrigEnvType;
 
 extern PyTypeObject PatternType;
 
+extern PyTypeObject BandSplitterType;
+extern PyTypeObject BandSplitType;
+
 /* Constants */
 #define PI M_PI
 #define TWOPI (2 * M_PI)

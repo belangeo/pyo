@@ -186,13 +186,20 @@ elif example == 26:
     p = Pattern(pat, .125)
 
 elif example == 27:
-    met = Metro(.125, 8)
-    env = LinTable([(0,0), (5,1), (50,.25), (200,.1), (8191,0)])
+    met = Metro(.125, 32)
+    env = LinTable([(0,0), (5,1), (30,1), (75,.15), (200,.05), (8191,0)])
     trig = TrigEnv(met, env)
     snd = SndTable("/Users/olipet/Desktop/sons/cacanne4.aiff")
-    outs = Osc(snd, [snd.getRate()*random.uniform(.95,1.1) for i in range(8)], 
-                [i/8. for i in range(8)], trig).out()
-    
+    outs = Osc(snd, [snd.getRate()*random.uniform(.95,1.1) for i in range(32)], 
+                [i/8. for i in range(32)], trig).out()
+
+elif example == 28:
+    a = SfPlayer("/Users/olipet/Desktop/sons/ruisseau.aif", loop=True)
+    #a = Noise(.5)
+    b = Sine([random.uniform(.5,2) for i in range(10)], 0, .5, .5)
+    c = Sine(.05, 0, 20, 21)
+    d = BandSplit(a, 10, 100, 10000, c, b).out()
+        
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier
