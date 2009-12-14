@@ -15,24 +15,24 @@ example = 27
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
-    w = Osc(t, [random.uniform(196,204) for i in range(100)], .01).out()
-    x = Osc(t, [random.uniform(296,304) for i in range(100)], .006).out(1)
-    y = Osc(t, [random.uniform(396,404) for i in range(100)], .003).out()
-    z = Osc(t, [random.uniform(496,504) for i in range(100)], .002).out(1)
+    w = Osc(t, [random.uniform(196,204) for i in range(100)], 0, .01).out()
+    x = Osc(t, [random.uniform(296,304) for i in range(100)], 0, .006).out(1)
+    y = Osc(t, [random.uniform(396,404) for i in range(100)], 0, .003).out()
+    z = Osc(t, [random.uniform(496,504) for i in range(100)], 0, .002).out(1)
 elif example == 2:
     t = HarmTable([1-(i*.01) for i in range(100)])
-    a = Osc(t, 30, .001)
-    b1 = Osc(HarmTable(), [.22, .23], 500, 1000)
+    a = Osc(t, 30, 0, .001)
+    b1 = Osc(HarmTable(), [.22, .23], 0, 500, 1000)
     f = Biquad(a, b1, 20, 0).out(0)
 elif example == 3:
     a = Noise(.5)  
-    b = Osc(HarmTable(), 9.98, 500, 1000)
-    c = Osc(HarmTable(), 20, 18, 20)
+    b = Osc(HarmTable(), 9.98, 0, 500, 1000)
+    c = Osc(HarmTable(), 20, 0, 18, 20)
     f = Biquad(a, b, c, 0).out()
 elif example == 4:
     t = HarmTable()
     a = Osc(t, 300)
-    b = Osc(t, 1, .48, .5)
+    b = Osc(t, 1, 0, .48, .5)
     d = Disto(a, b).out()
 elif example == 5:
     a = Osc(HannTable(), .5)
@@ -45,26 +45,26 @@ elif example == 6:
 elif example == 7:
     # on OS X, need a device that supports duplex mode (or an aggregate device!)
     a = Input(mul=.5)
-    b = Osc(HarmTable(), 2, .45, .5)
+    b = Osc(HarmTable(), 2, 0, .45, .5)
     c = Disto(a, b, .6, .1).out()
-    d = Osc(HarmTable(), 1.5, .45, .5)
+    d = Osc(HarmTable(), 1.5, 0, .45, .5)
     e = Disto(a, d, .6, .1).out(1)
 elif example == 8:
     # Fader -> .play() starts fadein
     # dur=0 means wait for stop method to start fadeout
     # positive values will trigger fadeout automatically
     f1 = Fader(fadein=.02,fadeout=1, dur=0, mul=.3).play()
-    a = Osc(HarmTable(), [250,500], f1).out()
+    a = Osc(HarmTable(), [250,500], 0, f1).out()
     f2 = Fader(fadein=1, fadeout=1, dur=5, mul=.2).play()
-    b = Osc(HarmTable(), [375,625], f2).out(1)
+    b = Osc(HarmTable(), [375,625], 0, f2).out(1)
 elif example == 9:
     # need a MIDI device available (and portmidi installed)
     t = HarmTable([1])
     m = Midictl(ctlnumber=[74,71], minscale=250, maxscale=1000)
     p = Port(m, .02)
     a = Osc(t, p, .5).out()
-    a1 = Osc(t, p * 1.25, .5).out()
-    a2 = Osc(t, p * 1.5, .5).out()
+    a1 = Osc(t, p * 1.25, 0, .5).out()
+    a2 = Osc(t, p * 1.5, 0, .5).out()
     # inplace_multiply and inplace_addition are the same as calling object.setMul or setAdd
     # object *= 1.5
     # multiply and add create a dummy object and call setMul or setAdd on Dummy, leaving original object unmodified
@@ -100,15 +100,15 @@ elif example == 14:
 elif example == 15:
     a = Noise(.5)
     t = HarmTable([1-(i*.01) for i in range(100)])
-    b = Osc(t, 30, .01) 
+    b = Osc(t, 30, 0, .01) 
     f = Biquad(a, 1000, 10).out()
     # call:
     # f.setInput(b, 10)
 elif example == 16:
     t1 = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_s.aif')
     t2 = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
-    a = Osc(t1, t1.getRate(), .7)                 
-    b = Osc(t2, t2.getRate(), .7)
+    a = Osc(t1, t1.getRate(), 0, .7)                 
+    b = Osc(t2, t2.getRate(), 0, .7)
     d = Delay(a, .25, .8, maxdelay=1).out()
 elif example == 17:
     t1 = NewTable(2, 2)
@@ -150,7 +150,7 @@ elif example == 23:
     sine = Sine(.2, 0, .125, .65)
     a = Metro(.125, 8)
     b = TrigEnv(a, HannTable(), .45)
-    w1 = Osc(t, [100,125,150,175], b).out()
+    w1 = Osc(t, [100,125,150,175], 0, b).out()
 elif example == 24:
     a = Metro(1)
     #t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
@@ -160,7 +160,7 @@ elif example == 24:
     b = Noise(e).out()
 elif example == 25:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.05])
-    w1 = Osc(t, 250, .1).out()
+    w1 = Osc(t, 250, 0, .1).out()
     
     def pat():
         l = t.list
@@ -179,7 +179,7 @@ elif example == 25:
     
 elif example == 26:
     t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    a = Osc(t, 250, .5).out()
+    a = Osc(t, 250, 0, .5).out()
     def pat():
         a.freq = random.randint(200, 400)
         
