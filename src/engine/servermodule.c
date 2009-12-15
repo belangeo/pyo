@@ -160,8 +160,8 @@ static void
 Server_dealloc(Server* self)
 {  
     Server_shut_down(self);
-    free(self->input_buffer);
     Server_clear(self);
+    free(self->input_buffer);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -391,12 +391,12 @@ Server_start(Server *self)
 
 	/* Ensure Python is set up for threading */
 	PyEval_InitThreads();
- 
+
     err = Pa_StartStream(self->stream);
     portaudio_assert(err, "Pa_StartStream");
 
     self->server_started = 1;
-    
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -408,9 +408,12 @@ Server_stop(Server *self)
 
     self->server_started = 0;
 
-    err = Pa_AbortStream(self->stream);
+    //printf("try to stop Portaudio stream\n");
+    err = Pa_StopStream(self->stream);
     portaudio_assert(err, "Pa_StopStream");
-    
+
+    //printf("Portaudio stream stopped\n");
+
     Py_INCREF(Py_None);
     return Py_None;
 }
