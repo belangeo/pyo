@@ -1172,6 +1172,8 @@ TableRec_dealloc(TableRec* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject * TableRec_deleteStream(TableRec *self) { DELETE_STREAM };
+
 static PyObject *
 TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -1197,7 +1199,7 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "table", "fadetime", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|fi", kwlist, &inputtmp, &tabletmp, &self->fadetime))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|f", kwlist, &inputtmp, &tabletmp, &self->fadetime))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -1248,6 +1250,7 @@ static PyMemberDef TableRec_members[] = {
 static PyMethodDef TableRec_methods[] = {
 {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)TableRec_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableRec_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */

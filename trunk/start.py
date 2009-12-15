@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 0
+example = 27
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -33,15 +33,13 @@ elif example == 4:
     t = HarmTable()
     a = Osc(t, 300)
     b = Osc(t, 1, 0, .48, .5)
-    d = Disto(a, b).out()
+    d = Disto(a, b, mul=.5).out()
 elif example == 5:
     a = Osc(HannTable(), .5)
     b = Noise(a).out()
 elif example == 6:
-    # load stereo sound into buffers and play them
-    # set the Server to use 2 channels
-    t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
-    a = Osc(t, t.getRate()).out()
+    t = SndTable('demos/accord.aif')
+    a = Osc(t, [t.getRate(), t.getRate()*.5], mul=.3).out()
 elif example == 7:
     # on OS X, need a device that supports duplex mode (or an aggregate device!)
     a = Input(mul=.5)
@@ -60,7 +58,7 @@ elif example == 8:
 elif example == 9:
     # need a MIDI device available (and portmidi installed)
     t = HarmTable([1])
-    m = Midictl(ctlnumber=[74,71], minscale=250, maxscale=1000)
+    m = Midictl(ctlnumber=[107,102], minscale=250, maxscale=1000)
     p = Port(m, .02)
     a = Osc(t, p, .5).out()
     a1 = Osc(t, p * 1.25, 0, .5).out()
@@ -91,12 +89,12 @@ elif example == 13:
     a = OscReceive(port=10001, address=['/pitch', '/amp'])
     b = Sine(a['/pitch'], 0, a['/amp']).out()
 elif example == 14:  
-    t = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
+    t = SndTable('demos/transparent.aif')
     a = Osc(t, t.getRate())
     si = Sine(.1, 0, .25, .5)
     fad = Fader(20, 20, mul=.9).play()
     d = Delay(a, delay=si, feedback=fad, maxdelay=1, mul=.1).out()
-    f = Biquad(d.mix(1), 2500, 2).out()
+    f = Biquad(d, 2500, 2).out()
 elif example == 15:
     a = Noise(.5)
     t = HarmTable([1-(i*.01) for i in range(100)])
@@ -105,25 +103,23 @@ elif example == 15:
     # call:
     # f.setInput(b, 10)
 elif example == 16:
-    t1 = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_s.aif')
-    t2 = SndTable('/Users/olipet/Desktop/sons/cacanne4.aiff')
+    t1 = SndTable('demos/transparent.aif')
+    t2 = SndTable('demos/accord.aif')
     a = Osc(t1, t1.getRate(), 0, .7)                 
     b = Osc(t2, t2.getRate(), 0, .7)
     d = Delay(a, .25, .8, maxdelay=1).out()
-elif example == 17:
-    t1 = NewTable(2, 2)
-    #a = Noise(.3)
-    #t2 = HarmTable([1-(i*.01) for i in range(100)])
-    #aa = Osc(t2, 30, .01) 
-    #a = Input(0)
-    a = Sine(750, 0, .4)
-    b = TableRec(a, t1, .01)
-    c = Osc(t1, t1.getRate()).out()
     # call:
+    # d.setInput(b, 10)
+elif example == 17:
+    t1 = NewTable(2, 1)
+    a = Input(0)
+    b = TableRec(a, t1, .01)
+    c = Osc(t1, [t1.getRate(), t1.getRate()*.99]).out()
+    # to record in the empty table, call:
     # b.play()
 elif example == 18:
     a = Sine(.1, 0, .25, 1)
-    sf = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', speed=1, loop=True, offset=0, interp=2, mul=.5).out()
+    sf = SfPlayer('demos/transparent.aif', speed=a, loop=True, offset=0, interp=2, mul=.5).out()
 elif example == 19:
     a = Notein(poly=10, scale=1, mul=.5)
     p = Port(a['velocity'], .001, .5)
@@ -134,31 +130,23 @@ elif example == 19:
 elif example == 20:
     a = Notein(poly=5, scale=2, first=0, last=11, mul=.7)
     p = Port(a['velocity'], .001, 1)
-    b = SfPlayer('/Users/olipet/Desktop/sons/cacanne4.aiff', a['pitch'], loop=True, mul=p).out()
+    b = SfPlayer('demos/transparent.aif', a['pitch'], loop=True, mul=p).out()
     a1 = Notein(poly=5, scale=2, first=12, last=23, mul=.7)
     p1 = Port(a1['velocity'], .001, 1)
-    b1 = SfPlayer('/Users/olipet/Desktop/sons/dash.aif', a1['pitch'], loop=True, mul=p1).out()
+    b1 = SfPlayer('demos/accord.aif', a1['pitch'], loop=True, mul=p1).out()
 elif example == 21:
-    a = Sine(.1, 0, .25, 1)
-    b = SfMarkerShuffler('/Users/olipet/Desktop/voix.aif', speed=1, interp=4, mul=.5).out()
+    a = Sine([.05,.1,.15], 0, .25, 1)
+    b = SfMarkerShuffler('demos/transparent.aif', speed=a, interp=4, mul=.5).out()
 elif example == 22:
     a = Sine([.05, .075], 0, .125, .25)
-    b = Metro(.125, poly=8)
-    c = Delay(b, [(i+1)*.001 for i in range(8)], .98, 1, mul=.6).out()
+    b = Metro(a, poly=8)
+    c = Delay(b, [(i+1)*.001 for i in range(8)], .99, 1, mul=.6).out()
 elif example == 23:
     t = HarmTable([1,0,.3,0,.15,0,.1,0,0,.04,0,0,.02])
-    sine = Sine(.2, 0, .125, .65)
     a = Metro(.125, 8)
     b = TrigEnv(a, HannTable(), .45)
-    w1 = Osc(t, [100,125,150,175], 0, b).out()
+    w1 = Osc(t, [100,125,150,175,200,225,250,275], 0, b).out()
 elif example == 24:
-    a = Metro(1)
-    #t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    t = HannTable()
-    d = Sine(.1, 0, .25, .75)
-    e = TrigEnv(a, t, d, .5)
-    b = Noise(e).out()
-elif example == 25:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.05])
     w1 = Osc(t, 250, 0, .1).out()
     
@@ -177,7 +165,7 @@ elif example == 25:
         
     p = PyPattern(pat, .125)
     
-elif example == 26:
+elif example == 25:
     t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
     a = Osc(t, 250, 0, .5).out()
     def pat():
@@ -185,17 +173,16 @@ elif example == 26:
         
     p = Pattern(pat, .125)
 
-elif example == 27:
+elif example == 26:
     met = Metro(.125, 32)
     env = LinTable([(0,0), (5,1), (30,1), (75,.15), (200,.05), (8191,0)])
     trig = TrigEnv(met, env)
-    snd = SndTable("/Users/olipet/Desktop/sons/cacanne4.aiff")
+    snd = SndTable('demos/transparent.aif')
     outs = Osc(snd, [snd.getRate()*random.uniform(.95,1.1) for i in range(32)], 
                 [i/8. for i in range(32)], trig).out()
 
-elif example == 28:
-    a = SfPlayer("/Users/olipet/Desktop/sons/ruisseau.aif", loop=True)
-    #a = Noise(.5)
+elif example == 27:
+    a = Noise(.3)
     b = Sine([random.uniform(.5,2) for i in range(10)], 0, .5, .5)
     c = Sine(.05, 0, 20, 21)
     d = BandSplit(a, 10, 100, 10000, c, b).out()
@@ -210,8 +197,8 @@ class FreqMod:
         self.amplitude = amplitude
         
         self.table = HarmTable([1])
-        self.modulator = Osc(self.table, self.modulatorFrequency, self.modulatorAmplitude, self.carrierFrequency)
-        self.carrier = Osc(self.table, self.modulator, self.amplitude)
+        self.modulator = Osc(self.table, self.modulatorFrequency, 0, self.modulatorAmplitude, self.carrierFrequency)
+        self.carrier = Osc(self.table, self.modulator, 0, self.amplitude)
         
     def play(self):
         self.modulator.play()

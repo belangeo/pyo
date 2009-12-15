@@ -73,7 +73,7 @@ class Notein(PyoObject):
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last)
         self._base_objs = []
-        for i in range(lmax * voices):
+        for i in range(lmax * poly):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
             self._base_objs.append(Notein_base(self._base_handler, i, 1, wrap(mul,i), wrap(add,i)))
 
@@ -87,11 +87,11 @@ class Notein(PyoObject):
     def __getitem__(self, str):
         if str == 'pitch':
             if self._pitch_dummy == None:
-                self._pitch_dummy = Dummy([self._base_objs[i*2] for i in range(self._voices)])
+                self._pitch_dummy = Dummy([self._base_objs[i*2] for i in range(self._poly)])
             return self._pitch_dummy
         if str == 'velocity':
             if self._velocity_dummy == None:
-                self._velocity_dummy = Dummy([self._base_objs[i*2+1] for i in range(self._voices)])
+                self._velocity_dummy = Dummy([self._base_objs[i*2+1] for i in range(self._poly)])
             return self._velocity_dummy
                         
     def play(self):
