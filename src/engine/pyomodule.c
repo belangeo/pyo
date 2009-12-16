@@ -365,5 +365,20 @@ init_pyo(void)
         return;
     Py_INCREF(&BandSplitType);
     PyModule_AddObject(m, "BandSplit_base", (PyObject *)&BandSplitType);
+
+    if (PyType_Ready(&HilbertMainType) < 0)
+        return;
+    Py_INCREF(&HilbertMainType);
+    PyModule_AddObject(m, "HilbertMain_base", (PyObject *)&HilbertMainType);
+
+    if (PyType_Ready(&HilbertType) < 0)
+        return;
+    Py_INCREF(&HilbertType);
+    PyModule_AddObject(m, "Hilbert_base", (PyObject *)&HilbertType);
+
+    if (PyType_Ready(&FollowerType) < 0)
+        return;
+    Py_INCREF(&FollowerType);
+    PyModule_AddObject(m, "Follower_base", (PyObject *)&FollowerType);
     
 }

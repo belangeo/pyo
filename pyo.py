@@ -13,6 +13,8 @@ from lib.pypattern import *
 
 from lib.bandsplitter import *
 
+from lib.hilbert import *
+
 import sys
 
 def quit():
