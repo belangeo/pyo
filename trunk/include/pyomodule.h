@@ -46,6 +46,11 @@ extern PyTypeObject PatternType;
 extern PyTypeObject BandSplitterType;
 extern PyTypeObject BandSplitType;
 
+extern PyTypeObject HilbertMainType;
+extern PyTypeObject HilbertType;
+
+extern PyTypeObject FollowerType;
+
 /* Constants */
 #define PI M_PI
 #define TWOPI (2 * M_PI)

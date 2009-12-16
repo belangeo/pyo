@@ -247,3 +247,74 @@ class Metro(PyoObject):
     def time(self): return self._time
     @time.setter
     def time(self, x): self.setTime(x)
+
+class Follower(PyoObject):
+    """
+    Envelope follower. 
+    
+    **Parameters**
+    
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Cutoff frequency of the filter in hertz. Default to 10.
+
+    **Methods**
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+
+    **Notes**
+
+    Methods out() is bypassed. Follower signal can't be sent to audio outs.
+
+    """
+    def __init__(self, input, freq=10, mul=1, add=0):
+        self._input = input
+        self._freq = freq
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
+        self._base_objs = [Follower_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        **Parameters**
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, x=0):
+        pass
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def freq(self): return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)

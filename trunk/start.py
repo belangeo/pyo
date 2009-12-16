@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 27
+example = 29
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -186,7 +186,23 @@ elif example == 27:
     b = Sine([random.uniform(.5,2) for i in range(10)], 0, .5, .5)
     c = Sine(.05, 0, 20, 21)
     d = BandSplit(a, 10, 100, 10000, c, b).out()
-        
+
+elif example == 28:
+    a = SfPlayer("demos/accord.aif", loop=True).out()
+    b = Hilbert(a)
+    quad = Sine([250, 500], [0, .25])
+    mod1 = b['real'] * quad[0]
+    mod2 = b['imag'] * quad[1]
+    up = mod1 - mod2
+    down = mod1 + mod2
+    up.out()
+elif example == 29:
+    a = SfPlayer("demos/transparent.aif", loop=True)
+    a1 = a * .5
+    a1.out()
+    b = Follower(a)
+    c = Noise(b).out()
+               
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):
         self.carrierFrequency = carrier
