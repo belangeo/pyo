@@ -32,7 +32,7 @@ Panner_splitter_ii(Panner *self) {
     else if (spd > 1)
         spd = 1;
     
-    sprd = 25.0 - (spd * 24.0);
+    sprd = 20.0 - (sqrtf(spd) * 20.0) + 0.1;
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
