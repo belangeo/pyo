@@ -80,7 +80,7 @@ class Biquad(PyoObject):
             New `q` attribute.
 
         """
-        self.q = x
+        self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 

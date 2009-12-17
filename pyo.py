@@ -15,6 +15,8 @@ from lib.bandsplitter import *
 
 from lib.hilbert import *
 
+from lib.pan import *
+
 import sys
 
 def quit():

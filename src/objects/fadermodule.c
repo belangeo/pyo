@@ -208,7 +208,7 @@ Fader_init(Fader *self, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0;
+        self->data[i] = 0.0;
     }
     Stream_setData(self->stream, self->data);
     

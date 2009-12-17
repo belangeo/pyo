@@ -317,8 +317,8 @@ Server_boot(Server *self)
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
 
-    err = Pa_IsFormatSupported(&inputParameters, &outputParameters, self->samplingRate);
-    portaudio_assert(err, "Pa_IsFormatSupported");
+    //err = Pa_IsFormatSupported(&inputParameters, &outputParameters, self->samplingRate);
+    //portaudio_assert(err, "Pa_IsFormatSupported");
 
     self->input_buffer = (float *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(float));
     for (i=0; i<self->bufferSize*self->nchnls; i++) {
