@@ -380,5 +380,15 @@ init_pyo(void)
         return;
     Py_INCREF(&FollowerType);
     PyModule_AddObject(m, "Follower_base", (PyObject *)&FollowerType);
+
+    if (PyType_Ready(&PannerType) < 0)
+        return;
+    Py_INCREF(&PannerType);
+    PyModule_AddObject(m, "Panner_base", (PyObject *)&PannerType);
+
+    if (PyType_Ready(&PanType) < 0)
+        return;
+    Py_INCREF(&PanType);
+    PyModule_AddObject(m, "Pan_base", (PyObject *)&PanType);
     
 }

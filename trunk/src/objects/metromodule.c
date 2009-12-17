@@ -87,11 +87,7 @@ Metro_setProcMode(Metro *self)
 static void
 Metro_compute_next_data_frame(Metro *self)
 {
-    (*self->proc_func_ptr)(self); 
-    //if (self->init == 1) {
-    //    self->data[0] = 1;
-    //    self->init = 0;
-    //}    
+    (*self->proc_func_ptr)(self);    
     Stream_setData(self->stream, self->data);
 }
 
@@ -138,6 +134,8 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Metro_compute_next_data_frame);
     self->mode_func_ptr = Metro_setProcMode;
 
+    Stream_setStreamActive(self->stream, 0);
+
     self->sampleToSec = 1. / self->sr;
     self->currentTime = 0.;
     
@@ -147,6 +145,7 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 {
+    int i;
     PyObject *timetmp=NULL;
     
     static char *kwlist[] = {"time", "offset", NULL};
@@ -163,7 +162,11 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
     
-    Metro_compute_next_data_frame((Metro *)self);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }    
+    Stream_setData(self->stream, self->data);
+    //Metro_compute_next_data_frame((Metro *)self);
     
     Py_INCREF(self);
     return 0;
