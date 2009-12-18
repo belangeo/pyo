@@ -764,6 +764,24 @@ Osc_getTable(Osc* self)
 };
 
 static PyObject *
+Osc_setTable(Osc *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
 Osc_setFreq(Osc *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -850,6 +868,7 @@ static PyMethodDef Osc_methods[] = {
     {"play", (PyCFunction)Osc_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Osc_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Osc_stop, METH_NOARGS, "Stops computing."},
+    {"setTable", (PyCFunction)Osc_setTable, METH_O, "Sets oscillator table."},
 	{"setFreq", (PyCFunction)Osc_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setPhase", (PyCFunction)Osc_setPhase, METH_O, "Sets oscillator phase."},
 	{"setMul", (PyCFunction)Osc_setMul, METH_O, "Sets oscillator mul factor."},

@@ -26,6 +26,7 @@ typedef struct {
     int server_started;
     int stream_count;
     int record;
+    float amp;
     float *input_buffer;
     char *recpath;
     SNDFILE *recfile;

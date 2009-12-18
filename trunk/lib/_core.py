@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from types import ListType
+import random
 from _pyo import *
 
 ######################################################################
@@ -63,7 +64,7 @@ class PyoObject(object):
     play() : Start processing without sending samples to output. This method is called automatically
         at the object creation.
     stop() : Stop processing.
-    out(chnl) : Start processing and send samples to audio output beginning at `chnl`.
+    out(chnl, inc) : Start processing and send samples to audio output beginning at `chnl`.
     mix(voices) : Mix object's audio streams into `voices` streams and return the Mix object.
     setMul(x) : Replace the `mul` attribute.
     setAdd(x) : Replace the `add` attribute.
@@ -172,19 +173,36 @@ class PyoObject(object):
         self._base_objs = [obj.play() for obj in self._base_objs]
         return self
 
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         """
         Start processing and send samples to audio output beginning at `chnl`.
         
         **Parameters**
 
         chnl : int, optional
-            Physical output assigned to the first audio stream of the object. 
-            Successive streams increment output number and wrap around the
-            global number of channels. Default to 0.
+            Physical output assigned to the first audio stream of the object. Default to 0.
+
+            If `chnl` is an integer equal or greater than 0, then successive streams 
+            increment output number by `inc` and wrap around the global number of channels.
+            
+            If `chnl` is a negative integer, the streams begin at 0 and increment output 
+            number by `inc` and wrap around the global number of channels. Then, the list
+            of streams is scrambled.
+            
+            If `chnl` is a list, successive values in the list will be assigned to successive streams.
+            
+        inc : int, optional
+            Output increment value.
         
         """
-        self._base_objs = [obj.out(chnl+i) for i, obj in enumerate(self._base_objs)]
+        if type(chnl) == ListType:
+            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+        else:
+            if chnl < 0:    
+                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(self._base_objs)]
+                self._base_objs = random.sample(self._base_objs, len(self._base_objs))
+            else:   
+                self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
         return self
     
     def stop(self):

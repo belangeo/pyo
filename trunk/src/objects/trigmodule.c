@@ -736,6 +736,24 @@ TrigEnv_getTable(TrigEnv* self)
 };
 
 static PyObject *
+TrigEnv_setTable(TrigEnv *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
 TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
@@ -787,6 +805,7 @@ static PyMethodDef TrigEnv_methods[] = {
 {"play", (PyCFunction)TrigEnv_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigEnv_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)TrigEnv_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)TrigEnv_setTable, METH_O, "Sets envelope table."},
 {"setDur", (PyCFunction)TrigEnv_setDur, METH_O, "Sets envelope duration in second."},
 {"setMul", (PyCFunction)TrigEnv_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)TrigEnv_setAdd, METH_O, "Sets add factor."},

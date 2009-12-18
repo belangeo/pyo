@@ -42,7 +42,13 @@
 .. method:: Server.stop()
 
     Stop the audio callback loop.
-    
+
+.. method:: Server.setAmp(x)
+
+    Set the overall amplitude.
+
+    :param x: float, amplitude.
+     
 .. method:: Server.recstart()
 
     Begin a default recording of the sound that is sent to output. This will create a file
@@ -113,4 +119,8 @@
     Set the duplex mode used by the server. 0 is output only, 1 is both ways.
 
     :param x: int {0, 1}, duplex mode.
+
+.. attribute:: Server.amp
+
+    float. Amplitude.
     

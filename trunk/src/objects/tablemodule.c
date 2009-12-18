@@ -1098,7 +1098,9 @@ NewTable_members,             /* tp_members */
 NewTable_new,                 /* tp_new */
 };
 
+/******************************/
 /* TableRec object definition */
+/******************************/
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
@@ -1239,6 +1241,25 @@ static PyObject * TableRec_play(TableRec *self)
 
 static PyObject * TableRec_stop(TableRec *self) { STOP };
 
+static PyObject *
+TableRec_setTable(TableRec *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+    Py_INCREF(tmp);
+	Py_DECREF(self->table);
+    self->table = (NewTable *)tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef TableRec_members[] = {
 {"server", T_OBJECT_EX, offsetof(TableRec, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, "Stream object."},
@@ -1251,6 +1272,7 @@ static PyMethodDef TableRec_methods[] = {
 {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
 {"play", (PyCFunction)TableRec_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableRec_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */

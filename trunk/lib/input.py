@@ -81,7 +81,8 @@ class Osc(PyoObject):
         Phase of sampling, expressed as a fraction of a cycle (0 to 1). Default to 0.
         
     **Methods**
-    
+
+    setTable(x) : Replace the `table` attribute.
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
     
@@ -94,6 +95,19 @@ class Osc(PyoObject):
         self._add = add
         table, freq, phase, mul, add, lmax = convertArgsToLists(table, freq, phase, mul, add)
         self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """Replace the `table` attribute.
+        
+        **Parameters**
+
+        x : PyoTableObject
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
         """Replace the `freq` attribute.
@@ -126,9 +140,13 @@ class Osc(PyoObject):
     demo = Call_example(demo)
 
     @property
+    def table(self): return self._table
+    @property
     def freq(self): return self._freq
     @property
     def phase(self): return self._phase
+    @table.setter
+    def table(self, x): self.setTable(x)
     @freq.setter
     def freq(self, x): self.setFreq(x)
     @phase.setter

@@ -20,6 +20,41 @@ typedef struct {
 } Panner;
 
 static void
+Panner_splitter_st_i(Panner *self) {
+    float val, inval;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    float pan = PyFloat_AS_DOUBLE(self->pan);
+    
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        val = inval * sqrtf(1.0 - pan);
+        self->buffer_streams[i] = val;
+        val = inval * sqrtf(pan);
+        self->buffer_streams[i+self->bufsize] = val;
+    }    
+}
+
+static void
+Panner_splitter_st_a(Panner *self) {
+    float val, inval, panval;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    float *pan = Stream_getData((Stream *)self->pan_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        panval = pan[i];
+        val = inval * sqrtf(1.0 - panval);
+        self->buffer_streams[i] = val;
+        val = inval * sqrtf(panval);
+        self->buffer_streams[i+self->bufsize] = val;
+    }    
+}
+
+static void
 Panner_splitter_ii(Panner *self) {
     float val, inval, phase, sprd;
     int j, i;
@@ -44,6 +79,83 @@ Panner_splitter_ii(Panner *self) {
     }    
 }
 
+static void
+Panner_splitter_ai(Panner *self) {
+    float val, inval, phase, sprd;
+    int j, i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    float *pan = Stream_getData((Stream *)self->pan_stream);
+    float spd = PyFloat_AS_DOUBLE(self->spread);
+    if (spd < 0)
+        spd = 0;
+    else if (spd > 1)
+        spd = 1;
+    
+    sprd = 20.0 - (sqrtf(spd) * 20.0) + 0.1;
+    
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        for (j=0; j<self->chnls; j++) {
+            phase = j / (float)self->chnls;
+            val = inval * powf(cosf((pan[i] - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            self->buffer_streams[i+j*self->bufsize] = val;
+        }
+    }    
+}
+
+static void
+Panner_splitter_ia(Panner *self) {
+    float val, inval, phase, spdval, sprd;
+    int j, i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    float pan = PyFloat_AS_DOUBLE(self->pan);
+    float *spd = Stream_getData((Stream *)self->spread_stream);
+
+    
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        spdval = spd[i];
+        if (spdval < 0)
+            spdval = 0;
+        else if (spdval > 1)
+            spdval = 1;    
+        sprd = 20.0 - (sqrtf(spdval) * 20.0) + 0.1;
+        for (j=0; j<self->chnls; j++) {
+            phase = j / (float)self->chnls;
+            val = inval * powf(cosf((pan - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            self->buffer_streams[i+j*self->bufsize] = val;
+        }
+    }    
+}
+
+static void
+Panner_splitter_aa(Panner *self) {
+    float val, inval, phase, spdval, sprd;
+    int j, i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    float *pan = Stream_getData((Stream *)self->pan_stream);
+    float *spd = Stream_getData((Stream *)self->spread_stream);
+    
+    
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        spdval = spd[i];
+        if (spdval < 0)
+            spdval = 0;
+        else if (spdval > 1)
+            spdval = 1;    
+        sprd = 20.0 - (sqrtf(spdval) * 20.0) + 0.1;
+        for (j=0; j<self->chnls; j++) {
+            phase = j / (float)self->chnls;
+            val = inval * powf(cosf((pan[i] - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            self->buffer_streams[i+j*self->bufsize] = val;
+        }
+    }    
+}
+
 float *
 Panner_getSamplesBuffer(Panner *self)
 {
@@ -55,21 +167,33 @@ Panner_setProcMode(Panner *self)
 {        
     int procmode;
     procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
-	switch (procmode) {
-        case 0:        
-            self->proc_func_ptr = Panner_splitter_ii;
-            break;
-        /*case 1:    
-            self->proc_func_ptr = Panner_splitter_ai;
-            break;
-        case 10:    
-            self->proc_func_ptr = Panner_splitter_ia;
-            break;
-        case 11:    
-            self->proc_func_ptr = Panner_splitter_aa;
-            break;*/
+
+    if (self->chnls > 2) {
+        switch (procmode) {
+            case 0:        
+                self->proc_func_ptr = Panner_splitter_ii;
+                break;
+            case 1:    
+                self->proc_func_ptr = Panner_splitter_ai;
+                break;
+            case 10:    
+                self->proc_func_ptr = Panner_splitter_ia;
+                break;
+            case 11:    
+                self->proc_func_ptr = Panner_splitter_aa;
+                break;
+        }         
     } 
+    else {
+        switch (self->modebuffer[0]) {
+            case 0:        
+                self->proc_func_ptr = Panner_splitter_st_i;
+                break;
+            case 1:    
+                self->proc_func_ptr = Panner_splitter_st_a;
+                break;
+        }         
+    }         
 }
 
 static void
