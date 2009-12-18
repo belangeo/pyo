@@ -297,7 +297,7 @@ class TableRec(PyoObject):
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
 
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         pass
 
     def setMul(self, x):

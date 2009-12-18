@@ -29,7 +29,7 @@ class Midictl(PyoObject):
         ctlnumber, minscale, maxscale, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, mul, add)
         self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         pass
 
 class Notein(PyoObject):
@@ -99,7 +99,7 @@ class Notein(PyoObject):
         self._base_objs = [obj.play() for obj in self._base_objs]
         return self
 
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         return self
     
     def stop(self):
