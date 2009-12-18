@@ -41,7 +41,7 @@ class Fader(PyoObject):
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         """Bypassed. Can't be sent to audio outs."""
         pass
 
@@ -228,7 +228,7 @@ class Metro(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)*self._poly) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, x=0):
+    def out(self, chnl=0, inc=1):
         pass
         
     def setMul(self, x):
@@ -307,7 +307,7 @@ class Follower(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, x=0):
+    def out(self, chnl=0, inc=1):
         pass
 
     @property

@@ -40,7 +40,7 @@ class Pattern(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, x=0):
+    def out(self, x=0, inc=1):
         pass
         
     def setMul(self, x):

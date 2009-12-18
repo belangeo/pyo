@@ -43,7 +43,7 @@ class OscSend(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
             
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         pass
 
     def setMul(self, x):
@@ -98,6 +98,6 @@ class OscReceive(PyoObject):
         else:
             print "'i' too large!"         
              
-    def out(self, chnl=0):
+    def out(self, chnl=0, inc=1):
         pass
         
