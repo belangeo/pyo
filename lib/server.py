@@ -3,7 +3,7 @@ from _core import *
 ######################################################################
 ### Proxy of Server object
 ######################################################################
-class Server:
+class Server(object):
     """
     The Server object handles all communications with Portaudio and Portmidi.
     
@@ -14,7 +14,7 @@ class Server:
     sr : int, optional
         Sampling rate used by Portaudio and any PyoObject to compute samples. Default to 44100.
     nchnls : int, optional
-        Number of input and output channels. Default to 1.
+        Number of input and output channels. Default to 2.
     buffersize : int, optional
         Number of samples that Portaudio will request from the callback. This value has an impact
         on CPU use (small buffer size is harder to compute) and on the latency of the system. Latency
@@ -24,6 +24,7 @@ class Server:
 
     **Methods**
 
+    setAmp(x) : Set the overall amplitude.
     boot() : Boot the server. Must be called before definning any signal processing chain.
     shutdown() : Shut down and clear the server.
     start() : Start the audio callback loop.
@@ -46,7 +47,8 @@ class Server:
     setDuplex(x) : Set the duplex mode used by the server.
 
     """
-    def __init__(self, sr=44100, nchnls=1, buffersize=256, duplex=0):
+    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=0):
+        self._amp = 1.
         self._server = Server_base(sr, nchnls, buffersize, duplex)
 
     def setInputDevice(self, x):
@@ -132,6 +134,19 @@ class Server:
 
         """        
         self._server.setDuplex(x)
+
+    def setAmp(self, x):
+        """
+        Set the overall amplitude.
+        
+        **Parameters**
+
+        x : float
+            New amplitude.
+
+        """
+        self._amp = x
+        self._server.setAmp(x)
  
     def shutdown(self):
         """
@@ -148,7 +163,7 @@ class Server:
 
         """
         self._server.boot()
-        return self._server
+        return self
         
     def start(self):
         """
@@ -156,7 +171,7 @@ class Server:
         
         """
         self._server.start()
-        return self._server
+        return self
     
     def stop(self):
         """
@@ -207,3 +222,8 @@ class Server:
         
         """
         return self._server.getBufferSize()
+
+    @property
+    def amp(self): return self._amp
+    @amp.setter
+    def amp(self, x): self.setAmp(x) 

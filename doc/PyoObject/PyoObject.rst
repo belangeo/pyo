@@ -17,17 +17,32 @@
     
     Stop processing.
     
-.. method:: PyoObject.out(chnl=0)
+.. method:: PyoObject.out(chnl=0, inc=1)
 
     Start processing and send samples to audio output beginning at *chnl*.
 
-    :param chnl: float or :class:`PyoObject`, optional 
+    :param chnl: int, optional 
     
+    Physical output assigned to the first audio stream of the object. Default to 0.
+
+    If `chnl` is an integer equal or greater than 0, then successive streams 
+    increment output number by `inc` and wrap around the global number of channels.
+            
+    If `chnl` is a negative integer, the streams begin at 0 and increment output 
+    number by `inc` and wrap around the global number of channels. Then, the list
+    of streams is scrambled.
+            
+    If `chnl` is a list, successive values in the list will be assigned to successive streams.
+
+    :param inc: int, optional 
+
+    Output increment value.
+
 .. method:: PyoObject.mix(voices=1)
 
     Mixes object's audio streams into *voices* streams and return the Mix object.
 
-    :param voices: float or :class:`PyoObject`, optional
+    :param voices: int, optional
     
 .. method:: PyoObject.setMul(x)
 

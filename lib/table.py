@@ -320,8 +320,25 @@ class TableRec(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
+
+    def setTable(self, x):
+        """Replace the `table` attribute.
+        
+        **Parameters**
+
+        x : NewTable
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
       
     @property
     def input(self): return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+    @property
+    def table(self): return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)

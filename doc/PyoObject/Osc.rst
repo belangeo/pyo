@@ -19,6 +19,12 @@
 
      Phase of sampling, expressed as a fraction of a cycle (0 to 1). Default to 0.
 
+.. method:: Osc.setTable(x)
+
+    Replace the *table* attribute.
+
+    :param x: :class:`PyoTableObject`
+
 .. method:: Osc.setFreq(x)
 
     Replace the *freq* attribute.
@@ -31,6 +37,10 @@
 
     :param x: float or :class:`PyoObject`
     
+.. attribute:: Osc.table
+
+    :class:`PyoTableObject`. Waveform table.
+
 .. attribute:: Osc.freq
 
     float or :class:`PyoObject`. Frequency in cycles per second.

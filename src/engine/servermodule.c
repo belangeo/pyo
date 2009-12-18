@@ -52,6 +52,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     int i, j;
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
+    float amp = my_server->amp;
     Stream *stream_tmp;
     float *data;
     float old;
@@ -94,12 +95,10 @@ static int callback( const void *inputBuffer, void *outputBuffer,
         } 
         Stream_callFunction(stream_tmp);
     }
-
-    PyGILState_Release(s);
     
     for (i=0; i<framesPerBuffer; i++){
         for (j=0; j<nchnls; j++) {
-            out[i*nchnls+j] = buffer[j][i];
+            out[i*nchnls+j] = buffer[j][i] * amp;
         }
     }
     
@@ -107,6 +106,9 @@ static int callback( const void *inputBuffer, void *outputBuffer,
         sf_write_float(my_server->recfile, out, framesPerBuffer * nchnls);
 
     my_server->midi_count = 0;
+
+    PyGILState_Release(s);
+
     return paContinue;
 }
 
@@ -171,13 +173,14 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
     self->samplingRate = 44100.0;
-    self->nchnls = 1;
+    self->nchnls = 2;
     self->record = 0;
     self->bufferSize = 256;
     self->duplex = 0;
     self->input = -1;
     self->output = -1;
     self->midi_input = -1;
+    self->amp = 1.;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -271,6 +274,19 @@ Server_setDuplex(Server *self, PyObject *arg)
 	if (arg != NULL) {
         if (PyInt_Check(arg))
             self->duplex = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setAmp(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        int check = PyNumber_Check(arg);
+        
+        if (check)
+            self->amp = PyFloat_AsDouble(PyNumber_Float(arg));
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -536,6 +552,7 @@ static PyMethodDef Server_methods[] = {
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
+    {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
 	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},

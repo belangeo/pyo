@@ -12,7 +12,7 @@
     
     Audio signal to write in the table.
     
-    :param table: :class:`PyoTableObject`
+    :param table: :class:`NewTable`
     
     The table where to write samples.
     
@@ -34,6 +34,12 @@
 
     Crossfade time between old and new input. Default to 0.05.
 
+.. method:: TableRec.setTable(x)
+
+    Replace the *table* attribute.
+
+    :param x: :class:`NewTable`
+
 .. method:: TableRec.play()
 
     Start the recording at the beginning of the table.
@@ -51,3 +57,7 @@
 .. attribute:: TableRec.input
 
     :class:`PyoObject`. Input signal to process.
+
+.. attribute:: TableRec.table
+
+    :class:`NewTable`. Table to record in.
