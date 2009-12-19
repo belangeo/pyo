@@ -4,8 +4,8 @@ class BandSplit(PyoObject):
     """
     Split an input signal into multiple frequency bands.
     
-    The signal will be filtered into `num` bands between `min` and `max` frequencies
-    and each band will be assigned to an independent audio stream. Useful for multi-bands
+    The signal will be filtered into `num` bands between `min` and `max` frequencies.
+    Each band will then be assigned to an independent audio stream. Useful for multiband
     processing.
     
     **Parameters**
@@ -13,13 +13,13 @@ class BandSplit(PyoObject):
     input : PyoObject
         Input signal to filter.
     num : int, optional
-        Number of frequency bands created. Initialisation time only. Default to 6.
+        Number of frequency bands created. Initialization time only. Defaults to 6.
     min : float, optional
-        Lowest frequency. Initialisation time only. Default to 20.
+        Lowest frequency. Initialization time only. Defaults to 20.
     max : float, optional
-        Highest frequency. Initialisation time only. Default to 20000.
+        Highest frequency. Initialization time only. Defaults to 20000.
     q : float or PyoObject, optional
-        Q of the filter, defined as bandwidth/cutoff. Should be between 1 and 500. Default to 1.
+        Q of the filter, defined as bandwidth/cutoff. Should be between 1 and 500. Defaults to 1.
 
     **Methods**
     
@@ -61,7 +61,7 @@ class BandSplit(PyoObject):
         x : PyoObject
             New signal to process.
         fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x

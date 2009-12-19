@@ -66,6 +66,72 @@ class Sine(PyoObject):
     def freq(self, x): self.setFreq(x)
     @phase.setter
     def phase(self, x): self.setPhase(x)
+
+class Phasor(PyoObject):
+    """
+    A simple phase incrementor. 
+    
+    Output is a periodic ramp from 0 to 1.
+    
+    **Parameters**
+    
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 100.
+    phase : float or PyoObject, optional
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
+        
+    **Methods**
+    
+    setFreq(x) : Replace the `freq` attribute.
+    setPhase(x) : Replace the `phase` attribute.
+    
+    """
+    def __init__(self, freq=100, phase=0, mul=1, add=0):
+        self._freq = freq
+        self._phase = phase
+        self._mul = mul
+        self._add = add
+        freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
+        self._base_objs = [Phasor_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setFreq(self, x):
+        """Replace the `freq` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            new `freq` attribute.
+        
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setPhase(self, x):
+        """Replace the `phase` attribute.
+        
+        **Parameters**
+
+        x : float or PyoObject
+            new `phase` attribute.
+        
+        """
+        self._phase = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Phasor_demo.py")
+    #demo = Call_example(demo)
+        
+    @property
+    def freq(self): return self._freq
+    @property
+    def phase(self): return self._phase
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+    @phase.setter
+    def phase(self, x): self.setPhase(x)
  
 class Osc(PyoObject):
     """
