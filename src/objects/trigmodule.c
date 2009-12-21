@@ -898,3 +898,370 @@ TrigEnv_members,             /* tp_members */
 TrigEnv_new,                 /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    long tmp;
+    long min;
+    long max;
+    int dir;
+    int direction;
+    float value;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
+} Counter;
+
+static void
+Counter_generates(Counter *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (in[i] == 1) {
+            if (self->dir == 0) {
+                self->tmp++;
+                if (self->tmp > self->max)
+                    self->tmp = self->min;
+                self->value = (float)self->tmp;
+            }    
+            else if (self->dir == 1) {
+                self->tmp--;
+                if (self->tmp < self->min)
+                    self->tmp = self->max;
+                self->value = (float)self->tmp;
+            }    
+            else if (self->dir == 2) {
+                self->tmp = self->tmp + self->direction;
+                if (self->tmp >= self->max)
+                    self->direction = -1;
+                else if (self->tmp <= self->min)
+                    self->direction = 1;
+                self->value = (float)self->tmp;
+            }
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void Counter_postprocessing_ii(Counter *self) { POST_PROCESSING_II };
+static void Counter_postprocessing_ai(Counter *self) { POST_PROCESSING_AI };
+static void Counter_postprocessing_ia(Counter *self) { POST_PROCESSING_IA };
+static void Counter_postprocessing_aa(Counter *self) { POST_PROCESSING_AA };
+static void Counter_postprocessing_ireva(Counter *self) { POST_PROCESSING_IREVA };
+static void Counter_postprocessing_areva(Counter *self) { POST_PROCESSING_AREVA };
+static void Counter_postprocessing_revai(Counter *self) { POST_PROCESSING_REVAI };
+static void Counter_postprocessing_revaa(Counter *self) { POST_PROCESSING_REVAA };
+static void Counter_postprocessing_revareva(Counter *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Counter_setProcMode(Counter *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Counter_generates;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Counter_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Counter_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Counter_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Counter_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Counter_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Counter_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Counter_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Counter_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Counter_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Counter_compute_next_data_frame(Counter *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Counter_traverse(Counter *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+Counter_clear(Counter *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Counter_dealloc(Counter* self)
+{
+    free(self->data);
+    Counter_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Counter_deleteStream(Counter *self) { DELETE_STREAM };
+
+static PyObject *
+Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Counter *self;
+    self = (Counter *)type->tp_alloc(type, 0);
+    
+    self->min = 0;
+    self->max = 100;
+    self->dir = 0;
+    self->direction = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Counter_compute_next_data_frame);
+    self->mode_func_ptr = Counter_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Counter_init(Counter *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "min", "max", "dir", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|lliOO", kwlist, &inputtmp, &self->min, &self->max, &self->dir, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->dir == 0 || self->dir == 2)
+        self->tmp = self->min;
+    else
+        self->tmp = self->max;
+    
+    (*self->mode_func_ptr)(self);
+    
+    Counter_compute_next_data_frame((Counter *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Counter_getServer(Counter* self) { GET_SERVER };
+static PyObject * Counter_getStream(Counter* self) { GET_STREAM };
+static PyObject * Counter_setMul(Counter *self, PyObject *arg) { SET_MUL };	
+static PyObject * Counter_setAdd(Counter *self, PyObject *arg) { SET_ADD };	
+static PyObject * Counter_setSub(Counter *self, PyObject *arg) { SET_SUB };	
+static PyObject * Counter_setDiv(Counter *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Counter_play(Counter *self) { PLAY };
+static PyObject * Counter_stop(Counter *self) { STOP };
+
+static PyObject * Counter_multiply(Counter *self, PyObject *arg) { MULTIPLY };
+static PyObject * Counter_inplace_multiply(Counter *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Counter_add(Counter *self, PyObject *arg) { ADD };
+static PyObject * Counter_inplace_add(Counter *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Counter_sub(Counter *self, PyObject *arg) { SUB };
+static PyObject * Counter_inplace_sub(Counter *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Counter_div(Counter *self, PyObject *arg) { DIV };
+static PyObject * Counter_inplace_div(Counter *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Counter_setMin(Counter *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	if (PyLong_Check(arg)) {	
+		self->min = PyLong_AsLong(arg);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Counter_setMax(Counter *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	if (PyLong_Check(arg)) {	
+		self->max = PyLong_AsLong(arg);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Counter_setDir(Counter *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	if (PyInt_Check(arg)) {	
+		self->dir = PyInt_AsLong(arg);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Counter_members[] = {
+{"server", T_OBJECT_EX, offsetof(Counter, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Counter, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Counter, input), 0, "Input sound object."},
+{"min", T_OBJECT_EX, offsetof(Counter, min), 0, "Minimum possible value."},
+{"max", T_OBJECT_EX, offsetof(Counter, max), 0, "Maximum possible value."},
+{"mul", T_OBJECT_EX, offsetof(Counter, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Counter, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Counter_methods[] = {
+{"getServer", (PyCFunction)Counter_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Counter_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Counter_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Counter_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Counter_stop, METH_NOARGS, "Stops computing."},
+{"setMin", (PyCFunction)Counter_setMin, METH_O, "Sets minimum value."},
+{"setMax", (PyCFunction)Counter_setMax, METH_O, "Sets maximum value."},
+{"setDir", (PyCFunction)Counter_setDir, METH_O, "Sets direction. 0 = forward, 1 = backward, 2 = back and forth"},
+{"setMul", (PyCFunction)Counter_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Counter_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Counter_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Counter_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Counter_as_number = {
+(binaryfunc)Counter_add,                         /*nb_add*/
+(binaryfunc)Counter_sub,                         /*nb_subtract*/
+(binaryfunc)Counter_multiply,                    /*nb_multiply*/
+(binaryfunc)Counter_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Counter_inplace_add,                 /*inplace_add*/
+(binaryfunc)Counter_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Counter_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Counter_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject CounterType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Counter_base",                                   /*tp_name*/
+sizeof(Counter),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Counter_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Counter_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Counter objects. Integer incrementor.",           /* tp_doc */
+(traverseproc)Counter_traverse,                  /* tp_traverse */
+(inquiry)Counter_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Counter_methods,                                 /* tp_methods */
+Counter_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Counter_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Counter_new,                                     /* tp_new */
+};
