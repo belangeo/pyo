@@ -395,5 +395,10 @@ init_pyo(void)
         return;
     Py_INCREF(&PanType);
     PyModule_AddObject(m, "Pan_base", (PyObject *)&PanType);
+
+    if (PyType_Ready(&CounterType) < 0)
+        return;
+    Py_INCREF(&CounterType);
+    PyModule_AddObject(m, "Counter_base", (PyObject *)&CounterType);
     
 }
