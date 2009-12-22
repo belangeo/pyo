@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 29
+example = 30
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -202,6 +202,13 @@ elif example == 29:
     a1.out()
     b = Follower(a)
     c = Noise(b).out()
+elif example == 30:
+    m = Metro(.25).play()
+    c = Counter(m, 0, 11)
+    sel = Select(c, [0, 3, 6, 9, 11])
+    env = LinTable([(0,0), (5,1.5), (30,1.5), (75,.25), (200,.15), (8191,0)])
+    trig = TrigEnv(sel, env)
+    sine = Sine([random.randint(400, 1000) for i in range(5)], 0, trig).out()
                
 class FreqMod:
     def __init__(self, carrier=250, ratio=.5, index=1, amplitude=1):

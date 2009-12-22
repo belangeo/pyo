@@ -131,3 +131,29 @@ class Counter(PyoObject):
     def dir(self): return self._dir
     @dir.setter
     def dir(self, x): self.setDir(x)
+
+class Select(PyoObject):
+    def __init__(self, input, value=0):
+        self._input = input
+        self._value = value
+        self._in_fader = InputFader(input)
+        in_fader, value, lmax = convertArgsToLists(self._in_fader, value)
+        self._base_objs = [Select_base(wrap(in_fader,i), wrap(value,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setValue(self, x):
+        self._value = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def value(self): return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)

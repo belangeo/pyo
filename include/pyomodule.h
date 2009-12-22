@@ -13,6 +13,7 @@ extern PyTypeObject SfMarkerShuffleType;
 
 extern PyTypeObject MetroType;
 extern PyTypeObject CounterType;
+extern PyTypeObject SelectType;
 
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;

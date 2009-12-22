@@ -400,5 +400,10 @@ init_pyo(void)
         return;
     Py_INCREF(&CounterType);
     PyModule_AddObject(m, "Counter_base", (PyObject *)&CounterType);
+
+    if (PyType_Ready(&SelectType) < 0)
+        return;
+    Py_INCREF(&SelectType);
+    PyModule_AddObject(m, "Select_base", (PyObject *)&SelectType);
     
 }
