@@ -1115,7 +1115,7 @@ Counter_setMin(Counter *self, PyObject *arg)
 		return Py_None;
 	}
     
-	if (PyLong_Check(arg)) {	
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {	
 		self->min = PyLong_AsLong(arg);
 	}
 
@@ -1131,7 +1131,7 @@ Counter_setMax(Counter *self, PyObject *arg)
 		return Py_None;
 	}
     
-	if (PyLong_Check(arg)) {	
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {	
 		self->max = PyLong_AsLong(arg);
 	}
     
@@ -1159,8 +1159,6 @@ static PyMemberDef Counter_members[] = {
 {"server", T_OBJECT_EX, offsetof(Counter, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Counter, stream), 0, "Stream object."},
 {"input", T_OBJECT_EX, offsetof(Counter, input), 0, "Input sound object."},
-{"min", T_OBJECT_EX, offsetof(Counter, min), 0, "Minimum possible value."},
-{"max", T_OBJECT_EX, offsetof(Counter, max), 0, "Maximum possible value."},
 {"mul", T_OBJECT_EX, offsetof(Counter, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(Counter, add), 0, "Add factor."},
 {NULL}  /* Sentinel */

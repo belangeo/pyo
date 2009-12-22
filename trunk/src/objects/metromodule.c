@@ -13,7 +13,6 @@ typedef struct {
     float sampleToSec;
     float currentTime;
     float offset;
-    int init;
     int flag;
 } Metro;
 
@@ -127,7 +126,6 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
-    self->init = 1;
     self->flag = 1;
 
     INIT_OBJECT_COMMON
@@ -166,7 +164,6 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
         self->data[i] = 0.0;
     }    
     Stream_setData(self->stream, self->data);
-    //Metro_compute_next_data_frame((Metro *)self);
     
     Py_INCREF(self);
     return 0;
@@ -178,7 +175,8 @@ static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
 static PyObject * 
 Metro_play(Metro *self) 
 { 
-    self->init = 1;
+    self->data[0] = 1.0;
+    Stream_setData(self->stream, self->data);
     PLAY 
 };
 
