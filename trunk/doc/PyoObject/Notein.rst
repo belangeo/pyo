@@ -1,39 +1,38 @@
-:class:`Notein` --- MIDI notes messages
-=======================================
+:class:`Notein` --- MIDI note messages
+======================================
 
 .. class:: Notein(poly=10, scale=0, first=0, last=127, mul=1, add=0)
 
     Parent class : :class:`PyoObject`
 
-    Generates MIDI note messages.
+    Generate MIDI note messages.
     
-    From a MIDI device, takes the notes in the range defined with `first` and `last` parameters,
-    and output `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
+    From a MIDI device, :class:`Notein` takes the notes in the range defined with `first` and `last` parameters,
+    and outputs `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
     
     :param poly: int, optional
     
-    Number of streams of polyphonie generated. Default to 10.
+    Number of streams of polyphony generated. Defaults to 10.
 
     :param scale: int, optional
     
-    Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. In the transpo mode, the central key,
-    the key where there is no transposition, is (first + last) / 2.
+    Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. In the transpo mode, the central key (the key where there is no transposition) is (`first` + `last`) / 2.
 
     :param first: int, optional
     
-    Lowest MIDI range. Default to 0.
+    Lowest MIDI value. Defaults to 0.
 
     :param last: int, optional
     
-    Highest MIDI range. Default to 127.
+    Highest MIDI value. Defaults to 127.
 
 .. note::
 
-    Pitch and velocity are two seperated set of streams. User should call :
+    Pitch and velocity are two separated set of streams. The user should call :
 
-    Notein['pitch'] to retreive pitch streams.
+    Notein['pitch'] to retrieve pitch streams.
 
-    Notein['velocity'] to retreive velocity streams.    
+    Notein['velocity'] to retrieve velocity streams.    
 
 .. note::
 
@@ -41,7 +40,7 @@
 
 .. note::
 
-    Methods out() is bypassed. Notein signal can't be sent to audio outs.
+    The out() method is bypassed. :class:`Notein`'s signal can't be sent to audio outs.
 
 **Example**
 

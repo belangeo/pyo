@@ -5,7 +5,7 @@
 
     Base class for all pyo objects that manipulate vectors of samples.
     
-    User should never instantiates an object of this class.
+    The user should never instantiate an object of this class.
 
 
 .. method:: PyoObject.play()
@@ -19,20 +19,20 @@
     
 .. method:: PyoObject.out(chnl=0, inc=1)
 
-    Start processing and send samples to audio output beginning at *chnl*.
+    Start processing and send samples to audio output beginning at `chnl`.
 
     :param chnl: int, optional 
     
-    Physical output assigned to the first audio stream of the object. Default to 0.
+    Physical output assigned to the first audio stream of the object. Defaults to 0.
 
-    If `chnl` is an integer equal or greater than 0, then successive streams 
-    increment output number by `inc` and wrap around the global number of channels.
+    If `chnl` is an integer equal or greater than 0: successive streams 
+    increment the output number by `inc` and wrap around the global number of channels.
             
-    If `chnl` is a negative integer, the streams begin at 0 and increment output 
+    If `chnl` is a negative integer: streams begin at 0, increment the output 
     number by `inc` and wrap around the global number of channels. Then, the list
     of streams is scrambled.
             
-    If `chnl` is a list, successive values in the list will be assigned to successive streams.
+    If `chnl` is a list: successive values in the list will be assigned to successive streams.
 
     :param inc: int, optional 
 
@@ -40,31 +40,31 @@
 
 .. method:: PyoObject.mix(voices=1)
 
-    Mixes object's audio streams into *voices* streams and return the Mix object.
+    Mix the object's audio streams into `voices` streams and return the Mix object.
 
     :param voices: int, optional
     
 .. method:: PyoObject.setMul(x)
 
-    Replace the *mul* attribute.
+    Replace the `mul` attribute.
 
     :param x: float or :class:`PyoObject`
     
 .. method:: PyoObject.setAdd(x)
 
-    Replace the *add* attribute.
+    Replace the `add` attribute.
 
     :param x: float or :class:`PyoObject`
     
 .. method:: PyoObject.setDiv(x)
 
-    Replace and inverse the *mul* attribute.
+    Replace and inverse the `mul` attribute.
 
     :param x: float or :class:`PyoObject`
     
 .. method:: PyoObject.setSub(x)
 
-    Replace and inverse the *add* attribute.
+    Replace and inverse the `add` attribute.
 
     :param x: float or :class:`PyoObject`
     
@@ -84,15 +84,15 @@
     **Arithmetics**
     
     Multiplication, addition, division and substraction can be applied between pyo objects
-    or between pyo object and number. Return a Dummy object with the result of the operation.
+    or between pyo objects and numbers. Doing so returns a Dummy object with the result of the operation.
     
-    *b = a * 0.5* creates a Dummy object *b* with *mul* attribute set to 0.5 and leave *a* untouched.
+    `b = a * 0.5` creates a Dummy object `b` with the `mul` attribute set to 0.5 and leaves `a` untouched.
     
     Inplace multiplication, addition, division and substraction can be applied between pyo 
-    objects or between pyo object and number. These operations will replace the *mul* or *add*
+    objects or between pyo objects and numbers. These operations will replace the `mul` or `add`
     factor of the object. 
     
-    *a *= 0.5* replace *mul* attribute of *a*.
+    `a *= 0.5` replaces the `mul` attribute of `a`.
     
 
 .. attribute:: PyoObject.mul

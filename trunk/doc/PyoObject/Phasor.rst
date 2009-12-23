@@ -19,13 +19,13 @@
 
 .. method:: Phasor.setFreq(x)
 
-    Replace the *freq* attribute.
+    Replace the `freq` attribute.
 
     :param x: float or :class:`PyoObject`
     
 .. method:: Phasor.setPhase(x)
 
-    Replace the *phase* attribute.
+    Replace the `phase` attribute.
 
     :param x: float or :class:`PyoObject`
     
