@@ -752,8 +752,9 @@ static void
 SndTable_loadSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    int i, num, num_items, num_chnls;
+    unsigned int i, num, num_items, num_chnls;
     float val;
+    float *tmp;
         
     /* Open the WAV file. */
     info.format = 0;
@@ -773,7 +774,7 @@ SndTable_loadSound(SndTable *self) {
     //printf("num_items=%d\n",num_items);
     /* Allocate space for the data to be read, then read it. */
     self->data = (float *)realloc(self->data, (self->size + 1) * sizeof(float));
-    float tmp[num_items];
+    tmp = (float *)malloc(num_items * sizeof(float));
     num = sf_read_float(sf, tmp, num_items);
     sf_close(sf);
     for (i=0; i<num_items; i++) {
@@ -781,10 +782,10 @@ SndTable_loadSound(SndTable *self) {
             self->data[(int)(i/num_chnls)] = tmp[i];
         }    
     }
-    //printf("Read %d items\n",num);
     val = self->data[0];
     self->data[self->size+1] = val;  
 
+    free(tmp);
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
 }
