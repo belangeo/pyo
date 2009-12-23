@@ -5,10 +5,10 @@
 
     Parent class : :class:`PyoObject`
 
-    Reads from a numbered channel in an external audio signal or stream.
+    Read from a numbered channel in an external audio signal or stream.
     
     :param chnl: int, optional
     
-    Input channel to read from. Default to 0.
+    Input channel to read from. Defaults to 0.
 
-.. note:: Requires Server's duplex mode set to 1.
+.. note:: Requires that the :class:`Server`'s duplex mode is set to 1.
