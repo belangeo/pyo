@@ -9,13 +9,13 @@
     
     :param list: list, optional
         
-    List of tuples indicating location and value of each points in the table. 
+    List of tuples indicating location and value of each point in the table. 
     The default, [(0,0.), (8191, 1.)], creates a straight line from 0.0 at location 0
-    to 1.0 at the end of the table (size - 1). Location must be integer.
+    to 1.0 at the end of the table (size - 1). Location must be an integer.
 
     :param size: int, optional
 
-    Table size in samples. Default to 8192.
+    Table size in samples. Defaults to 8192.
     
 .. method:: LinTable.setSize(size)
 
@@ -31,8 +31,8 @@
     
     :param list: list
     
-    List of tuples indicating location and value of each points in the table. 
-    Location must be integer.
+    List of tuples indicating location and value of each point in the table. 
+    Location must be an integer.
 
 .. note::
 

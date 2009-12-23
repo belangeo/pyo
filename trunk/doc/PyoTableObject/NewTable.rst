@@ -5,7 +5,7 @@
 
     Parent class : :class:`PyoTableObject`
 
-    Create an empty table ready for recording. See `TableRec` to write samples
+    Create an empty table ready for recording. See :class:`TableRec` to write samples
     in the table. 
     
     :param length: float
@@ -14,7 +14,7 @@
     
     :param chnls: int, optional
 
-    How many channels will be handled by the table. Default to 1.
+    Number of channels that will be handled by the table. Defaults to 1.
 
 .. method:: NewTable.getSize()
 
@@ -26,5 +26,5 @@
 
 .. method:: NewTable.getRate()
 
-    Return the frequency in cps at which the sound will be read 
-    at its original pitch.
+    Return the frequency (cycles per second) at which the sound will be read when 
+    at it's original pitch.

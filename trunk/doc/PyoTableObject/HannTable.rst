@@ -9,7 +9,7 @@
 
     :param size: int, optional
 
-    Table size in samples. Default to 8192.
+    Table size in samples. Defaults to 8192.
     
 .. method:: HannTable.setSize(size)
 
