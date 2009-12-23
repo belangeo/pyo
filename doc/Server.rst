@@ -3,37 +3,37 @@
 
 .. class:: Server(sr=44100, nchnls=1, buffersize=256, duplex=0)
 
-    The Server object handles all communications with Portaudio and Portmidi.
+    The :class:`Server` object handles all communications with Portaudio and Portmidi.
     
-    An instance of the Server object must be booted before definning any signal processing chain.
+    An instance of the :class:`Server` must be booted before defining any signal processing chain.
 
     :param sr: int, optional
     
-    Sampling rate used by Portaudio and any Server to compute samples. Default to 44100.
+    Sampling rate used by Portaudio and the :class:`Server` to compute samples. Defaults to 44100.
     
     :param nchnls: int, optional
     
-    Number of input and output channels. Default to 1.
+    Number of input and output channels. Defaults to 1.
     
     :param buffersize: int, optional
     
-    Number of samples that Portaudio will request from the callback. This value has an impact
-    on CPU use (small buffer size is harder to compute) and on the latency of the system. Latency
-    is `buffer size / sampling rate` in seconds. Default to 256.
+    Number of samples that Portaudio will request from the callback loop. This value has an impact
+    on CPU use (a small buffer size is harder to compute) and on the latency of the system. Latency
+    is `buffer size / sampling rate` in seconds. Defaults to 256.
     
     :param duplex: int {0, 1}, optional
     
-    Input - output mode. 0 is output only and 1 is both ways. Default to 0.
+    Input - output mode. 0 is output only and 1 is both ways. Defaults to 0.
 
 .. method:: Server.boot()
 
-    Boot the server. Must be called before definning any signal processing chain. Server's parameter
+    Boot the server. Must be called before defining any signal processing chain. The :class:`Server`'s parameters
     like `samplingrate`, `buffersize` or `nchnls` will be effective after a call to this method.
           
 .. method:: Server.shutdown()
     
     Shut down and clear the server. This method will erase all objects from the callback loop.
-    Call this method before changing server's parameter like `samplingrate`, `buffersize`, `nchnls`...
+    This method needs to be called before changing the :class:`Server`'s parameters like `samplingrate`, `buffersize`, `nchnls`...
     
 .. method:: Server.start()
 
@@ -52,7 +52,7 @@
 .. method:: Server.recstart()
 
     Begin a default recording of the sound that is sent to output. This will create a file
-    called `pyo_rec.aif` in the home directory.
+    called `pyo_rec.aif` in the user's home directory.
     
 .. method:: Server.recstop()
 

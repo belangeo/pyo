@@ -9,15 +9,15 @@
     
     :param list: list, optional
         
-    Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Default to [1].
+    Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Defaults to [1].
 
     :param size: int, optional
 
-    Table size in samples. Default to 8192.
+    Table size in samples. Defaults to 8192.
     
 .. method:: HarmTable.setSize(size)
 
-    Change the size of the table. This will erase previously drawn waveform.
+    Change the size of the table. This will erase the previously drawn waveform.
     
     :param size: int
     
@@ -25,7 +25,7 @@
 
 .. method:: HarmTable.replace(list)
 
-    Redraw waveform according to a new set of harmonics relative strengths.
+    Redraw the waveform according to a new set of harmonic relative strengths.
     
     :param list: list
     

@@ -1,4 +1,4 @@
-:mod:`pyo` --- module functions
+:mod:`pyo` --- Module functions
 ===============================
 
 .. function:: pyo.pa_count_devices()
@@ -11,11 +11,11 @@
 
 .. function:: pyo.pa_get_default_input()
 
-	Return Portaudio default input.
+	Return Portaudio's default input.
 	
 .. function:: pyo.pa_get_default_output()
 
-	Return Portaudio default output.
+	Return Portaudio's default output.
 	
 .. function:: pyo.pm_count_devices()
 
@@ -29,7 +29,7 @@
 
     Return information about a soundfile in the form of a tuple (# frames, sampling rate, # channels).
 
-    :param path: file's path
+    :param path: the soundfile's path
     
     
 **Module objects**
