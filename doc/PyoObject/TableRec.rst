@@ -1,11 +1,11 @@
-:class:`TableRec` --- Writes samples in a table object
-======================================================
+:class:`TableRec` --- Write samples in a table object
+=====================================================
 
 .. class:: TableRec(input, table, fadetime=0)
 
     Parent class : :class:`PyoObject`
 
-    TableRec is for writing samples in a previously created NewTable. 
+    TableRec is for writing samples in a previously created :class:`NewTable`. 
     See :class:`NewTable` to create an empty table.
     
     :param input: :class:`PyoObject`
@@ -18,8 +18,8 @@
     
     :param fadetime: float, optional
     
-    Fade time, in seconds, at the beginning and the ending of the recording. 
-    Default to 0.
+    Fade time at the beginning and the end of the recording in seconds. 
+    Defaults to 0.
 
 
 .. method:: TableRec.setInput(x, fadetime=0.05)
@@ -32,11 +32,11 @@
 
     :param fadetime: float, optional
 
-    Crossfade time between old and new input. Default to 0.05.
+    Crossfade time between old and new input. Defaults to 0.05.
 
 .. method:: TableRec.setTable(x)
 
-    Replace the *table* attribute.
+    Replace the `table` attribute.
 
     :param x: :class:`NewTable`
 
@@ -50,9 +50,9 @@
 
 .. note::
 
-    Methods out() is bypassed. TableRec returns no signal.
+    The out() method is bypassed. :class:`TableRec` returns no signal.
     
-    TableRec has no `mul` and `add` attributes.
+    :class:`TableRec` has no `mul` and `add` attributes.
 
 .. attribute:: TableRec.input
 

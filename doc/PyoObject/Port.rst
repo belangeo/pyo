@@ -5,7 +5,7 @@
 
     Parent class : :class:`PyoObject`
 
-    Perform exponential portamento on an audio signal with different rising and falling times.
+    Perform an exponential portamento on an audio signal with different rising and falling times.
 
     :param input: :class:`PyoObject`
     
@@ -13,11 +13,11 @@
     
     :param risetime: float or :class:`PyoObject`, optional
     
-    Time to reach upward value in seconds. Default to 0.05.
+    Time to reach upward value in seconds. Defaults to 0.05.
     
     :param falltime: float or :class:`PyoObject`, optional
     
-    Time to reach downward value in seconds. Default to 0.05.
+    Time to reach downward value in seconds. Defaults to 0.05.
 
 
 .. method:: Port.setInput(x, fadetime=0.05)
@@ -30,7 +30,7 @@
 
     :param fadetime: float, optional
 
-    Crossfade time between old and new input. Default to 0.05.
+    Crossfade time between old and new input. Defaults to 0.05.
 
 .. method:: Port.setRiseTime(x)
 
@@ -40,7 +40,7 @@
      
 .. method:: Port.setFallTime(x)
 
-    Replace the *falltime* attribute.
+    Replace the `falltime` attribute.
 
     :param x: float or :class:`PyoObject`
 

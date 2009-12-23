@@ -1,5 +1,5 @@
-:class:`Midictl` --- MIDI channel controller
-============================================
+:class:`Midictl` --- MIDI channel controller (CC)
+=================================================
 
 .. class:: Midictl(ctlnumber, minscale=0, maxscale=1, mul=1, add=0)
 
@@ -7,20 +7,20 @@
 
     Get the current value of a MIDI channel controller.
     
-    Get the current value of a controller and optionally map it onto specified range.
+    Get the current value of a controller and optionally map it inside a specified range.
     
     :param ctlnumber: int
     
-    Midi channel. Initialisation time only.
+    MIDI channel. Available at initialization time only.
 
     :param minscale: float, optional
     
-    Low range for mapping. Initialisation time only.
+    Low range value for mapping. Available at initialization time only.
 
     :param maxscale: float, optional
     
-    High range for mapping. Initialisation time only.
+    High range value for mapping. Available at initialization time only.
 
 .. note::
 
-    Methods out() is bypassed. Midictl signal can't be sent to audio outs.
+    The out() method is bypassed. :class:`Midictl`'s signal can't be sent to audio outs.

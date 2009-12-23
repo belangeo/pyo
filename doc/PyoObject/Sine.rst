@@ -9,21 +9,21 @@
     
     :param freq: float or :class:`PyoObject`, optional
     
-    Frequency in cycles per second. Default to 1000.
+    Frequency in cycles per second. Defaults to 1000.
     
     :param phase: float or :class:`PyoObject`, optional
     
-     Phase of sampling, expressed as a fraction of a cycle (0 to 1). Default to 0.
+     Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
 
 .. method:: Sine.setFreq(x)
 
-    Replace the *freq* attribute.
+    Replace the `freq` attribute.
 
     :param x: float or :class:`PyoObject`
     
 .. method:: Sine.setPhase(x)
 
-    Replace the *phase* attribute.
+    Replace the `phase` attribute.
 
     :param x: float or :class:`PyoObject`
     
