@@ -5,30 +5,29 @@
 
     Parent class : :class:`PyoObject`
 
-    Generate an amplitude envelope between 0 and 1 with control on fade times and duration.
+    Generate an amplitude envelope between 0 and 1 with control on fade times and total duration of the envelope.
     
-    The play() method starts the envelope and is not called at the object creation.
+    The play() method starts the envelope and is not called at the object creation time.
 
     :param fadein: float or :class:`PyoObject`, optional
     
-    Rising time of the envelope in seconds. Default to 0.01.
+    Rising time of the envelope in seconds. Defaults to 0.01.
     
     :param fadeout: float or :class:`PyoObject`, optional
     
-    Falling time of the envelope in seconds. Default to 0.1.
+    Falling time of the envelope in seconds. Defaults to 0.1.
     
     :param dur: float or :class:`PyoObject`, optional
     
-    Total duration of the envelope. Default to 0, which mean wait for the stop() 
-    method to start the fadeout.
+    Total duration of the envelope. Defaults to 0, which means wait for the stop() method to start the fadeout.
 
 .. method:: Fader.play()
 
-    Start processing without sending samples to output and trigger the envelope.
+    Start processing without sending samples to the output. Triggers the envelope.
         
 .. method:: Fader.stop()
     
-    Stop processing and trigger the envelope fadeout if `dur` is set to 0.
+    Stop processing. Triggers the envelope's fadeout if `dur` is set to 0.
  
 .. method:: Fader.setFadein(x)
 
@@ -50,7 +49,7 @@
 
 .. note::
 
-    Method out() is bypassed. :class:`Fader` signal can't be sent to audio outs.
+    The out() method is bypassed. :class:`Fader`'s signal can't be sent to audio outs.
     
 .. attribute:: Fader.fadein
 
