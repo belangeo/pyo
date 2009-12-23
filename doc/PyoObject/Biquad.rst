@@ -13,12 +13,12 @@
     
     :param freq: float or :class:`PyoObject`, optional
     
-    Cutoff or center frequency of the filter. Default to 1000.
+    Cutoff or center frequency of the filter. Defaults to 1000.
     
     :param q: float or :class:`PyoObject`, optional
     
-    Q of the filter, defined, for bandpass filters, as bandwidth/cutoff. 
-    Should be between 1 and 500. Default to 1.
+    Q of the filter, defined (for bandpass filters) as bandwidth/cutoff. 
+    Should be between 1 and 500. Defaults to 1.
 
     :param type: int, optional
     
@@ -43,7 +43,7 @@
 
     :param fadetime: float, optional
 
-    Crossfade time between old and new input. Default to 0.05.
+    Crossfade time between old and new input. Defaults to 0.05.
 
 .. method:: Biquad.setFreq(x)
 

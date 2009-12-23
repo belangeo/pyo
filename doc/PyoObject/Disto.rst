@@ -5,7 +5,7 @@
 
     Parent class : :class:`PyoObject`
 
-    Apply an arctan distortion on input signal with control on the drive.
+    Apply an arctan distortion with controllable drive to the input signal.
 
     :param input: :class:`PyoObject`
     
@@ -13,13 +13,13 @@
     
     :param drive: float or :class:`PyoObject`, optional
     
-    Amount of distortion applied on the signal, between 0 and 1. 
-    Default to 0.75.
+    Amount of distortion applied to the signal, between 0 and 1. 
+    Defaults to 0.75.
     
     :param slope: float or :class:`PyoObject`, optional
     
-    Slope of a lowpass filter applied after distortion, between 0 and 1. 
-    Default to 0.5.
+    Slope of the lowpass filter applied after distortion, between 0 and 1. 
+    Defaults to 0.5.
 
 
 .. method:: Disto.setInput(x, fadetime=0.05)
@@ -32,7 +32,7 @@
 
     :param fadetime: float, optional
 
-    Crossfade time between old and new input. Default to 0.05.
+    Crossfade time between old and new input. Defaults to 0.05.
 
 .. method:: Disto.setDrive(x)
 
