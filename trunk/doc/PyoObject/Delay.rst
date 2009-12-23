@@ -13,17 +13,17 @@
     
     :param delay: float or :class:`PyoObject`, optional
     
-    Delay time in seconds. Default to 0.25.    
+    Delay time in seconds. Defaults to 0.25.    
     
     :param feedback: float or :class:`PyoObject`, optional
     
     Amount of output signal sent back into the delay line, between 0 and 1. 
-    Default to 0.
+    Defaults to 0.
 
     :param maxdelay:, float, optional
     
-    Maximum delay length in seconds. Available only at initialisation. 
-    Default to 1.
+    Maximum delay length in seconds. Available only at initialization. 
+    Defaults to 1.
 
 .. method:: Delay.setInput(x, fadetime=0.05)
 
@@ -35,7 +35,7 @@
 
     :param fadetime: float, optional
 
-    Crossfade time between old and new input. Default to 0.05.
+    Crossfade time between old and new input. Defaults to 0.05.
 
 .. method:: Delay.setDelay(x)
 
