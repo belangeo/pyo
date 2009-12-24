@@ -9,6 +9,10 @@ from _pyo import *
 class Call_example:
     def __init__(self, callback):
         self.__call__ = callback
+
+class Print_args:
+    def __init__(self, callback):
+        self.__call__ = callback
         
 def convertArgsToLists(*args):
     """
@@ -200,7 +204,6 @@ class PyoObject(object):
         else:
             if chnl < 0:    
                 self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-                self._base_objs = random.sample(self._base_objs, len(self._base_objs))
             else:   
                 self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
         return self
