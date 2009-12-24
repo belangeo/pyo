@@ -36,8 +36,7 @@ class SfPlayer(PyoObject):
             self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(self._base_objs)]
-                self._base_objs = random.sample(self._base_objs, len(self._base_objs))
+                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:   
                 self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
         return self
@@ -45,6 +44,10 @@ class SfPlayer(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
+
+    def setSound(self, x):
+        x, lmax = convertArgsToLists(x)
+        [obj.setSound(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setSpeed(self, x):
         self._speed = x
@@ -127,8 +130,7 @@ class SfMarkerShuffler(PyoObject):
             self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(self._base_objs)]
-                self._base_objs = random.sample(self._base_objs, len(self._base_objs))
+                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:   
                 self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
         return self

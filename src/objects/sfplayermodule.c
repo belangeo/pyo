@@ -512,6 +512,39 @@ SfPlayer_setSpeed(SfPlayer *self, PyObject *arg)
 }	
 
 static PyObject *
+SfPlayer_setSound(SfPlayer *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->path = PyString_AsString(arg);
+
+    sf_close(self->sf);
+
+    /* Open the sound file. */
+    self->info.format = 0;
+    self->sf = sf_open(self->path, SFM_READ, &self->info);
+    if (self->sf == NULL)
+    {
+        printf("Failed to open the file.\n");
+    }
+    self->sndSize = self->info.frames;
+    self->sndSr = self->info.samplerate;
+    //self->sndChnls = self->info.channels;
+    self->srScale = self->sndSr / self->sr;
+    
+    //self->samplesBuffer = (float *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    
+    self->startPos = 0.0;
+    self->pointerPos = self->startPos;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 SfPlayer_setLoop(SfPlayer *self, PyObject *arg)
 {
 	if (arg == NULL) {
@@ -592,6 +625,7 @@ static PyMethodDef SfPlayer_methods[] = {
 {"play", (PyCFunction)SfPlayer_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlayer_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfPlayer_stop, METH_NOARGS, "Stops computing."},
+{"setSound", (PyCFunction)SfPlayer_setSound, METH_O, "Sets sfplayer sound path."},
 {"setSpeed", (PyCFunction)SfPlayer_setSpeed, METH_O, "Sets sfplayer reading speed."},
 {"setLoop", (PyCFunction)SfPlayer_setLoop, METH_O, "Sets sfplayer loop mode (0 = no loop, 1 = loop)."},
 {"setOffset", (PyCFunction)SfPlayer_setOffset, METH_O, "Sets sfplayer start position."},

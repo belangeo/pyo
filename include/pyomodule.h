@@ -54,6 +54,8 @@ extern PyTypeObject HilbertType;
 
 extern PyTypeObject FollowerType;
 
+extern PyTypeObject SPannerType;
+extern PyTypeObject SPanType;
 extern PyTypeObject PannerType;
 extern PyTypeObject PanType;
 
