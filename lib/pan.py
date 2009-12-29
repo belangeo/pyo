@@ -17,6 +17,7 @@ class Pan(PyoObject):
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
         self._input = input
         self._pan = pan
+        self._outs = outs
         self._spread = spread
         self._mul = mul
         self._add = add
