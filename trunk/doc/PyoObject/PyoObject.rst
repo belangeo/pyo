@@ -44,6 +44,10 @@
 
     :param voices: int, optional
     
+    Number of audio streams of the Mix object created by this method. If more
+    than 1, object's streams are alternated and added into Mix object's streams. 
+    Defaults to 1.
+    
 .. method:: PyoObject.setMul(x)
 
     Replace the `mul` attribute.

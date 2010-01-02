@@ -10,9 +10,9 @@ class Sine(PyoObject):
     **Parameters**
     
     freq : float or PyoObject, optional
-        Frequency in cycles per second. Default to 1000.
+        Frequency in cycles per second. Defaults to 1000.
     phase : float or PyoObject, optional
-        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Default to 0.
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
         
     **Methods**
     
@@ -150,9 +150,9 @@ class Osc(PyoObject):
     table : PyoTableObject
         Table containing the waveform samples.
     freq : float or PyoObject, optional
-        Frequency in cycles per second. Default to 1000.
+        Frequency in cycles per second. Defaults to 1000.
     phase : float or PyoObject, optional
-        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Default to 0.
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
         
     **Methods**
 
@@ -232,12 +232,16 @@ class Osc(PyoObject):
 
 class Input(PyoObject):
     """
-    Reads from a numbered channel in an external audio signal or stream.
-    
+    Read from a numbered channel in an external audio signal or stream.
+
     **Parameters**
     
     chnl : int, optional
-        Input channel to read from. Default to 0.
+        Input channel to read from. Defaults to 0.
+        
+    **notes**
+    
+    Requires that the Server's duplex mode is set to 1.    
     
     """
     def __init__(self, chnl=0, mul=1, add=0):                

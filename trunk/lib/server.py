@@ -7,30 +7,30 @@ class Server(object):
     """
     The Server object handles all communications with Portaudio and Portmidi.
     
-    An instance of the Server object must be booted before definning any signal processing chain.
+    An instance of the Server must be booted before defining any signal processing chain.
 
     **Parameters**
 
     sr : int, optional
-        Sampling rate used by Portaudio and any PyoObject to compute samples. Default to 44100.
+        Sampling rate used by Portaudio and the Server to compute samples. Defaults to 44100.
     nchnls : int, optional
-        Number of input and output channels. Default to 2.
+        Number of input and output channels. Defaults to 2.
     buffersize : int, optional
-        Number of samples that Portaudio will request from the callback. This value has an impact
-        on CPU use (small buffer size is harder to compute) and on the latency of the system. Latency
-        is `buffer size / sampling rate` in seconds. Default to 256.
+        Number of samples that Portaudio will request from the callback loop. This value has an impact
+        on CPU use (a small buffer size is harder to compute) and on the latency of the system. Latency
+        is `buffer size / sampling rate` in seconds. Defaults to 256.
     duplex : int {0, 1}, optional
-        Input - output mode. 0 is output only and 1 is both ways. Default to 0.
+        Input - output mode. 0 is output only and 1 is both ways. Defaults to 0.
 
     **Methods**
 
     setAmp(x) : Set the overall amplitude.
-    boot() : Boot the server. Must be called before definning any signal processing chain.
+    boot() : Boot the server. Must be called before defining any signal processing chain.
     shutdown() : Shut down and clear the server.
     start() : Start the audio callback loop.
     stop() : Stop the audio callback loop.
     recstart() : Begin recording sound sent to output. Create a fie called `pyo_rec.aif` 
-        in the home directory.
+        in the user's home directory.
     recstop() : Stop previously started recording.
     getSamplingRate() : Return the current sampling rate.
     getNchnls() : Return the current number of channels.
@@ -151,14 +151,15 @@ class Server(object):
     def shutdown(self):
         """
         Shut down and clear the server. This method will erase all objects from the callback loop.
-        Call this method before changing server's parameter like `samplingrate`, `buffersize`, `nchnls`...
+        This method need to be called before changing server's parameters like `samplingrate`, 
+        `buffersize`, `nchnls`...
 
         """
         self._server.shutdown()
         
     def boot(self):
         """
-        Boot the server. Must be called before definning any signal processing chain. Server's parameter
+        Boot the server. Must be called before defining any signal processing chain. Server's parameters
         like `samplingrate`, `buffersize` or `nchnls` will be effective after a call to this method.
 
         """
@@ -183,7 +184,7 @@ class Server(object):
     def recstart(self):
         """
         Begin a default recording of the sound that is sent to output. This will create a file
-        called `pyo_rec.aif` in the home directory.
+        called `pyo_rec.aif` in the user's home directory.
         
         """
         self._server.recstart()

@@ -13,7 +13,7 @@
     
     :param nchnls: int, optional
     
-    Number of input and output channels. Defaults to 1.
+    Number of input and output channels. Defaults to 2.
     
     :param buffersize: int, optional
     

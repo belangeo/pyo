@@ -10,14 +10,14 @@ class HarmTable(PyoTableObject):
     **Parameters**
     
     list : list, optional
-        Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Default to [1].
+        Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Defaults to [1].
     size : int, optional
-        Table size in samples. Default to 8192.
+        Table size in samples. Defaults to 8192.
         
     **Methods**
     
-    setSize(size) : Change the size of the table. This will erase previously drawn waveform.
-    replace(list) : Redraw waveform according to the new `list` parameter.
+    setSize(size) : Change the size of the table. This will erase the previously drawn waveform.
+    replace(list) : Redraw the waveform according to the new `list` parameter.
     
     **Attributes**
     
@@ -34,7 +34,7 @@ class HarmTable(PyoTableObject):
         
     def setSize(self, size):
         """
-        Change the size of the table. This will erase previously drawn waveform.
+        Change the size of the table. This will erase the previously drawn waveform.
         
         **Parameters**
         
@@ -47,7 +47,7 @@ class HarmTable(PyoTableObject):
     
     def replace(self, list):
         """
-        Redraw waveform according to a new set of harmonics relative strengths.
+        Redraw the waveform according to a new set of harmonics relative strengths.
         
         **Parameters**
         
@@ -74,7 +74,7 @@ class HannTable(PyoTableObject):
     **Parameters**
     
     size : int, optional
-        Table size in samples. Default to 8192.
+        Table size in samples. Defaults to 8192.
         
     **Methods**
     
@@ -117,9 +117,9 @@ class LinTable(PyoTableObject):
     list : list, optional
         List of tuples indicating location and value of each points in the table. 
         The default, [(0,0.), (8191, 1.)], creates a straight line from 0.0 at location 0
-        to 1.0 at the end of the table (size - 1). Location must be integer.
+        to 1.0 at the end of the table (size - 1). Location must be an integer.
     size : int, optional
-        Table size in samples. Default to 8192.
+        Table size in samples. Defaults to 8192.
         
     **Methods**
     
@@ -187,14 +187,14 @@ class SndTable(PyoTableObject):
     Load data from a soundfile into a function table.
     
     If `chnl` is None, the table will contain as many sub tables as necessary 
-    to read all channels of the sound.
+    to read all channels of the loaded sound.
     
     **Parameters**
     
     path : string
         Full path name of the sound.
     chnl : int, optional
-        Channel number to read in. The default, None, denotes read all channels.
+        Channel number to read in. The default (None) reads all channels.
 
     **Methods**
 
@@ -214,15 +214,15 @@ class SndTable(PyoTableObject):
         """
         Load a new sound in the table.
         
-        Keeps the number of channels of the sound loaded at initialisation.
+        Keeps the number of channels of the sound loaded at initialization.
         If the new sound has less channels, it will wrap around and load the 
-        same channels many times. If the new sound has more channels, latest 
+        same channels many times. If the new sound has more channels, the extra 
         channels will be skipped.
         
         **Parameters**
         
         path : string
-            Full path name of the new sound.
+            Full path of the new sound.
 
         """
         _size, _snd_sr, _snd_chnls = sndinfo(path)
@@ -241,13 +241,13 @@ class NewTable(PyoTableObject):
     length : float
         Length of the table in seconds.
     chnls : int, optional
-        How many channels will be handled by the table. Default to 1.
+        Number of channels that will be handled by the table. Defaults to 1.
         
     **Methods**    
     
     getSize() : Return the length of the table in samples.
     getLength() : Return the length of the table in seconds.
-    getRate() : Return the frequency in cps to give an oscillator to read the sound 
+    getRate() : Return the frequency (cycle per second) to give an oscillator to read the sound 
         at its original pitch.
 
     """
@@ -275,7 +275,7 @@ class TableRec(PyoObject):
     table : PyoTableObject
         The table where to write samples.
     fadetime : float, optional
-        Fade time, in seconds, at the beginning and the ending of the recording. Default to 0.
+        Fade time at the beginning and the end of the recording in seconds. Defaults to 0.
     
     **Methods**
 
@@ -285,7 +285,7 @@ class TableRec(PyoObject):
 
     **Notes**
 
-    Methods out() is bypassed. TableRec returns no signal.
+    The out() method is bypassed. TableRec returns no signal.
     
     TableRec has no `mul` and `add` attributes.
     
@@ -315,7 +315,7 @@ class TableRec(PyoObject):
         x : PyoObject
             New signal to process.
         fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
