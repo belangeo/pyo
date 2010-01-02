@@ -12,9 +12,9 @@ class Biquad(PyoObject):
     input : PyoObject
         Input signal to filter.
     freq : float or PyoObject, optional
-        Cutoff or center frequency of the filter. Default to 1000.
+        Cutoff or center frequency of the filter. Defaults to 1000.
     q : float or PyoObject, optional
-        Q of the filter, defined, for bandpass filters, as bandwidth/cutoff. Should be between 1 and 500. Default to 1.
+        Q of the filter, defined (for bandpass filters) as bandwidth/cutoff. Should be between 1 and 500. Defaults to 1.
     type : int, optional
         Filter type. Four possible values :
             0 = lowpass (default)
@@ -50,7 +50,7 @@ class Biquad(PyoObject):
         x : PyoObject
             New signal to process.
         fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -119,18 +119,18 @@ class Disto(PyoObject):
     """
     Arctan distortion.
     
-    Apply an arctan distortion on input signal with control on the drive. 
+    Apply an arctan distortion with controllable drive to the input signal. 
     
     **Parameters**
     
     input : PyoObject
         Input signal to process.
     drive : float or PyoObject, optional
-        Amount of distortion applied on the signal, between 0 and 1. 
-        Default to 0.75.
+        Amount of distortion applied to the signal, between 0 and 1. 
+        Defaults to 0.75.
     slope : float or PyoObject, optional
-        Slope of a lowpass filter applied after distortion, between 0 and 1. 
-        Default to 0.5.
+        Slope of the lowpass filter applied after distortion, between 0 and 1. 
+        Defaults to 0.5.
 
     **Methods**
 
@@ -158,7 +158,7 @@ class Disto(PyoObject):
         x : PyoObject
             New signal to process.
         fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -214,11 +214,11 @@ class Delay(PyoObject):
     input : PyoObject
         Input signal to delayed.
     delay : float or PyoObject, optional
-        Delay time in seconds. Default to 0.25.
+        Delay time in seconds. Defaults to 0.25.
     feedback : float or PyoObject, optional
-        Amount of output signal sent back into the delay line. Default to 0.
+        Amount of output signal sent back into the delay line. Defaults to 0.
     maxdelay : float, optional
-        Maximum delay length in seconds. Available only at initialisation. Default to 1.
+        Maximum delay length in seconds. Available only at initialization. Defaults to 1.
 
     **Methods**
 
@@ -246,7 +246,7 @@ class Delay(PyoObject):
         x : PyoObject
             New signal to process.
         fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x

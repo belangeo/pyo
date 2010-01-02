@@ -7,20 +7,20 @@ class Midictl(PyoObject):
     """
     Get the current value of a MIDI channel controller.
     
-    Get the current value of a controller and optionally map it onto specified range.
+    Get the current value of a controller and optionally map it inside a specified range.
     
     **Parameters**
     
     ctlnumber : int
-        Midi channel. Initialisation time only.
+        Midi channel. Available at initialization time only.
     minscale : float, optional
-        Low range for mapping. Initialisation time only.
+        Low range value for mapping. Available at initialization time only.
     maxscale : float, optional
-        High range for mapping. Initialisation time only.
+        High range value for mapping. Available at initialization time only.
         
     **Notes**
     
-    Methods out() is bypassed. Midictl signal can't be sent to audio outs.
+    The out() method is bypassed. Midictl's signal can't be sent to audio outs.
 
     """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
@@ -34,31 +34,33 @@ class Midictl(PyoObject):
 
 class Notein(PyoObject):
     """
-    Generates MIDI note messages.
+    Generates MIDI notes messages.
     
     From a MIDI device, takes the notes in the range defined with `first` and `last` parameters,
-    and output `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
+    and outputs `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
     
     **Parameters**
     
     poly : int, optional
-        Number of streams of polyphonie generated. Default to 10.
+        Number of streams of polyphony generated. Defaults to 10.
     scale : int, optional
-        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. In the transpo mode, the central key,
-        the key where there is no transposition, is (first + last) / 2.
+        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. In the transpo mode, the central key
+        (the key where there is no transposition) is (`first` + `last`) / 2.
     first : int, optional
-        Lowest MIDI range. Default to 0.
+        Lowest MIDI value. Defaults to 0.
     last : int, optional
-        Highest MIDI range. Default to 127.
+        Highest MIDI value. Defaults to 127.
         
     **Notes**
     
-    Pitch and velocity are two seperated set of streams. User should call :
+    Pitch and velocity are two separated set of streams. The user should call :
     
-    Notein['pitch'] to retreive pitch streams.
-    Notein['velocity'] to retreive velocity streams.    
+    Notein['pitch'] to retrieve pitch streams.
+    Notein['velocity'] to retrieve velocity streams.    
 
     Velocity is automatically scaled between 0 and 1.
+    
+    The out() method is bypassed. Notein's signal can't be sent to audio outs.
     
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):

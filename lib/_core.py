@@ -54,7 +54,7 @@ class PyoObject(object):
     """
     Base class for all pyo objects that manipulate vectors of samples.
     
-    User should never instantiates an object of this class.
+    The user should never instantiate an object of this class.
 
     **Attributes**
 
@@ -86,12 +86,12 @@ class PyoObject(object):
     Arithmetics :
     
     Multiplication, addition, division and substraction can be applied between pyo objects
-    or between pyo object and number. Return a Dummy object with the result of the operation.
+    or between pyo objects and numbers. Doing so returns a Dummy object with the result of the operation.
     `b = a * 0.5` creates a Dummy object `b` with `mul` attribute set to 0.5 and leave `a` untouched.
     
     Inplace multiplication, addition, division and substraction can be applied between pyo 
-    objects or between pyo object and number. These operations will replace the `mul` or `add`
-    factor of the object. `a *= 0.5` replace `mul` attribute of `a`.
+    objects or between pyo objects and numbers. These operations will replace the `mul` or `add`
+    factor of the object. `a *= 0.5` replaces the `mul` attribute of `a`.
     
     """
     def __init__(self):
@@ -184,16 +184,16 @@ class PyoObject(object):
         **Parameters**
 
         chnl : int, optional
-            Physical output assigned to the first audio stream of the object. Default to 0.
+            Physical output assigned to the first audio stream of the object. Defaults to 0.
 
-            If `chnl` is an integer equal or greater than 0, then successive streams 
-            increment output number by `inc` and wrap around the global number of channels.
+            If `chnl` is an integer equal or greater than 0: successive streams 
+            increment the output number by `inc` and wrap around the global number of channels.
             
-            If `chnl` is a negative integer, the streams begin at 0 and increment output 
+            If `chnl` is a negative integer: streams begin at 0, increment the output 
             number by `inc` and wrap around the global number of channels. Then, the list
             of streams is scrambled.
             
-            If `chnl` is a list, successive values in the list will be assigned to successive streams.
+            If `chnl` is a list: successive values in the list will be assigned to successive streams.
             
         inc : int, optional
             Output increment value.
@@ -213,14 +213,14 @@ class PyoObject(object):
         [obj.stop() for obj in self._base_objs]
 
     def mix(self, voices=1):
-        """Mix object's audio streams into `voices` streams and return the Mix object.
+        """Mix the object's audio streams into `voices` streams and return the Mix object.
         
         **Parameters**
 
         voices : int, optional
             Number of audio streams of the Mix object created by this method. If more
             than 1, object's streams are alternated and added into Mix object's streams. 
-            Default to 1.
+            Defaults to 1.
             
         """
         self._mix = Mix(self, voices)
@@ -295,7 +295,7 @@ class PyoTableObject(object):
     Base class for all pyo table objects. A table object object is a buffer memory
     to store precomputed samples. 
     
-    User should never instantiates an object of this class.
+    The user should never instantiate an object of this class.
  
     Operations allowed on all table objects :
     
