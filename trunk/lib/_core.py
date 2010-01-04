@@ -279,11 +279,16 @@ class PyoObject(object):
         [obj.setDiv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def mul(self): return self._mul
-    @property
-    def add(self): return self._add
+    def mul(self):
+        """float or PyoObject. Multiplication factor.""" 
+        return self._mul
     @mul.setter
     def mul(self, x): self.setMul(x)
+
+    @property
+    def add(self):
+        """float or PyoObject. Addition factor.""" 
+        return self._add
     @add.setter
     def add(self, x): self.setAdd(x)
             
@@ -357,6 +362,19 @@ class InputFader(PyoObject):
         [obj.setInput(wrap(x,i), fadetime) for i, obj in enumerate(self._base_objs)]
 
 class Sig(PyoObject):
+    """
+    Convert numeric value to PyoObject signal.
+
+    **Parameters**
+
+    value : float
+        Numerical value to convert.
+
+    **Methods**
+
+    setValue(x) : Changes the value of the signal stream.
+
+    """
     def __init__(self, value, mul=1, add=0):
         self._value = value
         self._mul = mul
@@ -365,12 +383,22 @@ class Sig(PyoObject):
         self._base_objs = [Sig_base(wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setValue(self, x):
+        """
+        Changes the value of the signal stream.
+
+        **Parameters**
+
+        x : float
+            Numerical value to convert.
+
+        """
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
     
     @property
-    def value(self): return self._value
+    def value(self):
+        """float. Numerical value to convert.""" 
+        return self._value
     @value.setter
     def value(self, x): self.setValue(x)    
-        
-        
+

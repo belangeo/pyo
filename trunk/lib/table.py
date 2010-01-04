@@ -58,6 +58,14 @@ class HarmTable(PyoTableObject):
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
+    #def demo():
+    #    execfile("demos/HarmTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('HarmTable(list=[1.], size=8192)')
+    args = Print_args(args)
+
     @property
     def size(self): return self._size
     @size.setter
@@ -102,6 +110,14 @@ class HannTable(PyoTableObject):
         """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
+
+    #def demo():
+    #    execfile("demos/HannTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('HannTable(size=8192)')
+    args = Print_args(args)
 
     @property
     def size(self): return self._size
@@ -172,6 +188,14 @@ class LinTable(PyoTableObject):
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
+
+    #def demo():
+    #    execfile("demos/LinTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('LinTable(list=[(0, 0.), (8191, 1.)], size=8192)')
+    args = Print_args(args)
         
     @property
     def size(self): return self._size
@@ -231,6 +255,14 @@ class SndTable(PyoTableObject):
     def getRate(self):
         return self._base_objs[0].getRate()
 
+    #def demo():
+    #    execfile("demos/SndTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('SndTable(path, chnl=None)')
+    args = Print_args(args)
+
 class NewTable(PyoTableObject):
     """
     Create an empty table ready for recording. See `TableRec` to write samples in 
@@ -262,6 +294,14 @@ class NewTable(PyoTableObject):
              
     def getRate(self):
         return self._base_objs[0].getRate()
+
+    #def demo():
+    #    execfile("demos/NewTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('NewTable(length, chnls=1)')
+    args = Print_args(args)
 
 class TableRec(PyoObject):
     """
@@ -333,6 +373,14 @@ class TableRec(PyoObject):
         self._table = x
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/TableRec_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('TableRec(input, table, fadetime=0)')
+    args = Print_args(args)
       
     @property
     def input(self): return self._input

@@ -70,7 +70,15 @@ class SfPlayer(PyoObject):
         self.interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-                    
+          
+    #def demo():
+    #    execfile("demos/SfPlayer_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('SfPlayer(path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0)')
+    args = Print_args(args)
+          
     @property
     def speed(self): return self._speed
     @property
@@ -148,6 +156,14 @@ class SfMarkerShuffler(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    #def demo():
+    #    execfile("demos/SfMarkerShuffler_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('SfMarkerShuffler(path, speed=1, interp=0, mul=1, add=0)')
+    args = Print_args(args)
                     
     @property
     def speed(self): return self._speed

@@ -16,7 +16,7 @@ class Pattern(PyoObject):
 
     **Notes**
 
-    Methods out() is bypassed. Pattern doesn't return signal.
+    The out() method is bypassed. Pattern doesn't return signal.
     
     Pattern has no `mul` and `add` attributes.
     
@@ -54,6 +54,14 @@ class Pattern(PyoObject):
 
     def setDiv(self, x):
         pass
+
+    #def demo():
+    #    execfile("demos/Pattern_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('Pattern(function, time=1)')
+    args = Print_args(args)
          
     @property
     def time(self): return self._time

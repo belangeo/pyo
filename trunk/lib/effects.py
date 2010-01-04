@@ -98,20 +98,39 @@ class Biquad(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/Biquad_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Biquad(input, freq=1000, q=1, type=0, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
     @property
-    def freq(self): return self._freq
+    def freq(self):
+        """float or PyoObject. Cutoff or center frequency of the filter.""" 
+        return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+
     @property
-    def q(self): return self._q
+    def q(self):
+        """float or PyoObject. Q of the filter""" 
+        return self._q
     @q.setter
     def q(self, x): self.setQ(x)
+
     @property
-    def type(self): return self._type
+    def type(self):
+        """int. Filter type.""" 
+        return self._type
     @type.setter
     def type(self, x): self.setType(x)
 
@@ -192,16 +211,32 @@ class Disto(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/Disto_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Disto(input, drive=.75, slope=.5, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
     @property
-    def drive(self): return self._drive
+    def drive(self):
+        """float or PyoObject. Amount of distortion.""" 
+        return self._drive
     @drive.setter
     def drive(self, x): self.setDrive(x)
+
     @property
-    def slope(self): return self._slope
+    def slope(self):
+        """float or PyoObject. Slope of the lowpass filter.""" 
+        return self._slope
     @slope.setter
     def slope(self, x): self.setSlope(x)
 
@@ -280,15 +315,32 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/Delay_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Delay(input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to delayed.""" 
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x) 
+    def input(self, x): self.setInput(x)
+ 
     @property
-    def delay(self): return self._delay
+    def delay(self):
+        """float or PyoObject. Delay time in seconds.""" 
+        return self._delay
     @delay.setter
     def delay(self, x): self.setDelay(x)
+
     @property
-    def feedback(self): return self._feedback
+    def feedback(self):
+        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
+

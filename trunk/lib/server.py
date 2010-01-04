@@ -224,6 +224,14 @@ class Server(object):
         """
         return self._server.getBufferSize()
 
+    #def demo():
+    #    execfile("demos/Server_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('Server(sr=44100, nchnls=2, buffersize=256, duplex=0)')
+    args = Print_args(args)
+
     @property
     def amp(self): return self._amp
     @amp.setter

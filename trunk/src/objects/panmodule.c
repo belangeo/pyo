@@ -242,7 +242,6 @@ static PyObject * Panner_deleteStream(Panner *self) { DELETE_STREAM };
 static PyObject *
 Panner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
     Panner *self;
     self = (Panner *)type->tp_alloc(type, 0);
     
@@ -759,7 +758,7 @@ SPanner_splitter_st_a(SPanner *self) {
 static void
 SPanner_splitter_i(SPanner *self) {
     float val, inval, min, pan1, pan2;
-    int j, i, k1, k2;
+    int j, i;
     float *in = Stream_getData((Stream *)self->input_stream);
     float pan = PyFloat_AS_DOUBLE(self->pan);
     float fchnls = (float)self->chnls;
@@ -801,7 +800,7 @@ SPanner_splitter_i(SPanner *self) {
 static void
 SPanner_splitter_a(SPanner *self) {
     float val, inval, min, pan;
-    int i, j, j1, k1, k2, len;
+    int i, j, j1, len;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *apan = Stream_getData((Stream *)self->pan_stream);
     float fchnls = (float)self->chnls;
@@ -915,7 +914,6 @@ static PyObject * SPanner_deleteStream(SPanner *self) { DELETE_STREAM };
 static PyObject *
 SPanner_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
     SPanner *self;
     self = (SPanner *)type->tp_alloc(type, 0);
     

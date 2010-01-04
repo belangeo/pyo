@@ -63,11 +63,16 @@ class Sine(PyoObject):
     args = Print_args(args)
         
     @property
-    def freq(self): return self._freq
-    @property
-    def phase(self): return self._phase
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+
+    @property
+    def phase(self):
+        """float or PyoObject. Phase of sampling.""" 
+        return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
@@ -133,11 +138,16 @@ class Phasor(PyoObject):
     args = Print_args(args)
         
     @property
-    def freq(self): return self._freq
-    @property
-    def phase(self): return self._phase
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+
+    @property
+    def phase(self):
+        """float or PyoObject. Phase of sampling.""" 
+        return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
  
@@ -218,15 +228,23 @@ class Osc(PyoObject):
     args = Print_args(args)
 
     @property
-    def table(self): return self._table
-    @property
-    def freq(self): return self._freq
-    @property
-    def phase(self): return self._phase
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
     @table.setter
     def table(self, x): self.setTable(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+
+    @property
+    def phase(self): 
+        """float or PyoObject. Phase of sampling.""" 
+        return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
 

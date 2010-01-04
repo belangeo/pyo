@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 30
+example = 21
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])

@@ -98,6 +98,14 @@ class Pan(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
 
+    #def demo():
+    #    execfile("demos/Pan_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('Pan(input, outs=2, pan=0.5, spread=0.5, mul=1, add=0)')
+    args = Print_args(args)
+
     @property
     def input(self): return self._input
     @input.setter
@@ -196,6 +204,14 @@ class SPan(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
+
+    #def demo():
+    #    execfile("demos/SPan_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('SPan(input, outs=2, pan=0.5, mul=1, add=0)')
+    args = Print_args(args)
 
     @property
     def input(self): return self._input

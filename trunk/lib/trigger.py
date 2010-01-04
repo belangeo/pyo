@@ -25,6 +25,14 @@ class TrigRand(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/TrigRand_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('TrigRand(input, min=0.05, max=0.05, mul=1, add=0)')
+    args = Print_args(args)
+
     @property
     def input(self): return self._input
     @input.setter
@@ -71,6 +79,14 @@ class TrigEnv(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/TrigEnv_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('TrigEnv(input, table, dur=1, mul=1, add=0)')
+    args = Print_args(args)
+
     @property
     def input(self): return self._input
     @input.setter
@@ -115,8 +131,18 @@ class Counter(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/Counter_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('Counter(input, min=0, max=100, dir=0, mul=1, add=0)')
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """blabla""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
     @property
@@ -148,6 +174,14 @@ class Select(PyoObject):
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Select_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('Select(input, value=0)')
+    args = Print_args(args)
 
     @property
     def input(self): return self._input

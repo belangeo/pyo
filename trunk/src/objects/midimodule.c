@@ -345,7 +345,8 @@ int firstEmpty(int *buf, int len) {
 }
 
 int whichVoice(int *buf, int pitch, int len) {
-    int i, voice;
+    int i;
+    int voice = 0;
     for (i=0; i<len; i++) {
         if (buf[i*2] == pitch) {
             voice = i;
@@ -452,7 +453,6 @@ static int
 MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"voices", "scale", "first", "last", NULL};
     
@@ -481,7 +481,7 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
 
 float MidiNote_getValue(MidiNote *self, int voice, int which)
 {
-    float val;
+    float val = -1.0;
     int midival = self->notebuf[voice*2+which];
     if (which == 0 && midival != -1) {
         if (self->scale == 0)

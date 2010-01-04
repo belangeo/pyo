@@ -47,6 +47,7 @@ static void InputFader_process_one(InputFader *self)
     float *in1 = Stream_getData((Stream *)self->input1_stream);
     float *in2 = Stream_getData((Stream *)self->input2_stream);
     
+    val = 0.0;
     sclfade = 1. / self->fadetime;
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime < self->fadetime) {
@@ -70,6 +71,7 @@ static void InputFader_process_two(InputFader *self)
     float *in1 = Stream_getData((Stream *)self->input1_stream);
     float *in2 = Stream_getData((Stream *)self->input2_stream);
 
+    val = 0.0;
     sclfade = 1. / self->fadetime;
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime < self->fadetime) {
