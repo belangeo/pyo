@@ -40,7 +40,6 @@ Pattern_generate_i(Pattern *self) {
 
 static void
 Pattern_generate_a(Pattern *self) {
-    float val;
     int i, flag;
     
     float *tm = Stream_getData((Stream *)self->time_stream);

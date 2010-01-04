@@ -85,16 +85,32 @@ class Fader(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/Fader_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Fader(fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def fadein(self): return self._fadein
-    @property
-    def fadeout(self): return self._fadeout
-    @property
-    def dur(self): return self._dur
+    def fadein(self):
+        """float or PyoObject. Rising time of the envelope in seconds.""" 
+        return self._fadein
     @fadein.setter
     def fadein(self, x): self.setFadein(x)
+
+    @property
+    def fadeout(self):
+        """float or PyoObject. Falling time of the envelope in seconds.""" 
+        return self._fadeout
     @fadeout.setter
     def fadeout(self, x): self.setFadeout(x)
+
+    @property
+    def dur(self):
+        """float or PyoObject. Total duration of the envelope.""" 
+        return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
 
@@ -171,16 +187,32 @@ class Port(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    #def demo():
+    #    execfile("demos/Port_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Port(input, risetime=0.05, falltime=0.05, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
     @property
-    def risetime(self): return self._risetime
+    def risetime(self):
+        """float or PyoObject. Time to reach upward value in seconds.""" 
+        return self._risetime
     @risetime.setter
     def risetime(self, x): self.setRiseTime(x)
+
     @property
-    def falltime(self): return self._falltime
+    def falltime(self):
+        """float or PyoObject. Time to reach downward value in seconds."""
+        return self._falltime
     @falltime.setter
     def falltime(self, x): self.setFallTime(x)
 
@@ -243,9 +275,19 @@ class Metro(PyoObject):
 
     def setDiv(self, x):
         pass
+
+    #def demo():
+    #    execfile("demos/Metro_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Metro(time=1, poly=1)")
+    args = Print_args(args)
          
     @property
-    def time(self): return self._time
+    def time(self):
+        """float or PyoObject. Time between each trigger in seconds.""" 
+        return self._time
     @time.setter
     def time(self, x): self.setTime(x)
 
@@ -311,11 +353,25 @@ class Follower(PyoObject):
     def out(self, chnl=0, inc=1):
         pass
 
+    #def demo():
+    #    execfile("demos/Follower_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Follower(input, freq=10, mul=1, add=0)")
+    args = Print_args(args)
+      
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
     @property
-    def freq(self): return self._freq
+    def freq(self):
+        """float or PyoObject. Cutoff frequency of the filter""" 
+        return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+

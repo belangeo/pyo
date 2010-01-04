@@ -32,6 +32,14 @@ class Midictl(PyoObject):
     def out(self, chnl=0, inc=1):
         pass
 
+    #def demo():
+    #    execfile("demos/Midictl_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Midictl(ctlnumber, minscale=0, maxscale=1, mul=1, add=0)")
+    args = Print_args(args)
+
 class Notein(PyoObject):
     """
     Generates MIDI notes messages.
@@ -107,3 +115,11 @@ class Notein(PyoObject):
     def stop(self):
         self._base_handler.stop()
         [obj.stop() for obj in self._base_objs]
+
+    #def demo():
+    #    execfile("demos/Notein_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Notein(poly=10, scale=0, first=0, last=127, mul=1, add=0)")
+    args = Print_args(args)

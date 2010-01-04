@@ -1070,6 +1070,8 @@ Phasor_readframes_aa(Phasor *self) {
     float *fr = Stream_getData((Stream *)self->freq_stream);
     float *ph = Stream_getData((Stream *)self->phase_stream);
 
+    oneOnSr = 1.0 / self->sr;
+
     for (i=0; i<self->bufsize; i++) {
         pha = ph[i];
         if (pha < 0.0)

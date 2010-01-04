@@ -518,7 +518,7 @@ static PyMethodDef Biquad_methods[] = {
 
 static PyNumberMethods Biquad_as_number = {
     (binaryfunc)Biquad_add,                         /*nb_add*/
-    (binaryfunc)Biquad_add,                         /*nb_subtract*/
+    (binaryfunc)Biquad_sub,                         /*nb_subtract*/
     (binaryfunc)Biquad_multiply,                    /*nb_multiply*/
     (binaryfunc)Biquad_div,                                              /*nb_divide*/
     0,                                              /*nb_remainder*/
@@ -1291,7 +1291,7 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Follower_init(Follower *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
     
@@ -1407,7 +1407,7 @@ static PyMethodDef Follower_methods[] = {
 
 static PyNumberMethods Follower_as_number = {
 (binaryfunc)Follower_add,                         /*nb_add*/
-(binaryfunc)Follower_add,                         /*nb_subtract*/
+(binaryfunc)Follower_sub,                         /*nb_subtract*/
 (binaryfunc)Follower_multiply,                    /*nb_multiply*/
 (binaryfunc)Follower_div,                                              /*nb_divide*/
 0,                                              /*nb_remainder*/

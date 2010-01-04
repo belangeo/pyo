@@ -19,7 +19,7 @@ class BandSplit(PyoObject):
     max : float, optional
         Highest frequency. Initialization time only. Defaults to 20000.
     q : float or PyoObject, optional
-        Q of the filter, defined as bandwidth/cutoff. Should be between 1 and 500. Defaults to 1.
+        Q of the filters, defined as bandwidth/cutoff. Should be between 1 and 500. Defaults to 1.
 
     **Methods**
     
@@ -100,11 +100,24 @@ class BandSplit(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
 
+    #def demo():
+    #    execfile("demos/BandSplit_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("BandSplit(input, num=6, min=20, max=20000, q=1, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x) 
+    def input(self, x): self.setInput(x)
+
     @property
-    def q(self): return self._q
+    def q(self): 
+        """float or PyoObject. Q of the filters."""
+        return self._q
     @q.setter
     def q(self, x): self.setQ(x) 

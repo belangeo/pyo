@@ -1,4 +1,5 @@
 import threading, time
+from _core import *
 
 class PyPattern(threading.Thread):
     def __init__(self, function, time=1):
@@ -24,6 +25,14 @@ class PyPattern(threading.Thread):
     
     def setTime(self, x):
         self._time = x
+
+    #def demo():
+    #    execfile("demos/PyPattern_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print('PyPattern(function, time=1)')
+    args = Print_args(args)
         
     @property
     def time(self): return self._time

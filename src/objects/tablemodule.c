@@ -493,6 +493,9 @@ LinTable_generate(LinTable *self) {
     int x1, y1;
     float x2, y2, diff;
     
+    y1 = 0;
+    y2 = 0.0;
+
     listsize = PyList_Size(self->pointslist);
     
     for(i=0; i<(listsize-1); i++) {

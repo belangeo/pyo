@@ -82,7 +82,17 @@ class Hilbert(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
 
+    #def demo():
+    #    execfile("demos/Hilbert_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        print("Hilbert(input, mul=1, add=0)")
+    args = Print_args(args)
+
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x) 
+    def input(self, x): self.setInput(x)
