@@ -64,6 +64,9 @@ class Pattern(PyoObject):
     args = Print_args(args)
          
     @property
-    def time(self): return self._time
+    def time(self):
+        """float or PyoObject. Time, in seconds, between each call.""" 
+        return self._time
     @time.setter
     def time(self, x): self.setTime(x)
+
