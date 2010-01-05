@@ -2,16 +2,24 @@ from _core import *
 
 class Pan(PyoObject):
     """
-    Panner.
+    Cosinus panner with control on the spread factor.
     
     **Parameters**
     
     input : PyoObject
-        Input signal to filter.
-
+        Input signal to process.
+    outs : int, optional
+        Number of channels on the panning circle. Defaults to 2.
+    pan : float or PyoObject
+        Position of the sound on the panning circle, between 0 and 1. Defaults to 0.5.
+    spread : float or PyoObject
+        Amount of sound leaking to the surrounding channels, between 0 and 1. Defaults to 0.5.
+ 
     **Methods**
     
     setInput(x, fadetime) : Replace the `input` attribute.
+    setPan(x) : Replace the `pan` attribute.
+    setSpread(x) : Replace the `spread` attribute.
 
     """
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
@@ -107,19 +115,25 @@ class Pan(PyoObject):
     args = Print_args(args)
 
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal to process."""
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x) 
+    def input(self, x): self.setInput(x)
+ 
     @property
-    def pan(self): return self._pan
+    def pan(self):
+        """float or PyoObject. Position of the sound on the panning circle."""
+        return self._pan
     @pan.setter
     def pan(self, x): self.setPan(x) 
-    @property
-    def spread(self): return self._spread
-    @spread.setter
-    def spread(self, x): self.setSpread(x) 
 
-from _core import *
+    @property
+    def spread(self):
+        """float or PyoObject. Amount of sound leaking to the surrounding channels.""" 
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
 
 class SPan(PyoObject):
     """
@@ -128,11 +142,16 @@ class SPan(PyoObject):
     **Parameters**
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
+    outs : int, optional
+        Number of channels on the panning circle. Defaults to 2.
+    pan : float or PyoObject
+        Position of the sound on the panning circle, between 0 and 1. Defaults to 0.5.
 
     **Methods**
     
     setInput(x, fadetime) : Replace the `input` attribute.
+    setPan(x) : Replace the `pan` attribute.
 
     """
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):
@@ -214,10 +233,16 @@ class SPan(PyoObject):
     args = Print_args(args)
 
     @property
-    def input(self): return self._input
+    def input(self): 
+        """PyoObject. Input signal to process."""
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x) 
+    def input(self, x): self.setInput(x)
+
     @property
-    def pan(self): return self._pan
+    def pan(self): 
+        """float or PyoObject. Position of the sound on the panning circle."""
+        return self._pan
     @pan.setter
-    def pan(self, x): self.setPan(x) 
+    def pan(self, x): self.setPan(x)
+

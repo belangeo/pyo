@@ -315,9 +315,9 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    #def demo():
-    #    execfile("demos/Delay_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Delay_demo.py")
+    demo = Call_example(demo)
 
     def args():
         print("Delay(input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0)")

@@ -233,6 +233,8 @@ class Server(object):
     args = Print_args(args)
 
     @property
-    def amp(self): return self._amp
+    def amp(self):
+        """float. Overall amplitude.""" 
+        return self._amp
     @amp.setter
     def amp(self, x): self.setAmp(x) 

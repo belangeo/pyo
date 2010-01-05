@@ -61,7 +61,9 @@ class OscSend(PyoObject):
     args = Print_args(args)
 
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Input signal.""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
          

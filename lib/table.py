@@ -21,9 +21,9 @@ class HarmTable(PyoTableObject):
     
     **Attributes**
     
-    size : int
+    size : int, optional
         Table size in samples.
-    list : list
+    list : list, optional
         Relative strengths of the fixed harmonic partial numbers.
 
     """
@@ -67,11 +67,16 @@ class HarmTable(PyoTableObject):
     args = Print_args(args)
 
     @property
-    def size(self): return self._size
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
     @size.setter
     def size(self, x): self.setSize(x)
+
     @property
-    def list(self): return self._list
+    def list(self): 
+        """list. Relative strengths of the fixed harmonic partial numbers."""
+        return self._list
     @list.setter
     def list(self, x): self.replace(x)
     
@@ -120,7 +125,9 @@ class HannTable(PyoTableObject):
     args = Print_args(args)
 
     @property
-    def size(self): return self._size
+    def size(self): 
+        """int. Table size in samples."""
+        return self._size
     @size.setter
     def size(self, x): self.setSize(x)
 
@@ -149,10 +156,10 @@ class LinTable(PyoTableObject):
     
     **Attributes**
     
-    size : int
-        Table size in samples.
     list : list
         List of tuples [(location, value), ...].
+    size : int, optional
+        Table size in samples.
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
@@ -198,11 +205,16 @@ class LinTable(PyoTableObject):
     args = Print_args(args)
         
     @property
-    def size(self): return self._size
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
     @size.setter
     def size(self, x): self.setSize(x)
+
     @property
-    def list(self): return self.getPoints()
+    def list(self):
+        """list. List of tuples indicating location and value of each points in the table.""" 
+        return self.getPoints()
     @list.setter
     def list(self, x): self.replace(x)
 
@@ -229,6 +241,7 @@ class SndTable(PyoTableObject):
     """
     def __init__(self, path, chnl=None):
         self._size, self._snd_sr, self._snd_chnls = sndinfo(path)
+        self._path = path
         if chnl == None:
             self._base_objs = [SndTable_base(path, i) for i in range(self._snd_chnls)]
         else:
@@ -250,6 +263,7 @@ class SndTable(PyoTableObject):
 
         """
         _size, _snd_sr, _snd_chnls = sndinfo(path)
+        self._path = path
         [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
         
     def getRate(self):
@@ -262,6 +276,13 @@ class SndTable(PyoTableObject):
     def args():
         print('SndTable(path, chnl=None)')
     args = Print_args(args)
+
+    @property
+    def sound(self):
+        """string. Full path of the sound.""" 
+        return self._path
+    @sound.setter
+    def sound(self, x): self.setSound(x)
 
 class NewTable(PyoTableObject):
     """
@@ -383,10 +404,16 @@ class TableRec(PyoObject):
     args = Print_args(args)
       
     @property
-    def input(self): return self._input
+    def input(self):
+        """PyoObject. Audio signal to write in the table.""" 
+        return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
     @property
-    def table(self): return self._table
+    def table(self):
+        """PyoTableObject. The table where to write samples."""
+        return self._table
     @table.setter
     def table(self, x): self.setTable(x)
+
