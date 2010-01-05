@@ -98,9 +98,9 @@ class Biquad(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    #def demo():
-    #    execfile("demos/Biquad_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Biquad_demo.py")
+    demo = Call_example(demo)
 
     def args():
         print("Biquad(input, freq=1000, q=1, type=0, mul=1, add=0)")
@@ -211,9 +211,9 @@ class Disto(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    #def demo():
-    #    execfile("demos/Disto_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Disto_demo.py")
+    demo = Call_example(demo)
 
     def args():
         print("Disto(input, drive=.75, slope=.5, mul=1, add=0)")
