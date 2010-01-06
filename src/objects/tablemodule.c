@@ -122,8 +122,9 @@ HarmTable_generate(HarmTable *self) {
         }
         self->data[i] = val;
     }
+
     val = self->data[0];
-    self->data[self->size+1] = val;  
+    self->data[self->size] = val;  
     TableStream_setData(self->tablestream, self->data);
 }
 
@@ -328,7 +329,7 @@ HannTable_generate(HannTable *self) {
         self->data[i] = val;
     }
     val = self->data[0];
-    self->data[self->size+1] = val;  
+    self->data[self->size] = val;  
     TableStream_setData(self->tablestream, self->data);
 }
 
@@ -516,11 +517,11 @@ LinTable_generate(LinTable *self) {
         for (i=y1; i<self->size; i++) {
             self->data[i+1] = 0.0;
         }
-        self->data[self->size+1] = 0.0;
+        self->data[self->size] = 0.0;
     }
     else {
+        self->data[self->size-1] = y2;
         self->data[self->size] = y2;
-        self->data[self->size+1] = y2;
     }    
     TableStream_setData(self->tablestream, self->data);
 }
@@ -786,7 +787,7 @@ SndTable_loadSound(SndTable *self) {
         }    
     }
     val = self->data[0];
-    self->data[self->size+1] = val;  
+    self->data[self->size] = val;  
 
     free(tmp);
     TableStream_setSize(self->tablestream, self->size);
