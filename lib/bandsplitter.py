@@ -100,9 +100,9 @@ class BandSplit(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
 
-    #def demo():
-    #    execfile("demos/BandSplit_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/BandSplit_demo.py")
+    demo = Call_example(demo)
 
     def args():
         print("BandSplit(input, num=6, min=20, max=20000, q=1, mul=1, add=0)")
