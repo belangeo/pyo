@@ -204,7 +204,7 @@ class PyoObject(object):
         else:
             if chnl < 0:    
                 self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
+            else:
                 self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
         return self
     

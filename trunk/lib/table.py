@@ -27,7 +27,7 @@ class HarmTable(PyoTableObject):
         Relative strengths of the fixed harmonic partial numbers.
 
     """
-    def __init__(self, list=[1.], size=8192):
+    def __init__(self, list=[1., 0.], size=8192):
         self._list = list
         self._size = size
         self._base_objs = [HarmTable_base(list, size)]
@@ -63,7 +63,7 @@ class HarmTable(PyoTableObject):
     #demo = Call_example(demo)
 
     def args():
-        print('HarmTable(list=[1.], size=8192)')
+        return('HarmTable(list=[1.], size=8192)')
     args = Print_args(args)
 
     @property
@@ -121,7 +121,7 @@ class HannTable(PyoTableObject):
     #demo = Call_example(demo)
 
     def args():
-        print('HannTable(size=8192)')
+        return('HannTable(size=8192)')
     args = Print_args(args)
 
     @property
@@ -201,7 +201,7 @@ class LinTable(PyoTableObject):
     #demo = Call_example(demo)
 
     def args():
-        print('LinTable(list=[(0, 0.), (8191, 1.)], size=8192)')
+        return('LinTable(list=[(0, 0.), (8191, 1.)], size=8192)')
     args = Print_args(args)
         
     @property
@@ -274,7 +274,7 @@ class SndTable(PyoTableObject):
     #demo = Call_example(demo)
 
     def args():
-        print('SndTable(path, chnl=None)')
+        return('SndTable(path, chnl=None)')
     args = Print_args(args)
 
     @property
@@ -321,7 +321,7 @@ class NewTable(PyoTableObject):
     #demo = Call_example(demo)
 
     def args():
-        print('NewTable(length, chnls=1)')
+        return('NewTable(length, chnls=1)')
     args = Print_args(args)
 
 class TableRec(PyoObject):
@@ -400,7 +400,7 @@ class TableRec(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('TableRec(input, table, fadetime=0)')
+        return('TableRec(input, table, fadetime=0)')
     args = Print_args(args)
       
     @property

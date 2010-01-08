@@ -103,7 +103,7 @@ class Biquad(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Biquad(input, freq=1000, q=1, type=0, mul=1, add=0)")
+        return("Biquad(input, freq=1000, q=1, type=0, mul=1, add=0)")
     args = Print_args(args)
 
     @property
@@ -216,7 +216,7 @@ class Disto(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Disto(input, drive=.75, slope=.5, mul=1, add=0)")
+        return("Disto(input, drive=.75, slope=.5, mul=1, add=0)")
     args = Print_args(args)
 
     @property
@@ -320,7 +320,7 @@ class Delay(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Delay(input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0)")
+        return("Delay(input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0)")
     args = Print_args(args)
 
     @property

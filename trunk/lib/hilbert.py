@@ -87,7 +87,7 @@ class Hilbert(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Hilbert(input, mul=1, add=0)")
+        return("Hilbert(input, mul=1, add=0)")
     args = Print_args(args)
 
     @property

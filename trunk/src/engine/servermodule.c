@@ -55,7 +55,6 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     float amp = my_server->amp;
     Stream *stream_tmp;
     float *data;
-    float old;
     
     /* avoid unused variable warnings */
     (void) timeInfo;
@@ -89,8 +88,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
             data = Stream_getData(stream_tmp);
             int chnl = Stream_getStreamChnl(stream_tmp);
             for (j=0; j<framesPerBuffer; j++) {
-                old = buffer[chnl][j];
-                buffer[chnl][j] = *data++ + old;
+                buffer[chnl][j] += *data++;
             }
         } 
         Stream_callFunction(stream_tmp);
@@ -316,7 +314,7 @@ Server_boot(Server *self)
     if (self->input == -1)
         inputParameters.device = Pa_GetDefaultInputDevice(); // default input device
     else
-        inputParameters.device = self->input; // default input device
+        inputParameters.device = self->input; // selected input device
     inputParameters.channelCount = self->nchnls;
     inputParameters.sampleFormat = paFloat32;
     inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
@@ -327,7 +325,7 @@ Server_boot(Server *self)
     if (self->output == -1)
         outputParameters.device = Pa_GetDefaultOutputDevice(); // default output device 
     else
-        outputParameters.device = self->output; // default output device 
+        outputParameters.device = self->output; // selected output device 
     outputParameters.channelCount = self->nchnls;
     outputParameters.sampleFormat = paFloat32;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
@@ -424,11 +422,8 @@ Server_stop(Server *self)
 
     self->server_started = 0;
 
-    //printf("try to stop Portaudio stream\n");
     err = Pa_StopStream(self->stream);
     portaudio_assert(err, "Pa_StopStream");
-
-    //printf("Portaudio stream stopped\n");
 
     Py_INCREF(Py_None);
     return Py_None;

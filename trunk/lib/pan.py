@@ -111,7 +111,7 @@ class Pan(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('Pan(input, outs=2, pan=0.5, spread=0.5, mul=1, add=0)')
+        return('Pan(input, outs=2, pan=0.5, spread=0.5, mul=1, add=0)')
     args = Print_args(args)
 
     @property
@@ -229,7 +229,7 @@ class SPan(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('SPan(input, outs=2, pan=0.5, mul=1, add=0)')
+        return('SPan(input, outs=2, pan=0.5, mul=1, add=0)')
     args = Print_args(args)
 
     @property

@@ -229,7 +229,7 @@ class Server(object):
     #demo = Call_example(demo)
 
     def args():
-        print('Server(sr=44100, nchnls=2, buffersize=256, duplex=0)')
+        return('Server(sr=44100, nchnls=2, buffersize=256, duplex=0)')
     args = Print_args(args)
 
     @property

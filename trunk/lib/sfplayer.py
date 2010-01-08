@@ -76,7 +76,7 @@ class SfPlayer(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('SfPlayer(path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0)')
+        return('SfPlayer(path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0)')
     args = Print_args(args)
           
     @property
@@ -162,7 +162,7 @@ class SfMarkerShuffler(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('SfMarkerShuffler(path, speed=1, interp=0, mul=1, add=0)')
+        return('SfMarkerShuffler(path, speed=1, interp=0, mul=1, add=0)')
     args = Print_args(args)
                     
     @property

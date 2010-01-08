@@ -60,7 +60,7 @@ class Pattern(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('Pattern(function, time=1)')
+        return('Pattern(function, time=1)')
     args = Print_args(args)
          
     @property
