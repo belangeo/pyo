@@ -59,7 +59,7 @@ class Sine(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Sine(freq=1000, phase=0, mul=1, add=0)")
+        return("Sine(freq=1000, phase=0, mul=1, add=0)")
     args = Print_args(args)
         
     @property
@@ -134,7 +134,7 @@ class Phasor(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Phasor(freq=100, phase=0, mul=1, add=0)")
+        return("Phasor(freq=100, phase=0, mul=1, add=0)")
     args = Print_args(args)
         
     @property
@@ -224,7 +224,7 @@ class Osc(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Osc(table, freq=1000, phase=0, mul=1, add=0)")
+        return("Osc(table, freq=1000, phase=0, mul=1, add=0)")
     args = Print_args(args)
 
     @property
@@ -274,7 +274,7 @@ class Input(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Input(chnl=0, mul=1, add=0)")
+        return("Input(chnl=0, mul=1, add=0)")
     args = Print_args(args)
 
 class Noise(PyoObject):
@@ -293,5 +293,5 @@ class Noise(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("Noise(mul=1, add=0)")
+        return("Noise(mul=1, add=0)")
     args = Print_args(args)

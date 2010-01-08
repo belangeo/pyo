@@ -105,7 +105,7 @@ class BandSplit(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        print("BandSplit(input, num=6, min=20, max=20000, q=1, mul=1, add=0)")
+        return("BandSplit(input, num=6, min=20, max=20000, q=1, mul=1, add=0)")
     args = Print_args(args)
 
     @property

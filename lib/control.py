@@ -85,12 +85,12 @@ class Fader(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    #def demo():
-    #    execfile("demos/Fader_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Fader_demo.py")
+    demo = Call_example(demo)
 
     def args():
-        print("Fader(fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0)")
+        return("Fader(fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0)")
     args = Print_args(args)
 
     @property
@@ -192,7 +192,7 @@ class Port(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Port(input, risetime=0.05, falltime=0.05, mul=1, add=0)")
+        return("Port(input, risetime=0.05, falltime=0.05, mul=1, add=0)")
     args = Print_args(args)
 
     @property
@@ -281,7 +281,7 @@ class Metro(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Metro(time=1, poly=1)")
+        return("Metro(time=1, poly=1)")
     args = Print_args(args)
          
     @property
@@ -358,7 +358,7 @@ class Follower(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Follower(input, freq=10, mul=1, add=0)")
+        return("Follower(input, freq=10, mul=1, add=0)")
     args = Print_args(args)
       
     @property

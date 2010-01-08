@@ -30,7 +30,7 @@ class TrigRand(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('TrigRand(input, min=0.05, max=0.05, mul=1, add=0)')
+        return('TrigRand(input, min=0.05, max=0.05, mul=1, add=0)')
     args = Print_args(args)
 
     @property
@@ -84,7 +84,7 @@ class TrigEnv(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('TrigEnv(input, table, dur=1, mul=1, add=0)')
+        return('TrigEnv(input, table, dur=1, mul=1, add=0)')
     args = Print_args(args)
 
     @property
@@ -136,7 +136,7 @@ class Counter(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('Counter(input, min=0, max=100, dir=0, mul=1, add=0)')
+        return('Counter(input, min=0, max=100, dir=0, mul=1, add=0)')
     args = Print_args(args)
 
     @property
@@ -180,7 +180,7 @@ class Select(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('Select(input, value=0)')
+        return('Select(input, value=0)')
     args = Print_args(args)
 
     @property

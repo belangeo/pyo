@@ -57,7 +57,7 @@ class OscSend(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('OscSend(input, port, address, host="127.0.0.1")')
+        return('OscSend(input, port, address, host="127.0.0.1")')
     args = Print_args(args)
 
     @property
@@ -116,6 +116,6 @@ class OscReceive(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print('OscReceive(port, address, mul=1, add=0)')
+        return('OscReceive(port, address, mul=1, add=0)')
     args = Print_args(args)
         

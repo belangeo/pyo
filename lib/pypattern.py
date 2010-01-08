@@ -31,7 +31,7 @@ class PyPattern(threading.Thread):
     #demo = Call_example(demo)
 
     def args():
-        print('PyPattern(function, time=1)')
+        return('PyPattern(function, time=1)')
     args = Print_args(args)
         
     @property

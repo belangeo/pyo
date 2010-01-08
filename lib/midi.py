@@ -37,7 +37,7 @@ class Midictl(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Midictl(ctlnumber, minscale=0, maxscale=1, mul=1, add=0)")
+        return("Midictl(ctlnumber, minscale=0, maxscale=1, mul=1, add=0)")
     args = Print_args(args)
 
 class Notein(PyoObject):
@@ -121,5 +121,5 @@ class Notein(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        print("Notein(poly=10, scale=0, first=0, last=127, mul=1, add=0)")
+        return("Notein(poly=10, scale=0, first=0, last=127, mul=1, add=0)")
     args = Print_args(args)
