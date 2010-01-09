@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, keyword
+import os, sys, keyword, string
 import wx
 import wx.py as py
 import  wx.stc as stc
@@ -112,8 +112,7 @@ _STYLES = {'Default': {'face': 'Monaco',
                          'linenumber': '#111111',
                          'marginback': '#AFAFAF',
                          'markerfg': '#DDDDDD',
-                         'markerbg': '#404040'}
-                         }
+                         'markerbg': '#404040'}}
 
 if wx.Platform == '__WXMSW__':
     _STYLES_FACES = { 'size' : 10, 'size2': 8 }
@@ -203,7 +202,9 @@ for key in _OBJECTS_TREE.keys():
     _KEYWORDS_LIST.append(key)
     _KEYWORDS_LIST.extend(_OBJECTS_TREE[key])
 sorted(_KEYWORDS_LIST)    
-        
+
+_ALPHA_STR = string.lowercase + string.uppercase + '0123456789'        
+
 ##################### GLOBAL FUNCTIONS ########################    
 def _editor_new(evt):
     _ED_FRAMES.append(wx.Frame(None, -1, title='pyo editor', pos=(400+i*20, -1), size=(600, 700)))
@@ -249,8 +250,6 @@ class ScriptEditor(stc.StyledTextCtrl):
 
         self.parent = parent
         self.interpreter = interpreter
-
-        self.isModified = True
         
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
@@ -263,9 +262,10 @@ class ScriptEditor(stc.StyledTextCtrl):
         self.menuBar.Append(menu1, 'File')
 
         menu2 = wx.Menu()
-        menu2.Append(121, "Un/Comment Selection\tCtrl+J", "Comments or Uncomments selected lines")
-        menu2.Append(122, "Insert file path...\tCtrl+L", "Opens standard dialog and insert chosen file path at the current position")
-        menu2.Append(123, "Find...\tCtrl+F", "Opens Find and Replace standard dialog")
+        menu2.Append(122, "Un/Comment Selection\tCtrl+J", "Comments or Uncomments selected lines")
+        menu2.Append(123, "Insert file path...\tCtrl+L", 
+                    "Opens standard dialog and insert chosen file path at the current position")
+        menu2.Append(124, "Find...\tCtrl+F", "Opens Find and Replace standard dialog")
         self.menuBar.Append(menu2, 'Code')
 
         menu4 = wx.Menu()
@@ -292,9 +292,9 @@ class ScriptEditor(stc.StyledTextCtrl):
         self.parent.Bind(wx.EVT_MENU, self.delete, id=103)
         self.parent.Bind(wx.EVT_MENU, _app_quit, id=120)
         self.parent.Bind(wx.EVT_CLOSE, self.delete)
-        self.Bind(wx.EVT_MENU, self.OnComment, id=121)    
-        self.Bind(wx.EVT_MENU, self.insertPath, id=122)
-        self.Bind(wx.EVT_MENU, self.OnShowFindReplace, id=123)
+        self.Bind(wx.EVT_MENU, self.OnComment, id=122)    
+        self.Bind(wx.EVT_MENU, self.insertPath, id=123)
+        self.Bind(wx.EVT_MENU, self.OnShowFindReplace, id=124)
         self.parent.Bind(wx.EVT_MENU, _open_manual, id=130)
 
         for i in range(500, stId):
@@ -302,8 +302,6 @@ class ScriptEditor(stc.StyledTextCtrl):
                 
         self.path = ""        
         self.line = 0
-        self.saveMark = False
-        self.textSent = False
         
         self.CmdKeyAssign(ord('='), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
         self.CmdKeyAssign(ord('-'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
@@ -348,41 +346,64 @@ class ScriptEditor(stc.StyledTextCtrl):
         if openedFile:
             self.LoadFile(openedFile)
             self.path = openedFile
-            
+  
     def OnKeyPressed(self, event):
         key = event.GetKeyCode()
 
-        # Enter key, sends commands to the interpreter
+        # Enter key -> sends commands to the interpreter
         if key == 370:
-            text = self.GetTextUTF8()
+            # check if selection, if not, pick the current line
             selected = self.GetSelectedText()
             if selected:
+                # TODO: need to take care of indentation
                 self.line = self.GetCurrentLine()
                 for sel in selected.splitlines(True):
                     self.interpreter.run(sel, False)      
             else:
                 self.line = self.GetCurrentLine()
-                selected = self.GetCurLine()[0]    
-                self.interpreter.run(selected, False)
+                selected = self.GetCurLine()[0]
                 
-            self.ClearAll()
-            self.SetText(text)
-            self.textSent = True
-            
-            self.isModified = self.saveMark
-        else:
-            self.isModified = True    
+                # TODO: handle "if" and "try" block
+                
+                # Handles "def", "class", "for", "while" and "with" blocks of code
+                if selected.startswith('def') or selected.startswith('class') or selected.startswith('for') or \
+                   selected.startswith('while') or selected.startswith('with'):
+                    line_is_ok = True
+                    end_of_file = False
+                    while True:
+                        # if line is legal, push it and adjust interpreter caret position for next pass
+                        if line_is_ok:
+                            self.interpreter.run(selected, False)
+                            inter_offset = self.interpreter.GetCurLine()[1] - 4
+                            for i in range(inter_offset):
+                                self.interpreter.DeleteBack()
 
-        event.Skip()
+                        # check for end of file        
+                        if self.line+1 == self.GetLineCount():
+                            end_of_file = True
+                        else:
+                            # if not, pick the next line and analyse it 
+                            self.GotoLine(self.line+1)
+                            self.line = self.GetCurrentLine()
+                            selected = self.GetCurLine()[0]
+                            if selected.strip() == '':
+                                line_is_ok = False
+                            else:
+                                line_is_ok = True
+
+                        # if line is legal and there is no indentation, break the loop
+                        if line_is_ok and not selected.startswith(' ') or end_of_file:
+                            self.interpreter.run('\n', False)
+                            self.line -= 1
+                            break
+                
+                else: # no keywords, push the current line    
+                    self.interpreter.run(selected, False)
+                    self.GotoLine(self.line+1)
+        else:
+            event.Skip()
 
     def OnUpdateUI(self, evt):
-        # if commands were sent to the interpreter
-        if self.textSent:
-            self.DeleteBack()
-            self.GotoLine(self.line+1)
-            self.textSent = False
-            self.Colourise(0, -1)
-
         # check for matching braces
         braceAtCaret = -1
         braceOpposite = -1
@@ -424,9 +445,7 @@ class ScriptEditor(stc.StyledTextCtrl):
                 except:    
                     pass
                 break
-
-        if self.isModified:
-            self.OnModified()
+        self.OnModified()
                 
     def OnMarginClick(self, evt):
         # fold and unfold as needed
@@ -436,18 +455,17 @@ class ScriptEditor(stc.StyledTextCtrl):
                 self.ToggleFold(lineClicked)
 
     def OnModified(self):
-        if self.GetModify() and not self.saveMark:
-            title = self.parent.GetTitle()
-            str = '*** ' + title + ' ***'
-            self.parent.SetTitle(str)
-            self.saveMark = True
+        title = os.path.split(self.path)[1]
+        if self.GetModify():
+            title = '*** ' + title + ' ***'           
+        self.parent.SetTitle(title)
 
     def save(self, event):
         if not self.path:
             self.saveas(None)
         else:
             self.SaveFile(self.path)
-            self.saveMark = False
+            self.OnModified()
         
     def saveas(self, event):
         dlg = wx.FileDialog(self, message="Save file as ...", defaultDir=os.path.expanduser('~'),
@@ -455,12 +473,9 @@ class ScriptEditor(stc.StyledTextCtrl):
         dlg.SetFilterIndex(0)
 
         if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
-            title = os.path.split(path)[1]
-            self.path = path
+            self.path = dlg.GetPath()
             self.SaveFile(self.path)
-            self.parent.SetTitle(title)
-            self.saveMark = False
+            self.OnModified()
         dlg.Destroy()
 
     def delete(self, event):
@@ -474,10 +489,11 @@ class ScriptEditor(stc.StyledTextCtrl):
             return 'keep'
 
     def close(self):
-        if self.GetModify() and self.saveMark:
+        if self.GetModify():
             if not self.path: f = "pyo editor"
             else: f = self.path
-            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 'Warning!', wx.YES | wx.NO | wx.CANCEL)
+            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
+                                  'Warning!', wx.YES | wx.NO | wx.CANCEL)
             but = dlg.ShowModal()
             if but == wx.ID_YES:
                 dlg.Destroy()
