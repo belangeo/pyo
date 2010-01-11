@@ -9,7 +9,7 @@ class Midictl(PyoObject):
     
     Get the current value of a controller and optionally map it inside a specified range.
     
-    **Parameters**
+    Parameters:
     
     ctlnumber : int
         Midi channel. Available at initialization time only.
@@ -18,9 +18,9 @@ class Midictl(PyoObject):
     maxscale : float, optional
         High range value for mapping. Available at initialization time only.
         
-    **Notes**
+    Notes:
     
-    The out() method is bypassed. Midictl's signal can't be sent to audio outs.
+    The out() method is bypassed. Midictl's signal can not be sent to audio outs.
 
     """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
@@ -47,7 +47,7 @@ class Notein(PyoObject):
     From a MIDI device, takes the notes in the range defined with `first` and `last` parameters,
     and outputs `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
     
-    **Parameters**
+    Parameters:
     
     poly : int, optional
         Number of streams of polyphony generated. Defaults to 10.
@@ -59,7 +59,7 @@ class Notein(PyoObject):
     last : int, optional
         Highest MIDI value. Defaults to 127.
         
-    **Notes**
+    Notes:
     
     Pitch and velocity are two separated set of streams. The user should call :
     
@@ -68,7 +68,7 @@ class Notein(PyoObject):
 
     Velocity is automatically scaled between 0 and 1.
     
-    The out() method is bypassed. Notein's signal can't be sent to audio outs.
+    The out() method is bypassed. Notein's signal can not be sent to audio outs.
     
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):

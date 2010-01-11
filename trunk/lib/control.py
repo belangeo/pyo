@@ -10,7 +10,7 @@ class Fader(PyoObject):
     
     The play() method starts the envelope and is not called at the object creation time.
     
-    **Parameters**
+    Parameters:
 
     fadein : float or PyoObject, optional
         Rising time of the envelope in seconds. Defaults to 0.01.
@@ -20,7 +20,7 @@ class Fader(PyoObject):
         Total duration of the envelope. Defaults to 0, which means wait for the stop() 
         method to start the fadeout.
         
-    **Methods**
+    Methods:
 
     play() : Start processing without sending samples to the output. Triggers the envelope.
     stop() : Stop processing. Triggers the envelope's fadeout if `dur` is set to 0.
@@ -28,7 +28,7 @@ class Fader(PyoObject):
     setFadeout(x) : Replace the `fadeout` attribute.
     setDur(x) : Replace the `dur` attribute.
 
-    **Notes**
+    Notes:
 
     The out() method is bypassed. Fader's signal can't be sent to audio outs.
     
@@ -49,7 +49,7 @@ class Fader(PyoObject):
     def setFadein(self, x):
         """Replace the `fadein` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `fadein` attribute.
@@ -62,7 +62,7 @@ class Fader(PyoObject):
     def setFadeout(self, x):
         """Replace the `fadeout` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `fadeout` attribute.
@@ -75,7 +75,7 @@ class Fader(PyoObject):
     def setDur(self, x):
         """Replace the `dur` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `dur` attribute.
@@ -118,7 +118,7 @@ class Port(PyoObject):
     """
     Perform an exponential portamento on an audio signal with different rising and falling times.
     
-    **Parameters**
+    Parameters:
 
     input : PyoObject
         Input signal to filter.
@@ -127,7 +127,7 @@ class Port(PyoObject):
     falltime : float or PyoObject, optional
         Time to reach downward value in seconds. Defaults to 0.05.
         
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setRiseTime(x) : Replace the `risetime` attribute.
@@ -148,7 +148,7 @@ class Port(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -163,7 +163,7 @@ class Port(PyoObject):
         """
         Replace the `risetime` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `risetime` attribute.
@@ -177,7 +177,7 @@ class Port(PyoObject):
         """
         Replace the `falltime` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `falltime` attribute.
@@ -222,7 +222,7 @@ class Metro(PyoObject):
     
     A trigger is an audio signal with a value of 1 surrounded by 0s.
     
-    **Parameters**
+    Parameters:
 
     time : float or PyoObject, optional
         Time between each trigger in seconds. Defaults to 1.
@@ -231,13 +231,13 @@ class Metro(PyoObject):
         the metronome, allowing overlapping processes. Available only at initialization.
         Defaults to 1.
         
-    **Methods**
+    Methods:
 
     setTime(x) : Replace the `time` attribute.
 
-    **Notes**
+    Notes:
 
-    The out() method is bypassed. Metro's signal can't be sent to audio outs.
+    The out() method is bypassed. Metro's signal can not be sent to audio outs.
     
     Metro has no `mul` and `add` attributes.
     
@@ -249,9 +249,10 @@ class Metro(PyoObject):
         self._base_objs = [Metro_base(wrap(time,i)*poly, (float(j)/poly)) for i in range(lmax) for j in range(poly)]
 
     def setTime(self, x):
-        """Replace the `time` attribute.
+        """
+        Replace the `time` attribute.
         
-        **Parameters**
+        Parameters:
         
         x : float or PyoObject
             New `time` attribute.
@@ -295,21 +296,21 @@ class Follower(PyoObject):
     """
     Envelope follower. 
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to filter.
     freq : float or PyoObject, optional
         Cutoff frequency of the filter in hertz. Default to 10.
 
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setFreq(x) : Replace the `freq` attribute.
 
-    **Notes**
+    Notes:
 
-    Methods out() is bypassed. Follower signal can't be sent to audio outs.
+    Methods out() is bypassed. Follower's signal can not be sent to audio outs.
 
     """
     def __init__(self, input, freq=10, mul=1, add=0):
@@ -325,7 +326,7 @@ class Follower(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -340,7 +341,7 @@ class Follower(PyoObject):
         """
         Replace the `freq` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `freq` attribute.

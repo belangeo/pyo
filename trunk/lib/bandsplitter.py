@@ -8,7 +8,7 @@ class BandSplit(PyoObject):
     Each band will then be assigned to an independent audio stream. Useful for multiband
     processing.
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to filter.
@@ -21,7 +21,7 @@ class BandSplit(PyoObject):
     q : float or PyoObject, optional
         Q of the filters, defined as bandwidth/cutoff. Should be between 1 and 500. Defaults to 1.
 
-    **Methods**
+    Methods:
     
     setInput(x, fadetime) : Replace the `input` attribute.
     setQ(x) : Replace the `q` attribute.
@@ -56,7 +56,7 @@ class BandSplit(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -68,9 +68,10 @@ class BandSplit(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     def setQ(self, x):
-        """Replace the `q` attribute.
+        """
+        Replace the `q` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `q` attribute.

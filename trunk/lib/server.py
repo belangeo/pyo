@@ -9,7 +9,7 @@ class Server(object):
     
     An instance of the Server must be booted before defining any signal processing chain.
 
-    **Parameters**
+    Parameters:
 
     sr : int, optional
         Sampling rate used by Portaudio and the Server to compute samples. Defaults to 44100.
@@ -22,7 +22,7 @@ class Server(object):
     duplex : int {0, 1}, optional
         Input - output mode. 0 is output only and 1 is both ways. Defaults to 0.
 
-    **Methods**
+    Methods:
 
     setAmp(x) : Set the overall amplitude.
     boot() : Boot the server. Must be called before defining any signal processing chain.
@@ -55,7 +55,7 @@ class Server(object):
         """
         Set the audio input device number. See `pa_list_devices()`.
         
-        **Parameters**
+        Parameters:
 
         x : int
             Number of the audio device listed by Portaudio.
@@ -67,7 +67,7 @@ class Server(object):
         """
         Set the audio output device number. See `pa_list_devices()`.
         
-        **Parameters**
+        Parameters:
 
         x : int
             Number of the audio device listed by Portaudio.
@@ -79,7 +79,7 @@ class Server(object):
         """
         Set the MIDI input device number. See `pm_list_devices()`.
         
-        **Parameters**
+        Parameters:
 
         x : int
             Number of the MIDI device listed by Portmidi.
@@ -91,7 +91,7 @@ class Server(object):
         """
         Set the sampling rate used by the server.
         
-        **Parameters**
+        Parameters:
 
         x : int
             New sampling rate, must be supported by the soundcard.
@@ -103,7 +103,7 @@ class Server(object):
         """
         Set the buffer size used by the server.
         
-        **Parameters**
+        Parameters:
 
         x : int
             New buffer size.
@@ -115,7 +115,7 @@ class Server(object):
         """
         Set the number of channels used by the server.
         
-        **Parameters**
+        Parameters:
 
         x : int
             New number of channels.
@@ -127,7 +127,7 @@ class Server(object):
         """
         Set the duplex mode used by the server.
         
-        **Parameters**
+        Parameters:
 
         x : int {0 or 1}
             New mode. 0 is output only, 1 is both ways.
@@ -139,7 +139,7 @@ class Server(object):
         """
         Set the overall amplitude.
         
-        **Parameters**
+        Parameters:
 
         x : float
             New amplitude.

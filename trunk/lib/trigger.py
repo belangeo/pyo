@@ -64,7 +64,7 @@ class TrigEnv(PyoObject):
     def setTable(self, x):
         """Replace the `table` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoTableObject
             new `table` attribute.
@@ -140,9 +140,7 @@ class Counter(PyoObject):
     args = Print_args(args)
 
     @property
-    def input(self):
-        """blabla""" 
-        return self._input
+    def input(self): return self._input
     @input.setter
     def input(self, x): self.setInput(x)
     @property

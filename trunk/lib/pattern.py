@@ -4,17 +4,17 @@ class Pattern(PyoObject):
     """
     Periodically call a Python function.
         
-    **Parameters**
+    Parameters:
 
     function : Python function
     time : float or PyoObject, optional
         Time, in seconds, between each call. Default to 1.
         
-    **Methods**
+    Methods:
 
     setTime(x) : Replace the `time` attribute.
 
-    **Notes**
+    Notes:
 
     The out() method is bypassed. Pattern doesn't return signal.
     
@@ -28,9 +28,10 @@ class Pattern(PyoObject):
         self._base_objs = [Pattern_base(wrap(function,i), wrap(time,i)) for i in range(lmax)]
 
     def setTime(self, x):
-        """Replace the `time` attribute.
+        """
+        Replace the `time` attribute.
         
-        **Parameters**
+        Parameters:
         
         x : float or PyoObject
             New `time` attribute.
