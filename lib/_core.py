@@ -56,14 +56,7 @@ class PyoObject(object):
     
     The user should never instantiate an object of this class.
 
-    **Attributes**
-
-    mul : float or PyoObject
-        Multiplication factor.
-    add : float or PyoObject
-        Addition factor.
-
-    **Methods**
+    Methods:
 
     play() : Start processing without sending samples to output. This method is called automatically
         at the object creation.
@@ -74,16 +67,23 @@ class PyoObject(object):
     setAdd(x) : Replace the `add` attribute.
     setDiv(x) : Replace and inverse the `mul` attribute.
     setSub(x) : Replace and inverse the `add` attribute.
-    
-    **Notes**
 
-    Other operations :
+    Attributes:
+
+    mul : float or PyoObject
+        Multiplication factor.
+    add : float or PyoObject
+        Addition factor.
+    
+    Notes:
+
+    - Other operations:
     
     len(obj) : Return the number of audio streams in an object.
     obj[x] : Return stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
     del obj : Perform a clean delete of the object.
     
-    Arithmetics :
+    - Arithmetics:
     
     Multiplication, addition, division and substraction can be applied between pyo objects
     or between pyo objects and numbers. Doing so returns a Dummy object with the result of the operation.
@@ -168,12 +168,18 @@ class PyoObject(object):
             del obj
         
     def getBaseObjects(self):
-        """Return a list of audio Stream objects."""
+        """
+        Return a list of audio Stream objects.
+        
+        """
         return self._base_objs
         
     def play(self):
-        """Start processing without sending samples to output. This method is called automatically
-        at the object creation."""
+        """
+        Start processing without sending samples to output. This method is called automatically
+        at the object creation.
+        
+        """
         self._base_objs = [obj.play() for obj in self._base_objs]
         return self
 
@@ -181,7 +187,7 @@ class PyoObject(object):
         """
         Start processing and send samples to audio output beginning at `chnl`.
         
-        **Parameters**
+        Parameters:
 
         chnl : int, optional
             Physical output assigned to the first audio stream of the object. Defaults to 0.
@@ -209,13 +215,17 @@ class PyoObject(object):
         return self
     
     def stop(self):
-        """Stop processing."""
+        """
+        Stop processing.
+        
+        """
         [obj.stop() for obj in self._base_objs]
 
     def mix(self, voices=1):
-        """Mix the object's audio streams into `voices` streams and return the Mix object.
+        """
+        Mix the object's audio streams into `voices` streams and return the Mix object.
         
-        **Parameters**
+        Parameters:
 
         voices : int, optional
             Number of audio streams of the Mix object created by this method. If more
@@ -227,9 +237,10 @@ class PyoObject(object):
         return self._mix
         
     def setMul(self, x):
-        """Replace the `mul` attribute.
+        """
+        Replace the `mul` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `mul` attribute.
@@ -240,9 +251,10 @@ class PyoObject(object):
         [obj.setMul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setAdd(self, x):
-        """Replace the `add` attribute.
+        """
+        Replace the `add` attribute.
                 
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `add` attribute.
@@ -253,9 +265,10 @@ class PyoObject(object):
         [obj.setAdd(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setSub(self, x):
-        """Replace and inverse the `mul` attribute.
+        """
+        Replace and inverse the `mul` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New inversed `mul` attribute.
@@ -266,9 +279,10 @@ class PyoObject(object):
         [obj.setSub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setDiv(self, x):
-        """Replace and inverse the `add` attribute.
+        """
+        Replace and inverse the `add` attribute.
                 
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New inversed `add` attribute.
@@ -321,7 +335,10 @@ class PyoTableObject(object):
         return len(self._base_objs)
 
     def getBaseObjects(self):
-        """Return a list of table Stream objects."""
+        """
+        Return a list of table Stream objects.
+        
+        """
         return self._base_objs
 
     def getSize(self):
@@ -365,12 +382,12 @@ class Sig(PyoObject):
     """
     Convert numeric value to PyoObject signal.
 
-    **Parameters**
+    Parameters:
 
     value : float
         Numerical value to convert.
 
-    **Methods**
+    Methods:
 
     setValue(x) : Changes the value of the signal stream.
 
@@ -386,7 +403,7 @@ class Sig(PyoObject):
         """
         Changes the value of the signal stream.
 
-        **Parameters**
+        Parameters:
 
         x : float
             Numerical value to convert.

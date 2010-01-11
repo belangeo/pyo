@@ -1,14 +1,31 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, keyword, string
+import os, sys, keyword, string, inspect
 import wx
 import wx.py as py
 import  wx.stc as stc
 from pyo import *
 
+######################### KEYWORDS ########################## 
+_OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
+                    'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
+        'PyoObject': sorted(['BandSplit', 'Biquad', 'Counter', 'Delay', 'Disto', 'Dummy', 'Fader', 'Follower', 
+                    'Hilbert', 'Input', 'InputFader', 'Metro', 'Midictl', 'Mix', 'Noise', 'Notein', 'Osc', 'OscReceive', 
+                    'OscSend', 'Pan', 'Pattern', 'Phasor', 'Port', 'PyPattern', 'SPan', 'TrigEnv', 'TrigRand', 
+                    'Select', 'SfMarkerShuffler', 'SfPlayer', 'Sig', 'Sine', 'TableRec']),
+        'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),
+        'Server': [], 'Stream': [], 'TableStream': []}
+        
+_KEYWORDS_LIST = []
+for key in _OBJECTS_TREE.keys():
+    _KEYWORDS_LIST.append(key)
+    _KEYWORDS_LIST.extend(_OBJECTS_TREE[key])
+sorted(_KEYWORDS_LIST)    
+
+_DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details']
+
 ######################### STYLES ############################
-#############################################################
 ## 'face' = default font                                   ##
 ## 'default' = default color for all langauges             ##
 ## 'comment' = color for comments (#)                      ##
@@ -28,98 +45,33 @@ from pyo import *
 ## 'markerbg' = marker background color                    ##
 #############################################################
 
-_STYLES = {'Default': {'face': 'Monaco',
-                    'default': '#000000',
-                    'comment': '#007F7F',
-                    'commentblock': '#7F7F7F',
-                    'number': '#367800',
-                    'string': '#7F007F',
-                    'triple': '#7F0000',
-                    'keyword': '#00007F',
-                    'class': '#0000FF',
-                    'function': '#007F7F',
-                    'identifier': '#000000',
-                    'caret': '#00007E',
-                    'background': '#FFFFFF',
-                    'linenumber': '#000000',
-                    'marginback': '#C0C0C0',
-                    'markerfg': '#FFFFFF',
-                    'markerbg': '#404040'},
-           'Custom': {'face': 'Monaco',
-                      'default': '#FFFFFF',
-                      'comment': '#BFBFBF',
-                      'commentblock': '#7F7F7F',
-                      'number': '#80BB33',
-                      'string': '#FF47D7',
-                      'triple': '#FF3300',
-                      'keyword': '#2A74FF',
-                      'class': '#4AF3FF',
-                      'function': '#00E0B6',
-                      'identifier': '#FFFFFF',
-                      'caret': '#DDDDDD',
-                      'background': '#000000',
-                      'linenumber': '#111111',
-                      'marginback': '#AFAFAF',
-                      'markerfg': '#DDDDDD',
-                      'markerbg': '#404040'},
-            'Soft': {'face': 'Monaco',
-                     'default': '#000000',
-                     'comment': '#444444',
-                     'commentblock': '#7F7F7F',
-                     'number': '#222222',
-                     'string': '#272727',
-                     'triple': '#333333',
-                     'keyword': '#000000',
-                     'class': '#666666',
-                     'function': '#555555',
-                     'identifier': '#000000',
-                     'caret': '#222222',
-                     'background': '#EFEFEF',
-                     'linenumber': '#111111',
-                     'marginback': '#AFAFAF',
-                     'markerfg': '#DDDDDD',
-                     'markerbg': '#404040'},
-            'Smooth': {'face': 'Monaco',
-                       'default': '#FFFFFF',
-                       'comment': '#DD0000',
-                       'commentblock': '#7F0000',
-                       'number': '#CCCCCC',
-                       'string': '#00EE00',
-                       'triple': '#00AA00',
-                       'keyword': '#FFFFFF',
-                       'class': '#00FFA2',
-                       'function': '#00FFD5',
-                       'identifier': '#CCCCCC',
-                       'caret': '#EEEEEE',
-                       'background': '#222222',
-                       'linenumber': '#111111',
-                       'marginback': '#AFAFAF',
-                       'markerfg': '#DDDDDD',
-                       'markerbg': '#404040'},
-            'Espresso': {'face': 'Monaco',
-                         'default': '#BDAE9C',
-                         'comment': '#0066FF',
-                         'commentblock': '#0044DD',
-                         'number': '#44AA43',
-                         'string': '#2FE420',
-                         'triple': '#049B0A',
-                         'keyword': '#43A8ED',
-                         'class': '#6D79DE',
-                         'function': '#FF9358',
-                         'identifier': '#BDAE9C',
-                         'caret': '#FFFFFF',
-                         'background': '#2A211C',
-                         'linenumber': '#111111',
-                         'marginback': '#AFAFAF',
-                         'markerfg': '#DDDDDD',
-                         'markerbg': '#404040'}}
+_STYLES = {'Default': {'face': 'Monaco', 'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F',
+                    'number': '#367800', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F', 'class': '#0000FF', 
+                    'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E', 'background': '#FFFFFF', 
+                    'linenumber': '#000000', 'marginback': '#C0C0C0', 'markerfg': '#FFFFFF', 'markerbg': '#404040'},
+           'Custom': {'face': 'Monaco', 'default': '#FFFFFF', 'comment': '#BFBFBF', 'commentblock': '#7F7F7F',
+                      'number': '#80BB33', 'string': '#FF47D7', 'triple': '#FF3300', 'keyword': '#2A74FF', 'class': '#4AF3FF', 
+                      'function': '#00E0B6', 'identifier': '#FFFFFF', 'caret': '#DDDDDD', 'background': '#000000', 
+                      'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD', 'markerbg': '#404040'},
+            'Soft': {'face': 'Monaco', 'default': '#000000', 'comment': '#444444', 'commentblock': '#7F7F7F',
+                     'number': '#222222', 'string': '#272727', 'triple': '#333333', 'keyword': '#000000', 'class': '#666666',
+                     'function': '#555555', 'identifier': '#000000', 'caret': '#222222', 'background': '#EFEFEF',
+                     'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD', 'markerbg': '#404040'},
+            'Smooth': {'face': 'Monaco', 'default': '#FFFFFF', 'comment': '#DD0000', 'commentblock': '#7F0000',
+                       'number': '#CCCCCC', 'string': '#00EE00', 'triple': '#00AA00', 'keyword': '#FFFFFF', 'class': '#00FFA2',
+                       'function': '#00FFD5', 'identifier': '#CCCCCC', 'caret': '#EEEEEE', 'background': '#222222',
+                       'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD', 'markerbg': '#404040'},
+            'Espresso': {'face': 'Monaco', 'default': '#BDAE9C', 'comment': '#0066FF', 'commentblock': '#0044DD',
+                         'number': '#44AA43', 'string': '#2FE420', 'triple': '#049B0A', 'keyword': '#43A8ED', 'class': '#6D79DE',
+                         'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#FFFFFF', 'background': '#2A211C',
+                         'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD', 'markerbg': '#404040'}}
 
 if wx.Platform == '__WXMSW__':
-    _STYLES_FACES = { 'size' : 10, 'size2': 8 }
+    _STYLES_FACES = { 'size' : 10, 'size2': 8, 'size3': 12 }
 elif wx.Platform == '__WXMAC__':
-    _STYLES_FACES = { 'size' : 11, 'size2': 9 }
+    _STYLES_FACES = { 'size' : 11, 'size2': 9, 'size3': 13 }
 else:
-    _STYLES_FACES = { 'size' : 12, 'size2': 10 }
+    _STYLES_FACES = { 'size' : 12, 'size2': 10, 'size3': 14 }
 
 _STYLES_KEYS = _STYLES.keys()
 
@@ -134,10 +86,21 @@ def _ed_change_style(evt):
     for editor in _EDITORS:
         _ed_set_style(editor)
     _ed_set_style(_INTERPRETER)
+    try:
+        numPages = _doc_panel.GetPageCount()
+        for i in range(numPages):
+            _ed_set_style(_doc_panel.GetPage(i).win, True)
+        _doc_panel.setStyle()    
+    except:
+        pass        
 
-def _ed_set_style(editor):
+def _ed_set_style(editor, doc=False):
     editor.SetLexer(stc.STC_LEX_PYTHON)
-    editor.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(_KEYWORDS_LIST))
+    if doc:
+        editor.SetKeyWords(0, " None True False " + " ".join(_KEYWORDS_LIST))
+        editor.SetKeyWords(1, " ".join(_DOC_KEYWORDS))
+    else:
+        editor.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(_KEYWORDS_LIST))
 
     editor.SetMargins(5,5)
     editor.SetSTCCursor(2)
@@ -167,7 +130,11 @@ def _ed_set_style(editor):
     # Single quoted string
     editor.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % _STYLES_FACES)
     # Keyword
-    editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % _STYLES_FACES)
+    if doc:
+        editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % _STYLES_FACES)
+        editor.StyleSetSpec(stc.STC_P_WORD2, "fore:%(comment)s,face:%(face)s,bold,size:%(size3)d" % _STYLES_FACES)
+    else:
+        editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % _STYLES_FACES)
     # Triple quotes
     editor.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % _STYLES_FACES)
     # Triple double quotes
@@ -183,27 +150,10 @@ def _ed_set_style(editor):
     # Comment-blocks
     editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % _STYLES_FACES)
 
-    editor.SetCaretForeground(_STYLES_FACES['caret'])
-
-######################### KEYWORDS ############################    
-_OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
-                    'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
-        'PyoObject': sorted(['BandSplit', 'Biquad', 'Counter', 'Delay', 'Disto', 'Dummy', 'Fader', 'Follower', 
-                    'Hilbert', 'Input', 'InputFader', 'Metro', 'Midictl', 'Mix', 'Noise', 'Notein', 'Osc', 'OscReceive', 
-                    'OscSend', 'Pan', 'Pattern', 'Phasor', 'Port', 'PyPattern', 'SPan', 'TrigEnv', 'TrigRand', 
-                    'Select', 'SfMarkerShuffler', 'SfPlayer', 'Sig', 'Sine', 'TableRec']),
-        'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),
-        'Server': [],
-        'Stream': [],
-        'TableStream': []}
-        
-_KEYWORDS_LIST = []
-for key in _OBJECTS_TREE.keys():
-    _KEYWORDS_LIST.append(key)
-    _KEYWORDS_LIST.extend(_OBJECTS_TREE[key])
-sorted(_KEYWORDS_LIST)    
-
-_ALPHA_STR = string.lowercase + string.uppercase + '0123456789'        
+    if doc:
+        editor.SetCaretForeground(_STYLES_FACES['background'])
+    else:    
+        editor.SetCaretForeground(_STYLES_FACES['caret'])
 
 ##################### GLOBAL FUNCTIONS ########################    
 def _editor_new(evt):
@@ -225,10 +175,13 @@ def _editor_openfile(evt):
     dlg.Destroy()
 
 def _open_manual(evt):
-    global _DOC_FRAME
-    _DOC_FRAME = wx.Frame(None, -1, title='pyo documentation', size=(1000, 700))
-    doc = HelpWin(_DOC_FRAME)
-    _DOC_FRAME.Show() 
+    global _DOC_FRAME, _doc_panel
+    try:
+        _DOC_FRAME.Show()
+    except:    
+        _DOC_FRAME = wx.Frame(None, -1, title='pyo documentation', size=(1000, 700))
+        _doc_panel = HelpWin(_DOC_FRAME)
+        _DOC_FRAME.Show() 
        
 def _app_quit(evt):
     for editor in _EDITORS:
@@ -355,19 +308,20 @@ class ScriptEditor(stc.StyledTextCtrl):
             # check if selection, if not, pick the current line
             selected = self.GetSelectedText()
             if selected:
-                # TODO: need to take care of indentation
                 self.line = self.GetCurrentLine()
-                for sel in selected.splitlines(True):
-                    self.interpreter.run(sel, False)      
+                script = ''.join([l for l in selected.splitlines(True)]) + '\n'
+                self.interpreter.Execute(script)
             else:
                 self.line = self.GetCurrentLine()
                 selected = self.GetCurLine()[0]
                 
-                # TODO: handle "if" and "try" block
-                
-                # Handles "def", "class", "for", "while" and "with" blocks of code
+                # Handles "def", "class", "for", "while" "if", "try" and "with" blocks of code
                 if selected.startswith('def') or selected.startswith('class') or selected.startswith('for') or \
-                   selected.startswith('while') or selected.startswith('with'):
+                    selected.startswith('while') or selected.startswith('with') or selected.startswith('if') or \
+                    selected.startswith('try'):
+                    keyword = ""
+                    if selected.startswith('if'): keyword = 'if'
+                    elif selected.startswith('try'): keyword = 'try'
                     line_is_ok = True
                     end_of_file = False
                     while True:
@@ -393,6 +347,14 @@ class ScriptEditor(stc.StyledTextCtrl):
 
                         # if line is legal and there is no indentation, break the loop
                         if line_is_ok and not selected.startswith(' ') or end_of_file:
+                            # grab special case of "if" and "try" statements
+                            if keyword == 'if':
+                                if selected.startswith('elif') or selected.startswith('else'):
+                                    continue
+                            elif keyword == 'try':
+                                if selected.startswith('except') or selected.startswith('else') or selected.startswith('finally'):
+                                    continue
+
                             self.interpreter.run('\n', False)
                             self.line -= 1
                             break
@@ -652,24 +614,42 @@ class HelpWin(wx.Treebook):
 
         self.parent.SetMenuBar(self.menuBar)
 
-        self.parent.Bind(wx.EVT_MENU, self.delete, id=103)
+        self.parent.Bind(wx.EVT_MENU, self.close, id=103)
         self.parent.Bind(wx.EVT_MENU, _app_quit, id=120)
-        self.parent.Bind(wx.EVT_CLOSE, self.delete)
-  
+        self.parent.Bind(wx.EVT_CLOSE, self.close)
+        
+        max = 0
+        for key in _OBJECTS_TREE.keys():
+            max += (len(_OBJECTS_TREE)+1)
+        
+        dlg = wx.ProgressDialog("Doc",
+                               "Building manual...",
+                               maximum = max,
+                               parent=self,
+                               style = wx.PD_APP_MODAL)
+        keepGoing = True
+        count = 0                       
         win = self.makePanel()
         self.AddPage(win, "--- pyo documentation ---")
         for key in sorted(_OBJECTS_TREE.keys()):
+            count += 1
             win = self.makePanel(key)
             self.AddPage(win, key)
             for obj in _OBJECTS_TREE[key]:
+                count += 1
                 win = self.makePanel(obj)
                 self.AddSubPage(win, obj)
+                if count <= max:
+                    (keepGoing, skip) = dlg.Update(count)
+        dlg.Destroy()        
 
+        self.setStyle()
+        
         # This is a workaround for a sizing bug on Mac...
         wx.FutureCall(100, self.AdjustSize)
 
-    def delete(self, event):
-        self.parent.Destroy()
+    def close(self, evt):
+        self.parent.Hide()
 
     def AdjustSize(self):
         self.GetTreeCtrl().InvalidateBestSize()
@@ -679,22 +659,68 @@ class HelpWin(wx.Treebook):
         panel = wx.Panel(self, -1)
         if obj != None:
             try:
-                args = obj + ' :\n\n' + eval(obj).args() + '\n'
+                args = obj + ':\n\n' + eval(obj).args() + '\n'
             except:
-                args = obj + ' :\n\n'    
+                args = obj + ':\n\n'    
             try:
-                win = wx.TextCtrl(panel, -1, args + eval(obj).__doc__, size=(600, 600), style=wx.TE_MULTILINE|wx.TE_RICH2)
+                text = eval(obj).__doc__
+                methods = self.getMethodsDoc(text, obj)
+                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                panel.win.SetMarginWidth(1, 0)
+                panel.win.SetText(args + text + methods)
             except:
-                win = wx.TextCtrl(panel, -1, args + "\nnot documented yet...", size=(600, 600), style=wx.TE_MULTILINE|wx.TE_RICH2)                
+                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                panel.win.SetText(args + "\nnot documented yet...")                
         else:
-            win = wx.TextCtrl(panel, -1, "pyo documentation", size=(600, 600), style=wx.TE_MULTILINE|wx.TE_RICH2)
+            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+            panel.win.SetText("pyo documentation")
+        panel.win.SetReadOnly(True)    
+        _ed_set_style(panel.win, True)
             
-        def OnPanelSize(evt, win=win):
+        def OnPanelSize(evt, win=panel.win):
             win.SetPosition((0,0))
             win.SetSize(evt.GetSize())
             
         panel.Bind(wx.EVT_SIZE, OnPanelSize)
         return panel
+
+    def getMethodsDoc(self, text, obj):
+        lines = text.splitlines(True)
+        flag = False
+        methods = ''
+        for line in lines:
+            if flag:
+                if line.strip() == '': continue
+                else:
+                    l = line.lstrip()
+                    ppos = l.find('(')
+                    if ppos != -1:
+                        meth = l[0:ppos]
+                        args = inspect.getargspec(getattr(eval(obj), meth))
+                        args = inspect.formatargspec(*args)
+                        methods += obj + '.' + meth + args + ':\n'
+                        docstr = getattr(eval(obj), meth).__doc__.rstrip()
+                        methods += docstr + '\n\n    '
+                    
+            if 'Methods:' in line: 
+                flag = True
+                methods += 'Methods details:\n\n    '
+            
+            for key in _DOC_KEYWORDS:
+                if key != 'Methods':
+                    if key in line: 
+                        flag = False
+        return methods
+ 
+    def setStyle(self):
+        tree = self.GetTreeCtrl()
+        tree.SetBackgroundColour(_STYLES_FACES['background'])
+        root = tree.GetRootItem()
+        tree.SetItemTextColour(root, _STYLES_FACES['identifier'])
+        (child, cookie) = tree.GetFirstChild(root)
+        while child.IsOk():
+            tree.SetItemTextColour(child, _STYLES_FACES['identifier'])
+            (child, cookie) = tree.GetNextChild(root, cookie)
 
 # Check for files to open
 filesToOpen = []

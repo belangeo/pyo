@@ -7,14 +7,15 @@ class Biquad(PyoObject):
     """
     A sweepable general purpose biquadratic digital filter. 
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to filter.
     freq : float or PyoObject, optional
         Cutoff or center frequency of the filter. Defaults to 1000.
     q : float or PyoObject, optional
-        Q of the filter, defined (for bandpass filters) as bandwidth/cutoff. Should be between 1 and 500. Defaults to 1.
+        Q of the filter, defined (for bandpass filters) as bandwidth/cutoff. 
+        Should be between 1 and 500. Defaults to 1.
     type : int, optional
         Filter type. Four possible values :
             0 = lowpass (default)
@@ -22,7 +23,7 @@ class Biquad(PyoObject):
             2 = bandpass
             3 = bandstop
 
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setFreq(x) : Replace the `freq` attribute.
@@ -45,7 +46,7 @@ class Biquad(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -60,7 +61,7 @@ class Biquad(PyoObject):
         """
         Replace the `freq` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `freq` attribute.
@@ -74,7 +75,7 @@ class Biquad(PyoObject):
         """
         Replace the `q` attribute. Should be between 1 and 500.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `q` attribute.
@@ -88,7 +89,7 @@ class Biquad(PyoObject):
         """
         Replace the `type` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : int
             New `type` attribute. 0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop.
@@ -140,7 +141,7 @@ class Disto(PyoObject):
     
     Apply an arctan distortion with controllable drive to the input signal. 
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to process.
@@ -151,7 +152,7 @@ class Disto(PyoObject):
         Slope of the lowpass filter applied after distortion, between 0 and 1. 
         Defaults to 0.5.
 
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setDrive(x) : Replace the `drive` attribute.
@@ -172,7 +173,7 @@ class Disto(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -187,7 +188,7 @@ class Disto(PyoObject):
         """
         Replace the `drive` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `drive` attribute.
@@ -201,7 +202,7 @@ class Disto(PyoObject):
         """
         Replace the `slope` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `slope` attribute.
@@ -244,7 +245,7 @@ class Delay(PyoObject):
     """
     Sweepable recursive delay.
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to delayed.
@@ -255,7 +256,7 @@ class Delay(PyoObject):
     maxdelay : float, optional
         Maximum delay length in seconds. Available only at initialization. Defaults to 1.
 
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setDelay(x) : Replace the `delay` attribute.
@@ -276,7 +277,7 @@ class Delay(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -291,7 +292,7 @@ class Delay(PyoObject):
         """
         Replace the `delay` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `delay` attribute.
@@ -305,7 +306,7 @@ class Delay(PyoObject):
         """
         Replace the `feedback` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             New `feedback` attribute.

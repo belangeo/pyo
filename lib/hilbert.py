@@ -4,12 +4,12 @@ class Hilbert(PyoObject):
     """
     Hilbert transform.
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to filter.
 
-    **Methods**
+    Methods:
     
     setInput(x, fadetime) : Replace the `input` attribute.
 
@@ -51,7 +51,7 @@ class Hilbert(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.

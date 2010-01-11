@@ -10,7 +10,7 @@ class OscSend(PyoObject):
     Uses the OSC protocol to share values to other softwares or other computers.
     Only the first value of each input buffersize will be sent on the OSC port.
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal.
@@ -22,13 +22,13 @@ class OscSend(PyoObject):
     host : string, optional
         IP address of the target computer. The default, '127.0.0.1', is the localhost.
 
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
 
-    **Notes**
+    Notes:
 
-    The out() method is bypassed. OscSend's signal can't be sent to audio outs.
+    The out() method is bypassed. OscSend's signal can not be sent to audio outs.
     
     OscSend has no `mul` and `add` attributes.
     
@@ -40,6 +40,17 @@ class OscSend(PyoObject):
         self._base_objs = [OscSend_base(wrap(in_fader,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
         self._input = x
         self._in_fader.setInput(x, fadetime)
             
@@ -74,7 +85,7 @@ class OscReceive(PyoObject):
     Uses the OSC protocol to receive values from other softwares or other computers.
     Gets a value at the beginning of each buffersize and fill it's buffer with it.
     
-    **Parameters**
+    Parameters:
     
     port : int
         Port on which values are received. Sender should output on the same port.
@@ -82,13 +93,13 @@ class OscReceive(PyoObject):
         Address used on the port to identify values. Address is in the form 
         of a Unix path (ex.: '/pitch').
 
-    **Notes**
+    Notes:
     
     Audio streams are accessed with the `address` string parameter. The user should call :
 
     OscReceive['/pitch'] to retreive streams named '/pitch'.
 
-    The out() method is bypassed. OscReceive's signal can't be sent to audio outs.
+    The out() method is bypassed. OscReceive's signal can not be sent to audio outs.
 
     """
 

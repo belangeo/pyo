@@ -7,17 +7,30 @@ class Sine(PyoObject):
     """
     A simple oscillator.
     
-    **Parameters**
+    Parent class: PyoObject
+    
+    Parameters:
     
     freq : float or PyoObject, optional
         Frequency in cycles per second. Defaults to 1000.
     phase : float or PyoObject, optional
         Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
         
-    **Methods**
+    Methods:
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
+    
+    Attributes:
+    
+    freq : float or PyoObject, Frequency in cycles per second.
+    phase : float or PyoObject, Phase of sampling (0 -> 1).
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sine = Sine(freq=500).out()
     
     """
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
@@ -29,9 +42,10 @@ class Sine(PyoObject):
         self._base_objs = [Sine_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setFreq(self, x):
-        """Replace the `freq` attribute.
+        """
+        Replace the `freq` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `freq` attribute.
@@ -42,9 +56,10 @@ class Sine(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setPhase(self, x):
-        """Replace the `phase` attribute.
+        """
+        Replace the `phase` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `phase` attribute.
@@ -82,14 +97,14 @@ class Phasor(PyoObject):
     
     Output is a periodic ramp from 0 to 1.
     
-    **Parameters**
+    Parameters:
     
     freq : float or PyoObject, optional
         Frequency in cycles per second. Defaults to 100.
     phase : float or PyoObject, optional
         Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
         
-    **Methods**
+    Methods:
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
@@ -104,9 +119,10 @@ class Phasor(PyoObject):
         self._base_objs = [Phasor_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setFreq(self, x):
-        """Replace the `freq` attribute.
+        """
+        Replace the `freq` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `freq` attribute.
@@ -117,9 +133,10 @@ class Phasor(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setPhase(self, x):
-        """Replace the `phase` attribute.
+        """
+        Replace the `phase` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `phase` attribute.
@@ -155,7 +172,7 @@ class Osc(PyoObject):
     """
     A simple oscillator with linear interpolation reading a waveform table.
     
-    **Parameters**
+    Parameters:
     
     table : PyoTableObject
         Table containing the waveform samples.
@@ -164,7 +181,7 @@ class Osc(PyoObject):
     phase : float or PyoObject, optional
         Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
         
-    **Methods**
+    Methods:
 
     setTable(x) : Replace the `table` attribute.
     setFreq(x) : Replace the `freq` attribute.
@@ -181,9 +198,10 @@ class Osc(PyoObject):
         self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setTable(self, x):
-        """Replace the `table` attribute.
+        """
+        Replace the `table` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoTableObject
             new `table` attribute.
@@ -194,9 +212,10 @@ class Osc(PyoObject):
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setFreq(self, x):
-        """Replace the `freq` attribute.
+        """
+        Replace the `freq` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `freq` attribute.
@@ -207,9 +226,10 @@ class Osc(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setPhase(self, x):
-        """Replace the `phase` attribute.
+        """
+        Replace the `phase` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `phase` attribute.
@@ -252,12 +272,12 @@ class Input(PyoObject):
     """
     Read from a numbered channel in an external audio signal or stream.
 
-    **Parameters**
+    Parameters:
     
     chnl : int, optional
         Input channel to read from. Defaults to 0.
         
-    **notes**
+    Notes:
     
     Requires that the Server's duplex mode is set to 1.    
     

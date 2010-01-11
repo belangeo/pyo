@@ -4,7 +4,7 @@ class Pan(PyoObject):
     """
     Cosinus panner with control on the spread factor.
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to process.
@@ -15,7 +15,7 @@ class Pan(PyoObject):
     spread : float or PyoObject
         Amount of sound leaking to the surrounding channels, between 0 and 1. Defaults to 0.5.
  
-    **Methods**
+    Methods:
     
     setInput(x, fadetime) : Replace the `input` attribute.
     setPan(x) : Replace the `pan` attribute.
@@ -49,7 +49,7 @@ class Pan(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -61,9 +61,10 @@ class Pan(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     def setPan(self, x):
-        """Replace the `pan` attribute.
+        """
+        Replace the `pan` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `pan` attribute.
@@ -74,9 +75,10 @@ class Pan(PyoObject):
         [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setSpread(self, x):
-        """Replace the `spread` attribute.
+        """
+        Replace the `spread` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `spread` attribute.
@@ -139,7 +141,7 @@ class SPan(PyoObject):
     """
     Simple equal power panner.
     
-    **Parameters**
+    Parameters:
     
     input : PyoObject
         Input signal to process.
@@ -148,7 +150,7 @@ class SPan(PyoObject):
     pan : float or PyoObject
         Position of the sound on the panning circle, between 0 and 1. Defaults to 0.5.
 
-    **Methods**
+    Methods:
     
     setInput(x, fadetime) : Replace the `input` attribute.
     setPan(x) : Replace the `pan` attribute.
@@ -180,7 +182,7 @@ class SPan(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -192,9 +194,10 @@ class SPan(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     def setPan(self, x):
-        """Replace the `pan` attribute.
+        """
+        Replace the `pan` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : float or PyoObject
             new `pan` attribute.

@@ -7,24 +7,24 @@ class HarmTable(PyoTableObject):
     """
     Generate composite waveforms made up of weighted sums of simple sinusoids.
     
-    **Parameters**
+    Parameters:
     
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Defaults to [1].
     size : int, optional
         Table size in samples. Defaults to 8192.
         
-    **Methods**
+    Methods:
     
     setSize(size) : Change the size of the table. This will erase the previously drawn waveform.
     replace(list) : Redraw the waveform according to the new `list` parameter.
     
-    **Attributes**
+    Attributes:
     
-    size : int, optional
-        Table size in samples.
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers.
+    size : int, optional
+        Table size in samples.
 
     """
     def __init__(self, list=[1., 0.], size=8192):
@@ -36,7 +36,7 @@ class HarmTable(PyoTableObject):
         """
         Change the size of the table. This will erase the previously drawn waveform.
         
-        **Parameters**
+        Parameters:
         
         size : int
             New table size in samples.
@@ -49,7 +49,7 @@ class HarmTable(PyoTableObject):
         """
         Redraw the waveform according to a new set of harmonics relative strengths.
         
-        **Parameters**
+        Parameters:
         
         list : list
             Relative strengths of the fixed harmonic partial numbers 1,2,3, etc.
@@ -84,16 +84,16 @@ class HannTable(PyoTableObject):
     """
     Generate Hanning window. 
     
-    **Parameters**
+    Parameters:
     
     size : int, optional
         Table size in samples. Defaults to 8192.
         
-    **Methods**
+    Methods:
     
     setSize(size) : Change the size of the table. This will redraw the envelope.
     
-    **Attributes**
+    Attributes:
     
     size : int
         Table size in samples.
@@ -107,7 +107,7 @@ class HannTable(PyoTableObject):
         """
         Change the size of the table. This will redraw the envelope.
         
-        **Parameters**
+        Parameters:
         
         size : int
             New table size in samples.
@@ -135,7 +135,7 @@ class LinTable(PyoTableObject):
     """
     Construct a table from segments of straight lines in breakpoint fashion.
     
-    **Parameters**
+    Parameters:
     
     list : list, optional
         List of tuples indicating location and value of each points in the table. 
@@ -144,17 +144,17 @@ class LinTable(PyoTableObject):
     size : int, optional
         Table size in samples. Defaults to 8192.
         
-    **Methods**
+    Methods:
     
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the new `list` parameter.
 
-    **note**
+    Notes:
     
     Locations in the list must be in increasing order. If the last value is less 
     than size, then the rest will be set to zero. 
     
-    **Attributes**
+    Attributes:
     
     list : list
         List of tuples [(location, value), ...].
@@ -170,7 +170,7 @@ class LinTable(PyoTableObject):
         """
         Change the size of the table and rescale the envelope.
         
-        **Parameters**
+        Parameters:
         
         size : int
             New table size in samples.
@@ -183,7 +183,7 @@ class LinTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
         
-        **Parameters**
+        Parameters:
         
         list : list
             List of tuples indicating location and value of each points in the table. 
@@ -225,14 +225,14 @@ class SndTable(PyoTableObject):
     If `chnl` is None, the table will contain as many sub tables as necessary 
     to read all channels of the loaded sound.
     
-    **Parameters**
+    Parameters:
     
     path : string
         Full path name of the sound.
     chnl : int, optional
         Channel number to read in. The default (None) reads all channels.
 
-    **Methods**
+    Methods:
 
     setSound(path) : Load a new sound in the table.
     getRate() : Return the frequency in cps at which the sound will be read 
@@ -256,7 +256,7 @@ class SndTable(PyoTableObject):
         same channels many times. If the new sound has more channels, the extra 
         channels will be skipped.
         
-        **Parameters**
+        Parameters:
         
         path : string
             Full path of the new sound.
@@ -289,14 +289,14 @@ class NewTable(PyoTableObject):
     Create an empty table ready for recording. See `TableRec` to write samples in 
     the table.
     
-    **Parameters**
+    Parameters:
     
     length : float
         Length of the table in seconds.
     chnls : int, optional
         Number of channels that will be handled by the table. Defaults to 1.
         
-    **Methods**    
+    Methods:    
     
     getSize() : Return the length of the table in samples.
     getLength() : Return the length of the table in seconds.
@@ -329,7 +329,7 @@ class TableRec(PyoObject):
     TableRec is for writing samples into a previously created NewTable. See `NewTable` to create
     an empty table.
 
-    **Parameters**
+    Parameters:
 
     input : PyoObject
         Audio signal to write in the table.
@@ -338,13 +338,13 @@ class TableRec(PyoObject):
     fadetime : float, optional
         Fade time at the beginning and the end of the recording in seconds. Defaults to 0.
     
-    **Methods**
+    Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     play() : Start the recording at the beginning of the table.
     stop() : Stop the recording. Otherwise, record through the end of the table.
 
-    **Notes**
+    Notes:
 
     The out() method is bypassed. TableRec returns no signal.
     
@@ -371,7 +371,7 @@ class TableRec(PyoObject):
         """
         Replace the `input` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : PyoObject
             New signal to process.
@@ -385,7 +385,7 @@ class TableRec(PyoObject):
     def setTable(self, x):
         """Replace the `table` attribute.
         
-        **Parameters**
+        Parameters:
 
         x : NewTable
             new `table` attribute.
