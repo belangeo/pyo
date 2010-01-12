@@ -226,9 +226,9 @@ class Port(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    #def demo():
-    #    execfile("demos/Port_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Port_demo.py")
+    demo = Call_example(demo)
 
     def args():
         return("Port(input, risetime=0.05, falltime=0.05, mul=1, add=0)")
@@ -330,9 +330,9 @@ class Metro(PyoObject):
     def setDiv(self, x):
         pass
 
-    #def demo():
-    #    execfile("demos/Metro_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Metro_demo.py")
+    demo = Call_example(demo)
 
     def args():
         return("Metro(time=1, poly=1)")
@@ -422,9 +422,9 @@ class Follower(PyoObject):
     def out(self, chnl=0, inc=1):
         pass
 
-    #def demo():
-    #    execfile("demos/Follower_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Follower_demo.py")
+    demo = Call_example(demo)
 
     def args():
         return("Follower(input, freq=10, mul=1, add=0)")

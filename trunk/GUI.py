@@ -186,7 +186,6 @@ def _open_manual(evt):
         _DOC_FRAME.Show() 
        
 def _app_quit(evt):
-    print '--------'
     for editor in _EDITORS:
         action = editor.delete(None)
         if action == 'keep':
