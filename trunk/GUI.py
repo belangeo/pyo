@@ -170,6 +170,7 @@ def _editor_openfile(evt):
         for i, f in enumerate(path):          
             filepath, name = os.path.split(f)
             sys.path.append(filepath)
+            os.chdir(filepath)
             _ED_FRAMES.append(wx.Frame(None, -1, title=name, pos=(400+i*20, -1), size=(600, 700)))
             _EDITORS.append(ScriptEditor(_ED_FRAMES[-1], -1, _INTERPRETER, f))
             _ED_FRAMES[-1].Show()
