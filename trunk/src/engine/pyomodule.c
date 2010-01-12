@@ -290,6 +290,11 @@ init_pyo(void)
         return;
     Py_INCREF(&PhasorType);
     PyModule_AddObject(m, "Phasor_base", (PyObject *)&PhasorType);
+
+    if (PyType_Ready(&PointerType) < 0)
+        return;
+    Py_INCREF(&PointerType);
+    PyModule_AddObject(m, "Pointer_base", (PyObject *)&PointerType);
     
     if (PyType_Ready(&NoiseType) < 0)
         return;

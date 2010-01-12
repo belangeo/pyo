@@ -1,6 +1,5 @@
 def ex1():
-    import time
-    from pyo import Noise
+    from pyo import Noise, Clean_objects
     print """
 Amplitude fadein and fadeout:
 
@@ -10,15 +9,11 @@ o_ex2 = Noise(mul=o_ex1).out()
     o_ex1 = Fader(fadein=.75, fadeout=.75, dur=4, mul=.5).play()
     o_ex2 = Noise(mul=o_ex1).out()
 
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    del o_ex1
-    del o_ex2
+    c = Clean_objects(4, o_ex1, o_ex2)
+    c.start()
 
 def ex2():
-    import time
-    from pyo import Noise
+    from pyo import Noise, Clean_objects
     print """
 Amplitude fadein and dur = 0
 wait for the stop() method to start fadeout:
@@ -29,15 +24,11 @@ o_ex2 = Noise(mul=o_ex1).out()
     o_ex1 = Fader(fadein=.75, fadeout=.75, dur=0, mul=.5).play()
     o_ex2 = Noise(mul=o_ex1).out()
 
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    del o_ex1
-    del o_ex2
+    c = Clean_objects(4, o_ex1, o_ex2)
+    c.start()
     
 def ex3():
-    import time
-    from pyo import Sine
+    from pyo import Sine, Clean_objects
     print """
 Frequency attack and decay:
 
@@ -49,13 +40,8 @@ o_ex3 = Sine(freq=o_ex1, mul=o_ex2).out()
     o_ex2 = Fader(fadein=.05, fadeout=.05, dur=4, mul=.5).play()
     o_ex3 = Sine(freq=o_ex1, mul=o_ex2).out()
 
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    o_ex3.stop()
-    del o_ex1
-    del o_ex2
-    del o_ex3
+    c = Clean_objects(4, o_ex1, o_ex2, o_ex3)
+    c.start()
    
 funcs = {1: ex1, 2: ex2, 3: ex3}
 

@@ -1,6 +1,5 @@
 def ex1():
-    import time
-    from pyo import SfPlayer, Noise
+    from pyo import SfPlayer, Noise, Clean_objects
     print """
 Smooth envelope follower:
 
@@ -16,19 +15,11 @@ o_ex4.out()
     o_ex4 = o_ex1 * .5
     o_ex4.out()
     
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    o_ex3.stop()
-    o_ex4.stop()
-    del o_ex1
-    del o_ex2
-    del o_ex3
-    del o_ex4
+    c = Clean_objects(4, o_ex1, o_ex2, o_ex3, o_ex4)
+    c.start()
 
 def ex2():
-    import time
-    from pyo import SfPlayer, Noise
+    from pyo import SfPlayer, Noise, Clean_objects
     print """
 Sharp envelope follower:
 
@@ -44,19 +35,11 @@ o_ex4.out()
     o_ex4 = o_ex1 * .5
     o_ex4.out()
     
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    o_ex3.stop()
-    o_ex4.stop()
-    del o_ex1
-    del o_ex2
-    del o_ex3
-    del o_ex4
+    c = Clean_objects(4, o_ex1, o_ex2, o_ex3, o_ex4)
+    c.start()
   
 def ex3():
-    import time
-    from pyo import SfPlayer, Noise
+    from pyo import SfPlayer, Noise, Clean_objects
     print """
 Very sharp envelope follower:
 
@@ -72,15 +55,8 @@ o_ex4.out()
     o_ex4 = o_ex1 * .5
     o_ex4.out()
     
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    o_ex3.stop()
-    o_ex4.stop()
-    del o_ex1
-    del o_ex2
-    del o_ex3
-    del o_ex4
+    c = Clean_objects(4, o_ex1, o_ex2, o_ex3, o_ex4)
+    c.start()
    
 funcs = {1: ex1, 2: ex2, 3: ex3}
 
