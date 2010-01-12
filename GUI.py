@@ -167,10 +167,11 @@ def _editor_openfile(evt):
 
     if dlg.ShowModal() == wx.ID_OK:
         path = dlg.GetPaths()
-        for file in path:          
-            name = os.path.split(file)[1]
+        for i, f in enumerate(path):          
+            filepath, name = os.path.split(f)
+            sys.path.append(filepath)
             _ED_FRAMES.append(wx.Frame(None, -1, title=name, pos=(400+i*20, -1), size=(600, 700)))
-            _EDITORS.append(ScriptEditor(_ED_FRAMES[-1], -1, _INTERPRETER, file))
+            _EDITORS.append(ScriptEditor(_ED_FRAMES[-1], -1, _INTERPRETER, f))
             _ED_FRAMES[-1].Show()
     dlg.Destroy()
 
@@ -720,6 +721,11 @@ class HelpWin(wx.Treebook):
         (child, cookie) = tree.GetFirstChild(root)
         while child.IsOk():
             tree.SetItemTextColour(child, _STYLES_FACES['identifier'])
+            if tree.ItemHasChildren(child):
+                (child2, cookie2) = tree.GetFirstChild(child)
+                while child2.IsOk():
+                    tree.SetItemTextColour(child2, _STYLES_FACES['identifier'])
+                    (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 # Check for files to open
@@ -741,7 +747,8 @@ _ED_FRAMES = []
 _EDITORS = []
 if filesToOpen:
     for i, f in enumerate(filesToOpen):
-        name = os.path.split(f)[1]
+        filepath, name = os.path.split(f)
+        sys.path.append(filepath)
         _ED_FRAMES.append(wx.Frame(None, -1, title=name, pos=(400+i*20, -1), size=(600, 700)))
         _EDITORS.append(ScriptEditor(_ED_FRAMES[-1], -1, _INTERPRETER, f))
 else:        

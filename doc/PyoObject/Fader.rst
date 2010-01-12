@@ -62,3 +62,11 @@
 .. attribute:: Fader.dur
 
     float or :class:`PyoObject`. Total duration of the envelope.
+
+**Example**
+
+>>> s = Server().boot()
+>>> s.start()
+>>> f = Fader(fadein=1, fadeout=2, dur=5, mul=.5)
+>>> a = Noise(mul=f).out()
+>>> f.play()
