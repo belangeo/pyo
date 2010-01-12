@@ -36,3 +36,11 @@
 .. attribute:: Metro.time
 
     float or :class:`PyoObject`. Time between each trigger in seconds.
+
+**Example**
+
+>>> s = Server().boot()
+>>> s.start()
+>>> m = Metro(time=.125).play()
+>>> t = TrigRand(m, min=400, max=1000)
+>>> a = Sine(freq=t, mul=.5).out()

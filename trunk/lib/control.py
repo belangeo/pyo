@@ -10,6 +10,8 @@ class Fader(PyoObject):
     
     The play() method starts the envelope and is not called at the object creation time.
     
+    Parent class: PyoObject
+
     Parameters:
 
     fadein : float or PyoObject, optional
@@ -28,9 +30,23 @@ class Fader(PyoObject):
     setFadeout(x) : Replace the `fadeout` attribute.
     setDur(x) : Replace the `dur` attribute.
 
+    Attributes:
+    
+    fadein : float or PyoObject. Rising time of the envelope in seconds.
+    fadeout : float or PyoObject. Falling time of the envelope in seconds.
+    dur : float or PyoObject. Total duration of the envelope.
+    
     Notes:
 
-    The out() method is bypassed. Fader's signal can't be sent to audio outs.
+    The out() method is bypassed. Fader's signal can not be sent to audio outs.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> f = Fader(fadein=1, fadeout=2, dur=5, mul=.5)
+    >>> a = Noise(mul=f).out()
+    >>> f.play()    
     
     """
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
@@ -43,11 +59,14 @@ class Fader(PyoObject):
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def out(self, chnl=0, inc=1):
-        """Bypassed. Can't be sent to audio outs."""
+        """
+        Bypassed. Can't be sent to audio outs.
+        """
         pass
 
     def setFadein(self, x):
-        """Replace the `fadein` attribute.
+        """
+        Replace the `fadein` attribute.
         
         Parameters:
 
@@ -60,7 +79,8 @@ class Fader(PyoObject):
         [obj.setFadein(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setFadeout(self, x):
-        """Replace the `fadeout` attribute.
+        """
+        Replace the `fadeout` attribute.
         
         Parameters:
 
@@ -73,7 +93,8 @@ class Fader(PyoObject):
         [obj.setFadeout(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setDur(self, x):
-        """Replace the `dur` attribute.
+        """
+        Replace the `dur` attribute.
         
         Parameters:
 
@@ -118,6 +139,8 @@ class Port(PyoObject):
     """
     Perform an exponential portamento on an audio signal with different rising and falling times.
     
+    Parent class: PyoObject
+    
     Parameters:
 
     input : PyoObject
@@ -132,6 +155,22 @@ class Port(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setRiseTime(x) : Replace the `risetime` attribute.
     setFallTime(x) : Replace the `falltime` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    risetime : float or PyoObject. Time to reach upward value in seconds.
+    falltime : float or PyoObject. Time to reach downward value in seconds.
+     
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> x = Sig(value=500)
+    >>> p = Port(x, risetime=.1, falltime=1)
+    >>> a = Sine(freq=p, mul=.5).out()
+    >>> x.value = 1000
+    >>> x.value = 600
     
     """
     def __init__(self, input, risetime=0.05, falltime=0.05, mul=1, add=0):
@@ -222,6 +261,8 @@ class Metro(PyoObject):
     
     A trigger is an audio signal with a value of 1 surrounded by 0s.
     
+    Parent class: PyoObject
+    
     Parameters:
 
     time : float or PyoObject, optional
@@ -235,11 +276,23 @@ class Metro(PyoObject):
 
     setTime(x) : Replace the `time` attribute.
 
+    Attributes:
+    
+    time : float or PyoObject. Time between each trigger in seconds.
+    
     Notes:
 
     The out() method is bypassed. Metro's signal can not be sent to audio outs.
     
     Metro has no `mul` and `add` attributes.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro(time=.125).play()
+    >>> t = TrigRand(m, min=400, max=1000)
+    >>> a = Sine(freq=t, mul=.5).out()
     
     """
     def __init__(self, time=1, poly=1):
@@ -295,7 +348,9 @@ class Metro(PyoObject):
 class Follower(PyoObject):
     """
     Envelope follower. 
-    
+ 
+    Parent class: PyoObject
+   
     Parameters:
     
     input : PyoObject
@@ -308,9 +363,22 @@ class Follower(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setFreq(x) : Replace the `freq` attribute.
 
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Cutoff frequency of the filter.
+
     Notes:
 
-    Methods out() is bypassed. Follower's signal can not be sent to audio outs.
+    The out() method is bypassed. Follower's signal can not be sent to audio outs.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer("demos/transparent.aif", loop=True).out()
+    >>> fol = Follower(sf, freq=10)
+    >>> n = Noise(mul=fol).out()
 
     """
     def __init__(self, input, freq=10, mul=1, add=0):
@@ -371,7 +439,7 @@ class Follower(PyoObject):
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter""" 
+        """float or PyoObject. Cutoff frequency of the filter.""" 
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)

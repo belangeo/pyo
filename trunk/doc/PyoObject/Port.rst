@@ -56,3 +56,13 @@
 .. attribute:: Port.falltime
 
     float or :class:`PyoObject`. Time to reach downward value in seconds.
+
+**Example**
+
+>>> s = Server().boot()
+>>> s.start()
+>>> x = Sig(value=500)
+>>> p = Port(x, risetime=.1, falltime=1)
+>>> a = Sine(freq=p, mul=.5).out()
+>>> x.value = 1000
+>>> x.value = 600

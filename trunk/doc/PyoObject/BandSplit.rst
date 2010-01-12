@@ -63,3 +63,10 @@
 .. attribute:: BandSplit.q
 
     float or :class:`PyoObject`. Q of the filter.
+
+**Example**
+
+>>> s = Server().boot()
+>>> s.start()
+>>> lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
+>>> a = BandSplit(Noise(.5), num=6, min=250, max=4000, q=5, mul=lfos).out()
