@@ -8,17 +8,18 @@
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
+s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0)
 s.boot()
 
-example = 26
+example = 1
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
-    w = Osc(t, [random.uniform(196,204) for i in range(100)], 0, .01).out()
-    x = Osc(t, [random.uniform(296,304) for i in range(100)], 0, .006).out(1)
-    y = Osc(t, [random.uniform(396,404) for i in range(100)], 0, .003).out()
-    z = Osc(t, [random.uniform(496,504) for i in range(100)], 0, .002).out(1)
+    v = Osc(t, [random.uniform(96,104) for i in range(200)], 0, .012).out()
+    w = Osc(t, [random.uniform(196,204) for i in range(200)], 0, .01).out()
+    x = Osc(t, [random.uniform(296,304) for i in range(200)], 0, .006).out(1)
+    y = Osc(t, [random.uniform(396,404) for i in range(200)], 0, .003).out()
+    z = Osc(t, [random.uniform(496,504) for i in range(200)], 0, .002).out(1)
 elif example == 2:
     t = HarmTable([1-(i*.01) for i in range(100)])
     a = Osc(t, 30, 0, .001)

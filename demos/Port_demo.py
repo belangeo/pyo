@@ -1,6 +1,5 @@
 def ex1():
-    import time
-    from pyo import Sine, Metro, TrigRand
+    from pyo import Sine, Metro, TrigRand, Clean_objects
     print """
 Frequency portamento:
 
@@ -14,19 +13,11 @@ o_ex4 = Sine(freq=o_ex3, mul=.25).out()
     o_ex3 = Port(o_ex2, risetime=.125, falltime=.125)
     o_ex4 = Sine(freq=o_ex3, mul=.25).out()
 
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    o_ex3.stop()
-    o_ex4.stop()
-    del o_ex1
-    del o_ex2
-    del o_ex3
-    del o_ex4
+    c = Clean_objects(4, o_ex1, o_ex2, o_ex3, o_ex4)
+    c.start()
 
 def ex2():
-    import time
-    from pyo import Metro, Noise
+    from pyo import Metro, Noise, Clean_objects
     print """
 Amplitude envelope:
 
@@ -38,17 +29,11 @@ o_ex3 = Noise(mul=o_ex2).out()
     o_ex2 = Port(o_ex1, risetime=.002, falltime=.2, mul=5)
     o_ex3 = Noise(mul=o_ex2).out()
 
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    o_ex3.stop()
-    del o_ex1
-    del o_ex2
-    del o_ex3
+    c = Clean_objects(4, o_ex1, o_ex2, o_ex3)
+    c.start()
     
 def ex3():
-    import time
-    from pyo import Sine
+    from pyo import Sine, Clean_objects
     print """
 Distortion filter:
 
@@ -58,11 +43,8 @@ o_ex2 = Port(o_ex1, risetime=.001, falltime=.01).out()
     o_ex1 = Sine(freq=500, mul=.5)
     o_ex2 = Port(o_ex1, risetime=.001, falltime=.01).out()
 
-    time.sleep(4)
-    o_ex1.stop()
-    o_ex2.stop()
-    del o_ex1
-    del o_ex2
+    c = Clean_objects(4, o_ex1, o_ex2)
+    c.start()
   
 funcs = {1: ex1, 2: ex2, 3: ex3}
 

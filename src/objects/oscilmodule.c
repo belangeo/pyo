@@ -481,7 +481,10 @@ Osc_readframes_ii(Osc *self) {
             self->pointerPos = size + self->pointerPos;
         else if (self->pointerPos >= size)
             self->pointerPos -= size;
-        pos = fmodf((self->pointerPos + ph), size);
+        pos = self->pointerPos + ph;
+        if (pos >= size)
+            pos -= size;
+        //pos = fmodf((self->pointerPos + ph), size);
         ipart = (int)pos;
         fpart = pos - ipart;
         x = tablelist[ipart];
@@ -509,7 +512,9 @@ Osc_readframes_ai(Osc *self) {
             self->pointerPos = size + self->pointerPos;
         else if (self->pointerPos >= size)
             self->pointerPos -= size;
-        pos = fmodf((self->pointerPos + ph), size);
+        pos = self->pointerPos + ph;
+        if (pos >= size)
+            pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
         x = tablelist[ipart];
@@ -536,7 +541,9 @@ Osc_readframes_ia(Osc *self) {
             self->pointerPos = size + self->pointerPos;
         else if (self->pointerPos >= size)
             self->pointerPos -= size;
-        pos = fmodf((self->pointerPos + pha), size);
+        pos = self->pointerPos + pha;
+        if (pos >= size)
+            pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
         x = tablelist[ipart];
@@ -564,7 +571,9 @@ Osc_readframes_aa(Osc *self) {
             self->pointerPos = size + self->pointerPos;
         else if (self->pointerPos >= size)
             self->pointerPos -= size;
-        pos = fmodf((self->pointerPos + pha), size);
+        pos = self->pointerPos + pha;
+        if (pos >= size)
+            pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
         x = tablelist[ipart];
@@ -1451,3 +1460,360 @@ Phasor_members,             /* tp_members */
 Phasor_new,                 /* tp_new */
 };
 
+/**************/
+/* Pointer object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *index;
+    Stream *index_stream;
+    int modebuffer[2];
+} Pointer;
+
+static void
+Pointer_readframes_a(Pointer *self) {
+    float ph, fpart, x, x1;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    float *pha = Stream_getData((Stream *)self->index_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        ph = pha[i] * size;
+        if (ph < 0)
+            ph += size;
+        else if (ph >= size)
+            ph -= size;
+        ipart = (int)ph;
+        fpart = ph - ipart;
+        x = tablelist[ipart];
+        x1 = tablelist[ipart+1];
+        self->data[i] = x + (x1 - x) * fpart;
+    }
+}
+
+static void Pointer_postprocessing_ii(Pointer *self) { POST_PROCESSING_II };
+static void Pointer_postprocessing_ai(Pointer *self) { POST_PROCESSING_AI };
+static void Pointer_postprocessing_ia(Pointer *self) { POST_PROCESSING_IA };
+static void Pointer_postprocessing_aa(Pointer *self) { POST_PROCESSING_AA };
+static void Pointer_postprocessing_ireva(Pointer *self) { POST_PROCESSING_IREVA };
+static void Pointer_postprocessing_areva(Pointer *self) { POST_PROCESSING_AREVA };
+static void Pointer_postprocessing_revai(Pointer *self) { POST_PROCESSING_REVAI };
+static void Pointer_postprocessing_revaa(Pointer *self) { POST_PROCESSING_REVAA };
+static void Pointer_postprocessing_revareva(Pointer *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Pointer_setProcMode(Pointer *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = Pointer_readframes_a;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Pointer_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Pointer_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Pointer_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Pointer_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Pointer_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Pointer_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Pointer_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Pointer_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Pointer_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Pointer_compute_next_data_frame(Pointer *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Pointer_traverse(Pointer *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->index);    
+    Py_VISIT(self->index_stream);    
+    return 0;
+}
+
+static int 
+Pointer_clear(Pointer *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->index);    
+    Py_CLEAR(self->index_stream);    
+    return 0;
+}
+
+static void
+Pointer_dealloc(Pointer* self)
+{
+    free(self->data);
+    Pointer_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Pointer_deleteStream(Pointer *self) { DELETE_STREAM };
+
+static PyObject *
+Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Pointer *self;
+    self = (Pointer *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Pointer_compute_next_data_frame);
+    self->mode_func_ptr = Pointer_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Pointer_init(Pointer *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *tabletmp, *indextmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"table", "index", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    
+    if (indextmp) {
+        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+    }
+
+    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Pointer_compute_next_data_frame((Pointer *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Pointer_getServer(Pointer* self) { GET_SERVER };
+static PyObject * Pointer_getStream(Pointer* self) { GET_STREAM };
+static PyObject * Pointer_setMul(Pointer *self, PyObject *arg) { SET_MUL };	
+static PyObject * Pointer_setAdd(Pointer *self, PyObject *arg) { SET_ADD };	
+static PyObject * Pointer_setSub(Pointer *self, PyObject *arg) { SET_SUB };	
+static PyObject * Pointer_setDiv(Pointer *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Pointer_play(Pointer *self) { PLAY };
+static PyObject * Pointer_out(Pointer *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Pointer_stop(Pointer *self) { STOP };
+
+static PyObject * Pointer_multiply(Pointer *self, PyObject *arg) { MULTIPLY };
+static PyObject * Pointer_inplace_multiply(Pointer *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Pointer_add(Pointer *self, PyObject *arg) { ADD };
+static PyObject * Pointer_inplace_add(Pointer *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Pointer_sub(Pointer *self, PyObject *arg) { SUB };
+static PyObject * Pointer_inplace_sub(Pointer *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Pointer_div(Pointer *self, PyObject *arg) { DIV };
+static PyObject * Pointer_inplace_div(Pointer *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Pointer_getTable(Pointer* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Pointer_setTable(Pointer *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pointer_setIndex(Pointer *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	if (isNumber == 1) {
+		printf("Pointer index attributes must be a PyoObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+	}
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_XDECREF(self->index);
+
+    self->index = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->index_stream);
+    self->index_stream = (Stream *)streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Pointer_members[] = {
+{"server", T_OBJECT_EX, offsetof(Pointer, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Pointer, stream), 0, "Stream object."},
+{"table", T_OBJECT_EX, offsetof(Pointer, table), 0, "Waveform table."},
+{"index", T_OBJECT_EX, offsetof(Pointer, index), 0, "Reader index."},
+{"mul", T_OBJECT_EX, offsetof(Pointer, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Pointer, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Pointer_methods[] = {
+{"getTable", (PyCFunction)Pointer_getTable, METH_NOARGS, "Returns waveform table object."},
+{"getServer", (PyCFunction)Pointer_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Pointer_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Pointer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Pointer_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Pointer_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Pointer_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)Pointer_setTable, METH_O, "Sets oscillator table."},
+{"setIndex", (PyCFunction)Pointer_setIndex, METH_O, "Sets reader index."},
+{"setMul", (PyCFunction)Pointer_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Pointer_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Pointer_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)Pointer_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Pointer_as_number = {
+(binaryfunc)Pointer_add,                      /*nb_add*/
+(binaryfunc)Pointer_sub,                 /*nb_subtract*/
+(binaryfunc)Pointer_multiply,                 /*nb_multiply*/
+(binaryfunc)Pointer_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Pointer_inplace_add,              /*inplace_add*/
+(binaryfunc)Pointer_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Pointer_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Pointer_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject PointerType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Pointer_base",         /*tp_name*/
+sizeof(Pointer),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Pointer_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Pointer_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Pointer objects. Read a waveform table with a pointer index.",           /* tp_doc */
+(traverseproc)Pointer_traverse,   /* tp_traverse */
+(inquiry)Pointer_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Pointer_methods,             /* tp_methods */
+Pointer_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Pointer_init,      /* tp_init */
+0,                         /* tp_alloc */
+Pointer_new,                 /* tp_new */
+};

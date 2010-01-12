@@ -268,6 +268,81 @@ class Osc(PyoObject):
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
+class Pointer(PyoObject):
+    """
+    Table reader with control on the pointer position.
+    
+    Parameters:
+    
+    table : PyoTableObject
+        Table containing the waveform samples.
+    index : PyoObject
+        Normalized position in the table between 0 and 1.
+        
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setIndex(x) : Replace the `index` attribute.
+    
+    """
+    def __init__(self, table, index, mul=1, add=0):
+        self._table = table
+        self._index = index
+        self._mul = mul
+        self._add = add
+        table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
+        self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            new `index` attribute.
+        
+        """
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Osc_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Pointer(table, index, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def index(self):
+        """PyoObject. Index pointer position in the table.""" 
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)
+
 class Input(PyoObject):
     """
     Read from a numbered channel in an external audio signal or stream.

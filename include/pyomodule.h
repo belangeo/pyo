@@ -3,6 +3,7 @@
 
 extern PyTypeObject SineType;
 extern PyTypeObject PhasorType;
+extern PyTypeObject PointerType;
 extern PyTypeObject OscType;
 extern PyTypeObject NoiseType;
 extern PyTypeObject InputType;
