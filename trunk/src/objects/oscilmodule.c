@@ -25,12 +25,12 @@ Sine_readframes_ii(Sine *self) {
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
-    delta = fr / self->sr;
+    delta = fr / self->sr * TWOPI;
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointerPos > 1.0)
-            self->pointerPos -= 1.0;
-        val = sinf(self->pointerPos * TWOPI + ph);
+        if (self->pointerPos > TWOPI)
+            self->pointerPos -= TWOPI;
+        val = sinf(self->pointerPos + ph);
         self->data[i] = val;
         self->pointerPos += delta;
     }
@@ -45,10 +45,10 @@ Sine_readframes_ai(Sine *self) {
     ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
     
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] / self->sr;
-        if (self->pointerPos > 1.0)
-            self->pointerPos -= 1.0;
-        val = sinf(self->pointerPos * TWOPI + ph);
+        delta = fr[i] / self->sr * TWOPI;
+        if (self->pointerPos > TWOPI)
+            self->pointerPos -= TWOPI;
+        val = sinf(self->pointerPos + ph);
         self->data[i] = val;
         self->pointerPos += delta;
     }
@@ -61,12 +61,12 @@ Sine_readframes_ia(Sine *self) {
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     float *ph = Stream_getData((Stream *)self->phase_stream);
-    delta = fr / self->sr;
+    delta = fr / self->sr * TWOPI;
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointerPos > 1.0)
-            self->pointerPos -= 1.0;
-        val = sinf(self->pointerPos * TWOPI + (ph[i] * TWOPI));
+        if (self->pointerPos > TWOPI)
+            self->pointerPos -= TWOPI;
+        val = sinf(self->pointerPos + (ph[i] * TWOPI));
         self->data[i] = val;
         self->pointerPos += delta;
     }
@@ -81,10 +81,10 @@ Sine_readframes_aa(Sine *self) {
     float *ph = Stream_getData((Stream *)self->phase_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] / self->sr;
-        if (self->pointerPos > 1.0)
-            self->pointerPos -= 1.0;
-        val = sinf(self->pointerPos * TWOPI + (ph[i] * TWOPI));
+        delta = fr[i] / self->sr * TWOPI;
+        if (self->pointerPos > TWOPI)
+            self->pointerPos -= TWOPI;
+        val = sinf(self->pointerPos + (ph[i] * TWOPI));
         self->data[i] = val;
         self->pointerPos += delta;
     }
