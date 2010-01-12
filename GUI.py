@@ -186,6 +186,7 @@ def _open_manual(evt):
         _DOC_FRAME.Show() 
        
 def _app_quit(evt):
+    print '--------'
     for editor in _EDITORS:
         action = editor.delete(None)
         if action == 'keep':
@@ -213,7 +214,9 @@ class ScriptEditor(stc.StyledTextCtrl):
         menu1.Append(101, "Save\tCtrl+S", "Saves the front file")
         menu1.Append(102, "Save as...\tShift+Ctrl+S", "Saves the front file under a new name")
         menu1.Append(103, "Close\tCtrl+W", "Closes front editor window")
-        menu1.Append(120, "Quit\tCtrl+Q", "Quit app")  
+        quit_item = menu1.Append(120, "Quit\tCtrl+Q", "Quit app")  
+        if wx.Platform=="__WXMAC__":
+            wx.App.SetMacExitMenuItemId(quit_item.GetId())
         self.menuBar.Append(menu1, 'File')
 
         menu2 = wx.Menu()
@@ -301,7 +304,7 @@ class ScriptEditor(stc.StyledTextCtrl):
         if openedFile:
             self.LoadFile(openedFile)
             self.path = openedFile
-  
+   
     def OnKeyPressed(self, event):
         key = event.GetKeyCode()
 
@@ -572,7 +575,9 @@ class Interpreter(py.shell.Shell):
         menu1 = wx.Menu()
         menu1.Append(99, "New\tCtrl+N", "Creates a _editor_new page")
         menu1.Append(100, "Open\tCtrl+O", "Opens an existing file")
-        menu1.Append(120, "Quit\tCtrl+Q")  
+        quit_item = menu1.Append(120, "Quit\tCtrl+Q")
+        if wx.Platform=="__WXMAC__":
+            wx.App.SetMacExitMenuItemId(quit_item.GetId())
         self.menuBar.Append(menu1, 'File')
 
         menu4 = wx.Menu()
@@ -611,7 +616,9 @@ class HelpWin(wx.Treebook):
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(103, "Close\tCtrl+W", "Closes front window")
-        menu1.Append(120, "Quit\tCtrl+Q")  
+        quit_item = menu1.Append(120, "Quit\tCtrl+Q")  
+        if wx.Platform=="__WXMAC__":
+            wx.App.SetMacExitMenuItemId(quit_item.GetId())
         self.menuBar.Append(menu1, 'File')
 
         self.parent.SetMenuBar(self.menuBar)
