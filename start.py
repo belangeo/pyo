@@ -11,7 +11,7 @@ import random
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0)
 s.boot()
 
-example = 21
+example = 26
 
 if example == 1:
     t = HarmTable([1,0,0,.2,0,0,.1,0,0,.04])
@@ -174,7 +174,7 @@ elif example == 25:
     p = Pattern(pat, .125)
 
 elif example == 26:
-    met = Metro(.125, 32)
+    met = Metro(.125, 32).play()
     env = LinTable([(0,0), (5,1), (30,1), (75,.15), (200,.05), (8191,0)])
     trig = TrigEnv(met, env)
     snd = SndTable('demos/transparent.aif')
@@ -253,4 +253,3 @@ class FreqMod:
         self.modulator.setFreq(self.modulatorFrequency) 
         self.modulator.setMul(self.modulatorAmplitude)
         self.modulator.setAdd(self.carrierFrequency)       
-       
