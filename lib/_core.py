@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from types import ListType
-import random
+import random, threading, time
+
 from _pyo import *
 
 ######################################################################
@@ -13,6 +14,20 @@ class Call_example:
 class Print_args:
     def __init__(self, callback):
         self.__call__ = callback
+
+class Clean_objects(threading.Thread):
+    def __init__(self, time, *args):
+        threading.Thread.__init__(self)
+        self.t = time
+        self.args = args
+        
+    def run(self):
+        time.sleep(self.t)
+        for arg in self.args:
+            try: arg.stop()
+            except: pass
+        for arg in self.args:
+            del arg 
         
 def convertArgsToLists(*args):
     """
@@ -390,6 +405,23 @@ class Sig(PyoObject):
     Methods:
 
     setValue(x) : Changes the value of the signal stream.
+    
+    Attributes:
+    
+    value : float. Numerical value to convert.
+    
+    Notes:
+
+    The out() method is bypassed. Sig's signal can not be sent to audio outs.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> fr = Sig(value=400)
+    >>> p = Port(fr, risetime=1, falltime=1)
+    >>> a = Sine(freq=p, mul=.5).out()
+    >>> s.start()
+    >>> fr.value = 800
 
     """
     def __init__(self, value, mul=1, add=0):
@@ -411,6 +443,14 @@ class Sig(PyoObject):
         """
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Sig_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Sig(value, mul=1, add=0)")
+    args = Print_args(args)
     
     @property
     def value(self):
