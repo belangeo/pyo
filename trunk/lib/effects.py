@@ -29,6 +29,21 @@ class Biquad(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setQ(x) : Replace the `q` attribute.
     setType(x) : Replace the `type` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Cutoff or center frequency of the filter.
+    q : float or PyoObject. Q of the filter.
+    type : int. Filter type.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5)
+    >>> lfo = Sine(freq=.25, mul=1000, add=1000)
+    >>> f = Biquad(a, freq=lfo, q=5, type=2).out()
 
     """
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
@@ -123,7 +138,7 @@ class Biquad(PyoObject):
 
     @property
     def q(self):
-        """float or PyoObject. Q of the filter""" 
+        """float or PyoObject. Q of the filter.""" 
         return self._q
     @q.setter
     def q(self, x): self.setQ(x)
@@ -157,6 +172,20 @@ class Disto(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setDrive(x) : Replace the `drive` attribute.
     setSlope(x) : Replace the `slope` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    drive : float or PyoObject. Amount of distortion.
+    slope : float or PyoObject. Slope of the lowpass filter.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer("demos/transparent.aif", loop=True)
+    >>> lfo = Sine(freq=.25, mul=.5, add=.5)
+    >>> d = Disto(a, drive=lfo, slope=.8, mul=.5).out()
 
     """
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
@@ -261,6 +290,19 @@ class Delay(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setDelay(x) : Replace the `delay` attribute.
     setFeedback(x) : Replace the `feedback` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to delayed.
+    delay : float or PyoObject. Delay time in seconds.
+    feedback : float or PyoObject. Amount of output signal sent back into the delay line.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer("demos/transparent.aif", loop=True)
+    >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out()
 
     """
     def __init__(self, input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0):
@@ -382,6 +424,13 @@ class Freeverb(PyoObject):
     damp : float or PyoObject. High frequency damping.
     bal : float or PyoObject. Balance between wet and dry signal.
 
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer("demos/transparent.aif", loop=True)
+    >>> b = Freeverb(a, size=.8, damp=.9, bal=.3).out()
+
     """
     def __init__(self, input, size=.5, damp=.5, bal=.5, mul=1, add=0):
         self._input = input
@@ -451,9 +500,9 @@ class Freeverb(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    #def demo():
-    #    execfile("demos/Freeverb_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Freeverb_demo.py")
+    demo = Call_example(demo)
 
     def args():
         return("Freeverb(input, size=.5, damp=.5, bal=.5, mul=1, add=0)")
