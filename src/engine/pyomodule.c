@@ -420,5 +420,10 @@ init_pyo(void)
         return;
     Py_INCREF(&SelectType);
     PyModule_AddObject(m, "Select_base", (PyObject *)&SelectType);
+
+    if (PyType_Ready(&FreeverbType) < 0)
+        return;
+    Py_INCREF(&FreeverbType);
+    PyModule_AddObject(m, "Freeverb_base", (PyObject *)&FreeverbType);
     
 }

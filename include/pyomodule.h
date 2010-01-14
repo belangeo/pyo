@@ -21,6 +21,7 @@ extern PyTypeObject BiquadType;
 extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
 extern PyTypeObject DelayType;
+extern PyTypeObject FreeverbType;
 
 extern PyTypeObject MidictlType;
 extern PyTypeObject MidiNoteType;

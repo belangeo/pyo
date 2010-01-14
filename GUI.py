@@ -10,7 +10,7 @@ from pyo import *
 ######################### KEYWORDS ########################## 
 _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
                     'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
-        'PyoObject': sorted(['BandSplit', 'Biquad', 'Counter', 'Delay', 'Disto', 'Dummy', 'Fader', 'Follower', 
+        'PyoObject': sorted(['BandSplit', 'Biquad', 'Counter', 'Delay', 'Disto', 'Dummy', 'Fader', 'Follower', 'Freeverb',
                     'Hilbert', 'Input', 'InputFader', 'Metro', 'Midictl', 'Mix', 'Noise', 'Notein', 'Osc', 'OscReceive', 
                     'OscSend', 'Pan', 'Pattern', 'Phasor', 'Pointer', 'Port', 'PyPattern', 'SPan', 'TrigEnv', 'TrigRand', 
                     'Select', 'SfMarkerShuffler', 'SfPlayer', 'Sig', 'Sine', 'TableRec']),

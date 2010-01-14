@@ -345,3 +345,144 @@ class Delay(PyoObject):
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
+class Freeverb(PyoObject):
+    """
+    Jezar's Freeverb.
+    
+    Freeverb is a reverb unit generator based on Jezar's public domain C++ sources, 
+    composed of eight parallel comb filters, followed by four allpass units in series.
+    Filters on each stream are slightly detuned in order to create multi-channel effects.
+        
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    size : float or PyoObject, optional
+        Controls the length of the reverb,  between 0 and 1. A higher value means longer reverb. 
+        Defaults to 0.5.
+    damp : float or PyoObject, optional
+        High frequency attenuation, between 0 and 1. A higher value will result in a faster decay 
+        of the high frequency range. 
+        Defaults to 0.5.
+    bal : float or PyoObject, optional
+        Balance between wet and dry signal, between 0 and 1. 0 means no reverb.
+        Defaults to 0.5.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setSize(x) : Replace the `size` attribute.
+    setDamp(x) : Replace the `damp` attribute.
+    setBal(x) : Replace the `bal` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to process.
+    size : float or PyoObject. Room size.
+    damp : float or PyoObject. High frequency damping.
+    bal : float or PyoObject. Balance between wet and dry signal.
+
+    """
+    def __init__(self, input, size=.5, damp=.5, bal=.5, mul=1, add=0):
+        self._input = input
+        self._size = size
+        self._damp = damp
+        self._bal = bal
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, size, damp, bal, mul, add, lmax = convertArgsToLists(self._in_fader, size, damp, bal, mul, add)
+        self._base_objs = [Freeverb_base(wrap(in_fader,i), wrap(size,i), wrap(damp,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+ 
+    def setSize(self, x):
+        """
+        Replace the `size` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `size` attribute.
+
+        """
+        self._size = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDamp(self, x):
+        """
+        Replace the `damp` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `damp` attribute.
+
+        """
+        self._damp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setBal(self, x):
+        """
+        Replace the `bal` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `bal` attribute.
+
+        """
+        self._bal = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Freeverb_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Freeverb(input, size=.5, damp=.5, bal=.5, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def size(self):
+        """float or PyoObject. Room size.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def damp(self):
+        """float or PyoObject. High frequency damping.""" 
+        return self._damp
+    @damp.setter
+    def damp(self, x): self.setDamp(x)
+
+    @property
+    def bal(self):
+        """float or PyoObject. Balance between wet and dry signal.""" 
+        return self._bal
+    @bal.setter
+    def bal(self, x): self.setBal(x)
