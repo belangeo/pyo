@@ -316,6 +316,11 @@ init_pyo(void)
     Py_INCREF(&DistoType);
     PyModule_AddObject(m, "Disto_base", (PyObject *)&DistoType);
 
+    if (PyType_Ready(&ClipType) < 0)
+        return;
+    Py_INCREF(&ClipType);
+    PyModule_AddObject(m, "Clip_base", (PyObject *)&ClipType);
+    
     if (PyType_Ready(&DelayType) < 0)
         return;
     Py_INCREF(&DelayType);

@@ -4,6 +4,8 @@ class Hilbert(PyoObject):
     """
     Hilbert transform.
     
+    Parent class : PyoObject
+    
     Parameters:
     
     input : PyoObject
@@ -12,6 +14,28 @@ class Hilbert(PyoObject):
     Methods:
     
     setInput(x, fadetime) : Replace the `input` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    
+    Notes:
+    
+    Real and imaginary parts are two separated set of streams. The user should call :
+    
+    Hilbert['real'] to retrieve the real part.
+    Hilbert['imag'] to retrieve the imaginary part.
+    
+    Examples:
+    
+    >>> a = SfPlayer("demos/accord.aif", loop=True).out()
+    >>> b = Hilbert(a)
+    >>> quad = Sine([250, 500], [0, .25])
+    >>> mod1 = b['real'] * quad[0]
+    >>> mod2 = b['imag'] * quad[1]
+    >>> up = mod1 - mod2
+    >>> down = mod1 + mod2
+    >>> up.out()
 
     """
     def __init__(self, input, mul=1, add=0):
@@ -82,9 +106,9 @@ class Hilbert(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
 
-    #def demo():
-    #    execfile("demos/Hilbert_demo.py")
-    #demo = Call_example(demo)
+    def demo():
+        execfile("demos/Hilbert_demo.py")
+    demo = Call_example(demo)
 
     def args():
         return("Hilbert(input, mul=1, add=0)")

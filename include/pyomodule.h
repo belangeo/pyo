@@ -20,6 +20,7 @@ extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
 extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
+extern PyTypeObject ClipType;
 extern PyTypeObject DelayType;
 extern PyTypeObject FreeverbType;
 

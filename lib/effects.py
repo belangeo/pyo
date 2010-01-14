@@ -7,6 +7,8 @@ class Biquad(PyoObject):
     """
     A sweepable general purpose biquadratic digital filter. 
     
+    Parent class : PyoObject
+    
     Parameters:
     
     input : PyoObject
@@ -156,6 +158,8 @@ class Disto(PyoObject):
     
     Apply an arctan distortion with controllable drive to the input signal. 
     
+    Parent class : PyoObject
+
     Parameters:
     
     input : PyoObject
@@ -270,10 +274,133 @@ class Disto(PyoObject):
     @slope.setter
     def slope(self, x): self.setSlope(x)
 
+class Clip(PyoObject):
+    """
+    Clips a signal to a predefined limit.
+    
+    Parent class : PyoObject
+
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    min : float or PyoObject, optional
+        Minimum possible value. 
+        Defaults to -1.
+    max : float or PyoObject, optional
+        Maximum possible value.
+        Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    min : float or PyoObject. Minimum possible value.
+    max : float or PyoObject. Maximum possible value.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer("demos/transparent.aif", loop=True)
+    >>> lfoup = Sine(freq=.25, mul=.48, add=.5)
+    >>> lfodown = 0 - lfoup
+    >>> c = Clip(a, min=lfodown, max=lfoup, mul=.5).out()
+
+    """
+    def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
+        self._input = input
+        self._min = min
+        self._max = max
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
+        self._base_objs = [Clip_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+ 
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def demo():
+        execfile("demos/Clip_demo.py")
+    demo = Call_example(demo)
+
+    def args():
+        return("Clip(input, min=-1, max=1, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def min(self):
+        """float or PyoObject. Minimum possible value.""" 
+        return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+
+    @property
+    def max(self):
+        """float or PyoObject. Minimum possible value.""" 
+        return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
+
 class Delay(PyoObject):
     """
     Sweepable recursive delay.
     
+    Parent class : PyoObject
+
     Parameters:
     
     input : PyoObject
@@ -395,6 +522,8 @@ class Freeverb(PyoObject):
     composed of eight parallel comb filters, followed by four allpass units in series.
     Filters on each stream are slightly detuned in order to create multi-channel effects.
         
+    Parent class : PyoObject
+
     Parameters:
     
     input : PyoObject
