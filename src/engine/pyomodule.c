@@ -325,6 +325,11 @@ init_pyo(void)
         return;
     Py_INCREF(&DelayType);
     PyModule_AddObject(m, "Delay_base", (PyObject *)&DelayType);
+
+    if (PyType_Ready(&WaveguideType) < 0)
+        return;
+    Py_INCREF(&WaveguideType);
+    PyModule_AddObject(m, "Waveguide_base", (PyObject *)&WaveguideType);
     
     if (PyType_Ready(&MidictlType) < 0)
         return;
