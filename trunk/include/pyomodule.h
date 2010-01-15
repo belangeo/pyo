@@ -22,6 +22,7 @@ extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject DelayType;
+extern PyTypeObject WaveguideType;
 extern PyTypeObject FreeverbType;
 
 extern PyTypeObject MidictlType;

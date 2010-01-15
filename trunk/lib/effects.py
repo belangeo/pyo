@@ -514,6 +514,128 @@ class Delay(PyoObject):
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
+class Waveguide(PyoObject):
+    """
+    A waveguide model consisting of one delay-line with a simple lowpass filtering
+    and lagrange interpolation.
+    
+    Parent class : PyoObject
+
+    Parameters:
+    
+    input : PyoObject
+        Input signal to delayed.
+    freq : float or PyoObject, optional
+        Frequency, in cycle per second, of the waveguide (i.e. the inverse of delay time). Defaults to 100.
+    dur : float or PyoObject, optional
+        Duration, in seconds, for the waveguide to drop 40 dB below it's maxima. Defaults to 10.
+    minfreq : float, optional
+        Minimum possible frequency, used to initialized delay length. Available only at initialization. Defaults to 20.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setDur(x) : Replace the `dur` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to delayed.
+    freq : float or PyoObject. Frequency in cycle per second.
+    dur : float or PyoObject. Resonance duration in seconds.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = LinTable([(0,0), (2,1), (5,0), (8191,0)])
+    >>> met = Metro().play()
+    >>> pick = TrigEnv(met, t, 1)
+    >>> wg = Waveguide(pick, freq=[200,400], dur=20, minfreq=20, mul=.5).out()
+
+    """
+    def __init__(self, input, freq=100, dur=10, minfreq=20, mul=1, add=0):
+        self._input = input
+        self._freq = freq
+        self._dur = dur
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, dur, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, dur, minfreq, mul, add)
+        self._base_objs = [Waveguide_base(wrap(in_fader,i), wrap(freq,i), wrap(dur,i), wrap(minfreq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDur(self, x):
+        """
+        Replace the `dur` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `dur` attribute.
+
+        """
+        self._dur = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def demo():
+        execfile("demos/Waveguide_demo.py")
+    demo = Call_example(demo)
+
+    def args():
+        return("Waveguide(input, freq=100, dur=10, minfreq=20, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to delayed.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+ 
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycle per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def dur(self):
+        """float or PyoObject. Resonance duration in seconds.""" 
+        return self._dur
+    @dur.setter
+    def dur(self, x): self.setDur(x)
+
 class Freeverb(PyoObject):
     """
     Jezar's Freeverb.

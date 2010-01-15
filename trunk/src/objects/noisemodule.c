@@ -16,7 +16,7 @@ Noise_generate(Noise *self) {
     int i;
 
     for (i=0; i<self->bufsize; i++) {
-        val = rand()/((float)(RAND_MAX)+1);
+        val = rand()/((float)(RAND_MAX)+1)*1.98-0.99;
         self->data[i] = val;
     }
 }

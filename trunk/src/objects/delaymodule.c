@@ -555,3 +555,743 @@ PyTypeObject DelayType = {
     Delay_new,                 /* tp_new */
 };
 
+/*********************/
+/***** Waveguide *****/
+/*********************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *dur;
+    Stream *dur_stream;
+    float minfreq;
+    float lastFreq;
+    float lastSampDel;
+    float lastDur;
+    float lastFeed;
+    long size;
+    int in_count;
+    int modebuffer[4];
+    float lpsamp; // lowpass sample memory
+    float coeffs[5]; // lagrange coefficients
+    float lagrange[4]; // lagrange samples memories
+    float xn1; // dc block input delay
+    float yn1; // dc block output delay
+    float *buffer; // samples memory
+} Waveguide;
+
+static void
+Waveguide_process_ii(Waveguide *self) {
+    float val, x, y, sampdel, frac, feed;
+    int i, ind, isamp;
+    
+    float fr = PyFloat_AS_DOUBLE(self->freq);
+    float dur = PyFloat_AS_DOUBLE(self->dur); 
+    float *in = Stream_getData((Stream *)self->input_stream);
+
+    /* Check boundaries */
+    if (fr < self->minfreq)
+        fr = self->minfreq;
+    if (dur <= 0)
+        dur = 0.1;
+    
+    
+    sampdel = self->lastSampDel;
+    feed = self->lastFeed;
+    /* lagrange coeffs and feedback coeff */
+    if (fr != self->lastFreq) {
+        self->lastFreq = fr;
+        sampdel = 1.0 / fr * self->sr - 0.5;
+        self->lastSampDel = sampdel;
+        isamp = (int)sampdel;
+        frac = sampdel - isamp;
+        self->coeffs[0] = (frac-1)*(frac-2)*(frac-3)*(frac-4)/24.0;
+        self->coeffs[1] = -frac*(frac-2)*(frac-3)*(frac-4)/6.0;
+        self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
+        self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
+        self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
+        
+        self->lastDur = dur;
+        feed = powf(100, -(1.0/fr)/dur);
+        self->lastFeed = feed;
+    } 
+    else if (dur != self->lastDur) {
+        self->lastDur = dur;
+        feed = powf(100, -(1.0/fr)/dur);
+        self->lastFeed = feed;
+    }
+    
+    /* pick a new value in th delay line */
+    isamp = (int)sampdel;  
+    for (i=0; i<self->bufsize; i++) {
+        ind = self->in_count - isamp;
+        if (ind < 0)
+            ind += self->size;
+        val = self->buffer[ind];
+        
+        /* simple lowpass filtering */
+        val = (val + self->lpsamp) * 0.5;
+        self->lpsamp = val;
+
+        /* lagrange filtering */
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        self->lagrange[3] = self->lagrange[2];
+        self->lagrange[2] = self->lagrange[1];
+        self->lagrange[1] = self->lagrange[0];
+        self->lagrange[0] = val;
+        
+        /* cliping, needed? */
+        if (x < -1.0)
+            x = -1.0;
+        else if (x > 1.0)
+            x = 1.0;
+
+        /* DC filtering */
+        y = x - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = x;
+        self->yn1 = y;
+
+        self->data[i] = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (x * feed);
+        if (self->in_count == self->size)
+            self->in_count = 0;
+    }
+}
+
+static void
+Waveguide_process_ai(Waveguide *self) {
+    float val, x, y, sampdel, frac, feed, freq;
+    int i, ind, isamp;
+    
+    float *fr =Stream_getData((Stream *)self->freq_stream);
+    float dur = PyFloat_AS_DOUBLE(self->dur); 
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    /* Check dur boundary */
+    if (dur <= 0)
+        dur = 0.1;
+
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        /* Check frequency boundary */
+        if (freq < self->minfreq)
+            freq = self->minfreq;
+
+        sampdel = self->lastSampDel;
+        feed = self->lastFeed;
+        /* lagrange coeffs and feedback coeff */
+        if (freq != self->lastFreq) {
+            self->lastFreq = freq;
+            sampdel = 1.0 / freq * self->sr - 0.5;
+            self->lastSampDel = sampdel;
+            isamp = (int)sampdel;
+            frac = sampdel - isamp;
+            self->coeffs[0] = (frac-1)*(frac-2)*(frac-3)*(frac-4)/24.0;
+            self->coeffs[1] = -frac*(frac-2)*(frac-3)*(frac-4)/6.0;
+            self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
+            self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
+            self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
+            
+            self->lastDur = dur;
+            feed = powf(100, -(1.0/freq)/dur);
+            self->lastFeed = feed;
+        }
+        else if (dur != self->lastDur) {
+            self->lastDur = dur;
+            feed = powf(100, -(1.0/freq)/dur);
+            self->lastFeed = feed;
+        }
+
+        /* pick a new value in th delay line */
+        isamp = (int)sampdel;        
+        
+        ind = self->in_count - isamp;
+        if (ind < 0)
+            ind += self->size;
+        val = self->buffer[ind];
+        
+        /* simple lowpass filtering */
+        val = (val + self->lpsamp) * 0.5;
+        self->lpsamp = val;
+        
+        /* lagrange filtering */
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        self->lagrange[3] = self->lagrange[2];
+        self->lagrange[2] = self->lagrange[1];
+        self->lagrange[1] = self->lagrange[0];
+        self->lagrange[0] = val;
+        
+        /* cliping, needed? */
+        if (x < -1.0)
+            x = -1.0;
+        else if (x > 1.0)
+            x = 1.0;
+        
+        /* DC filtering */
+        y = x - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = x;
+        self->yn1 = y;
+        
+        self->data[i] = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (x * feed);
+        if (self->in_count == self->size)
+            self->in_count = 0;
+    }
+}
+
+
+static void
+Waveguide_process_ia(Waveguide *self) {
+    float val, x, y, sampdel, frac, feed, dur;
+    int i, ind, isamp;
+    
+    float fr = PyFloat_AS_DOUBLE(self->freq);
+    float *du = Stream_getData((Stream *)self->dur_stream);
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    /* Check boundaries */
+    if (fr < self->minfreq)
+        fr = self->minfreq;
+
+    sampdel = self->lastSampDel;
+    /* lagrange coeffs and feedback coeff */
+    if (fr != self->lastFreq) {
+        self->lastFreq = fr;
+        sampdel = 1.0 / fr * self->sr - 0.5;
+        self->lastSampDel = sampdel;
+        isamp = (int)sampdel;
+        frac = sampdel - isamp;
+        self->coeffs[0] = (frac-1)*(frac-2)*(frac-3)*(frac-4)/24.0;
+        self->coeffs[1] = -frac*(frac-2)*(frac-3)*(frac-4)/6.0;
+        self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
+        self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
+        self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
+    }
+    
+    /* pick a new value in th delay line */
+    isamp = (int)sampdel;  
+    for (i=0; i<self->bufsize; i++) {
+        feed = self->lastFeed;
+        dur = du[i];
+        if (dur <= 0)
+            dur = 0.1;
+        if (dur != self->lastDur) {
+            self->lastDur = dur;
+            feed = powf(100, -(1.0/fr)/dur);
+            self->lastFeed = feed;
+        }
+        ind = self->in_count - isamp;
+        if (ind < 0)
+            ind += self->size;
+        val = self->buffer[ind];
+        
+        /* simple lowpass filtering */
+        val = (val + self->lpsamp) * 0.5;
+        self->lpsamp = val;
+        
+        /* lagrange filtering */
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        self->lagrange[3] = self->lagrange[2];
+        self->lagrange[2] = self->lagrange[1];
+        self->lagrange[1] = self->lagrange[0];
+        self->lagrange[0] = val;
+        
+        /* cliping, needed? */
+        if (x < -1.0)
+            x = -1.0;
+        else if (x > 1.0)
+            x = 1.0;
+        
+        /* DC filtering */
+        y = x - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = x;
+        self->yn1 = y;
+        
+        self->data[i] = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (x * feed);
+        if (self->in_count == self->size)
+            self->in_count = 0;
+    }
+}
+
+
+static void
+Waveguide_process_aa(Waveguide *self) {
+    float val, x, y, sampdel, frac, feed, freq, dur;
+    int i, ind, isamp;
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *du = Stream_getData((Stream *)self->dur_stream); 
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        dur = du[i];
+        /* Check boundaries */
+        if (freq < self->minfreq)
+            freq = self->minfreq;
+        if (dur <= 0)
+            dur = 0.1;
+        
+        sampdel = self->lastSampDel;
+        feed = self->lastFeed;
+        /* lagrange coeffs and feedback coeff */
+        if (freq != self->lastFreq) {
+            self->lastFreq = freq;
+            sampdel = 1.0 / freq * self->sr - 0.5;
+            self->lastSampDel = sampdel;
+            isamp = (int)sampdel;
+            frac = sampdel - isamp;
+            self->coeffs[0] = (frac-1)*(frac-2)*(frac-3)*(frac-4)/24.0;
+            self->coeffs[1] = -frac*(frac-2)*(frac-3)*(frac-4)/6.0;
+            self->coeffs[2] = frac*(frac-1)*(frac-3)*(frac-4)/4.0;
+            self->coeffs[3] = -frac*(frac-1)*(frac-2)*(frac-4)/6.0;
+            self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
+            
+            self->lastDur = dur;
+            feed = powf(100, -(1.0/freq)/dur);
+            self->lastFeed = feed;
+        }
+        else if (dur != self->lastDur) {
+            self->lastDur = dur;
+            feed = powf(100, -(1.0/freq)/dur);
+            self->lastFeed = feed;
+        }
+        
+        /* pick a new value in th delay line */
+        isamp = (int)sampdel;        
+        
+        ind = self->in_count - isamp;
+        if (ind < 0)
+            ind += self->size;
+        val = self->buffer[ind];
+        
+        /* simple lowpass filtering */
+        val = (val + self->lpsamp) * 0.5;
+        self->lpsamp = val;
+        
+        /* lagrange filtering */
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        self->lagrange[3] = self->lagrange[2];
+        self->lagrange[2] = self->lagrange[1];
+        self->lagrange[1] = self->lagrange[0];
+        self->lagrange[0] = val;
+        
+        /* cliping, needed? */
+        if (x < -1.0)
+            x = -1.0;
+        else if (x > 1.0)
+            x = 1.0;
+        
+        /* DC filtering */
+        y = x - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = x;
+        self->yn1 = y;
+        
+        self->data[i] = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (x * feed);
+        if (self->in_count == self->size)
+            self->in_count = 0;
+    }
+}
+
+static void Waveguide_postprocessing_ii(Waveguide *self) { POST_PROCESSING_II };
+static void Waveguide_postprocessing_ai(Waveguide *self) { POST_PROCESSING_AI };
+static void Waveguide_postprocessing_ia(Waveguide *self) { POST_PROCESSING_IA };
+static void Waveguide_postprocessing_aa(Waveguide *self) { POST_PROCESSING_AA };
+static void Waveguide_postprocessing_ireva(Waveguide *self) { POST_PROCESSING_IREVA };
+static void Waveguide_postprocessing_areva(Waveguide *self) { POST_PROCESSING_AREVA };
+static void Waveguide_postprocessing_revai(Waveguide *self) { POST_PROCESSING_REVAI };
+static void Waveguide_postprocessing_revaa(Waveguide *self) { POST_PROCESSING_REVAA };
+static void Waveguide_postprocessing_revareva(Waveguide *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Waveguide_setProcMode(Waveguide *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Waveguide_process_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Waveguide_process_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = Waveguide_process_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Waveguide_process_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Waveguide_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Waveguide_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Waveguide_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Waveguide_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Waveguide_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Waveguide_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Waveguide_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Waveguide_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Waveguide_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Waveguide_compute_next_data_frame(Waveguide *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Waveguide_traverse(Waveguide *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->dur);    
+    Py_VISIT(self->dur_stream);    
+    return 0;
+}
+
+static int 
+Waveguide_clear(Waveguide *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);    
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->dur);    
+    Py_CLEAR(self->dur_stream);    
+    return 0;
+}
+
+static void
+Waveguide_dealloc(Waveguide* self)
+{
+    free(self->data);
+    free(self->buffer);
+    Waveguide_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Waveguide_deleteStream(Waveguide *self) { DELETE_STREAM };
+
+static PyObject *
+Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Waveguide *self;
+    self = (Waveguide *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(100);
+    self->dur = PyFloat_FromDouble(0.99);
+    self->minfreq = 20;
+    self->lastFreq = -1.0;
+    self->lastSampDel = -1.0;
+    self->lastDur = -1.0;
+    self->lastFeed = 0.0;
+    self->in_count = 0;
+    self->lpsamp = 0.0;
+    for(i=0; i<4; i++) {
+        self->lagrange[i] = 0.0;
+    }    
+    self->xn1 = 0.0;
+    self->yn1 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Waveguide_compute_next_data_frame);
+    self->mode_func_ptr = Waveguide_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    int i;
+    
+    static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (durtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
+    
+    self->buffer = (float *)realloc(self->buffer, (self->size+1) * sizeof(float));
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }    
+    
+    (*self->mode_func_ptr)(self);
+    
+    Waveguide_compute_next_data_frame((Waveguide *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Waveguide_getServer(Waveguide* self) { GET_SERVER };
+static PyObject * Waveguide_getStream(Waveguide* self) { GET_STREAM };
+static PyObject * Waveguide_setMul(Waveguide *self, PyObject *arg) { SET_MUL };	
+static PyObject * Waveguide_setAdd(Waveguide *self, PyObject *arg) { SET_ADD };	
+static PyObject * Waveguide_setSub(Waveguide *self, PyObject *arg) { SET_SUB };	
+static PyObject * Waveguide_setDiv(Waveguide *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Waveguide_play(Waveguide *self) { PLAY };
+static PyObject * Waveguide_out(Waveguide *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Waveguide_stop(Waveguide *self) { STOP };
+
+static PyObject * Waveguide_multiply(Waveguide *self, PyObject *arg) { MULTIPLY };
+static PyObject * Waveguide_inplace_multiply(Waveguide *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Waveguide_add(Waveguide *self, PyObject *arg) { ADD };
+static PyObject * Waveguide_inplace_add(Waveguide *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Waveguide_sub(Waveguide *self, PyObject *arg) { SUB };
+static PyObject * Waveguide_inplace_sub(Waveguide *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Waveguide_div(Waveguide *self, PyObject *arg) { DIV };
+static PyObject * Waveguide_inplace_div(Waveguide *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Waveguide_setFreq(Waveguide *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Waveguide_setDur(Waveguide *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->dur);
+	if (isNumber == 1) {
+		self->dur = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->dur = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->dur_stream);
+        self->dur_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Waveguide_members[] = {
+{"server", T_OBJECT_EX, offsetof(Waveguide, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Waveguide, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Waveguide, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(Waveguide, freq), 0, "Waveguide time in seconds."},
+{"dur", T_OBJECT_EX, offsetof(Waveguide, dur), 0, "Feedback value."},
+{"mul", T_OBJECT_EX, offsetof(Waveguide, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Waveguide, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Waveguide_methods[] = {
+{"getServer", (PyCFunction)Waveguide_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Waveguide_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Waveguide_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Waveguide_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Waveguide_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)Waveguide_setFreq, METH_O, "Sets freq time in seconds."},
+{"setDur", (PyCFunction)Waveguide_setDur, METH_O, "Sets dur value between 0 -> 1."},
+{"setMul", (PyCFunction)Waveguide_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Waveguide_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Waveguide_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Waveguide_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Waveguide_as_number = {
+(binaryfunc)Waveguide_add,                      /*nb_add*/
+(binaryfunc)Waveguide_sub,                 /*nb_subtract*/
+(binaryfunc)Waveguide_multiply,                 /*nb_multiply*/
+(binaryfunc)Waveguide_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Waveguide_inplace_add,              /*inplace_add*/
+(binaryfunc)Waveguide_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Waveguide_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Waveguide_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject WaveguideType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Waveguide_base",         /*tp_name*/
+sizeof(Waveguide),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Waveguide_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Waveguide_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Waveguide objects. Waveguide signal by x samples.",           /* tp_doc */
+(traverseproc)Waveguide_traverse,   /* tp_traverse */
+(inquiry)Waveguide_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Waveguide_methods,             /* tp_methods */
+Waveguide_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Waveguide_init,      /* tp_init */
+0,                         /* tp_alloc */
+Waveguide_new,                 /* tp_new */
+};
