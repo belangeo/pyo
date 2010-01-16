@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, sys, keyword, string, inspect
+import os, sys, keyword, string, inspect, threading, time
 import wx
 import wx.py as py
 import  wx.stc as stc
@@ -205,6 +205,7 @@ class ScriptEditor(stc.StyledTextCtrl):
 
         self.parent = parent
         self.interpreter = interpreter
+        self.timeline = None
         
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
@@ -223,6 +224,7 @@ class ScriptEditor(stc.StyledTextCtrl):
         menu2.Append(123, "Insert file path...\tCtrl+L", 
                     "Opens standard dialog and insert chosen file path at the current position")
         menu2.Append(124, "Find...\tCtrl+F", "Opens Find and Replace standard dialog")
+        menu2.Append(125, "Create timeline\tCtrl+T", "Creates a timeline for events sequencing")
         self.menuBar.Append(menu2, 'Code')
 
         menu4 = wx.Menu()
@@ -252,6 +254,7 @@ class ScriptEditor(stc.StyledTextCtrl):
         self.Bind(wx.EVT_MENU, self.OnComment, id=122)    
         self.Bind(wx.EVT_MENU, self.insertPath, id=123)
         self.Bind(wx.EVT_MENU, self.OnShowFindReplace, id=124)
+        self.Bind(wx.EVT_MENU, self.createTimeline, id=125)
         self.parent.Bind(wx.EVT_MENU, _open_manual, id=130)
 
         for i in range(500, stId):
@@ -564,6 +567,9 @@ class ScriptEditor(stc.StyledTextCtrl):
 
     def OnFindClose(self, evt):
         evt.GetDialog().Destroy()
+
+    def createTimeline(self, evt):
+        self.timeline = Timeline(self.interpreter)
         
 class Interpreter(py.shell.Shell): 
     def __init__(self, parent):
@@ -713,11 +719,12 @@ class HelpWin(wx.Treebook):
             if 'Methods:' in line: 
                 flag = True
                 methods += 'Methods details:\n\n    '
-            
+                 
             for key in _DOC_KEYWORDS:
                 if key != 'Methods':
                     if key in line: 
                         flag = False
+        
         return methods
  
     def setStyle(self):
@@ -735,6 +742,250 @@ class HelpWin(wx.Treebook):
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
+class Timeline(wx.Frame):
+    def __init__(self, interpreter):
+        wx.Frame.__init__(self, parent=None, id=wx.ID_ANY, pos=(50, 300), size=(800, 300))
+        self.interpreter = interpreter
+
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(103, "Close\tCtrl+W", "Closes front window")
+        quit_item = menu1.Append(120, "Quit\tCtrl+Q")
+        if wx.Platform=="__WXMAC__":
+            wx.App.SetMacExitMenuItemId(quit_item.GetId())
+        self.menuBar.Append(menu1, 'File')
+        menu4 = wx.Menu()
+        menu4.Append(130, "pyo documentation\tCtrl+U", "Shows pyo objects manual pages.")
+        self.menuBar.Append(menu4, 'Manual')
+        self.SetMenuBar(self.menuBar)
+
+        self.Bind(wx.EVT_MENU, self.delete, id=103)
+        self.Bind(wx.EVT_MENU, _app_quit, id=120)
+        self.Bind(wx.EVT_CLOSE, self.delete)
+
+        box = wx.BoxSizer(wx.VERTICAL)
+        self.timer = SeqTimer(time=.1, function=self.checkTime)
+        self.timer.start()
+        self.isRunning = False
+        self.timeline_time = TimelineTime(self)
+        self.timeline_seq = TimelineSeq(self, self.interpreter)
+        box.Add(self.timeline_time, 0, wx.EXPAND)
+        box.Add(self.timeline_seq, 1, wx.EXPAND)
+
+        self.SetSizer(box)
+        self.Show()
+
+    def delete(self, evt):
+        self.timer.delete()
+        self.Destroy()
+        
+    def checkTime(self, currentTime):
+        events = self.timeline_seq.getEvents()
+        for event in events:
+            if currentTime == event[0]:
+                self.interpreter.push(event[2], True)
+        self.timeline_time.setCursor(currentTime)
+
+    def KeyDown(self, evt):
+        if evt.GetKeyCode() == 32:        
+            if not self.isRunning:
+                self.timer.play()
+                self.isRunning = True
+            else:    
+                self.timer.stop()
+                self.isRunning = False
+        evt.Skip()
+
+    def setToZero(self):
+        self.timer.setTime(0)
+        self.timeline_time.setPosition(0)
+        
+    def rewind(self):
+        newpos = self.timer.getTime()-2
+        if newpos < 0:
+            newpos = 0
+        self.timer.setTime(newpos)
+        self.timeline_time.setPosition(newpos)
+    
+    def fastForward(self):
+        newpos = self.timer.getTime()+2
+        self.timer.setTime(newpos)
+        self.timeline_time.setPosition(newpos)
+        
+class TimelineTime(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(800, 10))
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.parent = parent
+        self.position = 0
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
+
+    def KeyDown(self, evt):
+        if evt.GetKeyCode() == 32:        
+            self.parent.KeyDown(evt)
+        elif evt.GetKeyCode() == 314 and evt.ShiftDown():
+            self.parent.setToZero()
+        elif evt.GetKeyCode() == 314:
+            self.parent.rewind()
+        elif evt.GetKeyCode() == 316:
+            self.parent.fastForward()    
+        evt.Skip()
+        
+    def MouseDown(self, evt):
+        pass
+ 
+    def MouseMotion(self, evt):
+        pass
+        
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+
+        dc.SetBrush(wx.Brush("#AAAAAA", wx.SOLID))
+        dc.Clear()
+
+        # Draw background
+        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+        
+        dc.SetBrush(wx.Brush("#000000", wx.SOLID))
+        dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
+        dc.DrawRectangle(self.position, 0, 1, h)
+
+        evt.Skip()
+
+    def setPosition(self, position):
+        self.position = position
+        self.Refresh()
+        
+    def setCursor(self, currentTime):
+        self.position += 1
+        self.Refresh()
+        
+class TimelineSeq(wx.Panel):
+    def __init__(self, parent, interpreter):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(800, 290))
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.parent = parent
+        self.interpreter = interpreter
+        self._events = []
+        self.selected = None
+        self.offset = (0,0)
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
+        self.Bind(wx.EVT_LEFT_DCLICK, self.DoubleClick)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
+
+    def getEvents(self):
+        return self._events
+        
+    def KeyDown(self, evt):
+        if evt.GetKeyCode() == 32:        
+            self.parent.KeyDown(evt)
+        elif evt.GetKeyCode() == 314 and evt.ShiftDown():
+            self.parent.setToZero()
+        elif evt.GetKeyCode() == 314:
+            self.parent.rewind()
+        elif evt.GetKeyCode() == 316:
+            self.parent.fastForward()    
+        evt.Skip()
+        
+    def MouseUp(self, evt):
+        if self.HasCapture():
+            self.ReleaseMouse()
+            self.selected = None
+
+    def DoubleClick(self, evt):
+        pos = evt.GetPosition()
+        rect = wx.Rect(pos[0], pos[1], 40, 20)
+        dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
+                                 style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
+        if dlg.ShowModal() == wx.ID_OK:
+            text = dlg.GetValue()
+            time = pos[0] 
+            self._events.append([time, rect, text])
+        dlg.Destroy()   
+        self.Refresh()
+
+    def MouseDown(self, evt):
+        pos = evt.GetPosition()
+        if self._events:
+            for event in self._events:
+                if event[1].Contains(pos):
+                    self.CaptureMouse()
+                    self.offset = (event[1][0] - pos[0], event[1][1] - pos[1])
+                    self.selected = self._events.index(event)
+        evt.Skip()
+        
+    def MouseMotion(self, evt):
+        if evt.Dragging() and evt.LeftIsDown():
+            if self.selected != None:
+                pos = evt.GetPosition()
+                self._events[self.selected][0] = pos[0] + self.offset[0]
+                self._events[self.selected][1].SetX(pos[0] + self.offset[0])
+                self._events[self.selected][1].SetY(pos[1] + self.offset[1])
+                self.Refresh()
+        
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+
+        dc.SetBrush(wx.Brush("#EEEEEE", wx.SOLID))
+        dc.Clear()
+
+        font = dc.GetFont()
+        font.SetPointSize(font.GetPointSize()-2)
+        dc.SetFont(font)
+        
+        # Draw background
+        dc.SetPen(wx.Pen("#EEEEEE", width=1, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+        
+        if self._events:
+            dc.SetBrush(wx.Brush("#EEEEEE", wx.SOLID))
+            dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
+            for event in self._events:
+                dc.DrawRoundedRectangleRect(event[1], 2)
+                dc.DrawText(event[2][0:5], event[1][0]+2, event[1][1]+2)
+
+        evt.Skip()
+
+class SeqTimer(threading.Thread):
+    def __init__(self, time=.05, function=None):
+        threading.Thread.__init__(self)
+        self.currentTime = 0
+        self.time = time
+        self.function = function
+        self._terminated = False
+        self._started = False
+        
+    def run(self):
+        while not self._terminated:
+            if self._started:
+                self.function(self.currentTime)
+                self.currentTime += 1 #self.time
+            time.sleep(self.time)
+
+    def setTime(self, time):
+        self.currentTime = time
+
+    def getTime(self):
+        return self.currentTime
+        
+    def play(self):
+        self._started = True
+        
+    def stop(self):
+        self._started = False
+        
+    def delete(self):
+        self._terminated = True    
+                             
 # Check for files to open
 filesToOpen = []
 if len(sys.argv) > 1:

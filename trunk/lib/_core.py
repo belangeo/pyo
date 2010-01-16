@@ -331,6 +331,8 @@ class PyoTableObject(object):
     
     The user should never instantiate an object of this class.
  
+    Notes:
+    
     Operations allowed on all table objects :
     
     len(obj) : Return the number of table streams in an object.

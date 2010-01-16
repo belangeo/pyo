@@ -2,4 +2,4 @@
 
 python setup.py build_ext --inplace
 
-python setup.py --command-packages sphinx build_sphinx
+#python setup.py --command-packages sphinx build_sphinx
