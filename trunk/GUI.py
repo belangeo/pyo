@@ -744,7 +744,7 @@ class HelpWin(wx.Treebook):
 
 class Timeline(wx.Frame):
     def __init__(self, interpreter):
-        wx.Frame.__init__(self, parent=None, id=wx.ID_ANY, pos=(50, 300), size=(800, 300))
+        wx.Frame.__init__(self, parent=None, id=wx.ID_ANY, title="Timeline", pos=(50, 300), size=(800, 200))
         self.interpreter = interpreter
 
         self.menuBar = wx.MenuBar()
@@ -817,7 +817,7 @@ class TimelineTime(wx.Panel):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(800, 10))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.parent = parent
-        self.position = 0
+        self.pos = 0
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
@@ -848,26 +848,29 @@ class TimelineTime(wx.Panel):
         dc.Clear()
 
         # Draw background
-        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
+        dc.SetPen(wx.Pen("#777777", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
         
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
+        dc.SetPen(wx.Pen("#666666", width=1, style=wx.SOLID))
+        dc.DrawLine(self.pos+1, 0, self.pos+1, h)
+        dc.DrawLine(self.pos-1, 0, self.pos-1, h)
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
-        dc.DrawRectangle(self.position, 0, 1, h)
+        dc.DrawLine(self.pos, 0, self.pos, h)
 
         evt.Skip()
 
     def setPosition(self, position):
-        self.position = position
+        self.pos = position
         self.Refresh()
         
     def setCursor(self, currentTime):
-        self.position += 1
+        self.pos += 1
         self.Refresh()
         
 class TimelineSeq(wx.Panel):
     def __init__(self, parent, interpreter):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(800, 290))
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(800, 150))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.parent = parent
         self.interpreter = interpreter
@@ -902,33 +905,65 @@ class TimelineSeq(wx.Panel):
 
     def DoubleClick(self, evt):
         pos = evt.GetPosition()
-        rect = wx.Rect(pos[0], pos[1], 40, 20)
-        dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
+        clic_on_object = False
+        if self._events:
+            for event in self._events:
+                if event[1].Contains(pos):
+                    clic_on_object = True
+                    dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', event[2], 
                                  style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
-        if dlg.ShowModal() == wx.ID_OK:
-            text = dlg.GetValue()
-            time = pos[0] 
-            self._events.append([time, rect, text])
-        dlg.Destroy()   
+                    if dlg.ShowModal() == wx.ID_OK:
+                        text = dlg.GetValue()
+                        event[2] = text
+                    dlg.Destroy()
+                    break    
+        if not clic_on_object:            
+            rect = wx.Rect(pos[0], pos[1], 40, 20)
+            dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
+                                     style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
+            if dlg.ShowModal() == wx.ID_OK:
+                text = dlg.GetValue()
+                time = pos[0] 
+                self._events.append([time, rect, text])
+            dlg.Destroy()   
         self.Refresh()
 
     def MouseDown(self, evt):
         pos = evt.GetPosition()
-        if self._events:
+        if evt.AltDown():
+            if self._events:
+                for event in self._events:
+                    if event[1].Contains(pos):
+                        self.CaptureMouse()
+                        self.offset = (event[1][0] - pos[0], event[1][1] - pos[1])
+                        rect = wx.Rect(event[1][0], event[1][1], 40, 20)
+                        text = event[2]
+                        time = event[1][0]
+                        self._events.append([time, rect, text])
+                        self.selected = len(self._events)-1
+                        break
+        elif self._events:
             for event in self._events:
                 if event[1].Contains(pos):
                     self.CaptureMouse()
                     self.offset = (event[1][0] - pos[0], event[1][1] - pos[1])
                     self.selected = self._events.index(event)
-        evt.Skip()
+                    break
         
     def MouseMotion(self, evt):
+        w,h = self.GetSize()
         if evt.Dragging() and evt.LeftIsDown():
             if self.selected != None:
                 pos = evt.GetPosition()
-                self._events[self.selected][0] = pos[0] + self.offset[0]
-                self._events[self.selected][1].SetX(pos[0] + self.offset[0])
-                self._events[self.selected][1].SetY(pos[1] + self.offset[1])
+                if (pos[0] + self.offset[0]) < 0: X = 0
+                elif (pos[0] + self.offset[0] + 40) > w: X = w - 40
+                else: X = pos[0] + self.offset[0]
+                if (pos[1] + self.offset[1]) < 0: Y = 0
+                elif (pos[1] + self.offset[1] + 20) > h: Y = h - 20
+                else: Y = pos[1] + self.offset[1]
+                self._events[self.selected][0] = X
+                self._events[self.selected][1].SetX(X)
+                self._events[self.selected][1].SetY(Y)
                 self.Refresh()
         
     def OnPaint(self, evt):
@@ -943,7 +978,7 @@ class TimelineSeq(wx.Panel):
         dc.SetFont(font)
         
         # Draw background
-        dc.SetPen(wx.Pen("#EEEEEE", width=1, style=wx.SOLID))
+        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
         
         if self._events:
@@ -951,7 +986,7 @@ class TimelineSeq(wx.Panel):
             dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
             for event in self._events:
                 dc.DrawRoundedRectangleRect(event[1], 2)
-                dc.DrawText(event[2][0:5], event[1][0]+2, event[1][1]+2)
+                dc.DrawText(event[2][0:5], event[1][0]+3, event[1][1]+2)
 
         evt.Skip()
 
