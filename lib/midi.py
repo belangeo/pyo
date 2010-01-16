@@ -17,9 +17,9 @@ class Midictl(PyoObject):
         Low range value for mapping. Available at initialization time only.
     maxscale : float, optional
         High range value for mapping. Available at initialization time only.
-        
+
     Notes:
-    
+
     The out() method is bypassed. Midictl's signal can not be sent to audio outs.
 
     """

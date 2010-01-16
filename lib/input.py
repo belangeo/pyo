@@ -26,6 +26,8 @@ class Sine(PyoObject):
     freq : float or PyoObject, Frequency in cycles per second.
     phase : float or PyoObject, Phase of sampling (0 -> 1).
     
+    See also: Osc, Phasor
+    
     Examples:
     
     >>> s = Server().boot()
