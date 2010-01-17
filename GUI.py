@@ -622,7 +622,172 @@ class Interpreter(py.shell.Shell):
         
     def delete(self, evt):
         pass
+
+    def ExecuteWithoutEVC(self, text):
+        """
+        Replace selection with text and run commands.
         
+        Execute method modified to make sure EnsureCaretVisible
+        method is not called from the Timeline. It causes memory 
+        corruption. (Belanger, 2010).
+        """
+        ps1 = str(sys.ps1)
+        ps2 = str(sys.ps2)
+        endpos = self.GetTextLength()
+        self.SetCurrentPos(endpos)
+        startpos = self.promptPosEnd
+        self.SetSelection(startpos, endpos)
+        self.ReplaceSelection('')
+        text = text.lstrip()
+        text = self.fixLineEndings(text)
+        text = self.lstripPrompt(text)
+        text = text.replace(os.linesep + ps1, '\n')
+        text = text.replace(os.linesep + ps2, '\n')
+        text = text.replace(os.linesep, '\n')
+        lines = text.split('\n')
+        commands = []
+        command = ''
+        for line in lines:
+            if line.strip() == ps2.strip():
+                # If we are pasting from something like a
+                # web page that drops the trailing space
+                # from the ps2 prompt of a blank line.
+                line = ''
+            lstrip = line.lstrip()
+            if line.strip() != '' and lstrip == line and \
+                    lstrip[:4] not in ['else','elif'] and \
+                    lstrip[:6] != 'except':
+                # New command.
+                if command:
+                    # Add the previous command to the list.
+                    commands.append(command)
+                # Start a new command, which may be multiline.
+                command = line
+            else:
+                # Multiline command. Add to the command.
+                command += '\n'
+                command += line
+        commands.append(command)
+        for command in commands:
+            command = command.replace('\n', os.linesep + ps2)
+            self.write(command)
+            self.processLine2()
+
+    def write(self, text):
+        """
+        Display text in the shell.
+        Replace line endings with OS-specific endings.
+        
+        Overide write method to make sure EnsureCaretVisible
+        method is not called from the Timeline. It causes memory 
+        corruption. (Belanger, 2010).
+        """
+        text = self.fixLineEndings(text)
+        self.AddText(text)
+
+    def processLine2(self):
+        """
+        Process the line of text at which the user hit Enter.
+                
+        processLine method modified to make sure EnsureCaretVisible
+        method is not called from the Timeline. It causes memory 
+        corruption. (Belanger, 2010).
+        """
+
+        # The user hit ENTER and we need to decide what to do. They
+        # could be sitting on any line in the shell.
+
+        thepos = self.GetCurrentPos()
+        startpos = self.promptPosEnd
+        endpos = self.GetTextLength()
+        ps2 = str(sys.ps2)
+        # If they hit RETURN inside the current command, execute the
+        # command.
+        if self.CanEdit():
+            self.SetCurrentPos(endpos)
+            self.interp.more = False
+            command = self.GetTextRange(startpos, endpos)
+            lines = command.split(os.linesep + ps2)
+            lines = [line.rstrip() for line in lines]
+            command = '\n'.join(lines)
+            if self.reader.isreading:
+                if not command:
+                    # Match the behavior of the standard Python shell
+                    # when the user hits return without entering a
+                    # value.
+                    command = '\n'
+                self.reader.input = command
+                self.write(os.linesep)
+            else:
+                self.push2(command)
+        # Or replace the current command with the other command.
+        else:
+            # If the line contains a command (even an invalid one).
+            if self.getCommand(rstrip=False):
+                command = self.getMultilineCommand()
+                self.clearCommand()
+                self.write(command)
+            # Otherwise, put the cursor back where we started.
+            else:
+                self.SetCurrentPos(thepos)
+                self.SetAnchor(thepos)
+
+    def push2(self, command, silent = False):
+        """
+        Send command to the interpreter for execution.
+        
+        push method modified to make sure EnsureCaretVisible
+        method is not called from the Timeline. It causes memory 
+        corruption. (Belanger, 2010).        
+        """
+        if not silent:
+            self.write(os.linesep)
+        busy = wx.BusyCursor()
+        self.waiting = True
+        self.more = self.interp.push(command)
+        self.waiting = False
+        del busy
+        if not self.more:
+            self.addHistory(command.rstrip())
+        if not silent:
+            self.prompt2()
+
+    def prompt2(self):
+        """
+        Display proper prompt for the context: ps1, ps2 or ps3.
+        If this is a continuation line, autoindent as necessary.
+        
+        prompt method modified to make sure EnsureCaretVisible
+        method is not called from the Timeline. It causes memory 
+        corruption. (Belanger, 2010).
+        """
+        isreading = self.reader.isreading
+        skip = False
+        if isreading:
+            prompt = str(sys.ps3)
+        elif self.more:
+            prompt = str(sys.ps2)
+        else:
+            prompt = str(sys.ps1)
+        pos = self.GetCurLine()[1]
+        if pos > 0:
+            if isreading:
+                skip = True
+            else:
+                self.write(os.linesep)
+        if not self.more:
+            self.promptPosStart = self.GetCurrentPos()
+        if not skip:
+            self.write(prompt)
+        if not self.more:
+            self.promptPosEnd = self.GetCurrentPos()
+            # Keep the undo feature from undoing previous responses.
+            self.EmptyUndoBuffer()
+        # XXX Add some autoindent magic here if more.
+        if self.more:
+            self.write(' '*4)  # Temporary hack indentation.
+        self.ScrollToColumn(0)
+                            
 class HelpWin(wx.Treebook):
     def __init__(self, parent):
         wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT)
@@ -788,7 +953,7 @@ class Timeline(wx.Frame):
         ctlbox = wx.BoxSizer(wx.VERTICAL)
         box = wx.BoxSizer(wx.VERTICAL)
 
-        sec_label = wx.StaticText(self, -1, " Seconds : ", pos=(10,2))
+        sec_label = wx.StaticText(self, -1, "  Seconds: ", pos=(10,2))
         font = sec_label.GetFont()
         font.SetPointSize(font.GetPointSize()-4)
         font.SetFaceName('Monaco')
@@ -847,7 +1012,7 @@ class Timeline(wx.Frame):
         events = self.timeline_seq.getEvents()
         for event in events:
             if currentTime == event[0]:
-                self.interpreter.run(event[2], False)    
+                self.interpreter.ExecuteWithoutEVC(event[2] + '\n')    
         self.timeline_cursor.setCursor(currentTime)
                 
     def KeyDown(self, evt):
@@ -1029,7 +1194,7 @@ class TimelineSeq(wx.Panel):
                 if event[1].Contains(pos):
                     clic_on_object = True
                     dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', event[2], 
-                                 style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
+                                 style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
                     if dlg.ShowModal() == wx.ID_OK:
                         text = dlg.GetValue()
                         event[2] = text
@@ -1038,7 +1203,7 @@ class TimelineSeq(wx.Panel):
         if not clic_on_object:            
             rect = wx.Rect(pos[0], pos[1] / 20 * 20, self.x_size, self.y_size)
             dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
-                                     style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
+                                     style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
             if dlg.ShowModal() == wx.ID_OK:
                 text = dlg.GetValue()
                 time = pos[0] 
@@ -1059,6 +1224,13 @@ class TimelineSeq(wx.Panel):
                         time = event[1][0]
                         self._events.append([time, rect, text])
                         self.selected = len(self._events)-1
+                        break
+        elif evt.ShiftDown():
+            if self._events:
+                for event in self._events:
+                    if event[1].Contains(pos):
+                        del self._events[self._events.index(event)]
+                        self.Refresh()
                         break
         elif self._events:
             for event in self._events:
@@ -1092,7 +1264,7 @@ class TimelineSeq(wx.Panel):
         dc.Clear()
 
         font = dc.GetFont()
-        font.SetPointSize(font.GetPointSize()-2)
+        font.SetPointSize(font.GetPointSize()-4)
         font.SetFaceName('Monaco')
         dc.SetFont(font)
         
@@ -1111,7 +1283,7 @@ class TimelineSeq(wx.Panel):
             dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
             for event in self._events:
                 dc.DrawRoundedRectangleRect(event[1], 2)
-                dc.DrawText(event[2][0:8], event[1][0]+3, event[1][1]+2)
+                dc.DrawText(event[2][0:10], event[1][0]+3, event[1][1]+4)
 
         evt.Skip()
 
