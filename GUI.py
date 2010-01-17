@@ -211,6 +211,8 @@ class ScriptEditor(stc.StyledTextCtrl):
         menu1 = wx.Menu()
         menu1.Append(99, "New\tCtrl+N", "Creates a new editor page")
         menu1.Append(100, "Open\tCtrl+O", "Opens an existing file")
+        menu1.Append(125, "Create timeline\tCtrl+T", "Creates a timeline for events sequencing")
+        menu1.Append(126, "Open timeline\tShift+Ctrl+T", "Opens a timeline for events sequencing")
         menu1.Append(101, "Save\tCtrl+S", "Saves the front file")
         menu1.Append(102, "Save as...\tShift+Ctrl+S", "Saves the front file under a new name")
         menu1.Append(103, "Close\tCtrl+W", "Closes front editor window")
@@ -224,7 +226,6 @@ class ScriptEditor(stc.StyledTextCtrl):
         menu2.Append(123, "Insert file path...\tCtrl+L", 
                     "Opens standard dialog and insert chosen file path at the current position")
         menu2.Append(124, "Find...\tCtrl+F", "Opens Find and Replace standard dialog")
-        menu2.Append(125, "Create timeline\tCtrl+T", "Creates a timeline for events sequencing")
         self.menuBar.Append(menu2, 'Code')
 
         menu4 = wx.Menu()
@@ -255,6 +256,7 @@ class ScriptEditor(stc.StyledTextCtrl):
         self.Bind(wx.EVT_MENU, self.insertPath, id=123)
         self.Bind(wx.EVT_MENU, self.OnShowFindReplace, id=124)
         self.Bind(wx.EVT_MENU, self.createTimeline, id=125)
+        self.Bind(wx.EVT_MENU, self.openTimeline, id=126)
         self.parent.Bind(wx.EVT_MENU, _open_manual, id=130)
 
         for i in range(500, stId):
@@ -570,6 +572,15 @@ class ScriptEditor(stc.StyledTextCtrl):
 
     def createTimeline(self, evt):
         self.timeline = Timeline(self.interpreter)
+
+    def openTimeline(self, evt):
+        dlg = wx.FileDialog(None, message="Choose a timeline file", defaultDir=os.getcwd(),
+            defaultFile="", style=wx.OPEN)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPaths()
+        dlg.Destroy()
+        self.timeline = Timeline(self.interpreter, path[0])
         
 class Interpreter(py.shell.Shell): 
     def __init__(self, parent):
@@ -608,7 +619,7 @@ class Interpreter(py.shell.Shell):
             self.Bind(wx.EVT_MENU, _ed_change_style, id=i)
   
         _ed_set_style(self)
-
+        
     def delete(self, evt):
         pass
         
@@ -743,12 +754,16 @@ class HelpWin(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class Timeline(wx.Frame):
-    def __init__(self, interpreter):
-        wx.Frame.__init__(self, parent=None, id=wx.ID_ANY, title="Timeline", pos=(50, 300), size=(800, 200))
+    def __init__(self, interpreter, path=None):
+        wx.Frame.__init__(self, parent=None, id=wx.ID_ANY, title="Timeline", pos=(50, 300), size=(800, 202))
+        self.SetMaxSize((-1, 202))
         self.interpreter = interpreter
+        self.path = ""
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
+        menu1.Append(133, "Save\tCtrl+S", "Saves timeline")
+        menu1.Append(134, "Save as\tCtrl+S", "Saves timeline as...")
         menu1.Append(103, "Close\tCtrl+W", "Closes front window")
         quit_item = menu1.Append(120, "Quit\tCtrl+Q")
         if wx.Platform=="__WXMAC__":
@@ -759,22 +774,71 @@ class Timeline(wx.Frame):
         self.menuBar.Append(menu4, 'Manual')
         self.SetMenuBar(self.menuBar)
 
+        self.Bind(wx.EVT_MENU, self.save, id=133)
+        self.Bind(wx.EVT_MENU, self.saveas, id=134)
         self.Bind(wx.EVT_MENU, self.delete, id=103)
         self.Bind(wx.EVT_MENU, _app_quit, id=120)
         self.Bind(wx.EVT_CLOSE, self.delete)
 
-        box = wx.BoxSizer(wx.VERTICAL)
-        self.timer = SeqTimer(time=.1, function=self.checkTime)
+        self.timer = SeqTimer(time=.05, function=self.checkTime)
         self.timer.start()
         self.isRunning = False
+
+        mainbox = wx.BoxSizer(wx.HORIZONTAL)
+        ctlbox = wx.BoxSizer(wx.VERTICAL)
+        box = wx.BoxSizer(wx.VERTICAL)
+
+        sec_label = wx.StaticText(self, -1, " Seconds : ", pos=(10,2))
+        font = sec_label.GetFont()
+        font.SetPointSize(font.GetPointSize()-4)
+        font.SetFaceName('Monaco')
+        sec_label.SetFont(font)
+        ctlbox.Add(sec_label, 0)
+        mainbox.Add(ctlbox, 0)
+        
         self.timeline_time = TimelineTime(self)
+        self.timeline_cursor = TimelineCursor(self, self.timer.setTime)
         self.timeline_seq = TimelineSeq(self, self.interpreter)
         box.Add(self.timeline_time, 0, wx.EXPAND)
+        box.Add(self.timeline_cursor, 0, wx.EXPAND)
         box.Add(self.timeline_seq, 1, wx.EXPAND)
+        mainbox.Add(box, 1)
 
-        self.SetSizer(box)
+        self.SetSizer(mainbox)
+        
+        if path != None:
+            self.path = path
+            self.LoadFile(path)
+            
         self.Show()
 
+    def save(self, evt):
+        if not self.path:
+            self.saveas(None)
+        else:
+            self.SaveFile(self.path)
+        
+    def saveas(self, evt):
+        dlg = wx.FileDialog(self, message="Save timeline as ...", defaultDir=os.path.expanduser('~'),
+            defaultFile="", style=wx.SAVE)
+        dlg.SetFilterIndex(0)
+
+        if dlg.ShowModal() == wx.ID_OK:
+            self.path = dlg.GetPath()
+            self.SaveFile(self.path)
+        dlg.Destroy()
+
+    def SaveFile(self, path):
+        f = open(path, "w")
+        f.write(str(self.timeline_seq.getEvents()))
+        f.close()
+
+    def LoadFile(self, path):
+        f = open(path, "r")
+        self.timeline_seq.setEvents(eval(f.read()))
+        self.timeline_seq.Refresh()
+        f.close()
+        
     def delete(self, evt):
         self.timer.delete()
         self.Destroy()
@@ -783,9 +847,9 @@ class Timeline(wx.Frame):
         events = self.timeline_seq.getEvents()
         for event in events:
             if currentTime == event[0]:
-                self.interpreter.push(event[2], True)
-        self.timeline_time.setCursor(currentTime)
-
+                self.interpreter.run(event[2], False)    
+        self.timeline_cursor.setCursor(currentTime)
+                
     def KeyDown(self, evt):
         if evt.GetKeyCode() == 32:        
             if not self.isRunning:
@@ -798,25 +862,69 @@ class Timeline(wx.Frame):
 
     def setToZero(self):
         self.timer.setTime(0)
-        self.timeline_time.setPosition(0)
+        self.timeline_cursor.setPosition(0)
         
     def rewind(self):
         newpos = self.timer.getTime()-2
         if newpos < 0:
             newpos = 0
         self.timer.setTime(newpos)
-        self.timeline_time.setPosition(newpos)
+        self.timeline_cursor.setPosition(newpos)
     
     def fastForward(self):
         newpos = self.timer.getTime()+2
         self.timer.setTime(newpos)
-        self.timeline_time.setPosition(newpos)
-        
+        self.timeline_cursor.setPosition(newpos)
+
 class TimelineTime(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(800, 10))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.parent = parent
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
+
+    def KeyDown(self, evt):
+        if evt.GetKeyCode() == 32:        
+            self.parent.KeyDown(evt)
+        elif evt.GetKeyCode() == 314 and evt.ShiftDown():
+            self.parent.setToZero()
+        elif evt.GetKeyCode() == 314:
+            self.parent.rewind()
+        elif evt.GetKeyCode() == 316:
+            self.parent.fastForward()    
+        evt.Skip()
+        
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+
+        dc.SetBrush(wx.Brush("#EEEEEE", wx.SOLID))
+        dc.Clear()
+
+        font = dc.GetFont()
+        font.SetPointSize(font.GetPointSize()-6)
+        font.SetFaceName('Monaco')
+        dc.SetFont(font)
+
+        num_marks = w / 20 + 1
+
+        # Draw background
+        dc.SetPen(wx.Pen("#777777", width=1, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+        
+        dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
+        for i in range(num_marks):
+            dc.DrawText(str(i), i*20, 1)
+            
+        evt.Skip()
+        
+class TimelineCursor(wx.Panel):
+    def __init__(self, parent, function):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(800, 10))
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.parent = parent
+        self.function = function
         self.pos = 0
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
@@ -835,8 +943,12 @@ class TimelineTime(wx.Panel):
         evt.Skip()
         
     def MouseDown(self, evt):
-        pass
- 
+        if not self.parent.isRunning:
+            pos = evt.GetPosition()
+            self.setPosition(pos[0])
+            self.function(pos[0])
+        evt.Skip()
+        
     def MouseMotion(self, evt):
         pass
         
@@ -870,11 +982,14 @@ class TimelineTime(wx.Panel):
         
 class TimelineSeq(wx.Panel):
     def __init__(self, parent, interpreter):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(800, 150))
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(800, 160))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetMaxSize((-1, 160))
         self.parent = parent
         self.interpreter = interpreter
         self._events = []
+        self.x_size = 60
+        self.y_size = 20
         self.selected = None
         self.offset = (0,0)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
@@ -886,6 +1001,9 @@ class TimelineSeq(wx.Panel):
 
     def getEvents(self):
         return self._events
+
+    def setEvents(self, events):
+        self._events = events
         
     def KeyDown(self, evt):
         if evt.GetKeyCode() == 32:        
@@ -911,16 +1029,16 @@ class TimelineSeq(wx.Panel):
                 if event[1].Contains(pos):
                     clic_on_object = True
                     dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', event[2], 
-                                 style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
+                                 style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
                     if dlg.ShowModal() == wx.ID_OK:
                         text = dlg.GetValue()
                         event[2] = text
                     dlg.Destroy()
                     break    
         if not clic_on_object:            
-            rect = wx.Rect(pos[0], pos[1], 40, 20)
+            rect = wx.Rect(pos[0], pos[1] / 20 * 20, self.x_size, self.y_size)
             dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
-                                     style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
+                                     style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
             if dlg.ShowModal() == wx.ID_OK:
                 text = dlg.GetValue()
                 time = pos[0] 
@@ -936,7 +1054,7 @@ class TimelineSeq(wx.Panel):
                     if event[1].Contains(pos):
                         self.CaptureMouse()
                         self.offset = (event[1][0] - pos[0], event[1][1] - pos[1])
-                        rect = wx.Rect(event[1][0], event[1][1], 40, 20)
+                        rect = wx.Rect(event[1][0], event[1][1], self.x_size, self.y_size)
                         text = event[2]
                         time = event[1][0]
                         self._events.append([time, rect, text])
@@ -956,11 +1074,11 @@ class TimelineSeq(wx.Panel):
             if self.selected != None:
                 pos = evt.GetPosition()
                 if (pos[0] + self.offset[0]) < 0: X = 0
-                elif (pos[0] + self.offset[0] + 40) > w: X = w - 40
+                elif (pos[0] + self.offset[0] + self.x_size) > w: X = w - self.x_size
                 else: X = pos[0] + self.offset[0]
                 if (pos[1] + self.offset[1]) < 0: Y = 0
-                elif (pos[1] + self.offset[1] + 20) > h: Y = h - 20
-                else: Y = pos[1] + self.offset[1]
+                elif (pos[1] + self.offset[1] + self.y_size) > h: Y = h - self.y_size
+                else: Y = (pos[1] + self.offset[1]) / 20 * 20
                 self._events[self.selected][0] = X
                 self._events[self.selected][1].SetX(X)
                 self._events[self.selected][1].SetY(Y)
@@ -975,18 +1093,25 @@ class TimelineSeq(wx.Panel):
 
         font = dc.GetFont()
         font.SetPointSize(font.GetPointSize()-2)
+        font.SetFaceName('Monaco')
         dc.SetFont(font)
         
         # Draw background
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
-        
+
+        num_marks = w / 20 + 1
+        dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
+        for i in range(num_marks):
+            mk_xpos = i * 20
+            dc.DrawLine(mk_xpos, 0, mk_xpos, 400)
+            
         if self._events:
             dc.SetBrush(wx.Brush("#EEEEEE", wx.SOLID))
             dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
             for event in self._events:
                 dc.DrawRoundedRectangleRect(event[1], 2)
-                dc.DrawText(event[2][0:5], event[1][0]+3, event[1][1]+2)
+                dc.DrawText(event[2][0:8], event[1][0]+3, event[1][1]+2)
 
         evt.Skip()
 
