@@ -936,6 +936,12 @@ class Timeline(wx.Frame):
         if wx.Platform=="__WXMAC__":
             wx.App.SetMacExitMenuItemId(quit_item.GetId())
         self.menuBar.Append(menu1, 'File')
+        
+        menu2 = wx.Menu()
+        menu2.Append(162, "Copy\tCtrl+C")
+        menu2.Append(163, "Paste\tCtrl+V")
+        self.menuBar.Append(menu2, 'Edit')
+
         menu4 = wx.Menu()
         menu4.Append(130, "pyo documentation\tCtrl+U", "Shows pyo objects manual pages.")
         self.menuBar.Append(menu4, 'Manual')
@@ -943,10 +949,13 @@ class Timeline(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.save, id=133)
         self.Bind(wx.EVT_MENU, self.saveas, id=134)
+        self.Bind(wx.EVT_MENU, self.copy, id=162)
+        self.Bind(wx.EVT_MENU, self.paste, id=163)
         self.Bind(wx.EVT_MENU, self.delete, id=103)
         self.Bind(wx.EVT_MENU, _app_quit, id=120)
         self.Bind(wx.EVT_CLOSE, self.delete)
         self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.Bind(wx.EVT_MENU, _open_manual, id=130)
 
         self.PIX = 40
         self.timer = SeqTimer(time=1./self.PIX, function=self.checkTime)
@@ -981,6 +990,12 @@ class Timeline(wx.Frame):
             
         self.Show()
 
+    def copy(self, evt):
+        self.timeline_seq.copy()
+        
+    def paste(self, evt):
+        self.timeline_seq.paste()
+        
     def save(self, evt):
         if not self.path:
             self.saveas(None)
@@ -1016,9 +1031,9 @@ class Timeline(wx.Frame):
         self.currentTime = currentTime
         events = self.timeline_seq.getEvents()
         for event in events:
-            if self.currentTime == event[0]:
+            if self.currentTime == event[0]:                
                 self.interpreter.ExecuteWithoutEVC(event[2] + '\n')    
-                #self.interpreter.run(event[2])    
+                #self.interpreter.run(event[2] + '\n\n')    
         self.setPage()
 
         self.timeline_cursor.setPosition(currentTime)
@@ -1181,9 +1196,12 @@ class TimelineCursor(wx.Panel):
         
     def MouseDown(self, evt):
         if not self.parent.isRunning:
-            pos = evt.GetPosition()
-            self.setPosition(pos[0])
-            self.function(pos[0])
+            w,h = self.GetSize()
+            s = w / self.PIX * self.PIX
+            pos = evt.GetPosition()[0]
+            self.setPosition(pos)
+            self.function(pos)
+            self.parent.currentTime = s * self.page + pos
         evt.Skip()
         
     def OnPaint(self, evt):
@@ -1224,6 +1242,7 @@ class TimelineSeq(wx.Panel):
         self.x_size = 60
         self.y_size = 20
         self.selected = None
+        self._clipboard = None        
         self.offset = (0,0)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
@@ -1232,6 +1251,20 @@ class TimelineSeq(wx.Panel):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
 
+    def copy(self):
+        self._clipboard = self.selected
+        
+    def paste(self):
+        if self._clipboard != None:
+            obj = self._events[self._clipboard]
+            posx = self.parent.currentTime
+            posy = obj[1][1]
+            rect = wx.Rect(posx, posy / self.y_size * self.y_size, self.x_size, self.y_size)
+            text = obj[2]
+            time = posx 
+            self._events.append([time, rect, text])
+            self.Refresh()
+            
     def getEvents(self):
         return self._events
 
@@ -1260,7 +1293,6 @@ class TimelineSeq(wx.Panel):
     def MouseUp(self, evt):
         if self.HasCapture():
             self.ReleaseMouse()
-            self.selected = None
 
     def DoubleClick(self, evt):
         w,h = self.GetSize()
@@ -1272,7 +1304,7 @@ class TimelineSeq(wx.Panel):
             for event in self._events:
                 if event[1].Contains(pos):
                     clic_on_object = True
-                    dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', event[2], 
+                    dlg = wx.TextEntryDialog(self, 'Enter your command here!', 'Event', event[2], 
                                  style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
                     if dlg.ShowModal() == wx.ID_OK:
                         text = dlg.GetValue()
@@ -1281,7 +1313,7 @@ class TimelineSeq(wx.Panel):
                     break    
         if not clic_on_object:            
             rect = wx.Rect(pos[0], pos[1] / self.y_size * self.y_size, self.x_size, self.y_size)
-            dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
+            dlg = wx.TextEntryDialog(self, 'Enter your command here!', 'Event', '', 
                                      style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
             if dlg.ShowModal() == wx.ID_OK:
                 text = dlg.GetValue()
