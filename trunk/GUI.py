@@ -1018,6 +1018,7 @@ class Timeline(wx.Frame):
         for event in events:
             if self.currentTime == event[0]:
                 self.interpreter.ExecuteWithoutEVC(event[2] + '\n')    
+                #self.interpreter.run(event[2])    
         self.setPage()
 
         self.timeline_cursor.setPosition(currentTime)
@@ -1272,7 +1273,7 @@ class TimelineSeq(wx.Panel):
                 if event[1].Contains(pos):
                     clic_on_object = True
                     dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', event[2], 
-                                 style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
+                                 style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
                     if dlg.ShowModal() == wx.ID_OK:
                         text = dlg.GetValue()
                         event[2] = text
@@ -1281,7 +1282,7 @@ class TimelineSeq(wx.Panel):
         if not clic_on_object:            
             rect = wx.Rect(pos[0], pos[1] / self.y_size * self.y_size, self.x_size, self.y_size)
             dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
-                                     style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
+                                     style=wx.OK | wx.CANCEL) # | wx.TE_MULTILINE)
             if dlg.ShowModal() == wx.ID_OK:
                 text = dlg.GetValue()
                 time = pos[0] 
