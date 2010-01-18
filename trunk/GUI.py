@@ -924,6 +924,8 @@ class Timeline(wx.Frame):
         self.SetMaxSize((-1, 202))
         self.interpreter = interpreter
         self.path = ""
+        self.page = 0
+        self.currentTime = 0
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
@@ -944,8 +946,10 @@ class Timeline(wx.Frame):
         self.Bind(wx.EVT_MENU, self.delete, id=103)
         self.Bind(wx.EVT_MENU, _app_quit, id=120)
         self.Bind(wx.EVT_CLOSE, self.delete)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
 
-        self.timer = SeqTimer(time=.05, function=self.checkTime)
+        self.PIX = 40
+        self.timer = SeqTimer(time=1./self.PIX, function=self.checkTime)
         self.timer.start()
         self.isRunning = False
 
@@ -953,7 +957,7 @@ class Timeline(wx.Frame):
         ctlbox = wx.BoxSizer(wx.VERTICAL)
         box = wx.BoxSizer(wx.VERTICAL)
 
-        sec_label = wx.StaticText(self, -1, "  Seconds: ", pos=(10,2))
+        sec_label = wx.StaticText(self, -1, "  Time: ", pos=(10,2))
         font = sec_label.GetFont()
         font.SetPointSize(font.GetPointSize()-4)
         font.SetFaceName('Monaco')
@@ -1009,12 +1013,31 @@ class Timeline(wx.Frame):
         self.Destroy()
         
     def checkTime(self, currentTime):
+        self.currentTime = currentTime
         events = self.timeline_seq.getEvents()
         for event in events:
-            if currentTime == event[0]:
+            if self.currentTime == event[0]:
                 self.interpreter.ExecuteWithoutEVC(event[2] + '\n')    
-        self.timeline_cursor.setCursor(currentTime)
-                
+        self.setPage()
+
+        self.timeline_cursor.setPosition(currentTime)
+
+    def OnSize(self, evt):
+        try:
+            self.setPage()
+        except:
+            pass
+        evt.Skip()
+
+    def setPage(self):
+        s = self.timeline_cursor.GetSize()[0] / self.PIX * self.PIX
+        page = self.currentTime / s
+        if page != self.page:
+            self.page = page
+            self.timeline_time.setPage(page)
+            self.timeline_cursor.setPage(page)
+            self.timeline_seq.setPage(page)
+        
     def KeyDown(self, evt):
         if evt.GetKeyCode() == 32:        
             if not self.isRunning:
@@ -1026,29 +1049,59 @@ class Timeline(wx.Frame):
         evt.Skip()
 
     def setToZero(self):
+        self.currentTime = 0
         self.timer.setTime(0)
         self.timeline_cursor.setPosition(0)
+        self.setPage()
         
     def rewind(self):
-        newpos = self.timer.getTime()-2
-        if newpos < 0:
-            newpos = 0
-        self.timer.setTime(newpos)
-        self.timeline_cursor.setPosition(newpos)
+        self.currentTime = self.timer.getTime()-2
+        if self.currentTime < 0:
+            self.currentTime = 0
+        self.timer.setTime(self.currentTime)
+        self.timeline_cursor.setPosition(self.currentTime)
+        self.setPage()
     
     def fastForward(self):
-        newpos = self.timer.getTime()+2
-        self.timer.setTime(newpos)
-        self.timeline_cursor.setPosition(newpos)
+        self.currentTime = self.timer.getTime()+2
+        self.timer.setTime(self.currentTime)
+        self.timeline_cursor.setPosition(self.currentTime)
+        self.setPage()
 
+    def pageDown(self):
+        page = self.page - 1
+        if page <= 0:
+            self.setToZero()
+            return
+            
+        s = self.timeline_cursor.GetSize()[0] / self.PIX * self.PIX
+        self.currentTime = s * page
+        self.timer.setTime(self.currentTime)
+        self.timeline_cursor.setPosition(self.currentTime)
+        self.setPage()
+
+    def pageUp(self):
+        page = self.page + 1
+        s = self.timeline_cursor.GetSize()[0] / self.PIX * self.PIX
+        self.currentTime = s * page
+        self.timer.setTime(self.currentTime)
+        self.timeline_cursor.setPosition(self.currentTime)
+        self.setPage()
+        
 class TimelineTime(wx.Panel):
     def __init__(self, parent):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(800, 10))
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(-1, 10))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.parent = parent
+        self.PIX = self.parent.PIX
+        self.page = 0
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
 
+    def setPage(self, page):
+        self.page = page
+        self.Refresh()
+        
     def KeyDown(self, evt):
         if evt.GetKeyCode() == 32:        
             self.parent.KeyDown(evt)
@@ -1058,6 +1111,10 @@ class TimelineTime(wx.Panel):
             self.parent.rewind()
         elif evt.GetKeyCode() == 316:
             self.parent.fastForward()    
+        elif evt.GetKeyCode() == 317:
+            self.parent.pageDown()
+        elif evt.GetKeyCode() == 315:
+            self.parent.pageUp()    
         evt.Skip()
         
     def OnPaint(self, evt):
@@ -1072,7 +1129,7 @@ class TimelineTime(wx.Panel):
         font.SetFaceName('Monaco')
         dc.SetFont(font)
 
-        num_marks = w / 20 + 1
+        num_marks = w / self.PIX + 1
 
         # Draw background
         dc.SetPen(wx.Pen("#777777", width=1, style=wx.SOLID))
@@ -1080,21 +1137,31 @@ class TimelineTime(wx.Panel):
         
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
         for i in range(num_marks):
-            dc.DrawText(str(i), i*20, 1)
+            first = self.page * (num_marks - 1)
+            if first < 0: first = 0
+            num = i + first
+            minutes = num / 60
+            seconds = num % 60
+            dc.DrawText("%d:%.2d" % (minutes, seconds), i*self.PIX, 1)
             
         evt.Skip()
         
 class TimelineCursor(wx.Panel):
     def __init__(self, parent, function):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(800, 10))
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,0), size=(-1, 10))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.parent = parent
+        self.PIX = self.parent.PIX
         self.function = function
         self.pos = 0
+        self.page = 0
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-        self.Bind(wx.EVT_MOTION, self.MouseMotion)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_KEY_DOWN, self.KeyDown)
+
+    def setPage(self, page):
+        self.page = page
+        self.Refresh()
 
     def KeyDown(self, evt):
         if evt.GetKeyCode() == 32:        
@@ -1105,6 +1172,10 @@ class TimelineCursor(wx.Panel):
             self.parent.rewind()
         elif evt.GetKeyCode() == 316:
             self.parent.fastForward()    
+        elif evt.GetKeyCode() == 317:
+            self.parent.pageDown()
+        elif evt.GetKeyCode() == 315:
+            self.parent.pageUp()    
         evt.Skip()
         
     def MouseDown(self, evt):
@@ -1113,9 +1184,6 @@ class TimelineCursor(wx.Panel):
             self.setPosition(pos[0])
             self.function(pos[0])
         evt.Skip()
-        
-    def MouseMotion(self, evt):
-        pass
         
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -1127,30 +1195,29 @@ class TimelineCursor(wx.Panel):
         # Draw background
         dc.SetPen(wx.Pen("#777777", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
-        
+                
+        pos = self.pos % (w/self.PIX*self.PIX)
         dc.SetBrush(wx.Brush("#000000", wx.SOLID))
         dc.SetPen(wx.Pen("#666666", width=1, style=wx.SOLID))
-        dc.DrawLine(self.pos+1, 0, self.pos+1, h)
-        dc.DrawLine(self.pos-1, 0, self.pos-1, h)
+        dc.DrawLine(pos+1, 0, pos+1, h)
+        dc.DrawLine(pos-1, 0, pos-1, h)
         dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
-        dc.DrawLine(self.pos, 0, self.pos, h)
+        dc.DrawLine(pos, 0, pos, h)
 
         evt.Skip()
 
     def setPosition(self, position):
         self.pos = position
         self.Refresh()
-        
-    def setCursor(self, currentTime):
-        self.pos += 1
-        self.Refresh()
-        
+     
 class TimelineSeq(wx.Panel):
     def __init__(self, parent, interpreter):
-        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(800, 160))
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=(0,10), size=(-1, 160))
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetMaxSize((-1, 160))
         self.parent = parent
+        self.PIX = self.parent.PIX
+        self.page = 0
         self.interpreter = interpreter
         self._events = []
         self.x_size = 60
@@ -1169,6 +1236,10 @@ class TimelineSeq(wx.Panel):
 
     def setEvents(self, events):
         self._events = events
+
+    def setPage(self, page):
+        self.page = page
+        self.Refresh()
         
     def KeyDown(self, evt):
         if evt.GetKeyCode() == 32:        
@@ -1179,6 +1250,10 @@ class TimelineSeq(wx.Panel):
             self.parent.rewind()
         elif evt.GetKeyCode() == 316:
             self.parent.fastForward()    
+        elif evt.GetKeyCode() == 317:
+            self.parent.pageDown()
+        elif evt.GetKeyCode() == 315:
+            self.parent.pageUp()    
         evt.Skip()
         
     def MouseUp(self, evt):
@@ -1187,7 +1262,10 @@ class TimelineSeq(wx.Panel):
             self.selected = None
 
     def DoubleClick(self, evt):
+        w,h = self.GetSize()
         pos = evt.GetPosition()
+        s = w / self.PIX * self.PIX
+        pos[0] = s * self.page + pos[0]        
         clic_on_object = False
         if self._events:
             for event in self._events:
@@ -1201,7 +1279,7 @@ class TimelineSeq(wx.Panel):
                     dlg.Destroy()
                     break    
         if not clic_on_object:            
-            rect = wx.Rect(pos[0], pos[1] / 20 * 20, self.x_size, self.y_size)
+            rect = wx.Rect(pos[0], pos[1] / self.y_size * self.y_size, self.x_size, self.y_size)
             dlg = wx.TextEntryDialog(self, 'Enter your code here!', 'Event', '', 
                                      style=wx.OK | wx.CANCEL | wx.TE_MULTILINE)
             if dlg.ShowModal() == wx.ID_OK:
@@ -1212,7 +1290,10 @@ class TimelineSeq(wx.Panel):
         self.Refresh()
 
     def MouseDown(self, evt):
+        w,h = self.GetSize()
         pos = evt.GetPosition()
+        s = w / self.PIX * self.PIX
+        pos[0] = s * self.page + pos[0]        
         if evt.AltDown():
             if self._events:
                 for event in self._events:
@@ -1224,33 +1305,41 @@ class TimelineSeq(wx.Panel):
                         time = event[1][0]
                         self._events.append([time, rect, text])
                         self.selected = len(self._events)-1
-                        break
+                        self.Refresh()
+                        return
         elif evt.ShiftDown():
             if self._events:
                 for event in self._events:
                     if event[1].Contains(pos):
                         del self._events[self._events.index(event)]
+                        self.selected = None
                         self.Refresh()
-                        break
+                        return
         elif self._events:
             for event in self._events:
                 if event[1].Contains(pos):
                     self.CaptureMouse()
                     self.offset = (event[1][0] - pos[0], event[1][1] - pos[1])
                     self.selected = self._events.index(event)
-                    break
+                    self.Refresh()
+                    return
+                    
+        self.selected = None
+        self.Refresh()            
         
     def MouseMotion(self, evt):
         w,h = self.GetSize()
+        pos = evt.GetPosition()
+        s = w / self.PIX * self.PIX
+        poff = s * self.page        
         if evt.Dragging() and evt.LeftIsDown():
             if self.selected != None:
-                pos = evt.GetPosition()
-                if (pos[0] + self.offset[0]) < 0: X = 0
-                elif (pos[0] + self.offset[0] + self.x_size) > w: X = w - self.x_size
-                else: X = pos[0] + self.offset[0]
+                if (pos[0] + self.offset[0]) < 0: X = 0 + poff
+                elif (pos[0] + self.offset[0] + self.x_size) > w: X = w - self.x_size + poff
+                else: X = pos[0] + self.offset[0] + poff
                 if (pos[1] + self.offset[1]) < 0: Y = 0
                 elif (pos[1] + self.offset[1] + self.y_size) > h: Y = h - self.y_size
-                else: Y = (pos[1] + self.offset[1]) / 20 * 20
+                else: Y = (pos[1] + self.offset[1]) / self.y_size * self.y_size
                 self._events[self.selected][0] = X
                 self._events[self.selected][1].SetX(X)
                 self._events[self.selected][1].SetY(Y)
@@ -1272,18 +1361,23 @@ class TimelineSeq(wx.Panel):
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
 
-        num_marks = w / 20 + 1
+        num_marks = w / self.PIX + 1
         dc.SetPen(wx.Pen("#AAAAAA", width=1, style=wx.SOLID))
         for i in range(num_marks):
-            mk_xpos = i * 20
+            mk_xpos = i * self.PIX
             dc.DrawLine(mk_xpos, 0, mk_xpos, 400)
             
         if self._events:
             dc.SetBrush(wx.Brush("#EEEEEE", wx.SOLID))
             dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
-            for event in self._events:
-                dc.DrawRoundedRectangleRect(event[1], 2)
-                dc.DrawText(event[2][0:10], event[1][0]+3, event[1][1]+4)
+            first = self.page * (w/self.PIX*self.PIX)
+            for i, event in enumerate(self._events):
+                if first <= event[0] <= (first + w):
+                    if i == self.selected: dc.SetPen(wx.Pen("#000000", width=2, style=wx.SOLID))
+                    else: dc.SetPen(wx.Pen("#000000", width=1, style=wx.SOLID))
+                    x_pos = event[1][0] - first
+                    dc.DrawRoundedRectangle(x_pos, event[1][1], event[1][2], event[1][3], 2)
+                    dc.DrawText(event[2][0:10], x_pos+3, event[1][1]+4)
 
         evt.Skip()
 
