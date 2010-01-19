@@ -18,6 +18,7 @@ extern PyTypeObject SelectType;
 
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
+extern PyTypeObject ToneType;
 extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;

@@ -830,8 +830,8 @@ Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
-    self->y1 = 0.;
-    self->x1 = 0.;
+    self->y1 = 0.0;
+    self->x1 = 0.0;
     self->dir = 1;
     
     INIT_OBJECT_COMMON
@@ -844,10 +844,11 @@ static int
 Port_init(Port *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    float inittmp = 0.0;
     
-    static char *kwlist[] = {"input", "risetime", "falltime", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "risetime", "falltime", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &inittmp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -872,7 +873,10 @@ Port_init(Port *self, PyObject *args, PyObject *kwds)
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
-    
+
+    if (inittmp != 0.0)
+        self->x1 = self->y1 = inittmp;
+        
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
@@ -1083,7 +1087,9 @@ Port_members,                                 /* tp_members */
 Port_new,                                     /* tp_new */
 };
 
-
+/************/
+/* Follower */
+/************/
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
@@ -1487,4 +1493,382 @@ Follower_members,                                 /* tp_members */
 (initproc)Follower_init,                          /* tp_init */
 0,                                              /* tp_alloc */
 Follower_new,                                     /* tp_new */
+};
+
+/************/
+/* Tone */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+    float lastFreq;
+    // sample memories
+    float y1;
+    // variables
+    float c1;
+    float c2;
+} Tone;
+
+static void
+Tone_filters_i(Tone *self) {
+    float val, b;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float fr = PyFloat_AS_DOUBLE(self->freq);
+    
+    if (fr != self->lastFreq) {
+        self->lastFreq = fr;
+        b = 2.0 - cosf(TWOPI * fr / self->sr);
+        self->c2 = (b - sqrtf(b * b - 1.0));
+        self->c1 = 1.0 - self->c2;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = self->c1 * in[i] + self->c2 * self->y1;
+        self->data[i] = val;
+        self->y1 = val;
+    }
+}
+
+static void
+Tone_filters_a(Tone *self) {
+    float val, freq, b;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        if (freq != self->lastFreq) {
+            self->lastFreq = freq;
+            b = 2.0 - cosf(TWOPI * freq / self->sr);
+            self->c2 = (b - sqrtf(b * b - 1.0));
+            self->c1 = 1.0 - self->c2;
+        }
+        val = self->c1 * in[i] + self->c2 * self->y1;
+        self->data[i] = val;
+        self->y1 = val;
+    }
+}
+
+static void Tone_postprocessing_ii(Tone *self) { POST_PROCESSING_II };
+static void Tone_postprocessing_ai(Tone *self) { POST_PROCESSING_AI };
+static void Tone_postprocessing_ia(Tone *self) { POST_PROCESSING_IA };
+static void Tone_postprocessing_aa(Tone *self) { POST_PROCESSING_AA };
+static void Tone_postprocessing_ireva(Tone *self) { POST_PROCESSING_IREVA };
+static void Tone_postprocessing_areva(Tone *self) { POST_PROCESSING_AREVA };
+static void Tone_postprocessing_revai(Tone *self) { POST_PROCESSING_REVAI };
+static void Tone_postprocessing_revaa(Tone *self) { POST_PROCESSING_REVAA };
+static void Tone_postprocessing_revareva(Tone *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Tone_setProcMode(Tone *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Tone_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Tone_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Tone_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Tone_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Tone_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Tone_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Tone_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Tone_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Tone_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Tone_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Tone_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Tone_compute_next_data_frame(Tone *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Tone_traverse(Tone *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    return 0;
+}
+
+static int 
+Tone_clear(Tone *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    return 0;
+}
+
+static void
+Tone_dealloc(Tone* self)
+{
+    free(self->data);
+    Tone_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Tone_deleteStream(Tone *self) { DELETE_STREAM };
+
+static PyObject *
+Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Tone *self;
+    self = (Tone *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->lastFreq = -1.0;
+    self->y1 = self->c1 = self->c2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Tone_compute_next_data_frame);
+    self->mode_func_ptr = Tone_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Tone_init(Tone *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Tone_compute_next_data_frame((Tone *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Tone_getServer(Tone* self) { GET_SERVER };
+static PyObject * Tone_getStream(Tone* self) { GET_STREAM };
+static PyObject * Tone_setMul(Tone *self, PyObject *arg) { SET_MUL };	
+static PyObject * Tone_setAdd(Tone *self, PyObject *arg) { SET_ADD };	
+static PyObject * Tone_setSub(Tone *self, PyObject *arg) { SET_SUB };	
+static PyObject * Tone_setDiv(Tone *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Tone_play(Tone *self) { PLAY };
+static PyObject * Tone_out(Tone *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Tone_stop(Tone *self) { STOP };
+
+static PyObject * Tone_multiply(Tone *self, PyObject *arg) { MULTIPLY };
+static PyObject * Tone_inplace_multiply(Tone *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Tone_add(Tone *self, PyObject *arg) { ADD };
+static PyObject * Tone_inplace_add(Tone *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Tone_sub(Tone *self, PyObject *arg) { SUB };
+static PyObject * Tone_inplace_sub(Tone *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Tone_div(Tone *self, PyObject *arg) { DIV };
+static PyObject * Tone_inplace_div(Tone *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Tone_setFreq(Tone *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef Tone_members[] = {
+{"server", T_OBJECT_EX, offsetof(Tone, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Tone, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Tone, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(Tone, freq), 0, "Cutoff frequency in cycle per second."},
+{"mul", T_OBJECT_EX, offsetof(Tone, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Tone, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Tone_methods[] = {
+{"getServer", (PyCFunction)Tone_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Tone_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Tone_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Tone_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Tone_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Tone_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)Tone_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+{"setMul", (PyCFunction)Tone_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Tone_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Tone_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Tone_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Tone_as_number = {
+(binaryfunc)Tone_add,                         /*nb_add*/
+(binaryfunc)Tone_sub,                         /*nb_subtract*/
+(binaryfunc)Tone_multiply,                    /*nb_multiply*/
+(binaryfunc)Tone_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Tone_inplace_add,                 /*inplace_add*/
+(binaryfunc)Tone_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Tone_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Tone_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ToneType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Tone_base",                                   /*tp_name*/
+sizeof(Tone),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Tone_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Tone_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Tone objects. One-pole recursive lowpass filter.",           /* tp_doc */
+(traverseproc)Tone_traverse,                  /* tp_traverse */
+(inquiry)Tone_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Tone_methods,                                 /* tp_methods */
+Tone_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Tone_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Tone_new,                                     /* tp_new */
 };

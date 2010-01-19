@@ -152,6 +152,98 @@ class Biquad(PyoObject):
     @type.setter
     def type(self, x): self.setType(x)
 
+class Tone(PyoObject):
+    """
+    A first-order recursive low-pass filter with variable frequency response.
+ 
+    Parent class: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Cutoff frequency of the filter in hertz. Default to 1000.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Cutoff frequency of the filter.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> n = Noise(.5)
+    >>> f = Tone(n, 500).out()
+
+    """
+    def __init__(self, input, freq=1000, mul=1, add=0):
+        self._input = input
+        self._freq = freq
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
+        self._base_objs = [Tone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Tone_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Tone(input, freq=1000, mul=1, add=0)")
+    args = Print_args(args)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+
 class Disto(PyoObject):
     """
     Arctan distortion.

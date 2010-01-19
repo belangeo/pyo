@@ -4,7 +4,7 @@ from pyo import *
                   
 _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
                     'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
-        'PyoObject': {'Filters': sorted(['Biquad', 'Port', 'Hilbert']),
+        'PyoObject': {'Filters': sorted(['Biquad', 'Port', 'Hilbert', 'Tone']),
                       'Open Sound Control': sorted(['OscReceive', 'OscSend']),
                       'Effects': sorted(['BandSplit',  'Clip', 'Delay', 'Disto', 'Freeverb','Pan', 'SPan', 'Waveguide']),
                       'Triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter']),
