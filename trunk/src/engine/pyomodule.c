@@ -306,6 +306,11 @@ init_pyo(void)
     Py_INCREF(&BiquadType);
     PyModule_AddObject(m, "Biquad_base", (PyObject *)&BiquadType);
 
+    if (PyType_Ready(&ToneType) < 0)
+        return;
+    Py_INCREF(&ToneType);
+    PyModule_AddObject(m, "Tone_base", (PyObject *)&ToneType);
+    
     if (PyType_Ready(&PortType) < 0)
         return;
     Py_INCREF(&PortType);

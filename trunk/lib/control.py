@@ -149,6 +149,9 @@ class Port(PyoObject):
         Time to reach upward value in seconds. Defaults to 0.05.
     falltime : float or PyoObject, optional
         Time to reach downward value in seconds. Defaults to 0.05.
+    init : float, optional
+        Initial state of the internal memory. Available at intialization time only.
+        Defaults to 0.
         
     Methods:
 
@@ -173,15 +176,15 @@ class Port(PyoObject):
     >>> x.value = 600
     
     """
-    def __init__(self, input, risetime=0.05, falltime=0.05, mul=1, add=0):
+    def __init__(self, input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0):
         self._input = input
         self._risetime = risetime
         self._falltime = falltime
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
-        self._base_objs = [Port_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, risetime, falltime, init, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, init, mul, add)
+        self._base_objs = [Port_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         """

@@ -13,7 +13,7 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
         'PyoObject': sorted(['BandSplit', 'Biquad', 'Clip', 'Counter', 'Delay', 'Disto', 'Dummy', 'Fader', 'Follower', 'Freeverb',
                     'Hilbert', 'Input', 'InputFader', 'Metro', 'Midictl', 'Mix', 'Noise', 'Notein', 'Osc', 'OscReceive', 
                     'OscSend', 'Pan', 'Pattern', 'Phasor', 'Pointer', 'Port', 'PyPattern', 'SPan', 'TrigEnv', 'TrigRand', 
-                    'Select', 'SfMarkerShuffler', 'SfPlayer', 'Sig', 'Sine', 'TableRec', 'Waveguide']),
+                    'Select', 'SfMarkerShuffler', 'SfPlayer', 'Sig', 'Sine', 'TableRec', 'Tone', 'Waveguide']),
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),
         'Server': [], 'Stream': [], 'TableStream': []}
         
@@ -957,7 +957,7 @@ class Timeline(wx.Frame):
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_MENU, _open_manual, id=130)
 
-        self.PIX = 40
+        self.PIX = 20
         self.timer = SeqTimer(time=1./self.PIX, function=self.checkTime)
         self.timer.start()
         self.isRunning = False
