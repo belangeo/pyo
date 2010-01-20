@@ -168,8 +168,14 @@ Server_dealloc(Server* self)
 static PyObject *
 Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    if (PyServer_get_server() != NULL) {
+        printf("A Server is already created!\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }    
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
+    self->server_booted = 0;
     self->samplingRate = 44100.0;
     self->nchnls = 2;
     self->record = 0;
@@ -293,6 +299,12 @@ Server_setAmp(Server *self, PyObject *arg)
 static PyObject *
 Server_boot(Server *self)
 {
+    if (self->server_booted == 1) {
+        printf("Server already booted!\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
     PaError err;
     PmError pmerr;
     int i;
@@ -393,6 +405,8 @@ Server_boot(Server *self)
         Pm_SetFilter(self->in, PM_FILT_ACTIVE | PM_FILT_CLOCK);
     }
     
+    self->server_booted = 1;
+    
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -401,6 +415,18 @@ Server_boot(Server *self)
 static PyObject *
 Server_start(Server *self)
 {
+    if (self->server_started == 1) {
+        printf("Server already started!\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    if (self->server_booted == 0) {
+        printf("The Server must be booted!\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
     PaError err;
 
 	/* Ensure Python is set up for threading */
@@ -418,6 +444,12 @@ Server_start(Server *self)
 static PyObject *
 Server_stop(Server *self)
 {
+    if (self->server_started == 0) {
+        printf("The Server must be started!\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
     PaError err;
 
     self->server_started = 0;
