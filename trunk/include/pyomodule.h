@@ -19,12 +19,15 @@ extern PyTypeObject SelectType;
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
+extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject DelayType;
 extern PyTypeObject WaveguideType;
 extern PyTypeObject FreeverbType;
+
+extern PyTypeObject GranulatorType;
 
 extern PyTypeObject MidictlType;
 extern PyTypeObject MidiNoteType;

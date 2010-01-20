@@ -14,7 +14,7 @@ path = 'src/objects/'
 files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 'sigmodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'oscmodule.c', 'delaymodule.c', 'sfplayermodule.c',
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
-        'selectmodule.c', 'freeverbmodule.c']
+        'selectmodule.c', 'freeverbmodule.c', 'granulatormodule.c']
 source_files = source_files + [path + f for f in files]
 
 include_dirs = ['include']

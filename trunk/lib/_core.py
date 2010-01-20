@@ -331,6 +331,10 @@ class PyoTableObject(object):
     
     The user should never instantiate an object of this class.
  
+    Methods:
+    
+    getSize() : Return table size in samples.
+    
     Notes:
     
     Operations allowed on all table objects :

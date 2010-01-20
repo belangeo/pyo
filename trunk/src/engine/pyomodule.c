@@ -310,6 +310,11 @@ init_pyo(void)
         return;
     Py_INCREF(&ToneType);
     PyModule_AddObject(m, "Tone_base", (PyObject *)&ToneType);
+
+    if (PyType_Ready(&DCBlockType) < 0)
+        return;
+    Py_INCREF(&DCBlockType);
+    PyModule_AddObject(m, "DCBlock_base", (PyObject *)&DCBlockType);
     
     if (PyType_Ready(&PortType) < 0)
         return;
@@ -441,4 +446,8 @@ init_pyo(void)
     Py_INCREF(&FreeverbType);
     PyModule_AddObject(m, "Freeverb_base", (PyObject *)&FreeverbType);
     
+    if (PyType_Ready(&GranulatorType) < 0)
+        return;
+    Py_INCREF(&GranulatorType);
+    PyModule_AddObject(m, "Granulator_base", (PyObject *)&GranulatorType);
 }

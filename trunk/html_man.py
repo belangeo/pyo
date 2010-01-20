@@ -4,7 +4,7 @@ from pyo import *
                   
 _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
                     'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
-        'PyoObject': {'Filters': sorted(['Biquad', 'Port', 'Hilbert', 'Tone']),
+        'PyoObject': {'Filters': sorted(['Biquad', 'Port', 'Hilbert', 'Tone', 'DCBlock']),
                       'Open Sound Control': sorted(['OscReceive', 'OscSend']),
                       'Effects': sorted(['BandSplit',  'Clip', 'Delay', 'Disto', 'Freeverb','Pan', 'SPan', 'Waveguide']),
                       'Triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter']),
@@ -12,7 +12,7 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
                       'MIDI': sorted(['Midictl', 'Notein']),
                       'Sound players': sorted(['SfMarkerShuffler', 'SfPlayer']),
                       'Patterns': sorted(['Pattern', 'PyPattern']),
-                      'Table process': sorted(['TableRec', 'Pointer']),
+                      'Table process': sorted(['TableRec', 'Pointer', 'Granulator']),
                       'Analysis': sorted(['Follower']),
                       'Internal objects': sorted(['Dummy', 'InputFader', 'Mix'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),

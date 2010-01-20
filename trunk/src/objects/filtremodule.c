@@ -1872,3 +1872,294 @@ Tone_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Tone_new,                                     /* tp_new */
 };
+
+/************/
+/* DCBlock */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
+    // sample memories
+    float x1;
+    float y1;
+} DCBlock;
+
+static void
+DCBlock_filters(DCBlock *self) {
+    float val, x, y;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        x = in[i];
+        y = x - self->x1 + 0.995 * self->y1;
+        self->x1 = x;
+        self->data[i] = self->y1 = y;
+    }
+}
+
+static void DCBlock_postprocessing_ii(DCBlock *self) { POST_PROCESSING_II };
+static void DCBlock_postprocessing_ai(DCBlock *self) { POST_PROCESSING_AI };
+static void DCBlock_postprocessing_ia(DCBlock *self) { POST_PROCESSING_IA };
+static void DCBlock_postprocessing_aa(DCBlock *self) { POST_PROCESSING_AA };
+static void DCBlock_postprocessing_ireva(DCBlock *self) { POST_PROCESSING_IREVA };
+static void DCBlock_postprocessing_areva(DCBlock *self) { POST_PROCESSING_AREVA };
+static void DCBlock_postprocessing_revai(DCBlock *self) { POST_PROCESSING_REVAI };
+static void DCBlock_postprocessing_revaa(DCBlock *self) { POST_PROCESSING_REVAA };
+static void DCBlock_postprocessing_revareva(DCBlock *self) { POST_PROCESSING_REVAREVA };
+
+static void
+DCBlock_setProcMode(DCBlock *self)
+{
+    int procmode, muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+       
+    self->proc_func_ptr = DCBlock_filters;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = DCBlock_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = DCBlock_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = DCBlock_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = DCBlock_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = DCBlock_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = DCBlock_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = DCBlock_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = DCBlock_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = DCBlock_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+DCBlock_compute_next_data_frame(DCBlock *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+DCBlock_traverse(DCBlock *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+DCBlock_clear(DCBlock *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+DCBlock_dealloc(DCBlock* self)
+{
+    free(self->data);
+    DCBlock_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * DCBlock_deleteStream(DCBlock *self) { DELETE_STREAM };
+
+static PyObject *
+DCBlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    DCBlock *self;
+    self = (DCBlock *)type->tp_alloc(type, 0);
+    
+    self->x1 = self->y1 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, DCBlock_compute_next_data_frame);
+    self->mode_func_ptr = DCBlock_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+DCBlock_init(DCBlock *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    DCBlock_compute_next_data_frame((DCBlock *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * DCBlock_getServer(DCBlock* self) { GET_SERVER };
+static PyObject * DCBlock_getStream(DCBlock* self) { GET_STREAM };
+static PyObject * DCBlock_setMul(DCBlock *self, PyObject *arg) { SET_MUL };	
+static PyObject * DCBlock_setAdd(DCBlock *self, PyObject *arg) { SET_ADD };	
+static PyObject * DCBlock_setSub(DCBlock *self, PyObject *arg) { SET_SUB };	
+static PyObject * DCBlock_setDiv(DCBlock *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * DCBlock_play(DCBlock *self) { PLAY };
+static PyObject * DCBlock_out(DCBlock *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * DCBlock_stop(DCBlock *self) { STOP };
+
+static PyObject * DCBlock_multiply(DCBlock *self, PyObject *arg) { MULTIPLY };
+static PyObject * DCBlock_inplace_multiply(DCBlock *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * DCBlock_add(DCBlock *self, PyObject *arg) { ADD };
+static PyObject * DCBlock_inplace_add(DCBlock *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * DCBlock_sub(DCBlock *self, PyObject *arg) { SUB };
+static PyObject * DCBlock_inplace_sub(DCBlock *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * DCBlock_div(DCBlock *self, PyObject *arg) { DIV };
+static PyObject * DCBlock_inplace_div(DCBlock *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef DCBlock_members[] = {
+{"server", T_OBJECT_EX, offsetof(DCBlock, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(DCBlock, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(DCBlock, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(DCBlock, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(DCBlock, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef DCBlock_methods[] = {
+{"getServer", (PyCFunction)DCBlock_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)DCBlock_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)DCBlock_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)DCBlock_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)DCBlock_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)DCBlock_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)DCBlock_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)DCBlock_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)DCBlock_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)DCBlock_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods DCBlock_as_number = {
+(binaryfunc)DCBlock_add,                         /*nb_add*/
+(binaryfunc)DCBlock_sub,                         /*nb_subtract*/
+(binaryfunc)DCBlock_multiply,                    /*nb_multiply*/
+(binaryfunc)DCBlock_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)DCBlock_inplace_add,                 /*inplace_add*/
+(binaryfunc)DCBlock_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)DCBlock_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)DCBlock_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject DCBlockType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.DCBlock_base",                                   /*tp_name*/
+sizeof(DCBlock),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)DCBlock_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&DCBlock_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"DCBlock objects. Implements the DC blocking filter.",           /* tp_doc */
+(traverseproc)DCBlock_traverse,                  /* tp_traverse */
+(inquiry)DCBlock_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+DCBlock_methods,                                 /* tp_methods */
+DCBlock_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)DCBlock_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+DCBlock_new,                                     /* tp_new */
+};
