@@ -243,6 +243,71 @@ class Tone(PyoObject):
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
+class DCBlock(PyoObject):
+    """
+    Implements the DC blocking filter.
+ 
+    Parent class: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to filter.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> n = Noise(.05)
+    >>> w = Delay(n, delay=0.01, feedback=.995, mul=.5)
+    >>> f = DCBlock(w).out()
+
+    """
+    def __init__(self, input, mul=1, add=0):
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [DCBlock_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    #def demo():
+    #    execfile("demos/DCBlock_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("DCBlock(input, mul=1, add=0)")
+    args = Print_args(args)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
 
 class Disto(PyoObject):
     """
