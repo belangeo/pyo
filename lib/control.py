@@ -263,6 +263,8 @@ class Metro(PyoObject):
     Generate isochronous trigger signals.
     
     A trigger is an audio signal with a value of 1 surrounded by 0s.
+
+    The play() method starts the metro and is not called at the object creation time.
     
     Parent class: PyoObject
     

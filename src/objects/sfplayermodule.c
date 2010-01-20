@@ -77,7 +77,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
 
     delta = fabsf(sp) * self->srScale;
     
-    buflen = (int)(self->bufsize * delta) + 10;
+    buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
@@ -220,7 +220,7 @@ SfPlayer_readframes_a(SfPlayer *self) {
         maxi = mini;
     delta = fabsf(maxi) * self->srScale;
 
-    buflen = (int)(self->bufsize * delta) + 10;
+    buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
@@ -991,7 +991,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
     
     delta = fabsf(sp) * self->srScale;
     
-    buflen = (int)(self->bufsize * delta) + 10;
+    buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
@@ -1127,7 +1127,7 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
         maxi = mini;
     delta = fabsf(maxi) * self->srScale;
     
-    buflen = (int)(self->bufsize * delta) + 10;
+    buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
     float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
