@@ -2,7 +2,57 @@ from _core import *
 import aifc
 
 class SfPlayer(PyoObject):
-    def __init__(self, path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0):
+    """
+    Reads audio data from a file, and can alter its pitch using one of several available 
+    interpolation types, as well as convert the sample rate to match the Server sampling 
+    rate setting.
+    
+    Parent class: PyoObject
+    
+    Parameters:
+    
+    path : string
+        Full path name of the sound to read.
+    speed : float or PyoObject, optional
+        Transpose the pitch of input sound by this factor. 1 is the original pitch, lower 
+        values play sound slower, and higher values play sound faster. Negative values 
+        results in playing sound backward. Defaults to 1.
+    loop : bool, optional
+        If set to True, sound will play in loop. Defaults to False.
+    offset : float, optional 
+        Time in seconds of input sound to be skipped, assuming speed=1. Defaults to 0.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
+        
+    Methods:
+    
+    setSound(path) : Replace the `sound` attribute.
+    setSpeed(x) : Replace the `speed` attribute.
+    setLoop(x) : Replace the `loop` attribute.
+    setOffset(x) : Replace the `offset` attribute.
+    setInterp(x) : Replace the `interp` attribute.
+    
+    Attributes:
+    
+    sound : path, Full path of the sound.
+    speed : float or PyoObject, Transposition factor.
+    loop : bool, Looping mode.
+    offset : float, Time, in seconds, of the first sample to read.
+    interp : int {1, 2, 3, 4}, Interpolation method.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer("demos/transparent.aif", speed=.75, loop=True).out()
+    
+    """
+    def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
+        self._sound = path
         self._speed = speed
         self._loop = loop
         self._offset = offset
@@ -45,16 +95,48 @@ class SfPlayer(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
 
-    def setSound(self, x):
+    def setSound(self, path):
+        """
+        Sets a new sound to read.
+        
+        If the number of channels of the new sound doesn't match those of the sound loaded
+        at initialization time, erratic behaviors can occur.
+        
+        Parameters:
+        
+        path : string
+            Full path of the new sound.
+
+        """
+        self._sound = path
         x, lmax = convertArgsToLists(x)
         [obj.setSound(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setSpeed(self, x):
+        """
+        Replace the `speed` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `speed` attribute.
+        
+        """
+
         self._speed = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setLoop(self, x):
+        """
+        Replace the `loop` attribute.
+        
+        Parameters:
+
+        x : bool {True, False}
+            new `loop` attribute.
+        
+        """
         self._loop = x
         x, lmax = convertArgsToLists(x)
         for i, obj in enumerate(self._base_players):
@@ -62,11 +144,29 @@ class SfPlayer(PyoObject):
             else: obj.setLoop(0)
 
     def setOffset(self, x):
+        """
+        Replace the `offset` attribute.
+        
+        Parameters:
+
+        x : float
+            new `offset` attribute.
+        
+        """
         self._offset = x
         x, lmax = convertArgsToLists(x)
         [obj.setOffset(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+        
+        """
         self.interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -80,19 +180,37 @@ class SfPlayer(PyoObject):
     args = Print_args(args)
           
     @property
-    def speed(self): return self._speed
+    def sound(self): 
+        """string. Full path of the sound."""
+        return self._sound
+    @sound.setter
+    def sound(self, x): self.setSound(x)
+    
     @property
-    def loop(self): return self._loop
-    @property
-    def offset(self): return self._offset
-    @property
-    def interp(self): return self._interp
+    def speed(self): 
+        """float or PyoObject. Transposition factor."""
+        return self._speed
     @speed.setter
     def speed(self, x): self.setSpeed(x)
+
+    @property
+    def loop(self): 
+        """bool. Looping mode."""
+        return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
+
+    @property
+    def offset(self): 
+        """float. Time, in seconds, of the first sample to read."""
+        return self._offset
     @offset.setter
     def offset(self, x): self.setOffset(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
 
