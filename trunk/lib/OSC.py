@@ -10,6 +10,8 @@ class OscSend(PyoObject):
     Uses the OSC protocol to share values to other softwares or other computers.
     Only the first value of each input buffersize will be sent on the OSC port.
     
+    Parent class: PyoObject
+    
     Parameters:
     
     input : PyoObject
@@ -55,7 +57,7 @@ class OscSend(PyoObject):
         self._in_fader.setInput(x, fadetime)
             
     def out(self, chnl=0, inc=1):
-        pass
+        return self
 
     def setMul(self, x):
         pass
@@ -84,6 +86,8 @@ class OscReceive(PyoObject):
     
     Uses the OSC protocol to receive values from other softwares or other computers.
     Gets a value at the beginning of each buffersize and fill it's buffer with it.
+
+    Parent class: PyoObject
     
     Parameters:
     
@@ -120,7 +124,7 @@ class OscReceive(PyoObject):
             print "'i' too large!"         
              
     def out(self, chnl=0, inc=1):
-        pass
+        return self
 
     #def demo():
     #    execfile("demos/OscReceive_demo.py")

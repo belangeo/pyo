@@ -4,6 +4,8 @@ class Pattern(PyoObject):
     """
     Periodically call a Python function.
         
+    Parent class: PyoObject
+    
     Parameters:
 
     function : Python function
@@ -14,6 +16,10 @@ class Pattern(PyoObject):
 
     setTime(x) : Replace the `time` attribute.
 
+    Attributes:
+    
+    time : Time, in seconds, between each call.
+    
     Notes:
 
     The out() method is bypassed. Pattern doesn't return signal.
@@ -42,7 +48,7 @@ class Pattern(PyoObject):
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, x=0, inc=1):
-        pass
+        return self
         
     def setMul(self, x):
         pass

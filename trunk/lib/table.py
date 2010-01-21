@@ -7,6 +7,8 @@ class HarmTable(PyoTableObject):
     """
     Generate composite waveforms made up of weighted sums of simple sinusoids.
     
+    Parent class: PyoTableObject
+    
     Parameters:
     
     list : list, optional
@@ -84,6 +86,8 @@ class HannTable(PyoTableObject):
     """
     Generate Hanning window. 
     
+    Parent class: PyoTableObject
+    
     Parameters:
     
     size : int, optional
@@ -134,6 +138,8 @@ class HannTable(PyoTableObject):
 class LinTable(PyoTableObject):
     """
     Construct a table from segments of straight lines in breakpoint fashion.
+
+    Parent class: PyoTableObject
     
     Parameters:
     
@@ -224,6 +230,8 @@ class SndTable(PyoTableObject):
     
     If `chnl` is None, the table will contain as many sub tables as necessary 
     to read all channels of the loaded sound.
+
+    Parent class: PyoTableObject
     
     Parameters:
     
@@ -237,6 +245,10 @@ class SndTable(PyoTableObject):
     setSound(path) : Load a new sound in the table.
     getRate() : Return the frequency in cps at which the sound will be read 
     at its original pitch.
+    
+    Attributes:
+    
+    sound : Sound path loaded in the table.
 
     """
     def __init__(self, path, chnl=None):
@@ -289,6 +301,8 @@ class NewTable(PyoTableObject):
     Create an empty table ready for recording. See `TableRec` to write samples in 
     the table.
     
+    Parent class: PyoTableObject
+    
     Parameters:
     
     length : float
@@ -329,6 +343,8 @@ class TableRec(PyoObject):
     TableRec is for writing samples into a previously created NewTable. See `NewTable` to create
     an empty table.
 
+    Parent class: PyoObject
+
     Parameters:
 
     input : PyoObject
@@ -345,6 +361,11 @@ class TableRec(PyoObject):
     play() : Start the recording at the beginning of the table.
     stop() : Stop the recording. Otherwise, record through the end of the table.
 
+    Attributes:
+    
+    input : PyoObject. Audio signal to write in the table.
+    table : PyoTableObject. The table where to write samples.
+    
     Notes:
 
     The out() method is bypassed. TableRec returns no signal.

@@ -3,6 +3,8 @@ from _core import *
 class Pan(PyoObject):
     """
     Cosinus panner with control on the spread factor.
+
+    Parent class: PyoObject
     
     Parameters:
     
@@ -20,6 +22,12 @@ class Pan(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setPan(x) : Replace the `pan` attribute.
     setSpread(x) : Replace the `spread` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal to process.
+    pan : float or PyoObject. Position of the sound on the panning circle.
+    spread : float or PyoObject. Amount of sound leaking to the surrounding channels. 
 
     """
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
@@ -141,6 +149,8 @@ class SPan(PyoObject):
     """
     Simple equal power panner.
     
+    Parent class: PyoObject
+     
     Parameters:
     
     input : PyoObject
@@ -154,6 +164,11 @@ class SPan(PyoObject):
     
     setInput(x, fadetime) : Replace the `input` attribute.
     setPan(x) : Replace the `pan` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal to process.
+    pan : float or PyoObject. Position of the sound on the panning circle.
 
     """
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):

@@ -46,6 +46,11 @@ class Server(object):
     setNchnls(x) : Set the number of channels used by the server.
     setDuplex(x) : Set the duplex mode used by the server.
 
+    Attributes:
+    
+    amp : Overall amplitude of the Server. This value is applied on any stream sent to 
+        the output.
+        
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=0):
         self._amp = 1.

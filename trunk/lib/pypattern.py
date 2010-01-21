@@ -2,6 +2,33 @@ import threading, time
 from _core import *
 
 class PyPattern(threading.Thread):
+    """
+    Periodically call a Python function.
+        
+    This class is a pure Python implementation of the Pattern object.
+    It uses the threading module to run his clock in another thread.
+    
+    Parameters:
+
+    function : Python function
+    time : float or PyoObject, optional
+        Time, in seconds, between each call. Default to 1.
+        
+    Methods:
+
+    setTime(x) : Replace the `time` attribute.
+
+    Attributes:
+    
+    time : Time, in seconds, between each call.
+    
+    Notes:
+
+    The out() method is bypassed. Pattern doesn't return signal.
+    
+    Pattern has no `mul` and `add` attributes.
+    
+    """
     def __init__(self, function, time=1):
         threading.Thread.__init__(self)
         self._terminated = False
@@ -19,7 +46,10 @@ class PyPattern(threading.Thread):
             self.start()
         except:
             pass
-                    
+ 
+    def out(self, chnl=0, inc=1):
+        return self
+        
     def stop(self):
         self._terminated = True        
     
