@@ -8,6 +8,8 @@ class Midictl(PyoObject):
     Get the current value of a MIDI channel controller.
     
     Get the current value of a controller and optionally map it inside a specified range.
+
+    Parent class: PyoObject
     
     Parameters:
     
@@ -47,6 +49,8 @@ class Notein(PyoObject):
     From a MIDI device, takes the notes in the range defined with `first` and `last` parameters,
     and outputs `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
     
+    Parent class: PyoObject
+
     Parameters:
     
     poly : int, optional

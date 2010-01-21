@@ -98,7 +98,9 @@ class Phasor(PyoObject):
     A simple phase incrementor. 
     
     Output is a periodic ramp from 0 to 1.
-    
+ 
+    Parent class: PyoObject
+   
     Parameters:
     
     freq : float or PyoObject, optional
@@ -110,6 +112,20 @@ class Phasor(PyoObject):
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
+ 
+    Attributes:
+    
+    freq : float or PyoObject, Frequency in cycles per second.
+    phase : float or PyoObject, Phase of sampling (0 -> 1).
+    
+    See also: Osc, Sine
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> f = Phasor(freq=1, mul=1000, add=500)
+    >>> sine = Sine(freq=f).out()   
     
     """
     def __init__(self, freq=100, phase=0, mul=1, add=0):
@@ -174,6 +190,8 @@ class Osc(PyoObject):
     """
     A simple oscillator with linear interpolation reading a waveform table.
     
+    Parent class: PyoObject
+    
     Parameters:
     
     table : PyoTableObject
@@ -188,7 +206,22 @@ class Osc(PyoObject):
     setTable(x) : Replace the `table` attribute.
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
+
+    Attributes:
     
+    table : PyoTableObject. Table containing the waveform samples.
+    freq : float or PyoObject, Frequency in cycles per second.
+    phase : float or PyoObject, Phase of sampling (0 -> 1).
+    
+    See also: Phasor, Sine
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = HarmTable([1,0,.33,0,.2,0,.143])
+    >>> a = Osc(table=t, freq=100).out()   
+     
     """
     def __init__(self, table, freq=1000, phase=0, mul=1, add=0):
         self._table = table
@@ -274,6 +307,8 @@ class Pointer(PyoObject):
     """
     Table reader with control on the pointer position.
     
+    Parent class: PyoObject
+    
     Parameters:
     
     table : PyoTableObject
@@ -285,7 +320,18 @@ class Pointer(PyoObject):
 
     setTable(x) : Replace the `table` attribute.
     setIndex(x) : Replace the `index` attribute.
+
+    table : PyoTableObject. Table containing the waveform samples.
+    index : PyoObject. Pointer position in the table.
     
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SndTable('demos/transparent.aif')
+    >>> p = Phasor(freq=t.getRate())
+    >>> a = Pointer(table=t, index=p).out()
+
     """
     def __init__(self, table, index, mul=1, add=0):
         self._table = table
@@ -324,7 +370,7 @@ class Pointer(PyoObject):
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("demos/Osc_demo.py")
+    #    execfile("demos/Pointer_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -349,14 +395,23 @@ class Input(PyoObject):
     """
     Read from a numbered channel in an external audio signal or stream.
 
+    Parent class: PyoObject
+
     Parameters:
     
     chnl : int, optional
         Input channel to read from. Defaults to 0.
-        
+
     Notes:
     
-    Requires that the Server's duplex mode is set to 1.    
+    Requires that the Server's duplex mode is set to 1. 
+    
+    Examples:
+    
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> a = Input(chnl=0)
+    >>> b = Delay(a, delay=.25, feedback=.5, mul=.5).out()   
     
     """
     def __init__(self, chnl=0, mul=1, add=0):                
@@ -375,11 +430,20 @@ class Input(PyoObject):
     args = Print_args(args)
 
 class Noise(PyoObject):
-    def __init__(self, mul=1, add=0):                
-        """
-        A white noise generator.
+    """
+    A white noise generator.
         
-        """
+    Parent class: PyoObject
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise()
+    >>> b = Biquad(a, freq=1000, q=5, type=0).out()    
+        
+    """
+    def __init__(self, mul=1, add=0):                
         self._mul = mul
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
