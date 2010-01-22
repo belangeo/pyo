@@ -121,13 +121,28 @@ PyServer_get_server()
 }
 
 
+static PyObject * Server_stop(Server *self);
+
 static PyObject *
 Server_shut_down(Server *self)
 {
+    if (self->server_booted == 0) {
+        PyErr_Warn(NULL, "The Server must be booted!");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }    
+
+    if (self->server_started == 1) {
+        Server_stop((Server *)self);
+        self->server_started = 0;
+    }
+    
     if (self->withPortMidi == 1) {
         Pm_Close(self->in);
         Pm_Terminate();
     } 
+    
+    self->server_booted = 0;
     
     PaError err;
     err = Pa_CloseStream(self->stream);
@@ -169,10 +184,10 @@ static PyObject *
 Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     if (PyServer_get_server() != NULL) {
-        printf("A Server is already created!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_Warn(NULL, "A Server is already created!\nIf you put this Server in a new variable, please delete it!");
+        return PyServer_get_server();
     }    
+    
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
     self->server_booted = 0;
@@ -300,7 +315,7 @@ static PyObject *
 Server_boot(Server *self)
 {
     if (self->server_booted == 1) {
-        printf("Server already booted!\n");
+        PyErr_Warn(NULL, "Server already booted!");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -416,13 +431,13 @@ static PyObject *
 Server_start(Server *self)
 {
     if (self->server_started == 1) {
-        printf("Server already started!\n");
+        PyErr_Warn(NULL, "Server already started!");
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     if (self->server_booted == 0) {
-        printf("The Server must be booted!\n");
+        PyErr_Warn(NULL, "The Server must be booted!");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -445,7 +460,7 @@ static PyObject *
 Server_stop(Server *self)
 {
     if (self->server_started == 0) {
-        printf("The Server must be started!\n");
+        PyErr_Warn(NULL, "The Server must be started!");
         Py_INCREF(Py_None);
         return Py_None;
     }

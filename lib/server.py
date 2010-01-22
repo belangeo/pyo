@@ -51,6 +51,12 @@ class Server(object):
     amp : Overall amplitude of the Server. This value is applied on any stream sent to 
         the output.
         
+    Examples:
+    
+    >>> # For an 8 channels server in duplex mode with
+    >>> # a sampling rate of 48000 Hz and buffer size of 512
+    >>> s = Server(sr=48000, nchnls=8, buffersize=512, duplex=1).boot()
+        
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=0):
         self._amp = 1.
