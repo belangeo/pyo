@@ -56,6 +56,7 @@ class Server(object):
     >>> # For an 8 channels server in duplex mode with
     >>> # a sampling rate of 48000 Hz and buffer size of 512
     >>> s = Server(sr=48000, nchnls=8, buffersize=512, duplex=1).boot()
+    >>> s.start()
         
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=0):

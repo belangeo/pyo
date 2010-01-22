@@ -176,7 +176,7 @@ def _editor_openfile(evt):
             _ED_FRAMES[-1].Show()
     dlg.Destroy()
 
-def _open_manual(evt):
+def _open_manual(evt, page=None):
     global _DOC_FRAME, _doc_panel
     try:
         _DOC_FRAME.Show()
@@ -184,6 +184,15 @@ def _open_manual(evt):
         _DOC_FRAME = wx.Frame(None, -1, title='pyo documentation', size=(1000, 700))
         _doc_panel = HelpWin(_DOC_FRAME)
         _DOC_FRAME.Show() 
+    if page:
+        page_count = _doc_panel.GetPageCount()
+        for i in range(page_count):
+            text = _doc_panel.GetPageText(i)
+            if text == page:
+                _doc_panel.SetSelection(i)
+                return
+    else:               
+        _doc_panel.SetSelection(0)
        
 def _app_quit(evt):
     for editor in _EDITORS:
@@ -257,7 +266,7 @@ class ScriptEditor(stc.StyledTextCtrl):
         self.Bind(wx.EVT_MENU, self.OnShowFindReplace, id=124)
         self.Bind(wx.EVT_MENU, self.createTimeline, id=125)
         self.Bind(wx.EVT_MENU, self.openTimeline, id=126)
-        self.parent.Bind(wx.EVT_MENU, _open_manual, id=130)
+        self.parent.Bind(wx.EVT_MENU, self.openManual, id=130)
 
         for i in range(500, stId):
             self.Bind(wx.EVT_MENU, _ed_change_style, id=i)
@@ -308,7 +317,15 @@ class ScriptEditor(stc.StyledTextCtrl):
         if openedFile:
             self.LoadFile(openedFile)
             self.path = openedFile
-   
+ 
+    def openManual(self, evt):
+        selected = self.GetSelectedText()
+        if selected:
+            if selected in _KEYWORDS_LIST:
+                _open_manual(evt, selected)
+                return
+        _open_manual(evt)
+        
     def OnKeyPressed(self, event):
         key = event.GetKeyCode()
 
@@ -864,7 +881,8 @@ class HelpWin(wx.Treebook):
         else:
             panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
             panel.win.SetText("pyo documentation")
-        panel.win.SetReadOnly(True)    
+        panel.win.SetReadOnly(True)   
+        panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         _ed_set_style(panel.win, True)
             
         def OnPanelSize(evt, win=panel.win):
@@ -873,6 +891,22 @@ class HelpWin(wx.Treebook):
             
         panel.Bind(wx.EVT_SIZE, OnPanelSize)
         return panel
+
+    def MouseDown(self, evt):
+        stc = self.GetPage(self.GetSelection()).win
+        pos = stc.PositionFromPoint(evt.GetPosition())
+        start = stc.WordStartPosition(pos, False)
+        end = stc.WordEndPosition(pos, False)
+        word = stc.GetTextRange(start, end)
+        
+        page_count = self.GetPageCount()
+        for i in range(page_count):
+            text = self.GetPageText(i)
+            if text == word:
+                self.SetSelection(i)
+                stc.SetCurrentPos(0)
+                break
+        evt.Skip()
 
     def getMethodsDoc(self, text, obj):
         lines = text.splitlines(True)
