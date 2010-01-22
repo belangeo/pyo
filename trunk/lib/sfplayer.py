@@ -109,8 +109,8 @@ class SfPlayer(PyoObject):
 
         """
         self._sound = path
-        x, lmax = convertArgsToLists(x)
-        [obj.setSound(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+        path, lmax = convertArgsToLists(path)
+        [obj.setSound(wrap(path,i)) for i, obj in enumerate(self._base_players)]
 
     def setSpeed(self, x):
         """
