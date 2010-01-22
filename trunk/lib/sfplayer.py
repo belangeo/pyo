@@ -122,7 +122,6 @@ class SfPlayer(PyoObject):
             new `speed` attribute.
         
         """
-
         self._speed = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -167,7 +166,7 @@ class SfPlayer(PyoObject):
             new `interp` attribute.
         
         """
-        self.interp = x
+        self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
           
@@ -215,6 +214,47 @@ class SfPlayer(PyoObject):
     def interp(self, x): self.setInterp(x)
 
 class SfMarkerShuffler(PyoObject):
+    """
+    Reads audio data from a AIFF file, and can alter its pitch using one of several available 
+    interpolation types, as well as convert the sample rate to match the Server sampling 
+    rate setting. The reading pointer choose randomly a marker (set in the header of the file)
+    as its starting point and reads the samples until it reach the following marker. Then, it
+    choose another marker and so on...
+    
+    Parent class: PyoObject
+    
+    Parameters:
+    
+    path : string
+        Full path name of the sound to read.
+    speed : float or PyoObject, optional
+        Transpose the pitch of input sound by this factor. 1 is the original pitch, lower 
+        values play sound slower, and higher values play sound faster. Negative values 
+        results in playing sound backward. Defaults to 1.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
+        
+    Methods:
+    
+    setSpeed(x) : Replace the `speed` attribute.
+    setInterp(x) : Replace the `interp` attribute.
+    
+    Attributes:
+    
+    speed : float or PyoObject, Transposition factor.
+    interp : int {1, 2, 3, 4}, Interpolation method.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfMarkerShuffler("demos/transparent.aif", speed=1).out()
+    
+    """
     def __init__(self, path, speed=1, interp=0, mul=1, add=0):
         self._speed = speed
         self._interp = interp
@@ -266,11 +306,29 @@ class SfMarkerShuffler(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     def setSpeed(self, x):
+        """
+        Replace the `speed` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `speed` attribute.
+        
+        """
         self._speed = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+        
+        """
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
@@ -284,10 +342,15 @@ class SfMarkerShuffler(PyoObject):
     args = Print_args(args)
                     
     @property
-    def speed(self): return self._speed
-    @property
-    def interp(self): return self._interp
+    def speed(self): 
+        """float or PyoObject. Transposition factor."""
+        return self._speed
     @speed.setter
     def speed(self, x): self.setSpeed(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
