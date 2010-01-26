@@ -46,6 +46,75 @@ class TrigRand(PyoObject):
     @max.setter
     def max(self, x): self.setMax(x)
 
+class TrigChoice(PyoObject):
+    def __init__(self, input, choice, mul=1, add=0):
+        self._input = input
+        self._choice = choice
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [TrigChoice_base(wrap(in_fader,i), choice, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setChoice(self, x):
+        self._choice = x
+        [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/TrigChoice_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('TrigChoice(input, choice, mul=1, add=0)')
+    args = Print_args(args)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def choice(self): return self._choice
+    @choice.setter
+    def choice(self, x): self.setChoice(x)
+
+class TrigFunc(PyoObject):
+    def __init__(self, input, function, mul=1, add=0):
+        self._input = input
+        self._function = function
+        self._in_fader = InputFader(input)
+        in_fader, function, lmax = convertArgsToLists(self._in_fader, function)
+        self._base_objs = [TrigFunc_base(wrap(in_fader,i), wrap(function,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFunction(self, x):
+        self._function = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/TrigFunction_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('TrigFunc(input, function)')
+    args = Print_args(args)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def function(self): return self._function
+    @function.setter
+    def function(self, x): self.setFunction(x)   
+     
 class TrigEnv(PyoObject):
     def __init__(self, input, table, dur=1, mul=1, add=0):
         self._input = input

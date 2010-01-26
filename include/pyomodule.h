@@ -51,7 +51,9 @@ extern PyTypeObject OscReceiveType;
 extern PyTypeObject OscReceiverType;
 
 extern PyTypeObject TrigRandType;
+extern PyTypeObject TrigChoiceType;
 extern PyTypeObject TrigEnvType;
+extern PyTypeObject TrigFuncType;
 
 extern PyTypeObject PatternType;
 

@@ -381,11 +381,21 @@ init_pyo(void)
     Py_INCREF(&TrigRandType);
     PyModule_AddObject(m, "TrigRand_base", (PyObject *)&TrigRandType);
 
+    if (PyType_Ready(&TrigChoiceType) < 0)
+        return;
+    Py_INCREF(&TrigChoiceType);
+    PyModule_AddObject(m, "TrigChoice_base", (PyObject *)&TrigChoiceType);
+    
     if (PyType_Ready(&TrigEnvType) < 0)
         return;
     Py_INCREF(&TrigEnvType);
     PyModule_AddObject(m, "TrigEnv_base", (PyObject *)&TrigEnvType);
 
+    if (PyType_Ready(&TrigFuncType) < 0)
+        return;
+    Py_INCREF(&TrigFuncType);
+    PyModule_AddObject(m, "TrigFunc_base", (PyObject *)&TrigFuncType);
+    
     if (PyType_Ready(&PatternType) < 0)
         return;
     Py_INCREF(&PatternType);

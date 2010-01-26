@@ -12,7 +12,8 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
                     'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
         'PyoObject': sorted(['BandSplit', 'Biquad', 'Clip', 'Compress', 'Counter', 'DCBlock', 'Delay', 'Disto', 'Dummy', 'Fader', 'Follower', 'Freeverb',
                     'Granulator', 'Hilbert', 'Input', 'InputFader', 'Metro', 'Midictl', 'Mix', 'Noise', 'Notein', 'Osc', 'OscReceive', 
-                    'OscSend', 'Pan', 'Pattern', 'Phasor', 'Pointer', 'Port', 'PyPattern', 'SPan', 'TrigEnv', 'TrigRand', 
+                    'OscSend', 'Pan', 'Pattern', 'Phasor', 'Pointer', 'Port', 'PyPattern', 'SPan', 'TrigEnv', 'TrigRand', 'TrigChoice',
+                    'TrigFunc',
                     'Select', 'SfMarkerShuffler', 'SfPlayer', 'Sig', 'Sine', 'TableRec', 'Tone', 'Waveguide']),
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),
         'Server': [], 'Stream': [], 'TableStream': []}

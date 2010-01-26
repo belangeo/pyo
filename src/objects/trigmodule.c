@@ -461,6 +461,512 @@ TrigRand_members,                                 /* tp_members */
 TrigRand_new,                                     /* tp_new */
 };
 
+/*********************************************************************************************/
+/* TrigChoice ********************************************************************************/
+/*********************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int chSize;
+    float *choice;
+    float value;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
+} TrigChoice;
+
+static void
+TrigChoice_generate(TrigChoice *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (in[i] == 1) {
+            self->value = self->choice[(int)((rand()/((float)(RAND_MAX))) * self->chSize)];
+            self->data[i] = self->value;
+        }
+        else
+            self->data[i] = self->value;
+    }
+}
+
+static void TrigChoice_postprocessing_ii(TrigChoice *self) { POST_PROCESSING_II };
+static void TrigChoice_postprocessing_ai(TrigChoice *self) { POST_PROCESSING_AI };
+static void TrigChoice_postprocessing_ia(TrigChoice *self) { POST_PROCESSING_IA };
+static void TrigChoice_postprocessing_aa(TrigChoice *self) { POST_PROCESSING_AA };
+static void TrigChoice_postprocessing_ireva(TrigChoice *self) { POST_PROCESSING_IREVA };
+static void TrigChoice_postprocessing_areva(TrigChoice *self) { POST_PROCESSING_AREVA };
+static void TrigChoice_postprocessing_revai(TrigChoice *self) { POST_PROCESSING_REVAI };
+static void TrigChoice_postprocessing_revaa(TrigChoice *self) { POST_PROCESSING_REVAA };
+static void TrigChoice_postprocessing_revareva(TrigChoice *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigChoice_setProcMode(TrigChoice *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = TrigChoice_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigChoice_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigChoice_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigChoice_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigChoice_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigChoice_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigChoice_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigChoice_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigChoice_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigChoice_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigChoice_compute_next_data_frame(TrigChoice *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+TrigChoice_traverse(TrigChoice *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+TrigChoice_clear(TrigChoice *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+TrigChoice_dealloc(TrigChoice* self)
+{
+    free(self->data);
+    free(self->choice);
+    TrigChoice_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TrigChoice_deleteStream(TrigChoice *self) { DELETE_STREAM };
+
+static PyObject *
+TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TrigChoice *self;
+    self = (TrigChoice *)type->tp_alloc(type, 0);
+    
+    self->value = 0.;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigChoice_compute_next_data_frame);
+    self->mode_func_ptr = TrigChoice_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+TrigChoice_init(TrigChoice *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "choice", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &choicetmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (choicetmp) {
+        PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    srand((unsigned)(time(0)));
+    
+    (*self->mode_func_ptr)(self);
+    
+    TrigChoice_compute_next_data_frame((TrigChoice *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TrigChoice_getServer(TrigChoice* self) { GET_SERVER };
+static PyObject * TrigChoice_getStream(TrigChoice* self) { GET_STREAM };
+static PyObject * TrigChoice_setMul(TrigChoice *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigChoice_setAdd(TrigChoice *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigChoice_setSub(TrigChoice *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigChoice_setDiv(TrigChoice *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigChoice_play(TrigChoice *self) { PLAY };
+static PyObject * TrigChoice_out(TrigChoice *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigChoice_stop(TrigChoice *self) { STOP };
+
+static PyObject * TrigChoice_multiply(TrigChoice *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigChoice_inplace_multiply(TrigChoice *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigChoice_add(TrigChoice *self, PyObject *arg) { ADD };
+static PyObject * TrigChoice_inplace_add(TrigChoice *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigChoice_sub(TrigChoice *self, PyObject *arg) { SUB };
+static PyObject * TrigChoice_inplace_sub(TrigChoice *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigChoice_div(TrigChoice *self, PyObject *arg) { DIV };
+static PyObject * TrigChoice_inplace_div(TrigChoice *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
+{
+    int i;
+	PyObject *tmp;
+	
+	if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+    tmp = arg;
+    self->chSize = PyList_Size(tmp);
+    self->choice = (float *)realloc(self->choice, self->chSize * sizeof(float));
+    for (i=0; i<self->chSize; i++) {
+        self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef TrigChoice_members[] = {
+{"server", T_OBJECT_EX, offsetof(TrigChoice, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TrigChoice, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(TrigChoice, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(TrigChoice, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TrigChoice, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigChoice_methods[] = {
+{"getServer", (PyCFunction)TrigChoice_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TrigChoice_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TrigChoice_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)TrigChoice_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)TrigChoice_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)TrigChoice_stop, METH_NOARGS, "Stops computing."},
+{"setChoice", (PyCFunction)TrigChoice_setChoice, METH_O, "Sets possible values."},
+{"setMul", (PyCFunction)TrigChoice_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)TrigChoice_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)TrigChoice_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)TrigChoice_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigChoice_as_number = {
+(binaryfunc)TrigChoice_add,                         /*nb_add*/
+(binaryfunc)TrigChoice_sub,                         /*nb_subtract*/
+(binaryfunc)TrigChoice_multiply,                    /*nb_multiply*/
+(binaryfunc)TrigChoice_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)TrigChoice_inplace_add,                 /*inplace_add*/
+(binaryfunc)TrigChoice_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)TrigChoice_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)TrigChoice_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject TrigChoiceType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.TrigChoice_base",                                   /*tp_name*/
+sizeof(TrigChoice),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)TrigChoice_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&TrigChoice_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TrigChoice objects. Generates a new random value pick in a user choice on a trigger signal.",           /* tp_doc */
+(traverseproc)TrigChoice_traverse,                  /* tp_traverse */
+(inquiry)TrigChoice_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+TrigChoice_methods,                                 /* tp_methods */
+TrigChoice_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)TrigChoice_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+TrigChoice_new,                                     /* tp_new */
+};
+
+/*********************************************************************************************/
+/* TrigFunc ********************************************************************************/
+/*********************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *func;
+} TrigFunc;
+
+static void
+TrigFunc_generate(TrigFunc *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (in[i] == 1)
+            PyObject_CallFunction((PyObject *)self->func, NULL);
+    }
+}
+
+static void
+TrigFunc_compute_next_data_frame(TrigFunc *self)
+{
+    TrigFunc_generate(self); 
+}
+
+static int
+TrigFunc_traverse(TrigFunc *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+TrigFunc_clear(TrigFunc *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+TrigFunc_dealloc(TrigFunc* self)
+{
+    free(self->data);
+    TrigFunc_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TrigFunc_deleteStream(TrigFunc *self) { DELETE_STREAM };
+
+static PyObject *
+TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TrigFunc *self;
+    self = (TrigFunc *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigFunc_compute_next_data_frame);
+    return (PyObject *)self;
+}
+
+static int
+TrigFunc_init(TrigFunc *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *functmp=NULL;
+    
+    static char *kwlist[] = {"input", "function", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &functmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (functmp) {
+        PyObject_CallMethod((PyObject *)self, "setFunction", "O", functmp);
+    }
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    TrigFunc_compute_next_data_frame((TrigFunc *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TrigFunc_getServer(TrigFunc* self) { GET_SERVER };
+static PyObject * TrigFunc_getStream(TrigFunc* self) { GET_STREAM };
+
+static PyObject * TrigFunc_play(TrigFunc *self) { PLAY };
+static PyObject * TrigFunc_stop(TrigFunc *self) { STOP };
+
+static PyObject *
+TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
+{
+    int i;
+	PyObject *tmp;
+	
+	if (! PyFunction_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The function attribute must be a function.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    Py_XDECREF(self->func);
+    Py_INCREF(tmp);
+    self->func = tmp;
+  
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef TrigFunc_members[] = {
+{"server", T_OBJECT_EX, offsetof(TrigFunc, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TrigFunc, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(TrigFunc, input), 0, "Input sound object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigFunc_methods[] = {
+{"getServer", (PyCFunction)TrigFunc_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TrigFunc_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TrigFunc_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)TrigFunc_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TrigFunc_stop, METH_NOARGS, "Stops computing."},
+{"setFunction", (PyCFunction)TrigFunc_setFunction, METH_O, "Sets function to be called."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TrigFuncType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.TrigFunc_base",                                   /*tp_name*/
+sizeof(TrigFunc),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)TrigFunc_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TrigFunc objects. Called a function on a trigger signal.",           /* tp_doc */
+(traverseproc)TrigFunc_traverse,                  /* tp_traverse */
+(inquiry)TrigFunc_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+TrigFunc_methods,                                 /* tp_methods */
+TrigFunc_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)TrigFunc_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+TrigFunc_new,                                     /* tp_new */
+};
 
 /*********************************************************************************************/
 /* TrigEnv *********************************************************************************/
