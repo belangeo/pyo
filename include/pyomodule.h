@@ -23,6 +23,7 @@ extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
+extern PyTypeObject CompressType;
 extern PyTypeObject DelayType;
 extern PyTypeObject WaveguideType;
 extern PyTypeObject FreeverbType;
