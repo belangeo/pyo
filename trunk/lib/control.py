@@ -234,7 +234,7 @@ class Port(PyoObject):
     demo = Call_example(demo)
 
     def args():
-        return("Port(input, risetime=0.05, falltime=0.05, mul=1, add=0)")
+        return("Port(input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0)")
     args = Print_args(args)
 
     @property

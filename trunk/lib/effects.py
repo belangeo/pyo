@@ -943,3 +943,172 @@ class Freeverb(PyoObject):
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
+
+class Compress(PyoObject):
+    """
+    Process that reduces the dynamic range of an audio signal.
+    
+    Parent class: PyoObject
+    
+    Parameters:
+
+    input : PyoObject
+        Input signal to filter.
+    thresh : float or PyoObject, optional
+        Level, expressed in dB, above which the signal is reduced. Reference level is 0dB. Defaults to -20.
+    ratio : float or PyoObject, optional
+        Determines the input/output ratio for signals above the threshold. Defaults to 2.
+    risetime : float or PyoObject, optional
+        Used in amplitude follower, time to reach upward value in seconds. Defaults to 0.005.
+    falltime : float or PyoObject, optional
+        Used in amplitude follower, time to reach downward value in seconds. Defaults to 0.05.
+        
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setThresh(x) : Replace the `thresh` attribute.
+    setRatio(x) : Replace the `ratio` attribute.
+    setRiseTime(x) : Replace the `risetime` attribute.
+    setFallTime(x) : Replace the `falltime` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    thresh : float or PyoObject. Level above which the signal is reduced.
+    ratio : float or PyoObject. input/output ratio for signals above the threshold.
+    risetime : float or PyoObject. Time to reach upward value in seconds.
+    falltime : float or PyoObject. Time to reach downward value in seconds.
+     
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer('demos/transparent.aif', loop=True)
+    >>> b = Compress(a, thresh=-30, ratio=4, risetime=.005, falltime=.1).out()
+    
+    """
+    def __init__(self, input, thresh=-20, ratio=2, risetime=0.005, falltime=0.05, mul=1, add=0):
+        self._input = input
+        self._thresh = thresh
+        self._ratio = ratio
+        self._risetime = risetime
+        self._falltime = falltime
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, thresh, ratio, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, mul, add)
+        self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setThresh(self, x):
+        """
+        Replace the `thresh` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `thresh` attribute.
+
+        """
+        self._thresh = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+ 
+    def setRatio(self, x):
+        """
+        Replace the `ratio` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `ratio` attribute.
+
+        """
+        self._ratio = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setRiseTime(self, x):
+        """
+        Replace the `risetime` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `risetime` attribute.
+
+        """
+        self._risetime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRiseTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFallTime(self, x):
+        """
+        Replace the `falltime` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `falltime` attribute.
+
+        """
+        self._falltime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/Compress_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Compress(input, thresh=-20, ratio=2, risetime=0.005, falltime=0.05, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def thresh(self):
+        """float or PyoObject. Level above which the signal is reduced.""" 
+        return self._thresh
+    @thresh.setter
+    def thresh(self, x): self.setThresh(x)
+
+    @property
+    def ratio(self):
+        """float or PyoObject. input/output ratio for signals above the threshold.""" 
+        return self._ratio
+    @ratio.setter
+    def ratio(self, x): self.setRatio(x)
+
+    @property
+    def risetime(self):
+        """float or PyoObject. Time to reach upward value in seconds.""" 
+        return self._risetime
+    @risetime.setter
+    def risetime(self, x): self.setRiseTime(x)
+
+    @property
+    def falltime(self):
+        """float or PyoObject. Time to reach downward value in seconds."""
+        return self._falltime
+    @falltime.setter
+    def falltime(self, x): self.setFallTime(x)

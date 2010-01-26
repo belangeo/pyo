@@ -615,7 +615,8 @@ typedef struct {
     int dir;
 } Port;
 
-void direction(Port *self, float val)
+static void 
+direction(Port *self, float val)
 {
     if (val == self->x1)
         return;
@@ -664,7 +665,7 @@ Port_filters_ai(Port *self) {
         if (self->dir == 1)
             val = self->y1 + (*in++ - self->y1) / risefactor;
         else
-            val = self->y1 + (*in++ - self->y1) / fallfactor;
+            val = self->y1 + (*in++ - self->y1) * fallfactor;
         self->y1 = val;
         self->data[i] = val;
     }
@@ -683,7 +684,7 @@ Port_filters_ia(Port *self) {
         direction(self, in[i]);
         fallfactor = *falltime++ * self->sr;  
         if (self->dir == 1)
-            val = self->y1 + (*in++ - self->y1) / risefactor;
+            val = self->y1 + (*in++ - self->y1) * risefactor;
         else
             val = self->y1 + (*in++ - self->y1) / fallfactor;
         self->y1 = val;
