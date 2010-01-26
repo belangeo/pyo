@@ -1,11 +1,5 @@
 from distutils.core import setup, Extension
 import os
-
-try:
-    from sphinx.setup_command import BuildDoc
-    build_with_doc = True
-except:
-    build_with_doc = False
         
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c']
@@ -22,12 +16,7 @@ libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 
 extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
              extra_compile_args=["-Wno-strict-prototypes"], extra_link_args=["-mmacosx-version-min=10.4"])]
-
-if build_with_doc:
-    command_class = {'build_sphinx': BuildDoc}
-else:
-    command_class = {}
-        
+       
 setup(  name = "_pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
@@ -35,8 +24,7 @@ setup(  name = "_pyo",
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
-        ext_modules = extension,
-        cmdclass = command_class)
+        ext_modules = extension )
          
 os.system('rm -rf build')
       

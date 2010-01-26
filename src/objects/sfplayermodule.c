@@ -24,7 +24,7 @@ typedef struct {
     int sndSr;
     float srScale;
     float startPos;
-    float pointerPos;
+    double pointerPos;
     float *samplesBuffer;
     float (*interp_func_ptr)(float *, int, float);
 } SfPlayer;
@@ -69,7 +69,7 @@ float *reverseArray(float *orig, int b)
 
 static void
 SfPlayer_readframes_i(SfPlayer *self) {
-    float sp, frac, bufpos, delta, x, x1;
+    float sp, frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
 
@@ -85,7 +85,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
     if (sp > 0) {
         if (self->startPos >= self->sndSize)
             self->startPos = 0;
-        index = (sf_count_t)self->pointerPos;
+        index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
 
         /* fill a buffer with enough samples to satisfy speed reading */
@@ -103,16 +103,15 @@ SfPlayer_readframes_i(SfPlayer *self) {
                 int pad = buflen - shortbuflen;
                 int padlen = pad*self->sndChnls;
                 float buftemp[padlen];
-                sf_seek(self->sf, (sf_count_t)self->startPos, SEEK_SET);
+                sf_seek(self->sf, (int)self->startPos, SEEK_SET);
                 sf_read_float(self->sf, buftemp, padlen);
                 for (i=0; i<(padlen); i++) {
                     buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
                 }
             }    
         }
-        else { /* without zero padding */
+        else /* without zero padding */
             sf_read_float(self->sf, buffer, totlen);
-        }    
     
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -125,17 +124,12 @@ SfPlayer_readframes_i(SfPlayer *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                //x = buffer2[j][bufindex];
-                //x1 = buffer2[j][bufindex+1];
-                //self->samplesBuffer[i+(j*self->bufsize)] = x + (x1 - x) * frac;
                 self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
             }    
             self->pointerPos += delta;
         }
-
-        // must be inside samples loop
         if (self->pointerPos >= self->sndSize) {
-            self->pointerPos -= (self->sndSize - self->startPos);
+            self->pointerPos -= self->sndSize - self->startPos;
             if (self->loop == 0)
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
         }
@@ -143,7 +137,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
     else {
         if (self->startPos == 0.)
             self->startPos = self->sndSize;
-        index = (sf_count_t)self->pointerPos + 1;
+        index = (int)self->pointerPos + 1;
         
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
@@ -159,7 +153,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
             }
             else { /* wrap around and read new samples if loop */
                 float buftemp[padlen];
-                sf_seek(self->sf, (sf_count_t)self->startPos-pad, SEEK_SET);
+                sf_seek(self->sf, (int)self->startPos-pad, SEEK_SET);
                 sf_read_float(self->sf, buftemp, padlen);
                 for (i=0; i<padlen; i++) {
                     buffer[i] = buftemp[i];
@@ -174,7 +168,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
             }    
         }
         else /* without zero padding */
-            sf_seek(self->sf, (sf_count_t)index-buflen, SEEK_SET); /* sets position pointer in the file */
+            sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
             sf_read_float(self->sf, buffer, totlen);
         
         /* de-interleave samples */
@@ -976,7 +970,7 @@ typedef struct {
     float endPos;
     float nextStartPos;
     float nextEndPos;
-    float pointerPos;
+    double pointerPos;
     float *samplesBuffer;
     float *markers;
     int markers_size;
