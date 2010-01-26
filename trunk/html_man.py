@@ -7,7 +7,7 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
         'PyoObject': {'Filters': sorted(['Biquad', 'Port', 'Hilbert', 'Tone', 'DCBlock']),
                       'Open Sound Control': sorted(['OscReceive', 'OscSend']),
                       'Effects': sorted(['BandSplit',  'Clip', 'Compress', 'Delay', 'Disto', 'Freeverb','Pan', 'SPan', 'Waveguide']),
-                      'Triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter']),
+                      'Triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 'TrigFunc']),
                       'Generators': sorted(['Noise', 'Osc', 'Phasor', 'Sig', 'Sine', 'Input', 'Fader']),
                       'MIDI': sorted(['Midictl', 'Notein']),
                       'Sound players': sorted(['SfMarkerShuffler', 'SfPlayer']),
