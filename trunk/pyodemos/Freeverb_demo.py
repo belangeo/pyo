@@ -3,10 +3,10 @@ def ex1():
     print """
 Small romm:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
 o_ex2 = Freeverb(o_ex1, size=.25, damp=.7, bal=.4).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
     o_ex2 = Freeverb(o_ex1, size=.25, damp=.7, bal=.4).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
@@ -17,10 +17,10 @@ def ex2():
     print """
 Big room:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
 o_ex2 = Freeverb(o_ex1, size=.95, damp=1, bal=.5).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
     o_ex2 = Freeverb(o_ex1, size=.95, damp=1, bal=.5).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
@@ -31,11 +31,11 @@ def ex3():
     print """
 Reverb with changing room size:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
 o_ex2 = Sine(freq=0.75, mul=0.5, add=0.5)
 o_ex3 = Freeverb(o_ex1, size=o_ex2, damp=1, bal=.5).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
     o_ex2 = Sine(freq=0.75, mul=0.5, add=0.5)
     o_ex3 = Freeverb(o_ex1, size=o_ex2, damp=1, bal=.5).out()
 

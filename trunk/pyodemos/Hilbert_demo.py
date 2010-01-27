@@ -3,7 +3,7 @@ def ex1():
     print """
 Frequency shift:
 
-o_ex1 = SfPlayer("demos/accord.aif", loop=True).out()
+o_ex1 = SfPlayer("pyodemos/accord.aif", loop=True).out()
 o_ex2 = Hilbert(o_ex1)
 o_ex3 = Sine(1000, [0, .25])
 o_ex4 = b['real'] * o_ex3[0]
@@ -12,7 +12,7 @@ o_up = o_ex4 - o_ex5
 o_down = o_ex4 + o_ex5
 o_up.out()
 """
-    o_ex1 = SfPlayer("demos/accord.aif", loop=True).out()
+    o_ex1 = SfPlayer("pyodemos/accord.aif", loop=True).out()
     o_ex2 = Hilbert(o_ex1)
     o_ex3 = Sine(1000, [0, .25])
     o_ex4 = o_ex2['real'] * o_ex3[0]

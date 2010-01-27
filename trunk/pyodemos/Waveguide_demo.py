@@ -59,10 +59,10 @@ def ex4():
     print """
 Resonator bank:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.025)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.025)
 o_ex2 = Waveguide(o_ex1, freq=range(100, 500, 50), dur=60).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.025)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.025)
     o_ex2 = Waveguide(o_ex1, freq=range(100, 500, 50), dur=60).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)

@@ -3,10 +3,10 @@ def ex1():
     print """
 Simple clipping (cheap distortion):
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True)
 o_ex2 = Clip(o_ex1, min=-.15, max=.15).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True)
     o_ex2 = Clip(o_ex1, min=-.15, max=.15).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
