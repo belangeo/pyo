@@ -1,5 +1,74 @@
 from _core import *
 
+from Tkinter import *
+import math
+
+######################################################################
+### Server Object User Interface
+######################################################################
+class Application(Frame):
+    def __init__(self, master=None, startf=None, stopf=None, 
+                 recstartf=None, recstopf=None, ampf=None):
+        Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
+        self.startf = startf
+        self.stopf = stopf
+        self.recstartf = recstartf
+        self.recstopf = recstopf
+        self.ampf = ampf
+        self._started = False
+        self._recstarted = False
+        self.grid(ipadx=5)
+        self.rowconfigure(0, pad=20)
+        self.createWidgets()
+
+    def createWidgets(self):
+        self.startStringVar = StringVar()
+        self.startStringVar.set('Start')
+        self.startButton = Button(self, textvariable=self.startStringVar, command=self.start)
+        self.startButton.grid(ipadx=5)
+
+        self.recStringVar = StringVar()
+        self.recStringVar.set('Rec Start')
+        self.recButton = Button(self, textvariable=self.recStringVar, command=self.record)
+        self.recButton.grid(ipadx=5, row=0, column=1)
+
+        self.quitButton = Button(self, text='Quit', command=self.on_quit)
+        self.quitButton.grid(ipadx=5, row=0, column=2)
+
+        self.ampScale = Scale(self, command=self.setAmp, digits=4, label='Amplitude (dB)',
+                              orient=HORIZONTAL, relief=GROOVE, from_=-90.0, to=18.0, 
+                              resolution=.01, bd=1, length=250)
+        self.ampScale.set(0.0)
+        self.ampScale.grid(ipadx=5, ipady=5, row=2, column=0, columnspan=3)
+                              
+    def on_quit(self):
+        if self._started:
+            self.stopf()
+        self.quit()
+
+    def start(self):
+        if self._started == False:
+            self.startf()
+            self._started = True
+            self.startStringVar.set('Stop')
+        else:
+            self.stopf()
+            self._started = False
+            self.startStringVar.set('Start')
+
+    def record(self):
+        if self._recstarted == False:
+            self.recstartf()
+            self._recstarted = True
+            self.recStringVar.set('Rec Stop')
+        else:
+            self.recstopf()
+            self._recstarted = False
+            self.recStringVar.set('Rec Start')
+
+    def setAmp(self, value):
+        self.ampf(math.pow(10.0, float(value) * 0.05))
+        
 ######################################################################
 ### Proxy of Server object
 ######################################################################
@@ -63,6 +132,11 @@ class Server(object):
         self._amp = 1.
         self._server = Server_base(sr, nchnls, buffersize, duplex)
 
+    def gui(self):
+        app = Application(None, self.start, self.stop, self.recstart, self.recstop, self.setAmp)
+        app.master.title("pyo Server")
+        app.mainloop()
+        
     def setInputDevice(self, x):
         """
         Set the audio input device number. See `pa_list_devices()`.
