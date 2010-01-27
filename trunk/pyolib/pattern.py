@@ -63,7 +63,7 @@ class Pattern(PyoObject):
         pass
 
     #def demo():
-    #    execfile("demos/Pattern_demo.py")
+    #    execfile("pyodemos/Pattern_demo.py")
     #demo = Call_example(demo)
 
     def args():
