@@ -3,10 +3,10 @@ def ex1():
     print """
 Simple delay:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
 o_ex2 = Delay(o_ex1, .250, 0, 1).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
     o_ex2 = Delay(o_ex1, .250, 0, 1).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
@@ -17,10 +17,10 @@ def ex2():
     print """
 Delay with feedback:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
 o_ex2 = Delay(o_ex1, .250, 0.75, 1).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
     o_ex2 = Delay(o_ex1, .250, 0.75, 1).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
@@ -31,11 +31,11 @@ def ex3():
     print """
 Basic chorus:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
 o_ex2 = Sine(freq=[1,1.34], mul=0.005, add=0.025)
 o_ex3 = Delay(input=o_ex1, delay=o_ex2, feedback=0.5, mul=.3).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
     o_ex2 = Sine(freq=[1,1.34], mul=0.005, add=0.025)
     o_ex3 = Delay(input=o_ex1, delay=o_ex2, feedback=0.5, mul=.3).out()
 
@@ -47,11 +47,11 @@ def ex4():
     print """
 Flanger:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
 o_ex2 = Sine(freq=.3, mul=0.003, add=0.004)
 o_ex3 = Delay(input=o_ex1, delay=o_ex2, feedback=0.65).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5).out()
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5).out()
     o_ex2 = Sine(freq=.3, mul=0.003, add=0.004)
     o_ex3 = Delay(input=o_ex1, delay=o_ex2, feedback=0.65).out()
 
@@ -63,10 +63,10 @@ def ex5():
     print """
 Resonator bank:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.025)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.025)
 o_ex2 = Delay(o_ex1, delay=[.004, .0079999, .012002], feedback=0.99).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.025)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.025)
     o_ex2 = Delay(o_ex1, delay=[.004, .0079999, .012002], feedback=0.99).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)

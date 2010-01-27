@@ -3,10 +3,10 @@ def ex1():
     print """
 Soft distortion:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.25)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.25)
 o_ex2 = Disto(o_ex1, drive=.25, slope=.7).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.25)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.25)
     o_ex2 = Disto(o_ex1, drive=.25, slope=.7).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
@@ -17,10 +17,10 @@ def ex2():
     print """
 Hard distortion:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
 o_ex2 = Disto(o_ex1, drive=.98, slope=.2, mul=.15).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
     o_ex2 = Disto(o_ex1, drive=.98, slope=.2, mul=.15).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)
@@ -31,11 +31,11 @@ def ex3():
     print """
 DIstortion with moving drive:
 
-o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
 o_ex2 = Sine(freq=0.5, mul=0.499, add=0.5)
 o_ex3 = Disto(input=o_ex1, drive=o_ex2, slope=.5, mul=.25).out()
 """
-    o_ex1 = SfPlayer('demos/transparent.aif', loop=True, mul=.5)
+    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True, mul=.5)
     o_ex2 = Sine(freq=0.5, mul=0.499, add=0.5)
     o_ex3 = Disto(input=o_ex1, drive=o_ex2, slope=.5, mul=.25).out()
 
