@@ -46,7 +46,7 @@ class Application(Frame):
         self.bars = []
         for i in range(self.nchnls):
             y = 5 * (i + 1) + 2
-            self.bars.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='blue'))
+            self.bars.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='blue', dash=(9,1), dashoff=5))
         self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
         
     def on_quit(self):
