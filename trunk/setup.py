@@ -1,4 +1,5 @@
 from distutils.core import setup, Extension
+from distutils.sysconfig import get_python_lib
 import os
         
 path = 'src/engine/'
@@ -17,13 +18,16 @@ libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
              extra_compile_args=["-Wno-strict-prototypes"], extra_link_args=["-mmacosx-version-min=10.4"])]
        
-setup(  name = "_pyo",
+setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
         version = "0.01",
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
+        license="GPLv3",
+        packages=['lib'],
+        data_files=[(get_python_lib(), ['pyo.py'])],
         ext_modules = extension )
          
 os.system('rm -rf build')

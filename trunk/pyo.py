@@ -1,23 +1,18 @@
-from lib.server import *
-from lib.control import *
-from lib.effects import *
-from lib.input import *
-from lib.midi import *
-from lib.OSC import *
-from lib.sfplayer import *
-from lib.table import *
-from lib.trigger import *
+from pyolib.server import *
+from pyolib.control import *
+from pyolib.effects import *
+from pyolib.input import *
+from pyolib.midi import *
+from pyolib.OSC import *
+from pyolib.sfplayer import *
+from pyolib.table import *
+from pyolib.trigger import *
 
-from lib.pattern import *
-from lib.pypattern import *
+from pyolib.pattern import *
+from pyolib.pypattern import *
 
-from lib.bandsplitter import *
+from pyolib.bandsplitter import *
 
-from lib.hilbert import *
+from pyolib.hilbert import *
 
-from lib.pan import *
-
-import sys
-
-def quit():
-    sys.exit()
+from pyolib.pan import *
