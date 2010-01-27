@@ -32,6 +32,12 @@ typedef struct {
     char *recpath;
     SNDFILE *recfile;
     SF_INFO recinfo;
+    /* GUI VUMETER */
+    int withGUI;
+    int numPass;
+    int gcount;
+    float *lastRms;
+    PyObject *GUI;
 } Server;
 
 PyObject * PyServer_get_server();

@@ -7,9 +7,10 @@ import math
 ### Server Object User Interface
 ######################################################################
 class Application(Frame):
-    def __init__(self, master=None, startf=None, stopf=None, 
+    def __init__(self, master=None, nchnls=2, startf=None, stopf=None, 
                  recstartf=None, recstopf=None, ampf=None):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
+        self.nchnls = nchnls
         self.startf = startf
         self.stopf = stopf
         self.recstartf = recstartf
@@ -36,11 +37,18 @@ class Application(Frame):
         self.quitButton.grid(ipadx=5, row=0, column=2)
 
         self.ampScale = Scale(self, command=self.setAmp, digits=4, label='Amplitude (dB)',
-                              orient=HORIZONTAL, relief=GROOVE, from_=-90.0, to=18.0, 
+                              orient=HORIZONTAL, relief=GROOVE, from_=-60.0, to=18.0, 
                               resolution=.01, bd=1, length=250)
         self.ampScale.set(0.0)
-        self.ampScale.grid(ipadx=5, ipady=5, row=2, column=0, columnspan=3)
-                              
+        self.ampScale.grid(ipadx=5, ipady=5, row=1, column=0, columnspan=3)
+
+        self.vumeter = Canvas(self, height=5*self.nchnls+1, width=250, relief=SUNKEN, bd=1)
+        self.bars = []
+        for i in range(self.nchnls):
+            y = 5 * (i + 1) + 2
+            self.bars.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='blue'))
+        self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
+        
     def on_quit(self):
         if self._started:
             self.stopf()
@@ -68,6 +76,11 @@ class Application(Frame):
 
     def setAmp(self, value):
         self.ampf(math.pow(10.0, float(value) * 0.05))
+
+    def setRms(self, *args):
+        for i in range(self.nchnls):
+            y = 5 * (i + 1) + 2
+            self.vumeter.coords(self.bars[i], 0, y, int(args[i]*250), y)
         
 ######################################################################
 ### Proxy of Server object
@@ -129,12 +142,14 @@ class Server(object):
         
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=0):
+        self._nchnls = nchnls
         self._amp = 1.
         self._server = Server_base(sr, nchnls, buffersize, duplex)
 
     def gui(self):
-        app = Application(None, self.start, self.stop, self.recstart, self.recstop, self.setAmp)
+        app = Application(None, self._nchnls, self.start, self.stop, self.recstart, self.recstop, self.setAmp)
         app.master.title("pyo Server")
+        self._server.setAmpCallable(app)
         app.mainloop()
         
     def setInputDevice(self, x):
@@ -207,6 +222,7 @@ class Server(object):
             New number of channels.
 
         """
+        self._nchnls = x
         self._server.setNchnls(x)
 
     def setDuplex(self, x):
