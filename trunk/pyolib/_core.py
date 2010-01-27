@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from types import ListType
-import random, threading, time
+import random, threading, time, os
+from distutils.sysconfig import get_python_lib
 
 from _pyo import *
 
 ######################################################################
 ### Utilities
 ######################################################################
+DEMOS_PATH = os.path.join(get_python_lib(), "pyodemos")
+
 class Call_example:
     def __init__(self, callback):
         self.__call__ = callback

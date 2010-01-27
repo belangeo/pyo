@@ -107,7 +107,7 @@ class Fader(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Fader_demo.py")
+        execfile(DEMOS_PATH + "/Fader_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -230,7 +230,7 @@ class Port(PyoObject):
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Port_demo.py")
+        execfile(DEMOS_PATH + "/Port_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -336,7 +336,7 @@ class Metro(PyoObject):
         pass
 
     def demo():
-        execfile("pyodemos/Metro_demo.py")
+        execfile(DEMOS_PATH + "/Metro_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -381,7 +381,7 @@ class Follower(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer("pyodemos/transparent.aif", loop=True).out()
+    >>> sf = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True).out()
     >>> fol = Follower(sf, freq=10)
     >>> n = Noise(mul=fol).out()
 
@@ -428,7 +428,7 @@ class Follower(PyoObject):
         pass
 
     def demo():
-        execfile("pyodemos/Follower_demo.py")
+        execfile(DEMOS_PATH + "/Follower_demo.py")
     demo = Call_example(demo)
 
     def args():

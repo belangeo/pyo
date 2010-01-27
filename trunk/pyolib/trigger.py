@@ -26,7 +26,7 @@ class TrigRand(PyoObject):
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/TrigRand_demo.py")
+    #    execfile(DEMOS_PATH + "/TrigRand_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -65,7 +65,7 @@ class TrigChoice(PyoObject):
         [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/TrigChoice_demo.py")
+    #    execfile(DEMOS_PATH + "/TrigChoice_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -99,7 +99,7 @@ class TrigFunc(PyoObject):
         [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/TrigFunction_demo.py")
+    #    execfile(DEMOS_PATH + "/TrigFunction_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -149,7 +149,7 @@ class TrigEnv(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/TrigEnv_demo.py")
+    #    execfile(DEMOS_PATH + "/TrigEnv_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -201,7 +201,7 @@ class Counter(PyoObject):
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Counter_demo.py")
+    #    execfile(DEMOS_PATH + "/Counter_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -243,7 +243,7 @@ class Select(PyoObject):
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Select_demo.py")
+    #    execfile(DEMOS_PATH + "/Select_demo.py")
     #demo = Call_example(demo)
 
     def args():

@@ -35,7 +35,7 @@ class Midictl(PyoObject):
         pass
 
     #def demo():
-    #    execfile("pyodemos/Midictl_demo.py")
+    #    execfile(DEMOS_PATH + "/Midictl_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -121,7 +121,7 @@ class Notein(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     #def demo():
-    #    execfile("pyodemos/Notein_demo.py")
+    #    execfile(DEMOS_PATH + "/Notein_demo.py")
     #demo = Call_example(demo)
 
     def args():

@@ -1,12 +1,12 @@
 def ex1():
-    from pyo import SfPlayer, Clean_objects
+    from pyo import SfPlayer, Clean_objects, DEMOS_PATH
     print """
 Simple clipping (cheap distortion):
 
-o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True)
+o_ex1 = SfPlayer(DEMOS_PATH + '/transparent.aif', loop=True)
 o_ex2 = Clip(o_ex1, min=-.15, max=.15).out()
 """
-    o_ex1 = SfPlayer('pyodemos/transparent.aif', loop=True)
+    o_ex1 = SfPlayer(DEMOS_PATH + '/transparent.aif', loop=True)
     o_ex2 = Clip(o_ex1, min=-.15, max=.15).out()
 
     c = Clean_objects(4, o_ex1, o_ex2)

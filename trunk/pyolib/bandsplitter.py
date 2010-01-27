@@ -116,7 +116,7 @@ class BandSplit(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     def demo():
-        execfile("pyodemos/BandSplit_demo.py")
+        execfile(DEMOS_PATH + "/BandSplit_demo.py")
     demo = Call_example(demo)
 
     def args():

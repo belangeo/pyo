@@ -57,7 +57,7 @@ class PyPattern(threading.Thread):
         self._time = x
 
     #def demo():
-    #    execfile("pyodemos/PyPattern_demo.py")
+    #    execfile(DEMOS_PATH + "/PyPattern_demo.py")
     #demo = Call_example(demo)
 
     def args():
