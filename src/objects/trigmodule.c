@@ -891,7 +891,6 @@ static PyObject * TrigFunc_stop(TrigFunc *self) { STOP };
 static PyObject *
 TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 {
-    int i;
 	PyObject *tmp;
 	
 	if (! PyFunction_Check(arg)) {

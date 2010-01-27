@@ -1,4 +1,5 @@
 #include <Python.h>
+#include <math.h>
 #include "structmember.h"
 #include "portaudio.h"
 #include "portmidi.h"
@@ -103,6 +104,41 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     if (my_server->record == 1)
         sf_write_float(my_server->recfile, out, framesPerBuffer * nchnls);
 
+    if (my_server->withGUI == 1) {
+        float rms[nchnls];
+        float outAmp;
+        for (j=0; j<nchnls; j++) {
+            rms[j] = 0.0;
+            for (i=0; i<framesPerBuffer; i++) {
+                outAmp = out[i*nchnls+j];
+                outAmp *= outAmp;
+                if (outAmp > rms[j])
+                    rms[j] = outAmp;
+            }
+            rms[j] = sqrtf(rms[j]);
+        }    
+        if (my_server->gcount <= my_server->numPass) {
+            for (j=0; j<nchnls; j++) {            
+                my_server->lastRms[j] = (rms[j] + my_server->lastRms[j]) * 0.5;
+            }    
+            my_server->gcount++;
+        }
+        else {
+            for (j=0; j<nchnls; j++) {            
+                my_server->lastRms[j] = (rms[j] + my_server->lastRms[j]) * 0.5;
+            }  
+            switch (nchnls) {
+                case 1:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "f", my_server->lastRms[0]);
+                    break;
+                case 2:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "ff", my_server->lastRms[0], my_server->lastRms[1]);
+                    break;
+            }        
+            my_server->gcount = 0;
+        }
+    }    
+        
     my_server->midi_count = 0;
 
     PyGILState_Release(s);
@@ -200,6 +236,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->output = -1;
     self->midi_input = -1;
     self->amp = 1.;
+    self->withGUI = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -309,6 +346,41 @@ Server_setAmp(Server *self, PyObject *arg)
     }
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static PyObject *
+Server_setAmpCallable(Server *self, PyObject *arg)
+{
+    int i;
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+        PyErr_SetString(PyExc_TypeError, "The amplitude callable attribute must be a method.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    Py_XDECREF(self->GUI);
+    Py_INCREF(tmp);
+    self->GUI = tmp;
+
+    self->lastRms = (float *)realloc(self->lastRms, self->nchnls * sizeof(float));
+    for (i=0; i<self->nchnls; i++) {
+        self->lastRms[i] = 0.0;
+    }
+    
+    for (i=1; i<100; i++) {
+        if ((self->bufferSize * i / self->samplingRate) > 0.045) {
+            self->numPass = i;
+            break;
+        }
+    } 
+    self->gcount = 0;
+    self->withGUI = 1;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
 }
 
 static PyObject *
@@ -595,6 +667,7 @@ static PyMethodDef Server_methods[] = {
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
+    {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
 	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
