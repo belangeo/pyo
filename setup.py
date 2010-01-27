@@ -27,7 +27,8 @@ setup(  name = "pyo",
         url = "http://code.google.com/p/pyo/",
         license="GPLv3",
         packages=['pyolib', 'pyodemos'],
-        data_files=[(get_python_lib(), ['pyo.py'])],
+        data_files=[(get_python_lib(), ['pyo.py']),
+        (os.path.join(get_python_lib(), 'pyodemos'), ['pyodemos/'+ f for f in os.listdir('pyodemos') if f.endswith('aif')])],
         ext_modules = extension )
          
 os.system('rm -rf build')

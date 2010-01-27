@@ -311,7 +311,7 @@ class Server(object):
         return self._server.getBufferSize()
 
     #def demo():
-    #    execfile("pyodemos/Server_demo.py")
+    #    execfile(DEMOS_PATH + "/Server_demo.py")
     #demo = Call_example(demo)
 
     def args():

@@ -72,7 +72,7 @@ class Sine(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Sine_demo.py")
+        execfile(DEMOS_PATH + "/Sine_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -165,7 +165,7 @@ class Phasor(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Phasor_demo.py")
+    #    execfile(DEMOS_PATH + "/Phasor_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -275,7 +275,7 @@ class Osc(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Osc_demo.py")
+        execfile(DEMOS_PATH + "/Osc_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -370,7 +370,7 @@ class Pointer(PyoObject):
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Pointer_demo.py")
+    #    execfile(DEMOS_PATH + "/Pointer_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -422,7 +422,7 @@ class Input(PyoObject):
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def demo():
-        execfile("pyodemos/Input_demo.py")
+        execfile(DEMOS_PATH + "/Input_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -450,7 +450,7 @@ class Noise(PyoObject):
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def demo():
-        execfile("pyodemos/Noise_demo.py")
+        execfile(DEMOS_PATH + "/Noise_demo.py")
     demo = Call_example(demo)
 
     def args():

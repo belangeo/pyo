@@ -117,7 +117,7 @@ class Biquad(PyoObject):
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Biquad_demo.py")
+        execfile(DEMOS_PATH + "/Biquad_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -222,7 +222,7 @@ class Tone(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Tone_demo.py")
+    #    execfile(DEMOS_PATH + "/Tone_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -295,7 +295,7 @@ class DCBlock(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     #def demo():
-    #    execfile("pyodemos/DCBlock_demo.py")
+    #    execfile(DEMOS_PATH + "/DCBlock_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -344,7 +344,7 @@ class Disto(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer("pyodemos/transparent.aif", loop=True)
+    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
     >>> lfo = Sine(freq=.25, mul=.5, add=.5)
     >>> d = Disto(a, drive=lfo, slope=.8, mul=.5).out()
 
@@ -403,7 +403,7 @@ class Disto(PyoObject):
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Disto_demo.py")
+        execfile(DEMOS_PATH + "/Disto_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -464,7 +464,7 @@ class Clip(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer("pyodemos/transparent.aif", loop=True)
+    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
     >>> lfoup = Sine(freq=.25, mul=.48, add=.5)
     >>> lfodown = 0 - lfoup
     >>> c = Clip(a, min=lfodown, max=lfoup, mul=.5).out()
@@ -524,7 +524,7 @@ class Clip(PyoObject):
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Clip_demo.py")
+        execfile(DEMOS_PATH + "/Clip_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -585,7 +585,7 @@ class Delay(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer("pyodemos/transparent.aif", loop=True)
+    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
     >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out()
 
     """
@@ -643,7 +643,7 @@ class Delay(PyoObject):
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Delay_demo.py")
+        execfile(DEMOS_PATH + "/Delay_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -765,7 +765,7 @@ class Waveguide(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Waveguide_demo.py")
+        execfile(DEMOS_PATH + "/Waveguide_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -836,7 +836,7 @@ class Freeverb(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer("pyodemos/transparent.aif", loop=True)
+    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
     >>> b = Freeverb(a, size=.8, damp=.9, bal=.3).out()
 
     """
@@ -909,7 +909,7 @@ class Freeverb(PyoObject):
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def demo():
-        execfile("pyodemos/Freeverb_demo.py")
+        execfile(DEMOS_PATH + "/Freeverb_demo.py")
     demo = Call_example(demo)
 
     def args():
@@ -1071,7 +1071,7 @@ class Compress(PyoObject):
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Compress_demo.py")
+    #    execfile(DEMOS_PATH + "/Compress_demo.py")
     #demo = Call_example(demo)
 
     def args():

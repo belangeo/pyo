@@ -61,7 +61,7 @@ class HarmTable(PyoTableObject):
         [obj.replace(list) for obj in self._base_objs]
 
     #def demo():
-    #    execfile("pyodemos/HarmTable_demo.py")
+    #    execfile(DEMOS_PATH + "/HarmTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -121,7 +121,7 @@ class HannTable(PyoTableObject):
         [obj.setSize(size) for obj in self._base_objs]
 
     #def demo():
-    #    execfile("pyodemos/HannTable_demo.py")
+    #    execfile(DEMOS_PATH + "/HannTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -203,7 +203,7 @@ class LinTable(PyoTableObject):
         return self._base_objs[0].getPoints()
 
     #def demo():
-    #    execfile("pyodemos/LinTable_demo.py")
+    #    execfile(DEMOS_PATH + "/LinTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -282,7 +282,7 @@ class SndTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
     #def demo():
-    #    execfile("pyodemos/SndTable_demo.py")
+    #    execfile(DEMOS_PATH + "/SndTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -331,7 +331,7 @@ class NewTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
     #def demo():
-    #    execfile("pyodemos/NewTable_demo.py")
+    #    execfile(DEMOS_PATH + "/NewTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -418,7 +418,7 @@ class TableRec(PyoObject):
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/TableRec_demo.py")
+    #    execfile(DEMOS_PATH + "/TableRec_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -490,7 +490,7 @@ class Granulator(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd = SndTable("pyodemos/transparent.aif")
+    >>> snd = SndTable(DEMOS_PATH + "/transparent.aif")
     >>> env = HannTable()
     >>> pos = Phasor(snd.getRate()*.25, 0, snd.getSize())
     >>> dur = Noise(.001, .1)
@@ -597,7 +597,7 @@ class Granulator(PyoObject):
         [obj.setBaseDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("pyodemos/Granulator_demo.py")
+    #    execfile(DEMOS_PATH + "/Granulator_demo.py")
     #demo = Call_example(demo)
 
     def args():

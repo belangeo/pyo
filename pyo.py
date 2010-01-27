@@ -1,3 +1,8 @@
+from distutils.sysconfig import get_python_lib
+import os
+
+DEMOS_PATH = os.path.join(get_python_lib(), "pyodemos")
+
 from pyolib.server import *
 from pyolib.control import *
 from pyolib.effects import *
