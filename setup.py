@@ -26,7 +26,7 @@ setup(  name = "pyo",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
         license="GPLv3",
-        packages=['lib'],
+        packages=['pyolib', 'pyodemos'],
         data_files=[(get_python_lib(), ['pyo.py'])],
         ext_modules = extension )
          

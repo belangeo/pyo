@@ -48,7 +48,7 @@ class SfPlayer(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer("demos/transparent.aif", speed=.75, loop=True).out()
+    >>> sf = SfPlayer("pyodemos/transparent.aif", speed=.75, loop=True).out()
     
     """
     def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
@@ -171,7 +171,7 @@ class SfPlayer(PyoObject):
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
           
     #def demo():
-    #    execfile("demos/SfPlayer_demo.py")
+    #    execfile("pyodemos/SfPlayer_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -252,7 +252,7 @@ class SfMarkerShuffler(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfMarkerShuffler("demos/transparent.aif", speed=1).out()
+    >>> sf = SfMarkerShuffler("pyodemos/transparent.aif", speed=1).out()
     
     """
     def __init__(self, path, speed=1, interp=0, mul=1, add=0):
@@ -334,7 +334,7 @@ class SfMarkerShuffler(PyoObject):
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     #def demo():
-    #    execfile("demos/SfMarkerShuffler_demo.py")
+    #    execfile("pyodemos/SfMarkerShuffler_demo.py")
     #demo = Call_example(demo)
 
     def args():

@@ -66,7 +66,7 @@ class OscSend(PyoObject):
         pass    
 
     #def demo():
-    #    execfile("demos/OscSend_demo.py")
+    #    execfile("pyodemos/OscSend_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -127,7 +127,7 @@ class OscReceive(PyoObject):
         return self
 
     #def demo():
-    #    execfile("demos/OscReceive_demo.py")
+    #    execfile("pyodemos/OscReceive_demo.py")
     #demo = Call_example(demo)
 
     def args():

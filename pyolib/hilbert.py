@@ -28,7 +28,7 @@ class Hilbert(PyoObject):
     
     Examples:
     
-    >>> a = SfPlayer("demos/accord.aif", loop=True).out()
+    >>> a = SfPlayer("pyodemos/accord.aif", loop=True).out()
     >>> b = Hilbert(a)
     >>> quad = Sine([250, 500], [0, .25])
     >>> mod1 = b['real'] * quad[0]
@@ -107,7 +107,7 @@ class Hilbert(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     def demo():
-        execfile("demos/Hilbert_demo.py")
+        execfile("pyodemos/Hilbert_demo.py")
     demo = Call_example(demo)
 
     def args():

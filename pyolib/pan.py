@@ -117,7 +117,7 @@ class Pan(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     #def demo():
-    #    execfile("demos/Pan_demo.py")
+    #    execfile("pyodemos/Pan_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -243,7 +243,7 @@ class SPan(PyoObject):
         [obj.stop() for obj in self._base_objs]
 
     #def demo():
-    #    execfile("demos/SPan_demo.py")
+    #    execfile("pyodemos/SPan_demo.py")
     #demo = Call_example(demo)
 
     def args():

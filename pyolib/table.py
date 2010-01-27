@@ -61,7 +61,7 @@ class HarmTable(PyoTableObject):
         [obj.replace(list) for obj in self._base_objs]
 
     #def demo():
-    #    execfile("demos/HarmTable_demo.py")
+    #    execfile("pyodemos/HarmTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -121,7 +121,7 @@ class HannTable(PyoTableObject):
         [obj.setSize(size) for obj in self._base_objs]
 
     #def demo():
-    #    execfile("demos/HannTable_demo.py")
+    #    execfile("pyodemos/HannTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -203,7 +203,7 @@ class LinTable(PyoTableObject):
         return self._base_objs[0].getPoints()
 
     #def demo():
-    #    execfile("demos/LinTable_demo.py")
+    #    execfile("pyodemos/LinTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -282,7 +282,7 @@ class SndTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
     #def demo():
-    #    execfile("demos/SndTable_demo.py")
+    #    execfile("pyodemos/SndTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -331,7 +331,7 @@ class NewTable(PyoTableObject):
         return self._base_objs[0].getRate()
 
     #def demo():
-    #    execfile("demos/NewTable_demo.py")
+    #    execfile("pyodemos/NewTable_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -418,7 +418,7 @@ class TableRec(PyoObject):
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("demos/TableRec_demo.py")
+    #    execfile("pyodemos/TableRec_demo.py")
     #demo = Call_example(demo)
 
     def args():
@@ -490,7 +490,7 @@ class Granulator(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd = SndTable("demos/transparent.aif")
+    >>> snd = SndTable("pyodemos/transparent.aif")
     >>> env = HannTable()
     >>> pos = Phasor(snd.getRate()*.25, 0, snd.getSize())
     >>> dur = Noise(.001, .1)
@@ -597,7 +597,7 @@ class Granulator(PyoObject):
         [obj.setBaseDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     #def demo():
-    #    execfile("demos/Granulator_demo.py")
+    #    execfile("pyodemos/Granulator_demo.py")
     #demo = Call_example(demo)
 
     def args():
