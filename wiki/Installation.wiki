@@ -25,7 +25,7 @@ svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
 
 In pyo's directory you then need to build the extension : 
 {{{
-python setup.py build_ext --inplace
+python setup.py install
 }}}
 
 If compilation went well you should see a _pyo.so file in your pyo directory.
