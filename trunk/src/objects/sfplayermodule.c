@@ -130,8 +130,12 @@ SfPlayer_readframes_i(SfPlayer *self) {
         }
         if (self->pointerPos >= self->sndSize) {
             self->pointerPos -= self->sndSize - self->startPos;
-            if (self->loop == 0)
+            if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
+                    self->samplesBuffer[i] = 0.0;
+                }    
+            }
         }
     }
     else {
@@ -200,8 +204,12 @@ SfPlayer_readframes_i(SfPlayer *self) {
         }
         if (self->pointerPos <= 0) {
             self->pointerPos += self->startPos;
-            if (self->loop == 0)
+            if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
+                    self->samplesBuffer[i] = 0.0;
+                }    
+            }
         }
     }
 }    
@@ -273,8 +281,12 @@ SfPlayer_readframes_a(SfPlayer *self) {
         }
         if (self->pointerPos >= self->sndSize) {
             self->pointerPos -= self->sndSize - self->startPos;
-            if (self->loop == 0)
+            if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
+                    self->samplesBuffer[i] = 0.0;
+                }    
+            }
         } 
     } 
     else {
@@ -338,8 +350,12 @@ SfPlayer_readframes_a(SfPlayer *self) {
         }
         if (self->pointerPos <= 0) {
             self->pointerPos += self->startPos;
-            if (self->loop == 0)
+            if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
+                    self->samplesBuffer[i] = 0.0;
+                }    
+            }
         } 
     }    
 }
