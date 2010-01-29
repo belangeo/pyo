@@ -175,7 +175,7 @@ class SfPlayer(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        return('SfPlayer(path, speed=1, loop=False, offset=0, interp=0, mul=1, add=0)')
+        return('SfPlayer(path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0)')
     args = Print_args(args)
           
     @property
@@ -255,7 +255,7 @@ class SfMarkerShuffler(PyoObject):
     >>> sf = SfMarkerShuffler(DEMOS_PATH + "/transparent.aif", speed=1).out()
     
     """
-    def __init__(self, path, speed=1, interp=0, mul=1, add=0):
+    def __init__(self, path, speed=1, interp=2, mul=1, add=0):
         self._speed = speed
         self._interp = interp
         self._mul = mul
@@ -338,7 +338,7 @@ class SfMarkerShuffler(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        return('SfMarkerShuffler(path, speed=1, interp=0, mul=1, add=0)')
+        return('SfMarkerShuffler(path, speed=1, interp=2, mul=1, add=0)')
     args = Print_args(args)
                     
     @property
