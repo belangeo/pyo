@@ -115,7 +115,6 @@ static int callback( const void *inputBuffer, void *outputBuffer,
                 if (outAmp > rms[j])
                     rms[j] = outAmp;
             }
-            rms[j] = sqrtf(rms[j]);
         }    
         if (my_server->gcount <= my_server->numPass) {
             for (j=0; j<nchnls; j++) {            

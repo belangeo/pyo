@@ -1,15 +1,19 @@
 from _core import *
 
+import Tkinter
 from Tkinter import *
-import math
+Tkinter.NoDefaultRoot()
+
+import math, sys
 
 ######################################################################
 ### Server Object User Interface
 ######################################################################
-class Application(Frame):
+class ServerGUI(Frame):
     def __init__(self, master=None, nchnls=2, startf=None, stopf=None, 
-                 recstartf=None, recstopf=None, ampf=None):
+                 recstartf=None, recstopf=None, ampf=None, locals=None):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
+        self.locals = locals
         self.nchnls = nchnls
         self.startf = startf
         self.stopf = stopf
@@ -18,17 +22,22 @@ class Application(Frame):
         self.ampf = ampf
         self._started = False
         self._recstarted = False
+        self.B1, self.B2 = 194, 245
+        self._history = []
+        self._histo_count = 0
         self.grid(ipadx=5)
         self.rowconfigure(0, pad=20)
+        self.rowconfigure(1, pad=10)
+        self.rowconfigure(2, pad=10)
         self.createWidgets()
 
     def createWidgets(self):
-        self.startStringVar = StringVar()
+        self.startStringVar = StringVar(self)
         self.startStringVar.set('Start')
         self.startButton = Button(self, textvariable=self.startStringVar, command=self.start)
         self.startButton.grid(ipadx=5)
 
-        self.recStringVar = StringVar()
+        self.recStringVar = StringVar(self)
         self.recStringVar.set('Rec Start')
         self.recButton = Button(self, textvariable=self.recStringVar, command=self.record)
         self.recButton.grid(ipadx=5, row=0, column=1)
@@ -38,22 +47,58 @@ class Application(Frame):
 
         self.ampScale = Scale(self, command=self.setAmp, digits=4, label='Amplitude (dB)',
                               orient=HORIZONTAL, relief=GROOVE, from_=-60.0, to=18.0, 
-                              resolution=.01, bd=1, length=250)
+                              resolution=.01, bd=1, length=250, troughcolor="#BCBCAA", width=10)
         self.ampScale.set(0.0)
         self.ampScale.grid(ipadx=5, ipady=5, row=1, column=0, columnspan=3)
 
-        self.vumeter = Canvas(self, height=5*self.nchnls+1, width=250, relief=SUNKEN, bd=1)
-        self.bars = []
+        self.vumeter = Canvas(self, height=5*self.nchnls+2, width=250, relief=SUNKEN, bd=1, bg="#323232")
+        self.green = []
+        self.yellow = []
+        self.red = []
         for i in range(self.nchnls):
             y = 5 * (i + 1) + 2
-            self.bars.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='blue', dash=(9,1), dashoff=5))
+            self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=5))
+            self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1, y, width=4, fill='yellow', dash=(9,1), dashoff=9))
+            self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
         self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
+        
+        self.text = Text(self, height=1, width=30, bd=1, relief=RIDGE, highlightthickness=0,
+                        spacing1=2, spacing3=2)
+        self.text.grid(ipadx=5, row=3, column=0, columnspan=3)
+        self.text.bind("<Return>", self.getText)
+        self.text.bind("<Up>", self.getPrev)
+        self.text.bind("<Down>", self.getNext)
         
     def on_quit(self):
         if self._started:
             self.stopf()
         self.quit()
 
+    def getPrev(self, event):
+        self.text.delete("1.0", END)
+        self._histo_count -= 1
+        if self._histo_count < 0:
+            self._histo_count = 0
+        self.text.insert("1.0", self._history[self._histo_count])
+        return "break"
+        
+    def getNext(self, event):
+        self.text.delete("1.0", END)
+        self._histo_count += 1
+        if self._histo_count >= len(self._history):
+            self._histo_count = len(self._history)
+        else:    
+            self.text.insert("1.0", self._history[self._histo_count])
+        return "break"
+        
+    def getText(self, event):
+        source = self.text.get("1.0", END)
+        self.text.delete("1.0", END)
+        exec source in self.locals
+        self._history.append(source)
+        self._histo_count = len(self._history)
+        return "break"
+        
     def start(self):
         if self._started == False:
             self.startf()
@@ -80,7 +125,20 @@ class Application(Frame):
     def setRms(self, *args):
         for i in range(self.nchnls):
             y = 5 * (i + 1) + 2
-            self.vumeter.coords(self.bars[i], 0, y, int(args[i]*250), y)
+            db = 20. * math.log10(args[i]+0.00001) * 0.01 + 1.
+            amp = int(db*250)
+            if amp <= self.B1:
+                self.vumeter.coords(self.green[i], 0, y, amp, y)
+                self.vumeter.coords(self.yellow[i], self.B1, y, self.B1, y)
+                self.vumeter.coords(self.red[i], self.B2, y, self.B2, y)
+            elif amp <= self.B2:
+                self.vumeter.coords(self.green[i], 0, y, self.B1, y)
+                self.vumeter.coords(self.yellow[i], self.B1, y, amp, y)
+                self.vumeter.coords(self.red[i], self.B2, y, self.B2, y)
+            else:    
+                self.vumeter.coords(self.green[i], 0, y, self.B1, y)
+                self.vumeter.coords(self.yellow[i], self.B1, y, self.B2, y)
+                self.vumeter.coords(self.red[i], self.B2, y, amp, y)
         
 ######################################################################
 ### Proxy of Server object
@@ -146,11 +204,12 @@ class Server(object):
         self._amp = 1.
         self._server = Server_base(sr, nchnls, buffersize, duplex)
 
-    def gui(self):
-        app = Application(None, self._nchnls, self.start, self.stop, self.recstart, self.recstop, self.setAmp)
-        app.master.title("pyo Server")
-        self._server.setAmpCallable(app)
-        app.mainloop()
+    def gui(self, locals=None):
+        win = Tk()
+        f = ServerGUI(win, self._nchnls, self.start, self.stop, self.recstart, self.recstop, self.setAmp, locals)
+        f.master.title("pyo Server")
+        self._server.setAmpCallable(f)
+        win.mainloop()
         
     def setInputDevice(self, x):
         """
