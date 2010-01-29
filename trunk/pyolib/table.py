@@ -5,7 +5,7 @@ from _core import *
 ######################################################################                                       
 class HarmTable(PyoTableObject):
     """
-    Generate composite waveforms made up of weighted sums of simple sinusoids.
+    Generates composite waveforms made up of weighted sums of simple sinusoids.
     
     Parent class: PyoTableObject
     
