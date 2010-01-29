@@ -3,6 +3,10 @@ from types import ListType
 import random, threading, time, os
 from distutils.sysconfig import get_python_lib
 
+import Tkinter
+from Tkinter import *
+Tkinter.NoDefaultRoot()
+
 from _pyo import *
 
 ######################################################################
@@ -64,7 +68,37 @@ def wrap(arg, i):
         return x[0]
     else:
         return x
+  
+######################################################################
+### Control window for PyoObject
+######################################################################
+class Command:
+    def __init__(self, func, key):
+        self.func = func
+        self.key = key
 
+    def __call__(self, value):
+        self.func(self.key, value)
+
+class PyoObjectControl(Frame):
+    def __init__(self, master=None, obj=None, attr_list=None):
+        Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self.obj = obj
+        self.attr_list = attr_list
+        self.scales = []
+        for i, par in enumerate(self.attr_list):
+            key, mi, ma, init = par[0], par[1], par[2], par[3]
+            self.scales.append(Scale(self, digits=4, label=key, command=Command(self.setval, key),
+                              orient=HORIZONTAL, relief=GROOVE, from_=mi, to=ma, 
+                              resolution=.01, bd=1, length=200, troughcolor="#BCBCAA", width=10))
+            self.scales[-1].set(init)
+            self.scales[-1].grid(row=i, column=0)
+            
+        self.grid(ipadx=15, ipady=15)
+
+    def setval(self, key, value):
+        setattr(self.obj, key, float(value))
+        
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
 ######################################################################
@@ -323,7 +357,33 @@ class PyoObject(object):
         return self._add
     @add.setter
     def add(self, x): self.setAdd(x)
-            
+
+
+######################################################################
+### View window for PyoTableObject
+######################################################################
+class ViewTable(Frame):
+    def __init__(self, master=None, samples=None):
+        Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self.samples = samples
+        self.line_points = []
+        self.width = 400
+        self.height = 150
+        self.half_height = self.height / 2
+        self.wave_amp = self.half_height -2
+        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        step = len(samples) / float(self.width - 1)
+        for i in range(self.width):
+            y = self.samples[int(i*step)-1] * self.wave_amp + self.wave_amp + 6
+            self.line_points.append(i+4)
+            self.line_points.append(y)
+            self.line_points.append(i+4)
+            self.line_points.append(y)
+        self.canvas.create_line(0, self.half_height+4, self.width, self.half_height+4, fill='grey', dash=(4,2))    
+        self.canvas.create_line(*self.line_points)
+        self.canvas.grid()
+        self.grid(ipadx=10, ipady=10)
+           
 ######################################################################
 ### PyoTableObject -> base class for pyo table objects
 ######################################################################
@@ -371,7 +431,14 @@ class PyoTableObject(object):
         
         """
         return self._size
-   
+
+    def view(self):
+        samples = self._base_objs[0].getTable()
+        win = Tk()
+        f = ViewTable(win, samples)
+        win.resizable(False, False)
+        win.title("Table waveform")
+       
 ######################################################################
 ### Internal classes -> Used by pyo
 ######################################################################

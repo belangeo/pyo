@@ -230,6 +230,20 @@ HarmTable_getSize(HarmTable *self)
 };
 
 static PyObject *
+HarmTable_getTable(HarmTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
+static PyObject *
 HarmTable_replace(HarmTable *self, PyObject *value)
 {
     if (value == NULL) {
@@ -261,6 +275,7 @@ static PyMemberDef HarmTable_members[] = {
 
 static PyMethodDef HarmTable_methods[] = {
 {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},

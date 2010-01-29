@@ -221,6 +221,12 @@ class Tone(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrls(self):
+        attr_list = [['freq', 100., 10000., self._freq]]
+        win = Tk()    
+        f = PyoObjectControl(win, self, attr_list)
+        win.title("Controls")
+
     #def demo():
     #    execfile(DEMOS_PATH + "/Tone_demo.py")
     #demo = Call_example(demo)
@@ -401,6 +407,13 @@ class Disto(PyoObject):
         self._slope = x
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrls(self):
+        attr_list = [['drive', 0., 1., self._drive],
+                    ['slope', 0., 1., self._slope]]
+        win = Tk()    
+        f = PyoObjectControl(win, self, attr_list)
+        win.title("Controls")
 
     def demo():
         execfile(DEMOS_PATH + "/Disto_demo.py")
@@ -593,6 +606,7 @@ class Delay(PyoObject):
         self._input = input
         self._delay = delay
         self._feedback = feedback
+        self._maxdelay = maxdelay
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
@@ -641,6 +655,13 @@ class Delay(PyoObject):
         self._feedback = x
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrls(self):
+        attr_list = [['delay', 0.001, self._maxdelay, self._delay],
+                    ['feedback', 0., 1., self._feedback]]
+        win = Tk()    
+        f = PyoObjectControl(win, self, attr_list)
+        win.title("Controls")
 
     def demo():
         execfile(DEMOS_PATH + "/Delay_demo.py")
