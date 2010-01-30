@@ -625,3 +625,95 @@ class Sig(PyoObject):
     @value.setter
     def value(self, x): self.setValue(x)    
 
+class SigTo(PyoObject):
+    """
+    Convert numeric value to PyoObject signal applying a ramp between current
+    value and new value.
+
+    Parameters:
+
+    value : float
+        Numerical value to convert.
+    time : float, optional
+        Ramp time, in seconds, to reach the new value. Defaults to 0.025.
+    init : float, optional
+        Initial value of the internal memory. Defaults to 0.
+
+    Methods:
+
+    setValue(x) : Changes the value of the signal stream.
+    setTime(x) : Changes the ramp time.
+    
+    Attributes:
+    
+    value : float. Numerical value to convert.
+    time : float. Ramp time.
+    
+    Notes:
+
+    The out() method is bypassed. Sig's signal can not be sent to audio outs.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> fr = SigTo(value=400, time=.5, init=400)
+    >>> a = Sine(freq=fr, mul=.5).out()
+    >>> s.start()
+    >>> fr.value = 800
+
+    """
+    def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):
+        self._value = value
+        self._time = time
+        self._mul = mul
+        self._add = add
+        value, time, init, mul ,add, lmax = convertArgsToLists(value, time, init, mul, add)
+        self._base_objs = [SigTo_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setValue(self, x):
+        """
+        Changes the value of the signal stream.
+
+        Parameters:
+
+        x : float
+            Numerical value to convert.
+
+        """
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setTime(self, x):
+        """
+        Changes the ramp time of the object.
+
+        Parameters:
+
+        x : float
+            New ramp time.
+
+        """
+        x, lmax = convertArgsToLists(x)
+        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    #def demo():
+    #    execfile("demos/SigTo_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("SigTo(value, time=0.025, init=0.0, mul=1, add=0)")
+    args = Print_args(args)
+    
+    @property
+    def value(self):
+        """float. Numerical value to convert.""" 
+        return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)    
+
+    @property
+    def time(self):
+        """float. Ramp time.""" 
+        return self._time
+    @time.setter
+    def time(self, x): self.setTime(x)    

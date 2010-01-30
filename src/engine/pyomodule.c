@@ -198,6 +198,11 @@ init_pyo(void)
         return;
     Py_INCREF(&SigType);
     PyModule_AddObject(m, "Sig_base", (PyObject *)&SigType);
+
+    if (PyType_Ready(&SigToType) < 0)
+        return;
+    Py_INCREF(&SigToType);
+    PyModule_AddObject(m, "SigTo_base", (PyObject *)&SigToType);
     
     if (PyType_Ready(&InputFaderType) < 0)
         return;
