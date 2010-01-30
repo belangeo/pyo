@@ -71,11 +71,14 @@ class Sine(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrls(self):
-        attr_list = [SpecFreq(self._freq),
+    def ctrl(self, specs_list=None):
+        if specs_list == None:
+            attr_list = [SpecFreq(self._freq),
                     Spec('phase', 0., 1., self._phase, 'lin'),
                     Spec('mul', 0., 2., self._mul, 'lin'),
                     Spec('add', 0., 1., self._add, 'lin')]
+        else:
+            attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")

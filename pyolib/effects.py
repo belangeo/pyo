@@ -221,8 +221,11 @@ class Tone(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrls(self):
-        attr_list = [Spec('freq', 20., 20000., self._freq, 'log')]
+    def ctrl(self, specs_list=None):
+        if specs_list == None:
+            attr_list = [Spec('freq', 20., 20000., self._freq, 'log')]
+        else:
+            attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
@@ -408,9 +411,12 @@ class Disto(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrls(self):
-        attr_list = [Spec('drive', 0., 1., self._drive, 'lin'),
+    def ctrl(self, specs_list=None):
+        if specs_list == None:
+            attr_list = [Spec('drive', 0., 1., self._drive, 'lin'),
                     Spec('slope', 0., 0.999, self._slope, 'lin')]
+        else:
+            attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
@@ -656,9 +662,12 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrls(self):
-        attr_list = [Spec('delay', 0.001, self._maxdelay, self._delay, 'log'),
+    def ctrl(self, specs_list=None):
+        if specs_list == None:
+            attr_list = [Spec('delay', 0.001, self._maxdelay, self._delay, 'log'),
                     Spec('feedback', 0., 1., self._feedback, 'lin')]
+        else:
+            attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
