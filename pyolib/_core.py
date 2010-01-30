@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from types import ListType
 import random, threading, time, os
+from math import pow, log10
 from distutils.sysconfig import get_python_lib
 
 import Tkinter
@@ -60,7 +61,7 @@ def convertArgsToLists(*args):
 
 def wrap(arg, i):
     """
-    Return value a position `i` from `arg` with wrap around `arg` length.
+    Return value at position `i` from `arg` with wrap around `arg` length.
     
     """
     x = arg[i % len(arg)]
@@ -68,7 +69,84 @@ def wrap(arg, i):
         return x[0]
     else:
         return x
-  
+
+######################################################################
+### Spec -> manage values from sliders
+######################################################################
+class Spec:
+    """
+    Base class for sliders specs. Can be used to convert value between 0 and 1
+    on various scales.
+    
+    Parameters:
+    
+    name : string
+        Name of the attributes the slider is affected to.
+    min : int or float
+        Smallest value of the range.
+    max : int or float
+        Highest value of the range.
+    init : int or float
+        Initial value. Specified in the real range, not between 0 and 1. Used
+        the `set` method to retreive the normalized corresponding value.
+    scale : string {'lin', 'log'}
+        Method used to scale the input value on the specified range.
+    res : string {'int', 'float'}, optional
+        Sets the resolution of the slider. 
+        Defaults to 'float'.
+    ramp : float, optional
+        Ramp time used to smooth the signal sent from slider to object's attribute.
+        Defaults to 0.025.
+        
+    Methods:
+    
+    get(x) : Returns scaled value for an input between 0 and 1.
+    set(x=None) : Returns the normalized value (0 -> 1) for `x` or `init` value.  
+
+    """
+    def __init__(self, name, min, max, init, scale, res='float', ramp=0.025):
+        self._name, self._min, self._max, self._init, self._scale, self._res, self._ramp =  \
+        name, min, max, init, scale, res, ramp
+
+    def get(self, x):
+        """Take x between 0 and 1 and return scaled value."""
+        if x < 0: x = 0.0
+        elif x > 1: x = 1.0 
+        
+        if self._scale == 'log':
+            return pow(10, x * log10(self._max/self._min) + log10(self._min))
+        else:
+            return (self._max - self._min) * x + self._min
+
+    def set(self, x=None):
+        """Return init value unscaled (between 0 and 1)."""
+        if x != None: val = x
+        else: val = self._init
+        
+        if self._scale == 'log':
+            return log10(val/self._min) / log10(self._max/self._min)
+        else:
+            return (val - self._min) / (self._max - self._min)
+
+    @property
+    def name(self): return self._name
+    @property
+    def min(self): return self._min
+    @property
+    def max(self): return self._max
+    @property
+    def init(self): return self._init
+    @property
+    def scale(self): return self._scale
+    @property
+    def res(self): return self._res
+    @property
+    def ramp(self): return self._ramp
+
+class SpecFreq(Spec):
+    def __init__(self, init):
+        Spec.__init__(self, 'freq', 20., 20000., init, 'log')
+        
 ######################################################################
 ### Control window for PyoObject
 ######################################################################
@@ -86,18 +164,30 @@ class PyoObjectControl(Frame):
         self.obj = obj
         self.attr_list = attr_list
         self.scales = []
-        for i, par in enumerate(self.attr_list):
-            key, mi, ma, init = par[0], par[1], par[2], par[3]
-            self.scales.append(Scale(self, digits=4, label=key, command=Command(self.setval, key),
-                              orient=HORIZONTAL, relief=GROOVE, from_=mi, to=ma, 
-                              resolution=.01, bd=1, length=200, troughcolor="#BCBCAA", width=10))
-            self.scales[-1].set(init)
-            self.scales[-1].grid(row=i, column=0)
-            
+        self.displays = {}
+        self.specs = {}
+        for i, spec in enumerate(self.attr_list):
+            key, init = spec.name, spec.init
+            self.specs[spec.name] = spec
+            label = Label(self, height=1, width=10, highlightthickness=0, text=key)
+            label.grid(row=i, column=0)
+            self.scales.append(Scale(self, command=Command(self.setval, key),
+                              orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
+                              resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=15))
+            self.scales[-1].set(spec.set())
+            self.scales[-1].grid(row=i, column=1)
+            textvar = StringVar(self)
+            display = Label(self, height=1, width=10, highlightthickness=0, textvariable=textvar)
+            display.grid(row=i, column=2)
+            self.displays[key] = textvar
+            self.displays[key].set("%.4f" % init)
+
         self.grid(ipadx=15, ipady=15)
 
-    def setval(self, key, value):
-        setattr(self.obj, key, float(value))
+    def setval(self, key, x):
+        value = self.specs[key].get(float(x))
+        self.displays[key].set("%.4f" % value)
+        setattr(self.obj, key, value)
         
 ######################################################################
 ### PyoObject -> base class for pyo sound objects

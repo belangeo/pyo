@@ -222,7 +222,7 @@ class Tone(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrls(self):
-        attr_list = [['freq', 100., 10000., self._freq]]
+        attr_list = [Spec('freq', 20., 20000., self._freq, 'log')]
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
@@ -409,8 +409,8 @@ class Disto(PyoObject):
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrls(self):
-        attr_list = [['drive', 0., 1., self._drive],
-                    ['slope', 0., 1., self._slope]]
+        attr_list = [Spec('drive', 0., 1., self._drive, 'lin'),
+                    Spec('slope', 0., 0.999, self._slope, 'lin')]
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
@@ -657,8 +657,8 @@ class Delay(PyoObject):
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrls(self):
-        attr_list = [['delay', 0.001, self._maxdelay, self._delay],
-                    ['feedback', 0., 1., self._feedback]]
+        attr_list = [Spec('delay', 0.001, self._maxdelay, self._delay, 'log'),
+                    Spec('feedback', 0., 1., self._feedback, 'lin')]
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
