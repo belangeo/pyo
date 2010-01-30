@@ -311,7 +311,7 @@ SigTo_generates_i(SigTo *self) {
     
     if (self->value != self->lastValue) {
         self->timeCount = 0;
-        self->stepVal = (self->value - self->lastValue) / (self->timeStep - 1);
+        self->stepVal = (self->value - self->currentValue) / (self->timeStep - 1);
         self->lastValue = self->value;
     }    
         
