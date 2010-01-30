@@ -72,10 +72,10 @@ class Sine(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrls(self):
-        attr_list = [['freq', 20., 10000., self._freq],
-                    ['phase', 0., 1., self._phase],
-                    ['mul', 0., 2., self._mul],
-                    ['add', -1., 1., self._add]]
+        attr_list = [SpecFreq(self._freq),
+                    Spec('phase', 0., 1., self._phase, 'lin'),
+                    Spec('mul', 0., 2., self._mul, 'lin'),
+                    Spec('add', 0., 1., self._add, 'lin')]
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         win.title("Controls")
