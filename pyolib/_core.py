@@ -75,41 +75,38 @@ def wrap(arg, i):
 ######################################################################
 class Spec:
     """
-    Base class for sliders specs. Can be used to convert value between 0 and 1
+    Base class for Spec objects. Can be used to convert value between 0 and 1
     on various scales.
     
     Parameters:
     
-    name : string
-        Name of the attributes the slider is affected to.
     min : int or float
-        Smallest value of the range.
+        Lowest value of the range.
     max : int or float
         Highest value of the range.
-    init : int or float
-        Initial value. Specified in the real range, not between 0 and 1. Used
-        the `set` method to retreive the normalized corresponding value.
     scale : string {'lin', 'log'}
         Method used to scale the input value on the specified range.
-    res : string {'int', 'float'}, optional
-        Sets the resolution of the slider. 
-        Defaults to 'float'.
-    ramp : float, optional
-        Ramp time used to smooth the signal sent from slider to object's attribute.
-        Defaults to 0.025.
         
     Methods:
     
     get(x) : Returns scaled value for an input between 0 and 1.
-    set(x=None) : Returns the normalized value (0 -> 1) for `x` or `init` value.  
+    set(x) : Returns the normalized value (0 -> 1) for an input in the real range.  
 
+    Attributes:
+    
+    min : Lowest value of the range.
+    max : Highest value of the range.
+    scale : Method used to scale the input value.
+    
     """
-    def __init__(self, name, min, max, init, scale, res='float', ramp=0.025):
-        self._name, self._min, self._max, self._init, self._scale, self._res, self._ramp =  \
-        name, min, max, init, scale, res, ramp
+    def __init__(self, min, max, scale):
+        self._min, self._max, self._scale = min, max, scale
 
     def get(self, x):
-        """Take x between 0 and 1 and return scaled value."""
+        """
+        Take x between 0 and 1 and return scaled value.
+        
+        """
         if x < 0: x = 0.0
         elif x > 1: x = 1.0 
         
@@ -118,34 +115,121 @@ class Spec:
         else:
             return (self._max - self._min) * x + self._min
 
-    def set(self, x=None):
-        """Return init value unscaled (between 0 and 1)."""
-        if x != None: val = x
-        else: val = self._init
+    def set(self, x):
+        """
+        Return init value unscaled (between 0 and 1).
+        
+        """
         
         if self._scale == 'log':
-            return log10(val/self._min) / log10(self._max/self._min)
+            return log10(x/self._min) / log10(self._max/self._min)
         else:
-            return (val - self._min) / (self._max - self._min)
+            return (x - self._min) / (self._max - self._min)
 
-    @property
-    def name(self): return self._name
+    def args():
+        return("Spec(min, max, scale)")
+    args = Print_args(args)
+
     @property
     def min(self): return self._min
     @property
     def max(self): return self._max
     @property
-    def init(self): return self._init
-    @property
     def scale(self): return self._scale
+
+class SlSpec(Spec):
+    """
+    
+    Base Spec class used to manage control sliders. Derived from Spec class,
+    a few parameters are added for sliders initialization.
+    
+    Parent class: Spec
+    
+    Parameters:
+
+    min : int or float
+        Smallest value of the range.
+    max : int or float
+        Highest value of the range.
+    scale : string {'lin', 'log'}
+        Method used to scale the input value on the specified range.    
+    name : string
+        Name of the attributes the slider is affected to.
+    init : int or float
+        Initial value. Specified in the real range, not between 0 and 1. Used
+        the `set` method to retreive the normalized corresponding value.
+    res : string {'int', 'float'}, optional
+        Sets the resolution of the slider. Defaults to 'float'.
+    ramp : float, optional
+        Ramp time used to smooth the signal sent from slider to object's attribute.
+        Defaults to 0.025.
+
+    Methods:
+    
+    get(x) : Returns the scaled value for an input between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for an input in the real range.  
+
+    Attributes:
+    
+    min : Lowest value of the range.
+    max : Highest value of the range.
+    scale : Method used to scale the input value.
+    name : Name of the parameter to control.
+    init : Initial value of the slider.
+    res : Slider resolution {int or float}.
+    ramp : Ramp time in seconds.
+    
+    """
+    def __init__(self, min, max, scale, name, init, res='float', ramp=0.025):
+        Spec.__init__(self, min, max, scale)
+        self._name, self._init, self._res, self._ramp = name, init, res, ramp
+
+    def args():
+        return("SlSpec(min, max, scale, name, init, res='float', ramp=0.025)")
+    args = Print_args(args)
+
+    @property
+    def name(self): return self._name
+    @property
+    def init(self): return self._init
     @property
     def res(self): return self._res
     @property
     def ramp(self): return self._ramp
+    
+class SlSpecFreq(SlSpec):
+    """
+    SlSpec with normalized values for a 'freq' slider.
 
-class SpecFreq(Spec):
-    def __init__(self, init):
-        Spec.__init__(self, 'freq', 20., 20000., init, 'log')
+    Parent class: SlSpec
+    
+    Parameters:
+    
+    init : int or float, optional
+        Initial value. Specified in the real range, not between 0 and 1.
+        Defaults to 1000.
+
+    SlSpecFreq values are: 
+        
+    min = 20.0
+    max = 20000.0
+    scale = 'log'
+    name = 'freq'
+    res = 'float'
+    ramp = 0.025
+
+    Methods:
+    
+    get(x) : Returns scaled value for an input between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` value.  
+
+    """
+    def __init__(self, init=1000):
+        SlSpec.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
+
+    def args():
+        return("SlSpec(init=1000)")
+    args = Print_args(args)
         
 ######################################################################
 ### Control window for PyoObject
@@ -174,7 +258,7 @@ class PyoObjectControl(Frame):
             self.scales.append(Scale(self, command=Command(self.setval, key),
                               orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
                               resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=15))
-            self.scales[-1].set(spec.set())
+            self.scales[-1].set(spec.set(init))
             self.scales[-1].grid(row=i, column=1)
             textvar = StringVar(self)
             display = Label(self, height=1, width=10, highlightthickness=0, textvariable=textvar)

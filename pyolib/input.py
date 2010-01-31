@@ -71,17 +71,19 @@ class Sine(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None):
+    def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [SpecFreq(self._freq),
-                    Spec('phase', 0., 1., self._phase, 'lin'),
-                    Spec('mul', 0., 2., self._mul, 'lin'),
-                    Spec('add', 0., 1., self._add, 'lin')]
+            attr_list = [SlSpecFreq(self._freq),
+                    SlSpec(0., 1., 'lin', 'phase', self._phase),
+                    SlSpec(0., 2., 'lin', 'mul', self._mul),
+                    SlSpec(0., 1.,'lin', 'add', self._add)]
         else:
             attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
-        win.title("Controls")
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Sine_demo.py")

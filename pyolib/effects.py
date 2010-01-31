@@ -221,14 +221,16 @@ class Tone(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None):
+    def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [Spec('freq', 20., 20000., self._freq, 'log')]
+            attr_list = [SlSpecFreq(self._freq)]
         else:
             attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
-        win.title("Controls")
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Tone_demo.py")
@@ -411,15 +413,17 @@ class Disto(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None):
+    def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [Spec('drive', 0., 1., self._drive, 'lin'),
-                    Spec('slope', 0., 0.999, self._slope, 'lin')]
+            attr_list = [SlSpec(0., 1., 'lin', 'drive', self._drive),
+                    SlSpec(0., 0.999, 'lin', 'slope', self._slope)]
         else:
             attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
-        win.title("Controls")
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Disto_demo.py")
@@ -662,15 +666,17 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None):
+    def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [Spec('delay', 0.001, self._maxdelay, self._delay, 'log'),
-                    Spec('feedback', 0., 1., self._feedback, 'lin')]
+            attr_list = [SlSpec(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+                        SlSpec(0., 1., 'lin', 'feedback', self._feedback)]
         else:
             attr_list = specs_list            
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
-        win.title("Controls")
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Delay_demo.py")
