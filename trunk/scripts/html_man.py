@@ -11,7 +11,7 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
                       'Generators': sorted(['Noise', 'Osc', 'Phasor', 'Sig', 'SigTo', 'Sine', 'Input', 'Fader']),
                       'MIDI': sorted(['Midictl', 'Notein']),
                       'Sound players': sorted(['SfMarkerShuffler', 'SfPlayer']),
-                      'Patterns': sorted(['Pattern', 'PyPattern']),
+                      'Patterns': sorted(['Pattern']),
                       'Table process': sorted(['TableRec', 'Pointer', 'Granulator']),
                       'Analysis': sorted(['Follower']),
                       'Internal objects': sorted(['Dummy', 'InputFader', 'Mix'])},
@@ -32,7 +32,6 @@ f.write("\usepackage{dcolumn,amsmath}\n\n")
 f.write("\usepackage{html,makeidx}\n\n")
 f.write("\\begin{document}\n\n")
 
-#f.write("""The Ounk library contains two main kind of functions. The first one contains functions to write part of the csound file. This will defines the process chain to be compute by Csound. Another kind of functions are straigth Python functions. These functions serve to construct algorithmic musical patterns, manage Human Interface Device or build Graphical User Interface.\n\n""")
 def getDoc(obj):
     try:
         args = '\n\n' + eval(obj).args() + '\n'
@@ -86,10 +85,6 @@ def getMethodsDoc(text, obj):
             if key != 'Methods':
                 if key in line: 
                     flag = False
-
-    #if verbatim:
-    #    verbatim = False
-    #    methods += '\\end{verbatim}\n'                
     return methods
 
 def getFormattedDoc(text, obj):
