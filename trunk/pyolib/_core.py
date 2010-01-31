@@ -137,7 +137,7 @@ class Spec:
     @property
     def scale(self): return self._scale
 
-class SlSpec(Spec):
+class SLSpec(Spec):
     """
     
     Base Spec class used to manage control sliders. Derived from Spec class,
@@ -185,7 +185,7 @@ class SlSpec(Spec):
         self._name, self._init, self._res, self._ramp = name, init, res, ramp
 
     def args():
-        return("SlSpec(min, max, scale, name, init, res='float', ramp=0.025)")
+        return("SLSpec(min, max, scale, name, init, res='float', ramp=0.025)")
     args = Print_args(args)
 
     @property
@@ -197,9 +197,9 @@ class SlSpec(Spec):
     @property
     def ramp(self): return self._ramp
     
-class SlSpecFreq(SlSpec):
+class SLSpecFreq(SLSpec):
     """
-    SlSpec with normalized values for a 'freq' slider.
+    SLSpec with normalized values for a 'freq' slider.
 
     Parent class: SlSpec
     
@@ -209,7 +209,7 @@ class SlSpecFreq(SlSpec):
         Initial value. Specified in the real range, not between 0 and 1.
         Defaults to 1000.
 
-    SlSpecFreq values are: 
+    SLSpecFreq values are: 
         
     min = 20.0
     max = 20000.0
@@ -225,10 +225,10 @@ class SlSpecFreq(SlSpec):
 
     """
     def __init__(self, init=1000):
-        SlSpec.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
+        SLSpec.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
 
     def args():
-        return("SlSpec(init=1000)")
+        return("SLSpecFreq(init=1000)")
     args = Print_args(args)
         
 ######################################################################

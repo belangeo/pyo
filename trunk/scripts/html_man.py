@@ -3,7 +3,7 @@ from types import StringType, TupleType, ListType, DictType
 from pyo import *
                   
 _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
-                    'pm_count_devices', 'pm_list_devices', 'quit', 'sndinfo']),
+                    'pm_count_devices', 'pm_list_devices', 'sndinfo']),
         'PyoObject': {'Filters': sorted(['Biquad', 'Port', 'Hilbert', 'Tone', 'DCBlock']),
                       'Open Sound Control': sorted(['OscReceive', 'OscSend']),
                       'Effects': sorted(['BandSplit',  'Clip', 'Compress', 'Delay', 'Disto', 'Freeverb','Pan', 'SPan', 'Waveguide']),
@@ -15,7 +15,7 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
                       'Table process': sorted(['TableRec', 'Pointer', 'Granulator']),
                       'Analysis': sorted(['Follower']),
                       'Internal objects': sorted(['Dummy', 'InputFader', 'Mix'])},
-        'Spec': {'SlSpec': sorted(['SlSpecFreq'])},
+        'Spec': {'SLSpec': sorted(['SLSpecFreq'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),
         'Server': [], 
         'Stream': [], 
