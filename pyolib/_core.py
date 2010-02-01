@@ -71,11 +71,11 @@ def wrap(arg, i):
         return x
 
 ######################################################################
-### Spec -> manage values from sliders
+### Map -> manage values from sliders
 ######################################################################
-class Spec:
+class Map:
     """
-    Base class for Spec objects. Can be used to convert value between 0 and 1
+    Base class for Map objects. Can be used to convert value between 0 and 1
     on various scales.
     
     Parameters:
@@ -127,7 +127,7 @@ class Spec:
             return (x - self._min) / (self._max - self._min)
 
     def args():
-        return("Spec(min, max, scale)")
+        return("Map(min, max, scale)")
     args = Print_args(args)
 
     @property
@@ -137,13 +137,13 @@ class Spec:
     @property
     def scale(self): return self._scale
 
-class SLSpec(Spec):
+class SLMap(Map):
     """
     
-    Base Spec class used to manage control sliders. Derived from Spec class,
+    Base Map class used to manage control sliders. Derived from Map class,
     a few parameters are added for sliders initialization.
     
-    Parent class: Spec
+    Parent class: Map
     
     Parameters:
 
@@ -156,7 +156,7 @@ class SLSpec(Spec):
     name : string
         Name of the attributes the slider is affected to.
     init : int or float
-        Initial value. Specified in the real range, not between 0 and 1. Used
+        Initial value. Mapified in the real range, not between 0 and 1. Used
         the `set` method to retreive the normalized corresponding value.
     res : string {'int', 'float'}, optional
         Sets the resolution of the slider. Defaults to 'float'.
@@ -181,11 +181,11 @@ class SLSpec(Spec):
     
     """
     def __init__(self, min, max, scale, name, init, res='float', ramp=0.025):
-        Spec.__init__(self, min, max, scale)
+        Map.__init__(self, min, max, scale)
         self._name, self._init, self._res, self._ramp = name, init, res, ramp
 
     def args():
-        return("SLSpec(min, max, scale, name, init, res='float', ramp=0.025)")
+        return("SLMap(min, max, scale, name, init, res='float', ramp=0.025)")
     args = Print_args(args)
 
     @property
@@ -197,19 +197,19 @@ class SLSpec(Spec):
     @property
     def ramp(self): return self._ramp
     
-class SLSpecFreq(SLSpec):
+class SLMapFreq(SLMap):
     """
-    SLSpec with normalized values for a 'freq' slider.
+    SLMap with normalized values for a 'freq' slider.
 
-    Parent class: SlSpec
+    Parent class: SlMap
     
     Parameters:
     
     init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
+        Initial value. Mapified in the real range, not between 0 and 1.
         Defaults to 1000.
 
-    SLSpecFreq values are: 
+    SLMapFreq values are: 
         
     min = 20.0
     max = 20000.0
@@ -225,10 +225,10 @@ class SLSpecFreq(SLSpec):
 
     """
     def __init__(self, init=1000):
-        SLSpec.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
+        SLMap.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
 
     def args():
-        return("SLSpecFreq(init=1000)")
+        return("SLMapFreq(init=1000)")
     args = Print_args(args)
         
 ######################################################################
