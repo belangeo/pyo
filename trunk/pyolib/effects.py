@@ -223,7 +223,7 @@ class Tone(PyoObject):
 
     def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [SLSpecFreq(self._freq)]
+            attr_list = [SLMapFreq(self._freq)]
         else:
             attr_list = specs_list            
         win = Tk()    
@@ -415,8 +415,8 @@ class Disto(PyoObject):
 
     def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [SLSpec(0., 1., 'lin', 'drive', self._drive),
-                    SLSpec(0., 0.999, 'lin', 'slope', self._slope)]
+            attr_list = [SLMap(0., 1., 'lin', 'drive', self._drive),
+                    SLMap(0., 0.999, 'lin', 'slope', self._slope)]
         else:
             attr_list = specs_list            
         win = Tk()    
@@ -668,10 +668,11 @@ class Delay(PyoObject):
 
     def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [SLSpec(0.001, self._maxdelay, 'log', 'delay',  self._delay),
-                        SLSpec(0., 1., 'lin', 'feedback', self._feedback)]
+            attr_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+                        SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                        SLMap(0., 2., 'lin', 'mul', self._mul)]
         else:
-            attr_list = specs_list            
+            attr_list = specs_list
         win = Tk()    
         f = PyoObjectControl(win, self, attr_list)
         if title == None:

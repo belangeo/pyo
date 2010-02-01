@@ -14,7 +14,6 @@ from pyolib.table import *
 from pyolib.trigger import *
 
 from pyolib.pattern import *
-from pyolib.pypattern import *
 
 from pyolib.bandsplitter import *
 

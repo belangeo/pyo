@@ -15,7 +15,7 @@ _OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input'
                       'Table process': sorted(['TableRec', 'Pointer', 'Granulator']),
                       'Analysis': sorted(['Follower']),
                       'Internal objects': sorted(['Dummy', 'InputFader', 'Mix'])},
-        'Spec': {'SLSpec': sorted(['SLSpecFreq'])},
+        'Map': {'SLMap': sorted(['SLMapFreq'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable']),
         'Server': [], 
         'Stream': [], 

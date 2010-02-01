@@ -73,10 +73,10 @@ class Sine(PyoObject):
 
     def ctrl(self, specs_list=None, title=None):
         if specs_list == None:
-            attr_list = [SLSpecFreq(self._freq),
-                    SLSpec(0., 1., 'lin', 'phase', self._phase),
-                    SLSpec(0., 2., 'lin', 'mul', self._mul),
-                    SLSpec(0., 1.,'lin', 'add', self._add)]
+            attr_list = [SLMapFreq(self._freq),
+                    SLMap(0., 1., 'lin', 'phase', self._phase),
+                    SLMap(0., 2., 'lin', 'mul', self._mul),
+                    SLMap(0., 1.,'lin', 'add', self._add)]
         else:
             attr_list = specs_list            
         win = Tk()    
