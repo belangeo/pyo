@@ -54,6 +54,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
     float amp = my_server->amp;
+    float lastAmp = my_server->lastAmp;
     Stream *stream_tmp;
     float *data;
     
@@ -94,10 +95,20 @@ static int callback( const void *inputBuffer, void *outputBuffer,
         } 
         Stream_callFunction(stream_tmp);
     }
+
+    if (amp != my_server->lastAmp) {
+        my_server->timeCount = 0;
+        my_server->stepVal = (amp - my_server->currentAmp) / (my_server->timeStep - 1);
+        my_server->lastAmp = amp;
+    }
     
     for (i=0; i<framesPerBuffer; i++){
+        if (my_server->timeCount < my_server->timeStep) {
+            my_server->currentAmp += my_server->stepVal;
+            my_server->timeCount++;
+        }
         for (j=0; j<nchnls; j++) {
-            out[i*nchnls+j] = buffer[j][i] * amp;
+            out[i*nchnls+j] = buffer[j][i] * my_server->currentAmp;
         }
     }
     
@@ -234,7 +245,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input = -1;
     self->output = -1;
     self->midi_input = -1;
-    self->amp = 1.;
+    self->amp = self->currentAmp = self->lastAmp = 1.;
+    self->timeStep = (int)(0.05 * self->samplingRate);
     self->withGUI = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
