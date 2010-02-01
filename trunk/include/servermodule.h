@@ -27,7 +27,14 @@ typedef struct {
     int server_booted;
     int stream_count;
     int record;
+    /* global amplitude */
     float amp;
+    float lastAmp;
+    float currentAmp;
+    float stepVal;
+    int timeStep;
+    int timeCount;
+    
     float *input_buffer;
     char *recpath;
     SNDFILE *recfile;

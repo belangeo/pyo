@@ -245,11 +245,14 @@ class Command:
 class PyoObjectControl(Frame):
     def __init__(self, master=None, obj=None, attr_list=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self.bind('<Destroy>', self._destroy)
         self.obj = obj
         self.attr_list = attr_list
         self.scales = []
+        self.values = {}
         self.displays = {}
         self.specs = {}
+        self.sigs = {}
         for i, spec in enumerate(self.attr_list):
             key, init = spec.name, spec.init
             self.specs[spec.name] = spec
@@ -257,7 +260,7 @@ class PyoObjectControl(Frame):
             label.grid(row=i, column=0)
             self.scales.append(Scale(self, command=Command(self.setval, key),
                               orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
-                              resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=15))
+                              resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
             self.scales[-1].set(spec.set(init))
             self.scales[-1].grid(row=i, column=1)
             textvar = StringVar(self)
@@ -265,13 +268,23 @@ class PyoObjectControl(Frame):
             display.grid(row=i, column=2)
             self.displays[key] = textvar
             self.displays[key].set("%.4f" % init)
+            self.sigs[key] = SigTo(init, .025, init)
+            setattr(self.obj, key, self.sigs[key])
 
         self.grid(ipadx=15, ipady=15)
 
+    def _destroy(self, event):
+        for spec in self.attr_list:
+            key = spec.name
+            setattr(self.obj, key, self.values[key])
+            del self.sigs[key]
+            
+        
     def setval(self, key, x):
         value = self.specs[key].get(float(x))
+        self.values[key] = value
         self.displays[key].set("%.4f" % value)
-        setattr(self.obj, key, value)
+        setattr(self.sigs[key], "value", value)
         
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
