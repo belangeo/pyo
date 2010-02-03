@@ -14,11 +14,11 @@ class Fader(PyoObject):
 
     Parameters:
 
-    fadein : float or PyoObject, optional
+    fadein : float, optional
         Rising time of the envelope in seconds. Defaults to 0.01.
-    fadeout : float or PyoObject, optional
+    fadeout : float, optional
         Falling time of the envelope in seconds. Defaults to 0.1.
-    dur : float or PyoObject, optional
+    dur : float, optional
         Total duration of the envelope. Defaults to 0, which means wait for the stop() 
         method to start the fadeout.
         
@@ -32,9 +32,9 @@ class Fader(PyoObject):
 
     Attributes:
     
-    fadein : float or PyoObject. Rising time of the envelope in seconds.
-    fadeout : float or PyoObject. Falling time of the envelope in seconds.
-    dur : float or PyoObject. Total duration of the envelope.
+    fadein : float. Rising time of the envelope in seconds.
+    fadeout : float. Falling time of the envelope in seconds.
+    dur : float. Total duration of the envelope.
     
     Notes:
 
@@ -70,7 +70,7 @@ class Fader(PyoObject):
         
         Parameters:
 
-        x : float or PyoObject
+        x : float
             new `fadein` attribute.
         
         """
@@ -84,7 +84,7 @@ class Fader(PyoObject):
         
         Parameters:
 
-        x : float or PyoObject
+        x : float
             new `fadeout` attribute.
         
         """
@@ -98,13 +98,16 @@ class Fader(PyoObject):
         
         Parameters:
 
-        x : float or PyoObject
+        x : float
             new `dur` attribute.
         
         """
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on Fader object."
 
     def demo():
         execfile(DEMOS_PATH + "/Fader_demo.py")
@@ -116,21 +119,21 @@ class Fader(PyoObject):
 
     @property
     def fadein(self):
-        """float or PyoObject. Rising time of the envelope in seconds.""" 
+        """float. Rising time of the envelope in seconds.""" 
         return self._fadein
     @fadein.setter
     def fadein(self, x): self.setFadein(x)
 
     @property
     def fadeout(self):
-        """float or PyoObject. Falling time of the envelope in seconds.""" 
+        """float. Falling time of the envelope in seconds.""" 
         return self._fadeout
     @fadeout.setter
     def fadeout(self, x): self.setFadeout(x)
 
     @property
     def dur(self):
-        """float or PyoObject. Total duration of the envelope.""" 
+        """float. Total duration of the envelope.""" 
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
@@ -228,6 +231,15 @@ class Port(PyoObject):
         self._falltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0.001, 10., 'lin', 'risetime', self._risetime),
+                        SLMap(0.001, 10., 'lin', 'falltime', self._falltime)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Port_demo.py")
@@ -335,6 +347,14 @@ class Metro(PyoObject):
     def setDiv(self, x):
         pass
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0.001, 1., 'log', 'time', self._time)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     def demo():
         execfile(DEMOS_PATH + "/Metro_demo.py")
     demo = Call_example(demo)
@@ -426,6 +446,14 @@ class Follower(PyoObject):
 
     def out(self, chnl=0, inc=1):
         pass
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Follower_demo.py")

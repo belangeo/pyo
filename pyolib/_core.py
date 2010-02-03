@@ -71,7 +71,7 @@ def wrap(arg, i):
         return x
 
 ######################################################################
-### Map -> manage values from sliders
+### Map -> rescale values from sliders
 ######################################################################
 class Map:
     """
@@ -89,8 +89,8 @@ class Map:
         
     Methods:
     
-    get(x) : Returns scaled value for an input between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for an input in the real range.  
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
 
     Attributes:
     
@@ -104,7 +104,7 @@ class Map:
 
     def get(self, x):
         """
-        Take x between 0 and 1 and return scaled value.
+        Takes `x` between 0 and 1 and returns scaled value.
         
         """
         if x < 0: x = 0.0
@@ -117,7 +117,7 @@ class Map:
 
     def set(self, x):
         """
-        Return init value unscaled (between 0 and 1).
+        Takes `x` in the real range and returns value unscaled (between 0 and 1).
         
         """
         
@@ -166,8 +166,8 @@ class SLMap(Map):
 
     Methods:
     
-    get(x) : Returns the scaled value for an input between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for an input in the real range.  
+    get(x) : Returns the scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
 
     Attributes:
     
@@ -206,7 +206,7 @@ class SLMapFreq(SLMap):
     Parameters:
     
     init : int or float, optional
-        Initial value. Mapified in the real range, not between 0 and 1.
+        Initial value. Specified in the real range, not between 0 and 1.
         Defaults to 1000.
 
     SLMapFreq values are: 
@@ -220,8 +220,8 @@ class SLMapFreq(SLMap):
 
     Methods:
     
-    get(x) : Returns scaled value for an input between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` value.  
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
 
     """
     def __init__(self, init=1000):
@@ -229,6 +229,142 @@ class SLMapFreq(SLMap):
 
     def args():
         return("SLMapFreq(init=1000)")
+    args = Print_args(args)
+
+class SLMapMul(SLMap):
+    """
+    SLMap with normalized values for a 'mul' slider.
+
+    Parent class: SlMap
+    
+    Parameters:
+    
+    init : int or float, optional
+        Initial value. Specified in the real range, not between 0 and 1.
+        Defaults to 1.
+
+    SLMapMul values are: 
+        
+    min = 0.0
+    max = 2.0
+    scale = 'lin'
+    name = 'mul'
+    res = 'float'
+    ramp = 0.025
+
+    Methods:
+    
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+
+    """
+    def __init__(self, init=1.):
+        SLMap.__init__(self, 0., 2., 'lin', 'mul', init, 'float', 0.025)
+
+    def args():
+        return("SLMapMul(init=1.)")
+    args = Print_args(args)
+
+class SLMapPhase(SLMap):
+    """
+    SLMap with normalized values for a 'phase' slider.
+
+    Parent class: SlMap
+    
+    Parameters:
+    
+    init : int or float, optional
+        Initial value. Specified in the real range, not between 0 and 1.
+        Defaults to 0.
+
+    SLMapPhase values are: 
+        
+    min = 0.0
+    max = 1.0
+    scale = 'lin'
+    name = 'phase'
+    res = 'float'
+    ramp = 0.025
+
+    Methods:
+    
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+
+    """
+    def __init__(self, init=0.):
+        SLMap.__init__(self, 0., 1., 'lin', 'phase', init, 'float', 0.025)
+
+    def args():
+        return("SLMapPhase(init=0.)")
+    args = Print_args(args)
+
+class SLMapQ(SLMap):
+    """
+    SLMap with normalized values for a 'q' slider.
+
+    Parent class: SlMap
+    
+    Parameters:
+    
+    init : int or float, optional
+        Initial value. Specified in the real range, not between 0 and 1.
+        Defaults to 1.
+
+    SLMapQ values are: 
+        
+    min = 0.1
+    max = 100.0
+    scale = 'log'
+    name = 'q'
+    res = 'float'
+    ramp = 0.025
+
+    Methods:
+    
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+
+    """
+    def __init__(self, init=1.):
+        SLMap.__init__(self, 0.1, 100., 'log', 'q', init, 'float', 0.025)
+
+    def args():
+        return("SLMapQ(init=1.)")
+    args = Print_args(args)
+
+class SLMapDur(SLMap):
+    """
+    SLMap with normalized values for a 'dur' slider.
+
+    Parent class: SlMap
+    
+    Parameters:
+    
+    init : int or float, optional
+        Initial value. Specified in the real range, not between 0 and 1.
+        Defaults to 1.
+
+    SLMapDur values are: 
+        
+    min = 0.
+    max = 60.0
+    scale = 'lin'
+    name = 'dur'
+    res = 'float'
+    ramp = 0.025
+
+    Methods:
+    
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+
+    """
+    def __init__(self, init=1.):
+        SLMap.__init__(self, 0., 60., 'lin', 'dur', init, 'float', 0.025)
+
+    def args():
+        return("SLMapDur(init=1.)")
     args = Print_args(args)
 
 ######################################################################
@@ -243,10 +379,12 @@ class MultiSlider(Frame):
         self._command = command
         self._lines = []
         self._height = 16
+        self._yoff = 4 # hack for OSX display
         self.canvas = Canvas(self, height=self._height*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#BCBCAA")
+        w = self.canvas.winfo_width()
         for i in range(self._nchnls):
-            x = int(self._values[i] * 225)
-            y = self._height * i + 4
+            x = int(self._values[i] * w)
+            y = self._height * i + self._yoff
             self._lines.append(self.canvas.create_rectangle(0, y, x, y+self._height-1, width=0, fill="#121212"))
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
@@ -258,7 +396,7 @@ class MultiSlider(Frame):
     def size(self, event):
         w = self.canvas.winfo_width()
         for i in range(len(self._lines)):
-            y = self._height * i + 4
+            y = self._height * i + self._yoff
             x = self._values[i] * w
             self.canvas.coords(self._lines[i], 0, y, x, y+self._height-1)
         
@@ -267,24 +405,19 @@ class MultiSlider(Frame):
         
     def move(self, event):
         if event.state == 0x0100:
-            slide = (event.y - 4) / self._height
+            slide = (event.y - self._yoff) / self._height
             if 0 <= slide < len(self._lines):
                 self.update(event)
 
     def update(self, event):
         w = self.canvas.winfo_width()
-        slide = (event.y - 4) / self._height
+        slide = (event.y - self._yoff) / self._height
         val = event.x / float(w)
         self._values[slide] = val
-        y = self._height * slide + 4
+        y = self._height * slide + self._yoff
         self.canvas.coords(self._lines[slide], 0, y, event.x, y+self._height-1)
         self._command(self._key, self._values)
-        
-def showMulti():
-    win = Tk()    
-    f = MultiSlider(win, [.2,.4,.5])
-    win.mainloop()
-            
+           
 ######################################################################
 ### Control window for PyoObject
 ######################################################################
@@ -297,45 +430,51 @@ class Command:
         self.func(self.key, value)
 
 class PyoObjectControl(Frame):
-    def __init__(self, master=None, obj=None, attr_list=None):
+    def __init__(self, master=None, obj=None, map_list=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.bind('<Destroy>', self._destroy)
-        self.obj = obj
-        self.attr_list = attr_list
-        self.scales = []
-        self.excluded = []
-        self.values = {}
-        self.displays = {}
-        self.specs = {}
-        self.sigs = {}
-        for i, spec in enumerate(self.attr_list):
-            key, init = spec.name, spec.init
+        self._obj = obj
+        self._map_list = map_list
+        self._sliders = []
+        self._excluded = []
+        self._values = {}
+        self._displays = {}
+        self._maps = {}
+        self._sigs = {}
+        for i, m in enumerate(self._map_list):
+            key, init = m.name, m.init
+            # filters PyoObjects
             if isinstance(init, PyoObject):
-                self.excluded.append(key)
+                self._excluded.append(key)
             else:    
-                self.specs[spec.name] = spec
+                self._maps[key] = m
+                # label (param name)
                 label = Label(self, height=1, width=10, highlightthickness=0, text=key)
                 label.grid(row=i, column=0)
+                # create and pack slider
                 if type(init) != ListType:
-                    self.scales.append(Scale(self, command=Command(self.setval, key),
+                    self._sliders.append(Scale(self, command=Command(self.setval, key),
                                   orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
-                                  resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
-                    self.scales[-1].set(spec.set(init))
-                    h = 1
+                                  resolution=.0001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
+                    self._sliders[-1].set(m.set(init))
+                    disp_height = 1
                 else:
-                    self.scales.append(MultiSlider(self, [spec.set(x) for x in init], key, self.setval)) 
-                    h = len(init)   
-                self.scales[-1].grid(row=i, column=1, sticky=E+W)
+                    self._sliders.append(MultiSlider(self, [m.set(x) for x in init], key, self.setval)) 
+                    disp_height = len(init)   
+                self._sliders[-1].grid(row=i, column=1, sticky=E+W)
+                # display of numeric values
                 textvar = StringVar(self)
-                display = Label(self, height=h, width=10, highlightthickness=0, textvariable=textvar)
+                display = Label(self, height=disp_height, width=10, highlightthickness=0, textvariable=textvar)
                 display.grid(row=i, column=2)
-                self.displays[key] = textvar
+                self._displays[key] = textvar
                 if type(init) != ListType:
-                    self.displays[key].set("%.4f" % init)
+                    self._displays[key].set("%.4f" % init)
                 else:
-                    self.displays[key].set("\n".join(["%.4f" % i for i in init]))
-                self.sigs[key] = SigTo(init, .025, init)
-                setattr(self.obj, key, self.sigs[key])
+                    self._displays[key].set("\n".join(["%.4f" % i for i in init]))
+                # set obj attribute to PyoObject SigTo     
+                self._sigs[key] = SigTo(init, .025, init)
+                setattr(self._obj, key, self._sigs[key])
+        # padding        
         top = self.winfo_toplevel()
         top.rowconfigure(0, weight=1)
         top.columnconfigure(0, weight=1)       
@@ -343,23 +482,23 @@ class PyoObjectControl(Frame):
         self.grid(ipadx=15, ipady=15, sticky=E+W)
 
     def _destroy(self, event):
-        for spec in self.attr_list:
-            key = spec.name
-            if key not in self.excluded:
-                setattr(self.obj, key, self.values[key])
-                del self.sigs[key]
+        for m in self._map_list:
+            key = m.name
+            if key not in self._excluded:
+                setattr(self._obj, key, self._values[key])
+                del self._sigs[key]
             
         
     def setval(self, key, x):
         if type(x) != ListType:
-            value = self.specs[key].get(float(x))
-            self.displays[key].set("%.4f" % value)
+            value = self._maps[key].get(float(x))
+            self._displays[key].set("%.4f" % value)
         else:    
-            value = [self.specs[key].get(float(y)) for y in x] 
-            self.displays[key].set("\n".join(["%.4f" % i for i in value]))
+            value = [self._maps[key].get(float(y)) for y in x] 
+            self._displays[key].set("\n".join(["%.4f" % i for i in value]))
             
-        self.values[key] = value
-        setattr(self.sigs[key], "value", value)
+        self._values[key] = value
+        setattr(self._sigs[key], "value", value)
         
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
