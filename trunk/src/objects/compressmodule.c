@@ -138,7 +138,7 @@ Compress_filters_aa(Compress *self) {
 
 static void
 Compress_compress_ii(Compress *self) {
-    float val, indb, diff, outdb, outa;
+    float indb, diff, outdb, outa;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
     float thresh = PyFloat_AS_DOUBLE(self->thresh);
@@ -156,7 +156,7 @@ Compress_compress_ii(Compress *self) {
 
 static void
 Compress_compress_ai(Compress *self) {
-    float val, indb, diff, outdb, outa;
+    float indb, diff, outdb, outa;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *thresh = Stream_getData((Stream *)self->thresh_stream);
@@ -174,7 +174,7 @@ Compress_compress_ai(Compress *self) {
 
 static void
 Compress_compress_ia(Compress *self) {
-    float val, indb, diff, outdb, outa;
+    float indb, diff, outdb, outa;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
     float thresh = PyFloat_AS_DOUBLE(self->thresh);
@@ -191,7 +191,7 @@ Compress_compress_ia(Compress *self) {
 
 static void
 Compress_compress_aa(Compress *self) {
-    float val, indb, diff, outdb, outa;
+    float indb, diff, outdb, outa;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *thresh = Stream_getData((Stream *)self->thresh_stream);

@@ -119,6 +119,7 @@ class Notein(PyoObject):
     def stop(self):
         self._base_handler.stop()
         [obj.stop() for obj in self._base_objs]
+        return self
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Notein_demo.py")

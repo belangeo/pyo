@@ -635,7 +635,6 @@ Granulator_clear(Granulator *self)
 static void
 Granulator_dealloc(Granulator* self)
 {
-    int i;
     free(self->data);   
     free(self->startPos);   
     free(self->gphase);

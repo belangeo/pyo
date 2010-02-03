@@ -235,16 +235,20 @@ class SLMapFreq(SLMap):
 ### Multisliders
 ######################################################################
 class MultiSlider(Frame):
-    def __init__(self, master, init): 
-        Frame.__init__(self, master, bd=1, relief=GROOVE)
+    def __init__(self, master, init, key, command): 
+        Frame.__init__(self, master, bd=0, relief=FLAT)
         self._values = init
         self._nchnls = len(init)
+        self._key = key
+        self._command = command
         self._lines = []
-        self.canvas = Canvas(self, height=10*self._nchnls+2, width=250, relief=SUNKEN, bd=1)
+        self._width = 14
+        self._halfWidth = self._width / 2
+        self.canvas = Canvas(self, height=15*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#A9A9A9")
         for i in range(self._nchnls):
-            x = int(self._values[i] * 250)
-            y = 10 * (i + 1)
-            self._lines.append(self.canvas.create_line(0, y, x, y, width=9))
+            x = int(self._values[i] * 225)
+            y = 15 * i + self._halfWidth + 1
+            self._lines.append(self.canvas.create_line(0, y, x, y, width=self._width))
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
         self.canvas.grid()
@@ -255,16 +259,17 @@ class MultiSlider(Frame):
         
     def move(self, event):
         if event.state == 0x0100:
-            slide = event.y / 10
+            slide = event.y / 15
             if 0 <= slide < len(self._lines):
                 self.update(event)
 
     def update(self, event):
-        slide = event.y / 10
-        val = event.x / 250.
+        slide = event.y / 15
+        val = event.x / 225.
         self._values[slide] = val
-        y = 10 * (slide + 1)
+        y = 15 * slide + self._halfWidth + 1
         self.canvas.coords(self._lines[slide], 0, y, event.x, y)
+        self._command(self._key, self._values)
         
 def showMulti():
     win = Tk()    
@@ -298,16 +303,22 @@ class PyoObjectControl(Frame):
             self.specs[spec.name] = spec
             label = Label(self, height=1, width=10, highlightthickness=0, text=key)
             label.grid(row=i, column=0)
-            self.scales.append(Scale(self, command=Command(self.setval, key),
+            if type(init) != ListType:
+                self.scales.append(Scale(self, command=Command(self.setval, key),
                               orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
                               resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
-            self.scales[-1].set(spec.set(init))
+                self.scales[-1].set(spec.set(init))
+            else:
+                self.scales.append(MultiSlider(self, [spec.set(x) for x in init], key, self.setval))    
             self.scales[-1].grid(row=i, column=1)
             textvar = StringVar(self)
             display = Label(self, height=1, width=10, highlightthickness=0, textvariable=textvar)
             display.grid(row=i, column=2)
             self.displays[key] = textvar
-            self.displays[key].set("%.4f" % init)
+            if type(init) != ListType:
+                self.displays[key].set("%.4f" % init)
+            else:
+                self.displays[key].set("\n".join(["%.4f" % i for i in init]))
             self.sigs[key] = SigTo(init, .025, init)
             setattr(self.obj, key, self.sigs[key])
 
@@ -321,9 +332,14 @@ class PyoObjectControl(Frame):
             
         
     def setval(self, key, x):
-        value = self.specs[key].get(float(x))
+        if type(x) != ListType:
+            value = self.specs[key].get(float(x))
+            self.displays[key].set("%.4f" % value)
+        else:    
+            value = [self.specs[key].get(float(y)) for y in x] 
+            self.displays[key].set("\n".join(["%.4f" % i for i in value]))
+            
         self.values[key] = value
-        self.displays[key].set("%.4f" % value)
         setattr(self.sigs[key], "value", value)
         
 ######################################################################
@@ -499,6 +515,7 @@ class PyoObject(object):
         
         """
         [obj.stop() for obj in self._base_objs]
+        return self
 
     def mix(self, voices=1):
         """
