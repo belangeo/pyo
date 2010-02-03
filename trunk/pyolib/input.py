@@ -71,18 +71,14 @@ class Sine(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None, title=None):
-        if specs_list == None:
-            attr_list = [SLMapFreq(self._freq),
-                    SLMap(0., 1., 'lin', 'phase', self._phase),
-                    SLMap(0., 2., 'lin', 'mul', self._mul),
-                    SLMap(0., 1.,'lin', 'add', self._add)]
-        else:
-            attr_list = specs_list            
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMapPhase(self._phase),
+                        SLMapMul(self._mul)]
         win = Tk()    
-        f = PyoObjectControl(win, self, attr_list)
-        if title == None:
-            title = self.__class__.__name__
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
         win.title(title)
 
     def demo():
@@ -177,6 +173,16 @@ class Phasor(PyoObject):
         self._phase = x
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMapPhase(self._phase),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Phasor_demo.py")
@@ -288,6 +294,16 @@ class Osc(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMapPhase(self._phase),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     def demo():
         execfile(DEMOS_PATH + "/Osc_demo.py")
     demo = Call_example(demo)
@@ -383,9 +399,18 @@ class Pointer(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     #def demo():
     #    execfile(DEMOS_PATH + "/Pointer_demo.py")
     #demo = Call_example(demo)
+
 
     def args():
         return("Pointer(table, index, mul=1, add=0)")
@@ -435,6 +460,14 @@ class Input(PyoObject):
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     def demo():
         execfile(DEMOS_PATH + "/Input_demo.py")
     demo = Call_example(demo)
@@ -462,6 +495,14 @@ class Noise(PyoObject):
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Noise_demo.py")
