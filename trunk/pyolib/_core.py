@@ -243,15 +243,24 @@ class MultiSlider(Frame):
         self._command = command
         self._lines = []
         self._height = 16
-        self.canvas = Canvas(self, height=self._height*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#A9A9A9")
+        self.canvas = Canvas(self, height=self._height*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#BCBCAA")
         for i in range(self._nchnls):
             x = int(self._values[i] * 225)
             y = self._height * i + 4
-            self._lines.append(self.canvas.create_rectangle(0, y, x, y+self._height-1, width=0, fill="#000000"))
+            self._lines.append(self.canvas.create_rectangle(0, y, x, y+self._height-1, width=0, fill="#121212"))
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
-        self.canvas.grid()
+        self.canvas.bind("<Configure>", self.size)
+        self.canvas.grid(sticky=E+W)
+        self.columnconfigure(0, weight=1)
         self.grid()
+
+    def size(self, event):
+        w = self.canvas.winfo_width()
+        for i in range(len(self._lines)):
+            y = self._height * i + 4
+            x = self._values[i] * w
+            self.canvas.coords(self._lines[i], 0, y, x, y+self._height-1)
         
     def clicked(self, event):
         self.update(event)
@@ -263,8 +272,9 @@ class MultiSlider(Frame):
                 self.update(event)
 
     def update(self, event):
+        w = self.canvas.winfo_width()
         slide = (event.y - 4) / self._height
-        val = event.x / 225.
+        val = event.x / float(w)
         self._values[slide] = val
         y = self._height * slide + 4
         self.canvas.coords(self._lines[slide], 0, y, event.x, y+self._height-1)
@@ -293,43 +303,51 @@ class PyoObjectControl(Frame):
         self.obj = obj
         self.attr_list = attr_list
         self.scales = []
+        self.excluded = []
         self.values = {}
         self.displays = {}
         self.specs = {}
         self.sigs = {}
         for i, spec in enumerate(self.attr_list):
             key, init = spec.name, spec.init
-            self.specs[spec.name] = spec
-            label = Label(self, height=1, width=10, highlightthickness=0, text=key)
-            label.grid(row=i, column=0)
-            if type(init) != ListType:
-                self.scales.append(Scale(self, command=Command(self.setval, key),
-                              orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
-                              resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
-                self.scales[-1].set(spec.set(init))
-                h = 1
-            else:
-                self.scales.append(MultiSlider(self, [spec.set(x) for x in init], key, self.setval)) 
-                h = len(init)   
-            self.scales[-1].grid(row=i, column=1)
-            textvar = StringVar(self)
-            display = Label(self, height=h, width=10, highlightthickness=0, textvariable=textvar)
-            display.grid(row=i, column=2)
-            self.displays[key] = textvar
-            if type(init) != ListType:
-                self.displays[key].set("%.4f" % init)
-            else:
-                self.displays[key].set("\n".join(["%.4f" % i for i in init]))
-            self.sigs[key] = SigTo(init, .025, init)
-            setattr(self.obj, key, self.sigs[key])
-
-        self.grid(ipadx=15, ipady=15)
+            if isinstance(init, PyoObject):
+                self.excluded.append(key)
+            else:    
+                self.specs[spec.name] = spec
+                label = Label(self, height=1, width=10, highlightthickness=0, text=key)
+                label.grid(row=i, column=0)
+                if type(init) != ListType:
+                    self.scales.append(Scale(self, command=Command(self.setval, key),
+                                  orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
+                                  resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
+                    self.scales[-1].set(spec.set(init))
+                    h = 1
+                else:
+                    self.scales.append(MultiSlider(self, [spec.set(x) for x in init], key, self.setval)) 
+                    h = len(init)   
+                self.scales[-1].grid(row=i, column=1, sticky=E+W)
+                textvar = StringVar(self)
+                display = Label(self, height=h, width=10, highlightthickness=0, textvariable=textvar)
+                display.grid(row=i, column=2)
+                self.displays[key] = textvar
+                if type(init) != ListType:
+                    self.displays[key].set("%.4f" % init)
+                else:
+                    self.displays[key].set("\n".join(["%.4f" % i for i in init]))
+                self.sigs[key] = SigTo(init, .025, init)
+                setattr(self.obj, key, self.sigs[key])
+        top = self.winfo_toplevel()
+        top.rowconfigure(0, weight=1)
+        top.columnconfigure(0, weight=1)       
+        self.columnconfigure(1, weight=1)
+        self.grid(ipadx=15, ipady=15, sticky=E+W)
 
     def _destroy(self, event):
         for spec in self.attr_list:
             key = spec.name
-            setattr(self.obj, key, self.values[key])
-            del self.sigs[key]
+            if key not in self.excluded:
+                setattr(self.obj, key, self.values[key])
+                del self.sigs[key]
             
         
     def setval(self, key, x):
