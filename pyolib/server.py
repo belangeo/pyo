@@ -22,7 +22,7 @@ class ServerGUI(Frame):
         self.ampf = ampf
         self._started = False
         self._recstarted = False
-        self.B1, self.B2 = 194, 245
+        self.B1, self.B2 = 193, 244
         self._history = []
         self._histo_count = 0
         self.grid(ipadx=5)
@@ -51,13 +51,13 @@ class ServerGUI(Frame):
         self.ampScale.set(0.0)
         self.ampScale.grid(ipadx=5, ipady=5, row=1, column=0, columnspan=3)
 
-        self.vumeter = Canvas(self, height=5*self.nchnls+2, width=250, relief=SUNKEN, bd=1, bg="#323232")
+        self.vumeter = Canvas(self, height=5*self.nchnls+1, width=250, relief=FLAT, bd=0, bg="#323232")
         self.green = []
         self.yellow = []
         self.red = []
         for i in range(self.nchnls):
-            y = 5 * (i + 1) + 2
-            self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=5))
+            y = 5 * (i + 1) + 1
+            self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=6))
             self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1, y, width=4, fill='yellow', dash=(9,1), dashoff=9))
             self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
         self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
@@ -124,7 +124,7 @@ class ServerGUI(Frame):
 
     def setRms(self, *args):
         for i in range(self.nchnls):
-            y = 5 * (i + 1) + 2
+            y = 5 * (i + 1) + 1
             db = 20. * math.log10(args[i]+0.00001) * 0.01 + 1.
             amp = int(db*250)
             if amp <= self.B1:

@@ -1889,7 +1889,7 @@ typedef struct {
 
 static void
 DCBlock_filters(DCBlock *self) {
-    float val, x, y;
+    float x, y;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
 
@@ -1914,7 +1914,7 @@ static void DCBlock_postprocessing_revareva(DCBlock *self) { POST_PROCESSING_REV
 static void
 DCBlock_setProcMode(DCBlock *self)
 {
-    int procmode, muladdmode;
+    int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
        
     self->proc_func_ptr = DCBlock_filters;
