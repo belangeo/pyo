@@ -230,7 +230,47 @@ class SLMapFreq(SLMap):
     def args():
         return("SLMapFreq(init=1000)")
     args = Print_args(args)
+
+######################################################################
+### Multisliders
+######################################################################
+class MultiSlider(Frame):
+    def __init__(self, master, init): 
+        Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self._values = init
+        self._nchnls = len(init)
+        self._lines = []
+        self.canvas = Canvas(self, height=10*self._nchnls+2, width=250, relief=SUNKEN, bd=1)
+        for i in range(self._nchnls):
+            x = int(self._values[i] * 250)
+            y = 10 * (i + 1)
+            self._lines.append(self.canvas.create_line(0, y, x, y, width=9))
+        self.canvas.bind("<Button-1>", self.clicked)
+        self.canvas.bind("<Motion>", self.move)
+        self.canvas.grid()
+        self.grid()
         
+    def clicked(self, event):
+        self.update(event)
+        
+    def move(self, event):
+        if event.state == 0x0100:
+            slide = event.y / 10
+            if 0 <= slide < len(self._lines):
+                self.update(event)
+
+    def update(self, event):
+        slide = event.y / 10
+        val = event.x / 250.
+        self._values[slide] = val
+        y = 10 * (slide + 1)
+        self.canvas.coords(self._lines[slide], 0, y, event.x, y)
+        
+def showMulti():
+    win = Tk()    
+    f = MultiSlider(win, [.2,.4,.5])
+    win.mainloop()
+            
 ######################################################################
 ### Control window for PyoObject
 ######################################################################

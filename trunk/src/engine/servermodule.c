@@ -54,7 +54,6 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
     float amp = my_server->amp;
-    float lastAmp = my_server->lastAmp;
     Stream *stream_tmp;
     float *data;
     
