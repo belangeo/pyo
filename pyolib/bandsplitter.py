@@ -114,7 +114,8 @@ class BandSplit(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
-
+        return self
+        
     def demo():
         execfile(DEMOS_PATH + "/BandSplit_demo.py")
     demo = Call_example(demo)

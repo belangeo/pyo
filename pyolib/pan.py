@@ -115,7 +115,8 @@ class Pan(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
-
+        return self
+        
     #def demo():
     #    execfile(DEMOS_PATH + "/Pan_demo.py")
     #demo = Call_example(demo)
@@ -241,7 +242,8 @@ class SPan(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
-
+        return self
+        
     #def demo():
     #    execfile(DEMOS_PATH + "/SPan_demo.py")
     #demo = Call_example(demo)

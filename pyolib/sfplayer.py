@@ -94,7 +94,8 @@ class SfPlayer(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
-
+        return self
+        
     def setSound(self, path):
         """
         Sets a new sound to read.
@@ -304,7 +305,8 @@ class SfMarkerShuffler(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
-
+        return self
+        
     def setSpeed(self, x):
         """
         Replace the `speed` attribute.
