@@ -242,13 +242,12 @@ class MultiSlider(Frame):
         self._key = key
         self._command = command
         self._lines = []
-        self._width = 14
-        self._halfWidth = self._width / 2
-        self.canvas = Canvas(self, height=15*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#A9A9A9")
+        self._height = 16
+        self.canvas = Canvas(self, height=self._height*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#A9A9A9")
         for i in range(self._nchnls):
             x = int(self._values[i] * 225)
-            y = 15 * i + self._halfWidth + 1
-            self._lines.append(self.canvas.create_line(0, y, x, y, width=self._width))
+            y = self._height * i + 4
+            self._lines.append(self.canvas.create_rectangle(0, y, x, y+self._height-1, width=0, fill="#000000"))
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
         self.canvas.grid()
@@ -259,16 +258,16 @@ class MultiSlider(Frame):
         
     def move(self, event):
         if event.state == 0x0100:
-            slide = event.y / 15
+            slide = (event.y - 4) / self._height
             if 0 <= slide < len(self._lines):
                 self.update(event)
 
     def update(self, event):
-        slide = event.y / 15
+        slide = (event.y - 4) / self._height
         val = event.x / 225.
         self._values[slide] = val
-        y = 15 * slide + self._halfWidth + 1
-        self.canvas.coords(self._lines[slide], 0, y, event.x, y)
+        y = self._height * slide + 4
+        self.canvas.coords(self._lines[slide], 0, y, event.x, y+self._height-1)
         self._command(self._key, self._values)
         
 def showMulti():
@@ -308,11 +307,13 @@ class PyoObjectControl(Frame):
                               orient=HORIZONTAL, relief=GROOVE, from_=0., to=1., showvalue=False, 
                               resolution=.001, bd=1, length=225, troughcolor="#BCBCAA", width=12))
                 self.scales[-1].set(spec.set(init))
+                h = 1
             else:
-                self.scales.append(MultiSlider(self, [spec.set(x) for x in init], key, self.setval))    
+                self.scales.append(MultiSlider(self, [spec.set(x) for x in init], key, self.setval)) 
+                h = len(init)   
             self.scales[-1].grid(row=i, column=1)
             textvar = StringVar(self)
-            display = Label(self, height=1, width=10, highlightthickness=0, textvariable=textvar)
+            display = Label(self, height=h, width=10, highlightthickness=0, textvariable=textvar)
             display.grid(row=i, column=2)
             self.displays[key] = textvar
             if type(init) != ListType:
