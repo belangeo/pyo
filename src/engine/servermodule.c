@@ -49,7 +49,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
 {
  
     float *out = (float*)outputBuffer;
-    
+
     int i, j;
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
@@ -152,7 +152,11 @@ static int callback( const void *inputBuffer, void *outputBuffer,
 
     PyGILState_Release(s);
 
-    return paContinue;
+    if (my_server->server_started == 1)
+        return paContinue;
+    else {
+        return paComplete;
+    }    
 }
 
 /***************************************************/
@@ -171,6 +175,8 @@ static PyObject * Server_stop(Server *self);
 static PyObject *
 Server_shut_down(Server *self)
 {
+    PaError err;
+    
     if (self->server_booted == 0) {
         PyErr_Warn(NULL, "The Server must be booted!");
         Py_INCREF(Py_None);
@@ -179,7 +185,11 @@ Server_shut_down(Server *self)
 
     if (self->server_started == 1) {
         Server_stop((Server *)self);
-        self->server_started = 0;
+    }
+
+    if (Pa_IsStreamActive(self->stream) || ! Pa_IsStreamStopped(self->stream)) {
+        err = Pa_StopStream(self->stream);
+        portaudio_assert(err, "Pa_StopStream");
     }
     
     if (self->withPortMidi == 1) {
@@ -189,7 +199,6 @@ Server_shut_down(Server *self)
     
     self->server_booted = 0;
     
-    PaError err;
     err = Pa_CloseStream(self->stream);
     portaudio_assert(err, "Pa_CloseStream");
     
@@ -529,6 +538,11 @@ Server_start(Server *self)
 	/* Ensure Python is set up for threading */
 	PyEval_InitThreads();
 
+    if (Pa_IsStreamActive(self->stream) || ! Pa_IsStreamStopped(self->stream)) {
+        err = Pa_StopStream(self->stream);
+        portaudio_assert(err, "Pa_StopStream");
+    }
+
     err = Pa_StartStream(self->stream);
     portaudio_assert(err, "Pa_StartStream");
 
@@ -547,12 +561,7 @@ Server_stop(Server *self)
         return Py_None;
     }
     
-    PaError err;
-
     self->server_started = 0;
-
-    err = Pa_StopStream(self->stream);
-    portaudio_assert(err, "Pa_StopStream");
 
     Py_INCREF(Py_None);
     return Py_None;

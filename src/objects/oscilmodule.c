@@ -1484,8 +1484,11 @@ Pointer_readframes_a(Pointer *self) {
         ph = pha[i] * size;
         if (ph < 0)
             ph += size;
-        else if (ph >= size)
-            ph -= size;
+        else if (ph >= size) {
+            while (ph >= size) {
+                ph -= size;
+            }
+        }    
         ipart = (int)ph;
         fpart = ph - ipart;
         x = tablelist[ipart];

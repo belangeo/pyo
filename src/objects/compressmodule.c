@@ -28,12 +28,12 @@ typedef struct {
 } Compress;
 
 static float
-_clip(float x)
+C_clip(float x)
 {
-    if (x < 0)
-        return 0;
-    else if (x > 1)
-        return 1;
+    if (x < 0.0)
+        return 0.0;
+    else if (x > 1.0)
+        return 1.0;
     else
         return x;
 }
@@ -146,11 +146,11 @@ Compress_compress_ii(Compress *self) {
     ratio = 1.0 / ratio;
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(self->follow[i]);
+        indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh;
         outdb = diff - diff * ratio;
         outa = powf(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * _clip(outa);
+        self->data[i] = in[i] * C_clip(outa);
     }
 }
 
@@ -164,11 +164,11 @@ Compress_compress_ai(Compress *self) {
     ratio = 1.0 / ratio;
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(self->follow[i]);
+        indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh[i];
         outdb = diff - diff * ratio;
         outa = powf(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * _clip(outa);
+        self->data[i] = in[i] * C_clip(outa);
     }
 }
 
@@ -181,11 +181,11 @@ Compress_compress_ia(Compress *self) {
     float *ratio = Stream_getData((Stream *)self->ratio_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(self->follow[i]);
+        indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh;
         outdb = diff - diff / ratio[i];
         outa = powf(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * _clip(outa);
+        self->data[i] = in[i] * C_clip(outa);
     }
 }
 
@@ -198,11 +198,11 @@ Compress_compress_aa(Compress *self) {
     float *ratio = Stream_getData((Stream *)self->ratio_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(self->follow[i]);
+        indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh[i];
         outdb = diff - diff / ratio[i];
         outa = powf(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * _clip(outa);
+        self->data[i] = in[i] * C_clip(outa);
     }
 }
 

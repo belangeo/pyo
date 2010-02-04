@@ -2,9 +2,8 @@ from pyo import *
 import random
 
 s = Server().boot()
-s.start()
 
-t1 = SndTable('demos/transparent.aif')
+t1 = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_m.aif')
 t2 = HannTable()
 t3 = LinTable()
 
@@ -26,3 +25,5 @@ def play():
 
 def stop():
     met.stop()
+    
+s.gui(locals())    

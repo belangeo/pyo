@@ -16,7 +16,8 @@ class SfPlayer(PyoObject):
     speed : float or PyoObject, optional
         Transpose the pitch of input sound by this factor. 1 is the original pitch, lower 
         values play sound slower, and higher values play sound faster. Negative values 
-        results in playing sound backward. Defaults to 1.
+        results in playing sound backward. At audio rate, fast changes between positive and
+        negative values can result in strong DC components in the output sound. Defaults to 1.
     loop : bool, optional
         If set to True, sound will play in loop. Defaults to False.
     offset : float, optional 
@@ -240,7 +241,8 @@ class SfMarkerShuffler(PyoObject):
     speed : float or PyoObject, optional
         Transpose the pitch of input sound by this factor. 1 is the original pitch, lower 
         values play sound slower, and higher values play sound faster. Negative values 
-        results in playing sound backward. Defaults to 1.
+        results in playing sound backward. At audio rate, fast changes between positive and
+        negative values can result in strong DC components in the output sound. Defaults to 1.
     interp : int, optional
         Choice of the interpolation method. Defaults to 2.
             1 : no interpolation
