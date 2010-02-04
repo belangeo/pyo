@@ -19,6 +19,16 @@ typedef struct {
     float *buffer_streams;
 } Panner;
 
+static float
+P_clip(float p) {
+    if (p < 0.0)
+        return 0.0;
+    else if (p > 1.0)
+        return 1.0;
+    else
+        return p;
+}
+
 static void
 Panner_splitter_st_i(Panner *self) {
     float val, inval;
@@ -26,6 +36,7 @@ Panner_splitter_st_i(Panner *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     float pan = PyFloat_AS_DOUBLE(self->pan);
+    pan = P_clip(pan);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
@@ -46,7 +57,7 @@ Panner_splitter_st_a(Panner *self) {
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        panval = pan[i];
+        panval = P_clip(pan[i]);
         val = inval * sqrtf(1.0 - panval);
         self->buffer_streams[i] = val;
         val = inval * sqrtf(panval);
@@ -62,10 +73,9 @@ Panner_splitter_ii(Panner *self) {
 
     float pan = PyFloat_AS_DOUBLE(self->pan);
     float spd = PyFloat_AS_DOUBLE(self->spread);
-    if (spd < 0)
-        spd = 0;
-    else if (spd > 1)
-        spd = 1;
+    
+    pan = P_clip(pan);
+    spd = P_clip(spd);
     
     sprd = 20.0 - (sqrtf(spd) * 20.0) + 0.1;
 
@@ -87,10 +97,8 @@ Panner_splitter_ai(Panner *self) {
     
     float *pan = Stream_getData((Stream *)self->pan_stream);
     float spd = PyFloat_AS_DOUBLE(self->spread);
-    if (spd < 0)
-        spd = 0;
-    else if (spd > 1)
-        spd = 1;
+
+    spd = P_clip(spd);
     
     sprd = 20.0 - (sqrtf(spd) * 20.0) + 0.1;
     
@@ -98,7 +106,7 @@ Panner_splitter_ai(Panner *self) {
         inval = in[i];
         for (j=0; j<self->chnls; j++) {
             phase = j / (float)self->chnls;
-            val = inval * powf(cosf((pan[i] - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            val = inval * powf(cosf((P_clip(pan[i]) - phase) * TWOPI) * 0.5 + 0.5, sprd);
             self->buffer_streams[i+j*self->bufsize] = val;
         }
     }    
@@ -113,14 +121,11 @@ Panner_splitter_ia(Panner *self) {
     float pan = PyFloat_AS_DOUBLE(self->pan);
     float *spd = Stream_getData((Stream *)self->spread_stream);
 
+    pan = P_clip(pan);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        spdval = spd[i];
-        if (spdval < 0)
-            spdval = 0;
-        else if (spdval > 1)
-            spdval = 1;    
+        spdval = P_clip(spd[i]);
         sprd = 20.0 - (sqrtf(spdval) * 20.0) + 0.1;
         for (j=0; j<self->chnls; j++) {
             phase = j / (float)self->chnls;
@@ -142,15 +147,11 @@ Panner_splitter_aa(Panner *self) {
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        spdval = spd[i];
-        if (spdval < 0)
-            spdval = 0;
-        else if (spdval > 1)
-            spdval = 1;    
+        spdval = P_clip(spd[i]);
         sprd = 20.0 - (sqrtf(spdval) * 20.0) + 0.1;
         for (j=0; j<self->chnls; j++) {
             phase = j / (float)self->chnls;
-            val = inval * powf(cosf((pan[i] - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            val = inval * powf(cosf((P_clip(pan[i]) - phase) * TWOPI) * 0.5 + 0.5, sprd);
             self->buffer_streams[i+j*self->bufsize] = val;
         }
     }    
@@ -727,6 +728,7 @@ SPanner_splitter_st_i(SPanner *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     float pan = PyFloat_AS_DOUBLE(self->pan);
+    pan = P_clip(pan);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
@@ -747,7 +749,7 @@ SPanner_splitter_st_a(SPanner *self) {
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        panval = pan[i];
+        panval = P_clip(pan[i]);
         val = inval * sqrtf(1.0 - panval);
         self->buffer_streams[i] = val;
         val = inval * sqrtf(panval);
@@ -785,7 +787,7 @@ SPanner_splitter_i(SPanner *self) {
         }
     }    
 
-    pan = (pan - min) * self->chnls;
+    pan = P_clip((pan - min) * self->chnls);
     pan1 = sqrtf(1.0 - pan);
     pan2 = sqrtf(pan);
     for (i=0; i<self->bufsize; i++) {
@@ -830,7 +832,7 @@ SPanner_splitter_a(SPanner *self) {
             }
         }    
         
-        pan = (pan - min) * self->chnls;
+        pan = P_clip((pan - min) * self->chnls);
         val = inval * sqrtf(1.0 - pan);
         self->buffer_streams[i+self->k1] = val;
         val = inval * sqrtf(pan);
