@@ -65,6 +65,9 @@ class OscSend(PyoObject):
     def setAdd(self, x):
         pass    
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on OscSend object."
+
     #def demo():
     #    execfile(DEMOS_PATH + "/OscSend_demo.py")
     #demo = Call_example(demo)
@@ -125,6 +128,9 @@ class OscReceive(PyoObject):
              
     def out(self, chnl=0, inc=1):
         return self
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on OscReceive object."
 
     #def demo():
     #    execfile(DEMOS_PATH + "/OscReceive_demo.py")

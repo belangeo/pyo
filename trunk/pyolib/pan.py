@@ -116,6 +116,16 @@ class Pan(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
         return self
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapPan(self._pan),
+                        SLMap(0., 1., 'lin', 'spread', self._spread),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
         
     #def demo():
     #    execfile(DEMOS_PATH + "/Pan_demo.py")
@@ -243,7 +253,16 @@ class SPan(PyoObject):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
         return self
-        
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapPan(self._pan),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+         
     #def demo():
     #    execfile(DEMOS_PATH + "/SPan_demo.py")
     #demo = Call_example(demo)

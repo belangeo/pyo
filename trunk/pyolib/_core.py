@@ -299,6 +299,40 @@ class SLMapPhase(SLMap):
         return("SLMapPhase(init=0.)")
     args = Print_args(args)
 
+class SLMapPan(SLMap):
+    """
+    SLMap with normalized values for a 'pan' slider.
+
+    Parent class: SlMap
+    
+    Parameters:
+    
+    init : int or float, optional
+        Initial value. Specified in the real range, not between 0 and 1.
+        Defaults to 0.
+
+    SLMapPhase values are: 
+        
+    min = 0.0
+    max = 1.0
+    scale = 'lin'
+    name = 'pan'
+    res = 'float'
+    ramp = 0.025
+
+    Methods:
+    
+    get(x) : Returns scaled value for `x` between 0 and 1.
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+
+    """
+    def __init__(self, init=0.):
+        SLMap.__init__(self, 0., 1., 'lin', 'pan', init, 'float', 0.025)
+
+    def args():
+        return("SLMapPan(init=0.)")
+    args = Print_args(args)
+
 class SLMapQ(SLMap):
     """
     SLMap with normalized values for a 'q' slider.
@@ -520,6 +554,7 @@ class PyoObject(object):
     setAdd(x) : Replace the `add` attribute.
     setDiv(x) : Replace and inverse the `mul` attribute.
     setSub(x) : Replace and inverse the `add` attribute.
+    ctrl(map_list, title) : Opens a sliders window to control object's parameters.
 
     Attributes:
 
@@ -545,6 +580,13 @@ class PyoObject(object):
     Inplace multiplication, addition, division and substraction can be applied between pyo 
     objects or between pyo objects and numbers. These operations will replace the `mul` or `add`
     factor of the object. `a *= 0.5` replaces the `mul` attribute of `a`.
+    
+    - Class methods:
+    
+    demo() : This method called on a class (not an instance of that class) will start an interactive
+             session showing possible uses of the object.
+    args() : This method called on a class (not an instance of that class) returns the init line of
+             the object with the default values.
     
     """
     def __init__(self):
@@ -746,6 +788,25 @@ class PyoObject(object):
         x, lmax = convertArgsToLists(x)
         [obj.setDiv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        """
+        Opens a sliders window to control parameters of the object. Only parameters
+        that can be set to a PyoObject are allowed to be mapped on a slider.
+
+        If a list of values are given to a parameter, a multisliders will be used to
+        control each stream independently.
+        
+        Parameters:
+
+        map_list : list of SLMap objects, optional
+            Users defined set of parameters scaling. There is default scaling for
+            each object that accept `ctrl` method.
+        title : string, optional
+            Title of the window. If none is provided, the name of the class is used.
+
+        """
+        pass
+        
     @property
     def mul(self):
         """float or PyoObject. Multiplication factor.""" 
@@ -922,6 +983,9 @@ class Sig(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for Sig object."
+
     #def demo():
     #    execfile("demos/Sig_demo.py")
     #demo = Call_example(demo)
@@ -1007,6 +1071,9 @@ class SigTo(PyoObject):
         """
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for SigTo object."
 
     #def demo():
     #    execfile("demos/SigTo_demo.py")
