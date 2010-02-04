@@ -116,6 +116,16 @@ class Biquad(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMapQ(self._q),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     def demo():
         execfile(DEMOS_PATH + "/Biquad_demo.py")
     demo = Call_example(demo)
@@ -221,15 +231,13 @@ class Tone(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None, title=None):
-        if specs_list == None:
-            attr_list = [SLMapFreq(self._freq)]
-        else:
-            attr_list = specs_list            
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMapMul(self._mul)]
         win = Tk()    
-        f = PyoObjectControl(win, self, attr_list)
-        if title == None:
-            title = self.__class__.__name__
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
         win.title(title)
 
     #def demo():
@@ -305,6 +313,9 @@ class DCBlock(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for DCBlock object."
+        
     #def demo():
     #    execfile(DEMOS_PATH + "/DCBlock_demo.py")
     #demo = Call_example(demo)
@@ -413,14 +424,13 @@ class Disto(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None, title=None):
-        if specs_list == None:
-            attr_list = [SLMap(0., 1., 'lin', 'drive', self._drive),
-                    SLMap(0., 0.999, 'lin', 'slope', self._slope)]
-        else:
-            attr_list = specs_list            
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0., 1., 'lin', 'drive', self._drive),
+                        SLMap(0., 0.999, 'lin', 'slope', self._slope),
+                        SLMapMul(self._mul)]
         win = Tk()    
-        f = PyoObjectControl(win, self, attr_list)
+        f = PyoObjectControl(win, self, map_list)
         if title == None:
             title = self.__class__.__name__
         win.title(title)
@@ -546,6 +556,17 @@ class Clip(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(-1., 0., 'lin', 'min', self._min),
+                        SLMap(0., 1., 'lin', 'max', self._max),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
+
     def demo():
         execfile(DEMOS_PATH + "/Clip_demo.py")
     demo = Call_example(demo)
@@ -666,15 +687,13 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, specs_list=None, title=None):
-        if specs_list == None:
-            attr_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
                         SLMap(0., 1., 'lin', 'feedback', self._feedback),
-                        SLMap(0., 2., 'lin', 'mul', self._mul)]
-        else:
-            attr_list = specs_list
+                        SLMapMul(self._mul)]
         win = Tk()    
-        f = PyoObjectControl(win, self, attr_list)
+        f = PyoObjectControl(win, self, map_list)
         if title == None:
             title = self.__class__.__name__
         win.title(title)
@@ -800,6 +819,17 @@ class Waveguide(PyoObject):
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(10, 500., 'log', 'freq',  self._freq),
+                        SLMapDur(self._dur),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Waveguide_demo.py")
@@ -944,6 +974,18 @@ class Freeverb(PyoObject):
         self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0., 1., 'lin', 'size',  self._size),
+                        SLMap(0., 1., 'lin', 'damp',  self._damp),
+                        SLMap(0., 1., 'lin', 'bal',  self._bal),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     def demo():
         execfile(DEMOS_PATH + "/Freeverb_demo.py")
@@ -1106,6 +1148,19 @@ class Compress(PyoObject):
         self._falltime = x
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(-90., 0., 'lin', 'thresh',  self._thresh),
+                        SLMap(1., 10., 'lin', 'ratio',  self._ratio),
+                        SLMap(0.001, .2, 'lin', 'risetime',  self._risetime),
+                        SLMap(0.001, .2, 'lin', 'falltime',  self._falltime),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Compress_demo.py")

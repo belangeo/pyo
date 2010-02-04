@@ -34,6 +34,9 @@ class Midictl(PyoObject):
     def out(self, chnl=0, inc=1):
         pass
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on Midictl object."
+        
     #def demo():
     #    execfile(DEMOS_PATH + "/Midictl_demo.py")
     #demo = Call_example(demo)
@@ -120,6 +123,9 @@ class Notein(PyoObject):
         self._base_handler.stop()
         [obj.stop() for obj in self._base_objs]
         return self
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on Notein object."
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Notein_demo.py")

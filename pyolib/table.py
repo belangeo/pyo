@@ -417,6 +417,9 @@ class TableRec(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on TableRec object."
+
     #def demo():
     #    execfile(DEMOS_PATH + "/TableRec_demo.py")
     #demo = Call_example(demo)
@@ -595,6 +598,16 @@ class Granulator(PyoObject):
         self._basedur = x
         x, lmax = convertArgsToLists(x)
         [obj.setBaseDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
+                        SLMap(0.01, 1., 'lin', 'dur', self._dur),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Granulator_demo.py")

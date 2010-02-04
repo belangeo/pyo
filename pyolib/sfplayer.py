@@ -170,6 +170,15 @@ class SfPlayer(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
           
     #def demo():
     #    execfile(DEMOS_PATH + "/SfPlayer_demo.py")
@@ -335,6 +344,15 @@ class SfMarkerShuffler(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+ 
     #def demo():
     #    execfile(DEMOS_PATH + "/SfMarkerShuffler_demo.py")
     #demo = Call_example(demo)

@@ -25,6 +25,16 @@ class TrigRand(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                        SLMap(1., 2., 'lin', 'max', self._max),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     #def demo():
     #    execfile(DEMOS_PATH + "/TrigRand_demo.py")
     #demo = Call_example(demo)
@@ -64,6 +74,9 @@ class TrigChoice(PyoObject):
         self._choice = x
         [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for TrigChoice object."
+
     #def demo():
     #    execfile(DEMOS_PATH + "/TrigChoice_demo.py")
     #demo = Call_example(demo)
@@ -97,6 +110,9 @@ class TrigFunc(PyoObject):
         self._function = x
         x, lmax = convertArgsToLists(x)
         [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for TrigFunc object."
 
     #def demo():
     #    execfile(DEMOS_PATH + "/TrigFunction_demo.py")
@@ -147,6 +163,15 @@ class TrigEnv(PyoObject):
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(0.01, 10., 'lin', 'dur', self._dur),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     #def demo():
     #    execfile(DEMOS_PATH + "/TrigEnv_demo.py")
@@ -200,6 +225,9 @@ class Counter(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for Counter object."
+
     #def demo():
     #    execfile(DEMOS_PATH + "/Counter_demo.py")
     #demo = Call_example(demo)
@@ -241,6 +269,9 @@ class Select(PyoObject):
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for Select object."
 
     #def demo():
     #    execfile(DEMOS_PATH + "/Select_demo.py")

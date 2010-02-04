@@ -107,6 +107,9 @@ class Hilbert(PyoObject):
         [obj.stop() for obj in self._base_objs]
         return self
 
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on Hilbert object."
+
     def demo():
         execfile(DEMOS_PATH + "/Hilbert_demo.py")
     demo = Call_example(demo)
