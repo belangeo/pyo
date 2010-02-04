@@ -311,12 +311,16 @@ SigTo_generates_i(SigTo *self) {
     
     if (self->value != self->lastValue) {
         self->timeCount = 0;
-        self->stepVal = (self->value - self->currentValue) / (self->timeStep - 1);
+        self->stepVal = (self->value - self->currentValue) / self->timeStep;
         self->lastValue = self->value;
     }    
         
     for (i=0; i<self->bufsize; i++) {
-        if (self->timeCount < self->timeStep) {
+        if (self->timeCount == (self->timeStep - 1)) {
+            self->currentValue = self->value;
+            self->timeCount++;
+        }
+        else if (self->timeCount < self->timeStep) {
             self->currentValue += self->stepVal;
             self->timeCount++;
         }    

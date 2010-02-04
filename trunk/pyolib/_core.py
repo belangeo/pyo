@@ -156,12 +156,12 @@ class SLMap(Map):
     name : string
         Name of the attributes the slider is affected to.
     init : int or float
-        Initial value. Mapified in the real range, not between 0 and 1. Used
+        Initial value. Specified in the real range, not between 0 and 1. Use
         the `set` method to retreive the normalized corresponding value.
     res : string {'int', 'float'}, optional
         Sets the resolution of the slider. Defaults to 'float'.
     ramp : float, optional
-        Ramp time used to smooth the signal sent from slider to object's attribute.
+        Ramp time, in seconds, used to smooth the signal sent from slider to object's attribute.
         Defaults to 0.025.
 
     Methods:
