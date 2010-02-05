@@ -29,3 +29,8 @@ In pyo's directory you then need to build the extension :
 {{{
 python setup.py install
 }}}
+
+Under Ubuntu 9.10, use this instead to install :
+{{{
+python setup.py install --install-layout=deb
+}}}
