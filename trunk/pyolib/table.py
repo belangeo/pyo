@@ -343,6 +343,8 @@ class TableRec(PyoObject):
     TableRec is for writing samples into a previously created NewTable. See `NewTable` to create
     an empty table.
 
+    The play method is not called at the object creation time.
+    
     Parent class: PyoObject
 
     Parameters:
@@ -371,6 +373,16 @@ class TableRec(PyoObject):
     The out() method is bypassed. TableRec returns no signal.
     
     TableRec has no `mul` and `add` attributes.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = NewTable(length=2, chnls=1)
+    >>> a = Input(0)
+    >>> rec = TableRec(a, table=t, fadetime=.01)
+    >>> playback = Osc(table=t, freq=[t.getRate(), t.getRate()*.99]).out()
+    >>> rec.play()    
     
     """
     def __init__(self, input, table, fadetime=0):

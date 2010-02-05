@@ -2,18 +2,26 @@ import os, inspect
 from types import StringType, TupleType, ListType, DictType
 from pyo import *
  
-f = open(os.getcwd() + '/doc/manual.tex', 'w')
+f = open(os.getcwd() + '/doc/pyo_man.tex', 'w')
 
 # Header
+f.write("%!TEX TS-program = /usr/texbin/pdflatex\n")
 f.write("\documentclass[12pt,oneside]{article}\n")
 f.write("\usepackage[utf8]{inputenc}\n")
 f.write("\usepackage{dcolumn,amsmath}\n\n")
-f.write("\usepackage{html,makeidx}\n\n")
+f.write("\oddsidemargin 0in\n")
+f.write("\evensidemargin 0in\n")
+f.write("\marginparwidth 40pt\n") 
+f.write("\marginparsep 10pt\n")
+f.write("\\topmargin 0pt\n") 
+f.write("\headsep .3in\n")
+f.write("\\textheight 8.6in \\textwidth 6.5in\n")
+
 f.write("\\begin{document}\n\n")
 
 def getDoc(obj):
     try:
-        args = '\n\n' + eval(obj).args().replace("_", "\_") + '\n\n'
+        args = '\n\n' + eval(obj).args().replace("_", "\_") + '\n\n\\vspace{0.5cm}\n'
     except:
         args = '\n\n' 
         
@@ -65,8 +73,8 @@ def getMethodsDoc(text, obj):
             flag = True
             add_tab = True
             verbatim = True
-            methods += '\n\\begin{Large}{\\bf Methods details:}\n\\end{Large}\n'
-            methods += '\n\\begin{verbatim}\n\n'
+            methods += '\n\\begin{large}{\\bf Methods details:}\n\\end{large}\n'
+            methods += '\n\\begin{verbatim}\n'
         
         for key in DOC_KEYWORDS:
             if key != 'Methods':
@@ -78,6 +86,8 @@ def getFormattedDoc(text, obj):
     lines = text.splitlines(True)
     text = ''
     skip_empty_line = False
+    no_indent = True
+    first_flag = 0
     verbatim = False
     for line in lines:
         flag = False
@@ -88,6 +98,8 @@ def getFormattedDoc(text, obj):
                     see_also = True
                     break
                 else:
+                    if first_flag == 0:
+                        first_flag = 1
                     flag = True
                     skip_empty_line = True
                     break
@@ -95,25 +107,32 @@ def getFormattedDoc(text, obj):
             if verbatim:
                 text += '\\end{verbatim}\n'
                 verbatim = False
-            text += '\n\\begin{Large}' + '{\\bf ' + line + '}\\end{Large}'
+            if first_flag == 1:   
+                text += '\n\\vspace{0.5cm}\n\n'
+                first_flag = 2 
+            text += '\n\\begin{large}' + '{\\bf ' + line + '}\\end{large}'
             text += '\n\\begin{verbatim}\n'
             verbatim = True
         elif see_also:
             if verbatim:
                 text += '\\end{verbatim}\n'
                 verbatim = False
-            text +=  '\n\\begin{Large}' + '{\\bf See also : }\\end{Large}'
+            text +=  '\n\\begin{large}' + '{\\bf See also : }\\end{large}'
             line_tmp = line.replace('See also:', '')
             words = line_tmp.split(',')
             for word in words:
-                text += '\\htmladdnormallink{%s}{%s.html} ' % (word, word)
+                text += word
         elif 'Parent class' in line:
+            no_indent = False
+            text += '\n\\vspace{0.5cm}\n\n'
             text +=  '\n\\begin{large} Parent class : \\end{large}'
-            text += '\\htmladdnormallink{%s}{%s.html}\n' % (line.split(':')[1].strip(), line.split(':')[1].strip())
+            text += line.split(':')[1].strip()
         else:
             if skip_empty_line:
                 skip_empty_line = False
-            else:     
+            else:
+                if no_indent and not verbatim:
+                    text += '\\noindent '  
                 text += line
     if verbatim:            
         text += '\\end{verbatim}\n'
@@ -121,19 +140,31 @@ def getFormattedDoc(text, obj):
     return text
 
 f.write('\\begin{LARGE}pyo documentation\\end{LARGE}\n\n') 
-f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')       
+f.write('\\vspace{0.5cm}\n\n')
+f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')    
+newpage = True   
 for key in sorted(OBJECTS_TREE.keys()):
-    f.write('\section{%s}\n\n' % key)
+    if key == 'functions': newpage = False
+    else: newpage = True 
+    f.write('\\newpage\n\n')
+    f.write('\section{%s}\n\n' % key.replace("_", "\_"))
     f.write(getDoc(key))
     if type(OBJECTS_TREE[key]) == ListType:
         for obj in OBJECTS_TREE[key]:
+            obj = obj.replace("_", "\_")
+            if newpage:
+                f.write('\\newpage\n\n')
             f.write('\subsection{%s}\n\n' % obj)
             f.write(getDoc(obj))
     else:
         for key2 in sorted(OBJECTS_TREE[key]):
+            if newpage:
+                f.write('\\newpage\n\n')
             f.write('\subsection{%s}\n\n' % key2)
             f.write(getDoc(key2))
             for obj in OBJECTS_TREE[key][key2]:
+                if newpage:
+                    f.write('\\newpage\n\n')
                 f.write('\subsubsection{%s}\n\n' % obj)
                 f.write(getDoc(obj))
   
@@ -141,8 +172,7 @@ f.write('\end{document}\n')
 f.close()
 
 os.chdir('doc/')
-os.system('latex2html -html_version 4.0,unicode -noinfo -long_titles 1 -noaddress -local_icons -image_type gif manual.tex')
-os.remove('manual.tex')
-#os.system('rm pyo_man/WARNINGS')
-os.chdir('../')
-os.system('scp -r doc/manual sysop@132.204.178.49:/Library/WebServer/Documents/pyo/')
+os.system('/usr/texbin/pdflatex pyo_man.tex')
+for f in os.listdir('.'):
+    if 'pyo_man' in f and not f.endswith('.pdf'):
+        os.remove(f)

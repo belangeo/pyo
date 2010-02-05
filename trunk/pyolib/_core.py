@@ -24,6 +24,22 @@ class Print_args:
         self.__call__ = callback
 
 class Clean_objects(threading.Thread):
+    """
+    Stops and deletes PyoObjects after a given time.
+    
+    Parameters:
+    
+    time : float
+        Time, in seconds, to wait before calling stop on the given 
+        objects and deleting them.
+    *args : PyoObject(s)
+        Objects to delete.
+        
+    Methods:
+    
+    start() : Starts the thread. The timer begins on this call.    
+    
+    """
     def __init__(self, time, *args):
         threading.Thread.__init__(self)
         self.t = time
@@ -36,6 +52,10 @@ class Clean_objects(threading.Thread):
             except: pass
         for arg in self.args:
             del arg 
+
+    def args():
+        return("Clean_objects(time, *args)")
+    args = Print_args(args)
         
 def convertArgsToLists(*args):
     """
@@ -75,8 +95,8 @@ def wrap(arg, i):
 ######################################################################
 class Map:
     """
-    Base class for Map objects. Can be used to convert value between 0 and 1
-    on various scales.
+    Base class for Map objects. Can be used to convert value 
+    between 0 and 1 on various scales.
     
     Parameters:
     
@@ -117,7 +137,8 @@ class Map:
 
     def set(self, x):
         """
-        Takes `x` in the real range and returns value unscaled (between 0 and 1).
+        Takes `x` in the real range and returns value unscaled 
+        (between 0 and 1).
         
         """
         
@@ -161,8 +182,8 @@ class SLMap(Map):
     res : string {'int', 'float'}, optional
         Sets the resolution of the slider. Defaults to 'float'.
     ramp : float, optional
-        Ramp time, in seconds, used to smooth the signal sent from slider to object's attribute.
-        Defaults to 0.025.
+        Ramp time, in seconds, used to smooth the signal sent from slider 
+        to object's attribute. Defaults to 0.025.
 
     Methods:
     
@@ -414,12 +435,14 @@ class MultiSlider(Frame):
         self._lines = []
         self._height = 16
         self._yoff = 4 # hack for OSX display
-        self.canvas = Canvas(self, height=self._height*self._nchnls+1, width=225, relief=FLAT, bd=0, bg="#BCBCAA")
+        self.canvas = Canvas(self, height=self._height*self._nchnls+1, 
+                            width=225, relief=FLAT, bd=0, bg="#BCBCAA")
         w = self.canvas.winfo_width()
         for i in range(self._nchnls):
             x = int(self._values[i] * w)
             y = self._height * i + self._yoff
-            self._lines.append(self.canvas.create_rectangle(0, y, x, y+self._height-1, width=0, fill="#121212"))
+            self._lines.append(self.canvas.create_rectangle(0, y, x, 
+                                y+self._height-1, width=0, fill="#121212"))
         self.canvas.bind("<Button-1>", self.clicked)
         self.canvas.bind("<Motion>", self.move)
         self.canvas.bind("<Configure>", self.size)
@@ -545,16 +568,18 @@ class PyoObject(object):
 
     Methods:
 
-    play() : Start processing without sending samples to output. This method is called automatically
-        at the object creation.
+    play() : Start processing without sending samples to output. 
+        This method is called automatically at the object creation.
     stop() : Stop processing.
-    out(chnl, inc) : Start processing and send samples to audio output beginning at `chnl`.
-    mix(voices) : Mix object's audio streams into `voices` streams and return the Mix object.
+    out(chnl, inc) : Start processing and send samples to audio output 
+        beginning at `chnl`.
+    mix(voices) : Mix object's audio streams into `voices` streams and 
+        return the Mix object.
     setMul(x) : Replace the `mul` attribute.
     setAdd(x) : Replace the `add` attribute.
     setDiv(x) : Replace and inverse the `mul` attribute.
     setSub(x) : Replace and inverse the `add` attribute.
-    ctrl(map_list, title) : Opens a sliders window to control object's parameters.
+    ctrl(map_list, title) : Opens a sliders window to control parameters.
 
     Attributes:
 
@@ -568,25 +593,30 @@ class PyoObject(object):
     - Other operations:
     
     len(obj) : Return the number of audio streams in an object.
-    obj[x] : Return stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
+    obj[x] : Return stream `x` of the object. `x` is a number 
+        from 0 to len(obj) - 1.
     del obj : Perform a clean delete of the object.
     
     - Arithmetics:
     
-    Multiplication, addition, division and substraction can be applied between pyo objects
-    or between pyo objects and numbers. Doing so returns a Dummy object with the result of the operation.
-    `b = a * 0.5` creates a Dummy object `b` with `mul` attribute set to 0.5 and leave `a` untouched.
+    Multiplication, addition, division and substraction can be applied 
+    between pyo objects or between pyo objects and numbers. Doing so 
+    returns a Dummy object with the result of the operation.
+    `b = a * 0.5` creates a Dummy object `b` with `mul` attribute set 
+    to 0.5 and leave `a` untouched.
     
-    Inplace multiplication, addition, division and substraction can be applied between pyo 
-    objects or between pyo objects and numbers. These operations will replace the `mul` or `add`
-    factor of the object. `a *= 0.5` replaces the `mul` attribute of `a`.
+    Inplace multiplication, addition, division and substraction can be 
+    applied between pyo objects or between pyo objects and numbers. 
+    These operations will replace the `mul` or `add` factor of the object. 
+    `a *= 0.5` replaces the `mul` attribute of `a`.
     
     - Class methods:
     
-    demo() : This method called on a class (not an instance of that class) will start an interactive
-             session showing possible uses of the object.
-    args() : This method called on a class (not an instance of that class) returns the init line of
-             the object with the default values.
+    demo() : This method called on a class (not an instance of that class) 
+             will start an interactive session showing possible uses of 
+             the object.
+    args() : This method called on a class (not an instance of that class) 
+             returns the init line of the object with the default values.
     
     """
     def __init__(self):
@@ -671,8 +701,8 @@ class PyoObject(object):
         
     def play(self):
         """
-        Start processing without sending samples to output. This method is called automatically
-        at the object creation.
+        Start processing without sending samples to output. 
+        This method is called automatically at the object creation.
         
         """
         self._base_objs = [obj.play() for obj in self._base_objs]
@@ -685,16 +715,19 @@ class PyoObject(object):
         Parameters:
 
         chnl : int, optional
-            Physical output assigned to the first audio stream of the object. Defaults to 0.
+            Physical output assigned to the first audio stream of the object. 
+            Defaults to 0.
 
-            If `chnl` is an integer equal or greater than 0: successive streams 
-            increment the output number by `inc` and wrap around the global number of channels.
+            If `chnl` is an integer equal or greater than 0: successive 
+            streams increment the output number by `inc` and wrap around 
+            the global number of channels.
             
-            If `chnl` is a negative integer: streams begin at 0, increment the output 
-            number by `inc` and wrap around the global number of channels. Then, the list
-            of streams is scrambled.
+            If `chnl` is a negative integer: streams begin at 0, increment 
+            the output number by `inc` and wrap around the global number of 
+            channels. Then, the list of streams is scrambled.
             
-            If `chnl` is a list: successive values in the list will be assigned to successive streams.
+            If `chnl` is a list: successive values in the list will be 
+            assigned to successive streams.
             
         inc : int, optional
             Output increment value.
@@ -719,14 +752,15 @@ class PyoObject(object):
 
     def mix(self, voices=1):
         """
-        Mix the object's audio streams into `voices` streams and return the Mix object.
+        Mix the object's audio streams into `voices` streams and return 
+        the Mix object.
         
         Parameters:
 
         voices : int, optional
-            Number of audio streams of the Mix object created by this method. If more
-            than 1, object's streams are alternated and added into Mix object's streams. 
-            Defaults to 1.
+            Number of audio streams of the Mix object created by this method. 
+            If more than 1, object's streams are alternated and added into 
+            Mix object's streams. Defaults to 1.
             
         """
         self._mix = Mix(self, voices)
@@ -790,19 +824,21 @@ class PyoObject(object):
 
     def ctrl(self, map_list=None, title=None):
         """
-        Opens a sliders window to control parameters of the object. Only parameters
-        that can be set to a PyoObject are allowed to be mapped on a slider.
+        Opens a sliders window to control parameters of the object. 
+        Only parameters that can be set to a PyoObject are allowed 
+        to be mapped on a slider.
 
-        If a list of values are given to a parameter, a multisliders will be used to
-        control each stream independently.
+        If a list of values are given to a parameter, a multisliders 
+        will be used to control each stream independently.
         
         Parameters:
 
         map_list : list of SLMap objects, optional
-            Users defined set of parameters scaling. There is default scaling for
-            each object that accept `ctrl` method.
+            Users defined set of parameters scaling. There is default 
+            scaling for each object that accept `ctrl` method.
         title : string, optional
-            Title of the window. If none is provided, the name of the class is used.
+            Title of the window. If none is provided, the name of the 
+            class is used.
 
         """
         pass
@@ -852,21 +888,23 @@ class ViewTable(Frame):
 ######################################################################
 class PyoTableObject(object):
     """
-    Base class for all pyo table objects. A table object object is a buffer memory
-    to store precomputed samples. 
+    Base class for all pyo table objects. A table object object is a 
+    buffer memory to store precomputed samples. 
     
     The user should never instantiate an object of this class.
  
     Methods:
     
     getSize() : Return table size in samples.
+    view() : Opens a window showing the contents of the table.
     
     Notes:
     
     Operations allowed on all table objects :
     
     len(obj) : Return the number of table streams in an object.
-    obj[x] : Return table stream `x` of the object. `x` is a number from 0 to len(obj) - 1.
+    obj[x] : Return table stream `x` of the object. `x` is a number 
+        from 0 to len(obj) - 1.
 
     """
     def __init__(self):
@@ -896,6 +934,10 @@ class PyoTableObject(object):
         return self._size
 
     def view(self):
+        """
+        Opens a window showing the contents of the table.
+        
+        """
         samples = self._base_objs[0].getTable()
         win = Tk()
         f = ViewTable(win, samples)
@@ -935,6 +977,8 @@ class InputFader(PyoObject):
 class Sig(PyoObject):
     """
     Convert numeric value to PyoObject signal.
+    
+    Parent class: PyoObject
 
     Parameters:
 
@@ -1003,8 +1047,10 @@ class Sig(PyoObject):
 
 class SigTo(PyoObject):
     """
-    Convert numeric value to PyoObject signal applying a ramp between current
-    value and new value.
+    Convert numeric value to PyoObject signal applying a ramp between 
+    current value and new value.
+    
+    Parent class: PyoObject
 
     Parameters:
 

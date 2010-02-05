@@ -29,7 +29,15 @@ class Pan(PyoObject):
     pan : float or PyoObject. Position of the sound on the panning circle.
     spread : float or PyoObject. Amount of sound leaking to the surrounding channels. 
 
-    """
+    Examples:
+    
+    >>> s = Server(nchnls=2).boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5)
+    >>> lfo = Sine(freq=1, mul=.5, add=.5)
+    >>> p = Pan(a, outs=2, pan=lfo).out()
+    
+    """ 
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
         self._input = input
         self._pan = pan
@@ -180,6 +188,14 @@ class SPan(PyoObject):
     
     input : PyoObject. Input signal to process.
     pan : float or PyoObject. Position of the sound on the panning circle.
+
+    Examples:
+    
+    >>> s = Server(nchnls=2).boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5)
+    >>> lfo = Sine(freq=1, mul=.5, add=.5)
+    >>> p = SPan(a, outs=2, pan=lfo).out()
 
     """
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):
