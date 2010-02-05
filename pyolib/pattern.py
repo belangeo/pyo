@@ -2,7 +2,7 @@ from _core import *
 
 class Pattern(PyoObject):
     """
-    Periodically call a Python function.
+    Periodically calls a Python function.
         
     Parent class: PyoObject
     
@@ -25,6 +25,17 @@ class Pattern(PyoObject):
     The out() method is bypassed. Pattern doesn't return signal.
     
     Pattern has no `mul` and `add` attributes.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
+    >>> a = Osc(t, 250, 0, .5).out()
+    >>> def pat():
+    ...     a.freq = random.randint(200, 400)
+    ...    
+    >>> p = Pattern(pat, .125)
     
     """
     def __init__(self, function, time=1):

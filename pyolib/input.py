@@ -5,7 +5,7 @@ from _core import *
 ######################################################################                                       
 class Sine(PyoObject):
     """
-    A simple oscillator.
+    A simple sine wave oscillator.
     
     Parent class: PyoObject
     

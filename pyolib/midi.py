@@ -24,6 +24,16 @@ class Midictl(PyoObject):
 
     The out() method is bypassed. Midictl's signal can not be sent to audio outs.
 
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Midictl(ctlnumber=[107,102], minscale=250, maxscale=1000)
+    >>> p = Port(m, .02)
+    >>> a = Sine(freq=p, mul=.3).out()
+    >>> a1 = Sine(freq=p*1.25, mul=.3).out()
+    >>> a2 = Sine(freq=p*1.5, mul=.3).out()
+        
     """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
         self._mul = mul
@@ -76,6 +86,16 @@ class Notein(PyoObject):
     Velocity is automatically scaled between 0 and 1.
     
     The out() method is bypassed. Notein's signal can not be sent to audio outs.
+    
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> p = Port(notes['velocity'], .001, .5)
+    >>> b = Sine(freq=notes['pitch'], mul=p).out()
+    >>> c = Sine(freq=notes['pitch'] * 0.997, mul=p).out()
+    >>> d = Sine(freq=notes['pitch'] * 1.005, mul=p).out()
     
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):

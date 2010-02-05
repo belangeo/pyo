@@ -33,6 +33,10 @@ class OscSend(PyoObject):
     The out() method is bypassed. OscSend's signal can not be sent to audio outs.
     
     OscSend has no `mul` and `add` attributes.
+
+
+    >>> a = Sine(freq=[1,1.5], mul=100, add=[600, 1000])
+    >>> b = OscSend(a, port=10000, address=['/pit1','/pit2'])
     
     """
     def __init__(self, input, port, address, host="127.0.0.1"):    
@@ -107,6 +111,13 @@ class OscReceive(PyoObject):
     OscReceive['/pitch'] to retreive streams named '/pitch'.
 
     The out() method is bypassed. OscReceive's signal can not be sent to audio outs.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = OscReceive(port=10001, address=['/pitch', '/amp'])
+    >>> b = Sine(freq=a['/pitch'], mul=a['/amp']).out()
 
     """
 
