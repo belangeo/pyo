@@ -24,6 +24,7 @@ typedef struct {
     int midi_input;
     int withPortMidi;
     int server_started;
+    int server_stopped; // for fadeout
     int server_booted;
     int stream_count;
     int record;
