@@ -97,7 +97,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
 
     if (amp != my_server->lastAmp) {
         my_server->timeCount = 0;
-        my_server->stepVal = (amp - my_server->currentAmp) / (my_server->timeStep - 1);
+        my_server->stepVal = (amp - my_server->currentAmp) / my_server->timeStep;
         my_server->lastAmp = amp;
     }
     
@@ -152,8 +152,11 @@ static int callback( const void *inputBuffer, void *outputBuffer,
 
     PyGILState_Release(s);
 
-    if (my_server->server_started == 1)
+    if (my_server->server_started == 1) {
+        if (my_server->server_stopped == 1 && my_server->currentAmp < 0.0001)
+            my_server->server_started = 0;
         return paContinue;
+    }    
     else {
         return paComplete;
     }    
@@ -253,8 +256,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input = -1;
     self->output = -1;
     self->midi_input = -1;
-    self->amp = self->currentAmp = self->lastAmp = 1.;
-    self->timeStep = (int)(0.05 * self->samplingRate);
+    self->amp = 1.;
+    self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
@@ -543,10 +546,12 @@ Server_start(Server *self)
         portaudio_assert(err, "Pa_StopStream");
     }
 
+    self->amp = 1.;
+    self->server_stopped = 0;
+    self->server_started = 1;
+    self->timeStep = (int)(0.01 * self->samplingRate);
     err = Pa_StartStream(self->stream);
     portaudio_assert(err, "Pa_StartStream");
-
-    self->server_started = 1;
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -561,7 +566,9 @@ Server_stop(Server *self)
         return Py_None;
     }
     
-    self->server_started = 0;
+    self->timeStep = (int)(0.1 * self->samplingRate);
+    self->amp = 0.;
+    self->server_stopped = 1;
 
     Py_INCREF(Py_None);
     return Py_None;
