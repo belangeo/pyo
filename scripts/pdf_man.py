@@ -9,6 +9,7 @@ f.write("%!TEX TS-program = /usr/texbin/pdflatex\n")
 f.write("\documentclass[12pt,oneside]{article}\n")
 f.write("\usepackage[utf8]{inputenc}\n")
 f.write("\usepackage{dcolumn,amsmath}\n\n")
+#f.write("\usepackage{listings}\n")
 f.write("\oddsidemargin 0in\n")
 f.write("\evensidemargin 0in\n")
 f.write("\marginparwidth 40pt\n") 
@@ -16,9 +17,10 @@ f.write("\marginparsep 10pt\n")
 f.write("\\topmargin 0pt\n") 
 f.write("\headsep .3in\n")
 f.write("\\textheight 8.6in \\textwidth 6.5in\n")
+f.write("\small\n")
 
 f.write("\\begin{document}\n\n")
-
+#f.write("\lstset{language=Python}\n")
 def getDoc(obj):
     try:
         args = '\n\n' + eval(obj).args().replace("_", "\_") + '\n\n\\vspace{0.5cm}\n'
@@ -39,7 +41,7 @@ def getDoc(obj):
         methods = ''    
     page_text = args + doc_str + methods + "\n\n"
     if len(methods):
-        page_text += '\end{verbatim}\n\n'    
+        page_text += '\end{verbatim}\n\n\\normalsize\n\n'    
     if doc_str == '':
         page_text += "\nnot documented yet...\n\n"
         
@@ -74,7 +76,7 @@ def getMethodsDoc(text, obj):
             add_tab = True
             verbatim = True
             methods += '\n\\begin{large}{\\bf Methods details:}\n\\end{large}\n'
-            methods += '\n\\begin{verbatim}\n'
+            methods += '\n\small\n\\begin{verbatim}\n'
         
         for key in DOC_KEYWORDS:
             if key != 'Methods':
@@ -105,17 +107,17 @@ def getFormattedDoc(text, obj):
                     break
         if flag:
             if verbatim:
-                text += '\\end{verbatim}\n'
+                text += '\\end{verbatim}\n\\normalsize\n\n'
                 verbatim = False
             if first_flag == 1:   
                 text += '\n\\vspace{0.5cm}\n\n'
                 first_flag = 2 
             text += '\n\\begin{large}' + '{\\bf ' + line + '}\\end{large}'
-            text += '\n\\begin{verbatim}\n'
+            text += '\n\small\n\\begin{verbatim}\n'
             verbatim = True
         elif see_also:
             if verbatim:
-                text += '\\end{verbatim}\n'
+                text += '\\end{verbatim}\n\\normalsize\n\n'
                 verbatim = False
             text +=  '\n\\begin{large}' + '{\\bf See also : }\\end{large}'
             line_tmp = line.replace('See also:', '')
@@ -135,7 +137,7 @@ def getFormattedDoc(text, obj):
                     text += '\\noindent '  
                 text += line
     if verbatim:            
-        text += '\\end{verbatim}\n'
+        text += '\\end{verbatim}\n\\normalsize\n\n'
         verbatim = False
     return text
 
@@ -167,7 +169,8 @@ for key in sorted(OBJECTS_TREE.keys()):
                     f.write('\\newpage\n\n')
                 f.write('\subsubsection{%s}\n\n' % obj)
                 f.write(getDoc(obj))
-  
+
+f.write('\tableofcontents\n')  
 f.write('\end{document}\n')
 f.close()
 

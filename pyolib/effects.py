@@ -109,7 +109,8 @@ class Biquad(PyoObject):
         Parameters:
 
         x : int
-            New `type` attribute. 0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop.
+            New `type` attribute. 
+            0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop.
 
         """
         self._type = x
@@ -264,7 +265,8 @@ class Tone(PyoObject):
 
 class Port(PyoObject):
     """
-    Perform an exponential portamento on an audio signal with different rising and falling times.
+    Perform an exponential portamento on an audio signal with 
+    different rising and falling times.
     
     Parent class: PyoObject
     
@@ -277,8 +279,8 @@ class Port(PyoObject):
     falltime : float or PyoObject, optional
         Time to reach downward value in seconds. Defaults to 0.05.
     init : float, optional
-        Initial state of the internal memory. Available at intialization time only.
-        Defaults to 0.
+        Initial state of the internal memory. Available at intialization 
+        time only. Defaults to 0.
         
     Methods:
 
@@ -479,8 +481,8 @@ class Disto(PyoObject):
         Amount of distortion applied to the signal, between 0 and 1. 
         Defaults to 0.75.
     slope : float or PyoObject, optional
-        Slope of the lowpass filter applied after distortion, between 0 and 1. 
-        Defaults to 0.5.
+        Slope of the lowpass filter applied after distortion, 
+        between 0 and 1. Defaults to 0.5.
 
     Methods:
 
@@ -607,11 +609,9 @@ class Clip(PyoObject):
     input : PyoObject
         Input signal to process.
     min : float or PyoObject, optional
-        Minimum possible value. 
-        Defaults to -1.
+        Minimum possible value. Defaults to -1.
     max : float or PyoObject, optional
-        Maximum possible value.
-        Defaults to 1.
+        Maximum possible value. Defaults to 1.
 
     Methods:
 
@@ -741,9 +741,11 @@ class Delay(PyoObject):
     delay : float or PyoObject, optional
         Delay time in seconds. Defaults to 0.25.
     feedback : float or PyoObject, optional
-        Amount of output signal sent back into the delay line. Defaults to 0.
+        Amount of output signal sent back into the delay line.
+         Defaults to 0.
     maxdelay : float, optional
-        Maximum delay length in seconds. Available only at initialization. Defaults to 1.
+        Maximum delay length in seconds. Available only at initialization. 
+        Defaults to 1.
 
     Methods:
 
@@ -755,7 +757,8 @@ class Delay(PyoObject):
     
     input : PyoObject. Input signal to delayed.
     delay : float or PyoObject. Delay time in seconds.
-    feedback : float or PyoObject. Amount of output signal sent back into the delay line.
+    feedback : float or PyoObject. Amount of output signal sent back 
+        into the delay line.
     
     Examples:
     
@@ -861,8 +864,8 @@ class Delay(PyoObject):
 
 class Waveguide(PyoObject):
     """
-    A waveguide model consisting of one delay-line with a simple lowpass filtering
-    and lagrange interpolation.
+    A waveguide model consisting of one delay-line with a simple 
+    lowpass filtering and lagrange interpolation.
     
     Parent class : PyoObject
 
@@ -871,11 +874,14 @@ class Waveguide(PyoObject):
     input : PyoObject
         Input signal to delayed.
     freq : float or PyoObject, optional
-        Frequency, in cycle per second, of the waveguide (i.e. the inverse of delay time). Defaults to 100.
+        Frequency, in cycle per second, of the waveguide (i.e. the inverse 
+        of delay time). Defaults to 100.
     dur : float or PyoObject, optional
-        Duration, in seconds, for the waveguide to drop 40 dB below it's maxima. Defaults to 10.
+        Duration, in seconds, for the waveguide to drop 40 dB below it's 
+        maxima. Defaults to 10.
     minfreq : float, optional
-        Minimum possible frequency, used to initialized delay length. Available only at initialization. Defaults to 20.
+        Minimum possible frequency, used to initialized delay length. 
+        Available only at initialization. Defaults to 20.
 
     Methods:
 
@@ -896,7 +902,7 @@ class Waveguide(PyoObject):
     >>> t = LinTable([(0,0), (2,1), (5,0), (8191,0)])
     >>> met = Metro().play()
     >>> pick = TrigEnv(met, t, 1)
-    >>> wg = Waveguide(pick, freq=[200,400], dur=20, minfreq=20, mul=.5).out()
+    >>> w = Waveguide(pick, freq=[200,400], dur=20, minfreq=20, mul=.5).out()
 
     """
     def __init__(self, input, freq=100, dur=10, minfreq=20, mul=1, add=0):
@@ -996,9 +1002,10 @@ class Freeverb(PyoObject):
     """
     Jezar's Freeverb.
     
-    Freeverb is a reverb unit generator based on Jezar's public domain C++ sources, 
-    composed of eight parallel comb filters, followed by four allpass units in series.
-    Filters on each stream are slightly detuned in order to create multi-channel effects.
+    Freeverb is a reverb unit generator based on Jezar's public domain 
+    C++ sources, composed of eight parallel comb filters, followed by four 
+    allpass units in series. Filters on each stream are slightly detuned 
+    in order to create multi-channel effects.
         
     Parent class : PyoObject
 
@@ -1007,15 +1014,15 @@ class Freeverb(PyoObject):
     input : PyoObject
         Input signal to process.
     size : float or PyoObject, optional
-        Controls the length of the reverb,  between 0 and 1. A higher value means longer reverb. 
-        Defaults to 0.5.
+        Controls the length of the reverb,  between 0 and 1. A higher 
+        value means longer reverb. Defaults to 0.5.
     damp : float or PyoObject, optional
-        High frequency attenuation, between 0 and 1. A higher value will result in a faster decay 
-        of the high frequency range. 
+        High frequency attenuation, between 0 and 1. A higher value 
+        will result in a faster decay of the high frequency range. 
         Defaults to 0.5.
     bal : float or PyoObject, optional
-        Balance between wet and dry signal, between 0 and 1. 0 means no reverb.
-        Defaults to 0.5.
+        Balance between wet and dry signal, between 0 and 1. 0 means no 
+        reverb. Defaults to 0.5.
 
     Methods:
 
@@ -1166,13 +1173,17 @@ class Compress(PyoObject):
     input : PyoObject
         Input signal to filter.
     thresh : float or PyoObject, optional
-        Level, expressed in dB, above which the signal is reduced. Reference level is 0dB. Defaults to -20.
+        Level, expressed in dB, above which the signal is reduced. 
+        Reference level is 0dB. Defaults to -20.
     ratio : float or PyoObject, optional
-        Determines the input/output ratio for signals above the threshold. Defaults to 2.
+        Determines the input/output ratio for signals above the 
+        threshold. Defaults to 2.
     risetime : float or PyoObject, optional
-        Used in amplitude follower, time to reach upward value in seconds. Defaults to 0.005.
+        Used in amplitude follower, time to reach upward value in 
+        seconds. Defaults to 0.005.
     falltime : float or PyoObject, optional
-        Used in amplitude follower, time to reach downward value in seconds. Defaults to 0.05.
+        Used in amplitude follower, time to reach downward value in 
+        seconds. Defaults to 0.05.
         
     Methods:
 
@@ -1186,7 +1197,7 @@ class Compress(PyoObject):
     
     input : PyoObject. Input signal to filter.
     thresh : float or PyoObject. Level above which the signal is reduced.
-    ratio : float or PyoObject. input/output ratio for signals above the threshold.
+    ratio : float or PyoObject. in/out ratio for signals above the threshold.
     risetime : float or PyoObject. Time to reach upward value in seconds.
     falltime : float or PyoObject. Time to reach downward value in seconds.
      
@@ -1318,7 +1329,7 @@ class Compress(PyoObject):
 
     @property
     def ratio(self):
-        """float or PyoObject. input/output ratio for signals above the threshold.""" 
+        """float or PyoObject. in/out ratio for signals above the threshold.""" 
         return self._ratio
     @ratio.setter
     def ratio(self, x): self.setRatio(x)

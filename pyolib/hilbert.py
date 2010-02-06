@@ -21,7 +21,8 @@ class Hilbert(PyoObject):
     
     Notes:
     
-    Real and imaginary parts are two separated set of streams. The user should call :
+    Real and imaginary parts are two separated set of streams. 
+    The user should call :
     
     Hilbert['real'] to retrieve the real part.
     Hilbert['imag'] to retrieve the imaginary part.

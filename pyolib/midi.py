@@ -7,7 +7,8 @@ class Midictl(PyoObject):
     """
     Get the current value of a MIDI channel controller.
     
-    Get the current value of a controller and optionally map it inside a specified range.
+    Get the current value of a controller and optionally map it 
+    inside a specified range.
 
     Parent class: PyoObject
     
@@ -16,13 +17,16 @@ class Midictl(PyoObject):
     ctlnumber : int
         Midi channel. Available at initialization time only.
     minscale : float, optional
-        Low range value for mapping. Available at initialization time only.
+        Low range value for mapping. Available at initialization 
+        time only.
     maxscale : float, optional
-        High range value for mapping. Available at initialization time only.
+        High range value for mapping. Available at initialization 
+        time only.
 
     Notes:
 
-    The out() method is bypassed. Midictl's signal can not be sent to audio outs.
+    The out() method is bypassed. Midictl's signal can not be sent 
+    to audio outs.
 
     Examples:
     
@@ -59,8 +63,9 @@ class Notein(PyoObject):
     """
     Generates MIDI notes messages.
     
-    From a MIDI device, takes the notes in the range defined with `first` and `last` parameters,
-    and outputs `poly` noteon - noteoff streams in the `scale` format (MIDI, hertz or transpo).
+    From a MIDI device, takes the notes in the range defined with 
+    `first` and `last` parameters, and outputs `poly` noteon - noteoff 
+    streams in the `scale` format (MIDI, hertz or transpo).
     
     Parent class: PyoObject
 
@@ -69,8 +74,9 @@ class Notein(PyoObject):
     poly : int, optional
         Number of streams of polyphony generated. Defaults to 10.
     scale : int, optional
-        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. In the transpo mode, the central key
-        (the key where there is no transposition) is (`first` + `last`) / 2.
+        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. 
+        In the transpo mode, the central key (the key where there 
+        is no transposition) is (`first` + `last`) / 2.
     first : int, optional
         Lowest MIDI value. Defaults to 0.
     last : int, optional
@@ -78,14 +84,16 @@ class Notein(PyoObject):
         
     Notes:
     
-    Pitch and velocity are two separated set of streams. The user should call :
+    Pitch and velocity are two separated set of streams. 
+    The user should call :
     
     Notein['pitch'] to retrieve pitch streams.
     Notein['velocity'] to retrieve velocity streams.    
 
     Velocity is automatically scaled between 0 and 1.
     
-    The out() method is bypassed. Notein's signal can not be sent to audio outs.
+    The out() method is bypassed. Notein's signal can not be sent 
+    to audio outs.
     
     Examples:
 

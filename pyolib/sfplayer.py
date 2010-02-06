@@ -3,9 +3,9 @@ import aifc
 
 class SfPlayer(PyoObject):
     """
-    Reads audio data from a file, and can alter its pitch using one of several available 
-    interpolation types, as well as convert the sample rate to match the Server sampling 
-    rate setting.
+    Reads audio data from a file, and can alter its pitch using one of 
+    several available interpolation types, as well as convert the sample 
+    rate to match the Server sampling rate setting.
     
     Parent class: PyoObject
     
@@ -14,14 +14,17 @@ class SfPlayer(PyoObject):
     path : string
         Full path name of the sound to read.
     speed : float or PyoObject, optional
-        Transpose the pitch of input sound by this factor. 1 is the original pitch, lower 
-        values play sound slower, and higher values play sound faster. Negative values 
-        results in playing sound backward. At audio rate, fast changes between positive and
-        negative values can result in strong DC components in the output sound. Defaults to 1.
+        Transpose the pitch of input sound by this factor. 1 is the 
+        original pitch, lower values play sound slower, and higher 
+        values play sound faster. Negative values results in playing 
+        sound backward. At audio rate, fast changes between positive and
+        negative values can result in strong DC components in the output 
+        sound. Defaults to 1.
     loop : bool, optional
         If set to True, sound will play in loop. Defaults to False.
     offset : float, optional 
-        Time in seconds of input sound to be skipped, assuming speed=1. Defaults to 0.
+        Time in seconds of input sound to be skipped, assuming speed=1. 
+        Defaults to 0.
     interp : int, optional
         Choice of the interpolation method. Defaults to 2.
             1 : no interpolation
@@ -49,7 +52,8 @@ class SfPlayer(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(DEMOS_PATH + "/transparent.aif", speed=.75, loop=True).out()
+    >>> snd = DEMOS_PATH + "/transparent.aif"
+    >>> sf = SfPlayer(snd, speed=.75, loop=True).out()
     
     """
     def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
@@ -101,8 +105,9 @@ class SfPlayer(PyoObject):
         """
         Sets a new sound to read.
         
-        If the number of channels of the new sound doesn't match those of the sound loaded
-        at initialization time, erratic behaviors can occur.
+        If the number of channels of the new sound doesn't match those 
+        of the sound loaded at initialization time, erratic behaviors 
+        can occur.
         
         Parameters:
         
@@ -226,11 +231,12 @@ class SfPlayer(PyoObject):
 
 class SfMarkerShuffler(PyoObject):
     """
-    Reads audio data from a AIFF file, and can alter its pitch using one of several available 
-    interpolation types, as well as convert the sample rate to match the Server sampling 
-    rate setting. The reading pointer choose randomly a marker (set in the header of the file)
-    as its starting point and reads the samples until it reach the following marker. Then, it
-    choose another marker and so on...
+    Reads audio data from a AIFF file, and can alter its pitch using 
+    one of several available interpolation types, as well as convert 
+    the sample rate to match the Server sampling rate setting. The 
+    reading pointer choose randomly a marker (set in the header of the 
+    file) as its starting point and reads the samples until it reaches 
+    the following marker. Then, it choose another marker and so on...
     
     Parent class: PyoObject
     
@@ -239,10 +245,12 @@ class SfMarkerShuffler(PyoObject):
     path : string
         Full path name of the sound to read.
     speed : float or PyoObject, optional
-        Transpose the pitch of input sound by this factor. 1 is the original pitch, lower 
-        values play sound slower, and higher values play sound faster. Negative values 
-        results in playing sound backward. At audio rate, fast changes between positive and
-        negative values can result in strong DC components in the output sound. Defaults to 1.
+        Transpose the pitch of input sound by this factor. 1 is the 
+        original pitch, lower values play sound slower, and higher 
+        values play sound faster. Negative values results in playing 
+        sound backward. At audio rate, fast changes between positive and
+        negative values can result in strong DC components in the output 
+        sound. Defaults to 1.
     interp : int, optional
         Choice of the interpolation method. Defaults to 2.
             1 : no interpolation

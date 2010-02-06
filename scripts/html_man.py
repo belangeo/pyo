@@ -16,15 +16,17 @@ def getDoc(obj):
         args = '\n\n' + eval(obj).args().replace("_", "\_") + '\n\n'
     except:
         args = '\n\n' 
-        
+         
     try:
         text = eval(obj).__doc__
+        if text == None:
+            text = ''
     except:
         text = ''
     try:        
         doc_str = getFormattedDoc(text, obj)
     except:
-        doc_str = ''
+        doc_str = text
     try:        
         methods = getMethodsDoc(text, obj)
     except:
