@@ -5,6 +5,8 @@ To install pyo, you will need the following dependencies:
   * [http://sourceforge.net/apps/trac/portmedia/wiki/portmidi portmidi]
   * [http://www.mega-nerd.com/libsndfile libsndfile]
   * [http://liblo.sourceforge.net/ liblo]
+  * Ubuntu: python-tk (doesn't come installed by default on Ubuntu)
+  * Ubuntu: python-dev package
 
 
 The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [http://csound.sourceforge.net/ csound], it will install those libraries for you.
