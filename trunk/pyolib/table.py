@@ -5,21 +5,25 @@ from _core import *
 ######################################################################                                       
 class HarmTable(PyoTableObject):
     """
-    Generates composite waveforms made up of weighted sums of simple sinusoids.
+    Generates composite waveforms made up of weighted sums 
+    of simple sinusoids.
     
     Parent class: PyoTableObject
     
     Parameters:
     
     list : list, optional
-        Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. Defaults to [1].
+        Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. 
+        Defaults to [1].
     size : int, optional
         Table size in samples. Defaults to 8192.
         
     Methods:
     
-    setSize(size) : Change the size of the table. This will erase the previously drawn waveform.
-    replace(list) : Redraw the waveform according to the new `list` parameter.
+    setSize(size) : Change the size of the table. This will erase the 
+        previously drawn waveform.
+    replace(list) : Redraw the waveform according to the new `list` 
+        parameter.
     
     Attributes:
     
@@ -36,7 +40,8 @@ class HarmTable(PyoTableObject):
         
     def setSize(self, size):
         """
-        Change the size of the table. This will erase the previously drawn waveform.
+        Change the size of the table. This will erase the previously 
+        drawn waveform.
         
         Parameters:
         
@@ -49,12 +54,14 @@ class HarmTable(PyoTableObject):
     
     def replace(self, list):
         """
-        Redraw the waveform according to a new set of harmonics relative strengths.
+        Redraw the waveform according to a new set of harmonics 
+        relative strengths.
         
         Parameters:
         
         list : list
-            Relative strengths of the fixed harmonic partial numbers 1,2,3, etc.
+            Relative strengths of the fixed harmonic partial 
+            numbers 1,2,3, etc.
 
         """      
         self._list = list
@@ -84,7 +91,7 @@ class HarmTable(PyoTableObject):
     
 class HannTable(PyoTableObject):
     """
-    Generate Hanning window. 
+    Generates Hanning window. 
     
     Parent class: PyoTableObject
     
@@ -95,7 +102,8 @@ class HannTable(PyoTableObject):
         
     Methods:
     
-    setSize(size) : Change the size of the table. This will redraw the envelope.
+    setSize(size) : Change the size of the table. This will redraw 
+        the envelope.
     
     Attributes:
     
@@ -144,21 +152,22 @@ class LinTable(PyoTableObject):
     Parameters:
     
     list : list, optional
-        List of tuples indicating location and value of each points in the table. 
-        The default, [(0,0.), (8191, 1.)], creates a straight line from 0.0 at location 0
-        to 1.0 at the end of the table (size - 1). Location must be an integer.
+        List of tuples indicating location and value of each points 
+        in the table. The default, [(0,0.), (8191, 1.)], creates a 
+        straight line from 0.0 at location 0 to 1.0 at the end of the 
+        table (size - 1). Location must be an integer.
     size : int, optional
         Table size in samples. Defaults to 8192.
         
     Methods:
     
     setSize(size) : Change the size of the table and rescale the envelope.
-    replace(list) : Draw a new envelope according to the new `list` parameter.
+    replace(list) : Draw a new envelope according to the `list` parameter.
 
     Notes:
     
-    Locations in the list must be in increasing order. If the last value is less 
-    than size, then the rest will be set to zero. 
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros. 
     
     Attributes:
     
@@ -192,8 +201,8 @@ class LinTable(PyoTableObject):
         Parameters:
         
         list : list
-            List of tuples indicating location and value of each points in the table. 
-            Location must be integer.
+            List of tuples indicating location and value of each points 
+            in the table. Location must be integer.
 
         """      
         self._list = list
@@ -228,8 +237,8 @@ class SndTable(PyoTableObject):
     """
     Load data from a soundfile into a function table.
     
-    If `chnl` is None, the table will contain as many sub tables as necessary 
-    to read all channels of the loaded sound.
+    If `chnl` is None, the table will contain as many sub tables as 
+    necessary to read all channels of the loaded sound.
 
     Parent class: PyoTableObject
     
@@ -243,8 +252,8 @@ class SndTable(PyoTableObject):
     Methods:
 
     setSound(path) : Load a new sound in the table.
-    getRate() : Return the frequency in cps at which the sound will be read 
-    at its original pitch.
+    getRate() : Return the frequency in cps at which the sound will be 
+    read at its original pitch.
     
     Attributes:
     
@@ -264,9 +273,9 @@ class SndTable(PyoTableObject):
         Load a new sound in the table.
         
         Keeps the number of channels of the sound loaded at initialization.
-        If the new sound has less channels, it will wrap around and load the 
-        same channels many times. If the new sound has more channels, the extra 
-        channels will be skipped.
+        If the new sound has less channels, it will wrap around and load 
+        the same channels many times. If the new sound has more channels, 
+        the extra channels will be skipped.
         
         Parameters:
         
@@ -298,8 +307,8 @@ class SndTable(PyoTableObject):
 
 class NewTable(PyoTableObject):
     """
-    Create an empty table ready for recording. See `TableRec` to write samples in 
-    the table.
+    Create an empty table ready for recording. See `TableRec` to write 
+    samples in the table.
     
     Parent class: PyoTableObject
     
@@ -308,14 +317,15 @@ class NewTable(PyoTableObject):
     length : float
         Length of the table in seconds.
     chnls : int, optional
-        Number of channels that will be handled by the table. Defaults to 1.
+        Number of channels that will be handled by the table. 
+        Defaults to 1.
         
     Methods:    
     
     getSize() : Return the length of the table in samples.
     getLength() : Return the length of the table in seconds.
-    getRate() : Return the frequency (cycle per second) to give an oscillator to read the sound 
-        at its original pitch.
+    getRate() : Return the frequency (cycle per second) to give an 
+        oscillator to read the sound at its original pitch.
 
     """
     def __init__(self, length, chnls=1):
@@ -340,8 +350,8 @@ class NewTable(PyoTableObject):
 
 class TableRec(PyoObject):
     """
-    TableRec is for writing samples into a previously created NewTable. See `NewTable` to create
-    an empty table.
+    TableRec is for writing samples into a previously created NewTable. 
+    See `NewTable` to create an empty table.
 
     The play method is not called at the object creation time.
     
@@ -354,14 +364,16 @@ class TableRec(PyoObject):
     table : PyoTableObject
         The table where to write samples.
     fadetime : float, optional
-        Fade time at the beginning and the end of the recording in seconds. Defaults to 0.
+        Fade time at the beginning and the end of the recording 
+        in seconds. Defaults to 0.
     
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setTable(x) : Replace the `table` attribute.
     play() : Start the recording at the beginning of the table.
-    stop() : Stop the recording. Otherwise, record through the end of the table.
+    stop() : Stop the recording. Otherwise, record through the 
+        end of the table.
 
     Attributes:
     
@@ -468,19 +480,23 @@ class Granulator(PyoObject):
     env : PyoTableObject
         Table containing the grain envelope.
     pitch : float or PyoObject, optional
-        Overall pitch of the granulator. This value transpose the pitch of all grains. Defaults to 1.
+        Overall pitch of the granulator. This value transpose the 
+        pitch of all grains. Defaults to 1.
     pos : float or PyoObject, optional
-        Pointer position, in samples, in the waveform table. Each grain sampled the current value of 
-        this stream at the beginning of its envelope and hold it until the end of the grain. 
+        Pointer position, in samples, in the waveform table. Each 
+        grain sampled the current value of this stream at the beginning 
+        of its envelope and hold it until the end of the grain. 
         Defaults to 0.
     dur : float or PyoObject, optional
-        Duration, in seconds, of the grain. Each grain sampled the current value of this stream at the 
-        beginning of its envelope and hold it until the end of the grain. Defaults to 0.1.
+        Duration, in seconds, of the grain. Each grain sampled the 
+        current value of this stream at the beginning of its envelope 
+        and hold it until the end of the grain. Defaults to 0.1.
     grains : int, optional
         Number of grains. Available only at initialization. Defaults to 8.
     basedur : float, optional
-        Base duration used to calculate the speed of the pointer to read the grain at its original pitch. 
-        By changing the value of the `dur` parameter, transposition per grain can be generated.
+        Base duration used to calculate the speed of the pointer to 
+        read the grain at its original pitch. By changing the value of 
+        the `dur` parameter, transposition per grain can be generated.
         Defaults to 0.1.
     
     Methods:
@@ -509,7 +525,7 @@ class Granulator(PyoObject):
     >>> env = HannTable()
     >>> pos = Phasor(snd.getRate()*.25, 0, snd.getSize())
     >>> dur = Noise(.001, .1)
-    >>> g = Granulator(table=snd, env=env, pitch=[1, 1.001], pos=pos, dur=dur, grains=24, mul=.1).out()
+    >>> g = Granulator(snd, env, [1, 1.001], pos, dur, 24, mul=.1).out()
 
     """
     def __init__(self, table, env, pitch=1, pos=0, dur=.1, grains=8, basedur=.1, mul=1, add=0):

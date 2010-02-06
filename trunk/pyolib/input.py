@@ -14,7 +14,8 @@ class Sine(PyoObject):
     freq : float or PyoObject, optional
         Frequency in cycles per second. Defaults to 1000.
     phase : float or PyoObject, optional
-        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+        Defaults to 0.
         
     Methods:
     
@@ -116,7 +117,8 @@ class Phasor(PyoObject):
     freq : float or PyoObject, optional
         Frequency in cycles per second. Defaults to 100.
     phase : float or PyoObject, optional
-        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+        Defaults to 0.
         
     Methods:
     
@@ -219,7 +221,8 @@ class Osc(PyoObject):
     freq : float or PyoObject, optional
         Frequency in cycles per second. Defaults to 1000.
     phase : float or PyoObject, optional
-        Phase of sampling, expressed as a fraction of a cycle (0 to 1). Defaults to 0.
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+        Defaults to 0.
         
     Methods:
 

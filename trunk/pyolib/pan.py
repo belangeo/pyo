@@ -13,9 +13,11 @@ class Pan(PyoObject):
     outs : int, optional
         Number of channels on the panning circle. Defaults to 2.
     pan : float or PyoObject
-        Position of the sound on the panning circle, between 0 and 1. Defaults to 0.5.
+        Position of the sound on the panning circle, between 0 and 1. 
+        Defaults to 0.5.
     spread : float or PyoObject
-        Amount of sound leaking to the surrounding channels, between 0 and 1. Defaults to 0.5.
+        Amount of sound leaking to the surrounding channels, 
+        between 0 and 1. Defaults to 0.5.
  
     Methods:
     
@@ -27,7 +29,8 @@ class Pan(PyoObject):
     
     input : PyoObject. Input signal to process.
     pan : float or PyoObject. Position of the sound on the panning circle.
-    spread : float or PyoObject. Amount of sound leaking to the surrounding channels. 
+    spread : float or PyoObject. Amount of sound leaking to the 
+        surrounding channels. 
 
     Examples:
     
@@ -177,7 +180,8 @@ class SPan(PyoObject):
     outs : int, optional
         Number of channels on the panning circle. Defaults to 2.
     pan : float or PyoObject
-        Position of the sound on the panning circle, between 0 and 1. Defaults to 0.5.
+        Position of the sound on the panning circle, between 0 and 1. 
+        Defaults to 0.5.
 
     Methods:
     

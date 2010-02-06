@@ -320,7 +320,7 @@ class Server(object):
         """
         Shut down and clear the server. This method will erase all objects
         from the callback loop. This method need to be called before changing 
-        server's parameters like `samplingrate`, `buffersize`, `nchnls`...
+        server's parameters like `samplingrate`, `buffersize`, `nchnls`, ...
 
         """
         self._server.shutdown()

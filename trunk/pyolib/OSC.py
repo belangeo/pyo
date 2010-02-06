@@ -7,8 +7,9 @@ class OscSend(PyoObject):
     """
     Sends values over a network via the Open Sound Control protocol.
     
-    Uses the OSC protocol to share values to other softwares or other computers.
-    Only the first value of each input buffersize will be sent on the OSC port.
+    Uses the OSC protocol to share values to other softwares or other 
+    computers. Only the first value of each input buffersize will be 
+    sent on the OSC port.
     
     Parent class: PyoObject
     
@@ -17,12 +18,14 @@ class OscSend(PyoObject):
     input : PyoObject
         Input signal.
     port : int
-        Port on which values are sent. Receiver should listen on the same port.
+        Port on which values are sent. Receiver should listen on the 
+        same port.
     address : string
-        Address used on the port to identify values. Address is in the form 
-        of a Unix path (ex.: '/pitch').
+        Address used on the port to identify values. Address is in 
+        the form of a Unix path (ex.: '/pitch').
     host : string, optional
-        IP address of the target computer. The default, '127.0.0.1', is the localhost.
+        IP address of the target computer. The default, '127.0.0.1', 
+        is the localhost.
 
     Methods:
 
@@ -30,7 +33,8 @@ class OscSend(PyoObject):
 
     Notes:
 
-    The out() method is bypassed. OscSend's signal can not be sent to audio outs.
+    The out() method is bypassed. OscSend's signal can not be sent 
+    to audio outs.
     
     OscSend has no `mul` and `add` attributes.
 
@@ -91,26 +95,30 @@ class OscReceive(PyoObject):
     """
     Receives values over a network via the Open Sound Control protocol.
     
-    Uses the OSC protocol to receive values from other softwares or other computers.
-    Gets a value at the beginning of each buffersize and fill it's buffer with it.
+    Uses the OSC protocol to receive values from other softwares or 
+    other computers. Gets a value at the beginning of each buffersize 
+    and fill it's buffer with it.
 
     Parent class: PyoObject
     
     Parameters:
     
     port : int
-        Port on which values are received. Sender should output on the same port.
+        Port on which values are received. Sender should output on 
+        the same port.
     address : string
-        Address used on the port to identify values. Address is in the form 
-        of a Unix path (ex.: '/pitch').
+        Address used on the port to identify values. Address is in 
+        the form of a Unix path (ex.: '/pitch').
 
     Notes:
     
-    Audio streams are accessed with the `address` string parameter. The user should call :
+    Audio streams are accessed with the `address` string parameter. 
+    The user should call :
 
     OscReceive['/pitch'] to retreive streams named '/pitch'.
 
-    The out() method is bypassed. OscReceive's signal can not be sent to audio outs.
+    The out() method is bypassed. OscReceive's signal can not be sent 
+    to audio outs.
 
     Examples:
     
