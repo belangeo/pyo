@@ -33,6 +33,14 @@ class HarmTable(PyoTableObject):
         Relative strengths of the fixed harmonic partial numbers.
     size : int, optional
         Table size in samples.
+        
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Square wave up to 9th harmonic
+    >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
+    >>> a = Osc(table=t, freq=200, mul=.5).out()
 
     """
     def __init__(self, list=[1., 0.], size=8192):
@@ -112,6 +120,15 @@ class HannTable(PyoTableObject):
     size : int
         Table size in samples.
 
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Hanning envelope
+    >>> t = HannTable()
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
     """
     def __init__(self, size=8192):
         self._size = size
@@ -178,6 +195,15 @@ class LinTable(PyoTableObject):
     size : int, optional
         Table size in samples.
 
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Sharp attack envelope
+    >>> t = LinTable([(0,0), (100,1), (1000,.25), (8191,0)])
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
         self._size = size
@@ -239,7 +265,7 @@ class SndTable(PyoTableObject):
     """
     Load data from a soundfile into a function table.
     
-    If `chnl` is None, the table will contain as many sub tables as 
+    If `chnl` is None, the table will contain as many table streams as 
     necessary to read all channels of the loaded sound.
 
     Parent class: PyoTableObject
@@ -260,6 +286,15 @@ class SndTable(PyoTableObject):
     Attributes:
     
     sound : Sound path loaded in the table.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Sharp attack envelope
+    >>> snd_path = DEMOS_PATH + '/transparent.aif'
+    >>> t = SndTable(snd_path)
+    >>> a = Osc(table=t, freq=t.getRate(), mul=.5).out()
 
     """
     def __init__(self, path, chnl=None):
@@ -331,6 +366,17 @@ class NewTable(PyoTableObject):
         to an oscillator to read the sound at its original pitch.
 
     See also: TableRec
+
+    Examples:
+    
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> t = NewTable(length=2, chnls=1)
+    >>> a = Input(0)
+    >>> b = TableRec(a, t, .01)
+    >>> c = Osc(t, [t.getRate(), t.getRate()*.99]).out()
+    >>> # to record in the empty table, call:
+    >>> # b.play()
 
     """
     def __init__(self, length, chnls=1):
@@ -409,13 +455,14 @@ class TableRec(PyoObject):
     
     Examples:
     
-    >>> s = Server().boot()
+    >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> t = NewTable(length=2, chnls=1)
     >>> a = Input(0)
-    >>> rec = TableRec(a, table=t, fadetime=.01)
-    >>> playback = Osc(table=t, freq=[t.getRate(), t.getRate()*.99]).out()
-    >>> rec.play()    
+    >>> b = TableRec(a, t, .01)
+    >>> c = Osc(t, [t.getRate(), t.getRate()*.99]).out()
+    >>> # to record in the empty table, call:
+    >>> # b.play()
     
     """
     def __init__(self, input, table, fadetime=0):

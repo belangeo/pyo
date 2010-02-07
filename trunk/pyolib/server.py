@@ -178,7 +178,7 @@ class Server(object):
     shutdown() : Shut down and clear the server.
     start() : Start the audio callback loop.
     stop() : Stop the audio callback loop.
-    recstart() : Begin recording sound sent to output. Create a fie called 
+    recstart() : Begin recording sound sent to output. Create a file called 
         `pyo_rec.aif` in the user's home directory.
     recstop() : Stop previously started recording.
     getSamplingRate() : Return the current sampling rate.

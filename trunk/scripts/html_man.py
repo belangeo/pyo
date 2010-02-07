@@ -143,18 +143,18 @@ def getDocFirstLine(obj):
 f.write('\\begin{LARGE}pyo documentation\\end{LARGE}\n\n') 
 f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')       
 for key in sorted(OBJECTS_TREE.keys()):
-    f.write('\section[%s </A>: %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
+    f.write('\section[%s</A> : %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
     f.write(getDoc(key))
     if type(OBJECTS_TREE[key]) == ListType:
         for obj in OBJECTS_TREE[key]:
-            f.write('\subsection[%s </A>: %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
+            f.write('\subsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
             f.write(getDoc(obj))
     else:
         for key2 in sorted(OBJECTS_TREE[key]):
-            f.write('\subsection[%s </A>: %s]{%s}\n\n' % (key2, getDocFirstLine(key2), key2))
+            f.write('\subsection[%s</A> : %s]{%s}\n\n' % (key2, getDocFirstLine(key2), key2))
             f.write(getDoc(key2))
             for obj in OBJECTS_TREE[key][key2]:
-                f.write('\subsubsection[%s </A>: %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
+                f.write('\subsubsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
                 f.write(getDoc(obj))
   
 f.write('\end{document}\n')
