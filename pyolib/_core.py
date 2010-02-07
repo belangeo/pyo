@@ -95,8 +95,9 @@ def wrap(arg, i):
 ######################################################################
 class Map:
     """
-    Base class for Map objects. Can be used to convert value 
-    between 0 and 1 on various scales.
+    Converts value between 0 and 1 on various scales.
+    
+    Base class for Map objects.
     
     Parameters:
     
@@ -161,8 +162,10 @@ class Map:
 class SLMap(Map):
     """
     
-    Base Map class used to manage control sliders. Derived from Map class,
-    a few parameters are added for sliders initialization.
+    Base Map class used to manage control sliders. 
+    
+    Derived from Map class, a few parameters are added for sliders 
+    initialization.
     
     Parent class: Map
     
@@ -222,7 +225,7 @@ class SLMapFreq(SLMap):
     """
     SLMap with normalized values for a 'freq' slider.
 
-    Parent class: SlMap
+    Parent class: SLMap
     
     Parameters:
     
@@ -256,7 +259,7 @@ class SLMapMul(SLMap):
     """
     SLMap with normalized values for a 'mul' slider.
 
-    Parent class: SlMap
+    Parent class: SLMap
     
     Parameters:
     
@@ -290,7 +293,7 @@ class SLMapPhase(SLMap):
     """
     SLMap with normalized values for a 'phase' slider.
 
-    Parent class: SlMap
+    Parent class: SLMap
     
     Parameters:
     
@@ -324,7 +327,7 @@ class SLMapPan(SLMap):
     """
     SLMap with normalized values for a 'pan' slider.
 
-    Parent class: SlMap
+    Parent class: SLMap
     
     Parameters:
     
@@ -358,7 +361,7 @@ class SLMapQ(SLMap):
     """
     SLMap with normalized values for a 'q' slider.
 
-    Parent class: SlMap
+    Parent class: SLMap
     
     Parameters:
     
@@ -392,7 +395,7 @@ class SLMapDur(SLMap):
     """
     SLMap with normalized values for a 'dur' slider.
 
-    Parent class: SlMap
+    Parent class: SLMap
     
     Parameters:
     
@@ -888,8 +891,9 @@ class ViewTable(Frame):
 ######################################################################
 class PyoTableObject(object):
     """
-    Base class for all pyo table objects. A table object object is a 
-    buffer memory to store precomputed samples. 
+    Base class for all pyo table objects. 
+    
+    A table object object is a buffer memory to store precomputed samples. 
     
     The user should never instantiate an object of this class.
  
@@ -1047,8 +1051,10 @@ class Sig(PyoObject):
 
 class SigTo(PyoObject):
     """
-    Convert numeric value to PyoObject signal applying a ramp between 
-    current value and new value.
+    Convert numeric value to PyoObject signal with ramp time.
+    
+    When `value` attribute is changed, a ramp is applied from the
+    current value to the new value.
     
     Parent class: PyoObject
 

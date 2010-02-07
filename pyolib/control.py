@@ -5,6 +5,8 @@ from _core import *
 ######################################################################                                       
 class Fader(PyoObject):
     """
+    Fadein - fadeout envelope generator.
+    
     Generate an amplitude envelope between 0 and 1 with control on fade 
     times and total duration of the envelope.
     
@@ -244,7 +246,9 @@ class Metro(PyoObject):
 
 class Follower(PyoObject):
     """
-    Envelope follower. 
+    Envelope follower.
+    
+    Output signal is the continuous mean amplitude of an input signal.
  
     Parent class: PyoObject
    

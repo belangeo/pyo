@@ -265,6 +265,8 @@ class Tone(PyoObject):
 
 class Port(PyoObject):
     """
+    Exponential portamento.
+    
     Perform an exponential portamento on an audio signal with 
     different rising and falling times.
     
@@ -864,6 +866,8 @@ class Delay(PyoObject):
 
 class Waveguide(PyoObject):
     """
+    Basic waveguide model.
+    
     A waveguide model consisting of one delay-line with a simple 
     lowpass filtering and lagrange interpolation.
     
@@ -1000,7 +1004,7 @@ class Waveguide(PyoObject):
 
 class Freeverb(PyoObject):
     """
-    Jezar's Freeverb.
+    Implementation of Jezar's Freeverb.
     
     Freeverb is a reverb unit generator based on Jezar's public domain 
     C++ sources, composed of eight parallel comb filters, followed by four 
@@ -1164,7 +1168,7 @@ class Freeverb(PyoObject):
 
 class Compress(PyoObject):
     """
-    Process that reduces the dynamic range of an audio signal.
+    Reduces the dynamic range of an audio signal.
     
     Parent class: PyoObject
     

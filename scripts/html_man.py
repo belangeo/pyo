@@ -122,21 +122,39 @@ def getFormattedDoc(text, obj):
         verbatim = False
     return text
 
+def getDocFirstLine(obj):
+    try:
+        text = eval(obj).__doc__
+        if text == None:
+            text = ''
+    except:
+        text = ''
+        
+    if text != '':
+        spl = text.split('\n')
+        if len(spl) == 1:
+            f = spl[0]
+        else:    
+            f = spl[1]
+    else:
+        f = text
+    return f    
+                    
 f.write('\\begin{LARGE}pyo documentation\\end{LARGE}\n\n') 
 f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')       
 for key in sorted(OBJECTS_TREE.keys()):
-    f.write('\section{%s}\n\n' % key)
+    f.write('\section[%s </A>: %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
     f.write(getDoc(key))
     if type(OBJECTS_TREE[key]) == ListType:
         for obj in OBJECTS_TREE[key]:
-            f.write('\subsection{%s}\n\n' % obj)
+            f.write('\subsection[%s </A>: %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
             f.write(getDoc(obj))
     else:
         for key2 in sorted(OBJECTS_TREE[key]):
-            f.write('\subsection{%s}\n\n' % key2)
+            f.write('\subsection[%s </A>: %s]{%s}\n\n' % (key2, getDocFirstLine(key2), key2))
             f.write(getDoc(key2))
             for obj in OBJECTS_TREE[key][key2]:
-                f.write('\subsubsection{%s}\n\n' % obj)
+                f.write('\subsubsection[%s </A>: %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
                 f.write(getDoc(obj))
   
 f.write('\end{document}\n')
@@ -144,7 +162,12 @@ f.close()
 
 os.chdir('doc/')
 os.system('latex2html -html_version 4.0,unicode -noinfo -long_titles 1 -noaddress -local_icons -image_type gif manual.tex')
+for file in os.listdir("manual"):
+    with open("manual/%s" % file, 'r') as f:
+        text = f.read()
+    text = text.replace("&lt;/A&gt;", "</A>")
+    with open("manual/%s" % file, 'w') as f:
+        f.write(text)
 os.remove('manual.tex')
-#os.system('rm pyo_man/WARNINGS')
 os.chdir('../')
 os.system('scp -r doc/manual sysop@132.204.178.49:/Library/WebServer/Documents/pyo/')
