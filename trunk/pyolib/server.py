@@ -145,9 +145,14 @@ class ServerGUI(Frame):
 ######################################################################
 class Server(object):
     """
+    Main processing audio loop callback handler.
+    
     The Server object handles all communications with Portaudio and 
-    Portmidi. An instance of the Server must be booted before defining 
-    any signal processing chain.
+    Portmidi. It keeps track of all audio streams created as well as
+    connections between them. 
+    
+    An instance of the Server must be booted before defining any 
+    signal processing chain.
 
     Parameters:
 

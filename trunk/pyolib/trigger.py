@@ -2,6 +2,8 @@ from _core import *
 
 class TrigRand(PyoObject):
     """
+    Pseudo-random number generator.
+    
     TrigRand generates a pseudo-random number between `min` and `max` 
     values each time it receives a trigger in its `input` parameter. 
     The value is kept until the next trigger.
@@ -123,6 +125,8 @@ class TrigRand(PyoObject):
 
 class TrigChoice(PyoObject):
     """
+    Random generator from user's defined values.
+    
     TrigChoice chooses randomly a new value in list `choice` each 
     time it receives a trigger in its `input` parameter. The value 
     is kept until the next trigger.
@@ -214,6 +218,8 @@ class TrigChoice(PyoObject):
 
 class TrigFunc(PyoObject):
     """
+    Python function callback.
+    
     TrigFunc calls the function given at parameter `function` each 
     time it receives a trigger in its `input` parameter.
     
@@ -327,6 +333,8 @@ class TrigFunc(PyoObject):
      
 class TrigEnv(PyoObject):
     """
+    Envelope reader generator.
+    
     TrigEnv starts reading an envelope in `dur` seconds each time it 
     receives a trigger in its `input` parameter.
     
@@ -447,6 +455,8 @@ class TrigEnv(PyoObject):
 
 class Counter(PyoObject):
     """
+    Integer count generator.
+    
     Counter keeps track of all triggers received, outputs the current 
     count constrained within `min` and `max` range, and can be set to 
     count up, down, or up-and-down.
@@ -486,8 +496,10 @@ class Counter(PyoObject):
 
     Notes:
 
-    The out() method is bypassed. TrigFunc's signal can not be sent 
+    The out() method is bypassed. Counter's signal can not be sent 
     to audio outs.
+
+    See also: Select
 
     Examples:
     
@@ -596,8 +608,10 @@ class Counter(PyoObject):
 
 class Select(PyoObject):
     """
+    Sends trigger on matching integer values.
+    
     Select takes in input an audio signal containing integer numbers
-    and send a trigger when the input matches `value` parameter. This
+    and sends a trigger when the input matches `value` parameter. This
     object is especially designed to be used with Counter object.
 
     Parent class: PyoObject
@@ -621,11 +635,13 @@ class Select(PyoObject):
 
     Notes:
 
-    The out() method is bypassed. TrigFunc's signal can not be sent 
+    The out() method is bypassed. Select's signal can not be sent 
     to audio outs.
 
     Select has no `mul` and `add` attributes.
 
+    See also: Counter
+    
     Examples:
     
     >>> s = Server().boot()

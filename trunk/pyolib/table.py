@@ -5,6 +5,8 @@ from _core import *
 ######################################################################                                       
 class HarmTable(PyoTableObject):
     """
+    Harmonic waveform generator.
+    
     Generates composite waveforms made up of weighted sums 
     of simple sinusoids.
     
@@ -307,8 +309,9 @@ class SndTable(PyoTableObject):
 
 class NewTable(PyoTableObject):
     """
-    Create an empty table ready for recording. See `TableRec` to write 
-    samples in the table.
+    Create an empty table ready for recording. 
+    
+    See `TableRec` to write samples in the table.
     
     Parent class: PyoTableObject
     
@@ -322,22 +325,37 @@ class NewTable(PyoTableObject):
         
     Methods:    
     
-    getSize() : Return the length of the table in samples.
-    getLength() : Return the length of the table in seconds.
-    getRate() : Return the frequency (cycle per second) to give an 
-        oscillator to read the sound at its original pitch.
+    getSize() : Returns the length of the table in samples.
+    getLength() : Returns the length of the table in seconds.
+    getRate() : Returns the frequency (cycle per second) to give 
+        to an oscillator to read the sound at its original pitch.
+
+    See also: TableRec
 
     """
     def __init__(self, length, chnls=1):
         self._base_objs = [NewTable_base(length) for i in range(chnls)]
                 
     def getSize(self):
+        """
+        Returns the length of the table in samples.
+        
+        """
         return self._base_objs[0].getSize()
 
     def getLength(self):
+        """
+        Returns the length of the table in seconds.
+        
+        """
         return self._base_objs[0].getLength()
              
     def getRate(self):
+        """
+        Returns the frequency (cycle per second) to give to an 
+        oscillator to read the sound at its original pitch.
+        
+        """
         return self._base_objs[0].getRate()
 
     #def demo():
@@ -350,7 +368,8 @@ class NewTable(PyoTableObject):
 
 class TableRec(PyoObject):
     """
-    TableRec is for writing samples into a previously created NewTable. 
+    TableRec is for writing samples into a previously created NewTable.
+     
     See `NewTable` to create an empty table.
 
     The play method is not called at the object creation time.
@@ -386,6 +405,8 @@ class TableRec(PyoObject):
     
     TableRec has no `mul` and `add` attributes.
 
+    See also: NewTable
+    
     Examples:
     
     >>> s = Server().boot()
@@ -429,7 +450,8 @@ class TableRec(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     def setTable(self, x):
-        """Replace the `table` attribute.
+        """
+        Replace the `table` attribute.
         
         Parameters:
 
@@ -469,7 +491,7 @@ class TableRec(PyoObject):
 
 class Granulator(PyoObject):
     """
-    Granular synthesis.
+    Granular synthesis generator.
 
     Parent class: PyoObject
     

@@ -61,7 +61,7 @@ class Midictl(PyoObject):
 
 class Notein(PyoObject):
     """
-    Generates MIDI notes messages.
+    Generates MIDI note messages.
     
     From a MIDI device, takes the notes in the range defined with 
     `first` and `last` parameters, and outputs `poly` noteon - noteoff 

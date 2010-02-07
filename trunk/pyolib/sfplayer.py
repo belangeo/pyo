@@ -3,6 +3,8 @@ import aifc
 
 class SfPlayer(PyoObject):
     """
+    Soundfile player.
+    
     Reads audio data from a file, and can alter its pitch using one of 
     several available interpolation types, as well as convert the sample 
     rate to match the Server sampling rate setting.
@@ -231,6 +233,8 @@ class SfPlayer(PyoObject):
 
 class SfMarkerShuffler(PyoObject):
     """
+    AIFF with markers soundfile shuffler.
+    
     Reads audio data from a AIFF file, and can alter its pitch using 
     one of several available interpolation types, as well as convert 
     the sample rate to match the Server sampling rate setting. The 
