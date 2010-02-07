@@ -38,6 +38,16 @@ class Clean_objects(threading.Thread):
     Methods:
     
     start() : Starts the thread. The timer begins on this call.    
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5).out()
+    >>> b = Fader(fadein=.1, fadeout=1, dur=5).play()
+    >>> c = Biquad(a, freq=1000, q=2, mul=b).out()
+    >>> dump = Clean_objects(time=6, a, b, c)
+    >>> dump.start()
     
     """
     def __init__(self, time, *args):
@@ -118,6 +128,14 @@ class Map:
     min : Lowest value of the range.
     max : Highest value of the range.
     scale : Method used to scale the input value.
+
+    Examples:
+    
+    >>> m = Map(20., 20000., 'log')
+    >>> print m.get(.5)
+    632.455532034
+    >>> print m.set(12000)
+    0.926050416795
     
     """
     def __init__(self, min, max, scale):
@@ -161,7 +179,6 @@ class Map:
 
 class SLMap(Map):
     """
-    
     Base Map class used to manage control sliders. 
     
     Derived from Map class, a few parameters are added for sliders 
@@ -203,6 +220,15 @@ class SLMap(Map):
     res : Slider resolution {int or float}.
     ramp : Ramp time in seconds.
     
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> initvals = [350,360,375,388]
+    >>> maps = [SLMap(20., 2000., 'log', 'freq', initvals), SLMapMul(.2)]
+    >>> a = Sine(freq=initvals, mul=.2).out()
+    >>> a.ctrl(maps)  
+    >>> s.gui(locals())      
+
     """
     def __init__(self, min, max, scale, name, init, res='float', ramp=0.025):
         Map.__init__(self, min, max, scale)
@@ -952,6 +978,44 @@ class PyoTableObject(object):
 ### Internal classes -> Used by pyo
 ######################################################################
 class Mix(PyoObject):
+    """
+    Mix audio streams to arbitrary number of streams.
+    
+    Mix the object's audio streams in `ìnput` into `voices` streams.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to mix the streams.
+    voices : int, optional
+        Number of streams of the Mix object. If more than 1, object's 
+        streams are alternated and added into Mix object's streams. 
+        Defaults to 1.
+
+    Notes:
+    
+    The mix method of PyoObject creates and returns a new Mix object
+    with mixed streams of the object that called the method. User
+    don't have to instantiate this class directly. These two calls
+    are identical:
+    
+    >>> b = a.mix()
+    >>> b = Mix(a)
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.01)
+    >>> b = Mix(a).out()
+    >>> print len(a)
+    50
+    >>> print len(b)
+    1
+
+    """
     def __init__(self, input, voices=1, mul=1, add=0):
         self._input = input
         self._mul = mul
@@ -964,19 +1028,112 @@ class Mix(PyoObject):
         self._base_objs = [Mix_base(l) for l in sub_lists]
         
 class Dummy(PyoObject):
+    """
+    Dummy object used to perform arithmetics on PyoObject.
+    
+    The user should never instantiate an object of this class.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    objs_list : list of audio Stream objects
+        List of Stream objects return by the PyoObject hiden method 
+        getBaseObjects.
+
+    Notes:
+    
+    Multiplication, addition, division and substraction don't changed
+    the PyoObject on which the operation is performed. A dummy object
+    is created, which is just a copy of the audio Streams of the object,
+    and the operation is applied on the Dummy, leaving the original
+    object unmodified. This lets the user performs multiple different 
+    arithmetic operations on an object without conficts. Here, `b` is
+    a thru of the audio processing of `a` with a different `mul` 
+    attribute:
+
+    >>> a = Sine()
+    >>> b = a * .5
+    >>> print a
+    <pyolib.input.Sine object at 0x11fd610>
+    >>> print b
+    <pyolib._core.Dummy object at 0x11fd710>
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro().play()
+    >>> p = TrigRand(m, 250, 400)
+    >>> a = Sine(p, mul=.25).out()
+    >>> b = Sine(p*1.25, mul=.25).out()
+    >>> c = Sine(p*1.5, mul=.25).out()
+    
+    """
     def __init__(self, objs_list):
         self._base_objs = objs_list
 
 class InputFader(PyoObject):
+    """
+    Audio streams crossfader.
+
+    Parameters:
+    
+    input : PyoObject
+        Input signal.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal.
+
+    Notes:
+    
+    The setInput method, on object with `input` attribute, already uses 
+    an InputFader object to performs crossfade between the old and the 
+    new `input` of an object. 
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sine(450, mul=.5)
+    >>> b = Sine(650, mul=.5)
+    >>> c = InputFader(a).out()
+    >>> # to created a crossfade, calls:
+    >>> c.setInput(b, 20)
+    
+    """
     def __init__(self, input):
         self._input = input
         input, lmax = convertArgsToLists(input)
         self._base_objs = [InputFader_base(wrap(input,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
         self._input = x
         x, lmax = convertArgsToLists(x)
         [obj.setInput(wrap(x,i), fadetime) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoObject. Input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
 
 class Sig(PyoObject):
     """
