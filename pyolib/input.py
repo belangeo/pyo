@@ -336,6 +336,135 @@ class Osc(PyoObject):
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
+class TableRead(PyoObject):
+    """
+    Simple waveform table reader.
+    
+    Read sampled sound from a table, with optional looping mode.
+    
+    Parent class: PyoObject
+    
+    Parameters:
+    
+    table : PyoTableObject
+        Table containing the waveform samples.
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 1.
+    loop : int {0, 1}, optional
+        Looping mode, 0 means off, 1 means on. 
+        Defaults to 0.
+        
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setLoop(x) : Replace the `loop` attribute.
+
+    Attributes:
+    
+    table : PyoTableObject. Table containing the waveform samples.
+    freq : float or PyoObject, Frequency in cycles per second.
+    loop : int, Looping mode.
+    
+    See also: Osc
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd = SndTable(DEMOS_PATH + '/transparent.aif')
+    >>> a = TableReader(table=snd, freq=snd.getRate(), loop=0).out()   
+     
+    """
+    def __init__(self, table, freq=1, loop=0, mul=1, add=0):
+        self._table = table
+        self._freq = freq
+        self._loop = loop
+        self._mul = mul
+        self._add = add
+        table, freq, loop, mul, add, lmax = convertArgsToLists(table, freq, loop, mul, add)
+        self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+        
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setLoop(self, x):
+        """
+        Replace the `loop` attribute.
+        
+        Parameters:
+
+        x : int {0, 1}
+            new `loop` attribute.
+        
+        """
+        self._loop = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/TableRead_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("TableRead(table, freq=1, loop=0, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def loop(self): 
+        """int. Looping mode.""" 
+        return self._loop
+    @loop.setter
+    def loop(self, x): self.setLoop(x)
+
 class Pulsar(PyoObject):
     """
     Pulsar synthesis oscillator.

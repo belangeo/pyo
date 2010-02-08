@@ -298,7 +298,7 @@ class SndTable(PyoTableObject):
 
     """
     def __init__(self, path, chnl=None):
-        self._size, self._snd_sr, self._snd_chnls = sndinfo(path)
+        self._size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path)
         self._path = path
         if chnl == None:
             self._base_objs = [SndTable_base(path, i) for i in range(self._snd_chnls)]
@@ -320,7 +320,7 @@ class SndTable(PyoTableObject):
             Full path of the new sound.
 
         """
-        _size, _snd_sr, _snd_chnls = sndinfo(path)
+        _size, _dur, _snd_sr, _snd_chnls = sndinfo(path)
         self._path = path
         [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
         
