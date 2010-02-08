@@ -1424,24 +1424,28 @@ Counter_generates(Counter *self) {
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             if (self->dir == 0) {
+                self->value = (float)self->tmp;
                 self->tmp++;
                 if (self->tmp > self->max)
                     self->tmp = self->min;
-                self->value = (float)self->tmp;
             }    
             else if (self->dir == 1) {
+                self->value = (float)self->tmp;
                 self->tmp--;
                 if (self->tmp < self->min)
                     self->tmp = self->max;
-                self->value = (float)self->tmp;
             }    
             else if (self->dir == 2) {
-                self->tmp = self->tmp + self->direction;
-                if (self->tmp >= self->max)
-                    self->direction = -1;
-                else if (self->tmp <= self->min)
-                    self->direction = 1;
                 self->value = (float)self->tmp;
+                self->tmp = self->tmp + self->direction;
+                if (self->tmp >= self->max) {
+                    self->direction = -1;
+                    self->tmp--;
+                }    
+                else if (self->tmp <= self->min) {
+                    self->direction = 1;
+                    self->tmp++;
+                }    
             }
         }
         self->data[i] = self->value;

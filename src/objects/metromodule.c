@@ -175,7 +175,7 @@ static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
 static PyObject * 
 Metro_play(Metro *self) 
 { 
-    self->data[0] = 1.0;
+    self->data[0] = 0.0; // not sure why it doesn't need 1.0 anymore
     Stream_setData(self->stream, self->data);
     PLAY 
 };
