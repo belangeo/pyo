@@ -149,7 +149,7 @@ sndinfo(PyObject *self, PyObject *args) {
         printf("Failed to open the file.\n");
     }
 
-    PyObject *sndinfo = PyTuple_Pack(3, PyInt_FromLong(info.frames), PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels));
+    PyObject *sndinfo = PyTuple_Pack(4, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels));
     sf_close(sf);
     return sndinfo;
 }    
@@ -163,7 +163,7 @@ static PyMethodDef pyo_functions[] = {
 {"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, "Returns Portaudio default output device."},
 {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Lists all devices found by Portmidi."},
-{"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, sampling rate and number of channels of the given sound file."},
+{"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, duration in seconds, sampling rate and number of channels of the given sound file."},
 {NULL, NULL, 0, NULL},
 };
 
