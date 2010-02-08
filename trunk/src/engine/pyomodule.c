@@ -285,6 +285,11 @@ init_pyo(void)
     Py_INCREF(&OscType);
     PyModule_AddObject(m, "Osc_base", (PyObject *)&OscType);
 
+    if (PyType_Ready(&TableReadType) < 0)
+        return;
+    Py_INCREF(&TableReadType);
+    PyModule_AddObject(m, "TableRead_base", (PyObject *)&TableReadType);
+    
     if (PyType_Ready(&PulsarType) < 0)
         return;
     Py_INCREF(&PulsarType);

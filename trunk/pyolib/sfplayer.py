@@ -68,7 +68,7 @@ class SfPlayer(PyoObject):
         self._add = add
         path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(path, speed, loop, offset, interp, mul, add)
         self._base_objs = []
-        self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path[0])
         self._base_players = [SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)) for i in range(lmax)]
         for i in range(lmax * self._snd_chnls):
             j = i / self._snd_chnls
@@ -287,7 +287,7 @@ class SfMarkerShuffler(PyoObject):
         path, speed, interp, mul, add, lmax = convertArgsToLists(path, speed, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path[0])
         for i in range(lmax):
             try:
                 sf = aifc.open(wrap(path,i))

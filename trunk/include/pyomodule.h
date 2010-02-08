@@ -4,6 +4,7 @@
 extern PyTypeObject SineType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject PointerType;
+extern PyTypeObject TableReadType;
 extern PyTypeObject OscType;
 extern PyTypeObject PulsarType;
 extern PyTypeObject NoiseType;
