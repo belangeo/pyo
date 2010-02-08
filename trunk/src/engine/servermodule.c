@@ -256,7 +256,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input = -1;
     self->output = -1;
     self->midi_input = -1;
-    self->amp = 1.;
+    self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
     Py_XDECREF(my_server);
@@ -363,8 +363,11 @@ Server_setAmp(Server *self, PyObject *arg)
 	if (arg != NULL) {
         int check = PyNumber_Check(arg);
         
-        if (check)
+        if (check) {
             self->amp = PyFloat_AsDouble(PyNumber_Float(arg));
+            if (self->amp != 0.0)
+                self->resetAmp = self->amp;
+        }
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -546,7 +549,7 @@ Server_start(Server *self)
         portaudio_assert(err, "Pa_StopStream");
     }
 
-    self->amp = 1.;
+    self->amp = self->resetAmp;
     self->server_stopped = 0;
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);

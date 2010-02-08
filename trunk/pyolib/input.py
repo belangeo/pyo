@@ -336,6 +336,196 @@ class Osc(PyoObject):
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
+class Pulsar(PyoObject):
+    """
+    Pulsar synthesis oscillator.
+    
+    Pulsar synthesis produces a train of sound particles called pulsars 
+    that can make rhythms or tones, depending on the fundamental frequency 
+    of the train. Varying the `frac` portion of the period assigned to the
+    waveform and its following silence, but maintaining the overall pulsar 
+    period gives an effect much like a band-pass filter.
+
+    Parent class: PyoObject
+    
+    Parameters:
+    
+    table : PyoTableObject
+        Table containing the waveform samples.
+    env : PyoTableObject
+        Table containing the envelope samples.
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 100.
+    frac : float or PyoObject, optional
+        Fraction of the whole period (0 -> 1) given to the waveform. 
+        The rest will be filled with zeros. Defaults to 0.5.
+    phase : float or PyoObject, optional
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+        Defaults to 0.
+        
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setEnv(x) : Replace the `emv` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setFrac(x) : Replace the `frac` attribute.
+    setPhase(x) : Replace the `phase` attribute.
+
+    Attributes:
+    
+    table : PyoTableObject. Table containing the waveform samples.
+    env : PyoTableObject. Table containing the envelope samples.
+    freq : float or PyoObject, Frequency in cycles per second.
+    frac : float or PyoObject, Fraction of the period assigned to waveform.
+    phase : float or PyoObject, Phase of sampling (0 -> 1).
+    
+    See also: Osc
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> w = HarmTable([1,0,.33,0,2,0,.143,0,.111])
+    >>> e = HannTable()
+    >>> lfo = Sine(.15, mul=.2, add=.5)
+    >>> a = Pulsar(table=w, env=e, freq=80, frac=lfo, mul=.25).out()
+     
+    """
+    def __init__(self, table, env, freq=100, frac=0.5, phase=0, mul=1, add=0):
+        self._table = table
+        self._env = env
+        self._freq = freq
+        self._frac = frac
+        self._phase = phase
+        self._mul = mul
+        self._add = add
+        table, env, freq, frac, phase, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, mul, add)
+        self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setEnv(self, x):
+        """
+        Replace the `env` attribute.
+        
+        Parameters:
+
+        x : PyoTableObject
+            new `env` attribute.
+        
+        """
+        self._env = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setEnv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+        
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFrac(self, x):
+        """
+        Replace the `frac` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `frac` attribute.
+        
+        """
+        self._frac = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFrac(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setPhase(self, x):
+        """
+        Replace the `phase` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `phase` attribute.
+        
+        """
+        self._phase = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapFreq(self._freq),
+                        SLMap(0., 1., 'lin', 'frac', self._frac),
+                        SLMapPhase(self._phase),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/Pulsar_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Pulsar(table, env, freq=100, frac=0.5, phase=0, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def env(self):
+        """PyoTableObject. Table containing the envelope samples.""" 
+        return self._env
+    @env.setter
+    def env(self, x): self.setEnv(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def frac(self):
+        """float or PyoObject. Fraction of the period assigned to waveform.""" 
+        return self._frac
+    @frac.setter
+    def frac(self, x): self.setFrac(x)
+
+    @property
+    def phase(self): 
+        """float or PyoObject. Phase of sampling.""" 
+        return self._phase
+    @phase.setter
+    def phase(self, x): self.setPhase(x)
+
 class Pointer(PyoObject):
     """
     Table reader with control on the pointer position.

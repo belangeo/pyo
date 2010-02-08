@@ -30,6 +30,7 @@ typedef struct {
     int record;
     /* global amplitude */
     float amp;
+    float resetAmp;
     float lastAmp;
     float currentAmp;
     float stepVal;
