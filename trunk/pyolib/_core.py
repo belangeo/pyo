@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from types import ListType
+from types import ListType, SliceType
 import random, threading, time, os
 from math import pow, log10
 from distutils.sysconfig import get_python_lib
@@ -708,6 +708,8 @@ class PyoObject(object):
         return self
         
     def __getitem__(self, i):
+        if type(i) == SliceType:
+            return self._base_objs[i]
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
