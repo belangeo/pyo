@@ -279,13 +279,17 @@ init_pyo(void)
         return;
     Py_INCREF(&SfMarkerShuffleType);
     PyModule_AddObject(m, "SfMarkerShuffle_base", (PyObject *)&SfMarkerShuffleType);
-    
-    
+        
     if (PyType_Ready(&OscType) < 0)
         return;
     Py_INCREF(&OscType);
     PyModule_AddObject(m, "Osc_base", (PyObject *)&OscType);
 
+    if (PyType_Ready(&PulsarType) < 0)
+        return;
+    Py_INCREF(&PulsarType);
+    PyModule_AddObject(m, "Pulsar_base", (PyObject *)&PulsarType);
+    
     if (PyType_Ready(&SineType) < 0)
         return;
     Py_INCREF(&SineType);

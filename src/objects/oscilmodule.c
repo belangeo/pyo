@@ -7,6 +7,16 @@
 #include "dummymodule.h"
 #include "tablemodule.h"
 
+static float
+_clip(float x) {
+    if (x < 0.0)
+        return 0.0;
+    else if (x >= 1.0)
+        return 1.0;
+    else
+        return x;
+}
+
 /* Sine object */
 typedef struct {
     pyo_audio_HEAD
@@ -484,7 +494,6 @@ Osc_readframes_ii(Osc *self) {
         pos = self->pointerPos + ph;
         if (pos >= size)
             pos -= size;
-        //pos = fmodf((self->pointerPos + ph), size);
         ipart = (int)pos;
         fpart = pos - ipart;
         x = tablelist[ipart];
@@ -1819,4 +1828,881 @@ Pointer_members,             /* tp_members */
 (initproc)Pointer_init,      /* tp_init */
 0,                         /* tp_alloc */
 Pointer_new,                 /* tp_new */
+};
+
+/**************/
+/* Pulsar object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *env;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *phase;
+    Stream *phase_stream;
+    PyObject *frac;
+    Stream *frac_stream;
+    int modebuffer[5];
+    float pointerPos;
+} Pulsar;
+
+static void
+Pulsar_readframes_iii(Pulsar *self) {
+    float fr, ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    ph = PyFloat_AS_DOUBLE(self->phase);
+    frac = _clip(PyFloat_AS_DOUBLE(self->frac));
+    invfrac = 1.0 / frac;
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph;
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < frac) {
+            scl_pos = pos * invfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_aii(Pulsar *self) {
+    float ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    ph = PyFloat_AS_DOUBLE(self->phase);
+    frac = _clip(PyFloat_AS_DOUBLE(self->frac));
+    invfrac = 1.0 / frac;
+    
+    oneOnSr = 1.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] * oneOnSr;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph;
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < frac) {
+            scl_pos = pos * invfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_iai(Pulsar *self) {
+    float fr, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    frac = _clip(PyFloat_AS_DOUBLE(self->frac));
+    invfrac = 1.0 / frac;
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph[i];
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < frac) {
+            scl_pos = pos * invfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_aai(Pulsar *self) {
+    float frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    frac = _clip(PyFloat_AS_DOUBLE(self->frac));
+    invfrac = 1.0 / frac;
+    
+    oneOnSr = 1.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] * oneOnSr;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph[i];
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < frac) {
+            scl_pos = pos * invfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_iia(Pulsar *self) {
+    float fr, ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    ph = PyFloat_AS_DOUBLE(self->phase);
+    float *frac = Stream_getData((Stream *)self->frac_stream);
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        curfrac = frac[i];
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph;
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < curfrac) {
+            scl_pos = pos / curfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_aia(Pulsar *self) {
+    float ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    ph = PyFloat_AS_DOUBLE(self->phase);
+    float *frac = Stream_getData((Stream *)self->frac_stream);
+    
+    oneOnSr = 1.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        curfrac = frac[i];
+        inc = fr[i] * oneOnSr;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph;
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < curfrac) {
+            scl_pos = pos / curfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_iaa(Pulsar *self) {
+    float fr, pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    float *frac = Stream_getData((Stream *)self->frac_stream);
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        curfrac = frac[i];
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph[i];
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < curfrac) {
+            scl_pos = pos / curfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void
+Pulsar_readframes_aaa(Pulsar *self) {
+    float pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    double inc;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    float *envlist = TableStream_getData(self->env);
+    int size = TableStream_getSize(self->table);
+    int envsize = TableStream_getSize(self->env);
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *ph = Stream_getData((Stream *)self->phase_stream);
+    float *frac = Stream_getData((Stream *)self->frac_stream);
+    
+    oneOnSr = 1.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        curfrac = frac[i];
+        inc = fr[i] * oneOnSr;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos = 1.0 + self->pointerPos;
+        else if (self->pointerPos >= 1.0)
+            self->pointerPos -= 1.0;
+        pos = self->pointerPos + ph[i];
+        if (pos >= 1.0)
+            pos -= 1.0;
+        if (pos < curfrac) {
+            scl_pos = pos / curfrac;
+            t_pos = scl_pos * size;
+            ipart = (int)t_pos;
+            fpart = t_pos - ipart;
+            x = tablelist[ipart];
+            x1 = tablelist[ipart+1];
+            tmp = x + (x1 - x) * fpart;
+            
+            e_pos = scl_pos * envsize;
+            ipart = (int)e_pos;
+            fpart = e_pos - ipart;
+            x = envlist[ipart];
+            x1 = envlist[ipart+1];            
+            self->data[i] = tmp * (x + (x1 - x) * fpart);
+        }    
+        else {
+            self->data[i] = 0.0;
+        }    
+    }
+}
+
+static void Pulsar_postprocessing_ii(Pulsar *self) { POST_PROCESSING_II };
+static void Pulsar_postprocessing_ai(Pulsar *self) { POST_PROCESSING_AI };
+static void Pulsar_postprocessing_ia(Pulsar *self) { POST_PROCESSING_IA };
+static void Pulsar_postprocessing_aa(Pulsar *self) { POST_PROCESSING_AA };
+static void Pulsar_postprocessing_ireva(Pulsar *self) { POST_PROCESSING_IREVA };
+static void Pulsar_postprocessing_areva(Pulsar *self) { POST_PROCESSING_AREVA };
+static void Pulsar_postprocessing_revai(Pulsar *self) { POST_PROCESSING_REVAI };
+static void Pulsar_postprocessing_revaa(Pulsar *self) { POST_PROCESSING_REVAA };
+static void Pulsar_postprocessing_revareva(Pulsar *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Pulsar_setProcMode(Pulsar *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Pulsar_readframes_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Pulsar_readframes_aii;
+            break;
+        case 10:        
+            self->proc_func_ptr = Pulsar_readframes_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = Pulsar_readframes_aai;
+            break;
+        case 100:        
+            self->proc_func_ptr = Pulsar_readframes_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = Pulsar_readframes_aia;
+            break;
+        case 110:        
+            self->proc_func_ptr = Pulsar_readframes_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = Pulsar_readframes_aaa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Pulsar_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Pulsar_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Pulsar_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Pulsar_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Pulsar_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Pulsar_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Pulsar_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Pulsar_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Pulsar_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Pulsar_compute_next_data_frame(Pulsar *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Pulsar_traverse(Pulsar *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->env);
+    Py_VISIT(self->phase);    
+    Py_VISIT(self->phase_stream);    
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->frac);    
+    Py_VISIT(self->frac_stream);
+    return 0;
+}
+
+static int 
+Pulsar_clear(Pulsar *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->env);
+    Py_CLEAR(self->phase);    
+    Py_CLEAR(self->phase_stream);    
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->frac);    
+    Py_CLEAR(self->frac_stream);
+    return 0;
+}
+
+static void
+Pulsar_dealloc(Pulsar* self)
+{
+    free(self->data);
+    Pulsar_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Pulsar_deleteStream(Pulsar *self) { DELETE_STREAM };
+
+static PyObject *
+Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Pulsar *self;
+    self = (Pulsar *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(100);
+    self->phase = PyFloat_FromDouble(0);
+    self->frac = PyFloat_FromDouble(0.5);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+    self->pointerPos = 0.;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Pulsar_compute_next_data_frame);
+    self->mode_func_ptr = Pulsar_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Pulsar_init(Pulsar *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *tabletmp, *envtmp, *freqtmp=NULL, *phasetmp=NULL, *fractmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"table", "env", "freq", "frac", "phase", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOO", kwlist, &tabletmp, &envtmp, &freqtmp, &fractmp, &phasetmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+
+    Py_XDECREF(self->env);
+    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+
+    if (phasetmp) {
+        PyObject_CallMethod((PyObject *)self, "setPhase", "O", phasetmp);
+    }
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (fractmp) {
+        PyObject_CallMethod((PyObject *)self, "setFrac", "O", fractmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Pulsar_compute_next_data_frame((Pulsar *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Pulsar_getServer(Pulsar* self) { GET_SERVER };
+static PyObject * Pulsar_getStream(Pulsar* self) { GET_STREAM };
+static PyObject * Pulsar_setMul(Pulsar *self, PyObject *arg) { SET_MUL };	
+static PyObject * Pulsar_setAdd(Pulsar *self, PyObject *arg) { SET_ADD };	
+static PyObject * Pulsar_setSub(Pulsar *self, PyObject *arg) { SET_SUB };	
+static PyObject * Pulsar_setDiv(Pulsar *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Pulsar_play(Pulsar *self) { PLAY };
+static PyObject * Pulsar_out(Pulsar *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Pulsar_stop(Pulsar *self) { STOP };
+
+static PyObject * Pulsar_multiply(Pulsar *self, PyObject *arg) { MULTIPLY };
+static PyObject * Pulsar_inplace_multiply(Pulsar *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Pulsar_add(Pulsar *self, PyObject *arg) { ADD };
+static PyObject * Pulsar_inplace_add(Pulsar *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Pulsar_sub(Pulsar *self, PyObject *arg) { SUB };
+static PyObject * Pulsar_inplace_sub(Pulsar *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Pulsar_div(Pulsar *self, PyObject *arg) { DIV };
+static PyObject * Pulsar_inplace_div(Pulsar *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Pulsar_getTable(Pulsar* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Pulsar_getEnv(Pulsar* self)
+{
+    Py_INCREF(self->env);
+    return self->env;
+};
+
+static PyObject *
+Pulsar_setTable(Pulsar *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pulsar_setEnv(Pulsar *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->env);
+    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pulsar_setFreq(Pulsar *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pulsar_setPhase(Pulsar *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->phase);
+	if (isNumber == 1) {
+		self->phase = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->phase = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->phase, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->phase_stream);
+        self->phase_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pulsar_setFrac(Pulsar *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->frac);
+	if (isNumber == 1) {
+		self->frac = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->frac = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->frac, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->frac_stream);
+        self->frac_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Pulsar_members[] = {
+{"server", T_OBJECT_EX, offsetof(Pulsar, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Pulsar, stream), 0, "Stream object."},
+{"table", T_OBJECT_EX, offsetof(Pulsar, table), 0, "Waveform table."},
+{"freq", T_OBJECT_EX, offsetof(Pulsar, freq), 0, "Frequency in cycle per second."},
+{"phase", T_OBJECT_EX, offsetof(Pulsar, phase), 0, "Oscillator phase."},
+{"frac", T_OBJECT_EX, offsetof(Pulsar, frac), 0, "Table width inside whole length."},
+{"mul", T_OBJECT_EX, offsetof(Pulsar, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Pulsar, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Pulsar_methods[] = {
+{"getTable", (PyCFunction)Pulsar_getTable, METH_NOARGS, "Returns waveform table object."},
+{"getEnv", (PyCFunction)Pulsar_getEnv, METH_NOARGS, "Returns object envelope."},
+{"getServer", (PyCFunction)Pulsar_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Pulsar_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Pulsar_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Pulsar_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Pulsar_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Pulsar_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)Pulsar_setTable, METH_O, "Sets oscillator table."},
+{"setFreq", (PyCFunction)Pulsar_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
+{"setPhase", (PyCFunction)Pulsar_setPhase, METH_O, "Sets oscillator phase."},
+{"setFrac", (PyCFunction)Pulsar_setFrac, METH_O, "Sets waveform width inside whole period length."},
+{"setMul", (PyCFunction)Pulsar_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Pulsar_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Pulsar_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)Pulsar_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Pulsar_as_number = {
+(binaryfunc)Pulsar_add,                      /*nb_add*/
+(binaryfunc)Pulsar_sub,                 /*nb_subtract*/
+(binaryfunc)Pulsar_multiply,                 /*nb_multiply*/
+(binaryfunc)Pulsar_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Pulsar_inplace_add,              /*inplace_add*/
+(binaryfunc)Pulsar_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Pulsar_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Pulsar_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject PulsarType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Pulsar_base",         /*tp_name*/
+sizeof(Pulsar),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Pulsar_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Pulsar_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Pulsar objects. Generates pulsar synthesis oscillator.",           /* tp_doc */
+(traverseproc)Pulsar_traverse,   /* tp_traverse */
+(inquiry)Pulsar_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Pulsar_methods,             /* tp_methods */
+Pulsar_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Pulsar_init,      /* tp_init */
+0,                         /* tp_alloc */
+Pulsar_new,                 /* tp_new */
 };
