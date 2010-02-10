@@ -1,3 +1,7 @@
+"""
+Tools to analyze audio signals.
+
+"""
 from _core import *
 
 class Follower(PyoObject):
