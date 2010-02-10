@@ -2718,6 +2718,9 @@ typedef struct {
     int loop;
     int modebuffer[3];
     float pointerPos;
+    float *trigsBuffer;
+    float *tempTrigsBuffer;
+    int init;    
 } TableRead;
 
 static void
@@ -2733,9 +2736,15 @@ TableRead_readframes_i(TableRead *self) {
     
     for (i=0; i<self->bufsize; i++) {
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
+        if (self->pointerPos < 0) {
+            if (self->init == 0)
+                self->trigsBuffer[i] = 1.0;
+            else
+                self->init = 0;
             self->pointerPos = size + self->pointerPos;
+        }    
         else if (self->pointerPos >= size) {
+            self->trigsBuffer[i] = 1.0;
             if (self->loop == 1)
                 self->pointerPos -= size;
             else
@@ -2770,9 +2779,15 @@ TableRead_readframes_a(TableRead *self) {
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] * sizeOnSr;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
+        if (self->pointerPos < 0) {
+            if (self->init == 0)
+                self->trigsBuffer[i] = 1.0;
+            else
+                self->init = 0;
             self->pointerPos = size + self->pointerPos;
+        }    
         else if (self->pointerPos >= size) {
+            self->trigsBuffer[i] = 1.0;
             if (self->loop == 1)
                 self->pointerPos -= size;
             else
@@ -2880,6 +2895,8 @@ static void
 TableRead_dealloc(TableRead* self)
 {
     free(self->data);
+    free(self->tempTrigsBuffer);
+    free(self->trigsBuffer);
     TableRead_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -2894,6 +2911,7 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->freq = PyFloat_FromDouble(1);
     self->loop = 0;
+    self->init = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -2909,6 +2927,7 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TableRead_init(TableRead *self, PyObject *args, PyObject *kwds)
 {
+    int i;
     PyObject *tabletmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"table", "freq", "loop", "mul", "add", NULL};
@@ -2933,10 +2952,18 @@ TableRead_init(TableRead *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
+    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
     
     (*self->mode_func_ptr)(self);
     
     TableRead_compute_next_data_frame((TableRead *)self);
+    self->init = 1;
     
     Py_INCREF(self);
     return 0;
@@ -2952,6 +2979,7 @@ static PyObject * TableRead_setDiv(TableRead *self, PyObject *arg) { SET_DIV };
 static PyObject * TableRead_play(TableRead *self) 
 { 
     self->pointerPos = 0.0;
+    self->init = 1;
     PLAY 
 };
 
@@ -3043,6 +3071,17 @@ TableRead_setLoop(TableRead *self, PyObject *arg)
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+float *
+TableRead_getTrigsBuffer(TableRead *self)
+{
+    int i;
+    for (i=0; i<self->bufsize; i++) {
+        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
+        self->trigsBuffer[i] = 0.0;
+    }    
+    return (float *)self->tempTrigsBuffer;
+}    
 
 static PyMemberDef TableRead_members[] = {
 {"server", T_OBJECT_EX, offsetof(TableRead, server), 0, "Pyo server."},
@@ -3154,4 +3193,148 @@ TableRead_members,             /* tp_members */
 (initproc)TableRead_init,      /* tp_init */
 0,                         /* tp_alloc */
 TableRead_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TableRead trig streamer */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TableRead *mainReader;
+} TableReadTrig;
+
+static void
+TableReadTrig_compute_next_data_frame(TableReadTrig *self)
+{
+    int i;
+    float *tmp;
+    tmp = TableRead_getTrigsBuffer((TableRead *)self->mainReader);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+TableReadTrig_traverse(TableReadTrig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainReader);
+    return 0;
+}
+
+static int 
+TableReadTrig_clear(TableReadTrig *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainReader);    
+    return 0;
+}
+
+static void
+TableReadTrig_dealloc(TableReadTrig* self)
+{
+    free(self->data);
+    TableReadTrig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TableReadTrig_deleteStream(TableReadTrig *self) { DELETE_STREAM };
+
+static PyObject *
+TableReadTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TableReadTrig *self;
+    self = (TableReadTrig *)type->tp_alloc(type, 0);
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TableReadTrig_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+TableReadTrig_init(TableReadTrig *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL;
+    
+    static char *kwlist[] = {"mainReader", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainReader);
+    Py_INCREF(maintmp);
+    self->mainReader = (TableRead *)maintmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    TableReadTrig_compute_next_data_frame((TableReadTrig *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TableReadTrig_getServer(TableReadTrig* self) { GET_SERVER };
+static PyObject * TableReadTrig_getStream(TableReadTrig* self) { GET_STREAM };
+
+static PyObject * TableReadTrig_play(TableReadTrig *self) { PLAY };
+static PyObject * TableReadTrig_stop(TableReadTrig *self) { STOP };
+
+static PyMemberDef TableReadTrig_members[] = {
+{"server", T_OBJECT_EX, offsetof(TableReadTrig, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TableReadTrig, stream), 0, "Stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableReadTrig_methods[] = {
+{"getServer", (PyCFunction)TableReadTrig_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TableReadTrig_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TableReadTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)TableReadTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TableReadTrig_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TableReadTrigType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TableReadTrig_base",         /*tp_name*/
+sizeof(TableReadTrig),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TableReadTrig_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"TableReadTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
+(traverseproc)TableReadTrig_traverse,   /* tp_traverse */
+(inquiry)TableReadTrig_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TableReadTrig_methods,             /* tp_methods */
+TableReadTrig_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)TableReadTrig_init,      /* tp_init */
+0,                         /* tp_alloc */
+TableReadTrig_new,                 /* tp_new */
 };

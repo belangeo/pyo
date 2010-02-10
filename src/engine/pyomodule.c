@@ -294,6 +294,11 @@ init_pyo(void)
         return;
     Py_INCREF(&TableReadType);
     PyModule_AddObject(m, "TableRead_base", (PyObject *)&TableReadType);
+
+    if (PyType_Ready(&TableReadTrigType) < 0)
+        return;
+    Py_INCREF(&TableReadTrigType);
+    PyModule_AddObject(m, "TableReadTrig_base", (PyObject *)&TableReadTrigType);
     
     if (PyType_Ready(&PulsarType) < 0)
         return;

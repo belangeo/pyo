@@ -418,7 +418,10 @@ class TableRec(PyoObject):
      
     See `NewTable` to create an empty table.
 
-    The play method is not called at the object creation time.
+    The play method is not called at the object creation time. It starts
+    the recording into the table until the table is full. Calling the 
+    play method again restarts the recording and overwrites previously
+    recorded samples.
     
     Parent class: PyoObject
 
