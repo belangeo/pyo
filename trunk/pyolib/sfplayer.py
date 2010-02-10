@@ -1,5 +1,6 @@
 from _core import *
 import aifc
+from types import StringType, UnicodeType
 
 class SfPlayer(PyoObject):
     """
@@ -50,6 +51,15 @@ class SfPlayer(PyoObject):
     offset : float, Time, in seconds, of the first sample to read.
     interp : int {1, 2, 3, 4}, Interpolation method.
     
+    Notes:
+    
+    SfPlayer will sends a trigger signal at the end of the playback if 
+    loop is off or any time it wraps around if loop is on. User can 
+    retreive the trigger streams by calling obj['trig']:
+    
+    >>> sf = SfPlayer(DEMOS_PATH + "/transparent.aif").out()
+    >>> trig = TrigRand(sf['trig'])
+    
     Examples:
     
     >>> s = Server().boot()
@@ -68,11 +78,13 @@ class SfPlayer(PyoObject):
         self._add = add
         path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(path, speed, loop, offset, interp, mul, add)
         self._base_objs = []
+        self._trig_objs = []
         self._snd_size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path[0])
         self._base_players = [SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)) for i in range(lmax)]
         for i in range(lmax * self._snd_chnls):
             j = i / self._snd_chnls
             self._base_objs.append(SfPlay_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
+            self._trig_objs.append(SfPlayTrig_base(wrap(self._base_players,j), i % self._snd_chnls))
 
     def __del__(self):
         for obj in self._base_objs:
@@ -81,14 +93,28 @@ class SfPlayer(PyoObject):
         for obj in self._base_players:
             obj.deleteStream()
             del obj
+
+    def __getitem__(self, i):
+        if type(i) in [StringType, UnicodeType]:
+            if i == 'trig':
+                return self._trig_objs
+        
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
                         
     def play(self):
         self._base_players = [obj.play() for obj in self._base_players]
         self._base_objs = [obj.play() for obj in self._base_objs]
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
         return self
 
     def out(self, chnl=0, inc=1):
         self._base_players = [obj.play() for obj in self._base_players]
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
         if type(chnl) == ListType:
             self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
         else:
@@ -101,6 +127,7 @@ class SfPlayer(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
         return self
         
     def setSound(self, path):

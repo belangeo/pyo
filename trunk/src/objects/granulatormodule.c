@@ -914,6 +914,30 @@ Granulator_setBaseDur(Granulator *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Granulator_setGrains(Granulator *self, PyObject *arg)
+{	
+    int i;
+    float phase;
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->ngrains = PyLong_AsLong(arg);
+        self->startPos = (float *)realloc(self->startPos, self->ngrains * sizeof(float));
+        self->gsize = (float *)realloc(self->gsize, self->ngrains * sizeof(float));
+        self->gphase = (float *)realloc(self->gphase, self->ngrains * sizeof(float));
+        
+        srand((unsigned)(time(0)));
+        for (i=0; i<self->ngrains; i++) {
+            phase = ((float)i/self->ngrains) * (1.0 + ((rand()/((float)(RAND_MAX)+1)*2.0-1.0) * 0.015));
+            if (phase < 0.0)
+                phase = 0.0;
+            self->gphase[i] = phase;
+        }        
+    }    
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Granulator_members[] = {
     {"server", T_OBJECT_EX, offsetof(Granulator, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Granulator, stream), 0, "Stream object."},
@@ -941,6 +965,7 @@ static PyMethodDef Granulator_methods[] = {
     {"setPos", (PyCFunction)Granulator_setPos, METH_O, "Sets position in the sound table."},
     {"setDur", (PyCFunction)Granulator_setDur, METH_O, "Sets the grain duration."},
     {"setBaseDur", (PyCFunction)Granulator_setBaseDur, METH_O, "Sets the grain base duration."},
+    {"setGrains", (PyCFunction)Granulator_setGrains, METH_O, "Sets the number of grains."},
 	{"setMul", (PyCFunction)Granulator_setMul, METH_O, "Sets granulator mul factor."},
 	{"setAdd", (PyCFunction)Granulator_setAdd, METH_O, "Sets granulator add factor."},
     {"setSub", (PyCFunction)Granulator_setSub, METH_O, "Sets inverse add factor."},

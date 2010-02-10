@@ -373,7 +373,7 @@ class TableRead(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SndTable(DEMOS_PATH + '/transparent.aif')
-    >>> a = TableReader(table=snd, freq=snd.getRate(), loop=0).out()   
+    >>> a = TableRead(table=snd, freq=snd.getRate(), loop=0).out()   
      
     """
     def __init__(self, table, freq=1, loop=0, mul=1, add=0):

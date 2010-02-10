@@ -270,6 +270,11 @@ init_pyo(void)
     Py_INCREF(&SfPlayType);
     PyModule_AddObject(m, "SfPlay_base", (PyObject *)&SfPlayType);
 
+    if (PyType_Ready(&SfPlayTrigType) < 0)
+        return;
+    Py_INCREF(&SfPlayTrigType);
+    PyModule_AddObject(m, "SfPlayTrig_base", (PyObject *)&SfPlayTrigType);
+    
     if (PyType_Ready(&SfMarkerShufflerType) < 0)
         return;
     Py_INCREF(&SfMarkerShufflerType);

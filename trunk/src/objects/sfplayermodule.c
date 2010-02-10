@@ -26,6 +26,9 @@ typedef struct {
     float startPos;
     double pointerPos;
     float *samplesBuffer;
+    float *trigsBuffer;
+    float *tempTrigsBuffer;
+    int init;
     float (*interp_func_ptr)(float *, int, float);
 } SfPlayer;
 
@@ -81,7 +84,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
     totlen = self->sndChnls*buflen;
     float buffer[totlen];
     float buffer2[self->sndChnls][buflen];
-
+    
     if (sp > 0) {
         if (self->startPos >= self->sndSize)
             self->startPos = 0;
@@ -90,7 +93,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
 
         /* fill a buffer with enough samples to satisfy speed reading */
         /* if not enough samples to read in the file */
-        if ((index+buflen) > self->sndSize) {
+        if ((index+buflen) > self->sndSize) {   
             shortbuflen = self->sndSize - index;
             sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
             if (self->loop == 0) { /* with zero padding if noloop */
@@ -129,6 +132,9 @@ SfPlayer_readframes_i(SfPlayer *self) {
             self->pointerPos += delta;
         }
         if (self->pointerPos >= self->sndSize) {
+            for (i=0; i<self->sndChnls; i++) {
+                self->trigsBuffer[i*self->bufsize] = 1.0;
+            } 
             self->pointerPos -= self->sndSize - self->startPos;
             if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
@@ -203,6 +209,13 @@ SfPlayer_readframes_i(SfPlayer *self) {
             self->pointerPos -= delta;
         }
         if (self->pointerPos <= 0) {
+            if (self->init == 0) {
+                for (i=0; i<self->sndChnls; i++) {
+                    self->trigsBuffer[i*self->bufsize] = 1.0;
+                }
+            }
+            else
+                self->init = 0;
             self->pointerPos += self->startPos;
             if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
@@ -280,6 +293,9 @@ SfPlayer_readframes_a(SfPlayer *self) {
             self->pointerPos += spobj[i] * self->srScale;
         }
         if (self->pointerPos >= self->sndSize) {
+            for (i=0; i<self->sndChnls; i++) {
+                self->trigsBuffer[i*self->bufsize] = 1.0;
+            } 
             self->pointerPos -= self->sndSize - self->startPos;
             if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
@@ -349,6 +365,13 @@ SfPlayer_readframes_a(SfPlayer *self) {
             self->pointerPos += spobj[i] * self->srScale;
         }
         if (self->pointerPos <= 0) {
+            if (self->init == 0) {
+                for (i=0; i<self->sndChnls; i++) {
+                    self->trigsBuffer[i*self->bufsize] = 1.0;
+                }
+            }
+            else
+                self->init = 0;            
             self->pointerPos += self->startPos;
             if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
@@ -405,6 +428,7 @@ SfPlayer_dealloc(SfPlayer* self)
 {
     sf_close(self->sf);
     free(self->samplesBuffer);
+    free(self->trigsBuffer);
     free(self->data);
     SfPlayer_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -421,6 +445,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->speed = PyFloat_FromDouble(1);
     self->loop = 0;
     self->interp = 2;
+    self->init = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -435,6 +460,7 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
 {
+    int i;
     float offset = 0.;
     PyObject *speedtmp=NULL;
     
@@ -476,7 +502,13 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     self->srScale = self->sndSr / self->sr;
 
     self->samplesBuffer = (float *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * self->sndChnls * sizeof(float));
 
+    for (i=0; i<(self->bufsize*self->sndChnls); i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
+    
     self->startPos = offset * self->sr * self->srScale;
     self->pointerPos = self->startPos;
     
@@ -625,6 +657,17 @@ float *
 SfPlayer_getSamplesBuffer(SfPlayer *self)
 {
     return (float *)self->samplesBuffer;
+}    
+
+float *
+SfPlayer_getTrigsBuffer(SfPlayer *self)
+{
+    int i;
+    for (i=0; i<(self->bufsize*self->sndChnls); i++) {
+        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
+        self->trigsBuffer[i] = 0.0;
+    }    
+    return (float *)self->tempTrigsBuffer;
 }    
 
 static PyMemberDef SfPlayer_members[] = {
@@ -964,6 +1007,153 @@ SfPlay_members,             /* tp_members */
 SfPlay_new,                 /* tp_new */
 };
 
+/************************************************************************************************/
+/* Sfplay streamer object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    SfPlayer *mainPlayer;
+    int chnl; 
+} SfPlayTrig;
+
+static void
+SfPlayTrig_compute_next_data_frame(SfPlayTrig *self)
+{
+    int i;
+    float *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = SfPlayer_getTrigsBuffer((SfPlayer *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+SfPlayTrig_traverse(SfPlayTrig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+SfPlayTrig_clear(SfPlayTrig *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+SfPlayTrig_dealloc(SfPlayTrig* self)
+{
+    free(self->data);
+    SfPlayTrig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * SfPlayTrig_deleteStream(SfPlayTrig *self) { DELETE_STREAM };
+
+static PyObject *
+SfPlayTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    SfPlayTrig *self;
+    self = (SfPlayTrig *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, SfPlayTrig_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        return -1; 
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (SfPlayer *)maintmp;
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    SfPlayTrig_compute_next_data_frame((SfPlayTrig *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * SfPlayTrig_getServer(SfPlayTrig* self) { GET_SERVER };
+static PyObject * SfPlayTrig_getStream(SfPlayTrig* self) { GET_STREAM };
+
+static PyObject * SfPlayTrig_play(SfPlayTrig *self) { PLAY };
+static PyObject * SfPlayTrig_stop(SfPlayTrig *self) { STOP };
+
+static PyMemberDef SfPlayTrig_members[] = {
+{"server", T_OBJECT_EX, offsetof(SfPlayTrig, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(SfPlayTrig, stream), 0, "Stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef SfPlayTrig_methods[] = {
+{"getServer", (PyCFunction)SfPlayTrig_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)SfPlayTrig_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)SfPlayTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)SfPlayTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)SfPlayTrig_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject SfPlayTrigType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.SfPlayTrig_base",         /*tp_name*/
+sizeof(SfPlayTrig),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)SfPlayTrig_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"SfPlayTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
+(traverseproc)SfPlayTrig_traverse,   /* tp_traverse */
+(inquiry)SfPlayTrig_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+SfPlayTrig_methods,             /* tp_methods */
+SfPlayTrig_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)SfPlayTrig_init,      /* tp_init */
+0,                         /* tp_alloc */
+SfPlayTrig_new,                 /* tp_new */
+};
 
 
 /************************************************************************************************/

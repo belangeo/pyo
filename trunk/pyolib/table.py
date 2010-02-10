@@ -561,7 +561,7 @@ class Granulator(PyoObject):
         current value of this stream at the beginning of its envelope 
         and hold it until the end of the grain. Defaults to 0.1.
     grains : int, optional
-        Number of grains. Available only at initialization. Defaults to 8.
+        Number of grains. Defaults to 8.
     basedur : float, optional
         Base duration used to calculate the speed of the pointer to 
         read the grain at its original pitch. By changing the value of 
@@ -575,6 +575,7 @@ class Granulator(PyoObject):
     setPitch(x) : Replace the `pitch` attribute.
     setPos(x) : Replace the `pos` attribute.
     setDur(x) : Replace the `dur` attribute.
+    setGrains(x) : Replace the `grains` attribute.
     setBaseDur(x) : Replace the `basedur` attribute.
     
     Attributes:
@@ -584,6 +585,7 @@ class Granulator(PyoObject):
     pitch : float or PyoObject. Overall pitch of the granulator.
     pos : float or PyoObject. Position of the pointer in the sound table.
     dur : float or PyoObject. Duration, in seconds, of the grain.
+    grains : int. Number of grains.
     basedur : float. Duration to read the grain at its original pitch.
     
     Examples:
@@ -682,6 +684,20 @@ class Granulator(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setGrains(self, x):
+        """
+        Replace the `grains` attribute.
+        
+        Parameters:
+
+        x : int
+            new `grains` attribute.
+        
+        """
+        self._grains = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setGrains(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def setBaseDur(self, x):
         """
         Replace the `basedur` attribute.
@@ -748,6 +764,13 @@ class Granulator(PyoObject):
         return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
+
+    @property
+    def grains(self):
+        """int. Number of grains."""
+        return self._grains
+    @grains.setter
+    def grains(self, x): self.setGrains(x)
 
     @property
     def basedur(self):
