@@ -427,7 +427,7 @@ static void
 SfPlayer_dealloc(SfPlayer* self)
 {
     sf_close(self->sf);
-    free(self->samplesBuffer);
+    free(self->tempTrigsBuffer);
     free(self->trigsBuffer);
     free(self->data);
     SfPlayer_clear(self);
@@ -1072,7 +1072,7 @@ SfPlayTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp=NULL;
     
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     

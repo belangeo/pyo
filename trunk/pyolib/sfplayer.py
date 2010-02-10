@@ -1,6 +1,5 @@
 from _core import *
 import aifc
-from types import StringType, UnicodeType
 
 class SfPlayer(PyoObject):
     """
@@ -95,9 +94,8 @@ class SfPlayer(PyoObject):
             del obj
 
     def __getitem__(self, i):
-        if type(i) in [StringType, UnicodeType]:
-            if i == 'trig':
-                return self._trig_objs
+        if i == 'trig':
+            return self._trig_objs
         
         if type(i) == SliceType:
             return self._base_objs[i]
@@ -298,6 +296,11 @@ class SfMarkerShuffler(PyoObject):
     
     speed : float or PyoObject, Transposition factor.
     interp : int {1, 2, 3, 4}, Interpolation method.
+ 
+    Notes:
+    
+    Reading backward with fast changes at audio rate can generates strong 
+    DC in the resulting sound.
     
     Examples:
     
