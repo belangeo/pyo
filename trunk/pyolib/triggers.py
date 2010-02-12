@@ -168,7 +168,8 @@ class TrigRand(PyoObject):
         self._in_fader.setInput(x, fadetime)
         
     def setMin(self, x):
-        """Replace the `min` attribute.
+        """
+        Replace the `min` attribute.
         
         Parameters:
 
@@ -537,7 +538,8 @@ class TrigEnv(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     def setTable(self, x):
-        """Replace the `table` attribute.
+        """
+        Replace the `table` attribute.
         
         Parameters:
 
@@ -550,7 +552,8 @@ class TrigEnv(PyoObject):
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
         
     def setDur(self, x):
-        """Replace the `dur` attribute.
+        """
+        Replace the `dur` attribute.
         
         Parameters:
 
@@ -679,7 +682,8 @@ class Counter(PyoObject):
         self._in_fader.setInput(x, fadetime)
         
     def setMin(self, x):
-        """Replace the `min` attribute.
+        """
+        Replace the `min` attribute.
         
         Parameters:
 
@@ -692,7 +696,8 @@ class Counter(PyoObject):
         [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setMax(self, x):
-        """Replace the `max` attribute.
+        """
+        Replace the `max` attribute.
         
         Parameters:
 
@@ -705,7 +710,8 @@ class Counter(PyoObject):
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setDir(self, x):
-        """Replace the `dir` attribute.
+        """
+        Replace the `dir` attribute.
         
         Parameters:
 
@@ -826,7 +832,8 @@ class Select(PyoObject):
         self._in_fader.setInput(x, fadetime)
         
     def setValue(self, x):
-        """Replace the `value` attribute.
+        """
+        Replace the `value` attribute.
         
         Parameters:
 
@@ -857,3 +864,141 @@ class Select(PyoObject):
     def value(self): return self._value
     @value.setter
     def value(self, x): self.setValue(x)
+
+class Thresh(PyoObject):
+    """
+    Informs when a signal crosses a threshold.
+    
+    Thresh sends a trigger when a signal crosses a threshold. The `dir` 
+    parameter can be used to set the crossing mode, down-up, up-down, or 
+    both.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    threshold : float or PyoObject, optional
+        Threshold value. Defaults to 0.
+    dir : int {0, 1, 2}, optional
+        There are three modes of using Thresh:
+            dir = 0 : down-up
+                sends a trigger when current value is higher than the
+                threshold, while old value was equal to or lower than 
+                the threshold.
+            dir = 1 : up-down
+                sends a trigger when current value is lower than the
+                threshold, while old value was equal to or higher than 
+                the threshold.
+            dir = 2 : both direction
+                sends a trigger in both the two previous cases.
+        Defaults to 0.    
+    
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setThreshold(x) : Replace the `threshold` attribute.
+    setDir(x) : Replace the `dir` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Audio signal.
+    threshold : float or PyoObject. Threshold value.
+    dir : int. Direction of the count.
+
+    Notes:
+
+    The out() method is bypassed. Thresh's signal can not be sent 
+    to audio outs.
+
+    Thresh has no `mul` and `add` attributes.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Phasor(1)
+    >>> b = Thresh(a, threshold=[0.25, 0.5, 0.66], dir=0)
+    >>> t = LinTable([(0,0), (50,1), (250,.3), (8191,0)])
+    >>> env = TrigEnv(b, table=t, dur=.5, mul=.3)
+    >>> sine = Sine(freq=[500,600,700], mul=env).out()
+    
+    """
+    def __init__(self, input, threshold=0., dir=0):
+        self._input = input
+        self._threshold = threshold
+        self._dir = dir
+        self._in_fader = InputFader(input)
+        in_fader, threshold, dir, lmax = convertArgsToLists(self._in_fader, threshold, dir)
+        self._base_objs = [Thresh_base(wrap(in_fader,i), wrap(threshold,i), wrap(dir,i)) for i in range(lmax)]
+
+    def out(self, chnl=0, inc=1):
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setThreshold(self, x):
+        """
+        Replace the `threshold` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `threshold` attribute.
+        
+        """
+        self._threshold = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setThreshold(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDir(self, x):
+        """
+        Replace the `dir` attribute.
+        
+        Parameters:
+
+        x : int {0, 1, 2}
+            new `dir` attribute.
+        
+        """
+        self._dir = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for Thresh object."
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/Thresh_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('Thresh(input, threshold=0., dir=0)')
+    args = Print_args(args)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def threshold(self): return self._threshold
+    @threshold.setter
+    def threshold(self, x): self.setThreshold(x)
+    @property
+    def dir(self): return self._dir
+    @dir.setter
+    def dir(self, x): self.setDir(x)

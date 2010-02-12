@@ -20,6 +20,8 @@ extern PyTypeObject MetroType;
 extern PyTypeObject CounterType;
 extern PyTypeObject SelectType;
 
+extern PyTypeObject ThreshType;
+
 extern PyTypeObject FaderType;
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
