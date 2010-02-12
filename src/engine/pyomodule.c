@@ -484,6 +484,11 @@ init_pyo(void)
     Py_INCREF(&CounterType);
     PyModule_AddObject(m, "Counter_base", (PyObject *)&CounterType);
 
+    if (PyType_Ready(&ThreshType) < 0)
+        return;
+    Py_INCREF(&ThreshType);
+    PyModule_AddObject(m, "Thresh_base", (PyObject *)&ThreshType);
+    
     if (PyType_Ready(&SelectType) < 0)
         return;
     Py_INCREF(&SelectType);

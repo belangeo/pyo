@@ -1946,3 +1946,325 @@ Counter_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Counter_new,                                     /* tp_new */
 };
+
+/***************************************************/
+/******* Thresh ***********/
+/***************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *threshold;
+    Stream *threshold_stream;
+    int dir;
+    int ready;
+    int modebuffer[1];
+} Thresh;
+
+static void
+Thresh_generates_i(Thresh *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float thresh = PyFloat_AS_DOUBLE(self->threshold);
+
+    switch (self->dir) {
+        case 0:
+            for (i=0; i<self->bufsize; i++) {
+                self->data[i] = 0.0;
+                if (in[i] > thresh && self->ready == 1) {
+                    self->data[i] = 1.0;
+                    self->ready = 0;
+                }
+                else if (in[i] <= thresh && self->ready == 0)
+                    self->ready = 1;
+            } 
+            break;
+        case 1:
+            for (i=0; i<self->bufsize; i++) {
+                self->data[i] = 0.0;
+                if (in[i] < thresh && self->ready == 1) {
+                    self->data[i] = 1.0;
+                    self->ready = 0;
+                }
+                else if (in[i] >= thresh && self->ready == 0)
+                    self->ready = 1;
+            } 
+            break;
+        case 2:
+            for (i=0; i<self->bufsize; i++) {
+                self->data[i] = 0.0;
+                if (in[i] > thresh && self->ready == 1) {
+                    self->data[i] = 1.0;
+                    self->ready = 0;
+                }
+                else if (in[i] <= thresh && self->ready == 0) {
+                    self->data[i] = 1.0;
+                    self->ready = 1;
+                }    
+            } 
+            break;
+    }
+}
+
+static void
+Thresh_generates_a(Thresh *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *thresh = Stream_getData((Stream *)self->threshold_stream);
+    
+    switch (self->dir) {
+        case 0:
+            for (i=0; i<self->bufsize; i++) {
+                self->data[i] = 0.0;
+                if (in[i] > thresh[i] && self->ready == 1) {
+                    self->data[i] = 1.0;
+                    self->ready = 0;
+                }
+                else if (in[i] <= thresh[i] && self->ready == 0)
+                    self->ready = 1;
+            } 
+            break;
+        case 1:
+            for (i=0; i<self->bufsize; i++) {
+                self->data[i] = 0.0;
+                if (in[i] < thresh[i] && self->ready == 1) {
+                    self->data[i] = 1.0;
+                    self->ready = 0;
+                }
+                else if (in[i] >= thresh[i] && self->ready == 0)
+                    self->ready = 1;
+            } 
+            break;
+        case 2:
+            for (i=0; i<self->bufsize; i++) {
+                self->data[i] = 0.0;
+                if (in[i] > thresh[i] && self->ready == 1) {
+                    self->data[i] = 1.0;
+                    self->ready = 0;
+                }
+                else if (in[i] <= thresh[i] && self->ready == 0)
+                    self->data[i] = 1.0;
+                self->ready = 1;
+            } 
+            break;
+    }
+}
+
+static void
+Thresh_setProcMode(Thresh *self)
+{    
+    int procmode = self->modebuffer[0];
+    switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Thresh_generates_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Thresh_generates_a;
+            break;
+    }
+}
+
+static void
+Thresh_compute_next_data_frame(Thresh *self)
+{
+    (*self->proc_func_ptr)(self); 
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Thresh_traverse(Thresh *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->threshold);
+    Py_VISIT(self->threshold_stream);
+    return 0;
+}
+
+static int 
+Thresh_clear(Thresh *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->threshold);
+    Py_CLEAR(self->threshold_stream);
+    return 0;
+}
+
+static void
+Thresh_dealloc(Thresh* self)
+{
+    free(self->data);
+    Thresh_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Thresh_deleteStream(Thresh *self) { DELETE_STREAM };
+
+static PyObject *
+Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Thresh *self;
+    self = (Thresh *)type->tp_alloc(type, 0);
+    
+    self->threshold = PyFloat_FromDouble(0.);
+    self->dir = 0;
+    self->ready = 1;
+    self->modebuffer[0] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Thresh_compute_next_data_frame);
+    self->mode_func_ptr = Thresh_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Thresh_init(Thresh *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *thresholdtmp;
+    
+    static char *kwlist[] = {"input", "threshold", "dir", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|Oi", kwlist, &inputtmp, &thresholdtmp, &self->dir))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (thresholdtmp) {
+        PyObject_CallMethod((PyObject *)self, "setThreshold", "O", thresholdtmp);
+    }
+   
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+    
+    Thresh_compute_next_data_frame((Thresh *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Thresh_getServer(Thresh* self) { GET_SERVER };
+static PyObject * Thresh_getStream(Thresh* self) { GET_STREAM };
+
+static PyObject * Thresh_play(Thresh *self) { PLAY };
+static PyObject * Thresh_stop(Thresh *self) { STOP };
+
+static PyObject *
+Thresh_setThreshold(Thresh *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->threshold);
+	if (isNumber == 1) {
+		self->threshold = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->threshold = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->threshold, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->threshold_stream);
+        self->threshold_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Thresh_setDir(Thresh *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	if (PyInt_Check(arg)) {	
+		self->dir = PyInt_AsLong(arg);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Thresh_members[] = {
+{"server", T_OBJECT_EX, offsetof(Thresh, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Thresh, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Thresh, input), 0, "Input sound object."},
+{"threshold", T_OBJECT_EX, offsetof(Thresh, threshold), 0, "Threshold object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Thresh_methods[] = {
+{"getServer", (PyCFunction)Thresh_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Thresh_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Thresh_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Thresh_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Thresh_stop, METH_NOARGS, "Stops computing."},
+{"setThreshold", (PyCFunction)Thresh_setThreshold, METH_O, "Sets threshold value."},
+{"setDir", (PyCFunction)Thresh_setDir, METH_O, "Sets direction. 0 = upward, 1 = downward, 2 = up and down"},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject ThreshType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Thresh_base",                                   /*tp_name*/
+sizeof(Thresh),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Thresh_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Thresh objects. Threshold detector.",           /* tp_doc */
+(traverseproc)Thresh_traverse,                  /* tp_traverse */
+(inquiry)Thresh_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Thresh_methods,                                 /* tp_methods */
+Thresh_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Thresh_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Thresh_new,                                     /* tp_new */
+};
