@@ -30,8 +30,8 @@ typedef struct {
 static float
 C_clip(float x)
 {
-    if (x < 0.0)
-        return 0.0;
+    if (x <= 0.0)
+        return 0.00000001;
     else if (x > 1.0)
         return 1.0;
     else
@@ -366,6 +366,7 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Compress_init(Compress *self, PyObject *args, PyObject *kwds)
 {
+    int i;
     PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "mul", "add", NULL};
@@ -405,7 +406,7 @@ Compress_init(Compress *self, PyObject *args, PyObject *kwds)
     }
 
     self->follow = (float *)realloc(self->follow, self->bufsize * sizeof(float));
-
+    
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     

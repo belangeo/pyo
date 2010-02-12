@@ -437,6 +437,20 @@ HannTable_getSize(HannTable *self)
     return PyInt_FromLong(self->size);
 };
 
+static PyObject *
+HannTable_getTable(HannTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
 static PyMemberDef HannTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(HannTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(HannTable, tablestream), 0, "Table stream object."},
@@ -445,6 +459,7 @@ static PyMemberDef HannTable_members[] = {
 
 static PyMethodDef HannTable_methods[] = {
 {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -669,6 +684,20 @@ LinTable_getSize(LinTable *self)
 };
 
 static PyObject *
+LinTable_getTable(LinTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
+static PyObject *
 LinTable_getPoints(LinTable *self)
 {
     Py_INCREF(self->pointslist);
@@ -707,6 +736,7 @@ static PyMemberDef LinTable_members[] = {
 
 static PyMethodDef LinTable_methods[] = {
 {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -895,6 +925,20 @@ SndTable_getRate(SndTable *self)
     return PyFloat_FromDouble(sr * (self->sndSr/sr) / self->size);
 };
 
+static PyObject *
+SndTable_getTable(SndTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
 static PyMemberDef SndTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(SndTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(SndTable, tablestream), 0, "Table stream object."},
@@ -903,6 +947,7 @@ static PyMemberDef SndTable_members[] = {
 
 static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS, "Load a new sound in the table."},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
@@ -1061,6 +1106,20 @@ NewTable_getRate(NewTable *self)
     return PyFloat_FromDouble(sr / self->size);
 };
 
+static PyObject *
+NewTable_getTable(NewTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
 static PyMemberDef NewTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
@@ -1069,6 +1128,7 @@ static PyMemberDef NewTable_members[] = {
 
 static PyMethodDef NewTable_methods[] = {
 {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
