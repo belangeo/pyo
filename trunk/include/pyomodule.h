@@ -50,6 +50,7 @@ extern PyTypeObject LinTableType;
 extern PyTypeObject SndTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
+extern PyTypeObject TableRecTrigType;
 
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
@@ -58,6 +59,7 @@ extern PyTypeObject OscReceiverType;
 extern PyTypeObject TrigRandType;
 extern PyTypeObject TrigChoiceType;
 extern PyTypeObject TrigEnvType;
+extern PyTypeObject TrigEnvTrigType;
 extern PyTypeObject TrigFuncType;
 
 extern PyTypeObject PatternType;
