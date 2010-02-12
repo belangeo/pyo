@@ -904,12 +904,12 @@ class ViewTable(Frame):
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         step = len(samples) / float(self.width - 1)
         for i in range(self.width):
-            y = self.samples[int(i*step)-1] * self.wave_amp + self.wave_amp + 6
+            y = self.samples[int(i*step)-1] * self.wave_amp + self.wave_amp - 1
             self.line_points.append(i+4)
-            self.line_points.append(y)
+            self.line_points.append(self.height-y)
             self.line_points.append(i+4)
-            self.line_points.append(y)
-        self.canvas.create_line(0, self.half_height+4, self.width, self.half_height+4, fill='grey', dash=(4,2))    
+            self.line_points.append(self.height-y)
+        self.canvas.create_line(0, self.half_height+3, self.width, self.half_height+3, fill='grey', dash=(4,2))    
         self.canvas.create_line(*self.line_points)
         self.canvas.grid()
         self.grid(ipadx=10, ipady=10)
