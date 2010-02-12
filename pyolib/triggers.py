@@ -1,4 +1,5 @@
 from _core import *
+from types import SliceType
 
 class Metro(PyoObject):
     """
@@ -462,6 +463,10 @@ class TrigEnv(PyoObject):
     table : PyoTableObject. Envelope table.
     dur : float or PyoObject. Duration in seconds.
 
+    TrigEnv will sends a trigger signal at the end of the playback. 
+    User can retreive the trigger streams by calling obj['trig']. 
+    Useful to synchronize other processes. 
+
     Examples:
     
     >>> s = Server().boot()
@@ -482,6 +487,39 @@ class TrigEnv(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, table, dur, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, mul, add)
         self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = [TrigEnvTrig_base(obj) for obj in self._base_objs]
+
+    def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+        
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+
+    def play(self):
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
+        return self
+
+    def out(self, chnl=0, inc=1):
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
+        if type(chnl) == ListType:
+            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+        else:
+            if chnl < 0:    
+                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+            else:   
+                self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
+        return self
 
     def setInput(self, x, fadetime=0.05):
         """

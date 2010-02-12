@@ -1,4 +1,5 @@
 from _core import *
+from types import SliceType
  
 class Osc(PyoObject):
     """
@@ -627,6 +628,16 @@ class TableRec(PyoObject):
     The out() method is bypassed. TableRec returns no signal.
     
     TableRec has no `mul` and `add` attributes.
+    
+    TableRec will sends a trigger signal at the end of the recording. 
+    User can retreive the trigger streams by calling obj['trig']. In
+    this example, the recorded table will be read automatically after
+    a recording:
+    
+    >>> a = Input(0)
+    >>> t = NewTable(length=1, chnls=1)
+    >>> rec = TableRec(a, table=t, fadetime=0.01)
+    >>> tr = TrigEnv(rec['trig'], table=t, dur=1).out()
 
     See also: NewTable
     
@@ -648,6 +659,28 @@ class TableRec(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
+        self._trig_objs = [TableRecTrig_base(obj) for obj in self._base_objs]
+
+    def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+        
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+
+    def play(self):
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
+        return self
 
     def out(self, chnl=0, inc=1):
         pass

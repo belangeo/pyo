@@ -244,6 +244,10 @@ init_pyo(void)
     Py_INCREF(&TableRecType);
     PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
     
+    if (PyType_Ready(&TableRecTrigType) < 0)
+        return;
+    Py_INCREF(&TableRecTrigType);
+    PyModule_AddObject(m, "TableRecTrig_base", (PyObject *)&TableRecTrigType);
     
     if (PyType_Ready(&InputType) < 0)
         return;
@@ -294,7 +298,7 @@ init_pyo(void)
         return;
     Py_INCREF(&TableReadType);
     PyModule_AddObject(m, "TableRead_base", (PyObject *)&TableReadType);
-
+ 
     if (PyType_Ready(&TableReadTrigType) < 0)
         return;
     Py_INCREF(&TableReadTrigType);
@@ -415,6 +419,11 @@ init_pyo(void)
     Py_INCREF(&TrigEnvType);
     PyModule_AddObject(m, "TrigEnv_base", (PyObject *)&TrigEnvType);
 
+    if (PyType_Ready(&TrigEnvTrigType) < 0)
+        return;
+    Py_INCREF(&TrigEnvTrigType);
+    PyModule_AddObject(m, "TrigEnvTrig_base", (PyObject *)&TrigEnvTrigType);
+    
     if (PyType_Ready(&TrigFuncType) < 0)
         return;
     Py_INCREF(&TrigFuncType);

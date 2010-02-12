@@ -982,6 +982,8 @@ typedef struct {
     float current_dur; // duration in samples
     float inc; // table size / current_dur
     float pointerPos; // reading position in sample
+    float *trigsBuffer;
+    float *tempTrigsBuffer;
 } TrigEnv;
 
 static void
@@ -1011,8 +1013,10 @@ TrigEnv_readframes_i(TrigEnv *self) {
         else
             self->data[i] = 0.;
         
-        if (self->pointerPos > size)
+        if (self->pointerPos > size && self->active == 1) {
+            self->trigsBuffer[i] = 1.0;
             self->active = 0;
+        }    
     }
 }
 
@@ -1044,8 +1048,10 @@ TrigEnv_readframes_a(TrigEnv *self) {
         else
             self->data[i] = 0.;
         
-        if (self->pointerPos > size)
+        if (self->pointerPos > size && self->active == 1) {
+            self->trigsBuffer[i] = 1.0;
             self->active = 0;
+        }
     }
 }
 
@@ -1141,6 +1147,8 @@ static void
 TrigEnv_dealloc(TrigEnv* self)
 {
     free(self->data);
+    free(self->tempTrigsBuffer);
+    free(self->trigsBuffer);
     TrigEnv_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -1173,6 +1181,7 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TrigEnv_init(TrigEnv *self, PyObject *args, PyObject *kwds)
 {
+    int i;
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "table", "dur", "mul", "add", NULL};
@@ -1204,6 +1213,13 @@ TrigEnv_init(TrigEnv *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
+    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
     
     (*self->mode_func_ptr)(self);
     
@@ -1291,6 +1307,17 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
+
+float *
+TrigEnv_getTrigsBuffer(TrigEnv *self)
+{
+    int i;
+    for (i=0; i<self->bufsize; i++) {
+        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
+        self->trigsBuffer[i] = 0.0;
+    }    
+    return (float *)self->tempTrigsBuffer;
+}    
 
 static PyMemberDef TrigEnv_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigEnv, server), 0, "Pyo server."},
@@ -1403,6 +1430,153 @@ TrigEnv_members,             /* tp_members */
 TrigEnv_new,                 /* tp_new */
 };
 
+/************************************************************************************************/
+/* TrigEnv trig streamer */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigEnv *mainReader;
+} TrigEnvTrig;
+
+static void
+TrigEnvTrig_compute_next_data_frame(TrigEnvTrig *self)
+{
+    int i;
+    float *tmp;
+    tmp = TrigEnv_getTrigsBuffer((TrigEnv *)self->mainReader);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+TrigEnvTrig_traverse(TrigEnvTrig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainReader);
+    return 0;
+}
+
+static int 
+TrigEnvTrig_clear(TrigEnvTrig *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainReader);    
+    return 0;
+}
+
+static void
+TrigEnvTrig_dealloc(TrigEnvTrig* self)
+{
+    free(self->data);
+    TrigEnvTrig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TrigEnvTrig_deleteStream(TrigEnvTrig *self) { DELETE_STREAM };
+
+static PyObject *
+TrigEnvTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TrigEnvTrig *self;
+    self = (TrigEnvTrig *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigEnvTrig_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+TrigEnvTrig_init(TrigEnvTrig *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL;
+    
+    static char *kwlist[] = {"mainReader", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainReader);
+    Py_INCREF(maintmp);
+    self->mainReader = (TrigEnv *)maintmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    TrigEnvTrig_compute_next_data_frame((TrigEnvTrig *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TrigEnvTrig_getServer(TrigEnvTrig* self) { GET_SERVER };
+static PyObject * TrigEnvTrig_getStream(TrigEnvTrig* self) { GET_STREAM };
+
+static PyObject * TrigEnvTrig_play(TrigEnvTrig *self) { PLAY };
+static PyObject * TrigEnvTrig_stop(TrigEnvTrig *self) { STOP };
+
+static PyMemberDef TrigEnvTrig_members[] = {
+{"server", T_OBJECT_EX, offsetof(TrigEnvTrig, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TrigEnvTrig, stream), 0, "Stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigEnvTrig_methods[] = {
+{"getServer", (PyCFunction)TrigEnvTrig_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TrigEnvTrig_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TrigEnvTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)TrigEnvTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TrigEnvTrig_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TrigEnvTrigType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TrigEnvTrig_base",         /*tp_name*/
+sizeof(TrigEnvTrig),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TrigEnvTrig_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"TrigEnvTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
+(traverseproc)TrigEnvTrig_traverse,   /* tp_traverse */
+(inquiry)TrigEnvTrig_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TrigEnvTrig_methods,             /* tp_methods */
+TrigEnvTrig_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)TrigEnvTrig_init,      /* tp_init */
+0,                         /* tp_alloc */
+TrigEnvTrig_new,                 /* tp_new */
+};
+
+/***************************************************/
+/******* Counter ***********/
+/***************************************************/
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
