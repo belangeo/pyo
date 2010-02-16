@@ -1075,6 +1075,11 @@ class Dummy(PyoObject):
     def __init__(self, objs_list):
         self._base_objs = objs_list
 
+    def deleteStream(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        
 class InputFader(PyoObject):
     """
     Audio streams crossfader.
