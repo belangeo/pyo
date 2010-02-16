@@ -2717,7 +2717,7 @@ typedef struct {
     Stream *freq_stream;
     int loop;
     int modebuffer[3];
-    float pointerPos;
+    double pointerPos;
     float *trigsBuffer;
     float *tempTrigsBuffer;
     int init;    

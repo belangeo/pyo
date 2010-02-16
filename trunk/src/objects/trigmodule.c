@@ -981,7 +981,7 @@ typedef struct {
     int active;
     float current_dur; // duration in samples
     float inc; // table size / current_dur
-    float pointerPos; // reading position in sample
+    double pointerPos; // reading position in sample
     float *trigsBuffer;
     float *tempTrigsBuffer;
 } TrigEnv;
