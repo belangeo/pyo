@@ -268,17 +268,24 @@ class TrigChoice(PyoObject):
         Audio signal sending triggers.
     choice : list of floats
         Possible values for the random generation.
+    port : float, optional
+        Portamento. Time to reach a new value. Defaults to 0.
+    init : float, optional
+        Initial value. Available at initialization time only. 
+        Defaults to 0.
     
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setChoice(x) : Replace the `choice` attribute.
+    setPort(x) : Replace the `port` attribute.
 
     Attributes:
     
     input : PyoObject. Audio trigger signal.
     choice : list of floats. Possible values.
-
+    port : float. Ramp time.
+    
     Examples:
     
     >>> s = Server().boot()
@@ -288,14 +295,15 @@ class TrigChoice(PyoObject):
     >>> a = Sine(tr, mul=.5).out()
     
     """
-    def __init__(self, input, choice, mul=1, add=0):
+    def __init__(self, input, choice, port=0., init=0., mul=1, add=0):
         self._input = input
         self._choice = choice
+        self._port = port
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [TrigChoice_base(wrap(in_fader,i), choice, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, port, init, mul, add)
+        self._base_objs = [TrigChoice_base(wrap(in_fader,i), choice, wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -325,6 +333,20 @@ class TrigChoice(PyoObject):
         self._choice = x
         [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
 
+    def setPort(self, x):
+        """
+        Replace the `port` attribute.
+        
+        Parameters:
+
+        x : float
+            new `port` attribute.
+        
+        """
+        self._port = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         print "There is no control for TrigChoice object."
 
@@ -333,7 +355,7 @@ class TrigChoice(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        return('TrigChoice(input, choice, mul=1, add=0)')
+        return('TrigChoice(input, choice, port=0., init=0., mul=1, add=0)')
     args = Print_args(args)
 
     @property
@@ -344,6 +366,10 @@ class TrigChoice(PyoObject):
     def choice(self): return self._choice
     @choice.setter
     def choice(self, x): self.setChoice(x)
+    @property
+    def port(self): return self._port
+    @port.setter
+    def port(self, x): self.setPort(x)
 
 class TrigFunc(PyoObject):
     """

@@ -284,7 +284,7 @@ TrigRand_init(TrigRand *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "min", "max", "port", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfiOO", kwlist, &inputtmp, &mintmp, &maxtmp, &self->time, &inittmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOffOO", kwlist, &inputtmp, &mintmp, &maxtmp, &self->time, &inittmp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -558,6 +558,11 @@ typedef struct {
     int chSize;
     float *choice;
     float value;
+    float currentValue;
+    float time;
+    int timeStep;
+    float stepVal;
+    int timeCount;
     int modebuffer[2]; // need at least 2 slots for mul & add 
 } TrigChoice;
 
@@ -568,11 +573,24 @@ TrigChoice_generate(TrigChoice *self) {
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
+            self->timeCount = 0;
             self->value = self->choice[(int)((rand()/((float)(RAND_MAX))) * self->chSize)];
-            self->data[i] = self->value;
+            if (self->time <= 0.0)
+                self->currentValue = self->value;
+            else
+                self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        else
-            self->data[i] = self->value;
+        
+        if (self->timeCount == (self->timeStep - 1)) {
+            self->currentValue = self->value;
+            self->timeCount++;
+        }
+        else if (self->timeCount < self->timeStep) {
+            self->currentValue += self->stepVal;
+            self->timeCount++;
+        }
+        
+        self->data[i] = self->currentValue;
     }
 }
 
@@ -668,7 +686,10 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TrigChoice *self;
     self = (TrigChoice *)type->tp_alloc(type, 0);
     
-    self->value = 0.;
+    self->value = self->currentValue = 0.;
+    self->time = 0.0;
+    self->timeCount = 0;
+    self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     
@@ -681,11 +702,12 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TrigChoice_init(TrigChoice *self, PyObject *args, PyObject *kwds)
 {
+    float inittmp = 0.0;
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "choice", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "choice", "port", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &choicetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|ffOO", kwlist, &inputtmp, &choicetmp, &self->time, &inittmp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -711,6 +733,8 @@ TrigChoice_init(TrigChoice *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     srand((unsigned)(time(0)));
+    self->value = self->currentValue = inittmp;
+    self->timeStep = (int)(self->time * self->sr);
     
     (*self->mode_func_ptr)(self);
     
@@ -765,6 +789,29 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+TrigChoice_setPort(TrigChoice *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	if (isNumber == 1) {
+		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+        self->timeStep = (int)(self->time * self->sr);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef TrigChoice_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigChoice, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TrigChoice, stream), 0, "Stream object."},
@@ -782,6 +829,7 @@ static PyMethodDef TrigChoice_methods[] = {
 {"out", (PyCFunction)TrigChoice_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)TrigChoice_stop, METH_NOARGS, "Stops computing."},
 {"setChoice", (PyCFunction)TrigChoice_setChoice, METH_O, "Sets possible values."},
+{"setPort", (PyCFunction)TrigChoice_setPort, METH_O, "Sets new portamento time."},
 {"setMul", (PyCFunction)TrigChoice_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)TrigChoice_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)TrigChoice_setSub, METH_O, "Sets inverse add factor."},
