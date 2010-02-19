@@ -73,6 +73,7 @@ extern PyTypeObject HilbertMainType;
 extern PyTypeObject HilbertType;
 
 extern PyTypeObject FollowerType;
+extern PyTypeObject ZCrossType;
 
 extern PyTypeObject SPannerType;
 extern PyTypeObject SPanType;
