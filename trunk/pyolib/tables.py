@@ -98,7 +98,203 @@ class HarmTable(PyoTableObject):
         return self._list
     @list.setter
     def list(self, x): self.replace(x)
+
+class SawTable(PyoTableObject):
+    """
+    Sawtooth waveform generator.
     
+    Generates sawtooth waveforms made up of fixed number of harmonics.
+    
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    order : int, optional
+        Number of harmonics sawtooth is made of. 
+        Defaults to 10.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+        
+    Methods:
+    
+    setOrder(x) : Change the `order` attribute and redraw the waveform.
+    setSize(size) : Change the size of the table. This will erase the 
+        previously drawn waveform.
+    
+    Attributes:
+    
+    order : int, optional
+        Number of harmonics sawtooth is made of.
+    size : int, optional
+        Table size in samples.
+        
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SawTable()
+    >>> a = Osc(table=t, freq=200, mul=.5).out()
+
+    """
+    def __init__(self, order=10, size=8192):
+        self._order = order
+        self._size = size
+        list = [1./i for i in range(1,(order+1))]
+        self._base_objs = [HarmTable_base(list, size)]
+        
+    def setSize(self, size):
+        """
+        Change the size of the table. This will erase the previously 
+        drawn waveform.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def setOrder(self, x):
+        """
+        Change the `order` attribute and redraw the waveform.
+        
+        Parameters:
+        
+        x : int
+            New number of harmonics
+
+        """      
+        self._order = x
+        list = [1./i for i in range(1,(self._order+1))]
+        [obj.replace(list) for obj in self._base_objs]
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/SawTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('SawTable(order=10, size=8192)')
+    args = Print_args(args)
+
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def order(self): 
+        """int. Number of harmonics sawtooth is made of."""
+        return self._order
+    @order.setter
+    def order(self, x): self.setOrder(x)
+
+class SquareTable(PyoTableObject):
+    """
+    Square waveform generator.
+    
+    Generates square waveforms made up of fixed number of harmonics.
+    
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    order : int, optional
+        Number of harmonics square waveform is made of. The waveform will 
+        contains `order` odd harmonics. Defaults to 10.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+        
+    Methods:
+    
+    setOrder(x) : Change the `order` attribute and redraw the waveform.
+    setSize(size) : Change the size of the table. This will erase the 
+        previously drawn waveform.
+    
+    Attributes:
+    
+    order : int, optional
+        Number of harmonics square waveform is made of.
+    size : int, optional
+        Table size in samples.
+        
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SquareTable()
+    >>> a = Osc(table=t, freq=200, mul=.5).out()
+
+    """
+    def __init__(self, order=10, size=8192):
+        self._order = order
+        self._size = size
+        list = []
+        for i in range(1,(order*2)):
+            if i%2 == 1:
+                list.append(1./i)
+            else:
+                list.append(0.)    
+        self._base_objs = [HarmTable_base(list, size)]
+        
+    def setSize(self, size):
+        """
+        Change the size of the table. This will erase the previously 
+        drawn waveform.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def setOrder(self, x):
+        """
+        Change the `order` attribute and redraw the waveform.
+        
+        Parameters:
+        
+        x : int
+            New number of harmonics
+
+        """      
+        self._order = x
+        list = []
+        for i in range(1,(self._order*2)):
+            if i%2 == 1:
+                list.append(1./i)
+            else:
+                list.append(0.)    
+        [obj.replace(list) for obj in self._base_objs]
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/SquareTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('SquareTable(order=10, size=8192)')
+    args = Print_args(args)
+
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def order(self): 
+        """int. Number of harmonics square waveform is made of."""
+        return self._order
+    @order.setter
+    def order(self, x): self.setOrder(x)
+        
 class HannTable(PyoTableObject):
     """
     Generates Hanning window. 
