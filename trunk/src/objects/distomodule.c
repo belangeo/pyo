@@ -32,7 +32,7 @@ _clip(float x)
 
 static void
 Disto_transform_ii(Disto *self) {
-    float val;
+    float val, coeff;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
 
@@ -43,8 +43,9 @@ Disto_transform_ii(Disto *self) {
         val = atan2f(in[i], drv);
         self->data[i] = val;
     }
+    coeff = 1.0 - slp;
     for (i=0; i<self->bufsize; i++) {
-        val = self->data[i] + self->y1 * slp;
+        val = self->data[i] * coeff + self->y1 * slp;
         self->y1 = val;
         self->data[i] = val;
     }
@@ -52,7 +53,7 @@ Disto_transform_ii(Disto *self) {
 
 static void
 Disto_transform_ai(Disto *self) {
-    float val, drv;
+    float val, drv, coeff;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
 
@@ -64,8 +65,10 @@ Disto_transform_ai(Disto *self) {
         val = atan2f(in[i], drv);
         self->data[i] = val;
     }
+    
+    coeff = 1.0 - slp;
     for (i=0; i<self->bufsize; i++) {
-        val = self->data[i] + self->y1 * slp;
+        val = self->data[i] * coeff + self->y1 * slp;
         self->y1 = val;
         self->data[i] = val;
     }
@@ -73,7 +76,7 @@ Disto_transform_ai(Disto *self) {
 
 static void
 Disto_transform_ia(Disto *self) {
-    float val;
+    float val, coeff, slp;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
     
@@ -85,7 +88,9 @@ Disto_transform_ia(Disto *self) {
         self->data[i] = val;
     }
     for (i=0; i<self->bufsize; i++) {
-        val = self->data[i] + self->y1 * _clip(slope[i]);
+        slp = _clip(slope[i]);
+        coeff = 1.0 - slp;
+        val = self->data[i] * coeff + self->y1 * slp;
         self->y1 = val;
         self->data[i] = val;
     }
@@ -93,7 +98,7 @@ Disto_transform_ia(Disto *self) {
 
 static void
 Disto_transform_aa(Disto *self) {
-    float val, drv;
+    float val, drv, coeff, slp;
     int i;
     float *in = Stream_getData((Stream *)self->input_stream);
     
@@ -106,7 +111,9 @@ Disto_transform_aa(Disto *self) {
         self->data[i] = val;
     }
     for (i=0; i<self->bufsize; i++) {
-        val = self->data[i] + self->y1 * _clip(slope[i]);
+        slp = _clip(slope[i]);
+        coeff = 1.0 - slp;
+        val = self->data[i] * coeff + self->y1 * slp;
         self->y1 = val;
         self->data[i] = val;
     }
