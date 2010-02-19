@@ -459,6 +459,11 @@ init_pyo(void)
     Py_INCREF(&FollowerType);
     PyModule_AddObject(m, "Follower_base", (PyObject *)&FollowerType);
 
+    if (PyType_Ready(&ZCrossType) < 0)
+        return;
+    Py_INCREF(&ZCrossType);
+    PyModule_AddObject(m, "ZCross_base", (PyObject *)&ZCrossType);
+    
     if (PyType_Ready(&SPannerType) < 0)
         return;
     Py_INCREF(&SPannerType);
