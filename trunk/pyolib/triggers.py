@@ -120,18 +120,25 @@ class TrigRand(PyoObject):
         Minimum value for the random generation. Defaults to 0.
     max : float or PyoObject, optional
         Maximum value for the random generation. Defaults to 1.
+    port : float, optional
+        Portamento. Time to reach a new value. Defaults to 0.
+    init : float, optional
+        Initial value. Available at initialization time only. 
+        Defaults to 0.
     
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setMin(x) : Replace the `min` attribute.
     setMax(x) : Replace the `max` attribute.
+    setPort(x) : Replace the `port` attribute.
 
     Attributes:
     
     input : PyoObject. Audio trigger signal.
     min : float or PyoObject. Minimum value.
     max : float or PyoObject. Maximum value.
+    port : float. Ramp time.
 
     Examples:
     
@@ -142,15 +149,16 @@ class TrigRand(PyoObject):
     >>> a = Sine(tr, mul=.5).out()
     
     """
-    def __init__(self, input, min=0., max=1., mul=1, add=0):
+    def __init__(self, input, min=0., max=1., port=0., init=0., mul=1, add=0):
         self._input = input
         self._min = min
         self._max = max
+        self._port = port
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
-        self._base_objs = [TrigRand_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, min, max, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, port, init, mul, add)
+        self._base_objs = [TrigRand_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -195,6 +203,20 @@ class TrigRand(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setPort(self, x):
+        """
+        Replace the `port` attribute.
+        
+        Parameters:
+
+        x : float
+            new `port` attribute.
+        
+        """
+        self._port = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         if map_list == None:
             map_list = [SLMap(0., 1., 'lin', 'min', self._min),
@@ -210,7 +232,7 @@ class TrigRand(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        return('TrigRand(input, min=0., max=1., mul=1, add=0)')
+        return('TrigRand(input, min=0., max=1., port=0., init=0., mul=1, add=0)')
     args = Print_args(args)
 
     @property
@@ -225,6 +247,10 @@ class TrigRand(PyoObject):
     def max(self): return self._max
     @max.setter
     def max(self, x): self.setMax(x)
+    @property
+    def port(self): return self._port
+    @port.setter
+    def port(self, x): self.setPort(x)
 
 class TrigChoice(PyoObject):
     """

@@ -15,6 +15,11 @@ typedef struct {
     Stream *min_stream;
     Stream *max_stream;
     float value;
+    float currentValue;
+    float time;
+    int timeStep;
+    float stepVal;
+    int timeCount;
     int modebuffer[4]; // need at least 2 slots for mul & add 
 } TrigRand;
 
@@ -28,11 +33,24 @@ TrigRand_generate_ii(TrigRand *self) {
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
+            self->timeCount = 0;
             self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
-            self->data[i] = self->value;
+            if (self->time <= 0.0)
+                self->currentValue = self->value;
+            else
+                self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        else
-            self->data[i] = self->value;
+        
+        if (self->timeCount == (self->timeStep - 1)) {
+            self->currentValue = self->value;
+            self->timeCount++;
+        }
+        else if (self->timeCount < self->timeStep) {
+            self->currentValue += self->stepVal;
+            self->timeCount++;
+        }
+        
+        self->data[i] = self->currentValue;
     }
 }
 
@@ -46,11 +64,24 @@ TrigRand_generate_ai(TrigRand *self) {
     for (i=0; i<self->bufsize; i++) {
         float range = ma - mi[i];
         if (in[i] == 1) {
+            self->timeCount = 0;
             self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
-            self->data[i] = self->value;
+            if (self->time <= 0.0)
+                self->currentValue = self->value;
+            else
+                self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        else
-            self->data[i] = self->value;
+
+        if (self->timeCount == (self->timeStep - 1)) {
+            self->currentValue = self->value;
+            self->timeCount++;
+        }
+        else if (self->timeCount < self->timeStep) {
+            self->currentValue += self->stepVal;
+            self->timeCount++;
+        }
+        
+        self->data[i] = self->currentValue;        
     }
 }
 
@@ -64,11 +95,24 @@ TrigRand_generate_ia(TrigRand *self) {
     for (i=0; i<self->bufsize; i++) {
         float range = ma[i] - mi;
         if (in[i] == 1) {
+            self->timeCount = 0;
             self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
-            self->data[i] = self->value;
+            if (self->time <= 0.0)
+                self->currentValue = self->value;
+            else
+                self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        else
-            self->data[i] = self->value;
+        
+        if (self->timeCount == (self->timeStep - 1)) {
+            self->currentValue = self->value;
+            self->timeCount++;
+        }
+        else if (self->timeCount < self->timeStep) {
+            self->currentValue += self->stepVal;
+            self->timeCount++;
+        }
+        
+        self->data[i] = self->currentValue;
     }
 }
 
@@ -82,11 +126,24 @@ TrigRand_generate_aa(TrigRand *self) {
     for (i=0; i<self->bufsize; i++) {
         float range = ma[i] - mi[i];
         if (in[i] == 1) {
+            self->timeCount = 0;
             self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
-            self->data[i] = self->value;
+            if (self->time <= 0.0)
+                self->currentValue = self->value;
+            else
+                self->stepVal = (self->value - self->currentValue) / self->timeStep;
         }
-        else
-            self->data[i] = self->value;
+        
+        if (self->timeCount == (self->timeStep - 1)) {
+            self->currentValue = self->value;
+            self->timeCount++;
+        }
+        else if (self->timeCount < self->timeStep) {
+            self->currentValue += self->stepVal;
+            self->timeCount++;
+        }
+        
+        self->data[i] = self->currentValue;
     }
 }
 
@@ -204,7 +261,10 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->min = PyFloat_FromDouble(0.);
     self->max = PyFloat_FromDouble(1.);
-    self->value = 0.;
+    self->value = self->currentValue = 0.;
+    self->time = 0.0;
+    self->timeCount = 0;
+    self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -219,11 +279,12 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TrigRand_init(TrigRand *self, PyObject *args, PyObject *kwds)
 {
+    float inittmp = 0.0;
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "min", "max", "port", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfiOO", kwlist, &inputtmp, &mintmp, &maxtmp, &self->time, &inittmp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -253,6 +314,8 @@ TrigRand_init(TrigRand *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     srand((unsigned)(time(0)));
+    self->value = self->currentValue = inittmp;
+    self->timeStep = (int)(self->time * self->sr);
 
     (*self->mode_func_ptr)(self);
     
@@ -350,6 +413,29 @@ TrigRand_setMax(TrigRand *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+TrigRand_setPort(TrigRand *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	if (isNumber == 1) {
+		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+        self->timeStep = (int)(self->time * self->sr);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef TrigRand_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigRand, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TrigRand, stream), 0, "Stream object."},
@@ -370,6 +456,7 @@ static PyMethodDef TrigRand_methods[] = {
 {"stop", (PyCFunction)TrigRand_stop, METH_NOARGS, "Stops computing."},
 {"setMin", (PyCFunction)TrigRand_setMin, METH_O, "Sets minimum possible value."},
 {"setMax", (PyCFunction)TrigRand_setMax, METH_O, "Sets maximum possible value."},
+{"setPort", (PyCFunction)TrigRand_setPort, METH_O, "Sets a new ramp time value."},
 {"setMul", (PyCFunction)TrigRand_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)TrigRand_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)TrigRand_setSub, METH_O, "Sets inverse add factor."},
