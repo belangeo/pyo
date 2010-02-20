@@ -4,6 +4,7 @@
 extern PyTypeObject SineType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject PointerType;
+extern PyTypeObject LookupType;
 extern PyTypeObject TableReadType;
 extern PyTypeObject TableReadTrigType;
 extern PyTypeObject OscType;

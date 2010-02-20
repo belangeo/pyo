@@ -1831,6 +1831,377 @@ Pointer_new,                 /* tp_new */
 };
 
 /**************/
+/* Lookup object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *index;
+    Stream *index_stream;
+    int modebuffer[2];
+} Lookup;
+
+static float
+Lookup_clip(float x) {
+    if (x < -1.0)
+        return -1.0;
+    else if (x > 1.0)
+        return 1.0;
+    else
+        return x;
+}
+
+static void
+Lookup_readframes_a(Lookup *self) {
+    float ph, fpart, x, x1;
+    int i, ipart;
+    float *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    float *pha = Stream_getData((Stream *)self->index_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        ph = (Lookup_clip(pha[i]) * 0.5 + 0.5) * size;
+        //if (ph < 0)
+        //    ph += size;
+        //else if (ph >= size) {
+        //    while (ph >= size) {
+        //        ph -= size;
+        //    }
+        //}    
+        ipart = (int)ph;
+        fpart = ph - ipart;
+        x = tablelist[ipart];
+        x1 = tablelist[ipart+1];
+        self->data[i] = x + (x1 - x) * fpart;
+    }
+}
+
+static void Lookup_postprocessing_ii(Lookup *self) { POST_PROCESSING_II };
+static void Lookup_postprocessing_ai(Lookup *self) { POST_PROCESSING_AI };
+static void Lookup_postprocessing_ia(Lookup *self) { POST_PROCESSING_IA };
+static void Lookup_postprocessing_aa(Lookup *self) { POST_PROCESSING_AA };
+static void Lookup_postprocessing_ireva(Lookup *self) { POST_PROCESSING_IREVA };
+static void Lookup_postprocessing_areva(Lookup *self) { POST_PROCESSING_AREVA };
+static void Lookup_postprocessing_revai(Lookup *self) { POST_PROCESSING_REVAI };
+static void Lookup_postprocessing_revaa(Lookup *self) { POST_PROCESSING_REVAA };
+static void Lookup_postprocessing_revareva(Lookup *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Lookup_setProcMode(Lookup *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Lookup_readframes_a;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Lookup_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Lookup_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Lookup_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Lookup_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Lookup_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Lookup_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Lookup_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Lookup_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Lookup_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Lookup_compute_next_data_frame(Lookup *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Lookup_traverse(Lookup *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->index);    
+    Py_VISIT(self->index_stream);    
+    return 0;
+}
+
+static int 
+Lookup_clear(Lookup *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->index);    
+    Py_CLEAR(self->index_stream);    
+    return 0;
+}
+
+static void
+Lookup_dealloc(Lookup* self)
+{
+    free(self->data);
+    Lookup_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Lookup_deleteStream(Lookup *self) { DELETE_STREAM };
+
+static PyObject *
+Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Lookup *self;
+    self = (Lookup *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Lookup_compute_next_data_frame);
+    self->mode_func_ptr = Lookup_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Lookup_init(Lookup *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *tabletmp, *indextmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"table", "index", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    
+    if (indextmp) {
+        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+    }
+    
+    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Lookup_compute_next_data_frame((Lookup *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Lookup_getServer(Lookup* self) { GET_SERVER };
+static PyObject * Lookup_getStream(Lookup* self) { GET_STREAM };
+static PyObject * Lookup_setMul(Lookup *self, PyObject *arg) { SET_MUL };	
+static PyObject * Lookup_setAdd(Lookup *self, PyObject *arg) { SET_ADD };	
+static PyObject * Lookup_setSub(Lookup *self, PyObject *arg) { SET_SUB };	
+static PyObject * Lookup_setDiv(Lookup *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Lookup_play(Lookup *self) { PLAY };
+static PyObject * Lookup_out(Lookup *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Lookup_stop(Lookup *self) { STOP };
+
+static PyObject * Lookup_multiply(Lookup *self, PyObject *arg) { MULTIPLY };
+static PyObject * Lookup_inplace_multiply(Lookup *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Lookup_add(Lookup *self, PyObject *arg) { ADD };
+static PyObject * Lookup_inplace_add(Lookup *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Lookup_sub(Lookup *self, PyObject *arg) { SUB };
+static PyObject * Lookup_inplace_sub(Lookup *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Lookup_div(Lookup *self, PyObject *arg) { DIV };
+static PyObject * Lookup_inplace_div(Lookup *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Lookup_getTable(Lookup* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Lookup_setTable(Lookup *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Lookup_setIndex(Lookup *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	if (isNumber == 1) {
+		printf("Lookup index attributes must be a PyoObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+	}
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_XDECREF(self->index);
+    
+    self->index = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->index_stream);
+    self->index_stream = (Stream *)streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Lookup_members[] = {
+{"server", T_OBJECT_EX, offsetof(Lookup, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Lookup, stream), 0, "Stream object."},
+{"table", T_OBJECT_EX, offsetof(Lookup, table), 0, "Waveform table."},
+{"index", T_OBJECT_EX, offsetof(Lookup, index), 0, "Reader index."},
+{"mul", T_OBJECT_EX, offsetof(Lookup, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Lookup, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Lookup_methods[] = {
+{"getTable", (PyCFunction)Lookup_getTable, METH_NOARGS, "Returns waveform table object."},
+{"getServer", (PyCFunction)Lookup_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Lookup_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Lookup_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Lookup_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Lookup_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Lookup_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)Lookup_setTable, METH_O, "Sets oscillator table."},
+{"setIndex", (PyCFunction)Lookup_setIndex, METH_O, "Sets reader index."},
+{"setMul", (PyCFunction)Lookup_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Lookup_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Lookup_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)Lookup_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Lookup_as_number = {
+(binaryfunc)Lookup_add,                      /*nb_add*/
+(binaryfunc)Lookup_sub,                 /*nb_subtract*/
+(binaryfunc)Lookup_multiply,                 /*nb_multiply*/
+(binaryfunc)Lookup_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Lookup_inplace_add,              /*inplace_add*/
+(binaryfunc)Lookup_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Lookup_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Lookup_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject LookupType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Lookup_base",         /*tp_name*/
+sizeof(Lookup),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Lookup_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Lookup_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Lookup objects. Modify a signal by reading a table with the signal as the index.",           /* tp_doc */
+(traverseproc)Lookup_traverse,   /* tp_traverse */
+(inquiry)Lookup_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Lookup_methods,             /* tp_methods */
+Lookup_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Lookup_init,      /* tp_init */
+0,                         /* tp_alloc */
+Lookup_new,                 /* tp_new */
+};
+
+/**************/
 /* Pulsar object */
 /**************/
 typedef struct {
