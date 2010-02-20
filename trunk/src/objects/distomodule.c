@@ -953,3 +953,512 @@ Clip_members,             /* tp_members */
 Clip_new,                 /* tp_new */
 };
 
+/*****************/
+/** Degrade object **/
+/*****************/
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *bitdepth;
+    Stream *bitdepth_stream;
+    PyObject *srscale;
+    Stream *srscale_stream;
+    float value;
+    int sampsCount;
+    int modebuffer[4];
+} Degrade;
+
+static float 
+_bit_clip(float x) {
+    if (x < 1.0)
+        return 1.0;
+    else if (x > 32.0)
+        return 32.0;
+    else
+        return x;
+}
+
+static float 
+_sr_clip(float x) {
+    // half sr ten times
+    if (x <= 0.0009765625)
+        return 0.0009765625;
+    else if (x > 1.0)
+        return 1.0;
+    else
+        return x;
+}
+
+static void
+Degrade_transform_ii(Degrade *self) {
+    float bitscl, ibitscl, newsr;
+    int i, nsamps, tmp;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
+    float srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
+    
+    bitscl = powf(2.0, bitdepth-1);
+    ibitscl = 1.0 / bitscl;
+    
+    newsr = self->sr * srscale;
+    nsamps = (int)(self->sr / newsr);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->sampsCount++;
+        if (self->sampsCount >= nsamps) {
+            self->sampsCount = 0;
+            tmp = (int)(in[i] * bitscl + 0.5);
+            self->value = tmp * ibitscl;    
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+Degrade_transform_ai(Degrade *self) {
+    float bitscl, ibitscl, newsr;
+    int i, nsamps, tmp;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
+    float srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
+
+    newsr = self->sr * srscale;
+    nsamps = (int)(self->sr / newsr);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->sampsCount++;
+        if (self->sampsCount >= nsamps) {
+            self->sampsCount = 0;
+            bitscl = powf(2.0, _bit_clip(bitdepth[i])-1);
+            ibitscl = 1.0 / bitscl;
+            tmp = (int)(in[i] * bitscl + 0.5);
+            self->value = tmp * ibitscl;    
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+Degrade_transform_ia(Degrade *self) {
+    float bitscl, ibitscl, newsr;
+    int i, nsamps, tmp;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
+    float *srscale = Stream_getData((Stream *)self->srscale_stream);
+    
+    bitscl = powf(2.0, bitdepth-1);
+    ibitscl = 1.0 / bitscl;
+
+    for (i=0; i<self->bufsize; i++) {
+        newsr = self->sr * _sr_clip(srscale[i]);
+        nsamps = (int)(self->sr / newsr);
+        self->sampsCount++;
+        if (self->sampsCount >= nsamps) {
+            self->sampsCount = 0;
+            tmp = (int)(in[i] * bitscl + 0.5);
+            self->value = tmp * ibitscl;    
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+Degrade_transform_aa(Degrade *self) {
+    float bitscl, ibitscl, newsr;
+    int i, nsamps, tmp;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
+    float *srscale = Stream_getData((Stream *)self->srscale_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        newsr = self->sr * _sr_clip(srscale[i]);
+        nsamps = (int)(self->sr / newsr);
+        self->sampsCount++;
+        if (self->sampsCount >= nsamps) {
+            self->sampsCount = 0;
+            bitscl = powf(2.0, _bit_clip(bitdepth[i])-1);
+            ibitscl = 1.0 / bitscl;
+            tmp = (int)(in[i] * bitscl + 0.5);
+            self->value = tmp * ibitscl;    
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void Degrade_postprocessing_ii(Degrade *self) { POST_PROCESSING_II };
+static void Degrade_postprocessing_ai(Degrade *self) { POST_PROCESSING_AI };
+static void Degrade_postprocessing_ia(Degrade *self) { POST_PROCESSING_IA };
+static void Degrade_postprocessing_aa(Degrade *self) { POST_PROCESSING_AA };
+static void Degrade_postprocessing_ireva(Degrade *self) { POST_PROCESSING_IREVA };
+static void Degrade_postprocessing_areva(Degrade *self) { POST_PROCESSING_AREVA };
+static void Degrade_postprocessing_revai(Degrade *self) { POST_PROCESSING_REVAI };
+static void Degrade_postprocessing_revaa(Degrade *self) { POST_PROCESSING_REVAA };
+static void Degrade_postprocessing_revareva(Degrade *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Degrade_setProcMode(Degrade *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Degrade_transform_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Degrade_transform_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Degrade_transform_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Degrade_transform_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Degrade_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Degrade_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Degrade_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Degrade_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Degrade_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Degrade_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Degrade_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Degrade_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Degrade_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Degrade_compute_next_data_frame(Degrade *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Degrade_traverse(Degrade *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->bitdepth);    
+    Py_VISIT(self->bitdepth_stream);    
+    Py_VISIT(self->srscale);    
+    Py_VISIT(self->srscale_stream);    
+    return 0;
+}
+
+static int 
+Degrade_clear(Degrade *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->bitdepth);    
+    Py_CLEAR(self->bitdepth_stream);    
+    Py_CLEAR(self->srscale);    
+    Py_CLEAR(self->srscale_stream);    
+    return 0;
+}
+
+static void
+Degrade_dealloc(Degrade* self)
+{
+    free(self->data);
+    Degrade_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Degrade_deleteStream(Degrade *self) { DELETE_STREAM };
+
+static PyObject *
+Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Degrade *self;
+    self = (Degrade *)type->tp_alloc(type, 0);
+    
+    self->bitdepth = PyFloat_FromDouble(16);
+    self->srscale = PyFloat_FromDouble(1.0);
+    self->value = 0.0;
+    self->sampsCount = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Degrade_compute_next_data_frame);
+    self->mode_func_ptr = Degrade_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Degrade_init(Degrade *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *bitdepthtmp=NULL, *srscaletmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "bitdepth", "srscale", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &bitdepthtmp, &srscaletmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    if (bitdepthtmp) {
+        PyObject_CallMethod((PyObject *)self, "setBitdepth", "O", bitdepthtmp);
+    }
+    
+    if (srscaletmp) {
+        PyObject_CallMethod((PyObject *)self, "setSrscale", "O", srscaletmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Degrade_compute_next_data_frame((Degrade *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Degrade_getServer(Degrade* self) { GET_SERVER };
+static PyObject * Degrade_getStream(Degrade* self) { GET_STREAM };
+static PyObject * Degrade_setMul(Degrade *self, PyObject *arg) { SET_MUL };	
+static PyObject * Degrade_setAdd(Degrade *self, PyObject *arg) { SET_ADD };	
+static PyObject * Degrade_setSub(Degrade *self, PyObject *arg) { SET_SUB };	
+static PyObject * Degrade_setDiv(Degrade *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Degrade_play(Degrade *self) { PLAY };
+static PyObject * Degrade_out(Degrade *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Degrade_stop(Degrade *self) { STOP };
+
+static PyObject * Degrade_multiply(Degrade *self, PyObject *arg) { MULTIPLY };
+static PyObject * Degrade_inplace_multiply(Degrade *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Degrade_add(Degrade *self, PyObject *arg) { ADD };
+static PyObject * Degrade_inplace_add(Degrade *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Degrade_sub(Degrade *self, PyObject *arg) { SUB };
+static PyObject * Degrade_inplace_sub(Degrade *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Degrade_div(Degrade *self, PyObject *arg) { DIV };
+static PyObject * Degrade_inplace_div(Degrade *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Degrade_setBitdepth(Degrade *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->bitdepth);
+	if (isNumber == 1) {
+		self->bitdepth = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->bitdepth = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->bitdepth, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->bitdepth_stream);
+        self->bitdepth_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Degrade_setSrscale(Degrade *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->srscale);
+	if (isNumber == 1) {
+		self->srscale = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->srscale = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->srscale, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->srscale_stream);
+        self->srscale_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Degrade_members[] = {
+{"server", T_OBJECT_EX, offsetof(Degrade, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Degrade, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Degrade, input), 0, "Input sound object."},
+{"bitdepth", T_OBJECT_EX, offsetof(Degrade, bitdepth), 0, "Number of bits for amplitude values."},
+{"srscale", T_OBJECT_EX, offsetof(Degrade, srscale), 0, "Sampling depth factor."},
+{"mul", T_OBJECT_EX, offsetof(Degrade, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Degrade, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Degrade_methods[] = {
+{"getServer", (PyCFunction)Degrade_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Degrade_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Degrade_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Degrade_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Degrade_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Degrade_stop, METH_NOARGS, "Stops computing."},
+{"setBitdepth", (PyCFunction)Degrade_setBitdepth, METH_O, "Sets the bitdepth value."},
+{"setSrscale", (PyCFunction)Degrade_setSrscale, METH_O, "Sets the srscale value."},
+{"setMul", (PyCFunction)Degrade_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Degrade_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Degrade_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Degrade_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Degrade_as_number = {
+(binaryfunc)Degrade_add,                      /*nb_add*/
+(binaryfunc)Degrade_sub,                 /*nb_subtract*/
+(binaryfunc)Degrade_multiply,                 /*nb_multiply*/
+(binaryfunc)Degrade_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Degrade_inplace_add,              /*inplace_add*/
+(binaryfunc)Degrade_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Degrade_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Degrade_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject DegradeType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Degrade_base",         /*tp_name*/
+sizeof(Degrade),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Degrade_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Degrade_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Degrade objects. Applies different bitdepth and sr on a signal.",           /* tp_doc */
+(traverseproc)Degrade_traverse,   /* tp_traverse */
+(inquiry)Degrade_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Degrade_methods,             /* tp_methods */
+Degrade_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Degrade_init,      /* tp_init */
+0,                         /* tp_alloc */
+Degrade_new,                 /* tp_new */
+};
+
