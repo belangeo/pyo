@@ -587,6 +587,109 @@ class Pointer(PyoObject):
     @index.setter
     def index(self, x): self.setIndex(x)
 
+class Lookup(PyoObject):
+    """
+    Uses samples table to do waveshaping on an audio signal.
+    
+    The input signal amplitudes, between -1 and 1 are scaled between 
+    0 and the table size and used as position index in the table to 
+    apply waveshaping on the input signal.  
+    
+    Parent class: PyoObject
+    
+    Parameters:
+    
+    table : PyoTableObject
+        Table containing the transfert function.
+    index : PyoObject
+        Audio signal, between -1 and 1, internally converted to be
+        used as the index position in the table.
+        
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setIndex(x) : Replace the `index` attribute.
+
+    table : PyoTableObject. Table containing the transfert function.
+    index : PyoObject. Audio input used as the table index.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfo = Sine(freq=[.15,.2], mul=.45, add=.5)
+    >>> a = Sine(freq=[100,150], mul=lfo)
+    >>> t = LinTable([(0,-1),(3072,-0.85),(4096,0),(5520,.85),(8192,1)])
+    >>> b = Lookup(table=t, index=a, mul=1.-lf).out()
+
+    """
+    def __init__(self, table, index, mul=1, add=0):
+        self._table = table
+        self._index = index
+        self._mul = mul
+        self._add = add
+        table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
+        self._base_objs = [Lookup_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            new `index` attribute.
+        
+        """
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/Lookup_demo.py")
+    #demo = Call_example(demo)
+
+
+    def args():
+        return("Lookup(table, index, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the transfert function.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def index(self):
+        """PyoObject. Audio input used as the table index.""" 
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)
+
 class TableRec(PyoObject):
     """
     TableRec is for writing samples into a previously created NewTable.
