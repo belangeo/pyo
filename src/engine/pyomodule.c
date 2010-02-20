@@ -359,6 +359,11 @@ init_pyo(void)
     Py_INCREF(&ClipType);
     PyModule_AddObject(m, "Clip_base", (PyObject *)&ClipType);
 
+    if (PyType_Ready(&DegradeType) < 0)
+        return;
+    Py_INCREF(&DegradeType);
+    PyModule_AddObject(m, "Degrade_base", (PyObject *)&DegradeType);
+    
     if (PyType_Ready(&CompressType) < 0)
         return;
     Py_INCREF(&CompressType);

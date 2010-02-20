@@ -130,6 +130,142 @@ class Clip(PyoObject):
     @max.setter
     def max(self, x): self.setMax(x)
 
+class Degrade(PyoObject):
+    """
+    Signal quality reducer.
+    
+    Degrade takes an audio signal and reduces the sampling rate and/or 
+    bit-depth as specified.
+    
+    Parent class : PyoObject
+
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    bitdepth : float or PyoObject, optional
+        Signal quantization in bits. Must be in range 1 -> 32.
+        Defaults to 16.
+    srscale : float or PyoObject, optional
+        Sampling rate multiplier. Must be in range 0.0009765625 -> 1.
+        Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setBitdepth(x) : Replace the `bitdepth` attribute.
+    setSrscale(x) : Replace the `srscale` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    bitdepth : float or PyoObject. Quantization in bits.
+    srscale : float or PyoObject. Sampling rate multiplier.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SquareTable()
+    >>> a = Osc(table=t, freq=100)
+    >>> lfo = Sine(freq=.2, mul=6, add=8)
+    >>> lfo2 = Sine(freq=.25, mul=.45, add=.55)
+    >>> b = Degrade(a, bitdepth=lfo, srscale=lfo2).out()
+    
+    """
+    def __init__(self, input, bitdepth=16, srscale=1.0, mul=1, add=0):
+        self._input = input
+        self._bitdepth = bitdepth
+        self._srscale = srscale
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, bitdepth, srscale, mul, add, lmax = convertArgsToLists(self._in_fader, bitdepth, srscale, mul, add)
+        self._base_objs = [Degrade_base(wrap(in_fader,i), wrap(bitdepth,i), wrap(srscale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+ 
+    def setBitdepth(self, x):
+        """
+        Replace the `bitdepth` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `bitdepth` attribute.
+
+        """
+        self._bitdepth = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBitdepth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSrscale(self, x):
+        """
+        Replace the `srscale` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `srscale` attribute.
+
+        """
+        self._srscale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSrscale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        if map_list == None:
+            map_list = [SLMap(1., 32., 'log', 'bitdepth', self._bitdepth),
+                        SLMap(0.0009765625, 1., 'log', 'srscale', self._srscale),
+                        SLMapMul(self._mul)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None:
+            title = self.__class__.__name__
+        win.title(title)
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/Degrade_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Degrade(input, bitdepth=16., srscale=1.0, mul=1, add=0)")
+    args = Print_args(args)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def bitdepth(self):
+        """float or PyoObject. Signal quantization in bits.""" 
+        return self._bitdepth
+    @bitdepth.setter
+    def bitdepth(self, x): self.setBitdepth(x)
+
+    @property
+    def srscale(self):
+        """float or PyoObject. Sampling rate multiplier.""" 
+        return self._srscale
+    @srscale.setter
+    def srscale(self, x): self.setSrscale(x)
+
 class Compress(PyoObject):
     """
     Reduces the dynamic range of an audio signal.
