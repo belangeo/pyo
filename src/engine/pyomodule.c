@@ -219,6 +219,11 @@ init_pyo(void)
     Py_INCREF(&HarmTableType);
     PyModule_AddObject(m, "HarmTable_base", (PyObject *)&HarmTableType);
 
+    if (PyType_Ready(&ChebyTableType) < 0)
+        return;
+    Py_INCREF(&ChebyTableType);
+    PyModule_AddObject(m, "ChebyTable_base", (PyObject *)&ChebyTableType);
+    
     if (PyType_Ready(&HannTableType) < 0)
         return;
     Py_INCREF(&HannTableType);

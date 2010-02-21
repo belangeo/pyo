@@ -294,6 +294,105 @@ class SquareTable(PyoTableObject):
         return self._order
     @order.setter
     def order(self, x): self.setOrder(x)
+
+class ChebyTable(PyoTableObject):
+    """
+    Chebyshev polynomials of the first kind. 
+    
+    Uses Chebyshev coefficients to generate stored polynomial functions 
+    which, under waveshaping, can be used to split a sinusoid into 
+    harmonic partials having a pre-definable spectrum. 
+    
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    list : list, optional
+        Relative strengths of partials numbers 1,2,3, ..., 12 that will 
+        result when a sinusoid of amplitude 1 is waveshaped using this 
+        function table. Up to 12 partials can be specified. Defaults to [1].
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+        
+    Methods:
+    
+    setSize(size) : Change the size of the table. This will erase the 
+        previously drawn waveform.
+    replace(list) : Redraw the waveform according to the new `list` 
+        parameter.
+    
+    Attributes:
+    
+    list : list, optional
+        Relative strengths of the fixed harmonic partial numbers.
+    size : int, optional
+        Table size in samples.
+        
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = ChebyTable([1,0,.33,0,.2,0,.143,0,.111])
+    >>> a = Sine(freq=100)
+    >>> b = Lookup(table=t, index=a, mul=.5).out()
+
+    """
+    def __init__(self, list=[1., 0.], size=8192):
+        self._list = list
+        self._size = size
+        self._base_objs = [ChebyTable_base(list, size)]
+        
+    def setSize(self, size):
+        """
+        Change the size of the table. This will erase the previously 
+        drawn waveform.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def replace(self, list):
+        """
+        Redraw the waveform according to a new set of harmonics 
+        relative strengths that will result when a sinusoid of 
+        amplitude 1 is waveshaped using this function table.
+        
+        Parameters:
+        
+        list : list
+            Relative strengths of the fixed harmonic partial 
+            numbers 1,2,3, ..., 12. Up to 12 partials can be specified.
+
+        """      
+        self._list = list
+        [obj.replace(list) for obj in self._base_objs]
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/ChebyTable_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('ChebyTable(list=[1.], size=8192)')
+    args = Print_args(args)
+
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def list(self): 
+        """list. Relative strengths of the fixed harmonic partial numbers."""
+        return self._list
+    @list.setter
+    def list(self, x): self.replace(x)
         
 class HannTable(PyoTableObject):
     """

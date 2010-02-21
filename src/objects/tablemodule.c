@@ -110,12 +110,17 @@ HarmTable_generate(HarmTable *self) {
     float factor, amplitude, val;
     
     ampsize = PyList_Size(self->amplist);
+    float array[ampsize];
+    for(j=0; j<ampsize; j++) {
+        array[j] =  PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
+    }    
+    
     factor = 1. / (self->size * 0.5) * PI;
     
     for(i=0; i<self->size; i++) {
         val = 0;
         for(j=0; j<ampsize; j++) {
-            amplitude = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
+            amplitude = array[j];
             if (amplitude != 0.0) {
                 val += sinf((j+1) * i * factor) * amplitude;
             }
@@ -323,6 +328,281 @@ HarmTable_members,             /* tp_members */
 (initproc)HarmTable_init,      /* tp_init */
 0,                         /* tp_alloc */
 HarmTable_new,                 /* tp_new */
+};
+
+/***********************/
+/* ChebyTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    PyObject *amplist;
+} ChebyTable;
+
+static void
+ChebyTable_generate(ChebyTable *self) {
+    int i, j, ampsize, halfsize;
+    float factor, amplitude, val, ihalfsize, index, x;
+    
+    ampsize = PyList_Size(self->amplist);
+    if (ampsize > 12)
+        ampsize = 12;
+    float array[ampsize];
+    for(j=0; j<ampsize; j++) {
+        array[j] =  PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(self->amplist, j)));
+    }    
+    
+    halfsize = self->size / 2;
+    ihalfsize = 1.0 / halfsize;
+    factor = 1. / (self->size * 0.5) * PI;
+    
+    for(i=0; i<self->size; i++) {
+        val = 0;
+        index = (i - halfsize) * ihalfsize;
+        for(j=0; j<ampsize; j++) {
+            amplitude = array[j];
+            switch (j) {
+                case 0:
+                    x = index;
+                    break;
+                case 1:
+                    x = 2 * powf(index, 2) - 1;
+                    break;
+                case 2:
+                    x = 4 * powf(index, 3) - 3 * index;
+                    break;
+                case 3:
+                    x = 8 * powf(index, 4) - 8 * powf(index, 2) + 1;
+                    break;
+                case 4:
+                    x = 16 * powf(index, 5) - 20 * powf(index, 3) + 5 * index;
+                    break;
+                case 5:
+                    x = 32 * powf(index, 6) - 48 * powf(index, 4) + 18 * powf(index, 2) - 1;
+                    break;
+                case 6:
+                    x = 64 * powf(index, 7) - 112 * powf(index, 5) + 56 * powf(index, 3) - 7 * index;
+                    break;
+                case 7:
+                    x = 128 * powf(index, 8) - 256 * powf(index, 6) + 160 * powf(index, 4) - 32 * powf(index, 2) + 1;
+                    break;
+                case 8:
+                    x = 256 * powf(index, 9) - 576 * powf(index, 7) + 432 * powf(index, 5) - 120 * powf(index, 3) + 9 * index;
+                    break;
+                case 9:
+                    x = 512 * powf(index, 10) - 1280 * powf(index, 8) + 1120 * powf(index, 6) - 400 * powf(index, 4) + 50 * powf(index, 2) - 1;
+                    break;
+                case 10:
+                    x = 1024 * powf(index, 11) - 2816 * powf(index, 9) + 2816 * powf(index, 7) - 1232 * powf(index, 5) + 220 * powf(index, 3) - 11 * index;
+                    break;
+                case 11:
+                    x = 2048 * powf(index, 12) - 6144 * powf(index, 10) + 6912 * powf(index, 8) - 3584 * powf(index, 6) + 840 * powf(index, 4) - 72 * powf(index, 2) + 1;
+                    break;
+            }
+            val += x * amplitude;
+        }
+        self->data[i] = val;
+    }
+    
+    val = self->data[self->size-1];
+    self->data[self->size] = val;  
+    TableStream_setData(self->tablestream, self->data);
+}
+
+static int
+ChebyTable_traverse(ChebyTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->amplist);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+ChebyTable_clear(ChebyTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->amplist);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+ChebyTable_dealloc(ChebyTable* self)
+{
+    free(self->data);
+    ChebyTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    ChebyTable *self;
+    
+    self = (ChebyTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->amplist = PyList_New(0);
+    PyList_Append(self->amplist, PyFloat_FromDouble(1.));
+    self->size = 8192;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *amplist=NULL;
+    
+    static char *kwlist[] = {"list", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
+        return -1; 
+    
+    if (amplist) {
+        Py_INCREF(amplist);
+        Py_DECREF(self->amplist);
+        self->amplist = amplist;
+    }
+    
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
+    TableStream_setSize(self->tablestream, self->size);
+    ChebyTable_generate(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * ChebyTable_getServer(ChebyTable* self) { GET_SERVER };
+static PyObject * ChebyTable_getTableStream(ChebyTable* self) { GET_TABLE_STREAM };
+
+static PyObject *
+ChebyTable_setSize(ChebyTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->size = PyInt_AsLong(value); 
+    
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    ChebyTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+ChebyTable_getSize(ChebyTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+ChebyTable_getTable(ChebyTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
+static PyObject *
+ChebyTable_replace(ChebyTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->amplist);
+    self->amplist = value; 
+    
+    ChebyTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef ChebyTable_members[] = {
+{"server", T_OBJECT_EX, offsetof(ChebyTable, server), 0, "Pyo server."},
+{"tablestream", T_OBJECT_EX, offsetof(ChebyTable, tablestream), 0, "Table stream object."},
+{"amplist", T_OBJECT_EX, offsetof(ChebyTable, amplist), 0, "Harmonics amplitude values."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef ChebyTable_methods[] = {
+{"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
+{"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject ChebyTableType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.ChebyTable_base",         /*tp_name*/
+sizeof(ChebyTable),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)ChebyTable_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,                         /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+"ChebyTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
+(traverseproc)ChebyTable_traverse,   /* tp_traverse */
+(inquiry)ChebyTable_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+ChebyTable_methods,             /* tp_methods */
+ChebyTable_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)ChebyTable_init,      /* tp_init */
+0,                         /* tp_alloc */
+ChebyTable_new,                 /* tp_new */
 };
 
 /***********************/
