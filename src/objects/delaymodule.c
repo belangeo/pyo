@@ -45,7 +45,7 @@ Delay_process_ii(Delay *self) {
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += self->size;
+            xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
@@ -53,8 +53,9 @@ Delay_process_ii(Delay *self) {
         val = x + (x1 - x) * frac;
         self->data[i] = val;
         
-        self->buffer[self->in_count++] = in[i] + (val * feed);
-        if (self->in_count == self->size)
+        self->buffer[self->in_count] = in[i] + (val * feed);
+        self->in_count++;
+        if (self->in_count >= self->size)
             self->in_count = 0;
     }
 }
@@ -83,7 +84,7 @@ Delay_process_ai(Delay *self) {
         sampdel = del * self->sr;
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += self->size;
+            xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
@@ -92,7 +93,7 @@ Delay_process_ai(Delay *self) {
         self->data[i] = val;
         
         self->buffer[self->in_count++] = in[i]  + (val * feed);
-        if (self->in_count == self->size)
+        if (self->in_count >= self->size)
             self->in_count = 0;
     }
 }
@@ -116,7 +117,7 @@ Delay_process_ia(Delay *self) {
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += self->size;
+            xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
@@ -155,7 +156,7 @@ Delay_process_aa(Delay *self) {
         sampdel = del * self->sr;
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += self->size;
+            xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
         x = self->buffer[ind];
