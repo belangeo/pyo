@@ -617,7 +617,7 @@ HannTable_generate(HannTable *self) {
     int i, halfSize;
     float val;
     
-    halfSize = self->size / 2 + 1;
+    halfSize = self->size / 2 - 1;
     
     for(i=0; i<self->size; i++) {
         val = 0.5 + (cosf(TWOPI * (i - halfSize) / self->size) * 0.5);
