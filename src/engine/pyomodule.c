@@ -208,6 +208,11 @@ init_pyo(void)
         return;
     Py_INCREF(&InputFaderType);
     PyModule_AddObject(m, "InputFader_base", (PyObject *)&InputFaderType);
+
+    if (PyType_Ready(&AdsrType) < 0)
+        return;
+    Py_INCREF(&AdsrType);
+    PyModule_AddObject(m, "Adsr_base", (PyObject *)&AdsrType);
     
     if (PyType_Ready(&TableStreamType) < 0)
         return;
