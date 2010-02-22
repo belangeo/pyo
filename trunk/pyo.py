@@ -22,7 +22,7 @@ from pyolib.triggers import *
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
                     'pm_count_devices', 'pm_list_devices', 'sndinfo']),
         'PyoObject': {'analysis': sorted(['Follower', 'ZCross']),
-                      'controls': sorted(['Fader', 'Sig', 'SigTo']),
+                      'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr']),
                       'dynamics': sorted(['Clip', 'Compress', 'Degrade']),
                       'effects': sorted(['Delay', 'Disto', 'Freeverb', 'Waveguide']),
                       'filters': sorted(['Biquad', 'BandSplit', 'Port', 'Hilbert', 'Tone', 'DCBlock']),

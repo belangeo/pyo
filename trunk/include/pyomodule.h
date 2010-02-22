@@ -24,6 +24,8 @@ extern PyTypeObject SelectType;
 extern PyTypeObject ThreshType;
 
 extern PyTypeObject FaderType;
+extern PyTypeObject AdsrType;
+
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
 extern PyTypeObject DCBlockType;
