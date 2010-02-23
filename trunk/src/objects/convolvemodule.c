@@ -5,80 +5,36 @@
 #include "streammodule.h"
 #include "servermodule.h"
 #include "dummymodule.h"
-#include "sndfile.h"
+#include "tablemodule.h"
 
 /************/
 /* Convolve */
 /************/
 typedef struct {
     pyo_audio_HEAD
+    PyObject *table;
     PyObject *input;
     Stream *input_stream;
     int modebuffer[2]; // need at least 2 slots for mul & add 
-    float *impulse;
     float *input_tmp;
-    char *path;
     int size;
-    int sndSr;
-    int chnl;
     int count;
 } Convolve;
-
-static void
-Convolve_loadSound(Convolve *self) {
-    SNDFILE *sf;
-    SF_INFO info;
-    unsigned int i, num, num_items, num_chnls;
-    float val;
-    float *tmp;
-    
-    /* Open the WAV file. */
-    info.format = 0;
-    sf = sf_open(self->path, SFM_READ, &info);
-    if (sf == NULL)
-    {
-        printf("Failed to open the file.\n");
-    }
-    /* Print some of the info, and figure out how much data to read. */
-    self->size = info.frames;
-    self->sndSr = info.samplerate;
-    num_chnls = info.channels;
-    printf("load impulse response...\n");
-    printf("samples = %d\n", self->size);
-    printf("samplingrate = %d\n", self->sndSr);
-    printf("channels = %d\n", num_chnls);
-    num_items = self->size * num_chnls;
-    //printf("num_items=%d\n",num_items);
-    /* Allocate space for the data to be read, then read it. */
-    self->impulse = (float *)realloc(self->impulse, self->size * sizeof(float));
-    tmp = (float *)malloc(num_items * sizeof(float));
-    num = sf_read_float(sf, tmp, num_items);
-    sf_close(sf);
-    for (i=0; i<num_items; i++) {
-        if ((i % num_chnls) == self->chnl) {
-            self->impulse[(int)(i/num_chnls)] = tmp[i];
-        }    
-    }
-    
-    free(tmp);
-    self->input_tmp = (float *)realloc(self->input_tmp, self->size * sizeof(float));
-    for (i=0; i<self->size; i++) {
-        self->input_tmp[i] = 0.0;
-    }
-}
 
 static void
 Convolve_filters(Convolve *self) {
     int i,j,tmp_count;
     float *in = Stream_getData((Stream *)self->input_stream);
-    
+
+    float *impulse = TableStream_getData(self->table);
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
         tmp_count = self->count;
         for(j=0; j<self->size; j++) {
             if (tmp_count < 0)
                 tmp_count += self->size;
-            self->data[i] += self->input_tmp[tmp_count--] * self->impulse[j];
+            self->data[i] += self->input_tmp[tmp_count--] * impulse[j];
         }
         
         self->count++;
@@ -179,7 +135,6 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Convolve *self;
     self = (Convolve *)type->tp_alloc(type, 0);
     
-    self->chnl = 0;
     self->count = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
@@ -193,11 +148,12 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "path", "chnl", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "table", "size", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iOO", kwlist, &inputtmp, &self->path, &self->chnl, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &tabletmp, &self->size, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -206,6 +162,9 @@ Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
     Py_INCREF(input_streamtmp);
     Py_XDECREF(self->input_stream);
     self->input_stream = (Stream *)input_streamtmp;
+
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -220,8 +179,11 @@ Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    Convolve_loadSound(self);
-
+    self->input_tmp = (float *)realloc(self->input_tmp, self->size * sizeof(float));
+    for (i=0; i<self->size; i++) {
+        self->input_tmp[i] = 0.0;
+    }
+    
     Convolve_compute_next_data_frame((Convolve *)self);
     
     Py_INCREF(self);
@@ -248,6 +210,31 @@ static PyObject * Convolve_inplace_sub(Convolve *self, PyObject *arg) { INPLACE_
 static PyObject * Convolve_div(Convolve *self, PyObject *arg) { DIV };
 static PyObject * Convolve_inplace_div(Convolve *self, PyObject *arg) { INPLACE_DIV };
 
+static PyObject *
+Convolve_getTable(Convolve* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Convolve_setTable(Convolve *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Convolve_members[] = {
 {"server", T_OBJECT_EX, offsetof(Convolve, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Convolve, stream), 0, "Stream object."},
@@ -258,12 +245,14 @@ static PyMemberDef Convolve_members[] = {
 };
 
 static PyMethodDef Convolve_methods[] = {
+{"getTable", (PyCFunction)Convolve_getTable, METH_NOARGS, "Returns impulse response table object."},
 {"getServer", (PyCFunction)Convolve_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Convolve_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Convolve_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Convolve_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Convolve_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)Convolve_setTable, METH_O, "Sets inpulse response table."},
 {"setMul", (PyCFunction)Convolve_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)Convolve_setAdd, METH_O, "Sets add factor."},
 {"setSub", (PyCFunction)Convolve_setSub, METH_O, "Sets inverse add factor."},

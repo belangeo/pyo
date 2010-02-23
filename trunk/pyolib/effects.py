@@ -579,20 +579,23 @@ class Convolve(PyoObject):
     
     input : PyoObject
         Input signal to filter.
-    path : string
-        Full path of the impulse response. Available at initialization 
-        time only.
-    chnl : int, optional
-        Impulse response channel to load. Defaults to None, which mean to
-        load all channels. Available at initialization time only.
+    table : PyoTableObject
+        Table containning the impulse response.
+    size : int
+        Length, in samples, of the convolution. Available at initialization 
+        time only. If the table changes during the performance, its size
+        must egal or greater than this value. If greater only the first
+        `size` samples will be used.
 
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
+    setTable(x) : Replace the `table` attribute.
 
     Attributes:
 
     input : PyoObject. Input signal to filter.
+    table : PyoTableObject. Table containning the impulse response.
     
     Notes :
     
@@ -611,20 +614,15 @@ class Convolve(PyoObject):
     >>> a = Convolve(sf, '/Users/olipet/impulse3_512.aif').out()
 
     """
-    def __init__(self, input, path, chnl=None, mul=1, add=0):
+    def __init__(self, input, table, size, mul=1, add=0):
         self._input = input
-        self._path = path
-        self._size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path)
-        self._chnl = chnl
+        self._table = table
+        self._size = size
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, path, chnl, mul, add, lmax = convertArgsToLists(self._in_fader, path, chnl, mul, add)
-        if self._chnl == None:
-            self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(path,i), j, wrap(mul,i), wrap(add,i)) \
-                               for i in range(lmax) for j in range(self._snd_chnls)]
-        else:                       
-            self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(path,i), wrap(chnl,i), wrap(mul,i), wrap(add,i)) \
+        in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)                     
+        self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) \
                                for i in range(lmax)]
         
     def setInput(self, x, fadetime=0.05):
@@ -642,6 +640,20 @@ class Convolve(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Convolve object."
         
@@ -650,7 +662,7 @@ class Convolve(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        return("Convolve(input, path, chnl=None, mul=1, add=0)")
+        return("Convolve(input, table, size, mul=1, add=0)")
     args = Print_args(args)
       
     @property
@@ -659,3 +671,10 @@ class Convolve(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the impulse response.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
