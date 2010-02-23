@@ -523,6 +523,11 @@ init_pyo(void)
         return;
     Py_INCREF(&FreeverbType);
     PyModule_AddObject(m, "Freeverb_base", (PyObject *)&FreeverbType);
+
+    if (PyType_Ready(&ConvolveType) < 0)
+        return;
+    Py_INCREF(&ConvolveType);
+    PyModule_AddObject(m, "Convolve_base", (PyObject *)&ConvolveType);
     
     if (PyType_Ready(&GranulatorType) < 0)
         return;

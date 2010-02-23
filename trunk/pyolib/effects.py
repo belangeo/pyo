@@ -568,3 +568,94 @@ class Freeverb(PyoObject):
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
+
+class Convolve(PyoObject):
+    """
+    Implements filtering using circular convolution.
+ 
+    Parent class: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to filter.
+    path : string
+        Full path of the impulse response. Available at initialization 
+        time only.
+    chnl : int, optional
+        Impulse response channel to load. Defaults to None, which mean to
+        load all channels. Available at initialization time only.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    
+    Notes :
+    
+    Convolution is very expensive to compute, so the impulse response must
+    be kept very short to run in real time.
+    
+    Usually convolution generates a high amplitude level, take care of the
+    `mul` parameter!
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd = DEMOS_PATH + '/transparent.aif'
+    >>> sf = SfPlayer(snd, loop=True, mul=.5).out()
+    >>> a = Convolve(sf, '/Users/olipet/impulse3_512.aif').out()
+
+    """
+    def __init__(self, input, path, chnl=None, mul=1, add=0):
+        self._input = input
+        self._path = path
+        self._size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path)
+        self._chnl = chnl
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, path, chnl, mul, add, lmax = convertArgsToLists(self._in_fader, path, chnl, mul, add)
+        if self._chnl == None:
+            self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(path,i), j, wrap(mul,i), wrap(add,i)) \
+                               for i in range(lmax) for j in range(self._snd_chnls)]
+        else:                       
+            self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(path,i), wrap(chnl,i), wrap(mul,i), wrap(add,i)) \
+                               for i in range(lmax)]
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control for Convolve object."
+        
+    #def demo():
+    #    execfile(DEMOS_PATH + "/Convolve_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return("Convolve(input, path, chnl=None, mul=1, add=0)")
+    args = Print_args(args)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
