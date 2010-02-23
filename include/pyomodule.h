@@ -37,6 +37,7 @@ extern PyTypeObject CompressType;
 extern PyTypeObject DelayType;
 extern PyTypeObject WaveguideType;
 extern PyTypeObject FreeverbType;
+extern PyTypeObject ConvolveType;
 
 extern PyTypeObject GranulatorType;
 
