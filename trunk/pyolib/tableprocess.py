@@ -848,6 +848,149 @@ class TableRec(PyoObject):
     @table.setter
     def table(self, x): self.setTable(x)
 
+class TableMorph(PyoObject):
+    """
+    Morphs between multiple PyoTableObject.
+     
+    Uses an index into a list of PyoTableObjects to morph between adjacent 
+    tables in the list. This morphed function is written into the `table`
+    object at the beginning of each buffer size. The tables in the list and 
+    the resulting table must be equal in size.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Morphing index between 0 and 1. 0 is the first table in the list 
+        and 1 is the last.
+    table : NewTable
+        The table where to write morphed waveform.
+    sources : list of PyoTableObject
+        List of tables to interpolate from.
+    
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setTable(x) : Replace the `table` attribute.
+    setSources(x) : Replace the `sources` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Morphing index between 0 and 1.
+    table : NewTable. The table where to write samples.
+    sources : list of PyoTableObject. List of tables to interpolate from.
+    
+    Notes:
+
+    The out() method is bypassed. TableMorph returns no signal.
+    
+    TableMorph has no `mul` and `add` attributes.
+ 
+    Examples:
+    
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> t1 = HarmTable([1,.5,.33,.25,.2,.167,.143,.125,.111])
+    >>> t2 = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
+    >>> t3 = NewTable(length=8192./s.getSamplingRate(), chnls=1)
+    >>> lfo = Sine(.25, 0, .5, .5)
+    >>> mor = TableMorph(lfo, t3, [t1,t2])
+    >>> osc = Osc(t3, freq=200, mul=.5).out()
+    
+    """
+    def __init__(self, input, table, sources):
+        self._input = input
+        self._table = table
+        self._sources = sources
+        self._in_fader = InputFader(input)
+        in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
+        self._base_sources = [source[0] for source in sources]
+        self._base_objs = [TableMorph_base(wrap(in_fader,i), wrap(table,i), self._base_sources) for i in range(len(table))]
+
+    def out(self, chnl=0, inc=1):
+        pass
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : NewTable
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSources(self, x):
+        """
+         Replace the `sources` attribute.
+        
+        Parameters:
+
+        x : list of PyoTableObject
+            new `sources` attribute.
+              
+        """
+        self._sources = x
+        self._base_sources = [source[0] for source in x]
+        [obj.setSources(self._base_sources) for i, obj in enumerate(self._base_objs)]
+        
+    def ctrl(self, map_list=None, title=None):
+        print "There is no control on TableMorph object."
+
+    #def demo():
+    #    execfile(DEMOS_PATH + "/TableMorph_demo.py")
+    #demo = Call_example(demo)
+
+    def args():
+        return('TableMorph(input, table, sources)')
+    args = Print_args(args)
+      
+    @property
+    def input(self):
+        """PyoObject. Morphing index between 0 and 1.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def table(self):
+        """NewTable. The table where to write samples."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def sources(self):
+        """list of PyoTableObject. List of tables to interpolate from."""
+        return self._sources
+    @sources.setter
+    def sources(self, x): self.setSources(x)
 
 class Granulator(PyoObject):
     """

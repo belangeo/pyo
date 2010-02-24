@@ -9,6 +9,7 @@ typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
     int fademode;
+    float topValue;
     float attack;
     float release;
     float duration;
@@ -59,10 +60,11 @@ Fader_generate_wait(Fader *self) {
                 val = self->currentTime / self->attack;
             else
                 val = 1.;
+            self->topValue = val;    
         }    
         else {  
             if (self->currentTime <= self->release)
-                val = 1. - self->currentTime / self->release;
+                val = (1. - self->currentTime / self->release) * self->topValue;
             else 
                 val = 0.;
         }    
@@ -165,6 +167,7 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
+    self->topValue = 0.0;
     self->fademode = 0;
     self->attack = 0.01;
     self->release = 0.1;
@@ -227,6 +230,7 @@ static PyObject * Fader_play(Fader *self)
 {
     self->fademode = 0;
     self->currentTime = 0.0;
+    (*self->mode_func_ptr)(self);
     PLAY
 };
 
@@ -389,6 +393,7 @@ typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
     int fademode;
+    float topValue;
     float attack;
     float decay;
     float sustain;
@@ -445,10 +450,11 @@ Adsr_generate_wait(Adsr *self) {
                 val = (self->decay - (self->currentTime - self->attack)) / self->decay * (1. - self->sustain) + self->sustain;
             else
                 val = self->sustain;
+            self->topValue = val;
         }    
         else {  
             if (self->currentTime <= self->release)
-                val = self->sustain * (1. - self->currentTime / self->release);
+                val = self->topValue * (1. - self->currentTime / self->release);
             else 
                 val = 0.;
         }    
@@ -551,6 +557,7 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
+    self->topValue = 0.0;
     self->fademode = 0;
     self->attack = 0.01;
     self->decay = 0.05;
@@ -615,6 +622,7 @@ static PyObject * Adsr_play(Adsr *self)
 {
     self->fademode = 0;
     self->currentTime = 0.0;
+    (*self->mode_func_ptr)(self);
     PLAY
 };
 

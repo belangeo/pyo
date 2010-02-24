@@ -253,6 +253,11 @@ init_pyo(void)
         return;
     Py_INCREF(&TableRecType);
     PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
+
+    if (PyType_Ready(&TableMorphType) < 0)
+        return;
+    Py_INCREF(&TableMorphType);
+    PyModule_AddObject(m, "TableMorph_base", (PyObject *)&TableMorphType);
     
     if (PyType_Ready(&TableRecTrigType) < 0)
         return;
