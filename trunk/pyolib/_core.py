@@ -1150,7 +1150,7 @@ class Sig(PyoObject):
 
     Parameters:
 
-    value : float
+    value : float or PyoObject
         Numerical value to convert.
 
     Methods:
@@ -1159,7 +1159,7 @@ class Sig(PyoObject):
     
     Attributes:
     
-    value : float. Numerical value to convert.
+    value : float or PyoObject. Numerical value to convert.
     
     Notes:
 
@@ -1188,7 +1188,7 @@ class Sig(PyoObject):
 
         Parameters:
 
-        x : float
+        x : float or PyoObject
             Numerical value to convert.
 
         """
@@ -1196,7 +1196,12 @@ class Sig(PyoObject):
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for Sig object."
+        if map_list == None:
+            map_list = [SLMap(0, 1, "lin", "value", 0)]
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
 
     #def demo():
     #    execfile("demos/Sig_demo.py")
@@ -1208,7 +1213,7 @@ class Sig(PyoObject):
     
     @property
     def value(self):
-        """float. Numerical value to convert.""" 
+        """float or PyoObject. Numerical value to convert.""" 
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)    

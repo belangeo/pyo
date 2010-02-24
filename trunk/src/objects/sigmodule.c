@@ -7,8 +7,9 @@
 
 typedef struct {
     pyo_audio_HEAD
-    float value;
-    int modebuffer[2];
+    PyObject *value;
+    Stream *value_stream;
+    int modebuffer[3];
 } Sig;
 
 static void Sig_postprocessing_ii(Sig *self) { POST_PROCESSING_II };
@@ -62,8 +63,17 @@ static void
 Sig_compute_next_data_frame(Sig *self)
 {
     int i;
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = self->value;
+    if (self->modebuffer[2] == 0) {
+        float val = PyFloat_AS_DOUBLE(self->value);
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = val;
+        }
+    }
+    else {
+        float *vals = Stream_getData((Stream *)self->value_stream);
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = vals[i];
+        }
     }    
     (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
@@ -73,6 +83,8 @@ static int
 Sig_traverse(Sig *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->value);    
+    Py_VISIT(self->value_stream);    
     return 0;
 }
 
@@ -80,6 +92,8 @@ static int
 Sig_clear(Sig *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->value);    
+    Py_CLEAR(self->value_stream);    
     return 0;
 }
 
@@ -99,8 +113,10 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Sig *self;
     self = (Sig *)type->tp_alloc(type, 0);
     
+    self->value = PyFloat_FromDouble(0.0);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Sig_compute_next_data_frame);
@@ -145,7 +161,7 @@ Sig_init(Sig *self, PyObject *args, PyObject *kwds)
 static PyObject *
 Sig_setValue(Sig *self, PyObject *arg)
 {
-	PyObject *tmp;
+	PyObject *tmp, *streamtmp;
 	
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
@@ -156,10 +172,19 @@ Sig_setValue(Sig *self, PyObject *arg)
 	
 	tmp = arg;
 	Py_INCREF(tmp);
-	if (isNumber == 1)
-		self->value = PyFloat_AsDouble(PyNumber_Float(tmp));
-    else
-        self->value = 1.;
+    Py_DECREF(self->value);
+	if (isNumber == 1) {
+		self->value = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+    }
+    else {
+		self->value = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->value_stream);
+        self->value_stream = (Stream *)streamtmp;
+        self->modebuffer[2] = 1;
+    }
     
 	Py_INCREF(Py_None);
 	return Py_None;
