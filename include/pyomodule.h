@@ -59,6 +59,7 @@ extern PyTypeObject SndTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
 extern PyTypeObject TableRecTrigType;
+extern PyTypeObject TableMorphType;
 
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
