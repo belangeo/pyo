@@ -7,6 +7,7 @@
  */
 
 #include <Python.h>
+#include <math.h>
 #include "portaudio.h"
 #include "sndfile.h"
 #include "pyomodule.h"
@@ -154,7 +155,10 @@ sndinfo(PyObject *self, PyObject *args) {
     return sndinfo;
 }    
 
-    
+static PyObject *
+midiToHz(PyObject *self, PyObject *arg) {
+    return Py_BuildValue("f", 8.175798 * powf(1.0594633, PyFloat_AsDouble(PyNumber_Float(arg))));
+}    
 
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
@@ -163,6 +167,7 @@ static PyMethodDef pyo_functions[] = {
 {"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, "Returns Portaudio default output device."},
 {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Lists all devices found by Portmidi."},
+{"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns Hertz value for a midi input."},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, duration in seconds, sampling rate and number of channels of the given sound file."},
 {NULL, NULL, 0, NULL},
 };
