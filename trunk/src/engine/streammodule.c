@@ -106,6 +106,16 @@ void Stream_callFunction(Stream *self)
     (*self->funcptr)(self->streamobject);
 }    
 
+static PyObject *
+Stream_getValue(Stream *self) {
+    return Py_BuildValue("f", self->data[0]);
+}
+
+static PyMethodDef Stream_methods[] = {
+{"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
+{NULL}  /* Sentinel */
+};
+
 PyTypeObject StreamType = {
     PyObject_HEAD_INIT(NULL)
     0, /*ob_size*/
@@ -135,7 +145,7 @@ PyTypeObject StreamType = {
     0, /* tp_weaklistoffset */
     0, /* tp_iter */
     0, /* tp_iternext */
-    0, /* tp_methods */
+    Stream_methods, /* tp_methods */
     0, /* tp_members */
     0, /* tp_getset */
     0, /* tp_base */

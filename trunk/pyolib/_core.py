@@ -609,6 +609,7 @@ class PyoObject(object):
     setDiv(x) : Replace and inverse the `mul` attribute.
     setSub(x) : Replace and inverse the `add` attribute.
     ctrl(map_list, title) : Opens a sliders window to control parameters.
+    get() : Return the first sample of the current buffer as a float.
 
     Attributes:
 
@@ -722,6 +723,15 @@ class PyoObject(object):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
+
+    def get(self):
+        """
+        Return the first sample of the current buffer as a float.
+        
+        Can be used to convert audio stream to usable Python data.
+        
+        """
+        return self._base_objs[0]._getStream().getValue()
         
     def getBaseObjects(self):
         """
