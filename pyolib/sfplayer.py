@@ -85,6 +85,9 @@ class SfPlayer(PyoObject):
             self._base_objs.append(SfPlay_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
             self._trig_objs.append(SfPlayTrig_base(wrap(self._base_players,j), i % self._snd_chnls))
 
+    def __dir__(self):
+        return ['sound', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
+
     def __del__(self):
         for obj in self._base_objs:
             obj.deleteStream()
@@ -330,6 +333,9 @@ class SfMarkerShuffler(PyoObject):
         for i in range(lmax * self._snd_chnls):
             j = i / self._snd_chnls
             self._base_objs.append(SfMarkerShuffle_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
+
+    def __dir__(self):
+        return ['speed', 'interp', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:

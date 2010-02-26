@@ -44,6 +44,9 @@ class Pattern(PyoObject):
         function, time, lmax = convertArgsToLists(function, time)
         self._base_objs = [Pattern_base(wrap(function,i), wrap(time,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['time']
+
     def setTime(self, x):
         """
         Replace the `time` attribute.

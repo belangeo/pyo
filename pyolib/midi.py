@@ -45,6 +45,9 @@ class Midictl(PyoObject):
         ctlnumber, minscale, maxscale, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, mul, add)
         self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['mul', 'add']
+
     def out(self, chnl=0, inc=1):
         pass
 
@@ -121,6 +124,9 @@ class Notein(PyoObject):
         for i in range(lmax * poly):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
             self._base_objs.append(Notein_base(self._base_handler, i, 1, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:

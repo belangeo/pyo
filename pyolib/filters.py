@@ -59,6 +59,9 @@ class Biquad(PyoObject):
         in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
         self._base_objs = [Biquad_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input', 'freq', 'q', 'type', 'mul', 'add']
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -202,6 +205,9 @@ class Tone(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Tone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'mul', 'add']
         
     def setInput(self, x, fadetime=0.05):
         """
@@ -316,6 +322,9 @@ class Port(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, risetime, falltime, init, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, init, mul, add)
         self._base_objs = [Port_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'risetime', 'falltime', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -433,6 +442,9 @@ class DCBlock(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [DCBlock_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
         
     def setInput(self, x, fadetime=0.05):
         """
@@ -527,6 +539,9 @@ class BandSplit(PyoObject):
         for i in range(lmax):
             for j in range(num):
                 self._base_objs.append(BandSplit_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
+
+    def __dir__(self):
+        return ['input', 'q', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:
@@ -669,6 +684,9 @@ class Hilbert(PyoObject):
         for i in range(lmax2):
             self._base_objs.append(Hilbert_base(wrap(self._base_players,i), 0, wrap(mul,i), wrap(add,i)))
             self._base_objs.append(Hilbert_base(wrap(self._base_players,i), 1, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:

@@ -17,22 +17,22 @@ TLEN = 400
 inmic = Input()
 
 t1 = NewTable(length=sampsToMs(TLEN), chnls=1)
-rec = TableRec(inmic, table=t1, fadetime=.001)
+r1 = TableRec(inmic, table=t1, fadetime=.001)
 
 t2 = NewTable(length=sampsToMs(TLEN), chnls=1)
-rec2 = TableRec(inmic, table=t2, fadetime=.001)
+r2 = TableRec(inmic, table=t2, fadetime=.001)
 
 t3 = NewTable(length=sampsToMs(TLEN), chnls=1)
-rec3 = TableRec(inmic, table=t3, fadetime=.001)
+r3 = TableRec(inmic, table=t3, fadetime=.001)
 
 t4 = NewTable(length=sampsToMs(TLEN), chnls=1)
-rec4 = TableRec(inmic, table=t4, fadetime=.001)
+r4 = TableRec(inmic, table=t4, fadetime=.001)
 
 pha = Sig(0)
 pha.ctrl()
 
 t = NewTable(length=sampsToMs(TLEN), chnls=1)
 m = TableMorph(pha, t, [t1,t2,t3,t4])
-a = Convolve(sf, table=t, size=t.getSize()).out()
+a = Convolve(sf, table=t, size=t.getSize(), mul=.2).out()
 
 s.gui(locals())

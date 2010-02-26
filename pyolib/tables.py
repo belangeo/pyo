@@ -47,6 +47,9 @@ class HarmTable(PyoTableObject):
         self._list = list
         self._size = size
         self._base_objs = [HarmTable_base(list, size)]
+
+    def __dir__(self):
+        return ['list', 'size']
         
     def setSize(self, size):
         """
@@ -141,6 +144,9 @@ class SawTable(PyoTableObject):
         self._size = size
         list = [1./i for i in range(1,(order+1))]
         self._base_objs = [HarmTable_base(list, size)]
+
+    def __dir__(self):
+        return ['order', 'size']
         
     def setSize(self, size):
         """
@@ -239,6 +245,9 @@ class SquareTable(PyoTableObject):
             else:
                 list.append(0.)    
         self._base_objs = [HarmTable_base(list, size)]
+
+    def __dir__(self):
+        return ['order', 'size']
         
     def setSize(self, size):
         """
@@ -341,6 +350,9 @@ class ChebyTable(PyoTableObject):
         self._list = list
         self._size = size
         self._base_objs = [ChebyTable_base(list, size)]
+
+    def __dir__(self):
+        return ['list', 'size']
         
     def setSize(self, size):
         """
@@ -429,6 +441,9 @@ class HannTable(PyoTableObject):
         self._size = size
         self._base_objs = [HannTable_base(size)]
 
+    def __dir__(self):
+        return ['size']
+
     def setSize(self, size):
         """
         Change the size of the table. This will redraw the envelope.
@@ -503,6 +518,9 @@ class LinTable(PyoTableObject):
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
         self._size = size
         self._base_objs = [LinTable_base(list, size)]
+
+    def __dir__(self):
+        return ['list', 'size']
         
     def setSize(self, size):
         """
@@ -600,6 +618,9 @@ class SndTable(PyoTableObject):
         else:
             self._base_objs = [SndTable_base(path, chnl)]
 
+    def __dir__(self):
+        return ['sound']
+
     def setSound(self, path):
         """
         Load a new sound in the table.
@@ -676,6 +697,9 @@ class NewTable(PyoTableObject):
     """
     def __init__(self, length, chnls=1):
         self._base_objs = [NewTable_base(length) for i in range(chnls)]
+
+    def __dir__(self):
+        return []
                 
     def getSize(self):
         """

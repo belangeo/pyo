@@ -50,6 +50,9 @@ class Metro(PyoObject):
         time, lmax = convertArgsToLists(time)
         self._base_objs = [Metro_base(wrap(time,i)*poly, (float(j)/poly)) for i in range(lmax) for j in range(poly)]
 
+    def __dir__(self):
+        return ['time']
+
     def setTime(self, x):
         """
         Replace the `time` attribute.
@@ -159,6 +162,9 @@ class TrigRand(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, port, init, mul, add)
         self._base_objs = [TrigRand_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'min', 'max', 'port', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -305,6 +311,9 @@ class TrigChoice(PyoObject):
         in_fader, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, port, init, mul, add)
         self._base_objs = [TrigChoice_base(wrap(in_fader,i), choice, wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input', 'choice', 'port', 'mul', 'add']
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -428,6 +437,9 @@ class TrigFunc(PyoObject):
         in_fader, function, lmax = convertArgsToLists(self._in_fader, function)
         self._base_objs = [TrigFunc_base(wrap(in_fader,i), wrap(function,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input', 'function']
+
     def out(self, chnl=0, inc=1):
         return self
 
@@ -541,6 +553,9 @@ class TrigEnv(PyoObject):
         in_fader, table, dur, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, mul, add)
         self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = [TrigEnvTrig_base(obj) for obj in self._base_objs]
+
+    def __dir__(self):
+        return ['input', 'table', 'dur', 'mul', 'add']
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -715,6 +730,9 @@ class Counter(PyoObject):
         in_fader, min, max, dir, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, dir, mul, add)
         self._base_objs = [Counter_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(dir,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input', 'min', 'max', 'dir', 'mul', 'add']
+
     def out(self, chnl=0, inc=1):
         return self
 
@@ -859,6 +877,9 @@ class Select(PyoObject):
         in_fader, value, lmax = convertArgsToLists(self._in_fader, value)
         self._base_objs = [Select_base(wrap(in_fader,i), wrap(value,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input', 'value']
+
     def out(self, chnl=0, inc=1):
         return self
 
@@ -957,7 +978,7 @@ class Thresh(PyoObject):
     
     input : PyoObject. Audio signal.
     threshold : float or PyoObject. Threshold value.
-    dir : int. Direction of the count.
+    dir : int. User mode.
 
     Notes:
 
@@ -984,6 +1005,9 @@ class Thresh(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, threshold, dir, lmax = convertArgsToLists(self._in_fader, threshold, dir)
         self._base_objs = [Thresh_base(wrap(in_fader,i), wrap(threshold,i), wrap(dir,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'threshold', 'dir']
 
     def out(self, chnl=0, inc=1):
         return self
