@@ -557,6 +557,14 @@ class TrigEnv(PyoObject):
     def __dir__(self):
         return ['input', 'table', 'dur', 'mul', 'add']
 
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
+
     def __getitem__(self, i):
         if i == 'trig':
             return self._trig_objs

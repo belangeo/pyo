@@ -143,6 +143,13 @@ class OscReceive(PyoObject):
     def __dir__(self):
         return ['mul', 'add']
 
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        self._mainReceiver.deleteStream()
+        del self._mainReceiver
+            
     def __getitem__(self, i):
         if type(i) == type(''):
             return self._base_objs[self._address.index(i)]

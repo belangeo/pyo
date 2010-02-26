@@ -194,6 +194,14 @@ class TableRead(PyoObject):
     def __dir__(self):
         return ['table', 'freq', 'loop', 'mul', 'add']
 
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
+            
     def __getitem__(self, i):
         if i == 'trig':
             return self._trig_objs
@@ -783,6 +791,14 @@ class TableRec(PyoObject):
 
     def __dir__(self):
         return ['input', 'table', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
 
     def __getitem__(self, i):
         if i == 'trig':
