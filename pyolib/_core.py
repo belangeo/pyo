@@ -610,6 +610,7 @@ class PyoObject(object):
     setSub(x) : Replace and inverse the `add` attribute.
     ctrl(map_list, title) : Opens a sliders window to control parameters.
     get(all) : Return the first sample of the current buffer as a float.
+    dump() : Print current status of the object's attributes.
 
     Attributes:
 
@@ -723,15 +724,24 @@ class PyoObject(object):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-
+            
     def __repr__(self):
+        return '< Instance of %s class >' % self.__class__.__name__
+        
+    def dump(self):
+        """
+        Print the number of streams and the current status of the 
+        object's attributes.
+        
+        """
         attrs = dir(self)
         pp =  '< Instance of %s class >' % self.__class__.__name__
+        pp += '\n-----------------------------'
         pp += '\nNumber of audio streams: %d' % len(self)
         pp += '\n--- Attributes ---'
         for attr in attrs:
             pp += '\n' + attr + ': ' + str(getattr(self, attr))
-        pp += '\n----- end of %s description -----' % self.__class__.__name__
+        pp += '\n-----------------------------'
         return pp    
             
     def get(self, all=False):
@@ -960,6 +970,7 @@ class PyoTableObject(object):
     
     getSize() : Return table size in samples.
     view() : Opens a window showing the contents of the table.
+    dump() : Print current status of the object's attributes.
     
     Notes:
     
@@ -983,14 +994,23 @@ class PyoTableObject(object):
         return len(self._base_objs)
 
     def __repr__(self):
+        return '< Instance of %s class >' % self.__class__.__name__
+        
+    def dump(self):
+        """
+        Print the number of streams and the current status of the 
+        object's attributes.
+        
+        """
         attrs = dir(self)
         pp =  '< Instance of %s class >' % self.__class__.__name__
-        pp += '\nNumber of table streams: %d' % len(self)
+        pp += '\n-----------------------------'
+        pp += '\nNumber of audio streams: %d' % len(self)
         pp += '\n--- Attributes ---'
         for attr in attrs:
             pp += '\n' + attr + ': ' + str(getattr(self, attr))
-        pp += '\n----- end of %s description -----' % self.__class__.__name__
-        return pp 
+        pp += '\n-----------------------------'
+        return pp    
          
     def getBaseObjects(self):
         """
