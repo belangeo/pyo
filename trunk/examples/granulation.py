@@ -3,7 +3,7 @@ s = Server(buffersize=512).boot()
 
 t = HarmTable([1,0,.3,0,.2])
 
-snd = SndTable('/Users/olipet/svn/pulsar/wavePulsar.aif')
+snd = SndTable(DEMOS_PATH + '/transparent.aif')
 env = HannTable()
 
 pos = Phasor(snd.getRate()*.01, 0, snd.getSize())

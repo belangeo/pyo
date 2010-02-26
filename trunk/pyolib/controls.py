@@ -63,6 +63,9 @@ class Fader(PyoObject):
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['fadein', 'fadeout', 'dur', 'mul', 'add']
+
     def out(self, chnl=0, inc=1):
         """
         Bypassed. Can't be sent to audio outs.
@@ -225,6 +228,9 @@ class Adsr(PyoObject):
         self._add = add
         attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(attack, decay, sustain, release, dur, mul, add)
         self._base_objs = [Adsr_base(wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['attack', 'decay', 'sustain', 'release', 'dur', 'mul', 'add']
 
     def out(self, chnl=0, inc=1):
         """

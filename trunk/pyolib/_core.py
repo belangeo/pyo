@@ -724,6 +724,16 @@ class PyoObject(object):
             obj.deleteStream()
             del obj
 
+    def __repr__(self):
+        attrs = dir(self)
+        pp =  '< Instance of %s class >' % self.__class__.__name__
+        pp += '\nNumber of audio streams: %d' % len(self)
+        pp += '\n--- Attributes ---'
+        for attr in attrs:
+            pp += '\n' + attr + ': ' + str(getattr(self, attr))
+        pp += '\n----- end of %s description -----' % self.__class__.__name__
+        return pp    
+            
     def get(self, all=False):
         """
         Return the first sample of the current buffer as a float.
@@ -972,6 +982,16 @@ class PyoTableObject(object):
     def __len__(self):
         return len(self._base_objs)
 
+    def __repr__(self):
+        attrs = dir(self)
+        pp =  '< Instance of %s class >' % self.__class__.__name__
+        pp += '\nNumber of table streams: %d' % len(self)
+        pp += '\n--- Attributes ---'
+        for attr in attrs:
+            pp += '\n' + attr + ': ' + str(getattr(self, attr))
+        pp += '\n----- end of %s description -----' % self.__class__.__name__
+        return pp 
+         
     def getBaseObjects(self):
         """
         Return a list of table Stream objects.
@@ -1049,6 +1069,9 @@ class Mix(PyoObject):
         sub_lists = [[]] * voices
         [sub_lists[i % voices].append(obj) for i, obj in enumerate(input_objs)]
         self._base_objs = [Mix_base(l) for l in sub_lists]
+
+    def __dir__(self):
+        return ['mul', 'add']
         
 class Dummy(PyoObject):
     """
@@ -1094,7 +1117,12 @@ class Dummy(PyoObject):
     
     """
     def __init__(self, objs_list):
+        self._mul = 1
+        self._add = 0
         self._base_objs = objs_list
+
+    def __dir__(self):
+        return ['mul', 'add']
 
     def deleteStream(self):
         for obj in self._base_objs:
@@ -1139,6 +1167,9 @@ class InputFader(PyoObject):
         self._input = input
         input, lmax = convertArgsToLists(input)
         self._base_objs = [InputFader_base(wrap(input,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1202,6 +1233,9 @@ class Sig(PyoObject):
         self._add = add
         value, mul ,add, lmax = convertArgsToLists(value, mul, add)
         self._base_objs = [Sig_base(wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['value', 'mul', 'add']
 
     def setValue(self, x):
         """
@@ -1287,6 +1321,9 @@ class SigTo(PyoObject):
         self._add = add
         value, time, init, mul ,add, lmax = convertArgsToLists(value, time, init, mul, add)
         self._base_objs = [SigTo_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['value', 'time', 'mul', 'add']
 
     def setValue(self, x):
         """

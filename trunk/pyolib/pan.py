@@ -56,6 +56,9 @@ class Pan(PyoObject):
             for j in range(outs):
                 self._base_objs.append(Pan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
 
+    def __dir__(self):
+        return ['input', 'pan', 'spread', 'mul', 'add']
+
     def __del__(self):
         for obj in self._base_objs:
             obj.deleteStream()
@@ -215,6 +218,9 @@ class SPan(PyoObject):
         for i in range(lmax):
             for j in range(outs):
                 self._base_objs.append(SPan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['input', 'pan', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:

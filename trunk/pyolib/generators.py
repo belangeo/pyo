@@ -44,6 +44,9 @@ class Sine(PyoObject):
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Sine_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['freq', 'phase', 'mul', 'add']
+        
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -148,6 +151,9 @@ class Phasor(PyoObject):
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Phasor_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['freq', 'phase', 'mul', 'add']
+
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -238,6 +244,9 @@ class Input(PyoObject):
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['mul', 'add']
+
     def ctrl(self, map_list=None, title=None):
         if map_list == None:
             map_list = [SLMapMul(self._mul)]
@@ -273,6 +282,9 @@ class Noise(PyoObject):
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['mul', 'add']
 
     def ctrl(self, map_list=None, title=None):
         if map_list == None:

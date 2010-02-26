@@ -48,6 +48,9 @@ class Osc(PyoObject):
         table, freq, phase, mul, add, lmax = convertArgsToLists(table, freq, phase, mul, add)
         self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['table', 'freq', 'phase', 'mul', 'add']
+
     def setTable(self, x):
         """
         Replace the `table` attribute.
@@ -187,6 +190,9 @@ class TableRead(PyoObject):
         table, freq, loop, mul, add, lmax = convertArgsToLists(table, freq, loop, mul, add)
         self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = [TableReadTrig_base(obj) for obj in self._base_objs]
+
+    def __dir__(self):
+        return ['table', 'freq', 'loop', 'mul', 'add']
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -366,6 +372,9 @@ class Pulsar(PyoObject):
         table, env, freq, frac, phase, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, mul, add)
         self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['table', 'env', 'freq', 'frac', 'phase', 'mul', 'add']
+
     def setTable(self, x):
         """
         Replace the `table` attribute.
@@ -508,6 +517,8 @@ class Pointer(PyoObject):
     setTable(x) : Replace the `table` attribute.
     setIndex(x) : Replace the `index` attribute.
 
+    Attributes:
+    
     table : PyoTableObject. Table containing the waveform samples.
     index : PyoObject. Pointer position in the table.
     
@@ -527,6 +538,9 @@ class Pointer(PyoObject):
         self._add = add
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'index', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -630,6 +644,9 @@ class Lookup(PyoObject):
         self._add = add
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Lookup_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'index', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -763,6 +780,9 @@ class TableRec(PyoObject):
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
         self._trig_objs = [TableRecTrig_base(obj) for obj in self._base_objs]
+
+    def __dir__(self):
+        return ['input', 'table', 'mul', 'add']
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -907,6 +927,9 @@ class TableMorph(PyoObject):
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
         self._base_sources = [source[0] for source in sources]
         self._base_objs = [TableMorph_base(wrap(in_fader,i), wrap(table,i), self._base_sources) for i in range(len(table))]
+
+    def __dir__(self):
+        return ['input', 'table', 'sources', 'mul', 'add']
 
     def out(self, chnl=0, inc=1):
         pass
@@ -1069,6 +1092,9 @@ class Granulator(PyoObject):
                                                                         pos, dur, grains, basedur, mul, add)
         self._base_objs = [Granulator_base(wrap(table,i), wrap(env,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), 
                           wrap(grains,i), wrap(basedur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'env', 'pitch', 'pos', 'dur', 'grains', 'basedur', 'mul', 'add']
 
     def setTable(self, x):
         """

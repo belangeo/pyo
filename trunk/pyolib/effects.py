@@ -50,6 +50,9 @@ class Disto(PyoObject):
         in_fader, drive, slope, mul, add, lmax = convertArgsToLists(self._in_fader, drive, slope, mul, add)
         self._base_objs = [Disto_base(wrap(in_fader,i), wrap(drive,i), wrap(slope,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input', 'drive', 'slope', 'mul', 'add']
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -183,6 +186,9 @@ class Delay(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Delay_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'delay', 'feedback', 'mul', 'add']
         
     def setInput(self, x, fadetime=0.05):
         """
@@ -321,6 +327,9 @@ class Waveguide(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, dur, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, dur, minfreq, mul, add)
         self._base_objs = [Waveguide_base(wrap(in_fader,i), wrap(freq,i), wrap(dur,i), wrap(minfreq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'dur', 'mul', 'add']
         
     def setInput(self, x, fadetime=0.05):
         """
@@ -463,6 +472,9 @@ class Freeverb(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, size, damp, bal, mul, add, lmax = convertArgsToLists(self._in_fader, size, damp, bal, mul, add)
         self._base_objs = [Freeverb_base(wrap(in_fader,i), wrap(size,i), wrap(damp,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'size', 'damp', 'bal', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -624,6 +636,9 @@ class Convolve(PyoObject):
         in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)                     
         self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) \
                                for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'table', 'mul', 'add']
         
     def setInput(self, x, fadetime=0.05):
         """

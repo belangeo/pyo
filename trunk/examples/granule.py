@@ -3,7 +3,7 @@ import random
 
 s = Server().boot()
 
-t1 = SndTable('/Users/olipet/Desktop/sons/baseballmajeur_m.aif')
+t1 = SndTable(DEMOS_PATH + '/transparent.aif')
 t2 = HannTable()
 t3 = LinTable()
 
@@ -21,7 +21,7 @@ snd = Pointer(t1, ind, env).out()
 
 def play():
     met.play()
-    jit.max = random.uniform(1, 1.5)
+    jit.max = random.uniform(1, 1.05)
 
 def stop():
     met.stop()

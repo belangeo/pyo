@@ -49,6 +49,9 @@ class OscSend(PyoObject):
         in_fader, port, address, host, lmax = convertArgsToLists(self._in_fader, port, address, host)
         self._base_objs = [OscSend_base(wrap(in_fader,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
 
+    def __dir__(self):
+        return ['input']
+
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -136,6 +139,9 @@ class OscReceive(PyoObject):
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
         self._base_objs = [OscReceive_base(self._mainReceiver, wrap(address,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['mul', 'add']
 
     def __getitem__(self, i):
         if type(i) == type(''):
