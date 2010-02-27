@@ -13,6 +13,7 @@ from pyolib.midi import *
 from pyolib.opensoundcontrol import *
 from pyolib.pan import *
 from pyolib.pattern import *
+from pyolib.randoms import *
 from pyolib.server import *
 from pyolib.sfplayer import *
 from pyolib.tableprocess import *
@@ -20,7 +21,7 @@ from pyolib.tables import *
 from pyolib.triggers import *
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
-                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'midiToHz']),
+                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'midiToHz', 'sampsToSec', 'secToSamps']),
         'PyoObject': {'analysis': sorted(['Follower', 'ZCross']),
                       'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr']),
                       'dynamics': sorted(['Clip', 'Compress', 'Degrade']),
@@ -32,6 +33,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'opensoundcontrol': sorted(['OscReceive', 'OscSend']),
                       'pan': sorted(['Pan', 'SPan']),
                       'patterns': sorted(['Pattern']),
+                      'randoms': sorted(['Randi']),
                       'sfplayer': sorted(['SfMarkerShuffler', 'SfPlayer']),
                       'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 'TableRead', 
                                               'TableMorph']),
