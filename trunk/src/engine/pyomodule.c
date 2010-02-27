@@ -160,6 +160,20 @@ midiToHz(PyObject *self, PyObject *arg) {
     return Py_BuildValue("f", 8.175798 * powf(1.0594633, PyFloat_AsDouble(PyNumber_Float(arg))));
 }    
 
+static PyObject *
+sampsToSec(PyObject *self, PyObject *arg) {
+    PyObject *server = PyServer_get_server();
+    float sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
+    return Py_BuildValue("f", PyFloat_AsDouble(PyNumber_Float(arg)) / sr);
+}                         
+
+static PyObject *
+secToSamps(PyObject *self, PyObject *arg) {
+    PyObject *server = PyServer_get_server();
+    float sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
+    return Py_BuildValue("i", (int)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
+}                         
+
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices found by Portaudio."},
@@ -168,6 +182,8 @@ static PyMethodDef pyo_functions[] = {
 {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Lists all devices found by Portmidi."},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns Hertz value for a midi input."},
+{"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Converts an returns a number of samples in seconds."},
+{"secToSamps", (PyCFunction)secToSamps, METH_O, "Converts an returns a seconds value in number of samples."},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, duration in seconds, sampling rate and number of channels of the given sound file."},
 {NULL, NULL, 0, NULL},
 };
@@ -284,6 +300,11 @@ init_pyo(void)
     Py_INCREF(&FaderType);
     PyModule_AddObject(m, "Fader_base", (PyObject *)&FaderType);
 
+    if (PyType_Ready(&RandiType) < 0)
+        return;
+    Py_INCREF(&RandiType);
+    PyModule_AddObject(m, "Randi_base", (PyObject *)&RandiType);
+    
     if (PyType_Ready(&SfPlayerType) < 0)
         return;
     Py_INCREF(&SfPlayerType);
