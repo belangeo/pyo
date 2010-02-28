@@ -27,6 +27,7 @@ extern PyTypeObject FaderType;
 extern PyTypeObject AdsrType;
 
 extern PyTypeObject RandiType;
+extern PyTypeObject RandhType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
