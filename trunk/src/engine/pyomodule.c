@@ -304,6 +304,11 @@ init_pyo(void)
         return;
     Py_INCREF(&RandiType);
     PyModule_AddObject(m, "Randi_base", (PyObject *)&RandiType);
+
+    if (PyType_Ready(&RandhType) < 0)
+        return;
+    Py_INCREF(&RandhType);
+    PyModule_AddObject(m, "Randh_base", (PyObject *)&RandhType);
     
     if (PyType_Ready(&SfPlayerType) < 0)
         return;
