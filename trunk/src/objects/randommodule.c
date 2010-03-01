@@ -641,6 +641,9 @@ Randi_members,                                 /* tp_members */
 Randi_new,                                     /* tp_new */
 };
 
+/****************/
+/**** Randh *****/
+/****************/
 typedef struct {
     pyo_audio_HEAD
     PyObject *min;
@@ -1257,5 +1260,395 @@ Randh_members,                                 /* tp_members */
 (initproc)Randh_init,                          /* tp_init */
 0,                                              /* tp_alloc */
 Randh_new,                                     /* tp_new */
+};
+
+/****************/
+/**** Choice *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *freq;
+    Stream *freq_stream;
+    int chSize;
+    float *choice;
+    float value;
+    float time;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Choice;
+
+static void
+Choice_generate_i(Choice *self) {
+    int i;
+    float inc;
+    float fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = self->choice[(int)((rand()/((float)(RAND_MAX))) * self->chSize)];
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+Choice_generate_a(Choice *self) {
+    int i;
+    float inc;
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] / self->sr;
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = self->choice[(int)((rand()/((float)(RAND_MAX))) * self->chSize)];
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void Choice_postprocessing_ii(Choice *self) { POST_PROCESSING_II };
+static void Choice_postprocessing_ai(Choice *self) { POST_PROCESSING_AI };
+static void Choice_postprocessing_ia(Choice *self) { POST_PROCESSING_IA };
+static void Choice_postprocessing_aa(Choice *self) { POST_PROCESSING_AA };
+static void Choice_postprocessing_ireva(Choice *self) { POST_PROCESSING_IREVA };
+static void Choice_postprocessing_areva(Choice *self) { POST_PROCESSING_AREVA };
+static void Choice_postprocessing_revai(Choice *self) { POST_PROCESSING_REVAI };
+static void Choice_postprocessing_revaa(Choice *self) { POST_PROCESSING_REVAA };
+static void Choice_postprocessing_revareva(Choice *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Choice_setProcMode(Choice *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Choice_generate_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Choice_generate_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Choice_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Choice_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Choice_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Choice_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Choice_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Choice_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Choice_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Choice_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Choice_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Choice_compute_next_data_frame(Choice *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Choice_traverse(Choice *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    return 0;
+}
+
+static int 
+Choice_clear(Choice *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    return 0;
+}
+
+static void
+Choice_dealloc(Choice* self)
+{
+    free(self->data);
+    free(self->choice);
+    Choice_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Choice_deleteStream(Choice *self) { DELETE_STREAM };
+
+static PyObject *
+Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Choice *self;
+    self = (Choice *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1.);
+    self->value = 0.0;
+    self->time = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Choice_compute_next_data_frame);
+    self->mode_func_ptr = Choice_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Choice_init(Choice *self, PyObject *args, PyObject *kwds)
+{
+    float mi, ma;
+    PyObject *choicetmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"choice", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (choicetmp) {
+        PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
+    }
+
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Choice_compute_next_data_frame((Choice *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Choice_getServer(Choice* self) { GET_SERVER };
+static PyObject * Choice_getStream(Choice* self) { GET_STREAM };
+static PyObject * Choice_setMul(Choice *self, PyObject *arg) { SET_MUL };	
+static PyObject * Choice_setAdd(Choice *self, PyObject *arg) { SET_ADD };	
+static PyObject * Choice_setSub(Choice *self, PyObject *arg) { SET_SUB };	
+static PyObject * Choice_setDiv(Choice *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Choice_play(Choice *self) { PLAY };
+static PyObject * Choice_out(Choice *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Choice_stop(Choice *self) { STOP };
+
+static PyObject * Choice_multiply(Choice *self, PyObject *arg) { MULTIPLY };
+static PyObject * Choice_inplace_multiply(Choice *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Choice_add(Choice *self, PyObject *arg) { ADD };
+static PyObject * Choice_inplace_add(Choice *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Choice_sub(Choice *self, PyObject *arg) { SUB };
+static PyObject * Choice_inplace_sub(Choice *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Choice_div(Choice *self, PyObject *arg) { DIV };
+static PyObject * Choice_inplace_div(Choice *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Choice_setChoice(Choice *self, PyObject *arg)
+{
+    int i;
+	PyObject *tmp;
+	
+	if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The choice attribute must be a list.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    self->chSize = PyList_Size(tmp);
+    self->choice = (float *)realloc(self->choice, self->chSize * sizeof(float));
+    for (i=0; i<self->chSize; i++) {
+        self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Choice_setFreq(Choice *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Choice_members[] = {
+{"server", T_OBJECT_EX, offsetof(Choice, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Choice, stream), 0, "Stream object."},
+{"freq", T_OBJECT_EX, offsetof(Choice, freq), 0, "Polling frequency."},
+{"mul", T_OBJECT_EX, offsetof(Choice, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Choice, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Choice_methods[] = {
+{"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Choice_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Choice_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Choice_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Choice_stop, METH_NOARGS, "Stops computing."},
+{"setChoice", (PyCFunction)Choice_setChoice, METH_O, "Sets list of possible floats."},
+{"setFreq", (PyCFunction)Choice_setFreq, METH_O, "Sets polling frequency."},
+{"setMul", (PyCFunction)Choice_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Choice_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Choice_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Choice_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Choice_as_number = {
+(binaryfunc)Choice_add,                         /*nb_add*/
+(binaryfunc)Choice_sub,                         /*nb_subtract*/
+(binaryfunc)Choice_multiply,                    /*nb_multiply*/
+(binaryfunc)Choice_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Choice_inplace_add,                 /*inplace_add*/
+(binaryfunc)Choice_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Choice_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Choice_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ChoiceType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Choice_base",                                   /*tp_name*/
+sizeof(Choice),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Choice_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Choice_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Choice objects. Periodically generates a new random value from a list.",           /* tp_doc */
+(traverseproc)Choice_traverse,                  /* tp_traverse */
+(inquiry)Choice_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Choice_methods,                                 /* tp_methods */
+Choice_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Choice_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Choice_new,                                     /* tp_new */
 };
 

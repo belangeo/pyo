@@ -28,6 +28,7 @@ extern PyTypeObject AdsrType;
 
 extern PyTypeObject RandiType;
 extern PyTypeObject RandhType;
+extern PyTypeObject ChoiceType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
