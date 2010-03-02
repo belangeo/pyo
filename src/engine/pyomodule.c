@@ -370,6 +370,11 @@ init_pyo(void)
     Py_INCREF(&SineType);
     PyModule_AddObject(m, "Sine_base", (PyObject *)&SineType);
 
+    if (PyType_Ready(&FmType) < 0)
+        return;
+    Py_INCREF(&FmType);
+    PyModule_AddObject(m, "Fm_base", (PyObject *)&FmType);
+    
     if (PyType_Ready(&PhasorType) < 0)
         return;
     Py_INCREF(&PhasorType);

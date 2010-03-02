@@ -3709,3 +3709,663 @@ TableReadTrig_members,             /* tp_members */
 0,                         /* tp_alloc */
 TableReadTrig_new,                 /* tp_new */
 };
+
+/*************/
+/* Fm object */
+/*************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *car;
+    Stream *car_stream;
+    PyObject *ratio;
+    Stream *ratio_stream;
+    PyObject *index;
+    Stream *index_stream;
+    int modebuffer[5];
+    float pointerPos_car;
+    float pointerPos_mod;
+    float twoPiOnSr;
+} Fm;
+
+static float
+Fm_clip(float x) {
+    if (x < 0) {
+        while (x < 0) {
+            x += TWOPI;
+        }    
+    }
+    else if (x >= TWOPI) {
+        while (x >= TWOPI) {
+            x -= TWOPI;
+        }    
+    }
+    return x;
+}
+
+static void
+Fm_readframes_iii(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float car = PyFloat_AS_DOUBLE(self->car);
+    float rat = PyFloat_AS_DOUBLE(self->ratio);
+    float ind = PyFloat_AS_DOUBLE(self->index);
+    
+    mod_freq = car * rat;
+    mod_amp = mod_freq * ind;
+    mod_delta = mod_freq * self->twoPiOnSr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void
+Fm_readframes_aii(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float *car = Stream_getData((Stream *)self->car_stream);
+    float rat = PyFloat_AS_DOUBLE(self->ratio);
+    float ind = PyFloat_AS_DOUBLE(self->index);
+
+    for (i=0; i<self->bufsize; i++) {
+        mod_freq = car[i] * rat;
+        mod_amp = mod_freq * ind;
+        mod_delta = mod_freq * self->twoPiOnSr;
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car[i] + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void
+Fm_readframes_iai(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float car = PyFloat_AS_DOUBLE(self->car);
+    float *rat = Stream_getData((Stream *)self->ratio_stream);
+    float ind = PyFloat_AS_DOUBLE(self->index);
+
+    for (i=0; i<self->bufsize; i++) {
+        mod_freq = car * rat[i];
+        mod_amp = mod_freq * ind;
+        mod_delta = mod_freq * self->twoPiOnSr;
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void
+Fm_readframes_aai(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float *car = Stream_getData((Stream *)self->car_stream);
+    float *rat = Stream_getData((Stream *)self->ratio_stream);
+    float ind = PyFloat_AS_DOUBLE(self->index);
+
+    for (i=0; i<self->bufsize; i++) {
+        mod_freq = car[i] * rat[i];
+        mod_amp = mod_freq * ind;
+        mod_delta = mod_freq * self->twoPiOnSr;
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car[i] + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }}
+
+static void
+Fm_readframes_iia(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float car = PyFloat_AS_DOUBLE(self->car);
+    float rat = PyFloat_AS_DOUBLE(self->ratio);
+    float *ind = Stream_getData((Stream *)self->index_stream);
+    
+    mod_freq = car * rat;
+    mod_delta = mod_freq * self->twoPiOnSr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        mod_amp = mod_freq * ind[i];
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void
+Fm_readframes_aia(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float *car = Stream_getData((Stream *)self->car_stream);
+    float rat = PyFloat_AS_DOUBLE(self->ratio);
+    float *ind = Stream_getData((Stream *)self->index_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        mod_freq = car[i] * rat;
+        mod_amp = mod_freq * ind[i];
+        mod_delta = mod_freq * self->twoPiOnSr;
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car[i] + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void
+Fm_readframes_iaa(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float car = PyFloat_AS_DOUBLE(self->car);
+    float *rat = Stream_getData((Stream *)self->ratio_stream);
+    float *ind = Stream_getData((Stream *)self->index_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        mod_freq = car * rat[i];
+        mod_amp = mod_freq * ind[i];
+        mod_delta = mod_freq * self->twoPiOnSr;
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void
+Fm_readframes_aaa(Fm *self) {
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
+    int i;
+    
+    float *car = Stream_getData((Stream *)self->car_stream);
+    float *rat = Stream_getData((Stream *)self->ratio_stream);
+    float *ind = Stream_getData((Stream *)self->index_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        mod_freq = car[i] * rat[i];
+        mod_amp = mod_freq * ind[i];
+        mod_delta = mod_freq * self->twoPiOnSr;
+        if (self->pointerPos_mod > TWOPI)
+            self->pointerPos_mod -= TWOPI;
+        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car[i] + mod_val;
+        car_delta = car_freq * self->twoPiOnSr;
+        self->pointerPos_car = Fm_clip(self->pointerPos_car);
+        self->data[i] = sinf(self->pointerPos_car);
+        self->pointerPos_car += car_delta;
+    }
+}
+
+static void Fm_postprocessing_ii(Fm *self) { POST_PROCESSING_II };
+static void Fm_postprocessing_ai(Fm *self) { POST_PROCESSING_AI };
+static void Fm_postprocessing_ia(Fm *self) { POST_PROCESSING_IA };
+static void Fm_postprocessing_aa(Fm *self) { POST_PROCESSING_AA };
+static void Fm_postprocessing_ireva(Fm *self) { POST_PROCESSING_IREVA };
+static void Fm_postprocessing_areva(Fm *self) { POST_PROCESSING_AREVA };
+static void Fm_postprocessing_revai(Fm *self) { POST_PROCESSING_REVAI };
+static void Fm_postprocessing_revaa(Fm *self) { POST_PROCESSING_REVAA };
+static void Fm_postprocessing_revareva(Fm *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Fm_setProcMode(Fm *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Fm_readframes_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Fm_readframes_aii;
+            break;
+        case 10:    
+            self->proc_func_ptr = Fm_readframes_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = Fm_readframes_aai;
+            break;
+        case 100:        
+            self->proc_func_ptr = Fm_readframes_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = Fm_readframes_aia;
+            break;
+        case 110:    
+            self->proc_func_ptr = Fm_readframes_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = Fm_readframes_aaa;
+            break;
+    } 
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Fm_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Fm_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Fm_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Fm_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Fm_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Fm_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Fm_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Fm_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Fm_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Fm_compute_next_data_frame(Fm *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Fm_traverse(Fm *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->car);    
+    Py_VISIT(self->car_stream);    
+    Py_VISIT(self->ratio);    
+    Py_VISIT(self->ratio_stream);    
+    Py_VISIT(self->index);    
+    Py_VISIT(self->index_stream);    
+    return 0;
+}
+
+static int 
+Fm_clear(Fm *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->car);    
+    Py_CLEAR(self->car_stream);    
+    Py_CLEAR(self->ratio);    
+    Py_CLEAR(self->ratio_stream);    
+    Py_CLEAR(self->index);    
+    Py_CLEAR(self->index_stream);    
+    return 0;
+}
+
+static void
+Fm_dealloc(Fm* self)
+{
+    free(self->data);
+    Fm_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Fm_deleteStream(Fm *self) { DELETE_STREAM };
+
+static PyObject *
+Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Fm *self;
+    self = (Fm *)type->tp_alloc(type, 0);
+    
+    self->car = PyFloat_FromDouble(100);
+    self->ratio = PyFloat_FromDouble(0.5);
+    self->index = PyFloat_FromDouble(5);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+    self->pointerPos_car = self->pointerPos_mod = 0.;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Fm_compute_next_data_frame);
+    self->mode_func_ptr = Fm_setProcMode;
+
+    self->twoPiOnSr = TWOPI / self->sr;
+
+    return (PyObject *)self;
+}
+
+static int
+Fm_init(Fm *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *cartmp=NULL, *ratiotmp=NULL, *indextmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"carrier", "ratio", "index", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &cartmp, &ratiotmp, &indextmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (cartmp) {
+        PyObject_CallMethod((PyObject *)self, "setCarrier", "O", cartmp);
+    }
+    
+    if (ratiotmp) {
+        PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+    }
+
+    if (indextmp) {
+        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Fm_compute_next_data_frame((Fm *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Fm_getServer(Fm* self) { GET_SERVER };
+static PyObject * Fm_getStream(Fm* self) { GET_STREAM };
+static PyObject * Fm_setMul(Fm *self, PyObject *arg) { SET_MUL };	
+static PyObject * Fm_setAdd(Fm *self, PyObject *arg) { SET_ADD };	
+static PyObject * Fm_setSub(Fm *self, PyObject *arg) { SET_SUB };	
+static PyObject * Fm_setDiv(Fm *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Fm_play(Fm *self) { PLAY };
+static PyObject * Fm_out(Fm *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Fm_stop(Fm *self) { STOP };
+
+static PyObject * Fm_multiply(Fm *self, PyObject *arg) { MULTIPLY };
+static PyObject * Fm_inplace_multiply(Fm *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Fm_add(Fm *self, PyObject *arg) { ADD };
+static PyObject * Fm_inplace_add(Fm *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Fm_sub(Fm *self, PyObject *arg) { SUB };
+static PyObject * Fm_inplace_sub(Fm *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Fm_div(Fm *self, PyObject *arg) { DIV };
+static PyObject * Fm_inplace_div(Fm *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Fm_setCarrier(Fm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->car);
+	if (isNumber == 1) {
+		self->car = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->car = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->car, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->car_stream);
+        self->car_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Fm_setRatio(Fm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->ratio);
+	if (isNumber == 1) {
+		self->ratio = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->ratio = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->ratio_stream);
+        self->ratio_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Fm_setIndex(Fm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->index);
+	if (isNumber == 1) {
+		self->index = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->index = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->index_stream);
+        self->index_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Fm_members[] = {
+{"server", T_OBJECT_EX, offsetof(Fm, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Fm, stream), 0, "Stream object."},
+{"carrier", T_OBJECT_EX, offsetof(Fm, car), 0, "Frequency in cycle per second."},
+{"ratio", T_OBJECT_EX, offsetof(Fm, ratio), 0, "Ratio carrier:modulator (mod freq = car*mod)."},
+{"index", T_OBJECT_EX, offsetof(Fm, index), 0, "Modulation index (mod amp = mod freq*index)."},
+{"mul", T_OBJECT_EX, offsetof(Fm, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Fm, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Fm_methods[] = {
+{"getServer", (PyCFunction)Fm_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Fm_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Fm_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Fm_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Fm_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Fm_stop, METH_NOARGS, "Stops computing."},
+{"setCarrier", (PyCFunction)Fm_setCarrier, METH_O, "Sets carrier frequency in cycle per second."},
+{"setRatio", (PyCFunction)Fm_setRatio, METH_O, "Sets car:mod ratio."},
+{"setIndex", (PyCFunction)Fm_setIndex, METH_O, "Sets modulation index."},
+{"setMul", (PyCFunction)Fm_setMul, METH_O, "Sets Fm mul factor."},
+{"setAdd", (PyCFunction)Fm_setAdd, METH_O, "Sets Fm add factor."},
+{"setSub", (PyCFunction)Fm_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Fm_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Fm_as_number = {
+(binaryfunc)Fm_add,                      /*nb_add*/
+(binaryfunc)Fm_sub,                 /*nb_subtract*/
+(binaryfunc)Fm_multiply,                 /*nb_multiply*/
+(binaryfunc)Fm_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Fm_inplace_add,              /*inplace_add*/
+(binaryfunc)Fm_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Fm_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Fm_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject FmType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Fm_base",         /*tp_name*/
+sizeof(Fm),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Fm_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Fm_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"Fm objects. Generates a frequency modulation synthesis.",           /* tp_doc */
+(traverseproc)Fm_traverse,   /* tp_traverse */
+(inquiry)Fm_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Fm_methods,             /* tp_methods */
+Fm_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Fm_init,      /* tp_init */
+0,                         /* tp_alloc */
+Fm_new,                 /* tp_new */
+};
