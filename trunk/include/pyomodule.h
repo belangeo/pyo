@@ -29,6 +29,7 @@ extern PyTypeObject AdsrType;
 extern PyTypeObject RandiType;
 extern PyTypeObject RandhType;
 extern PyTypeObject ChoiceType;
+extern PyTypeObject RandIntType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
@@ -140,6 +141,25 @@ extern PyTypeObject PanType;
     Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
     Py_INCREF(Py_None); \
     return Py_None;
+
+/* SET TABLE DATA */
+#define SET_TABLE_DATA \
+    int i; \
+    if (! PyList_Check(arg)) { \
+        PyErr_SetString(PyExc_TypeError, "The data must be a list of floats."); \
+        return PyInt_FromLong(-1); \
+    } \
+    self->size = PyList_Size(arg)-1; \
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float)); \
+    TableStream_setSize(self->tablestream, self->size+1); \
+ \
+    for (i=0; i<(self->size+1); i++) { \
+        self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+    } \
+    TableStream_setData(self->tablestream, self->data); \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; \
 
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \

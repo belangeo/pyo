@@ -971,6 +971,8 @@ class PyoTableObject(object):
     getSize() : Return table size in samples.
     view() : Opens a window showing the contents of the table.
     dump() : Print current status of the object's attributes.
+    write(path) : Writes the content of the table into a text file.
+    read(path) : Sets the content of the table from a text file.
     
     Notes:
     
@@ -1011,7 +1013,39 @@ class PyoTableObject(object):
             pp += '\n' + attr + ': ' + str(getattr(self, attr))
         pp += '\n-----------------------------'
         return pp    
+
+    def write(self, path):
+        """
+        Writes the content of the table into a text file.
+        
+        This function can be used to store the table data as a
+        list of floats into a text file.
          
+        """
+        f = open(path, "w")
+        f.write(str([obj.getTable() for obj in self._base_objs]))
+        f.close()
+
+    def read(self, path):
+        """
+        Reads the content of a text file and replaces the table data
+        with the values in the file.
+        
+        Format is a list of lists of floats. For example, A two 
+        tablestreams object must be given a content like this:
+        
+        [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]
+        
+        Each object's tablestream will be resized according to the 
+        length of the lists.
+        
+        """
+        f = open(path, "r")
+        f_list = eval(f.read())
+        f_len = len(f_list)
+        f.close()
+        [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
+        
     def getBaseObjects(self):
         """
         Return a list of table Stream objects.

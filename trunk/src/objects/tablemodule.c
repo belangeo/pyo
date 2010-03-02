@@ -203,6 +203,7 @@ HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
 
 static PyObject * HarmTable_getServer(HarmTable* self) { GET_SERVER };
 static PyObject * HarmTable_getTableStream(HarmTable* self) { GET_TABLE_STREAM };
+static PyObject * HarmTable_setData(HarmTable *self, PyObject *arg) { SET_TABLE_DATA };
 
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
@@ -282,6 +283,7 @@ static PyMethodDef HarmTable_methods[] = {
 {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"replace", (PyCFunction)HarmTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
@@ -478,6 +480,7 @@ ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
 
 static PyObject * ChebyTable_getServer(ChebyTable* self) { GET_SERVER };
 static PyObject * ChebyTable_getTableStream(ChebyTable* self) { GET_TABLE_STREAM };
+static PyObject * ChebyTable_setData(ChebyTable *self, PyObject *arg) { SET_TABLE_DATA };
 
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
@@ -686,6 +689,7 @@ HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
 
 static PyObject * HannTable_getServer(HannTable* self) { GET_SERVER };
 static PyObject * HannTable_getTableStream(HannTable* self) { GET_TABLE_STREAM };
+static PyObject * HannTable_setData(HannTable *self, PyObject *arg) { SET_TABLE_DATA };
 
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
@@ -909,6 +913,7 @@ LinTable_init(LinTable *self, PyObject *args, PyObject *kwds)
 
 static PyObject * LinTable_getServer(LinTable* self) { GET_SERVER };
 static PyObject * LinTable_getTableStream(LinTable* self) { GET_TABLE_STREAM };
+static PyObject * LinTable_setData(LinTable *self, PyObject *arg) { SET_TABLE_DATA };
 
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
@@ -1175,6 +1180,7 @@ SndTable_init(SndTable *self, PyObject *args, PyObject *kwds)
 
 static PyObject * SndTable_getServer(SndTable* self) { GET_SERVER };
 static PyObject * SndTable_getTableStream(SndTable* self) { GET_TABLE_STREAM };
+static PyObject * SndTable_setData(SndTable *self, PyObject *arg) { SET_TABLE_DATA };
 
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
@@ -1366,6 +1372,7 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
 
 static PyObject * NewTable_getServer(NewTable* self) { GET_SERVER };
 static PyObject * NewTable_getTableStream(NewTable* self) { GET_TABLE_STREAM };
+static PyObject * NewTable_setData(NewTable *self, PyObject *arg) { SET_TABLE_DATA };
 
 static PyObject *
 NewTable_getSize(NewTable *self)

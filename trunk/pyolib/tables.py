@@ -700,7 +700,7 @@ class NewTable(PyoTableObject):
 
     def __dir__(self):
         return []
-                
+     
     def getSize(self):
         """
         Returns the length of the table in samples.

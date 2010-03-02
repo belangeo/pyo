@@ -9,8 +9,7 @@ env = HannTable()
 pos = Phasor(snd.getRate()*.01, 0, snd.getSize())
 pnz = Noise(5)
 
-met = Metro(.0001).play()
-trs = TrigChoice(met, [.5,.75,1,1.25])
+trs = Choice([.5,.75,1,1.25], 1000)
 dur = Noise(.002, .1)
 
 gran = Granulator(table=snd, env=env, pitch=[.999, 1.0011], pos=pos+pnz, 

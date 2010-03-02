@@ -1652,3 +1652,456 @@ Choice_members,                                 /* tp_members */
 Choice_new,                                     /* tp_new */
 };
 
+/****************/
+/**** RandInt *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *max;
+    PyObject *freq;
+    Stream *max_stream;
+    Stream *freq_stream;
+    float value;
+    float time;
+    int modebuffer[5]; // need at least 2 slots for mul & add 
+} RandInt;
+
+static void
+RandInt_generate_ii(RandInt *self) {
+    int i;
+    float inc;
+    float ma = PyFloat_AS_DOUBLE(self->max);
+    float fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (float)((int)(rand()/((float)(RAND_MAX)+1)*ma));
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+RandInt_generate_ai(RandInt *self) {
+    int i;
+    float inc;
+    float *ma = Stream_getData((Stream *)self->max_stream);
+    float fr = PyFloat_AS_DOUBLE(self->freq);
+    inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (float)((int)(rand()/((float)(RAND_MAX)+1)*ma[i]));
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+RandInt_generate_ia(RandInt *self) {
+    int i;
+    float inc;
+    float ma = PyFloat_AS_DOUBLE(self->max);
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] / self->sr;
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (float)((int)(rand()/((float)(RAND_MAX)+1)*ma));
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+RandInt_generate_aa(RandInt *self) {
+    int i;
+    float inc;
+    float *ma = Stream_getData((Stream *)self->max_stream);
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        inc = fr[i] / self->sr;
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (float)((int)(rand()/((float)(RAND_MAX)+1)*ma[i]));
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void RandInt_postprocessing_ii(RandInt *self) { POST_PROCESSING_II };
+static void RandInt_postprocessing_ai(RandInt *self) { POST_PROCESSING_AI };
+static void RandInt_postprocessing_ia(RandInt *self) { POST_PROCESSING_IA };
+static void RandInt_postprocessing_aa(RandInt *self) { POST_PROCESSING_AA };
+static void RandInt_postprocessing_ireva(RandInt *self) { POST_PROCESSING_IREVA };
+static void RandInt_postprocessing_areva(RandInt *self) { POST_PROCESSING_AREVA };
+static void RandInt_postprocessing_revai(RandInt *self) { POST_PROCESSING_REVAI };
+static void RandInt_postprocessing_revaa(RandInt *self) { POST_PROCESSING_REVAA };
+static void RandInt_postprocessing_revareva(RandInt *self) { POST_PROCESSING_REVAREVA };
+
+static void
+RandInt_setProcMode(RandInt *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = RandInt_generate_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = RandInt_generate_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = RandInt_generate_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = RandInt_generate_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = RandInt_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = RandInt_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = RandInt_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = RandInt_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = RandInt_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = RandInt_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = RandInt_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = RandInt_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = RandInt_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+RandInt_compute_next_data_frame(RandInt *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+RandInt_traverse(RandInt *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->max);    
+    Py_VISIT(self->max_stream);    
+    return 0;
+}
+
+static int 
+RandInt_clear(RandInt *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->max);    
+    Py_CLEAR(self->max_stream);    
+    return 0;
+}
+
+static void
+RandInt_dealloc(RandInt* self)
+{
+    free(self->data);
+    RandInt_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * RandInt_deleteStream(RandInt *self) { DELETE_STREAM };
+
+static PyObject *
+RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    RandInt *self;
+    self = (RandInt *)type->tp_alloc(type, 0);
+    
+    self->max = PyFloat_FromDouble(100.);
+    self->freq = PyFloat_FromDouble(1.);
+    self->value = 0.0;
+    self->time = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, RandInt_compute_next_data_frame);
+    self->mode_func_ptr = RandInt_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
+{
+    float mi, ma;
+    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp))
+        return -1; 
+
+    if (maxtmp) {
+        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+    }
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+    
+    RandInt_compute_next_data_frame((RandInt *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * RandInt_getServer(RandInt* self) { GET_SERVER };
+static PyObject * RandInt_getStream(RandInt* self) { GET_STREAM };
+static PyObject * RandInt_setMul(RandInt *self, PyObject *arg) { SET_MUL };	
+static PyObject * RandInt_setAdd(RandInt *self, PyObject *arg) { SET_ADD };	
+static PyObject * RandInt_setSub(RandInt *self, PyObject *arg) { SET_SUB };	
+static PyObject * RandInt_setDiv(RandInt *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * RandInt_play(RandInt *self) { PLAY };
+static PyObject * RandInt_out(RandInt *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * RandInt_stop(RandInt *self) { STOP };
+
+static PyObject * RandInt_multiply(RandInt *self, PyObject *arg) { MULTIPLY };
+static PyObject * RandInt_inplace_multiply(RandInt *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * RandInt_add(RandInt *self, PyObject *arg) { ADD };
+static PyObject * RandInt_inplace_add(RandInt *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * RandInt_sub(RandInt *self, PyObject *arg) { SUB };
+static PyObject * RandInt_inplace_sub(RandInt *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * RandInt_div(RandInt *self, PyObject *arg) { DIV };
+static PyObject * RandInt_inplace_div(RandInt *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+RandInt_setMax(RandInt *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->max);
+	if (isNumber == 1) {
+		self->max = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->max = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->max_stream);
+        self->max_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+RandInt_setFreq(RandInt *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef RandInt_members[] = {
+{"server", T_OBJECT_EX, offsetof(RandInt, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(RandInt, stream), 0, "Stream object."},
+{"max", T_OBJECT_EX, offsetof(RandInt, max), 0, "Maximum possible value."},
+{"freq", T_OBJECT_EX, offsetof(RandInt, freq), 0, "Polling frequency."},
+{"mul", T_OBJECT_EX, offsetof(RandInt, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(RandInt, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef RandInt_methods[] = {
+{"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)RandInt_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)RandInt_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)RandInt_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)RandInt_stop, METH_NOARGS, "Stops computing."},
+{"setMax", (PyCFunction)RandInt_setMax, METH_O, "Sets maximum possible value."},
+{"setFreq", (PyCFunction)RandInt_setFreq, METH_O, "Sets polling frequency."},
+{"setMul", (PyCFunction)RandInt_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)RandInt_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)RandInt_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)RandInt_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods RandInt_as_number = {
+(binaryfunc)RandInt_add,                         /*nb_add*/
+(binaryfunc)RandInt_sub,                         /*nb_subtract*/
+(binaryfunc)RandInt_multiply,                    /*nb_multiply*/
+(binaryfunc)RandInt_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)RandInt_inplace_add,                 /*inplace_add*/
+(binaryfunc)RandInt_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)RandInt_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)RandInt_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject RandIntType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.RandInt_base",                                   /*tp_name*/
+sizeof(RandInt),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)RandInt_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&RandInt_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"RandInt objects. Periodically generates a new integer random value.",           /* tp_doc */
+(traverseproc)RandInt_traverse,                  /* tp_traverse */
+(inquiry)RandInt_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+RandInt_methods,                                 /* tp_methods */
+RandInt_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)RandInt_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+RandInt_new,                                     /* tp_new */
+};
+
