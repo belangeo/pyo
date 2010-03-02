@@ -302,7 +302,7 @@ class Noise(PyoObject):
         return("Noise(mul=1, add=0)")
     args = Print_args(args)
 
-class Fm(PyoObject):
+class FM(PyoObject):
     """
     A simple frequency modulation generator.
     
@@ -340,7 +340,7 @@ class Fm(PyoObject):
     >>> ind = LinTable([(0,20), (200,5), (1000,2), (8191,1)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, ind, dur=4)
-    >>> f = Fm(carrier=[250.5,250], ratio=.2499, index=tr, mul=.5).out()
+    >>> f = FM(carrier=[250.5,250], ratio=.2499, index=tr, mul=.5).out()
     
     """
     def __init__(self, carrier=100, ratio=0.5, index=5, mul=1, add=0):
