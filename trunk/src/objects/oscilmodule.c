@@ -26,6 +26,7 @@ typedef struct {
     Stream *phase_stream;
     int modebuffer[4];
     float pointerPos;
+    float twoPiOnSr;
 } Sine;
 
 static void
@@ -35,7 +36,7 @@ Sine_readframes_ii(Sine *self) {
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
-    delta = fr / self->sr * TWOPI;
+    delta = fr * self->twoPiOnSr;
     
     for (i=0; i<self->bufsize; i++) {
         if (self->pointerPos > TWOPI)
@@ -55,7 +56,7 @@ Sine_readframes_ai(Sine *self) {
     ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
     
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] / self->sr * TWOPI;
+        delta = fr[i] * self->twoPiOnSr;
         if (self->pointerPos > TWOPI)
             self->pointerPos -= TWOPI;
         val = sinf(self->pointerPos + ph);
@@ -71,7 +72,7 @@ Sine_readframes_ia(Sine *self) {
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     float *ph = Stream_getData((Stream *)self->phase_stream);
-    delta = fr / self->sr * TWOPI;
+    delta = fr * self->twoPiOnSr;
     
     for (i=0; i<self->bufsize; i++) {
         if (self->pointerPos > TWOPI)
@@ -91,7 +92,7 @@ Sine_readframes_aa(Sine *self) {
     float *ph = Stream_getData((Stream *)self->phase_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] / self->sr * TWOPI;
+        delta = fr[i] * self->twoPiOnSr;
         if (self->pointerPos > TWOPI)
             self->pointerPos -= TWOPI;
         val = sinf(self->pointerPos + (ph[i] * TWOPI));
@@ -220,7 +221,9 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Sine_compute_next_data_frame);
     self->mode_func_ptr = Sine_setProcMode;
-    
+
+    self->twoPiOnSr = TWOPI / self->sr;
+
     return (PyObject *)self;
 }
 
