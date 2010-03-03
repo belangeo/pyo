@@ -1084,8 +1084,8 @@ class Mix(PyoObject):
 
     Parameters:
 
-    input : PyoObject
-        Input signal to mix the streams.
+    input : PyoObject or list of PyoObjects
+        Input signal(s) to mix the streams.
     voices : int, optional
         Number of streams of the Mix object. If more than 1, object's 
         streams are alternated and added into Mix object's streams. 
@@ -1117,15 +1117,25 @@ class Mix(PyoObject):
         self._input = input
         self._mul = mul
         self._add = add
-        input_objs = input.getBaseObjects()
+        if type(input) == ListType:
+            input_objs = []
+            input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
+        else:    
+            input_objs = input.getBaseObjects()
         if voices < 1: voices = 1
         elif voices > len(input_objs): voices = len(input_objs)
-        sub_lists = [[]] * voices
+        sub_lists = []
+        for i in range(voices):
+            sub_lists.append([])
         [sub_lists[i % voices].append(obj) for i, obj in enumerate(input_objs)]
         self._base_objs = [Mix_base(l) for l in sub_lists]
 
     def __dir__(self):
         return ['mul', 'add']
+
+    def args():
+        return("Mix(input, voices=1, mul=1, add=0)")
+    args = Print_args(args)
         
 class Dummy(PyoObject):
     """
