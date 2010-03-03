@@ -19,6 +19,7 @@ extern PyTypeObject SfMarkerShufflerType;
 extern PyTypeObject SfMarkerShuffleType;
 
 extern PyTypeObject MetroType;
+extern PyTypeObject CloudType;
 extern PyTypeObject CounterType;
 extern PyTypeObject SelectType;
 

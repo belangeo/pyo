@@ -413,7 +413,7 @@ class FM(PyoObject):
     #demo = Call_example(demo)
 
     def args():
-        return("Fm(carrier=100, ratio=0.5, index=5, mul=1, add=0)")
+        return("FM(carrier=100, ratio=0.5, index=5, mul=1, add=0)")
     args = Print_args(args)
         
     @property
