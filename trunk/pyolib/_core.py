@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from types import ListType, SliceType
-import random, threading, time, os
+from types import ListType, SliceType, FloatType
+import random, threading, time, os, inspect
 from subprocess import call
 from math import pow, log10
 from distutils.sysconfig import get_python_lib
@@ -15,10 +15,6 @@ from _pyo import *
 ### Utilities
 ######################################################################
 SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
-
-class Print_args:
-    def __init__(self, callback):
-        self.__call__ = callback
 
 class Clean_objects(threading.Thread):
     """
@@ -59,10 +55,6 @@ class Clean_objects(threading.Thread):
             except: pass
         for arg in self.args:
             del arg 
-
-    def args():
-        return("Clean_objects(time, *args)")
-    args = Print_args(args)
         
 def convertArgsToLists(*args):
     """
@@ -126,7 +118,35 @@ def example(cls, dur=5):
     f.close()    
     p = call(["python", "tmp_example.py"])
     os.remove("tmp_example.py")
+      
+def removeExtraDecimals(x):
+    if type(x) == FloatType:
+        return "=%.2f" % x
+    else:
+        return "=" + str(x)    
+
+# another name ?
+def class_args(cls):
+    """
+    Returns the init line of a class reference.
     
+    class_args(cls)
+    
+    This function takes a class reference (not an instance of that class) 
+    in input and returns the init line of that class with the default values.
+    
+    Parameters:
+    
+    cls : PyoObject class
+        Class reference of the desired object init line.
+
+    """
+    name = cls.__name__
+    arg = inspect.getargspec(getattr(cls, "__init__"))
+    arg = inspect.formatargspec(*arg, formatvalue=removeExtraDecimals)
+    arg = arg.replace("self, ", "")
+    return name + arg
+        
 ######################################################################
 ### Map -> rescale values from sliders
 ######################################################################
@@ -193,10 +213,6 @@ class Map:
         else:
             return (x - self._min) / (self._max - self._min)
 
-    def args():
-        return("Map(min, max, scale)")
-    args = Print_args(args)
-
     @property
     def min(self): return self._min
     @property
@@ -261,10 +277,6 @@ class SLMap(Map):
         Map.__init__(self, min, max, scale)
         self._name, self._init, self._res, self._ramp = name, float(init), res, ramp
 
-    def args():
-        return("SLMap(min, max, scale, name, init, res='float', ramp=0.025)")
-    args = Print_args(args)
-
     @property
     def name(self): return self._name
     @property
@@ -304,10 +316,6 @@ class SLMapFreq(SLMap):
     def __init__(self, init=1000):
         SLMap.__init__(self, 20., 20000., 'log', 'freq', init, 'float', 0.025)
 
-    def args():
-        return("SLMapFreq(init=1000)")
-    args = Print_args(args)
-
 class SLMapMul(SLMap):
     """
     SLMap with normalized values for a 'mul' slider.
@@ -337,10 +345,6 @@ class SLMapMul(SLMap):
     """
     def __init__(self, init=1.):
         SLMap.__init__(self, 0., 2., 'lin', 'mul', init, 'float', 0.025)
-
-    def args():
-        return("SLMapMul(init=1.)")
-    args = Print_args(args)
 
 class SLMapPhase(SLMap):
     """
@@ -372,10 +376,6 @@ class SLMapPhase(SLMap):
     def __init__(self, init=0.):
         SLMap.__init__(self, 0., 1., 'lin', 'phase', init, 'float', 0.025)
 
-    def args():
-        return("SLMapPhase(init=0.)")
-    args = Print_args(args)
-
 class SLMapPan(SLMap):
     """
     SLMap with normalized values for a 'pan' slider.
@@ -405,10 +405,6 @@ class SLMapPan(SLMap):
     """
     def __init__(self, init=0.):
         SLMap.__init__(self, 0., 1., 'lin', 'pan', init, 'float', 0.025)
-
-    def args():
-        return("SLMapPan(init=0.)")
-    args = Print_args(args)
 
 class SLMapQ(SLMap):
     """
@@ -440,10 +436,6 @@ class SLMapQ(SLMap):
     def __init__(self, init=1.):
         SLMap.__init__(self, 0.1, 100., 'log', 'q', init, 'float', 0.025)
 
-    def args():
-        return("SLMapQ(init=1.)")
-    args = Print_args(args)
-
 class SLMapDur(SLMap):
     """
     SLMap with normalized values for a 'dur' slider.
@@ -473,10 +465,6 @@ class SLMapDur(SLMap):
     """
     def __init__(self, init=1.):
         SLMap.__init__(self, 0., 60., 'lin', 'dur', init, 'float', 0.025)
-
-    def args():
-        return("SLMapDur(init=1.)")
-    args = Print_args(args)
 
 ######################################################################
 ### Multisliders
@@ -667,11 +655,6 @@ class PyoObject(object):
     applied between pyo objects or between pyo objects and numbers. 
     These operations will replace the `mul` or `add` factor of the object. 
     `a *= 0.5` replaces the `mul` attribute of `a`.
-    
-    - Class methods:
-    
-    args() : This method called on a class (not an instance of that class) 
-             returns the init line of the object with the default values.
     
     """
     def __init__(self):
@@ -1156,10 +1139,6 @@ class Mix(PyoObject):
 
     def __dir__(self):
         return ['mul', 'add']
-
-    def args():
-        return("Mix(input, voices=1, mul=1, add=0)")
-    args = Print_args(args)
         
 class Dummy(PyoObject):
     """
@@ -1345,10 +1324,6 @@ class Sig(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Sig(value, mul=1, add=0)")
-    args = Print_args(args)
     
     @property
     def value(self):
@@ -1437,10 +1412,6 @@ class SigTo(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for SigTo object."
-
-    def args():
-        return("SigTo(value, time=0.025, init=0.0, mul=1, add=0)")
-    args = Print_args(args)
     
     @property
     def value(self):

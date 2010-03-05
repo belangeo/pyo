@@ -84,10 +84,6 @@ class Pattern(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return('Pattern(function, time=1)')
-    args = Print_args(args)
          
     @property
     def time(self):

@@ -13,9 +13,10 @@ f.write("\\begin{document}\n\n")
 
 def getDoc(obj):
     try:
-        args = '\n\n' + eval(obj).args().replace("_", "\_") + '\n\n'
+        init = '\n\n' + class_args(eval(obj)).replace("_", "\_") + '\n\n'
+        init = init.replace("self, ", "")
     except:
-        args = '\n\n' 
+        init = '\n\n' 
          
     try:
         text = eval(obj).__doc__
@@ -31,7 +32,7 @@ def getDoc(obj):
         methods = getMethodsDoc(text, obj)
     except:
         methods = ''    
-    page_text = args + doc_str + methods + "\n\n"
+    page_text = init + doc_str + methods + "\n\n"
     if len(methods):
         page_text += '\end{verbatim}\n\n'    
     if doc_str == '':
@@ -53,13 +54,14 @@ def getMethodsDoc(text, obj):
                 ppos = l.find('(')
                 if ppos != -1:
                     meth = l[0:ppos]
-                    args = inspect.getargspec(getattr(eval(obj), meth))
-                    args = inspect.formatargspec(*args)
+                    arg = inspect.getargspec(getattr(eval(obj), meth))
+                    arg = inspect.formatargspec(*arg, formatvalue=removeExtraDecimals)
+                    arg = arg.replace("self, ", "")
                     if add_tab:
-                        methods += '    ' + obj + '.' + meth + args + ':\n'
+                        methods += '    ' + obj + '.' + meth + arg + ':\n'
                         add_tab = False
                     else:    
-                        methods += obj + '.' + meth + args + ':\n'
+                        methods += obj + '.' + meth + arg + ':\n'
                     docstr = getattr(eval(obj), meth).__doc__.rstrip()
                     methods += docstr + '\n\n    '
                 

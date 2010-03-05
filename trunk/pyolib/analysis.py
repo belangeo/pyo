@@ -94,10 +94,6 @@ class Follower(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Follower(input, freq=10, mul=1, add=0)")
-    args = Print_args(args)
       
     @property
     def input(self):
@@ -202,10 +198,6 @@ class ZCross(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print("There is no controls for ZCross.")
-
-    def args():
-        return("ZCross(input, thresh=0., mul=1, add=0)")
-    args = Print_args(args)
       
     @property
     def input(self):

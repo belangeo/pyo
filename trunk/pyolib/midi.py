@@ -54,10 +54,6 @@ class Midictl(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Midictl object."
 
-    def args():
-        return("Midictl(ctlnumber, minscale=0, maxscale=1, mul=1, add=0)")
-    args = Print_args(args)
-
 class Notein(PyoObject):
     """
     Generates MIDI note messages.
@@ -156,7 +152,3 @@ class Notein(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Notein object."
-
-    def args():
-        return("Notein(poly=10, scale=0, first=0, last=127, mul=1, add=0)")
-    args = Print_args(args)

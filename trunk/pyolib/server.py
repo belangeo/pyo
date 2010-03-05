@@ -399,10 +399,6 @@ class Server(object):
         """
         return self._server.getBufferSize()
 
-    def args():
-        return('Server(sr=44100, nchnls=2, buffersize=256, duplex=0)')
-    args = Print_args(args)
-
     @property
     def amp(self):
         """float. Overall amplitude.""" 

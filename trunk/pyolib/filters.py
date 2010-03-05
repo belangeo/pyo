@@ -130,10 +130,6 @@ class Biquad(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Biquad(input, freq=1000, q=1, type=0, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to filter.""" 
@@ -242,10 +238,6 @@ class Tone(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Tone(input, freq=1000, mul=1, add=0)")
-    args = Print_args(args)
       
     @property
     def input(self):
@@ -370,10 +362,6 @@ class Port(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Port(input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to filter.""" 
@@ -451,10 +439,6 @@ class DCBlock(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for DCBlock object."
-
-    def args():
-        return("DCBlock(input, mul=1, add=0)")
-    args = Print_args(args)
       
     @property
     def input(self):
@@ -593,10 +577,6 @@ class BandSplit(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("BandSplit(input, num=6, min=20, max=20000, q=1, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to filter.""" 
@@ -724,10 +704,6 @@ class Hilbert(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Hilbert object."
-
-    def args():
-        return("Hilbert(input, mul=1, add=0)")
-    args = Print_args(args)
 
     @property
     def input(self):

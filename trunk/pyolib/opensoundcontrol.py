@@ -79,10 +79,6 @@ class OscSend(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control on OscSend object."
 
-    def args():
-        return('OscSend(input, port, address, host="127.0.0.1")')
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal.""" 
@@ -159,8 +155,4 @@ class OscReceive(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on OscReceive object."
-
-    def args():
-        return('OscReceive(port, address, mul=1, add=0)')
-    args = Print_args(args)
         

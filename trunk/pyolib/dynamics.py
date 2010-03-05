@@ -104,10 +104,6 @@ class Clip(PyoObject):
             title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Clip(input, min=-1, max=1, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -238,10 +234,6 @@ class Degrade(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Degrade(input, bitdepth=16., srscale=1.0, mul=1, add=0)")
-    args = Print_args(args)
 
     @property
     def input(self):
@@ -409,10 +401,6 @@ class Compress(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Compress(input, thresh=-20, ratio=2, risetime=0.005, falltime=0.05, mul=1, add=0)")
-    args = Print_args(args)
 
     @property
     def input(self):

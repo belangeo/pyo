@@ -89,10 +89,6 @@ class Metro(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Metro(time=1, poly=1)")
-    args = Print_args(args)
          
     @property
     def time(self):
@@ -194,10 +190,6 @@ class Cloud(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Cloud(density=0.5, poly=1)")
-    args = Print_args(args)
          
     @property
     def density(self):
@@ -334,10 +326,6 @@ class TrigRand(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return('TrigRand(input, min=0., max=1., port=0., init=0., mul=1, add=0)')
-    args = Print_args(args)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -456,10 +444,6 @@ class TrigChoice(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control for TrigChoice object."
 
-    def args():
-        return('TrigChoice(input, choice, port=0., init=0., mul=1, add=0)')
-    args = Print_args(args)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -573,10 +557,6 @@ class TrigFunc(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for TrigFunc object."
-
-    def args():
-        return('TrigFunc(input, function)')
-    args = Print_args(args)
 
     @property
     def input(self): return self._input
@@ -738,10 +718,6 @@ class TrigEnv(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return('TrigEnv(input, table, dur=1, mul=1, add=0)')
-    args = Print_args(args)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -889,10 +865,6 @@ class Counter(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Counter object."
 
-    def args():
-        return('Counter(input, min=0, max=100, dir=0, mul=1, add=0)')
-    args = Print_args(args)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -1009,10 +981,6 @@ class Select(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Select object."
-
-    def args():
-        return('Select(input, value=0)')
-    args = Print_args(args)
 
     @property
     def input(self): return self._input
@@ -1142,10 +1110,6 @@ class Thresh(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Thresh object."
-
-    def args():
-        return('Thresh(input, threshold=0., dir=0)')
-    args = Print_args(args)
 
     @property
     def input(self): return self._input

@@ -84,10 +84,6 @@ class Sine(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Sine(freq=1000, phase=0, mul=1, add=0)")
-    args = Print_args(args)
         
     @property
     def freq(self):
@@ -187,10 +183,6 @@ class Phasor(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Phasor(freq=100, phase=0, mul=1, add=0)")
-    args = Print_args(args)
         
     @property
     def freq(self):
@@ -247,10 +239,6 @@ class Input(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Input(chnl=0, mul=1, add=0)")
-    args = Print_args(args)
-
 class Noise(PyoObject):
     """
     A white noise generator.
@@ -281,10 +269,6 @@ class Noise(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Noise(mul=1, add=0)")
-    args = Print_args(args)
 
 class FM(PyoObject):
     """
@@ -391,10 +375,6 @@ class FM(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("FM(carrier=100, ratio=0.5, index=5, mul=1, add=0)")
-    args = Print_args(args)
         
     @property
     def carrier(self):
