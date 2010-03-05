@@ -141,10 +141,6 @@ class Pan(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return('Pan(input, outs=2, pan=0.5, spread=0.5, mul=1, add=0)')
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to process."""
@@ -284,10 +280,6 @@ class SPan(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return('SPan(input, outs=2, pan=0.5, mul=1, add=0)')
-    args = Print_args(args)
 
     @property
     def input(self): 

@@ -103,10 +103,6 @@ class Osc(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Osc(table, freq=1000, phase=0, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples.""" 
@@ -281,10 +277,6 @@ class TableRead(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("TableRead(table, freq=1, loop=0, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples.""" 
@@ -456,10 +448,6 @@ class Pulsar(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Pulsar(table, env, freq=100, frac=0.5, phase=0, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples.""" 
@@ -574,10 +562,6 @@ class Pointer(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Pointer(table, index, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def table(self):
         """PyoTableObject. Table containing the waveform samples.""" 
@@ -674,10 +658,6 @@ class Lookup(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Lookup(table, index, mul=1, add=0)")
-    args = Print_args(args)
 
     @property
     def table(self):
@@ -839,10 +819,6 @@ class TableRec(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on TableRec object."
-
-    def args():
-        return('TableRec(input, table, fadetime=0)')
-    args = Print_args(args)
       
     @property
     def input(self):
@@ -975,10 +951,6 @@ class TableMorph(PyoObject):
         
     def ctrl(self, map_list=None, title=None):
         print "There is no control on TableMorph object."
-
-    def args():
-        return('TableMorph(input, table, sources)')
-    args = Print_args(args)
       
     @property
     def input(self):
@@ -1189,10 +1161,6 @@ class Granulator(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return('Granulator(table, env, pitch=1, pos=0, dur=.1, grains=8, basedur=.1, mul=1, add=0)')
-    args = Print_args(args)
 
     @property
     def table(self):

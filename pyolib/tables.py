@@ -80,10 +80,6 @@ class HarmTable(PyoTableObject):
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
-    def args():
-        return('HarmTable(list=[1.], size=8192)')
-    args = Print_args(args)
-
     @property
     def size(self):
         """int. Table size in samples.""" 
@@ -171,10 +167,6 @@ class SawTable(PyoTableObject):
         self._order = x
         list = [1./i for i in range(1,(self._order+1))]
         [obj.replace(list) for obj in self._base_objs]
-
-    def args():
-        return('SawTable(order=10, size=8192)')
-    args = Print_args(args)
 
     @property
     def size(self):
@@ -274,10 +266,6 @@ class SquareTable(PyoTableObject):
                 list.append(0.)    
         [obj.replace(list) for obj in self._base_objs]
 
-    def args():
-        return('SquareTable(order=10, size=8192)')
-    args = Print_args(args)
-
     @property
     def size(self):
         """int. Table size in samples.""" 
@@ -372,10 +360,6 @@ class ChebyTable(PyoTableObject):
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
-    def args():
-        return('ChebyTable(list=[1.], size=8192)')
-    args = Print_args(args)
-
     @property
     def size(self):
         """int. Table size in samples.""" 
@@ -440,10 +424,6 @@ class HannTable(PyoTableObject):
         """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
-
-    def args():
-        return('HannTable(size=8192)')
-    args = Print_args(args)
 
     @property
     def size(self): 
@@ -531,10 +511,6 @@ class LinTable(PyoTableObject):
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
-
-    def args():
-        return('LinTable(list=[(0, 0.), (8191, 1.)], size=8192)')
-    args = Print_args(args)
         
     @property
     def size(self):
@@ -619,10 +595,6 @@ class SndTable(PyoTableObject):
     def getRate(self):
         return self._base_objs[0].getRate()
 
-    def args():
-        return('SndTable(path, chnl=None)')
-    args = Print_args(args)
-
     @property
     def sound(self):
         """string. Full path of the sound.""" 
@@ -694,8 +666,4 @@ class NewTable(PyoTableObject):
         
         """
         return self._base_objs[0].getRate()
-
-    def args():
-        return('NewTable(length, chnls=1)')
-    args = Print_args(args)
 

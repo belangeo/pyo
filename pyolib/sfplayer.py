@@ -215,10 +215,6 @@ class SfPlayer(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return('SfPlayer(path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0)')
-    args = Print_args(args)
           
     @property
     def sound(self): 
@@ -398,10 +394,6 @@ class SfMarkerShuffler(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return('SfMarkerShuffler(path, speed=1, interp=2, mul=1, add=0)')
-    args = Print_args(args)
                     
     @property
     def speed(self): 

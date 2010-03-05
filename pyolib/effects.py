@@ -107,10 +107,6 @@ class Disto(PyoObject):
             title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Disto(input, drive=.75, slope=.5, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -239,10 +235,6 @@ class Delay(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Delay(input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0)")
-    args = Print_args(args)
 
     @property
     def input(self):
@@ -376,10 +368,6 @@ class Waveguide(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    def args():
-        return("Waveguide(input, freq=100, dur=10, minfreq=20, mul=1, add=0)")
-    args = Print_args(args)
 
     @property
     def input(self):
@@ -533,10 +521,6 @@ class Freeverb(PyoObject):
             title = self.__class__.__name__
         win.title(title)
 
-    def args():
-        return("Freeverb(input, size=.5, damp=.5, bal=.5, mul=1, add=0)")
-    args = Print_args(args)
-
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -655,10 +639,6 @@ class Convolve(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Convolve object."
-
-    def args():
-        return("Convolve(input, table, size, mul=1, add=0)")
-    args = Print_args(args)
       
     @property
     def input(self):
