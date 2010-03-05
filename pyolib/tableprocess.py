@@ -103,10 +103,6 @@ class Osc(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Osc_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Osc(table, freq=1000, phase=0, mul=1, add=0)")
     args = Print_args(args)
@@ -168,7 +164,7 @@ class TableRead(PyoObject):
     loop is off or any time it wraps around if loop is on. User can 
     retreive the trigger streams by calling obj['trig']:
     
-    >>> tabr = TableRead(DEMOS_PATH + "/transparent.aif").out()
+    >>> tabr = TableRead(SNDS_PATH + "/transparent.aif").out()
     >>> trig = TrigRand(tab['trig'])
     
     See also: Osc
@@ -177,7 +173,7 @@ class TableRead(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd = SndTable(DEMOS_PATH + '/transparent.aif')
+    >>> snd = SndTable(SNDS_PATH + '/transparent.aif')
     >>> a = TableRead(table=snd, freq=snd.getRate(), loop=0).out()   
      
     """
@@ -284,10 +280,6 @@ class TableRead(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TableRead_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("TableRead(table, freq=1, loop=0, mul=1, add=0)")
@@ -464,10 +456,6 @@ class Pulsar(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Pulsar_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return("Pulsar(table, env, freq=100, frac=0.5, phase=0, mul=1, add=0)")
     args = Print_args(args)
@@ -586,11 +574,6 @@ class Pointer(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Pointer_demo.py")
-    #demo = Call_example(demo)
-
-
     def args():
         return("Pointer(table, index, mul=1, add=0)")
     args = Print_args(args)
@@ -642,7 +625,7 @@ class Lookup(PyoObject):
     >>> lfo = Sine(freq=[.15,.2], mul=.45, add=.5)
     >>> a = Sine(freq=[100,150], mul=lfo)
     >>> t = LinTable([(0,-1),(3072,-0.85),(4096,0),(5520,.85),(8192,1)])
-    >>> b = Lookup(table=t, index=a, mul=1.-lf).out()
+    >>> b = Lookup(table=t, index=a, mul=1.-lfo).out()
 
     """
     def __init__(self, table, index, mul=1, add=0):
@@ -691,11 +674,6 @@ class Lookup(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Lookup_demo.py")
-    #demo = Call_example(demo)
-
 
     def args():
         return("Lookup(table, index, mul=1, add=0)")
@@ -862,10 +840,6 @@ class TableRec(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control on TableRec object."
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TableRec_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('TableRec(input, table, fadetime=0)')
     args = Print_args(args)
@@ -1002,10 +976,6 @@ class TableMorph(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control on TableMorph object."
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TableMorph_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('TableMorph(input, table, sources)')
     args = Print_args(args)
@@ -1087,7 +1057,7 @@ class Granulator(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd = SndTable(DEMOS_PATH + "/transparent.aif")
+    >>> snd = SndTable(SNDS_PATH + "/transparent.aif")
     >>> env = HannTable()
     >>> pos = Phasor(snd.getRate()*.25, 0, snd.getSize())
     >>> dur = Noise(.001, .1)
@@ -1219,10 +1189,6 @@ class Granulator(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Granulator_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('Granulator(table, env, pitch=1, pos=0, dur=.1, grains=8, basedur=.1, mul=1, add=0)')

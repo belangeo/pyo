@@ -31,7 +31,7 @@ class Clip(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> lfoup = Sine(freq=.25, mul=.48, add=.5)
     >>> lfodown = 0 - lfoup
     >>> c = Clip(a, min=lfodown, max=lfoup, mul=.5).out()
@@ -103,10 +103,6 @@ class Clip(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    def demo():
-        execfile(DEMOS_PATH + "/Clip_demo.py")
-    demo = Call_example(demo)
 
     def args():
         return("Clip(input, min=-1, max=1, mul=1, add=0)")
@@ -242,10 +238,6 @@ class Degrade(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Degrade_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Degrade(input, bitdepth=16., srscale=1.0, mul=1, add=0)")
@@ -417,10 +409,6 @@ class Compress(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Compress_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Compress(input, thresh=-20, ratio=2, risetime=0.005, falltime=0.05, mul=1, add=0)")

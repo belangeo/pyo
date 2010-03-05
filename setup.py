@@ -27,9 +27,9 @@ setup(  name = "pyo",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
         license="GPLv3",
-        packages=['pyolib', 'pyodemos'],
+        packages=['pyolib', 'pyolib.snds'],
         data_files=[(get_python_lib(), ['pyo.py']),
-        (os.path.join(get_python_lib(), 'pyodemos'), ['pyodemos/'+ f for f in os.listdir('pyodemos') if f.endswith('aif')])],
+        (os.path.join(get_python_lib(), 'pyolib', 'snds'), ['pyolib/snds/'+ f for f in os.listdir('pyolib/snds') if f.endswith('aif')])],
         ext_modules = extension )
          
 os.system('rm -rf build')

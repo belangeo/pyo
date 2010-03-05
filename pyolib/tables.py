@@ -80,10 +80,6 @@ class HarmTable(PyoTableObject):
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/HarmTable_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('HarmTable(list=[1.], size=8192)')
     args = Print_args(args)
@@ -175,10 +171,6 @@ class SawTable(PyoTableObject):
         self._order = x
         list = [1./i for i in range(1,(self._order+1))]
         [obj.replace(list) for obj in self._base_objs]
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/SawTable_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('SawTable(order=10, size=8192)')
@@ -282,10 +274,6 @@ class SquareTable(PyoTableObject):
                 list.append(0.)    
         [obj.replace(list) for obj in self._base_objs]
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/SquareTable_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('SquareTable(order=10, size=8192)')
     args = Print_args(args)
@@ -384,10 +372,6 @@ class ChebyTable(PyoTableObject):
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/ChebyTable_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('ChebyTable(list=[1.], size=8192)')
     args = Print_args(args)
@@ -456,10 +440,6 @@ class HannTable(PyoTableObject):
         """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/HannTable_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('HannTable(size=8192)')
@@ -552,10 +532,6 @@ class LinTable(PyoTableObject):
     def getPoints(self):
         return self._base_objs[0].getPoints()
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/LinTable_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('LinTable(list=[(0, 0.), (8191, 1.)], size=8192)')
     args = Print_args(args)
@@ -605,7 +581,7 @@ class SndTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> # Sharp attack envelope
-    >>> snd_path = DEMOS_PATH + '/transparent.aif'
+    >>> snd_path = SNDS_PATH + '/transparent.aif'
     >>> t = SndTable(snd_path)
     >>> a = Osc(table=t, freq=t.getRate(), mul=.5).out()
 
@@ -642,10 +618,6 @@ class SndTable(PyoTableObject):
         
     def getRate(self):
         return self._base_objs[0].getRate()
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/SndTable_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('SndTable(path, chnl=None)')
@@ -722,10 +694,6 @@ class NewTable(PyoTableObject):
         
         """
         return self._base_objs[0].getRate()
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/NewTable_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('NewTable(length, chnls=1)')

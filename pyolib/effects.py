@@ -35,7 +35,7 @@ class Disto(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> lfo = Sine(freq=.25, mul=.5, add=.5)
     >>> d = Disto(a, drive=lfo, slope=.8, mul=.5).out()
 
@@ -107,10 +107,6 @@ class Disto(PyoObject):
             title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Disto_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Disto(input, drive=.75, slope=.5, mul=1, add=0)")
     args = Print_args(args)
@@ -172,7 +168,7 @@ class Delay(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out()
 
     """
@@ -243,10 +239,6 @@ class Delay(PyoObject):
         if title == None:
             title = self.__class__.__name__
         win.title(title)
-
-    def demo():
-        execfile(DEMOS_PATH + "/Delay_demo.py")
-    demo = Call_example(demo)
 
     def args():
         return("Delay(input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0)")
@@ -385,10 +377,6 @@ class Waveguide(PyoObject):
             title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Waveguide_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Waveguide(input, freq=100, dur=10, minfreq=20, mul=1, add=0)")
     args = Print_args(args)
@@ -458,7 +446,7 @@ class Freeverb(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> b = Freeverb(a, size=.8, damp=.9, bal=.3).out()
 
     """
@@ -545,10 +533,6 @@ class Freeverb(PyoObject):
             title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Freeverb_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Freeverb(input, size=.5, damp=.5, bal=.5, mul=1, add=0)")
     args = Print_args(args)
@@ -621,7 +605,7 @@ class Convolve(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd = DEMOS_PATH + '/transparent.aif'
+    >>> snd = SNDS_PATH + '/transparent.aif'
     >>> sf = SfPlayer(snd, loop=True, mul=.5).out()
     >>> a = Convolve(sf, '/Users/olipet/impulse3_512.aif').out()
 
@@ -671,10 +655,6 @@ class Convolve(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Convolve object."
-        
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Convolve_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Convolve(input, table, size, mul=1, add=0)")
