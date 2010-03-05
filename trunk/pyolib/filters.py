@@ -130,10 +130,6 @@ class Biquad(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Biquad_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Biquad(input, freq=1000, q=1, type=0, mul=1, add=0)")
     args = Print_args(args)
@@ -246,10 +242,6 @@ class Tone(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Tone_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Tone(input, freq=1000, mul=1, add=0)")
@@ -378,10 +370,6 @@ class Port(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Port_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Port(input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0)")
     args = Print_args(args)
@@ -463,10 +451,6 @@ class DCBlock(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for DCBlock object."
-        
-    #def demo():
-    #    execfile(DEMOS_PATH + "/DCBlock_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("DCBlock(input, mul=1, add=0)")
@@ -608,10 +592,6 @@ class BandSplit(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-        
-    def demo():
-        execfile(DEMOS_PATH + "/BandSplit_demo.py")
-    demo = Call_example(demo)
 
     def args():
         return("BandSplit(input, num=6, min=20, max=20000, q=1, mul=1, add=0)")
@@ -660,7 +640,7 @@ class Hilbert(PyoObject):
     
     Examples:
     
-    >>> a = SfPlayer(DEMOS_PATH + "/accord.aif", loop=True).out()
+    >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True).out()
     >>> b = Hilbert(a)
     >>> quad = Sine([250, 500], [0, .25])
     >>> mod1 = b['real'] * quad[0]
@@ -744,10 +724,6 @@ class Hilbert(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Hilbert object."
-
-    def demo():
-        execfile(DEMOS_PATH + "/Hilbert_demo.py")
-    demo = Call_example(demo)
 
     def args():
         return("Hilbert(input, mul=1, add=0)")

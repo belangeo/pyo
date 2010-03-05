@@ -399,10 +399,6 @@ class Server(object):
         """
         return self._server.getBufferSize()
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Server_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('Server(sr=44100, nchnls=2, buffersize=256, duplex=0)')
     args = Print_args(args)

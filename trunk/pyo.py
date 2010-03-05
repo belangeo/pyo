@@ -21,7 +21,7 @@ from pyolib.tables import *
 from pyolib.triggers import *
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
-                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'midiToHz', 'sampsToSec', 'secToSamps']),
+                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'midiToHz', 'sampsToSec', 'secToSamps', 'example']),
         'PyoObject': {'analysis': sorted(['Follower', 'ZCross']),
                       'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr']),
                       'dynamics': sorted(['Clip', 'Compress', 'Degrade']),
@@ -49,4 +49,5 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also']
 
-DEMOS_PATH = os.path.join(get_python_lib(), "pyodemos")
+SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
+DEMOS_PATH = SNDS_PATH

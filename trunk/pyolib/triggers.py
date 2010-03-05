@@ -90,10 +90,6 @@ class Metro(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Metro_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Metro(time=1, poly=1)")
     args = Print_args(args)
@@ -198,10 +194,6 @@ class Cloud(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Cloud_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Cloud(density=0.5, poly=1)")
@@ -342,10 +334,6 @@ class TrigRand(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TrigRand_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('TrigRand(input, min=0., max=1., port=0., init=0., mul=1, add=0)')
     args = Print_args(args)
@@ -468,10 +456,6 @@ class TrigChoice(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control for TrigChoice object."
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TrigChoice_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('TrigChoice(input, choice, port=0., init=0., mul=1, add=0)')
     args = Print_args(args)
@@ -589,10 +573,6 @@ class TrigFunc(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for TrigFunc object."
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TrigFunction_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('TrigFunc(input, function)')
@@ -758,10 +738,6 @@ class TrigEnv(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/TrigEnv_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('TrigEnv(input, table, dur=1, mul=1, add=0)')
     args = Print_args(args)
@@ -913,10 +889,6 @@ class Counter(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Counter object."
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Counter_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('Counter(input, min=0, max=100, dir=0, mul=1, add=0)')
     args = Print_args(args)
@@ -1037,10 +1009,6 @@ class Select(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Select object."
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Select_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('Select(input, value=0)')
@@ -1174,10 +1142,6 @@ class Thresh(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for Thresh object."
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Thresh_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('Thresh(input, threshold=0., dir=0)')

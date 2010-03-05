@@ -117,10 +117,6 @@ class Fader(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Fader object."
 
-    def demo():
-        execfile(DEMOS_PATH + "/Fader_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Fader(fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0)")
     args = Print_args(args)
@@ -310,10 +306,6 @@ class Adsr(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Fader object."
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Fader_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Adsr(attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0)")

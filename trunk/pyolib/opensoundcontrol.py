@@ -79,10 +79,6 @@ class OscSend(PyoObject):
     def ctrl(self, map_list=None, title=None):
         print "There is no control on OscSend object."
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/OscSend_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('OscSend(input, port, address, host="127.0.0.1")')
     args = Print_args(args)
@@ -163,10 +159,6 @@ class OscReceive(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on OscReceive object."
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/OscReceive_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('OscReceive(port, address, mul=1, add=0)')

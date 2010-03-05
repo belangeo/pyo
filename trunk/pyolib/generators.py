@@ -85,10 +85,6 @@ class Sine(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Sine_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Sine(freq=1000, phase=0, mul=1, add=0)")
     args = Print_args(args)
@@ -192,10 +188,6 @@ class Phasor(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Phasor_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return("Phasor(freq=100, phase=0, mul=1, add=0)")
     args = Print_args(args)
@@ -255,10 +247,6 @@ class Input(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    def demo():
-        execfile(DEMOS_PATH + "/Input_demo.py")
-    demo = Call_example(demo)
-
     def args():
         return("Input(chnl=0, mul=1, add=0)")
     args = Print_args(args)
@@ -293,10 +281,6 @@ class Noise(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def demo():
-        execfile(DEMOS_PATH + "/Noise_demo.py")
-    demo = Call_example(demo)
 
     def args():
         return("Noise(mul=1, add=0)")
@@ -407,10 +391,6 @@ class FM(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Fm_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("FM(carrier=100, ratio=0.5, index=5, mul=1, add=0)")

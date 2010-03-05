@@ -53,10 +53,6 @@ class Midictl(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Midictl object."
-        
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Midictl_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Midictl(ctlnumber, minscale=0, maxscale=1, mul=1, add=0)")
@@ -160,10 +156,6 @@ class Notein(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control on Notein object."
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Notein_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("Notein(poly=10, scale=0, first=0, last=127, mul=1, add=0)")

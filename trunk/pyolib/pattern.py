@@ -36,6 +36,7 @@ class Pattern(PyoObject):
     ...     a.freq = random.randint(200, 400)
     ...    
     >>> p = Pattern(pat, .125)
+    >>> p.play()
     
     """
     def __init__(self, function, time=1):
@@ -83,10 +84,6 @@ class Pattern(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Pattern_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('Pattern(function, time=1)')

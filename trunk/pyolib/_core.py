@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from types import ListType, SliceType
 import random, threading, time, os
+from subprocess import call
 from math import pow, log10
 from distutils.sysconfig import get_python_lib
 
@@ -13,11 +14,7 @@ from _pyo import *
 ######################################################################
 ### Utilities
 ######################################################################
-DEMOS_PATH = os.path.join(get_python_lib(), "pyodemos")
-
-class Call_example:
-    def __init__(self, callback):
-        self.__call__ = callback
+SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
 
 class Print_args:
     def __init__(self, callback):
@@ -100,6 +97,36 @@ def wrap(arg, i):
     else:
         return x
 
+def example(cls, dur=5):
+    """
+    Runs the example given in the __doc__ string of the object in argument.
+    
+    example(cls, dur=5)
+    
+    Parameters:
+    
+    cls : PyoObject class
+        Class reference of the desired object example.
+    dur : float, optional
+        Duration of the example.
+        
+    """
+    doc = cls.__doc__.split("Examples:")[1]
+    lines = doc.splitlines()
+    ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
+    example = "import time\nfrom pyo import *\n"
+    for line in ex_lines:
+        if ">>>" in line: line = line.lstrip(">>> ")
+        if "..." in line: line = "    " +  line.lstrip("... ")
+        example += line + "\n"
+    example += "time.sleep(%f)\ns.stop()\ns.shutdown()\n" % dur
+    f = open("tmp_example.py", "w")
+    f.write('print """\n%s\n"""\n' % example)
+    f.write(example)
+    f.close()    
+    p = call(["python", "tmp_example.py"])
+    os.remove("tmp_example.py")
+    
 ######################################################################
 ### Map -> rescale values from sliders
 ######################################################################
@@ -643,9 +670,6 @@ class PyoObject(object):
     
     - Class methods:
     
-    demo() : This method called on a class (not an instance of that class) 
-             will start an interactive session showing possible uses of 
-             the object.
     args() : This method called on a class (not an instance of that class) 
              returns the init line of the object with the default values.
     
@@ -1322,10 +1346,6 @@ class Sig(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile("demos/Sig_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return("Sig(value, mul=1, add=0)")
     args = Print_args(args)
@@ -1417,10 +1437,6 @@ class SigTo(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print "There is no control for SigTo object."
-
-    #def demo():
-    #    execfile("demos/SigTo_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("SigTo(value, time=0.025, init=0.0, mul=1, add=0)")

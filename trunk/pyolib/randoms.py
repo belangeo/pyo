@@ -104,10 +104,6 @@ class Randi(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Randi_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('Randi(min=0., max=1., freq=1., mul=1, add=0)')
     args = Print_args(args)
@@ -229,10 +225,6 @@ class Randh(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Randh_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('Randh(min=0., max=1., freq=1., mul=1, add=0)')
     args = Print_args(args)
@@ -332,10 +324,6 @@ class Choice(PyoObject):
         if title == None: title = self.__class__.__name__
         win.title(title)
 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/Choice_demo.py")
-    #demo = Call_example(demo)
-
     def args():
         return('Choice(choice, freq=1., mul=1, add=0)')
     args = Print_args(args)
@@ -432,10 +420,6 @@ class RandInt(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/RandInt_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('RandInt(max=100, freq=1., mul=1, add=0)')

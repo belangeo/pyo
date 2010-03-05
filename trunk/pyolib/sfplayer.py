@@ -56,14 +56,14 @@ class SfPlayer(PyoObject):
     loop is off or any time it wraps around if loop is on. User can 
     retreive the trigger streams by calling obj['trig']:
     
-    >>> sf = SfPlayer(DEMOS_PATH + "/transparent.aif").out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif").out()
     >>> trig = TrigRand(sf['trig'])
     
     Examples:
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd = DEMOS_PATH + "/transparent.aif"
+    >>> snd = SNDS_PATH + "/transparent.aif"
     >>> sf = SfPlayer(snd, speed=.75, loop=True).out()
     
     """
@@ -215,10 +215,6 @@ class SfPlayer(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-          
-    #def demo():
-    #    execfile(DEMOS_PATH + "/SfPlayer_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('SfPlayer(path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0)')
@@ -309,7 +305,7 @@ class SfMarkerShuffler(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfMarkerShuffler(DEMOS_PATH + "/transparent.aif", speed=1).out()
+    >>> sf = SfMarkerShuffler(SNDS_PATH + "/transparent.aif", speed=1).out()
     
     """
     def __init__(self, path, speed=1, interp=2, mul=1, add=0):
@@ -402,10 +398,6 @@ class SfMarkerShuffler(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
- 
-    #def demo():
-    #    execfile(DEMOS_PATH + "/SfMarkerShuffler_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return('SfMarkerShuffler(path, speed=1, interp=2, mul=1, add=0)')

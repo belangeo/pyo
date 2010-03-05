@@ -38,7 +38,7 @@ class Follower(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(DEMOS_PATH + "/transparent.aif", loop=True).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
     >>> fol = Follower(sf, freq=10)
     >>> n = Noise(mul=fol).out()
 
@@ -94,10 +94,6 @@ class Follower(PyoObject):
         f = PyoObjectControl(win, self, map_list)
         if title == None: title = self.__class__.__name__
         win.title(title)
-
-    def demo():
-        execfile(DEMOS_PATH + "/Follower_demo.py")
-    demo = Call_example(demo)
 
     def args():
         return("Follower(input, freq=10, mul=1, add=0)")
@@ -206,10 +202,6 @@ class ZCross(PyoObject):
 
     def ctrl(self, map_list=None, title=None):
         print("There is no controls for ZCross.")
-
-    #def demo():
-    #    execfile(DEMOS_PATH + "/ZCross_demo.py")
-    #demo = Call_example(demo)
 
     def args():
         return("ZCross(input, thresh=0., mul=1, add=0)")
