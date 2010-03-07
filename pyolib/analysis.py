@@ -88,12 +88,8 @@ class Follower(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):
@@ -197,7 +193,8 @@ class ZCross(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None):
-        print("There is no controls for ZCross.")
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):

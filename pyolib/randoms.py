@@ -94,15 +94,11 @@ class Randi(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                        SLMap(1., 2., 'lin', 'max', self._max),
-                        SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(1., 2., 'lin', 'max', self._max),
+                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def min(self): return self._min
@@ -211,15 +207,11 @@ class Randh(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                        SLMap(1., 2., 'lin', 'max', self._max),
-                        SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(1., 2., 'lin', 'max', self._max),
+                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def min(self): return self._min
@@ -308,13 +300,8 @@ class Choice(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.1, 20., 'lin', 'freq', self._freq), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def choice(self): return self._choice
@@ -400,14 +387,10 @@ class RandInt(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(1., 2., 'lin', 'max', self._max),
-                        SLMap(0.1, 20., 'lin', 'freq', self._freq),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(1., 2., 'lin', 'max', self._max),
+                          SLMap(0.1, 20., 'lin', 'freq', self._freq),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def max(self): return self._max

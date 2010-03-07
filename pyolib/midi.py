@@ -52,7 +52,8 @@ class Midictl(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on Midictl object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
 class Notein(PyoObject):
     """
@@ -151,4 +152,5 @@ class Notein(PyoObject):
         return self
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on Notein object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)

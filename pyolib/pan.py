@@ -132,14 +132,10 @@ class Pan(PyoObject):
         return self
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapPan(self._pan),
+        self._map_list = [SLMapPan(self._pan),
                         SLMap(0., 1., 'lin', 'spread', self._spread),
                         SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -273,13 +269,8 @@ class SPan(PyoObject):
         return self
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapPan(self._pan),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapPan(self._pan), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): 

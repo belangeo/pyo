@@ -121,14 +121,8 @@ class Biquad(PyoObject):
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMapQ(self._q),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -231,13 +225,8 @@ class Tone(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):
@@ -354,13 +343,9 @@ class Port(PyoObject):
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.001, 10., 'lin', 'risetime', self._risetime),
-                        SLMap(0.001, 10., 'lin', 'falltime', self._falltime)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.001, 10., 'lin', 'risetime', self._risetime),
+                          SLMap(0.001, 10., 'lin', 'falltime', self._falltime)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -438,7 +423,8 @@ class DCBlock(PyoObject):
         self._in_fader.setInput(x, fadetime)
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for DCBlock object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):
@@ -570,12 +556,8 @@ class BandSplit(PyoObject):
         return self
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapQ(self._q), SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapQ(self._q), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -703,7 +685,8 @@ class Hilbert(PyoObject):
         return self
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on Hilbert object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):

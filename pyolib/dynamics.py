@@ -94,15 +94,10 @@ class Clip(PyoObject):
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(-1., 0., 'lin', 'min', self._min),
-                        SLMap(0., 1., 'lin', 'max', self._max),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(-1., 0., 'lin', 'min', self._min),
+                          SLMap(0., 1., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -225,15 +220,10 @@ class Degrade(PyoObject):
         [obj.setSrscale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(1., 32., 'log', 'bitdepth', self._bitdepth),
-                        SLMap(0.0009765625, 1., 'log', 'srscale', self._srscale),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(1., 32., 'log', 'bitdepth', self._bitdepth),
+                          SLMap(0.0009765625, 1., 'log', 'srscale', self._srscale),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -390,17 +380,12 @@ class Compress(PyoObject):
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(-90., 0., 'lin', 'thresh',  self._thresh),
-                        SLMap(1., 10., 'lin', 'ratio',  self._ratio),
-                        SLMap(0.001, .2, 'lin', 'risetime',  self._risetime),
-                        SLMap(0.001, .2, 'lin', 'falltime',  self._falltime),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(-90., 0., 'lin', 'thresh',  self._thresh),
+                          SLMap(1., 10., 'lin', 'ratio',  self._ratio),
+                          SLMap(0.001, .2, 'lin', 'risetime',  self._risetime),
+                          SLMap(0.001, .2, 'lin', 'falltime',  self._falltime),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):

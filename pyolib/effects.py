@@ -97,15 +97,10 @@ class Disto(PyoObject):
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0., 1., 'lin', 'drive', self._drive),
-                        SLMap(0., 0.999, 'lin', 'slope', self._slope),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0., 1., 'lin', 'drive', self._drive),
+                          SLMap(0., 0.999, 'lin', 'slope', self._slope),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -226,15 +221,10 @@ class Delay(PyoObject):
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
-                        SLMap(0., 1., 'lin', 'feedback', self._feedback),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+                          SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -359,15 +349,10 @@ class Waveguide(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(10, 500., 'log', 'freq',  self._freq),
-                        SLMapDur(self._dur),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(10, 500., 'log', 'freq',  self._freq),
+                          SLMapDur(self._dur),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -510,16 +495,11 @@ class Freeverb(PyoObject):
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0., 1., 'lin', 'size',  self._size),
-                        SLMap(0., 1., 'lin', 'damp',  self._damp),
-                        SLMap(0., 1., 'lin', 'bal',  self._bal),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None:
-            title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0., 1., 'lin', 'size',  self._size),
+                          SLMap(0., 1., 'lin', 'damp',  self._damp),
+                          SLMap(0., 1., 'lin', 'bal',  self._bal),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -638,7 +618,8 @@ class Convolve(PyoObject):
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for Convolve object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):

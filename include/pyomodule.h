@@ -27,6 +27,7 @@ extern PyTypeObject ThreshType;
 
 extern PyTypeObject FaderType;
 extern PyTypeObject AdsrType;
+extern PyTypeObject LinsegType;
 
 extern PyTypeObject RandiType;
 extern PyTypeObject RandhType;

@@ -83,12 +83,8 @@ class Metro(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.001, 1., 'log', 'time', self._time)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.001, 1., 'log', 'time', self._time)]
+        PyoObject.ctrl(self, map_list, title)
          
     @property
     def time(self):
@@ -184,12 +180,8 @@ class Cloud(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0, 1., 'lin', 'density', self._density)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0, 1., 'lin', 'density', self._density)]
+        PyoObject.ctrl(self, map_list, title)
          
     @property
     def density(self):
@@ -317,14 +309,10 @@ class TrigRand(PyoObject):
         [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0., 1., 'lin', 'min', self._min),
-                        SLMap(1., 2., 'lin', 'max', self._max),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(1., 2., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input
@@ -442,7 +430,8 @@ class TrigChoice(PyoObject):
         [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for TrigChoice object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input
@@ -556,7 +545,8 @@ class TrigFunc(PyoObject):
         [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for TrigFunc object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input
@@ -710,13 +700,8 @@ class TrigEnv(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.01, 10., 'lin', 'dur', self._dur),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.01, 10., 'lin', 'dur', self._dur), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input
@@ -863,7 +848,8 @@ class Counter(PyoObject):
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for Counter object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input
@@ -980,7 +966,8 @@ class Select(PyoObject):
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for Select object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input
@@ -1109,7 +1096,8 @@ class Thresh(PyoObject):
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for Thresh object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self): return self._input

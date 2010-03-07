@@ -234,6 +234,11 @@ init_pyo(void)
         return;
     Py_INCREF(&AdsrType);
     PyModule_AddObject(m, "Adsr_base", (PyObject *)&AdsrType);
+
+    if (PyType_Ready(&LinsegType) < 0)
+        return;
+    Py_INCREF(&LinsegType);
+    PyModule_AddObject(m, "Linseg_base", (PyObject *)&LinsegType);
     
     if (PyType_Ready(&TableStreamType) < 0)
         return;

@@ -78,12 +78,8 @@ class Pattern(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.125, 4., 'lin', 'time', self._time)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.125, 4., 'lin', 'time', self._time)]
+        PyoObject.ctrl(self, map_list, title)
          
     @property
     def time(self):

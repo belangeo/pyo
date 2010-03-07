@@ -208,13 +208,8 @@ class SfPlayer(PyoObject):
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
           
     @property
     def sound(self): 
@@ -387,13 +382,8 @@ class SfMarkerShuffler(PyoObject):
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
                     
     @property
     def speed(self): 

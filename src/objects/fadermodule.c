@@ -799,3 +799,390 @@ Adsr_members,             /* tp_members */
 Adsr_new,                 /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pointslist;
+    int modebuffer[2];
+    double currentTime;
+    float currentValue;
+    float sampleToSec;
+    float increment;
+    float *targets;
+    float *times;
+    int which;
+    int flag;
+    int newlist;
+    int loop;
+    int listsize;
+} Linseg;
+
+static void
+Linseg_convert_pointslist(Linseg *self) {
+    int i, num;
+    PyObject *tup;
+
+    self->listsize = PyList_Size(self->pointslist);
+    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
+    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    for (i=0; i<self->listsize; i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
+        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+    }
+}
+
+static void 
+Linseg_reinit(Linseg *self) {
+    if (self->newlist == 1) {
+        Linseg_convert_pointslist((Linseg *)self);
+        self->newlist = 0;
+    }    
+    self->currentTime = 0.0;
+    self->currentValue = self->targets[0];
+    self->which = 0;
+    self->flag = 1;
+}
+
+static void
+Linseg_generate(Linseg *self) {
+    float val;
+    int i, j;
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->flag == 1) {
+            if (self->currentTime >= self->times[self->which]) {
+                self->which++;
+                if (self->which == self->listsize) {
+                    if (self->loop == 1)
+                        Linseg_reinit((Linseg *)self);
+                    else {
+                        self->flag = 0;
+                        self->currentValue = self->targets[self->which-1];
+                    }    
+                }    
+                else
+                    self->increment = (self->targets[self->which] - self->targets[self->which-1]) / ((self->times[self->which] - self->times[self->which-1]) / self->sampleToSec);
+            }
+            if (self->currentTime <= self->times[self->listsize-1])
+                self->currentValue += self->increment;            
+            self->data[i] = self->currentValue;
+            self->currentTime += self->sampleToSec;    
+        }
+        else
+            self->data[i] = self->currentValue;
+    }
+}
+
+static void Linseg_postprocessing_ii(Linseg *self) { POST_PROCESSING_II };
+static void Linseg_postprocessing_ai(Linseg *self) { POST_PROCESSING_AI };
+static void Linseg_postprocessing_ia(Linseg *self) { POST_PROCESSING_IA };
+static void Linseg_postprocessing_aa(Linseg *self) { POST_PROCESSING_AA };
+static void Linseg_postprocessing_ireva(Linseg *self) { POST_PROCESSING_IREVA };
+static void Linseg_postprocessing_areva(Linseg *self) { POST_PROCESSING_AREVA };
+static void Linseg_postprocessing_revai(Linseg *self) { POST_PROCESSING_REVAI };
+static void Linseg_postprocessing_revaa(Linseg *self) { POST_PROCESSING_REVAA };
+static void Linseg_postprocessing_revareva(Linseg *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Linseg_setProcMode(Linseg *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Linseg_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Linseg_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Linseg_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Linseg_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Linseg_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Linseg_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Linseg_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Linseg_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Linseg_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Linseg_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Linseg_compute_next_data_frame(Linseg *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Linseg_traverse(Linseg *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pointslist);
+    return 0;
+}
+
+static int 
+Linseg_clear(Linseg *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pointslist);
+    return 0;
+}
+
+static void
+Linseg_dealloc(Linseg* self)
+{
+    free(self->data);
+    free(self->targets);
+    free(self->times);
+    Linseg_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Linseg_deleteStream(Linseg *self) { DELETE_STREAM };
+
+static PyObject *
+Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Linseg *self;
+    self = (Linseg *)type->tp_alloc(type, 0);
+    
+    self->loop = 0;
+    self->newlist = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Linseg_compute_next_data_frame);
+    self->mode_func_ptr = Linseg_setProcMode;
+    
+    Stream_setStreamActive(self->stream, 0);
+    
+    self->sampleToSec = 1. / self->sr;
+    
+    return (PyObject *)self;
+}
+
+static int
+Linseg_init(Linseg *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
+    int i;
+    
+    static char *kwlist[] = {"list", "loop", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &pointslist, &self->loop, &multmp, &addtmp))
+        return -1; 
+
+    Py_INCREF(pointslist);
+    Py_XDECREF(self->pointslist);
+    self->pointslist = pointslist;
+    Linseg_convert_pointslist((Linseg *)self);
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }
+    Stream_setData(self->stream, self->data);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Linseg_getServer(Linseg* self) { GET_SERVER };
+static PyObject * Linseg_getStream(Linseg* self) { GET_STREAM };
+static PyObject * Linseg_setMul(Linseg *self, PyObject *arg) { SET_MUL };	
+static PyObject * Linseg_setAdd(Linseg *self, PyObject *arg) { SET_ADD };	
+static PyObject * Linseg_setSub(Linseg *self, PyObject *arg) { SET_SUB };	
+static PyObject * Linseg_setDiv(Linseg *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Linseg_play(Linseg *self) 
+{
+    Linseg_reinit((Linseg *)self);
+    PLAY
+};
+
+static PyObject * Linseg_stop(Linseg *self) { STOP };
+
+static PyObject * Linseg_multiply(Linseg *self, PyObject *arg) { MULTIPLY };
+static PyObject * Linseg_inplace_multiply(Linseg *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Linseg_add(Linseg *self, PyObject *arg) { ADD };
+static PyObject * Linseg_inplace_add(Linseg *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Linseg_sub(Linseg *self, PyObject *arg) { SUB };
+static PyObject * Linseg_inplace_sub(Linseg *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Linseg_div(Linseg *self, PyObject *arg) { DIV };
+static PyObject * Linseg_inplace_div(Linseg *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Linseg_setList(Linseg *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value; 
+    
+    self->newlist = 1;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Linseg_setLoop(Linseg *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->loop = PyInt_AsLong(arg);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef Linseg_members[] = {
+{"server", T_OBJECT_EX, offsetof(Linseg, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Linseg, stream), 0, "Stream object."},
+{"pointslist", T_OBJECT_EX, offsetof(Linseg, pointslist), 0, "List of target points."},
+{"mul", T_OBJECT_EX, offsetof(Linseg, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Linseg, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Linseg_methods[] = {
+{"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Linseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Linseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Linseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
+{"setLoop", (PyCFunction)Linseg_setLoop, METH_O, "Sets looping mode."},
+{"setMul", (PyCFunction)Linseg_setMul, METH_O, "Sets Linseg mul factor."},
+{"setAdd", (PyCFunction)Linseg_setAdd, METH_O, "Sets Linseg add factor."},
+{"setSub", (PyCFunction)Linseg_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Linseg_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Linseg_as_number = {
+(binaryfunc)Linseg_add,                      /*nb_add*/
+(binaryfunc)Linseg_sub,                 /*nb_subtract*/
+(binaryfunc)Linseg_multiply,                 /*nb_multiply*/
+(binaryfunc)Linseg_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Linseg_inplace_add,              /*inplace_add*/
+(binaryfunc)Linseg_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Linseg_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Linseg_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject LinsegType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Linseg_base",         /*tp_name*/
+sizeof(Linseg),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Linseg_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Linseg_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Linseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+(traverseproc)Linseg_traverse,   /* tp_traverse */
+(inquiry)Linseg_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Linseg_methods,             /* tp_methods */
+Linseg_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Linseg_init,      /* tp_init */
+0,                         /* tp_alloc */
+Linseg_new,                 /* tp_new */
+};
