@@ -94,14 +94,10 @@ class Osc(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMapPhase(self._phase),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMapPhase(self._phase),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def table(self):
@@ -269,13 +265,8 @@ class TableRead(PyoObject):
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def table(self):
@@ -438,15 +429,11 @@ class Pulsar(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMap(0., 1., 'lin', 'frac', self._frac),
-                        SLMapPhase(self._phase),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0., 1., 'lin', 'frac', self._frac),
+                          SLMapPhase(self._phase),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def table(self):
@@ -555,12 +542,8 @@ class Pointer(PyoObject):
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def table(self):
@@ -652,12 +635,8 @@ class Lookup(PyoObject):
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def table(self):
@@ -818,7 +797,8 @@ class TableRec(PyoObject):
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on TableRec object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):
@@ -950,7 +930,8 @@ class TableMorph(PyoObject):
         [obj.setSources(self._base_sources) for i, obj in enumerate(self._base_objs)]
         
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on TableMorph object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
       
     @property
     def input(self):
@@ -1153,14 +1134,10 @@ class Granulator(PyoObject):
         [obj.setBaseDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
-                        SLMap(0.01, 1., 'lin', 'dur', self._dur),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
+                          SLMap(0.01, 1., 'lin', 'dur', self._dur),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def table(self):

@@ -106,15 +106,15 @@ def example(cls, dur=5):
     doc = cls.__doc__.split("Examples:")[1]
     lines = doc.splitlines()
     ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-    example = "import time\nfrom pyo import *\n"
+    ex = "import time\nfrom pyo import *\n"
     for line in ex_lines:
         if ">>>" in line: line = line.lstrip(">>> ")
         if "..." in line: line = "    " +  line.lstrip("... ")
-        example += line + "\n"
-    example += "time.sleep(%f)\ns.stop()\ns.shutdown()\n" % dur
+        ex += line + "\n"
+    ex += "time.sleep(%f)\ns.stop()\ns.shutdown()\n" % dur
     f = open("tmp_example.py", "w")
-    f.write('print """\n%s\n"""\n' % example)
-    f.write(example)
+    f.write('print """\n%s\n"""\n' % ex)
+    f.write(ex)
     f.close()    
     p = call(["python", "tmp_example.py"])
     os.remove("tmp_example.py")
@@ -125,7 +125,6 @@ def removeExtraDecimals(x):
     else:
         return "=" + str(x)    
 
-# another name ?
 def class_args(cls):
     """
     Returns the init line of a class reference.
@@ -717,9 +716,7 @@ class PyoObject(object):
         return self
         
     def __getitem__(self, i):
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
+        if type(i) == SliceType or i < len(self._base_objs):
             return self._base_objs[i]
         else:
             print "'i' too large!"         
@@ -920,8 +917,17 @@ class PyoObject(object):
             class is used.
 
         """
-        pass
-        
+        if map_list == None:
+            map_list = self._map_list
+        if map_list == []:
+            print("There is no controls for %s object." % self.__class__.__name__)
+            return
+    
+        win = Tk()    
+        f = PyoObjectControl(win, self, map_list)
+        if title == None: title = self.__class__.__name__
+        win.title(title)
+
     @property
     def mul(self):
         """float or PyoObject. Multiplication factor.""" 
@@ -1318,12 +1324,8 @@ class Sig(PyoObject):
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(0, 1, "lin", "value", 0)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(0, 1, "lin", "value", 0)]
+        PyoObject.ctrl(self, map_list, title)
     
     @property
     def value(self):
@@ -1411,7 +1413,8 @@ class SigTo(PyoObject):
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control for SigTo object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
     
     @property
     def value(self):

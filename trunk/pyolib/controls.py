@@ -115,7 +115,8 @@ class Fader(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on Fader object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def fadein(self):
@@ -301,7 +302,8 @@ class Adsr(PyoObject):
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on Fader object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def attack(self):
@@ -338,3 +340,103 @@ class Adsr(PyoObject):
     @dur.setter
     def dur(self, x): self.setDur(x)
 
+class Linseg(PyoObject):
+    """
+    Trace a series of line segments between specified break-points. 
+    
+    The play() method starts the envelope and is not called at the 
+    object creation time.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    list : list of tuples
+        Points used to construct the line segments. Each tuple is a
+        new point in the form (time, value). Times are given in seconds
+        and must be in increasing order.
+    loop : boolean, optional
+        Looping mode. Defaults to False.
+        
+    Methods:
+
+    setList(x) : Replace the `list` attribute.
+    setLoop(x) : Replace the `loop` attribute.
+
+    Attributes:
+    
+    list : list of tuples. Points used to construct the line segments.
+    loop : boolean. Looping mode.
+    
+    Notes:
+
+    The out() method is bypassed. Linseg's signal can not be sent to audio outs.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
+    >>> a = Sine(freq=l, mul=.5).out()
+    >>> # then call:
+    >>> l.play()
+    
+    """
+    def __init__(self, list, loop=False, mul=1, add=0):
+        self._list = list
+        self._loop = loop
+        self._mul = mul
+        self._add = add
+        loop, mul, add, lmax = convertArgsToLists(loop, mul, add)
+        self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['list', 'loop', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1):
+        pass
+
+    def setList(self, x):
+        """
+        Replace the `list` attribute.
+        
+        Parameters:
+
+        x : list of tuples
+            new `list` attribute.
+        
+        """
+        self._list = x
+        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+
+    def setLoop(self, x):
+        """
+        Replace the `loop` attribute.
+        
+        Parameters:
+
+        x : boolean
+            new `loop` attribute.
+        
+        """
+        self._loop = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def list(self):
+        """float. List of points (time, value).""" 
+        return self._list
+    @list.setter
+    def list(self, x): self.setList(x)
+
+    @property
+    def loop(self):
+        """boolean. Looping mode.""" 
+        return self._loop
+    @loop.setter
+    def loop(self, x): self.setLoop(x)

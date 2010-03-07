@@ -76,14 +76,8 @@ class Sine(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMapPhase(self._phase),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
         
     @property
     def freq(self):
@@ -175,14 +169,8 @@ class Phasor(PyoObject):
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapFreq(self._freq),
-                        SLMapPhase(self._phase),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
         
     @property
     def freq(self):
@@ -232,12 +220,8 @@ class Input(PyoObject):
         return ['mul', 'add']
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
 class Noise(PyoObject):
     """
@@ -263,12 +247,8 @@ class Noise(PyoObject):
         return ['mul', 'add']
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
 
 class FM(PyoObject):
     """
@@ -366,15 +346,11 @@ class FM(PyoObject):
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        if map_list == None:
-            map_list = [SLMap(10, 500, "lin", "carrier", self._carrier),
-                        SLMap(.01, 10, "lin", "ratio", self._ratio),
-                        SLMap(0, 20, "lin", "index", self._index),
-                        SLMapMul(self._mul)]
-        win = Tk()    
-        f = PyoObjectControl(win, self, map_list)
-        if title == None: title = self.__class__.__name__
-        win.title(title)
+        self._map_list = [SLMap(10, 500, "lin", "carrier", self._carrier),
+                          SLMap(.01, 10, "lin", "ratio", self._ratio),
+                          SLMap(0, 20, "lin", "index", self._index),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
         
     @property
     def carrier(self):

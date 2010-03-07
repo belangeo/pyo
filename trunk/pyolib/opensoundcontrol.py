@@ -77,7 +77,8 @@ class OscSend(PyoObject):
         pass    
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on OscSend object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
 
     @property
     def input(self):
@@ -154,5 +155,6 @@ class OscReceive(PyoObject):
         return self
 
     def ctrl(self, map_list=None, title=None):
-        print "There is no control on OscReceive object."
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
         
