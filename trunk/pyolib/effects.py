@@ -634,3 +634,158 @@ class Convolve(PyoObject):
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
+
+class WGVerb(PyoObject):
+    """
+    8 delay line stereo FDN reverb.
+    
+    8 delay line FDN reverb, with feedback matrix based upon physical 
+    modeling scattering junction of 8 lossless waveguides of equal 
+    characteristic impedance.
+    
+    Parent class : PyoObject
+
+    Parameters:
+    
+    input : PyoObject
+        Input signal to reverberated.
+    feedback : float or PyoObject, optional
+        Amount of output signal sent back into the delay lines.
+        0.6 gives a good small "live" room sound, 0.8 a small hall, 
+        and 0.9 a large hall. Defaults to 0.5.
+    cutoff : float or PyoObject, optional
+        cutoff frequency of simple first order lowpass filters in the 
+        feedback loop of delay lines, in Hz. Defaults to 5000.
+    mix : float, optional
+        Balance between wet and dry signal, between 0 and 1. 0 means no 
+        reverb. Defaults to 0.5.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+    setCutoff(x) : Replace the `cutoff` attribute.
+    setMix(x) : Replace the `mix` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to delayed.
+    feedback : float or PyoObject. Amount of output signal sent back 
+        into the delay line.
+    cutoff : float or PyoObject. Internal lowpass filter cutoff 
+        frequency in Hz.
+    mix : float or PyoObject. Balance between wet and dry signal.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
+    >>> d = WGVerb(a, feedback=.75, cutoff=5000, mix=.25, mul=.5).out()
+
+    """
+    def __init__(self, input, feedback=0.5, cutoff=5000, mix=0.5, mul=1, add=0):
+        self._input = input
+        self._feedback = feedback
+        self._cutoff = cutoff
+        self._mix = mix
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, feedback, cutoff, mix, mul, add, lmax = convertArgsToLists(self._in_fader, feedback, cutoff, mix, mul, add)
+        self._base_objs = [WGVerb_base(wrap(in_fader,i), wrap(feedback,i), wrap(cutoff,i), wrap(mix,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'feedback', 'cutoff', 'mix', 'mul', 'add']
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setCutoff(self, x):
+        """
+        Replace the `cutoff` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `cutoff` attribute.
+
+        """
+        self._cutoff = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMix(self, x):
+        """
+        Replace the `mix` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `mix` attribute.
+
+        """
+        self._cutoff = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMap(500., 15000., 'log', 'cutoff', self._cutoff),
+                          SLMap(0., 1., 'lin', 'mix', self._mix),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to delayed.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
+
+    @property
+    def cutoff(self):
+        """float or PyoObject. Lowpass filter cutoff in Hz.""" 
+        return self._cutoff
+    @cutoff.setter
+    def cutoff(self, x): self.setCutoff(x)
+
+    @property
+    def mix(self):
+        """float or PyoObject. wet - dry balance.""" 
+        return self._mix
+    @mix.setter
+    def mix(self, x): self.setMix(x)

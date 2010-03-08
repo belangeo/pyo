@@ -585,6 +585,11 @@ init_pyo(void)
     Py_INCREF(&FreeverbType);
     PyModule_AddObject(m, "Freeverb_base", (PyObject *)&FreeverbType);
 
+    if (PyType_Ready(&WGVerbType) < 0)
+        return;
+    Py_INCREF(&WGVerbType);
+    PyModule_AddObject(m, "WGVerb_base", (PyObject *)&WGVerbType);
+    
     if (PyType_Ready(&ConvolveType) < 0)
         return;
     Py_INCREF(&ConvolveType);
