@@ -637,7 +637,7 @@ class Convolve(PyoObject):
 
 class WGVerb(PyoObject):
     """
-    8 delay line stereo FDN reverb.
+    8 delay line mono FDN reverb.
     
     8 delay line FDN reverb, with feedback matrix based upon physical 
     modeling scattering junction of 8 lossless waveguides of equal 
