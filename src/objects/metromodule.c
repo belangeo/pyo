@@ -544,3 +544,152 @@ Cloud_members,             /* tp_members */
 Cloud_new,                 /* tp_new */
 };
 
+/****************/
+/**** Trig *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    int flag;
+} Trig;
+
+static void
+Trig_compute_next_data_frame(Trig *self)
+{
+    if (self->flag == 1) {
+        self->data[0] = 1.0;
+        self->flag = 0;
+    }    
+    else
+        self->data[0] = 0.0;
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Trig_traverse(Trig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    return 0;
+}
+
+static int 
+Trig_clear(Trig *self)
+{
+    pyo_CLEAR
+    return 0;
+}
+
+static void
+Trig_dealloc(Trig* self)
+{
+    free(self->data);
+    Trig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Trig_deleteStream(Trig *self) { DELETE_STREAM };
+
+static PyObject *
+Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Trig *self;
+    self = (Trig *)type->tp_alloc(type, 0);
+    
+    self->flag = 1;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Trig_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+Trig_init(Trig *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *timetmp=NULL;
+    
+    static char *kwlist[] = {NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
+        return -1; 
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }    
+    
+    Trig_compute_next_data_frame((Trig *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Trig_getServer(Trig* self) { GET_SERVER };
+static PyObject * Trig_getStream(Trig* self) { GET_STREAM };
+
+static PyObject * Trig_play(Trig *self) 
+{ 
+    self->flag = 1;
+    PLAY 
+};
+
+static PyObject * Trig_stop(Trig *self) { STOP };
+
+static PyMemberDef Trig_members[] = {
+{"server", T_OBJECT_EX, offsetof(Trig, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Trig, stream), 0, "Stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Trig_methods[] = {
+{"getServer", (PyCFunction)Trig_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Trig_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Trig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Trig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Trig_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TrigType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Trig_base",         /*tp_name*/
+sizeof(Trig),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Trig_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Trig objects. Sneds one trig.",           /* tp_doc */
+(traverseproc)Trig_traverse,   /* tp_traverse */
+(inquiry)Trig_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Trig_methods,             /* tp_methods */
+Trig_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Trig_init,      /* tp_init */
+0,                         /* tp_alloc */
+Trig_new,                 /* tp_new */
+};

@@ -295,6 +295,11 @@ init_pyo(void)
     Py_INCREF(&InputType);
     PyModule_AddObject(m, "Input_base", (PyObject *)&InputType);
 
+    if (PyType_Ready(&TrigType) < 0)
+        return;
+    Py_INCREF(&TrigType);
+    PyModule_AddObject(m, "Trig_base", (PyObject *)&TrigType);
+
     if (PyType_Ready(&MetroType) < 0)
         return;
     Py_INCREF(&MetroType);

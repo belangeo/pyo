@@ -18,11 +18,11 @@ extern PyTypeObject SfPlayTrigType;
 extern PyTypeObject SfMarkerShufflerType;
 extern PyTypeObject SfMarkerShuffleType;
 
+extern PyTypeObject TrigType;
 extern PyTypeObject MetroType;
 extern PyTypeObject CloudType;
 extern PyTypeObject CounterType;
 extern PyTypeObject SelectType;
-
 extern PyTypeObject ThreshType;
 
 extern PyTypeObject FaderType;

@@ -1,6 +1,63 @@
 from _core import *
 from types import SliceType
 
+class Trig(PyoObject):
+    """
+    Sends one trigger.
+    
+    A trigger is an audio signal with a value of 1 surrounded by 0s.
+
+    Trig sends a trigger each time it's play() method is called.
+    
+    Parent class: PyoObject
+    
+    Parameters:
+   
+    Methods:
+
+    Attributes:
+    
+    Notes:
+
+    The out() method is bypassed. Trig's signal can not be sent to audio outs.
+    
+    Trig has no `mul` and `add` attributes.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Trig()
+    >>> env = HannTable()
+    >>> tenv = TrigEnv(a, table=env, mul=.5)
+    >>> n = Noise(tenv).out()
+    
+    """
+    def __init__(self):
+        self._base_objs = [Trig_base()]
+
+    def __dir__(self):
+        return []
+
+    def out(self, chnl=0, inc=1):
+        pass
+        
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+
+    def setSub(self, x):
+        pass
+
+    def setDiv(self, x):
+        pass
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
 class Metro(PyoObject):
     """
     Generate isochronous trigger signals.
