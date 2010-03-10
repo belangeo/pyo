@@ -64,6 +64,7 @@ extern PyTypeObject HarmTableType;
 extern PyTypeObject ChebyTableType;
 extern PyTypeObject HannTableType;
 extern PyTypeObject LinTableType;
+extern PyTypeObject CosTableType;
 extern PyTypeObject SndTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
