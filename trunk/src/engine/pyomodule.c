@@ -264,6 +264,11 @@ init_pyo(void)
         return;
     Py_INCREF(&LinTableType);
     PyModule_AddObject(m, "LinTable_base", (PyObject *)&LinTableType);
+
+    if (PyType_Ready(&CosTableType) < 0)
+        return;
+    Py_INCREF(&CosTableType);
+    PyModule_AddObject(m, "CosTable_base", (PyObject *)&CosTableType);
     
     if (PyType_Ready(&SndTableType) < 0)
         return;

@@ -526,6 +526,100 @@ class LinTable(PyoTableObject):
     @list.setter
     def list(self, x): self.replace(x)
 
+class CosTable(PyoTableObject):
+    """
+    Construct a table from cosine interpolated segments.
+
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    list : list, optional
+        List of tuples indicating location and value of each points 
+        in the table. The default, [(0,0.), (8191, 1.)], creates a 
+        cosine line from 0.0 at location 0 to 1.0 at the end of the 
+        table (size - 1). Location must be an integer.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+        
+    Methods:
+    
+    setSize(size) : Change the size of the table and rescale the envelope.
+    replace(list) : Draw a new envelope according to the `list` parameter.
+
+    Notes:
+    
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros. 
+    
+    Attributes:
+    
+    list : list
+        List of tuples [(location, value), ...].
+    size : int, optional
+        Table size in samples.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Sharp attack envelope
+    >>> t = CosTable([(0,0), (100,1), (1000,.25), (8191,0)])
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
+    """
+    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        self._size = size
+        self._base_objs = [CosTable_base(list, size)]
+
+    def __dir__(self):
+        return ['list', 'size']
+        
+    def setSize(self, size):
+        """
+        Change the size of the table and rescale the envelope.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+    
+    def replace(self, list):
+        """
+        Draw a new envelope according to the new `list` parameter.
+        
+        Parameters:
+        
+        list : list
+            List of tuples indicating location and value of each points 
+            in the table. Location must be integer.
+
+        """      
+        self._list = list
+        [obj.replace(list) for obj in self._base_objs]
+
+    def getPoints(self):
+        return self._base_objs[0].getPoints()
+        
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def list(self):
+        """list. List of tuples indicating location and value of each points in the table.""" 
+        return self.getPoints()
+    @list.setter
+    def list(self, x): self.replace(x)
+    
 class SndTable(PyoTableObject):
     """
     Load data from a soundfile into a function table.
