@@ -269,6 +269,11 @@ init_pyo(void)
         return;
     Py_INCREF(&CosTableType);
     PyModule_AddObject(m, "CosTable_base", (PyObject *)&CosTableType);
+
+    if (PyType_Ready(&CurveTableType) < 0)
+        return;
+    Py_INCREF(&CurveTableType);
+    PyModule_AddObject(m, "CurveTable_base", (PyObject *)&CurveTableType);
     
     if (PyType_Ready(&SndTableType) < 0)
         return;

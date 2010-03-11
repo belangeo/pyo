@@ -1086,7 +1086,7 @@ CosTable_generate(CosTable *self) {
     Py_ssize_t listsize;
     PyObject *tup, *tup2;
     int x1, y1;
-    float x2, y2, diff, mu, mu2;
+    float x2, y2, mu, mu2;
         
     y1 = 0;
     y2 = 0.0;
@@ -1102,7 +1102,6 @@ CosTable_generate(CosTable *self) {
         y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
         
         steps = y1 - x1;
-        diff = (y2 - x2) / steps;
         for(j=0; j<steps; j++) {
             mu = (float)j / steps;
             mu2 = (1.0-cosf(mu*PI))/2.0;
@@ -1353,6 +1352,388 @@ CosTable_members,             /* tp_members */
 (initproc)CosTable_init,      /* tp_init */
 0,                         /* tp_alloc */
 CosTable_new,                 /* tp_new */
+};
+
+/***********************/
+/* CurveTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    PyObject *pointslist;
+    float tension;
+    float bias;
+} CurveTable;
+
+static void
+CurveTable_generate(CurveTable *self) {
+    Py_ssize_t i, j, steps;
+    Py_ssize_t listsize;
+    PyObject *tup, *tup2;
+    int x1, x2;
+    float y0, y1, y2, y3; 
+    float m0, m1, mu, mu2, mu3;
+    float a0, a1, a2, a3;
+
+    for (i=0; i<self->size; i++) {
+        self->data[i] = 0.0;
+    }
+    
+    listsize = PyList_Size(self->pointslist);
+    int times[listsize+2];
+    float values[listsize+2];
+    
+    for (i=0; i<listsize; i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        times[i+1] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        values[i+1] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));        
+    }
+    
+    // sets imaginary points
+    times[0] = times[1] - times[2];
+    if (values[1] < values[2])
+        values[0] = values[1] - values[2];
+    else
+        values[0] = values[1] + values[2];
+
+    int endP = listsize+1;
+    times[endP] = times[endP-2] - times[endP-1];
+    if (values[endP-2] < values[endP-1])
+        values[0] = values[endP-1] + values[endP-2];
+    else
+        values[0] = values[endP-1] - values[endP-2];
+    
+    for(i=1; i<listsize; i++) {
+        x1 = times[i];
+        x2 = times[i+1];   
+        y0 = values[i-1]; y1 = values[i]; y2 = values[i+1]; y3 = values[i+2];
+        
+        steps = x2 - x1;
+        for(j=0; j<steps; j++) {
+            mu = (float)j / steps;
+            mu2 = mu * mu;
+            mu3 = mu2 * mu;
+            m0 = (y1-y0)*(1.0+self->bias)*(1.0-self->tension)/2.0;
+            m0 += (y2-y1)*(1.0-self->bias)*(1.0-self->tension)/2.0;
+            m1 = (y2-y1)*(1.0+self->bias)*(1.0-self->tension)/2.0;
+            m1 += (y3-y2)*(1.0-self->bias)*(1.0-self->tension)/2.0;
+            a0 = 2.0*mu3 - 3.0*mu2 + 1.0;
+            a1 = mu3 - 2.0*mu2 + mu;
+            a2 = mu3 - mu2;
+            a3 = -2.0*mu3 + 3.0*mu2;
+            
+            self->data[x1+j] = (a0*y1 + a1*m0 + a2*m1 + a3*y2);
+        }
+    }
+    
+    self->data[self->size] = self->data[self->size-1];
+
+    TableStream_setData(self->tablestream, self->data);
+}
+
+static int
+CurveTable_traverse(CurveTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->pointslist);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+CurveTable_clear(CurveTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->pointslist);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+CurveTable_dealloc(CurveTable* self)
+{
+    free(self->data);
+    CurveTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    CurveTable *self;
+    
+    self = (CurveTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->pointslist = PyList_New(0);
+    self->size = 8192;
+    self->tension = 0.0;
+    self->bias = 0.0;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+CurveTable_init(CurveTable *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pointslist=NULL;
+    
+    static char *kwlist[] = {"list", "tension", "bias", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Offi", kwlist, &pointslist, &self->tension, &self->bias, &self->size))
+        return -1; 
+    
+    if (pointslist) {
+        Py_INCREF(pointslist);
+        Py_DECREF(self->pointslist);
+        self->pointslist = pointslist;
+    }
+    else {
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+    }
+    
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
+    TableStream_setSize(self->tablestream, self->size);
+    CurveTable_generate(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * CurveTable_getServer(CurveTable* self) { GET_SERVER };
+static PyObject * CurveTable_getTableStream(CurveTable* self) { GET_TABLE_STREAM };
+static PyObject * CurveTable_setData(CurveTable *self, PyObject *arg) { SET_TABLE_DATA };
+
+static PyObject *
+CurveTable_setTension(CurveTable *self, PyObject *value)
+{    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the tension attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyNumber_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The tension attribute value must be a float.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->tension = PyFloat_AsDouble(PyNumber_Float(value)); 
+
+    CurveTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+CurveTable_setBias(CurveTable *self, PyObject *value)
+{    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the bias attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyNumber_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The bias attribute value must be a float.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->bias = PyFloat_AsDouble(PyNumber_Float(value)); 
+    
+    CurveTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+CurveTable_setSize(CurveTable *self, PyObject *value)
+{
+    Py_ssize_t i;
+    PyObject *tup, *x2;
+    int old_size, x1;
+    float factor;
+    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    old_size = self->size;
+    self->size = PyInt_AsLong(value); 
+    
+    factor = (float)(self->size) / old_size;
+    
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    Py_ssize_t listsize = PyList_Size(self->pointslist);
+    
+    PyObject *listtemp = PyList_New(0);
+    
+    for(i=0; i<(listsize); i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+    }
+    
+    Py_INCREF(listtemp);
+    Py_DECREF(self->pointslist);
+    self->pointslist = listtemp;
+    
+    CurveTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+CurveTable_getSize(CurveTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+CurveTable_getTable(CurveTable *self)
+{
+    int i;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->size; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
+static PyObject *
+CurveTable_getPoints(CurveTable *self)
+{
+    Py_INCREF(self->pointslist);
+    return self->pointslist;
+};
+
+static PyObject *
+CurveTable_replace(CurveTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value; 
+    
+    CurveTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+CurveTable_normalize(CurveTable * self) {
+
+    int i;
+    float mi, ma, max, ratio;
+    mi = ma = *self->data;
+    for (i=1; i<self->size; i++) {
+        if (mi > *(self->data+i)) 
+            mi = *(self->data+i);
+        if (ma < *(self->data+i)) 
+            ma = *(self->data+i);
+    }
+    if ((mi*mi) > (ma*ma))
+        max = fabsf(mi);
+    else
+        max = fabsf(ma);
+    
+    if (max > 0.0) {
+        ratio = 0.99 / max;
+        for (i=0; i<self->size+1; i++) {
+            self->data[i] *= ratio;
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef CurveTable_members[] = {
+{"server", T_OBJECT_EX, offsetof(CurveTable, server), 0, "Pyo server."},
+{"tablestream", T_OBJECT_EX, offsetof(CurveTable, tablestream), 0, "Table stream object."},
+{"pointslist", T_OBJECT_EX, offsetof(CurveTable, pointslist), 0, "Harmonics amplitude values."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef CurveTable_methods[] = {
+{"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
+{"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, "Return the list of points."},
+{"setTension", (PyCFunction)CurveTable_setTension, METH_O, "Sets the curvature tension."},
+{"setBias", (PyCFunction)CurveTable_setBias, METH_O, "Sets the curve bias."},
+{"replace", (PyCFunction)CurveTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{"normalize", (PyCFunction)CurveTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject CurveTableType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.CurveTable_base",         /*tp_name*/
+sizeof(CurveTable),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)CurveTable_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,                         /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+"CurveTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+(traverseproc)CurveTable_traverse,   /* tp_traverse */
+(inquiry)CurveTable_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+CurveTable_methods,             /* tp_methods */
+CurveTable_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)CurveTable_init,      /* tp_init */
+0,                         /* tp_alloc */
+CurveTable_new,                 /* tp_new */
 };
 
 /***********************/
