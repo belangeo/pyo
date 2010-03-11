@@ -619,7 +619,179 @@ class CosTable(PyoTableObject):
         return self.getPoints()
     @list.setter
     def list(self, x): self.replace(x)
+
+class CurveTable(PyoTableObject):
+    """
+    Construct a table from curve interpolated segments.
     
+    CurveTable uses Hermite interpolation (sort of cubic interpolation)
+    to calculate each points of the curve. This algorithm allow tension
+    and biasing controls. Tension can be used to tighten up the curvature 
+    at the known points. The bias is used to twist the curve about the 
+    known points.
+
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    list : list, optional
+        List of tuples indicating location and value of each points 
+        in the table. The default, [(0,0.), (8191, 1.)], creates a 
+        curved line from 0.0 at location 0 to 1.0 at the end of the 
+        table (size - 1). Location must be an integer.
+    tension : float, optional
+        Curvature at the known points. 1 is high, 0 normal, -1 is low.
+        Defaults to 0.
+    bias : float, optional
+        Curve attraction (for each segments) toward bundary points.
+        0 is even, positive is towards first point, negative is towards 
+        the second point. Defaults to 0.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+        
+    Methods:
+    
+    setSize(size) : Change the size of the table and rescale the envelope.
+    setTension(x) : Replace the `tension` attribute.
+    setTension(x) : Replace the `bias` attribute.
+    replace(list) : Draw a new envelope according to the `list` parameter.
+    normalize() : Normalize table samples between -1 and 1.
+    
+    Notes:
+    
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros.
+    
+    High tension or bias values can create unstable or very loud table,
+    use normalize method to keep the curve between -1 and 1.
+    
+    Attributes:
+    
+    list : list
+        List of tuples [(location, value), ...].
+    tension : float
+        Curvature tension.    
+    bias : float
+        Curve attraction.
+    size : int, optional
+        Table size in samples.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = CurveTable([(0,0),(2048,.5),(4096,.2),(6144,.5),(8192,0)], 0, 20)
+    >>> t.normalize()
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
+    """
+    def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
+        self._size = size
+        self._tension = tension
+        self._bias = bias
+        self._base_objs = [CurveTable_base(list, tension, bias, size)]
+
+    def __dir__(self):
+        return ['list', 'tension', 'bias', 'size']
+        
+    def setSize(self, size):
+        """
+        Change the size of the table and rescale the envelope.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+
+    def setTension(self, x):
+        """
+        Replace the `tension` attribute.
+        
+        1 is high, 0 normal, -1 is low.
+        
+        Parameters:
+        
+        x : float
+            New `tension` attribute.
+        
+        """
+        self._tension = x
+        [obj.setTension(x) for obj in self._base_objs]
+
+    def setBias(self, x):
+        """
+        Replace the `bias` attribute.
+        
+        0 is even, positive is towards first point, negative is towards 
+        the second point.
+        
+        Parameters:
+        
+        x : float
+            New `bias` attribute.
+        
+        """
+        self._bias = x
+        [obj.setBias(x) for obj in self._base_objs]
+     
+    def replace(self, list):
+        """
+        Draw a new envelope according to the new `list` parameter.
+        
+        Parameters:
+        
+        list : list
+            List of tuples indicating location and value of each points 
+            in the table. Location must be integer.
+
+        """      
+        self._list = list
+        [obj.replace(list) for obj in self._base_objs]
+
+    def normalize(self):
+        """
+        Normalize table samples between -1 and 1.
+        
+        """
+        [obj.normalize() for obj in self._base_objs]
+        return self
+        
+    def getPoints(self):
+        return self._base_objs[0].getPoints()
+        
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def tension(self):
+        """float. Curvature tension.""" 
+        return self._tension
+    @tension.setter
+    def tension(self, x): self.setTension(x)
+
+    @property
+    def bias(self):
+        """float. Curve Attraction.""" 
+        return self._bias
+    @bias.setter
+    def bias(self, x): self.setBias(x)
+
+    @property
+    def list(self):
+        """list. List of tuples indicating location and value of each points in the table.""" 
+        return self.getPoints()
+    @list.setter
+    def list(self, x): self.replace(x)
+        
 class SndTable(PyoTableObject):
     """
     Load data from a soundfile into a function table.
