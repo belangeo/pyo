@@ -655,7 +655,6 @@ class CurveTable(PyoTableObject):
     setTension(x) : Replace the `tension` attribute.
     setTension(x) : Replace the `bias` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
-    normalize() : Normalize table samples between -1 and 1.
     
     Notes:
     
@@ -752,14 +751,6 @@ class CurveTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-
-    def normalize(self):
-        """
-        Normalize table samples between -1 and 1.
-        
-        """
-        [obj.normalize() for obj in self._base_objs]
-        return self
         
     def getPoints(self):
         return self._base_objs[0].getPoints()

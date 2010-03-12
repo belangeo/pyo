@@ -17,7 +17,7 @@ include_dirs = ['include']
 libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 
 extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
-             extra_compile_args=["-Wno-strict-prototypes"], extra_link_args=["-mmacosx-version-min=10.4"])]
+             extra_compile_args=["-Wno-strict-prototypes"])]
        
 setup(  name = "pyo",
         author = "Olivier Belanger",
