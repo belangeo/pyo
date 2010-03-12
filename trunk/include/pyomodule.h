@@ -25,6 +25,8 @@ extern PyTypeObject CounterType;
 extern PyTypeObject SelectType;
 extern PyTypeObject ThreshType;
 
+extern PyTypeObject ScoreType;
+
 extern PyTypeObject FaderType;
 extern PyTypeObject AdsrType;
 extern PyTypeObject LinsegType;

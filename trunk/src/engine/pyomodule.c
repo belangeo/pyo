@@ -595,6 +595,11 @@ init_pyo(void)
     Py_INCREF(&SelectType);
     PyModule_AddObject(m, "Select_base", (PyObject *)&SelectType);
 
+    if (PyType_Ready(&ScoreType) < 0)
+        return;
+    Py_INCREF(&ScoreType);
+    PyModule_AddObject(m, "Score_base", (PyObject *)&ScoreType);
+    
     if (PyType_Ready(&FreeverbType) < 0)
         return;
     Py_INCREF(&FreeverbType);

@@ -78,6 +78,9 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     memset(&buffer, 0, sizeof(buffer));
     
     PyGILState_STATE s = PyGILState_Ensure();
+    
+//#pragma omp parallel for \
+//    shared(my_server->streams, buffer) private(stream_tmp, data, i, j) ordered
     for (i=0; i<count; i++) {
 
         stream_tmp = (Stream *)PyList_GET_ITEM(my_server->streams, i);

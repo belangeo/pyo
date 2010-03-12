@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+Created by Olivier Bélanger on 2010-03-11.
+"""
+from pyo import *
+
+s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0).boot()
+
+a = SfPlayer('/Users/olipet/Documents/MaxMSP/@sons/sequenceur/17rap.1').stop()
+
+b = Linseg([(0,0),(.05,1),(.2,0)], mul=.5).stop()
+c = Sine(1000,0,b).out()
+
+d = Linseg([(0,0),(.05,1),(.2,0)], mul=.5).stop()
+e = Noise(d).out(1)
+
+def event_0():
+    a.speed = random.uniform(1.5,2.5)
+    a.out()
+    
+def event_1():
+    c.freq = random.uniform(700,1000)
+    b.play()
+    
+def event_2():
+    d.play()
+    
+tr = RandInt(3, 5)
+sc = Score(tr)
+
+s.gui(locals())

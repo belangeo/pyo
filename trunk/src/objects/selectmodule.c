@@ -197,4 +197,3 @@ Select_members,             /* tp_members */
 0,                         /* tp_alloc */
 Select_new,                 /* tp_new */
 };
-
