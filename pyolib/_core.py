@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from types import ListType, SliceType, FloatType
+from types import ListType, SliceType, FloatType, StringType
 import random, threading, time, os, inspect
 from subprocess import call
 from math import pow, log10
@@ -122,6 +122,8 @@ def example(cls, dur=5):
 def removeExtraDecimals(x):
     if type(x) == FloatType:
         return "=%.2f" % x
+    elif type(x) == StringType:
+        return '="%s"' % x    
     else:
         return "=" + str(x)    
 

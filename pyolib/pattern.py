@@ -88,3 +88,98 @@ class Pattern(PyoObject):
     @time.setter
     def time(self, x): self.setTime(x)
 
+class Score(PyoObject):
+    """
+    Calls functions by incrementation of a preformatted name.
+    
+    Score takes audio stream containning integers in input and calls
+    a function whose name is the concatenation of `fname` and the changing 
+    integer.
+    
+    Can be used to sequence events, first by creating functions p0, p1, 
+    p2, etc. and then, by passing a counter to a Score object with "p" 
+    as `fname` argument. Functions are called without parameters.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal. Must contains integer numbers. Integer must change
+        before calling its function again.
+    fname : string, optional
+        Name of the functions to be called. Defaults to "event_", meaning
+        that the object will call the function "event_0", "event_1", "event_2" 
+        and so on... Available at initialization time only.
+    
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Audio signal.
+
+    Notes:
+
+    The out() method is bypassed. Score's signal can not be sent 
+    to audio outs.
+
+    Score has no `mul` and `add` attributes.
+
+    See also: Pattern, TrigFunc
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro(1).play()
+    >>> c = Counter(m, min=0, max=2)
+    >>> def event_0(): print "event 0"
+    >>> def event_1(): print "event 1"
+    >>> def event_2(): print "event 2"
+    >>> sc = Score(c)
+    
+    """
+    def __init__(self, input, fname="event_"):
+        self._input = input
+        self._fname = fname
+        self._in_fader = InputFader(input)
+        in_fader, fname, lmax = convertArgsToLists(self._in_fader, fname)
+        self._base_objs = [Score_base(wrap(in_fader,i), wrap(fname,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input']
+
+    def out(self, chnl=0, inc=1):
+        return self
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
