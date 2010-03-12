@@ -169,6 +169,31 @@ extern PyTypeObject PanType;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+/* Normalize */
+#define NORMALIZE \
+	int i; \
+	float mi, ma, max, ratio; \
+	mi = ma = *self->data; \
+	for (i=1; i<self->size; i++) { \
+		if (mi > *(self->data+i)) \
+			mi = *(self->data+i); \
+		if (ma < *(self->data+i)) \
+			ma = *(self->data+i); \
+	} \
+	if ((mi*mi) > (ma*ma)) \
+		max = fabsf(mi); \
+	else \
+		max = fabsf(ma); \
+ \
+	if (max > 0.0) { \
+		ratio = 0.99 / max; \
+		for (i=0; i<self->size+1; i++) { \
+			self->data[i] *= ratio; \
+		} \
+	} \
+	Py_INCREF(Py_None); \
+	return Py_None; \
+
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
     self->server = PyServer_get_server(); \

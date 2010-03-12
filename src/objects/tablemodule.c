@@ -130,7 +130,6 @@ HarmTable_generate(HarmTable *self) {
 
     val = self->data[0];
     self->data[self->size] = val;  
-    TableStream_setData(self->tablestream, self->data);
 }
 
 static int
@@ -195,6 +194,7 @@ HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
 
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
     HarmTable_generate(self);
         
     Py_INCREF(self);
@@ -204,6 +204,7 @@ HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
 static PyObject * HarmTable_getServer(HarmTable* self) { GET_SERVER };
 static PyObject * HarmTable_getTableStream(HarmTable* self) { GET_TABLE_STREAM };
 static PyObject * HarmTable_setData(HarmTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * HarmTable_normalize(HarmTable *self) { NORMALIZE };
 
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
@@ -283,6 +284,7 @@ static PyMethodDef HarmTable_methods[] = {
 {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -407,7 +409,6 @@ ChebyTable_generate(ChebyTable *self) {
     
     val = self->data[self->size-1];
     self->data[self->size] = val;  
-    TableStream_setData(self->tablestream, self->data);
 }
 
 static int
@@ -472,6 +473,7 @@ ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
     ChebyTable_generate(self);
     
     Py_INCREF(self);
@@ -481,6 +483,7 @@ ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
 static PyObject * ChebyTable_getServer(ChebyTable* self) { GET_SERVER };
 static PyObject * ChebyTable_getTableStream(ChebyTable* self) { GET_TABLE_STREAM };
 static PyObject * ChebyTable_setData(ChebyTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * ChebyTable_normalize(ChebyTable *self) { NORMALIZE };
 
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
@@ -560,6 +563,7 @@ static PyMethodDef ChebyTable_methods[] = {
 {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
@@ -628,7 +632,6 @@ HannTable_generate(HannTable *self) {
     }
     val = self->data[0];
     self->data[self->size] = val;  
-    TableStream_setData(self->tablestream, self->data);
 }
 
 static int
@@ -681,6 +684,7 @@ HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
+	TableStream_setData(self->tablestream, self->data);
     HannTable_generate(self);
     
     Py_INCREF(self);
@@ -690,6 +694,7 @@ HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
 static PyObject * HannTable_getServer(HannTable* self) { GET_SERVER };
 static PyObject * HannTable_getTableStream(HannTable* self) { GET_TABLE_STREAM };
 static PyObject * HannTable_setData(HannTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * HannTable_normalize(HannTable *self) { NORMALIZE };
 
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
@@ -745,6 +750,7 @@ static PyMethodDef HannTable_methods[] = {
 {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {NULL}  /* Sentinel */
@@ -837,7 +843,6 @@ LinTable_generate(LinTable *self) {
         self->data[self->size-1] = y2;
         self->data[self->size] = y2;
     }    
-    TableStream_setData(self->tablestream, self->data);
 }
 
 static int
@@ -905,6 +910,7 @@ LinTable_init(LinTable *self, PyObject *args, PyObject *kwds)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
     
     Py_INCREF(self);
@@ -914,6 +920,7 @@ LinTable_init(LinTable *self, PyObject *args, PyObject *kwds)
 static PyObject * LinTable_getServer(LinTable* self) { GET_SERVER };
 static PyObject * LinTable_getTableStream(LinTable* self) { GET_TABLE_STREAM };
 static PyObject * LinTable_setData(LinTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * LinTable_normalize(LinTable *self) { NORMALIZE };
 
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
@@ -1023,6 +1030,7 @@ static PyMethodDef LinTable_methods[] = {
 {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, "Return the list of points."},
@@ -1119,7 +1127,6 @@ CosTable_generate(CosTable *self) {
         self->data[self->size-1] = y2;
         self->data[self->size] = y2;
     }    
-    TableStream_setData(self->tablestream, self->data);
 }
 
 static int
@@ -1187,6 +1194,7 @@ CosTable_init(CosTable *self, PyObject *args, PyObject *kwds)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
     
     Py_INCREF(self);
@@ -1196,6 +1204,7 @@ CosTable_init(CosTable *self, PyObject *args, PyObject *kwds)
 static PyObject * CosTable_getServer(CosTable* self) { GET_SERVER };
 static PyObject * CosTable_getTableStream(CosTable* self) { GET_TABLE_STREAM };
 static PyObject * CosTable_setData(CosTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * CosTable_normalize(CosTable *self) { NORMALIZE };
 
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
@@ -1305,6 +1314,7 @@ static PyMethodDef CosTable_methods[] = {
 {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, "Return the list of points."},
@@ -1426,8 +1436,6 @@ CurveTable_generate(CurveTable *self) {
     }
     
     self->data[self->size] = self->data[self->size-1];
-
-    TableStream_setData(self->tablestream, self->data);
 }
 
 static int
@@ -1497,6 +1505,7 @@ CurveTable_init(CurveTable *self, PyObject *args, PyObject *kwds)
     
     self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
     TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
     
     Py_INCREF(self);
@@ -1506,6 +1515,7 @@ CurveTable_init(CurveTable *self, PyObject *args, PyObject *kwds)
 static PyObject * CurveTable_getServer(CurveTable* self) { GET_SERVER };
 static PyObject * CurveTable_getTableStream(CurveTable* self) { GET_TABLE_STREAM };
 static PyObject * CurveTable_setData(CurveTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * CurveTable_normalize(CurveTable * self) { NORMALIZE };
 
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
@@ -1642,33 +1652,6 @@ CurveTable_replace(CurveTable *self, PyObject *value)
     
     CurveTable_generate(self);
     
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *
-CurveTable_normalize(CurveTable * self) {
-
-    int i;
-    float mi, ma, max, ratio;
-    mi = ma = *self->data;
-    for (i=1; i<self->size; i++) {
-        if (mi > *(self->data+i)) 
-            mi = *(self->data+i);
-        if (ma < *(self->data+i)) 
-            ma = *(self->data+i);
-    }
-    if ((mi*mi) > (ma*ma))
-        max = fabsf(mi);
-    else
-        max = fabsf(ma);
-    
-    if (max > 0.0) {
-        ratio = 0.99 / max;
-        for (i=0; i<self->size+1; i++) {
-            self->data[i] *= ratio;
-        }
-    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1845,6 +1828,7 @@ SndTable_init(SndTable *self, PyObject *args, PyObject *kwds)
 static PyObject * SndTable_getServer(SndTable* self) { GET_SERVER };
 static PyObject * SndTable_getTableStream(SndTable* self) { GET_TABLE_STREAM };
 static PyObject * SndTable_setData(SndTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * SndTable_normalize(SndTable *self) { NORMALIZE };
 
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
@@ -1899,6 +1883,7 @@ static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS, "Load a new sound in the table."},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
@@ -2037,6 +2022,7 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
 static PyObject * NewTable_getServer(NewTable* self) { GET_SERVER };
 static PyObject * NewTable_getTableStream(NewTable* self) { GET_TABLE_STREAM };
 static PyObject * NewTable_setData(NewTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * NewTable_normalize(NewTable *self) { NORMALIZE };
 
 static PyObject *
 NewTable_getSize(NewTable *self)
@@ -2081,6 +2067,7 @@ static PyMethodDef NewTable_methods[] = {
 {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
 {"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},

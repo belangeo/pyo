@@ -988,6 +988,7 @@ class PyoTableObject(object):
     dump() : Print current status of the object's attributes.
     write(path) : Writes the content of the table into a text file.
     read(path) : Sets the content of the table from a text file.
+    normalize() : Normalize table samples between -1 and 1.
     
     Notes:
     
@@ -1074,6 +1075,14 @@ class PyoTableObject(object):
         
         """
         return self._size
+
+    def normalize(self):
+        """
+        Normalize table samples between -1 and 1.
+
+        """
+        [obj.normalize() for obj in self._base_objs]
+        return self
 
     def view(self):
         """
