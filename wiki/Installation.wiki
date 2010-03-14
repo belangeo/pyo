@@ -11,7 +11,7 @@ To install pyo, you will need the following dependencies:
 
 The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [http://csound.sourceforge.net/ csound], it will install those libraries for you.
 
-Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://altruistic.lbl.gov/mirrors/ubuntu/pool/universe/p/portmidi/?C=M;O=D]
+Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip]
 
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
 
