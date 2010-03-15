@@ -2987,6 +2987,7 @@ static PyMethodDef Pulsar_methods[] = {
 {"out", (PyCFunction)Pulsar_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Pulsar_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)Pulsar_setTable, METH_O, "Sets oscillator table."},
+{"setEnv", (PyCFunction)Pulsar_setEnv, METH_O, "Sets envelope table."},
 {"setFreq", (PyCFunction)Pulsar_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 {"setPhase", (PyCFunction)Pulsar_setPhase, METH_O, "Sets oscillator phase."},
 {"setFrac", (PyCFunction)Pulsar_setFrac, METH_O, "Sets waveform width inside whole period length."},

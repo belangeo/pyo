@@ -54,7 +54,7 @@ typedef struct {
 
 static void
 WGVerb_process_ii(WGVerb *self) {
-    float val, x, x1, xind, frac, junction, inval, filt, b;
+    float val, x, x1, xind, frac, junction, inval, filt;
     int i, j, ind;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -112,7 +112,7 @@ WGVerb_process_ii(WGVerb *self) {
 
 static void
 WGVerb_process_ai(WGVerb *self) {
-    float val, x, x1, xind, frac, junction, inval, filt, b, feed;
+    float val, x, x1, xind, frac, junction, inval, filt, feed;
     int i, j, ind;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -170,7 +170,7 @@ WGVerb_process_ai(WGVerb *self) {
 
 static void
 WGVerb_process_ia(WGVerb *self) {
-    float val, x, x1, xind, frac, junction, inval, filt, b, freq;
+    float val, x, x1, xind, frac, junction, inval, filt, freq;
     int i, j, ind;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -228,7 +228,7 @@ WGVerb_process_ia(WGVerb *self) {
 
 static void
 WGVerb_process_aa(WGVerb *self) {
-    float val, x, x1, xind, frac, junction, inval, filt, b, feed, freq;
+    float val, x, x1, xind, frac, junction, inval, filt, feed, freq;
     int i, j, ind;
     
     float *in = Stream_getData((Stream *)self->input_stream);

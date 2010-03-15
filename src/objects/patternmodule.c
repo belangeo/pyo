@@ -282,15 +282,14 @@ typedef struct {
 
 static void
 Score_selector(Score *self) {
-    float val, selval;
-    int i, inval, state;
+    int i, inval, state, res;
     
     float *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = (int)in[i];
         if (inval != self->last_value) {
-            asprintf(&self->curfname, "%s%i()\n", self->fname, inval);
+            res = asprintf(&self->curfname, "%s%i()\n", self->fname, inval);
             state = PyRun_SimpleString(self->curfname);
             self->last_value = inval;
         }    
@@ -331,6 +330,7 @@ static void
 Score_dealloc(Score* self)
 {
     free(self->data);
+	free(self->curfname);
     Score_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }

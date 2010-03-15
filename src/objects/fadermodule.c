@@ -818,7 +818,7 @@ typedef struct {
 
 static void
 Linseg_convert_pointslist(Linseg *self) {
-    int i, num;
+    int i;
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
@@ -845,8 +845,7 @@ Linseg_reinit(Linseg *self) {
 
 static void
 Linseg_generate(Linseg *self) {
-    float val;
-    int i, j;
+    int i;
     
     for (i=0; i<self->bufsize; i++) {
         if (self->flag == 1) {

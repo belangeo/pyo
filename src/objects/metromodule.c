@@ -606,7 +606,6 @@ static int
 Trig_init(Trig *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *timetmp=NULL;
     
     static char *kwlist[] = {NULL};
     

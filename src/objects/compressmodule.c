@@ -366,7 +366,6 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Compress_init(Compress *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "mul", "add", NULL};

@@ -1429,7 +1429,6 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Choice_init(Choice *self, PyObject *args, PyObject *kwds)
 {
-    float mi, ma;
     PyObject *choicetmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"choice", "freq", "mul", "add", NULL};
@@ -1872,8 +1871,7 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
 {
-    float mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
     
