@@ -563,6 +563,7 @@ static PyMethodDef ChebyTable_methods[] = {
 {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -750,6 +751,7 @@ static PyMethodDef HannTable_methods[] = {
 {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -1030,6 +1032,7 @@ static PyMethodDef LinTable_methods[] = {
 {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -1314,6 +1317,7 @@ static PyMethodDef CosTable_methods[] = {
 {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
@@ -1378,7 +1382,7 @@ static void
 CurveTable_generate(CurveTable *self) {
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
-    PyObject *tup, *tup2;
+    PyObject *tup;
     int x1, x2;
     float y0, y1, y2, y3; 
     float m0, m1, mu, mu2, mu3;
@@ -1667,6 +1671,7 @@ static PyMethodDef CurveTable_methods[] = {
 {"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, "Return the list of points."},
@@ -1883,6 +1888,7 @@ static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS, "Load a new sound in the table."},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
@@ -2067,6 +2073,7 @@ static PyMethodDef NewTable_methods[] = {
 {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
@@ -2542,7 +2549,6 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     float *in = Stream_getData((Stream *)self->input_stream);
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     int len = PyList_Size(self->sources);
-    float flen;
 
     input = TableMorph_clip(in[0]);
 
@@ -2613,7 +2619,6 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TableMorph_init(TableMorph *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *sourcestmp;
     
     static char *kwlist[] = {"input", "table", "sources", NULL};
