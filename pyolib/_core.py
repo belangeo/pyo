@@ -276,7 +276,7 @@ class SLMap(Map):
     """
     def __init__(self, min, max, scale, name, init, res='float', ramp=0.025):
         Map.__init__(self, min, max, scale)
-        self._name, self._init, self._res, self._ramp = name, float(init), res, ramp
+        self._name, self._init, self._res, self._ramp = name, init, res, ramp
 
     @property
     def name(self): return self._name

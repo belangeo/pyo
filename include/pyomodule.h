@@ -2,6 +2,7 @@
 #include <math.h>
 
 extern PyTypeObject SineType;
+extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject PointerType;

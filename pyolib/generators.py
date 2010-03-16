@@ -93,6 +93,100 @@ class Sine(PyoObject):
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
+class SineLoop(PyoObject):
+    """
+    A simple sine wave oscillator with feedback.
+    
+    The oscillator output, multiplied by `feedback`, is added to the position
+    increment and can be used to control the brightness of the oscillator.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 1000.
+    feedback : float or PyoObject, optional
+        Amount of the output signal added to position increment, between 0 and 1. 
+        Controls the brightness. Defaults to 0.
+
+    Methods:
+
+    setFreq(x) : Replace the `freq` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+
+    Attributes:
+
+    freq : float or PyoObject, Frequency in cycles per second.
+    feedback : float or PyoObject, Brightness control.
+
+    See also: Sine, OscLoop
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfo = Sine(.1, 0, .1, .1)
+    >>> a = SineLoop(freq=400, feedback=lfo).out()
+
+    """
+    def __init__(self, freq=1000, feedback=0, mul=1, add=0):
+        self._freq = freq
+        self._feedback = feedback
+        self._mul = mul
+        self._add = add
+        freq, feedback, mul, add, lmax = convertArgsToLists(freq, feedback, mul, add)
+        self._base_objs = [SineLoop_base(wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['freq', 'feedback', 'mul', 'add']
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapFreq(self._freq), SLMap(0, 1, "lin", "feedback", self._feedback), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Brightness control.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
+
 class Phasor(PyoObject):
     """
     A simple phase incrementor. 
