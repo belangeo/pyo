@@ -395,6 +395,11 @@ init_pyo(void)
     Py_INCREF(&SineType);
     PyModule_AddObject(m, "Sine_base", (PyObject *)&SineType);
 
+    if (PyType_Ready(&SineLoopType) < 0)
+        return;
+    Py_INCREF(&SineLoopType);
+    PyModule_AddObject(m, "SineLoop_base", (PyObject *)&SineLoopType);
+    
     if (PyType_Ready(&FmType) < 0)
         return;
     Py_INCREF(&FmType);
