@@ -375,6 +375,11 @@ init_pyo(void)
     Py_INCREF(&OscType);
     PyModule_AddObject(m, "Osc_base", (PyObject *)&OscType);
 
+    if (PyType_Ready(&OscLoopType) < 0)
+        return;
+    Py_INCREF(&OscLoopType);
+    PyModule_AddObject(m, "OscLoop_base", (PyObject *)&OscLoopType);
+    
     if (PyType_Ready(&TableReadType) < 0)
         return;
     Py_INCREF(&TableReadType);

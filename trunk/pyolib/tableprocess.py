@@ -120,6 +120,131 @@ class Osc(PyoObject):
     @phase.setter
     def phase(self, x): self.setPhase(x)
 
+class OscLoop(PyoObject):
+    """
+    A simple oscillator with feedback reading a waveform table.
+
+    Osc reads a waveform table with linear interpolation and feedback control.
+    The oscillator output, multiplied by `feedback`, is added to the position
+    increment and can be used to control the brightness of the oscillator.
+    
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    table : PyoTableObject
+        Table containing the waveform samples.
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 1000.
+    feedback : float or PyoObject, optional
+        Amount of the output signal added to position increment, between 0 and 1. 
+        Controls the brightness. Defaults to 0.
+
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+
+    Attributes:
+
+    table : PyoTableObject. Table containing the waveform samples.
+    freq : float or PyoObject, Frequency in cycles per second.
+    feedback : float or PyoObject, Brightness control.
+
+    See also: Osc, SineLoop
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = HarmTable([1,0,.33,0,.2,0,.143])
+    >>> lfo = Sine(.1, 0, .05, .05)
+    >>> a = OscLoop(table=t, freq=100, feedback=lfo).out()   
+
+    """
+    def __init__(self, table, freq=1000, feedback=0, mul=1, add=0):
+        self._table = table
+        self._freq = freq
+        self._feedback = feedback
+        self._mul = mul
+        self._add = add
+        table, freq, feedback, mul, add, lmax = convertArgsToLists(table, freq, feedback, mul, add)
+        self._base_objs = [OscLoop_base(wrap(table,i), wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'freq', 'feedback', 'mul', 'add']
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMap(0, 1, "lin", "feedback", self._feedback),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def feedback(self): 
+        """float or PyoObject. Brightness control.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
+
 class TableRead(PyoObject):
     """
     Simple waveform table reader.
