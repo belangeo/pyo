@@ -629,4 +629,10 @@ init_pyo(void)
         return;
     Py_INCREF(&GranulatorType);
     PyModule_AddObject(m, "Granulator_base", (PyObject *)&GranulatorType);
+    
+    if (PyType_Ready(&PrintType) < 0)
+        return;
+    Py_INCREF(&PrintType);
+    PyModule_AddObject(m, "Print_base", (PyObject *)&PrintType);
+    
 }

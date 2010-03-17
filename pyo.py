@@ -19,6 +19,7 @@ from pyolib.sfplayer import *
 from pyolib.tableprocess import *
 from pyolib.tables import *
 from pyolib.triggers import *
+from pyolib.utils import *
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
                     'pm_count_devices', 'pm_list_devices', 'sndinfo', 'midiToHz', 'sampsToSec', 'secToSamps', 'example', 'class_args']),
@@ -38,7 +39,8 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 'TableRead', 
                                               'TableMorph']),
                       'triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 'TrigFunc', 
-                                          'Thresh', 'Cloud', 'Trig'])},
+                                          'Thresh', 'Cloud', 'Trig']),
+                      'utils': sorted(['Print'])},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'SquareTable',
                                   'ChebyTable', 'CosTable', 'CurveTable']),
