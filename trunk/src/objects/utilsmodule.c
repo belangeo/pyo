@@ -3,7 +3,6 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
-//#include "dummymodule.h"
 
 /************/
 /* Print */
@@ -25,7 +24,7 @@ Print_process_time(Print *self) {
     float *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime > = self->time) {
+        if (self->currentTime >= self->time) {
             self->currentTime = 0.0;
             printf("%f\n", in[i]);
         }
@@ -105,7 +104,7 @@ Print_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Print *)type->tp_alloc(type, 0);
 
     self->method = 0;
-    self->time = 1.0;
+    self->time = 0.25;
     self->lastValue = -99999.0;
     
     INIT_OBJECT_COMMON

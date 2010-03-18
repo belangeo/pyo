@@ -3,10 +3,7 @@ from types import SliceType
 
 class Print(PyoObject):
     """
-    Print PyoObject current value.
-    
-    Output signal is the number of zero-crossing occured during each 
-    buffer size, normalized between 0 and 1.
+    Print PyoObject's current value.
  
     Parent class: PyoObject
    
@@ -14,36 +11,43 @@ class Print(PyoObject):
     
     input : PyoObject
         Input signal to filter.
-    thresh : float, optional
-        Minimum amplitude difference allowed between adjacent samples 
-        to be included in the zeros count.
-         
+    method : int {0, 1}, optional
+        There is two methods to set when a value is printed (Defaults to 0):
+        0 : at a periodic interval.
+        1 : everytime the value changed.
+    interval : float, optional
+        Interval, in seconds, between each print. Used by method 0.
+        Defaults to 0.25.
 
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
-    setThresh(x) : Replace the `thresh` attribute.
+    setMethod(x) : Replace the `method` attribute.
+    setInterval(x) : Replace the `interval` attribute.
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
-    thresh : float. Amplitude difference threshold.
+    input : PyoObject. Input signal.
+    method : int. Controls when a value is printed.
+    interval : float. For method 0, interval, in seconds, between each print.
 
     Notes:
 
     The out() method is bypassed. Print's signal can not be sent to 
     audio outs.
     
+    Print has no `mul` and `add` attributes.
+    
     Examples:
     
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> a = Input()
-    >>> b = ZCross(a, thresh=.02)
-    >>> n = Noise(b).out()
+    >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5).out()
+    >>> b = Follower(a)
+    >>> p = Print(b, method=0, interval=.1)
 
     """
-    def __init__(self, input, method=0, interval=1):
+    def __init__(self, input, method=0, interval=0.25):
         self._input = input
         self._method = method
         self._interval = interval
@@ -75,7 +79,7 @@ class Print(PyoObject):
         
         Parameters:
 
-        x : int
+        x : int {0, 1}
             New `method` attribute.
 
         """
@@ -106,21 +110,21 @@ class Print(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def method(self):
-        """int. Amplitude difference threshold.""" 
+        """int. Controls when a value is printed.""" 
         return self._method
     @method.setter
     def method(self, x): self.setMethod(x)
 
     @property
     def interval(self):
-        """float. Amplitude difference threshold.""" 
+        """float. For method 0, interval, in seconds, between each print.""" 
         return self._interval
     @interval.setter
     def interval(self, x): self.setInterval(x)
