@@ -634,5 +634,9 @@ init_pyo(void)
         return;
     Py_INCREF(&PrintType);
     PyModule_AddObject(m, "Print_base", (PyObject *)&PrintType);
-    
+
+    if (PyType_Ready(&M_SinType) < 0)
+        return;
+    Py_INCREF(&M_SinType);
+    PyModule_AddObject(m, "M_Sin_base", (PyObject *)&M_SinType);    
 }
