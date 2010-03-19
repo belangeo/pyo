@@ -104,6 +104,8 @@ extern PyTypeObject PanType;
 
 extern PyTypeObject PrintType;
 
+extern PyTypeObject M_SinType;
+
 /* Constants */
 #define PI M_PI
 #define TWOPI (2 * M_PI)

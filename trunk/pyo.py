@@ -8,7 +8,7 @@ from pyolib.dynamics import *
 from pyolib.effects import *
 from pyolib.filters import *
 from pyolib.generators import *
-#from pyolib.maths import *
+from pyolib.arithmetic import *
 from pyolib.midi import *
 from pyolib.opensoundcontrol import *
 from pyolib.pan import *
@@ -40,7 +40,8 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                               'TableMorph']),
                       'triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 'TrigFunc', 
                                           'Thresh', 'Cloud', 'Trig']),
-                      'utils': sorted(['Print'])},
+                      'utils': sorted(['Print']),
+                      'arithmetic': sorted(['M_Sin'])},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'SquareTable',
                                   'ChebyTable', 'CosTable', 'CurveTable']),
