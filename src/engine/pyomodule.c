@@ -340,6 +340,11 @@ init_pyo(void)
     Py_INCREF(&ChoiceType);
     PyModule_AddObject(m, "Choice_base", (PyObject *)&ChoiceType);
 
+    if (PyType_Ready(&XnoiseType) < 0)
+        return;
+    Py_INCREF(&XnoiseType);
+    PyModule_AddObject(m, "Xnoise_base", (PyObject *)&XnoiseType);
+
     if (PyType_Ready(&RandIntType) < 0)
         return;
     Py_INCREF(&RandIntType);
