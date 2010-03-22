@@ -106,6 +106,7 @@ extern PyTypeObject PrintType;
 
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
+extern PyTypeObject M_TanType;
 
 /* Constants */
 #define PI M_PI

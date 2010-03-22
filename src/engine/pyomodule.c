@@ -644,5 +644,10 @@ init_pyo(void)
         return;
     Py_INCREF(&M_CosType);
     PyModule_AddObject(m, "M_Cos_base", (PyObject *)&M_CosType);    
+
+    if (PyType_Ready(&M_TanType) < 0)
+        return;
+    Py_INCREF(&M_TanType);
+    PyModule_AddObject(m, "M_Tan_base", (PyObject *)&M_TanType);
     
 }
