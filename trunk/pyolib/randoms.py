@@ -400,3 +400,132 @@ class RandInt(PyoObject):
     def freq(self): return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+
+class Xnoise(PyoObject):
+    """
+    Periodic pseudo-random generator.
+
+    Randi generates a pseudo-random number between `min` and `max` 
+    values at a frequency specified by `freq` parameter. Randi will 
+    hold generated value until next generation.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    min : float or PyoObject, optional
+        Minimum value for the random generation. Defaults to 0.
+    max : float or PyoObject, optional
+        Maximum value for the random generation. Defaults to 1.
+    freq : float or PyoObject, optional
+        Polling frequency. Defaults to 1.
+
+    Methods:
+
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+
+    Attributes:
+
+    min : float or PyoObject. Minimum value.
+    max : float or PyoObject. Maximum value.
+    freq : float or PyoObject. Polling frequency.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> rnd = Randh(400, 600, 4)
+    >>> a = Sine(rnd, mul=.5).out()
+
+    """
+    def __init__(self, type=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
+        self._type = 0
+        self._freq = freq
+        self._x1 = x1
+        self._x2 = x2
+        self._mul = mul
+        self._add = add
+        type, freq, x1, x2, mul, add, lmax = convertArgsToLists(type, freq, x1, x2, mul, add)
+        self._base_objs = [Xnoise_base(wrap(type,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['type', 'freq', 'x1', 'x2', 'mul', 'add']
+
+    def setType(self, x):
+        """
+        Replace the `type` attribute.
+
+        Parameters:
+
+        x : int
+            new `type` attribute.
+
+        """
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setX1(self, x):
+        """
+        Replace the `x1` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `x1` attribute.
+
+        """
+        self._x1 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setX2(self, x):
+        """
+        Replace the `x2` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `x2` attribute.
+
+        """
+        self._x2= x
+        x, lmax = convertArgsToLists(x)
+        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+
+        """
+        self._port = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def type(self): return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
+    @property
+    def freq(self): return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+    @property
+    def x1(self): return self._x1
+    @x1.setter
+    def x1(self, x): self.setX1(x)
+    @property
+    def x2(self): return self._x2
+    @x2.setter
+    def x2(self, x): self.setX2(x)
