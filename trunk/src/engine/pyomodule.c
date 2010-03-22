@@ -639,4 +639,10 @@ init_pyo(void)
         return;
     Py_INCREF(&M_SinType);
     PyModule_AddObject(m, "M_Sin_base", (PyObject *)&M_SinType);    
+
+    if (PyType_Ready(&M_CosType) < 0)
+        return;
+    Py_INCREF(&M_CosType);
+    PyModule_AddObject(m, "M_Cos_base", (PyObject *)&M_CosType);    
+    
 }
