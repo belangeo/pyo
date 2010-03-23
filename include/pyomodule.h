@@ -38,6 +38,7 @@ extern PyTypeObject RandhType;
 extern PyTypeObject ChoiceType;
 extern PyTypeObject RandIntType;
 extern PyTypeObject XnoiseType;
+extern PyTypeObject XnoiseMidiType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;
