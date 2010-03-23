@@ -2285,6 +2285,8 @@ static float
 Xnoise_walker(Xnoise *self) {
     int modulo, dir;
     
+    if (self->xx2 < 0.002) self->xx2 = 0.002;
+    
     modulo = (int)(self->xx2 * 1000.0);
     dir = rand() % 2;
     
@@ -2309,7 +2311,9 @@ Xnoise_loopseg(Xnoise *self) {
     if (self->loopChoice == 0) {
         
         self->loopCountPlay = self->loopTime = 0;
-        
+
+        if (self->xx2 < 0.002) self->xx2 = 0.002;
+
         modulo = (int)(self->xx2 * 1000.0);
         dir = rand() % 2;
     
@@ -2377,20 +2381,20 @@ Xnoise_generate_iii(Xnoise *self) {
 static void
 Xnoise_generate_aii(Xnoise *self) {
     int i;
-    float inc, range;
-    float *mi = Stream_getData((Stream *)self->x1_stream);
-    float ma = PyFloat_AS_DOUBLE(self->x2);
+    float inc;
+    float *x1 = Stream_getData((Stream *)self->x1_stream);
+    self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     float fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        range = ma - mi[i];
         self->time += inc;
         if (self->time < 0.0)
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
+            self->xx1 = x1[i];
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2399,20 +2403,20 @@ Xnoise_generate_aii(Xnoise *self) {
 static void
 Xnoise_generate_iai(Xnoise *self) {
     int i;
-    float inc, range;
-    float mi = PyFloat_AS_DOUBLE(self->x1);
-    float *ma = Stream_getData((Stream *)self->x2_stream);
+    float inc;
+    self->xx1 = PyFloat_AS_DOUBLE(self->x1);
+    float *x2 = Stream_getData((Stream *)self->x2_stream);
     float fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        range = ma[i] - mi;
         self->time += inc;
         if (self->time < 0.0)
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
+            self->xx2 = x2[i];
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2421,20 +2425,21 @@ Xnoise_generate_iai(Xnoise *self) {
 static void
 Xnoise_generate_aai(Xnoise *self) {
     int i;
-    float inc, range;
-    float *mi = Stream_getData((Stream *)self->x1_stream);
-    float *ma = Stream_getData((Stream *)self->x2_stream);
+    float inc;
+    float *x1 = Stream_getData((Stream *)self->x1_stream);
+    float *x2 = Stream_getData((Stream *)self->x2_stream);
     float fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        range = ma[i] - mi[i];
         self->time += inc;
         if (self->time < 0.0)
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
+            self->xx1 = x1[i];
+            self->xx2 = x2[i];
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2444,10 +2449,9 @@ static void
 Xnoise_generate_iia(Xnoise *self) {
     int i;
     float inc;
-    float mi = PyFloat_AS_DOUBLE(self->x1);
-    float ma = PyFloat_AS_DOUBLE(self->x2);
+    self->xx1 = PyFloat_AS_DOUBLE(self->x1);
+    self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     float *fr = Stream_getData((Stream *)self->freq_stream);
-    float range = ma - mi;
     
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
@@ -2456,7 +2460,7 @@ Xnoise_generate_iia(Xnoise *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2466,19 +2470,19 @@ static void
 Xnoise_generate_aia(Xnoise *self) {
     int i;
     float inc, range;
-    float *mi = Stream_getData((Stream *)self->x1_stream);
-    float ma = PyFloat_AS_DOUBLE(self->x2);
+    float *x1 = Stream_getData((Stream *)self->x1_stream);
+    self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     float *fr = Stream_getData((Stream *)self->freq_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
-        range = ma - mi[i];
         self->time += inc;
         if (self->time < 0.0)
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
+            self->xx1 = x1[i];
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2488,19 +2492,19 @@ static void
 Xnoise_generate_iaa(Xnoise *self) {
     int i;
     float inc, range;
-    float mi = PyFloat_AS_DOUBLE(self->x1);
-    float *ma = Stream_getData((Stream *)self->x2_stream);
+    self->xx1 = PyFloat_AS_DOUBLE(self->x1);
+    float *x2 = Stream_getData((Stream *)self->x2_stream);
     float *fr = Stream_getData((Stream *)self->freq_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
-        range = ma[i] - mi;
         self->time += inc;
         if (self->time < 0.0)
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
+            self->xx2 = x2[i];
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2510,19 +2514,20 @@ static void
 Xnoise_generate_aaa(Xnoise *self) {
     int i;
     float inc, range;
-    float *mi = Stream_getData((Stream *)self->x1_stream);
-    float *ma = Stream_getData((Stream *)self->x2_stream);
+    float *x1 = Stream_getData((Stream *)self->x1_stream);
+    float *x2 = Stream_getData((Stream *)self->x2_stream);
     float *fr = Stream_getData((Stream *)self->freq_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] / self->sr;
-        range = ma[i] - mi[i];
         self->time += inc;
         if (self->time < 0.0)
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
+            self->xx1 = x1[i];
+            self->xx2 = x2[i];
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }

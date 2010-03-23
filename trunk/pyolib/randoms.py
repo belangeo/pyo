@@ -1,4 +1,5 @@
 from _core import *
+from types import StringType
 
 class Randi(PyoObject):
     """
@@ -403,68 +404,125 @@ class RandInt(PyoObject):
 
 class Xnoise(PyoObject):
     """
-    Periodic pseudo-random generator.
+    X-class pseudo-random generator.
 
-    Randi generates a pseudo-random number between `min` and `max` 
-    values at a frequency specified by `freq` parameter. Randi will 
-    hold generated value until next generation.
-
+    Xnoise implements a few of the most common noise distributions.
+    Each distribution generates values in the range 0 and 1.
+    Available distributions are:
+        - uniform
+        - linear minimum
+        - linear maximum
+        - triangular
+        - exponential minimum
+        - exponential maximum
+        - double (bi)exponential
+        - cauchy
+        - weibull
+        - gaussian
+        - poisson
+        - walker (drunk)
+        - loopseg (drunk with looped segments)
+        
+    Depending on the distribution, `x1` and `x2` parameters are applied
+    as follow (names as string, or associated number can be used as `dist`
+    parameter):
+        0 - uniform
+            no parameter
+        1 - linear_min 
+            no parameter
+        2 - linear_max
+            no parameter
+        3 - triangle
+            no parameter
+        4 - expon_min
+            x1 : slope {0 = no slope -> 10 = sharp slope}
+        5 - expon_max    
+            x1 : slope {0 = no slope -> 10 = sharp slope}
+        6 - biexpon
+            x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+        7 - cauchy
+            x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+        8 - weibull
+            x1 : mean location {0 -> 1}
+            x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+        9 - gaussian
+            x1 : mean location {0 -> 1}
+            x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+        10 - poisson
+            x1 : gravity center {0 = low values -> 10 = high values}
+            x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+        11 - walker
+            x1 : maximum value {0.1 -> 1}
+            x2 - maximum step {0.1 -> 1}
+        12 - loopseg 
+            x1 : maximum value {0.1 -> 1}
+            x2 - maximum step {0.1 -> 1}
+           
     Parent class: PyoObject
 
     Parameters:
 
-    min : float or PyoObject, optional
-        Minimum value for the random generation. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum value for the random generation. Defaults to 1.
+    dist : string of int, optional
+        Distribution type. Defaults to 0.
     freq : float or PyoObject, optional
         Polling frequency. Defaults to 1.
+    x1 : float or PyoObject, optional
+        First parameter. Defaults to 0.5.
+    x2 : float or PyoObject, optional
+        Second parameter. Defaults to 0.5.
 
     Methods:
 
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
+    setDist(x) : Replace the `dist` attribute.
     setFreq(x) : Replace the `freq` attribute.
+    setX1(x) : Replace the `x1` attribute.
+    setX2(x) : Replace the `x2` attribute.
 
     Attributes:
 
-    min : float or PyoObject. Minimum value.
-    max : float or PyoObject. Maximum value.
+    dist : string or int. Distribution type.
     freq : float or PyoObject. Polling frequency.
+    x1 : float or PyoObject. First parameter.
+    x2 : float or PyoObject. Second parameter.
 
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> rnd = Randh(400, 600, 4)
-    >>> a = Sine(rnd, mul=.5).out()
+    >>> lfo = Phasor(.1, 0, .5, .15)
+    >>> a = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)
+    >>> b = Sine(a, mul=.3).out()
 
     """
-    def __init__(self, type=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
-        self._type = 0
+    def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
+        self._dist = dist
         self._freq = freq
         self._x1 = x1
         self._x2 = x2
         self._mul = mul
         self._add = add
-        type, freq, x1, x2, mul, add, lmax = convertArgsToLists(type, freq, x1, x2, mul, add)
-        self._base_objs = [Xnoise_base(wrap(type,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        dist, freq, x1, x2, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, mul, add)
+        for i, t in enumerate(dist):
+            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [Xnoise_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['type', 'freq', 'x1', 'x2', 'mul', 'add']
+        return ['dist', 'freq', 'x1', 'x2', 'mul', 'add']
 
-    def setType(self, x):
+    def setDist(self, x):
         """
-        Replace the `type` attribute.
+        Replace the `dist` attribute.
 
         Parameters:
 
         x : int
-            new `type` attribute.
+            new `dist` attribute.
 
         """
-        self._type = x
+        self._dist = x
         x, lmax = convertArgsToLists(x)
+        for i, t in enumerate(x):
+            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
@@ -514,9 +572,9 @@ class Xnoise(PyoObject):
         PyoObject.ctrl(self, map_list, title)
 
     @property
-    def type(self): return self._type
-    @type.setter
-    def type(self, x): self.setType(x)
+    def dist(self): return self._dist
+    @dist.setter
+    def dist(self, x): self.setDist(x)
     @property
     def freq(self): return self._freq
     @freq.setter

@@ -15,6 +15,10 @@ from _pyo import *
 ### Utilities
 ######################################################################
 SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
+XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 
+                'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
+                'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
+                'loopseg': 12}
 
 class Clean_objects(threading.Thread):
     """
