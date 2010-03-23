@@ -345,6 +345,11 @@ init_pyo(void)
     Py_INCREF(&XnoiseType);
     PyModule_AddObject(m, "Xnoise_base", (PyObject *)&XnoiseType);
 
+    if (PyType_Ready(&XnoiseMidiType) < 0)
+        return;
+    Py_INCREF(&XnoiseMidiType);
+    PyModule_AddObject(m, "XnoiseMidi_base", (PyObject *)&XnoiseMidiType);
+    
     if (PyType_Ready(&RandIntType) < 0)
         return;
     Py_INCREF(&RandIntType);
