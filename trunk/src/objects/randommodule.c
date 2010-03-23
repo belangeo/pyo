@@ -2115,64 +2115,80 @@ typedef struct {
     Stream *x1_stream;
     Stream *x2_stream;
     Stream *freq_stream;
-    float (*type_func_ptr)(float, float);
+    float (*type_func_ptr)();
+    float xx1;
+    float xx2;
     int type;
     float value;
     float time;
+    float lastPoissonX1;
+    int poisson_tab;
+    float poisson_buffer[2000];
+    float walkerValue;
+    float loop_buffer[15];
+    int loopChoice;
+    int loopCountPlay;
+    int loopTime;
+    int loopCountRec;
+    int loopLen;
+    int loopStop;
     int modebuffer[5]; // need at least 2 slots for mul & add 
 } Xnoise;
 
+// no parameter
 static float
-Xnoise_uniform(float x1, float x2) {
-    return rand()/((float)(RAND_MAX)+1);    
+Xnoise_uniform(Xnoise *self) {
+    return RANDOM_UNIFORM;    
 }
 
 static float
-Xnoise_linear_min(float x1, float x2) {
-    float a = rand()/((float)(RAND_MAX)+1);    
-    float b = rand()/((float)(RAND_MAX)+1);
+Xnoise_linear_min(Xnoise *self) {
+    float a = RANDOM_UNIFORM;    
+    float b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
 }
 
 static float
-Xnoise_linear_max(float x1, float x2) {
-    float a = rand()/((float)(RAND_MAX)+1);    
-    float b = rand()/((float)(RAND_MAX)+1);
+Xnoise_linear_max(Xnoise *self) {
+    float a = RANDOM_UNIFORM;    
+    float b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
 }
 
 static float
-Xnoise_triangle(float x1, float x2) {
-    float a = rand()/((float)(RAND_MAX)+1);    
-    float b = rand()/((float)(RAND_MAX)+1);
+Xnoise_triangle(Xnoise *self) {
+    float a = RANDOM_UNIFORM;    
+    float b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
 
+// x1 = slope
 static float
-Xnoise_expon_min(float x1, float x2) {
-    if (x1 <= 0.0) x1 = 0.00001;
-    float val = -logf(rand()/((float)(RAND_MAX)+1)) / x1;    
+Xnoise_expon_min(Xnoise *self) {
+    if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+    float val = -logf(RANDOM_UNIFORM) / self->xx1;    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
 static float
-Xnoise_expon_max(float x1, float x2) {
-    if (x1 <= 0.0) x1 = 0.00001;
-    float val = 1.0 - (-logf(rand()/((float)(RAND_MAX)+1)) / x1);    
+Xnoise_expon_max(Xnoise *self) {
+    if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+    float val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
+// x1 = bandwidth
 static float
-Xnoise_biexpon(float x1, float x2) {
+Xnoise_biexpon(Xnoise *self) {
     float polar, val;
-    if (x1 <= 0.0) x1 = 0.00001;
-    float sum = (rand()/((float)(RAND_MAX)+1)) * 2.0;
+    if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+    float sum = RANDOM_UNIFORM * 2.0;
     
     if (sum > 1.0) {
         polar = -1;
@@ -2181,7 +2197,7 @@ Xnoise_biexpon(float x1, float x2) {
     else
         polar = 1;
 
-    val = 0.5 * (polar * logf(sum) / x1) + 0.5;
+    val = 0.5 * (polar * logf(sum) / self->xx1) + 0.5;
 
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -2189,28 +2205,160 @@ Xnoise_biexpon(float x1, float x2) {
 }
 
 static float
-Xnoise_cauchy(float x1, float x2) {
-    float rnd, val;
+Xnoise_cauchy(Xnoise *self) {
+    float rnd, val, dir;
     do {
-        rnd = rand()/((float)(RAND_MAX)+1);
+        rnd = RANDOM_UNIFORM;
     }
     while (rnd == 0.5);
     
-    rnd *= (PI / 2.0);
+    if (rand() < (RAND_MAX / 2))
+        dir = -1;
+    else
+        dir = 1;
     
-    val = 0.5 * (tanf(rnd) * x1) + 0.5;
+    val = 0.5 * (tanf(rnd) * self->xx1 * dir) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
+// x1 = locator, x2 = shape
+static float
+Xnoise_weibull(Xnoise *self) {
+    float rnd, val;
+    if (self->xx2 <= 0.0) self->xx2 = 0.00001;
+    
+    rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
+    val = self->xx1 * powf(logf(rnd), (1.0 / self->xx2));
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = locator, x2 = bandwidth
+static float
+Xnoise_gaussian(Xnoise *self) {
+    float rnd, val;
+    
+    rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
+    val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = gravity center, x2 = compress/expand
+static float
+Xnoise_poisson(Xnoise *self) {
+    int i, j, factorial;
+    long tot;
+    float val;
+    if (self->xx1 < 0.1) self->xx1 = 0.1;
+    if (self->xx2 < 0.1) self->xx2 = 0.1;
+
+    if (self->xx1 != self->lastPoissonX1) {
+        self->lastPoissonX1 = self->xx1;
+        self->poisson_tab = 0;
+        factorial = 1;
+        for (i=1; i<12; i++) {
+            factorial *= i;
+            tot = (long)(1000.0 * (powf(2.7182818, -self->xx1) * powf(self->xx1, i) / factorial));
+            for (j=0; j<tot; j++) {
+                self->poisson_buffer[self->poisson_tab] = i;
+                self->poisson_tab++;
+            }
+        }
+    }
+    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = max value, x2 = max step
+static float
+Xnoise_walker(Xnoise *self) {
+    int modulo, dir;
+    
+    modulo = (int)(self->xx2 * 1000.0);
+    dir = rand() % 2;
+    
+    if (dir == 0)
+        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+    else
+        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        
+    if (self->walkerValue > self->xx1)
+        self->walkerValue = self->xx1;
+    if (self->walkerValue < 0.0)
+        self->walkerValue = 0.0;
+    
+    return self->walkerValue;
+}
+
+// x1 = max value, x2 = max step
+static float
+Xnoise_loopseg(Xnoise *self) {
+    int modulo, dir;
+
+    if (self->loopChoice == 0) {
+        
+        self->loopCountPlay = self->loopTime = 0;
+        
+        modulo = (int)(self->xx2 * 1000.0);
+        dir = rand() % 2;
+    
+        if (dir == 0)
+            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        else
+            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+    
+        if (self->walkerValue > self->xx1)
+            self->walkerValue = self->xx1;
+        if (self->walkerValue < 0.0)
+            self->walkerValue = 0.0;
+        
+        self->loop_buffer[self->loopCountRec++] = self->walkerValue;
+        
+        if (self->loopCountRec < self->loopLen)
+            self->loopChoice = 0;
+        else {
+            self->loopChoice = 1;
+            self->loopStop = (rand() % 4) + 1;
+        }
+    }
+    else {
+        self->loopCountRec = 0;
+        
+        self->walkerValue = self->loop_buffer[self->loopCountPlay++];
+        
+        if (self->loopCountPlay < self->loopLen)
+            self->loopChoice = 1;
+        else {
+            self->loopCountPlay = 0;
+            self->loopTime++;
+        }
+        
+        if (self->loopTime == self->loopStop) {
+            self->loopChoice = 0;
+            self->loopLen = (rand() % 10) + 3;
+        }
+    }
+    
+    return self->walkerValue;
+}
+
 static void
 Xnoise_generate_iii(Xnoise *self) {
     int i;
     float inc;
-    float x1 = PyFloat_AS_DOUBLE(self->x1);
-    float x2 = PyFloat_AS_DOUBLE(self->x2);
+    self->xx1 = PyFloat_AS_DOUBLE(self->x1);
+    self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     float fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr / self->sr;
 
@@ -2220,7 +2368,7 @@ Xnoise_generate_iii(Xnoise *self) {
             self->time += 1.0;
         else if (self->time >= 1.0) {
             self->time -= 1.0;
-            self->value = (*self->type_func_ptr)(x1, x2);
+            self->value = (*self->type_func_ptr)(self);
         }
         self->data[i] = self->value;
     }
@@ -2419,6 +2567,21 @@ Xnoise_setRandomType(Xnoise *self)
         case 7:
             self->type_func_ptr = Xnoise_cauchy;
             break;
+        case 8:
+            self->type_func_ptr = Xnoise_weibull;
+            break;
+        case 9:
+            self->type_func_ptr = Xnoise_gaussian;
+            break;
+        case 10:
+            self->type_func_ptr = Xnoise_poisson;
+            break;
+        case 11:
+            self->type_func_ptr = Xnoise_walker;
+            break;
+        case 12:
+            self->type_func_ptr = Xnoise_loopseg;
+            break;
     }        
 }
 
@@ -2533,12 +2696,16 @@ static PyObject * Xnoise_deleteStream(Xnoise *self) { DELETE_STREAM };
 static PyObject *
 Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
+
+    srand((unsigned)(time(0)));
     
-    self->x1 = PyFloat_FromDouble(0.);
-    self->x2 = PyFloat_FromDouble(0.);
+    self->x1 = PyFloat_FromDouble(0.5);
+    self->x2 = PyFloat_FromDouble(0.5);
     self->freq = PyFloat_FromDouble(1.);
+    self->xx1 = self->xx2 = self->walkerValue = 0.5;
     self->value = 0.0;
     self->time = 1.0;
 	self->modebuffer[0] = 0;
@@ -2546,6 +2713,17 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
+
+    self->poisson_tab = 0;
+    self->lastPoissonX1 = -99.0;
+    for (i=0; i<2000; i++) {
+        self->poisson_buffer[i] = 0.0;
+    }
+    for (i=0; i<15; i++) {
+        self->loop_buffer[i] = 0.0;
+    }
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopLen = (rand() % 10) + 3;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Xnoise_compute_next_data_frame);
@@ -2585,8 +2763,6 @@ Xnoise_init(Xnoise *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    srand((unsigned)(time(0)));
 
     Xnoise_setRandomType(self);
     

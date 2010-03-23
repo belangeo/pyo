@@ -113,6 +113,9 @@ extern PyTypeObject M_TanType;
 #define PI M_PI
 #define TWOPI (2 * M_PI)
 
+/* random uniform (0.0 -> 1.0) */
+#define RANDOM_UNIFORM rand()/((float)(RAND_MAX)+1)
+
 /* object headers */
 #define pyo_audio_HEAD \
     PyObject_HEAD \
