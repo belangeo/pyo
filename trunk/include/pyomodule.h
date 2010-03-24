@@ -108,6 +108,7 @@ extern PyTypeObject TrigEnvType;
 extern PyTypeObject TrigEnvTrigType;
 extern PyTypeObject TrigFuncType;
 extern PyTypeObject TrigXnoiseType;
+extern PyTypeObject TrigXnoiseMidiType;
 
 extern PyTypeObject PatternType;
 

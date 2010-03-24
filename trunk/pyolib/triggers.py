@@ -987,6 +987,256 @@ class TrigXnoise(PyoObject):
     @x2.setter
     def x2(self, x): self.setX2(x)
 
+class TrigXnoiseMidi(PyoObject):
+    """
+    Triggered X-class midi notes pseudo-random generator.
+
+    Xnoise implements a few of the most common noise distributions. 
+    A new value is generated each time the object receive a trigger 
+    in input. Each distribution generates integer values in the range 
+    defined with `mrange` parameter and output can be scaled on midi 
+    notes, hertz or transposition factor.
+
+    Parent class: PyoObject
+
+    Notes:
+
+    Available distributions are:
+        - uniform
+        - linear minimum
+        - linear maximum
+        - triangular
+        - exponential minimum
+        - exponential maximum
+        - double (bi)exponential
+        - cauchy
+        - weibull
+        - gaussian
+        - poisson
+        - walker (drunk)
+        - loopseg (drunk with looped segments)
+
+    Depending on the distribution, `x1` and `x2` parameters are applied
+    as follow (names as string, or associated number can be used as `dist`
+    parameter):
+        0 - uniform
+            no parameter
+        1 - linear_min 
+            no parameter
+        2 - linear_max
+            no parameter
+        3 - triangle
+            no parameter
+        4 - expon_min
+            x1 : slope {0 = no slope -> 10 = sharp slope}
+        5 - expon_max    
+            x1 : slope {0 = no slope -> 10 = sharp slope}
+        6 - biexpon
+            x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+        7 - cauchy
+            x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+        8 - weibull
+            x1 : mean location {0 -> 1}
+            x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+        9 - gaussian
+            x1 : mean location {0 -> 1}
+            x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+        10 - poisson
+            x1 : gravity center {0 = low values -> 10 = high values}
+            x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+        11 - walker
+            x1 : maximum value {0.1 -> 1}
+            x2 - maximum step {0.1 -> 1}
+        12 - loopseg 
+            x1 : maximum value {0.1 -> 1}
+            x2 - maximum step {0.1 -> 1}
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    dist : string of int, optional
+        Distribution type. Defaults to 0.
+    x1 : float or PyoObject, optional
+        First parameter. Defaults to 0.5.
+    x2 : float or PyoObject, optional
+        Second parameter. Defaults to 0.5.
+    scale : int {0, 1, 2}, optional
+        Output format. 0 = MIDI, 1 = Hertz, 2 = transposition factor. 
+        In the transposition mode, the central key (the key where there 
+        is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
+        to 0.
+    mrange : tuple of int, optional
+        Minimum and maximum possible values, in Midi notes. Available
+        only at initialization time. Defaults to (0, 127).
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setDist(x) : Replace the `dist` attribute.
+    setX1(x) : Replace the `x1` attribute.
+    setX2(x) : Replace the `x2` attribute.
+    setScale(x) : Replace the `scale` attribute.
+    setRange(x, y) : Changes min and max range values and centralkey.
+
+    Attributes:
+
+    input : PyoObject. Audio trigger signal.
+    dist : string or int. Distribution type.
+    x1 : float or PyoObject. First parameter.
+    x2 : float or PyoObject. Second parameter.
+    scale : int. Output format.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> wav = SquareTable()
+    >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
+    >>> met = Metro(.125, 12).play()
+    >>> amp = TrigEnv(met, env, mul=.1)
+    >>> pit = TrigXnoise(met, dist=4, x1=10, mul=500, add=300)
+    >>> a = Osc(wav, pit, 0, amp).out()
+
+    """
+    def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+        self._input = input
+        self._dist = dist
+        self._x1 = x1
+        self._x2 = x2
+        self._scale = scale
+        self._mrange = mrange        
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, dist, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, scale, mrange, mul, add)
+        for i, t in enumerate(dist):
+            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [TrigXnoiseMidi_base(wrap(in_fader,i), wrap(dist,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'dist', 'x1', 'x2', 'scale', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDist(self, x):
+        """
+        Replace the `dist` attribute.
+
+        Parameters:
+
+        x : int
+            new `dist` attribute.
+
+        """
+        self._dist = x
+        x, lmax = convertArgsToLists(x)
+        for i, t in enumerate(x):
+            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setScale(self, x):
+        """
+        Replace the `scale` attribute.
+
+        Possible values are: 
+            0 -> Midi notes
+            1 -> Hertz
+            2 -> transposition factor 
+                 (centralkey is (`minrange` + `maxrange`) / 2
+
+        Parameters:
+
+        x : int {0, 1, 2}
+            new `scale` attribute.
+
+        """
+        self._scale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRange(self, mini, maxi):
+        """
+        Replace the `mrange` attribute.
+
+        Parameters:
+
+        mini : int
+            minimum output midi range.
+        maxi : int
+            maximum output midi range.
+
+        """
+        self._mrange = (mini, maxi)
+        mini, maxi, lmax = convertArgsToLists(mini, maxi)
+        [obj.setRange(wrap(mini,i), wrap(maxi,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setX1(self, x):
+        """
+        Replace the `x1` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `x1` attribute.
+
+        """
+        self._x1 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setX2(self, x):
+        """
+        Replace the `x2` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `x2` attribute.
+
+        """
+        self._x2= x
+        x, lmax = convertArgsToLists(x)
+        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def dist(self): return self._dist
+    @dist.setter
+    def dist(self, x): self.setDist(x)
+    @property
+    def scale(self): return self._scale
+    @scale.setter
+    def scale(self, x): self.setScale(x)
+    @property
+    def x1(self): return self._x1
+    @x1.setter
+    def x1(self, x): self.setX1(x)
+    @property
+    def x2(self): return self._x2
+    @x2.setter
+    def x2(self, x): self.setX2(x)
+
 class Counter(PyoObject):
     """
     Integer count generator.
