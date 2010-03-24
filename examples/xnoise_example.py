@@ -7,7 +7,7 @@ from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
 
-lfo = Phasor(.1, 0, .25, .1)
+lfo = Phasor(.1, 0, .5, 0)
 a = XnoiseMidi(dist='loopseg', freq=8, x1=1, x2=lfo, scale=1, mrange=(60,96))
 aa = Print(a, 1)
 b = Sine(a, mul=.3).out()

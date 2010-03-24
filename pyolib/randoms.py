@@ -408,6 +408,11 @@ class Xnoise(PyoObject):
 
     Xnoise implements a few of the most common noise distributions.
     Each distribution generates values in the range 0 and 1.
+
+    Parent class: PyoObject
+    
+    Notes:
+    
     Available distributions are:
         - uniform
         - linear minimum
@@ -457,8 +462,6 @@ class Xnoise(PyoObject):
         12 - loopseg 
             x1 : maximum value {0.1 -> 1}
             x2 - maximum step {0.1 -> 1}
-           
-    Parent class: PyoObject
 
     Parameters:
 
@@ -590,10 +593,17 @@ class Xnoise(PyoObject):
 
 class XnoiseMidi(PyoObject):
     """
-    X-class pseudo-random generator.
+    X-class midi notes pseudo-random generator.
 
-    Xnoise implements a few of the most common noise distributions.
-    Each distribution generates values in the range 0 and 1.
+    XnoiseMidi implements a few of the most common noise distributions.
+    Each distribution generates integer values in the range defined with
+    `mrange` parameter and output can be scaled on midi notes, hertz or 
+    transposition factor. 
+
+    Parent class: PyoObject
+    
+    Notes:
+    
     Available distributions are:
         - uniform
         - linear minimum
@@ -644,11 +654,9 @@ class XnoiseMidi(PyoObject):
             x1 : maximum value {0.1 -> 1}
             x2 - maximum step {0.1 -> 1}
 
-    Parent class: PyoObject
-
     Parameters:
 
-    dist : string of int, optional
+    dist : string or int, optional
         Distribution type. Defaults to 0.
     freq : float or PyoObject, optional
         Polling frequency. Defaults to 1.
@@ -656,6 +664,14 @@ class XnoiseMidi(PyoObject):
         First parameter. Defaults to 0.5.
     x2 : float or PyoObject, optional
         Second parameter. Defaults to 0.5.
+    scale : int {0, 1, 2}, optional
+        Output format. 0 = MIDI, 1 = Hertz, 2 = transposition factor. 
+        In the transposition mode, the central key (the key where there 
+        is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
+        to 0.
+    mrange : tuple of int, optional
+        Minimum and maximum possible values, in Midi notes. Available
+        only at initialization time. Defaults to (0, 127).
 
     Methods:
 
@@ -663,6 +679,8 @@ class XnoiseMidi(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setX1(x) : Replace the `x1` attribute.
     setX2(x) : Replace the `x2` attribute.
+    setScale(x) : Replace the `scale` attribute.
+    setRange(x, y) : Changes min and max range values and centralkey.
 
     Attributes:
 
@@ -670,13 +688,14 @@ class XnoiseMidi(PyoObject):
     freq : float or PyoObject. Polling frequency.
     x1 : float or PyoObject. First parameter.
     x2 : float or PyoObject. Second parameter.
+    scale : int. Output format.
 
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfo = Phasor(.1, 0, .5, .15)
-    >>> a = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)
+    >>> l = Phasor(.1, 0, .5, 0)
+    >>> a = XnoiseMidi('loopseg', freq=8, x1=1, x2=l, scale=1, mrange=(60,96))
     >>> b = Sine(a, mul=.3).out()
 
     """
@@ -695,7 +714,7 @@ class XnoiseMidi(PyoObject):
         self._base_objs = [XnoiseMidi_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['dist', 'freq', 'x1', 'x2', 'scale', 'mrange', 'mul', 'add']
+        return ['dist', 'freq', 'x1', 'x2', 'scale', 'mul', 'add']
 
     def setDist(self, x):
         """
@@ -703,7 +722,7 @@ class XnoiseMidi(PyoObject):
 
         Parameters:
 
-        x : int
+        x : string or int
             new `dist` attribute.
 
         """
@@ -720,7 +739,8 @@ class XnoiseMidi(PyoObject):
         Possible values are: 
             0 -> Midi notes
             1 -> Hertz
-            2 -> transposition factor (centralkey = 60)
+            2 -> transposition factor 
+                 (centralkey is (`minrange` + `maxrange`) / 2
 
         Parameters:
 
@@ -731,6 +751,22 @@ class XnoiseMidi(PyoObject):
         self._scale = x
         x, lmax = convertArgsToLists(x)
         [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRange(self, mini, maxi):
+        """
+        Replace the `mrange` attribute.
+
+        Parameters:
+
+        mini : int
+            minimum output midi range.
+        maxi : int
+            maximum output midi range.
+
+        """
+        self._mrange = (mini, maxi)
+        mini, maxi, lmax = convertArgsToLists(mini, maxi)
+        [obj.setRange(wrap(mini,i), wrap(maxi,i)) for i, obj in enumerate(self._base_objs)]
 
     def setX1(self, x):
         """
@@ -786,10 +822,6 @@ class XnoiseMidi(PyoObject):
     def scale(self): return self._scale
     @scale.setter
     def scale(self, x): self.setScale(x)
-    @property
-    def mrange(self): return self._mrange
-    @mrange.setter
-    def mrange(self, x): self.setRange(x)
     @property
     def freq(self): return self._freq
     @freq.setter
