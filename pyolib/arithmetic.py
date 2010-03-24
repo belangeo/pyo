@@ -4,7 +4,7 @@ Tools to perform arithmetic operation on audio signals.
 """
 from _core import *
 
-class M_Sin(PyoObject):
+class Sin(PyoObject):
     """
     Performs a sine function on audio signal.
 
@@ -31,7 +31,7 @@ class M_Sin(PyoObject):
     >>> s.start()
     >>> import math
     >>> a = Phasor(500, mul=math.pi*2)
-    >>> b = M_Sin(a).out()
+    >>> b = Sin(a).out()
 
     """
 
@@ -72,7 +72,7 @@ class M_Sin(PyoObject):
     @input.setter
     def input(self, x): self.setInput(x)
 
-class M_Cos(PyoObject):
+class Cos(PyoObject):
     """
     Performs a cosine function on audio signal.
 
@@ -99,7 +99,7 @@ class M_Cos(PyoObject):
     >>> s.start()
     >>> import math
     >>> a = Phasor(500, mul=math.pi*2)
-    >>> b = M_Cos(a).out()
+    >>> b = Cos(a).out()
 
     """
     def __init__(self, input, mul=1, add=0):
@@ -139,7 +139,7 @@ class M_Cos(PyoObject):
     @input.setter
     def input(self, x): self.setInput(x)
 
-class M_Tan(PyoObject):
+class Tan(PyoObject):
     """
     Performs a tangent function on audio signal.
 
@@ -166,7 +166,7 @@ class M_Tan(PyoObject):
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
     >>> a = Osc(t, 1, 0, .5, .5)
-    >>> b = M_Tan(a)
+    >>> b = Tan(a)
     >>> c = Osc(t, 100, mul=b).out()
 
     """
