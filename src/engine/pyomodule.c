@@ -561,6 +561,11 @@ init_pyo(void)
         return;
     Py_INCREF(&TrigXnoiseType);
     PyModule_AddObject(m, "TrigXnoise_base", (PyObject *)&TrigXnoiseType);
+
+    if (PyType_Ready(&TrigXnoiseMidiType) < 0)
+        return;
+    Py_INCREF(&TrigXnoiseMidiType);
+    PyModule_AddObject(m, "TrigXnoiseMidi_base", (PyObject *)&TrigXnoiseMidiType);
     
     if (PyType_Ready(&PatternType) < 0)
         return;
