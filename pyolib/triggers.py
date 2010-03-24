@@ -1095,7 +1095,7 @@ class TrigXnoiseMidi(PyoObject):
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 12).play()
     >>> amp = TrigEnv(met, env, mul=.1)
-    >>> pit = TrigXnoise(met, dist=4, x1=10, mul=500, add=300)
+    >>> pit = TrigXnoiseMidi(met, dist=4, x1=20, scale=1, mrange=(48,84))
     >>> a = Osc(wav, pit, 0, amp).out()
 
     """
