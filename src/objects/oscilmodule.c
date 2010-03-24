@@ -26,6 +26,7 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 #include "tablemodule.h"
+#include "interpolation.h"
 
 static float
 _clip(float x) {
@@ -973,7 +974,8 @@ Osc_readframes_ii(Osc *self) {
         fpart = pos - ipart;
         x = tablelist[ipart];
         x1 = tablelist[ipart+1];
-        self->data[i] = x + (x1 - x) * fpart;
+        self->data[i] = linear(tablelist, ipart, fpart);
+        //self->data[i] = x + (x1 - x) * fpart;
     }
 }
 
