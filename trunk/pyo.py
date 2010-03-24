@@ -1,3 +1,22 @@
+"""
+Copyright 2010 Olivier Belanger
+
+This file is part of pyo, a python module to help digital signal
+processing script creation.
+
+pyo is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+pyo is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+"""
 from distutils.sysconfig import get_python_lib
 import os
 
@@ -21,8 +40,9 @@ from pyolib.tables import *
 from pyolib.triggers import *
 from pyolib.utils import *
 
-OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pa_list_devices', 
-                    'pm_count_devices', 'pm_list_devices', 'sndinfo', 'midiToHz', 'sampsToSec', 'secToSamps', 'example', 'class_args']),
+OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 
+                                    'pa_list_devices', 'pm_count_devices', 'pm_list_devices', 'sndinfo', 
+                                    'midiToHz', 'sampsToSec', 'secToSamps', 'example', 'class_args']),
         'PyoObject': {'analysis': sorted(['Follower', 'ZCross']),
                       'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr', 'Linseg']),
                       'dynamics': sorted(['Clip', 'Compress', 'Degrade']),
@@ -36,15 +56,15 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'patterns': sorted(['Pattern', 'Score']),
                       'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 'XnoiseMidi']),
                       'sfplayer': sorted(['SfMarkerShuffler', 'SfPlayer']),
-                      'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 'TableRead', 
-                                              'TableMorph']),
-                      'triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 'TrigFunc', 
-                                          'Thresh', 'Cloud', 'Trig']),
+                      'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 
+                                            'TableRead', 'TableMorph']),
+                      'triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 
+                                        'TrigFunc', 'Thresh', 'Cloud', 'Trig']),
                       'utils': sorted(['Print']),
                       'arithmetic': sorted(['Sin', 'Cos', 'Tan'])},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
-        'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'SquareTable',
-                                  'ChebyTable', 'CosTable', 'CurveTable']),
+        'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 
+                                'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable']),
         'Server': [], 
         'Stream': [], 
         'TableStream': [],
