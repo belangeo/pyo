@@ -3044,11 +3044,13 @@ typedef struct {
     Stream *x1_stream;
     Stream *x2_stream;
     Stream *freq_stream;
-    PyObject *range;
     float (*type_func_ptr)();
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     float xx1;
     float xx2;
+    int range_min;
+    int range_max;
+    int centralkey;
     int type;
     float value;
     float time;
@@ -3068,12 +3070,10 @@ typedef struct {
 
 static float
 XnoiseMidi_convert(XnoiseMidi *self) {
-    int midival, min, max;
+    int midival;
     float val;
-    min = PyInt_AsLong(PyTuple_GET_ITEM(self->range, 0));
-    max = PyInt_AsLong(PyTuple_GET_ITEM(self->range, 1));
 
-    midival = (int)((self->value * (max-min)) + min);
+    midival = (int)((self->value * (self->range_max-self->range_min)) + self->range_min);
     
     if (midival < 0)
         midival = 0;
@@ -3085,7 +3085,7 @@ XnoiseMidi_convert(XnoiseMidi *self) {
     else if (self->scale == 1)
         val = 8.175798 * powf(1.0594633, midival);
     else if (self->scale == 2)
-        val = powf(1.0594633, midival - 60);
+        val = powf(1.0594633, midival - self->centralkey);
     
     return val;
 }
@@ -3677,6 +3677,9 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->value = 0.0;
     self->time = 1.0;
     self->scale = 0;
+    self->range_min = 0;
+    self->range_max = 127;
+    self->centralkey = 64;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -3693,10 +3696,6 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
     self->loopLen = (rand() % 10) + 3;
-
-    self->range = PyTuple_New(2);
-    PyTuple_SET_ITEM(self->range, 0, PyInt_FromLong(0));
-    PyTuple_SET_ITEM(self->range, 1, PyInt_FromLong(127));
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, XnoiseMidi_compute_next_data_frame);
@@ -3805,8 +3804,10 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
 		tmp = PyInt_AsLong(arg);
         if (0 <= tmp <= 2)
             self->scale = tmp;
+        else
+            printf("scale attribute must be an integer {0, 1, 2}\n");
 	}
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
@@ -3822,9 +3823,9 @@ XnoiseMidi_setRange(XnoiseMidi *self, PyObject *args)
 	int isTuple = PyTuple_Check(args);
 
 	if (isTuple == 1) {
-		Py_XDECREF(self->range);
-        Py_INCREF(args);
-        self->range = args;
+        self->range_min = PyInt_AsLong(PyTuple_GET_ITEM(args, 0));
+        self->range_max = PyInt_AsLong(PyTuple_GET_ITEM(args, 1));
+        self->centralkey = (int)((self->range_max + self->range_min) / 2);
 	}
 
     Py_INCREF(Py_None);
