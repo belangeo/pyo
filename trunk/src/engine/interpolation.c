@@ -42,7 +42,6 @@ float cosine(float *buf, int index, float frac) {
 
 float cubic(float *buf, int index, float frac) {
     float x0, a0, a1, a2, a3, frac2;
-    //float x0, x1, x2, x3;
     float x1 = buf[index];
     
     if (index > 0)
@@ -51,6 +50,7 @@ float cubic(float *buf, int index, float frac) {
         x0 = x1;
     
     float x2 = buf[index+1];
+    // need a check if out of bounds
     float x3 = buf[index+2];
     
     frac2 = frac*frac;
