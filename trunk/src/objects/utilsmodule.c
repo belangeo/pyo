@@ -228,6 +228,7 @@ static PyMethodDef Print_methods[] = {
 {"deleteStream", (PyCFunction)Print_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Print_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Print_stop, METH_NOARGS, "Stops computing."},
+{"setMethod", (PyCFunction)Print_setMethod, METH_O, "Sets the printing method."},
 {"setInterval", (PyCFunction)Print_setInterval, METH_O, "Sets the time interval."},
 {NULL}  /* Sentinel */
 };

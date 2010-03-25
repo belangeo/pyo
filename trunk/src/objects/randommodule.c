@@ -2489,7 +2489,7 @@ Xnoise_generate_iia(Xnoise *self) {
 static void
 Xnoise_generate_aia(Xnoise *self) {
     int i;
-    float inc, range;
+    float inc;
     float *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     float *fr = Stream_getData((Stream *)self->freq_stream);
@@ -2511,7 +2511,7 @@ Xnoise_generate_aia(Xnoise *self) {
 static void
 Xnoise_generate_iaa(Xnoise *self) {
     int i;
-    float inc, range;
+    float inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     float *x2 = Stream_getData((Stream *)self->x2_stream);
     float *fr = Stream_getData((Stream *)self->freq_stream);
@@ -2533,7 +2533,7 @@ Xnoise_generate_iaa(Xnoise *self) {
 static void
 Xnoise_generate_aaa(Xnoise *self) {
     int i;
-    float inc, range;
+    float inc;
     float *x1 = Stream_getData((Stream *)self->x1_stream);
     float *x2 = Stream_getData((Stream *)self->x2_stream);
     float *fr = Stream_getData((Stream *)self->freq_stream);
@@ -3106,6 +3106,8 @@ XnoiseMidi_convert(XnoiseMidi *self) {
         val = 8.175798 * powf(1.0594633, midival);
     else if (self->scale == 2)
         val = powf(1.0594633, midival - self->centralkey);
+    else
+        val = midival;
     
     return val;
 }
@@ -3449,7 +3451,7 @@ XnoiseMidi_generate_iia(XnoiseMidi *self) {
 static void
 XnoiseMidi_generate_aia(XnoiseMidi *self) {
     int i;
-    float inc, range;
+    float inc;
     float *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     float *fr = Stream_getData((Stream *)self->freq_stream);
@@ -3472,7 +3474,7 @@ XnoiseMidi_generate_aia(XnoiseMidi *self) {
 static void
 XnoiseMidi_generate_iaa(XnoiseMidi *self) {
     int i;
-    float inc, range;
+    float inc;
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     float *x2 = Stream_getData((Stream *)self->x2_stream);
     float *fr = Stream_getData((Stream *)self->freq_stream);
@@ -3495,7 +3497,7 @@ XnoiseMidi_generate_iaa(XnoiseMidi *self) {
 static void
 XnoiseMidi_generate_aaa(XnoiseMidi *self) {
     int i;
-    float inc, range;
+    float inc;
     float *x1 = Stream_getData((Stream *)self->x1_stream);
     float *x2 = Stream_getData((Stream *)self->x2_stream);
     float *fr = Stream_getData((Stream *)self->freq_stream);
@@ -3822,7 +3824,7 @@ XnoiseMidi_setScale(XnoiseMidi *self, PyObject *arg)
 	
 	if (isNumber == 1) {
 		tmp = PyInt_AsLong(arg);
-        if (0 <= tmp <= 2)
+        if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
         else
             printf("scale attribute must be an integer {0, 1, 2}\n");

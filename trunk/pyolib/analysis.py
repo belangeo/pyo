@@ -1,6 +1,10 @@
 """
 Tools to analyze audio signals.
 
+These objects are designed to retreive specific informations from
+an audio stream. Analysis are sent at audio rate, objects can then 
+be used for controlling parameters of others objects.
+
 """
 
 """
