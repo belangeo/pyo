@@ -23,10 +23,15 @@ from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
 
+wav = SquareTable(6)
+env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
+
+met = Metro(.1, 10).play()
 lfo = Phasor(.1, 0, .5, 0)
-a = XnoiseMidi(dist='loopseg', freq=8, x1=1, x2=lfo, scale=1, mrange=(60,96))
-aa = Print(a, 1)
-b = Sine(a, mul=.3).out()
+amp = TrigEnv(met, env, mul=.1)
+pit = TrigXnoiseMidi(met, dist='loopseg', x1=1, x2=lfo, scale=1, mrange=(60,84))
+
+b = Osc(wav, pit,  mul=amp).out()
 
 s.gui(locals())
 

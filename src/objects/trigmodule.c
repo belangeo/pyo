@@ -2549,7 +2549,9 @@ TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
         val = 8.175798 * powf(1.0594633, midival);
     else if (self->scale == 2)
         val = powf(1.0594633, midival - self->centralkey);
-    
+    else
+        val = midival;
+
     return val;
 }
 
@@ -3138,7 +3140,7 @@ TrigXnoiseMidi_setScale(TrigXnoiseMidi *self, PyObject *arg)
 	
 	if (isNumber == 1) {
 		tmp = PyInt_AsLong(arg);
-        if (0 <= tmp <= 2)
+        if (tmp >= 0 && tmp <= 2)
             self->scale = tmp;
         else
             printf("scale attribute must be an integer {0, 1, 2}\n");

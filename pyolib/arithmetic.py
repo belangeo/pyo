@@ -1,5 +1,5 @@
 """
-Tools to perform arithmetic operation on audio signals.
+Tools to perform arithmetic operations on audio signals.
 
 """
 
