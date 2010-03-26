@@ -212,7 +212,7 @@ static PyMethodDef Dummy_methods[] = {
     {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Dummy_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Dummy_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Dummy_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"out", (PyCFunction)Dummy_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Dummy_stop, METH_NOARGS, "Stops computing."},
 	{"setInput", (PyCFunction)Dummy_setInput, METH_O, "Sets the input sound object."},
 	{"setMul", (PyCFunction)Dummy_setMul, METH_O, "Sets mul factor."},

@@ -199,7 +199,7 @@ static PyMethodDef Noise_methods[] = {
 {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Noise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Noise_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Noise_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"out", (PyCFunction)Noise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Noise_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
 {"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},

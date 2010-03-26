@@ -979,7 +979,7 @@ static PyMethodDef Granulator_methods[] = {
     {"_getStream", (PyCFunction)Granulator_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Granulator_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Granulator_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Granulator_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"out", (PyCFunction)Granulator_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Granulator_stop, METH_NOARGS, "Stops computing."},
 	{"setPitch", (PyCFunction)Granulator_setPitch, METH_O, "Sets global pitch factor."},
     {"setPos", (PyCFunction)Granulator_setPos, METH_O, "Sets position in the sound table."},

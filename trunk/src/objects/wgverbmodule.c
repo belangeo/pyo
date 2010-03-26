@@ -709,7 +709,7 @@ static PyMethodDef WGVerb_methods[] = {
 {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)WGVerb_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)WGVerb_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)WGVerb_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"out", (PyCFunction)WGVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)WGVerb_stop, METH_NOARGS, "Stops computing."},
 {"setFeedback", (PyCFunction)WGVerb_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
 {"setCutoff", (PyCFunction)WGVerb_setCutoff, METH_O, "Sets lowpass filter cutoff."},

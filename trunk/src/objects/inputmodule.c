@@ -196,7 +196,7 @@ static PyMethodDef Input_methods[] = {
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Input_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Input_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Input_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"out", (PyCFunction)Input_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Input_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Input_setAdd, METH_O, "Sets oscillator add factor."},

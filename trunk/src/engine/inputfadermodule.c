@@ -254,8 +254,8 @@ static PyMethodDef InputFader_methods[] = {
     {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)InputFader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)InputFader_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)InputFader_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
-    {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS, "Crossfade between current stream and given stream."},
+    {"out", (PyCFunction)InputFader_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS|METH_KEYWORDS, "Crossfade between current stream and given stream."},
     {"stop", (PyCFunction)InputFader_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */
 };

@@ -565,7 +565,7 @@ static PyMethodDef BandSplit_methods[] = {
 {"_getStream", (PyCFunction)BandSplit_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)BandSplit_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)BandSplit_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)BandSplit_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"out", (PyCFunction)BandSplit_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)BandSplit_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)BandSplit_setMul, METH_O, "Sets BandSplit mul factor."},
 {"setAdd", (PyCFunction)BandSplit_setAdd, METH_O, "Sets BandSplit add factor."},

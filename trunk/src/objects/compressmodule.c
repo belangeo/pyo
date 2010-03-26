@@ -611,7 +611,7 @@ static PyMethodDef Compress_methods[] = {
 {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Compress_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Compress_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Compress_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"out", (PyCFunction)Compress_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Compress_stop, METH_NOARGS, "Stops computing."},
 {"setThresh", (PyCFunction)Compress_setThresh, METH_O, "Sets compressor threshold."},
 {"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},

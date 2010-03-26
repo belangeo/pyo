@@ -853,7 +853,7 @@ static PyMethodDef Freeverb_methods[] = {
     {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Freeverb_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Freeverb_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Freeverb_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"out", (PyCFunction)Freeverb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Freeverb_stop, METH_NOARGS, "Stops computing."},
 	{"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},
     {"setDamp", (PyCFunction)Freeverb_setDamp, METH_O, "Sets lowpass filter damp factor."},
