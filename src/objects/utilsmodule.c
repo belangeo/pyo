@@ -23,6 +23,7 @@
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
+#include "dummymodule.h"
 
 /************/
 /* Print */
@@ -300,7 +301,7 @@ Snap_convert(Snap *self) {
     if (self->scale == 1)
         val = 8.175798 * powf(1.0594633, midival);
     else if (self->scale == 2)
-        val = powf(1.0594633, midival - self->centralkey);
+        val = powf(1.0594633, midival - 60);
     else
         val = midival;
     
@@ -427,7 +428,6 @@ Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Snap_init(Snap *self, PyObject *args, PyObject *kwds)
 {
-    float inittmp = 0.0;
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "choice", "mul", "add", NULL};
@@ -550,8 +550,8 @@ static PyMethodDef Snap_methods[] = {
     {"play", (PyCFunction)Snap_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Snap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Snap_stop, METH_NOARGS, "Stops computing."},
-    {"setChoice", (PyCFunction)Snap_setScale, METH_O, "Sets output scale."},
-    {"setScale", (PyCFunction)Snap_setPort, METH_O, "Sets new portamento time."},
+    {"setChoice", (PyCFunction)Snap_setChoice, METH_O, "Sets output scale."},
+    {"setScale", (PyCFunction)Snap_setScale, METH_O, "Sets new portamento time."},
     {"setMul", (PyCFunction)Snap_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Snap_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Snap_setSub, METH_O, "Sets inverse add factor."},
