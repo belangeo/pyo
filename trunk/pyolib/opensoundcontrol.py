@@ -125,6 +125,11 @@ class OscReceive(PyoObject):
         Address used on the port to identify values. Address is in 
         the form of a Unix path (ex.: '/pitch').
 
+    Methods:
+
+    get(identifier, all) : Return the first sample of the current 
+        buffer as a float.
+
     Notes:
     
     Audio streams are accessed with the `address` string parameter. 
@@ -169,6 +174,33 @@ class OscReceive(PyoObject):
             return self._base_objs[i]
         else:
             print "'i' too large!"         
+    
+    def get(self, identifier=None, all=False):
+        """
+        Return the first sample of the current buffer as a float.
+        
+        Can be used to convert audio stream to usable Python data.
+        
+        Address as string must be given to `identifier` to specify
+        which stream to get valeu from.
+        
+        Parameters:
+
+            identifier : string
+                Address string parameter identifying audio stream.
+                Defaults to None, useful when `all` is True to 
+                retreive all streams values.
+            all : boolean, optional
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
+                of the first object's stream will be returned as a float.
+                Defaults to False.
+                 
+        """
+        if not all:
+            return self._base_objs[self._address.index(identifier)]._getStream().getValue()
+        else:
+            return [obj._getStream().getValue() for obj in self._base_objs]
              
     def out(self, chnl=0, inc=1):
         return self

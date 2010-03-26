@@ -778,7 +778,11 @@ class PyoObject(object):
         Return the first sample of the current buffer as a float.
         
         Can be used to convert audio stream to usable Python data.
-
+        
+        Object that implements string identifier for audio stream
+        must use the corresponding string to specify which stream
+        to get value. See man page.
+        
         Parameters:
 
             all : boolean, optional
