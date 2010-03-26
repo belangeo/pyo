@@ -270,7 +270,7 @@ static PyMethodDef Convolve_methods[] = {
 {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Convolve_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Convolve_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Convolve_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"out", (PyCFunction)Convolve_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Convolve_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)Convolve_setTable, METH_O, "Sets inpulse response table."},
 {"setMul", (PyCFunction)Convolve_setMul, METH_O, "Sets mul factor."},

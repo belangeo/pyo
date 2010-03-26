@@ -426,7 +426,7 @@ static PyMethodDef Hilbert_methods[] = {
 {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Hilbert_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Hilbert_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Hilbert_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"out", (PyCFunction)Hilbert_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Hilbert_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Hilbert_setMul, METH_O, "Sets Hilbert mul factor."},
 {"setAdd", (PyCFunction)Hilbert_setAdd, METH_O, "Sets Hilbert add factor."},

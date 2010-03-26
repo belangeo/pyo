@@ -213,7 +213,7 @@ static PyMethodDef Mix_methods[] = {
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Mix_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Mix_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Mix_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"out", (PyCFunction)Mix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Mix_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Mix_setAdd, METH_O, "Sets oscillator add factor."},
