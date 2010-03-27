@@ -637,6 +637,11 @@ init_pyo(void)
     Py_INCREF(&SelectType);
     PyModule_AddObject(m, "Select_base", (PyObject *)&SelectType);
 
+    if (PyType_Ready(&ChangeType) < 0)
+        return;
+    Py_INCREF(&ChangeType);
+    PyModule_AddObject(m, "Change_base", (PyObject *)&ChangeType);
+
     if (PyType_Ready(&ScoreType) < 0)
         return;
     Py_INCREF(&ScoreType);
