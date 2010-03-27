@@ -681,5 +681,10 @@ init_pyo(void)
         return;
     Py_INCREF(&M_TanType);
     PyModule_AddObject(m, "M_Tan_base", (PyObject *)&M_TanType);
-    
+
+    if (PyType_Ready(&SnapType) < 0)
+        return;
+    Py_INCREF(&SnapType);
+    PyModule_AddObject(m, "Snap_base", (PyObject *)&SnapType);
+
 }
