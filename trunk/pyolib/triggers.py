@@ -446,7 +446,7 @@ class TrigChoice(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> m = Metro(.125).play()
-    >>> TrigChoice(m, [300, 350, 400, 450, 500, 550])
+    >>> tr = TrigChoice(m, [300, 350, 400, 450, 500, 550])
     >>> a = Sine(tr, mul=.5).out()
     
     """

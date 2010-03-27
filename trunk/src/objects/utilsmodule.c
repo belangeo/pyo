@@ -20,6 +20,7 @@
 
 #include <Python.h>
 #include "structmember.h"
+#include <math.h>
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
@@ -310,15 +311,32 @@ Snap_convert(Snap *self) {
 
 static void
 Snap_generate(Snap *self) {
-    int i;
+    int i, j, pos;
+    float intmp, diff, difftmp;
     float *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        if (in[i] == 1) {
-            self->value = self->choice[(int)((rand()/((float)(RAND_MAX))) * self->chSize)];
+        if (in[i] < (self->last_input-0.001) || in[i] > (self->last_input + 0.001)) {
+            int oct = 0;
+            self->last_input = intmp = in[i];
+            while (intmp >= 12.0) {
+                oct++;
+                intmp -= 12.0;
+            }
+            diff = fabsf(self->choice[0]-intmp);
+            pos = 0;
+            for (j=1; j<self->chSize; j++) {
+                difftmp = fabsf(self->choice[j]-intmp);
+                if (difftmp < diff) {
+                    diff = difftmp;
+                    pos = j;
+                }    
+            }
+            self->value = self->choice[pos] + (12.0 * oct);
+            self->value = Snap_convert(self);  
         }
      
-        self->data[i] = Snap_convert(self);
+        self->data[i] = self->value;
     }
 }
 
@@ -416,8 +434,8 @@ Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->value = self->last_input = 0.;
     self->scale = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Snap_compute_next_data_frame);
@@ -430,7 +448,7 @@ Snap_init(Snap *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "choice", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "choice", "scale", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iOO", kwlist, &inputtmp, &choicetmp, &self->scale, &multmp, &addtmp))
         return -1; 

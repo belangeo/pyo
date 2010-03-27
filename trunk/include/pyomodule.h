@@ -59,6 +59,7 @@ extern PyTypeObject ChoiceType;
 extern PyTypeObject RandIntType;
 extern PyTypeObject XnoiseType;
 extern PyTypeObject XnoiseMidiType;
+extern PyTypeObject SnapType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject ToneType;

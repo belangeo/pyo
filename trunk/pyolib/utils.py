@@ -148,3 +148,131 @@ class Print(PyoObject):
     @interval.setter
     def interval(self, x): self.setInterval(x)
 
+class Snap(PyoObject):
+    """
+    Snap input values on a user's defined midi scale.
+    
+    Snap takes an audio input of floating-point values from 0
+    to 127 and output the nearest value in the `choice` parameter. 
+    `choice` must only defined the first octave (0 <= x < 12) 
+    and the object will take care of the input octave range. 
+    According to `scale` parameter, output can be in midi notes, 
+    hertz or transposition factor (centralkey = 60).
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    choice : list of floats
+        Possible values, as midi notes, for output.
+    scale : int {0, 1, 2}, optional
+        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. 
+        In the transpo mode, the central key (the key where there 
+        is no transposition) is 60. Defaults to 0.
+ 
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setChoice(x) : Replace the `choice` attribute.
+    setScale(x) : Replace the `scale` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Audio signal to transform.
+    choice : list of floats. Possible values.
+    scale : int. Output format.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> wav = SquareTable()
+    >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
+    >>> met = Metro(.125, 8).play()
+    >>> amp = TrigEnv(met, env, mul=.1)
+    >>> pit = TrigXnoiseMidi(met, dist=4, x1=20, mrange=(48,84))
+    >>> hertz = Snap(pit, choice=[0,2,3,5,7,8,10], scale=1)
+    >>> a = Osc(wav, hertz, 0, amp).out()
+
+    """
+    def __init__(self, input, choice, scale=0, mul=1, add=0):
+        self._input = input
+        self._choice = choice
+        self._scale = scale
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, scale, mul, add, lmax = convertArgsToLists(self._in_fader, scale, mul, add)
+        self._base_objs = [Snap_base(wrap(in_fader,i), choice, wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'choice', 'scale', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setChoice(self, x):
+        """
+        Replace the `choice` attribute.
+        
+        Parameters:
+
+        x : list of floats
+            new `choice` attribute.
+        
+        """
+        self._choice = x
+        [obj.setChoice(x) for i, obj in enumerate(self._base_objs)]
+
+    def setScale(self, x):
+        """
+        Replace the `scale` attribute.
+        
+        Possible values are: 
+            0 -> Midi notes
+            1 -> Hertz
+            2 -> transposition factor 
+                 (centralkey is (`minrange` + `maxrange`) / 2
+
+        Parameters:
+
+        x : int {0, 1, 2}
+            new `scale` attribute.
+
+        """
+        self._scale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def choice(self): return self._choice
+    @choice.setter
+    def choice(self, x): self.setChoice(x)
+    @property
+    def scale(self): return self._scale
+    @scale.setter
+    def scale(self, x): self.setScale(x)
+
