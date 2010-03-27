@@ -182,7 +182,7 @@ class OscReceive(PyoObject):
         Can be used to convert audio stream to usable Python data.
         
         Address as string must be given to `identifier` to specify
-        which stream to get valeu from.
+        which stream to get value from.
         
         Parameters:
 

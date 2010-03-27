@@ -96,7 +96,12 @@ class Notein(PyoObject):
         Lowest MIDI value. Defaults to 0.
     last : int, optional
         Highest MIDI value. Defaults to 127.
-        
+
+    Methods:
+
+    get(identifier, all) : Return the first sample of the current 
+        buffer as a float.
+
     Notes:
     
     Pitch and velocity are two separated set of streams. 
@@ -156,6 +161,32 @@ class Notein(PyoObject):
             if self._velocity_dummy == None:
                 self._velocity_dummy = Dummy([self._base_objs[i*2+1] for i in range(self._poly)])
             return self._velocity_dummy
+
+    def get(self, identifier="pitch", all=False):
+        """
+        Return the first sample of the current buffer as a float.
+        
+        Can be used to convert audio stream to usable Python data.
+        
+        "pitch" or "velocity" must be given to `identifier` to specify
+        which stream to get value from.
+        
+        Parameters:
+
+            identifier : string {"pitch", "velocity"}
+                Address string parameter identifying audio stream.
+                Defaults to "pitch".
+            all : boolean, optional
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
+                of the first object's stream will be returned as a float.
+                Defaults to False.
+                 
+        """
+        if not all:
+            return self.__getitem__(identifier)[0]._getStream().getValue()
+        else:
+            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
                         
     def play(self):
         self._base_handler.play()
