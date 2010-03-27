@@ -217,3 +217,177 @@ Select_members,             /* tp_members */
 0,                         /* tp_alloc */
 Select_new,                 /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    float last_value;
+} Change;
+
+static void
+Change_selector(Change *self) {
+    float val, inval;
+    int i;
+
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        if (inval < (self->last_value - 0.00001) || inval > (self->last_value + 0.00001)) {
+            self->last_value = inval;
+            val = 1;
+        }
+        else
+            val = 0;
+
+        self->data[i] = val;
+    }
+}
+
+static void
+Change_setProcMode(Change *self)
+{
+    self->proc_func_ptr = Change_selector;
+}
+
+static void
+Change_compute_next_data_frame(Change *self)
+{
+    (*self->proc_func_ptr)(self);    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Change_traverse(Change *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);    
+    Py_VISIT(self->input_stream);    
+    return 0;
+}
+
+static int 
+Change_clear(Change *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);    
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Change_dealloc(Change* self)
+{
+    free(self->data);
+    Change_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Change_deleteStream(Change *self) { DELETE_STREAM };
+
+static PyObject *
+Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Change *self;
+    self = (Change *)type->tp_alloc(type, 0);
+
+    self->last_value = -99.0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Change_compute_next_data_frame);
+    self->mode_func_ptr = Change_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Change_init(Change *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp;
+    
+    static char *kwlist[] = {"input", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
+        return -1; 
+
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+    
+    Change_compute_next_data_frame((Change *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Change_getServer(Change* self) { GET_SERVER };
+static PyObject * Change_getStream(Change* self) { GET_STREAM };
+
+static PyObject * Change_play(Change *self) { PLAY };
+static PyObject * Change_stop(Change *self) { STOP };
+
+static PyMemberDef Change_members[] = {
+{"server", T_OBJECT_EX, offsetof(Change, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Change, stream), 0, "Stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Change_methods[] = {
+{"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Change_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Change_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Change_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject ChangeType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Change_base",         /*tp_name*/
+sizeof(Change),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Change_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Change objects. Send a trig whenever input value changed.",           /* tp_doc */
+(traverseproc)Change_traverse,   /* tp_traverse */
+(inquiry)Change_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Change_methods,             /* tp_methods */
+Change_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Change_init,      /* tp_init */
+0,                         /* tp_alloc */
+Change_new,                 /* tp_new */
+};

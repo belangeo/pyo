@@ -1499,6 +1499,86 @@ class Select(PyoObject):
     @value.setter
     def value(self, x): self.setValue(x)
 
+class Change(PyoObject):
+    """
+    Sends trigger that informs when input value has changed.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal. Must contains integer numbers.
+    
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Audio signal.
+
+    Notes:
+
+    The out() method is bypassed. Change's signal can not be sent 
+    to audio outs.
+
+    Change has no `mul` and `add` attributes.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Xnoise(mul=500, add=500)
+    >>> out = Sine(a, 0, .5).out()
+    >>> def pp():
+    ...     print a.get()
+    >>> b = Change(a)
+    >>> c = TrigFunc(b, pp)
+
+    """
+    def __init__(self, input):
+        self._input = input
+        self._in_fader = InputFader(input)
+        in_fader, lmax = convertArgsToLists(self._in_fader)
+        self._base_objs = [Change_base(wrap(in_fader,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input']
+
+    def out(self, chnl=0, inc=1):
+        return self
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
 class Thresh(PyoObject):
     """
     Informs when a signal crosses a threshold.
