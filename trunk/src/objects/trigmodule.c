@@ -958,7 +958,7 @@ TrigFunc_generate(TrigFunc *self) {
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
-            PyObject_CallFunction((PyObject *)self->func, NULL);
+            PyObject_Call((PyObject *)self->func, PyTuple_New(0), NULL);
     }
 }
 
@@ -1048,8 +1048,8 @@ TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 {
 	PyObject *tmp;
 	
-	if (! PyFunction_Check(arg)) {
-        PyErr_SetString(PyExc_TypeError, "The function attribute must be a function.");
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
