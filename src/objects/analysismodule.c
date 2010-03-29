@@ -243,12 +243,7 @@ Follower_init(Follower *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
         return -1; 
     
-    Py_XDECREF(self->input);
-    self->input = inputtmp;
-    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-    Py_INCREF(input_streamtmp);
-    Py_XDECREF(self->input_stream);
-    self->input_stream = (Stream *)input_streamtmp;
+    INIT_INPUT_STREAM
     
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
@@ -581,13 +576,8 @@ ZCross_init(ZCross *self, PyObject *args, PyObject *kwds)
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|fOO", kwlist, &inputtmp, &self->thresh, &multmp, &addtmp))
         return -1; 
-    
-    Py_XDECREF(self->input);
-    self->input = inputtmp;
-    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-    Py_INCREF(input_streamtmp);
-    Py_XDECREF(self->input_stream);
-    self->input_stream = (Stream *)input_streamtmp;
+
+    INIT_INPUT_STREAM
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);

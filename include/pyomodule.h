@@ -187,6 +187,16 @@ extern PyTypeObject M_TanType;
     Py_INCREF(Py_None); \
     return Py_None;
 
+/* INIT INPUT STREAM */
+#define INIT_INPUT_STREAM \
+    Py_XDECREF(self->input); \
+    self->input = inputtmp; \
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL); \
+    Py_INCREF(input_streamtmp); \
+    Py_XDECREF(self->input_stream); \
+    self->input_stream = (Stream *)input_streamtmp;
+
+
 /* SET TABLE DATA */
 #define SET_TABLE_DATA \
     int i; \
