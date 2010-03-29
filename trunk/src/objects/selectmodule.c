@@ -292,7 +292,7 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Change *self;
     self = (Change *)type->tp_alloc(type, 0);
 
-    self->last_value = -99.0;
+    self->last_value = 0.0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Change_compute_next_data_frame);
