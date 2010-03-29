@@ -2868,14 +2868,7 @@ Lookup_readframes_a(Lookup *self) {
     float *pha = Stream_getData((Stream *)self->index_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        ph = (Lookup_clip(pha[i]) * 0.5 + 0.5) * size;
-        //if (ph < 0)
-        //    ph += size;
-        //else if (ph >= size) {
-        //    while (ph >= size) {
-        //        ph -= size;
-        //    }
-        //}    
+        ph = (Lookup_clip(pha[i]) * 0.5 + 0.5) * size;   
         ipart = (int)ph;
         fpart = ph - ipart;
         x = tablelist[ipart];
