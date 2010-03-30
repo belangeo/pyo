@@ -207,7 +207,7 @@ extern PyTypeObject M_TanType;
     self->input_stream = (Stream *)input_streamtmp;
 
 
-/* SET TABLE DATA */
+/* Set data */
 #define SET_TABLE_DATA \
     int i; \
     if (! PyList_Check(arg)) { \
@@ -222,6 +222,35 @@ extern PyTypeObject M_TanType;
         self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
     } \
     TableStream_setData(self->tablestream, self->data); \
+ \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
+#define SET_MATRIX_DATA \
+    int i, j; \
+    PyObject *innerlist; \
+ \
+    if (! PyList_Check(arg)) { \
+        PyErr_SetString(PyExc_TypeError, "The data must be a list of list of floats."); \
+        return PyInt_FromLong(-1); \
+    } \
+    self->rowsize = PyList_Size(arg); \
+    self->colsize = PyList_Size(PyList_GetItem(arg, 0)); \
+    self->data = (float **)realloc(self->data, (self->rowsize + 1) * sizeof(float)); \
+    for (i=0; i<(self->rowsize+1); i++) { \
+        self->data[i] = (float *)realloc(self->data[i], (self->colsize + 1) * sizeof(float)); \
+    } \
+    MatrixStream_setRowSize(self->matrixstream, self->rowsize); \
+    MatrixStream_setColSize(self->matrixstream, self->colsize); \
+ \
+    for(i=0; i<self->rowsize; i++) { \
+        innerlist = PyList_GetItem(arg, i); \
+        for (j=0; j<self->colsize; j++) { \
+            self->data[i][j] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(innerlist, j))); \
+        } \
+    } \
+ \
+    MatrixStream_setData(self->matrixstream, self->data); \
  \
     Py_INCREF(Py_None); \
     return Py_None; \
@@ -250,6 +279,34 @@ extern PyTypeObject M_TanType;
 	} \
 	Py_INCREF(Py_None); \
 	return Py_None; \
+
+#define NORMALIZE_MATRIX \
+    int i, j; \
+    float mi, ma, max, ratio; \
+    mi = ma = self->data[0][0]; \
+    for (i=1; i<self->rowsize; i++) { \
+        for (j=1; j<self->colsize; j++) { \
+            if (mi > self->data[i][j]) \
+                mi = self->data[i][j]; \
+            if (ma < self->data[i][j]) \
+                ma = self->data[i][j]; \
+        } \
+    } \
+    if ((mi*mi) > (ma*ma)) \
+        max = fabsf(mi); \
+    else \
+        max = fabsf(ma); \
+ \
+    if (max > 0.0) { \
+        ratio = 0.99 / max; \
+        for (i=0; i<self->rowsize+1; i++) { \
+            for (j=0; j<self->colsize+1; j++) { \
+                self->data[i][j] *= ratio; \
+            } \
+        } \
+    } \
+    Py_INCREF(Py_None); \
+    return Py_None; \
 
 /* Init Server & Stream */
 #define INIT_OBJECT_COMMON \
