@@ -123,5 +123,184 @@ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
 MatrixStream_new, /* tp_new */
 };
 
+/***********************/
+/* NewMatrix structure */
+/***********************/
+typedef struct {
+    pyo_matrix_HEAD
+    int row_pointer;
+    int col_pointer;
+} NewMatrix;
+
+static PyObject *
+NewMatrix_recordChunk(NewMatrix *self, float *data, int datasize)
+{
+    int i;
+
+    for (i=0; i<datasize; i++) {
+        self->data[self->pointer++] = data[i];
+        if (self->pointer == self->size)
+            self->pointer = 0;
+    }    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static int
+NewMatrix_traverse(NewMatrix *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->matrixstream);
+    return 0;
+}
+
+static int 
+NewMatrix_clear(NewMatrix *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->matrixstream);
+    return 0;
+}
+
+static void
+NewMatrix_dealloc(NewMatrix* self)
+{
+    free(self->data);
+    NewMatrix_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    NewMatrix *self;
+    
+    self = (NewMatrix *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->row_pointer = self->col_pointer = 0;
+    
+    MAKE_NEW_MATRIXSTREAM(self->matrixstream, &MatrixStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+NewMatrix_init(NewMatrix *self, PyObject *args, PyObject *kwds)
+{    
+    int i;
+    PyObject *inittmp=NULL;
+    static char *kwlist[] = {"rows", "cols", "init", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->rowsize, &self->colsize, &inittmp))
+        return -1; 
+
+    //float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+
+    self->data = (float *)realloc(self->data, (self->size + 1) * sizeof(float));
+
+    for (i=0; i<(self->size+1); i++) {
+        self->data[i] = 0.;
+    }
+    
+    MatrixStream_setRowSize(self->matrixstream, self->rowsize);
+    MatrixStream_setColSize(self->matrixstream, self->colsize);
+    MatrixStream_setData(self->matrixstream, self->data);
+
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * NewMatrix_getServer(NewMatrix* self) { GET_SERVER };
+static PyObject * NewMatrix_getMatrixStream(NewMatrix* self) { GET_MATRIX_STREAM };
+//static PyObject * NewMatrix_setData(NewMatrix *self, PyObject *arg) { SET_TABLE_DATA };
+//static PyObject * NewMatrix_normalize(NewMatrix *self) { NORMALIZE };
+
+static PyObject *
+NewMatrix_getSize(NewMatrix *self)
+{
+    return Py_BuildValue("(ii)", self->rowsize, self->colsize);
+};
+
+static PyObject *
+NewMatrix_getRate(NewMatrix *self)
+{
+    float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    return PyFloat_FromDouble(sr / self->rowsize);
+};
+
+static PyObject *
+NewMatrix_getMatrix(NewMatrix *self)
+{
+    int i, j;
+    PyObject *samples;
+    
+    samples = PyList_New(self->size);
+    for(i=0; i<self->colsize; i++) {
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    }
+    
+    return samples;
+};
+
+static PyMemberDef NewMatrix_members[] = {
+{"server", T_OBJECT_EX, offsetof(NewMatrix, server), 0, "Pyo server."},
+{"matrixstream", T_OBJECT_EX, offsetof(NewMatrix, matrixstream), 0, "Matrix stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef NewMatrix_methods[] = {
+{"getServer", (PyCFunction)NewMatrix_getServer, METH_NOARGS, "Returns server object."},
+{"getMatrix", (PyCFunction)NewMatrix_getMatrix, METH_NOARGS, "Returns a list of matrix samples."},
+{"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, "Returns matrixstream object created by this matrix."},
+//{"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the table from samples in a text file."},
+//{"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+{"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
+{"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject NewMatrixType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.NewMatrix_base",         /*tp_name*/
+sizeof(NewMatrix),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)NewMatrix_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,                         /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+"NewMatrix objects. Generates an empty matrix.",  /* tp_doc */
+(traverseproc)NewMatrix_traverse,   /* tp_traverse */
+(inquiry)NewMatrix_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+NewMatrix_methods,             /* tp_methods */
+NewMatrix_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)NewMatrix_init,      /* tp_init */
+0,                         /* tp_alloc */
+NewMatrix_new,                 /* tp_new */
+};
 
 
