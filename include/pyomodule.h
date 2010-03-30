@@ -100,6 +100,8 @@ extern PyTypeObject TableRecType;
 extern PyTypeObject TableRecTrigType;
 extern PyTypeObject TableMorphType;
 
+extern PyTypeObject NewMatrixType;
+
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
 extern PyTypeObject OscReceiverType;
@@ -168,10 +170,10 @@ extern PyTypeObject M_TanType;
 #define pyo_matrix_HEAD \
     PyObject_HEAD \
     PyObject *server; \
-    TableStream *tablestream; \
+    MatrixStream *matrixstream; \
     int rowsize; \
     int colsize; \
-    float *data;
+    float **data;
 
 /* VISIT & CLEAR */
 #define pyo_VISIT \

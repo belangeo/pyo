@@ -57,14 +57,14 @@ MatrixStream_getColSize(MatrixStream *self)
     return self->colsize;
 }
 
-float *
+float **
 MatrixStream_getData(MatrixStream *self)
 {
-    return (float *)self->data;
+    return (float **)self->data;
 }    
 
 void
-MatrixStream_setData(MatrixStream *self, float *data)
+MatrixStream_setData(MatrixStream *self, float **data)
 {
     self->data = data;
 }    
@@ -137,11 +137,11 @@ NewMatrix_recordChunk(NewMatrix *self, float *data, int datasize)
 {
     int i;
 
-    for (i=0; i<datasize; i++) {
+/*    for (i=0; i<datasize; i++) {
         self->data[self->pointer++] = data[i];
         if (self->pointer == self->size)
             self->pointer = 0;
-    }    
+    } */
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -189,19 +189,27 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 NewMatrix_init(NewMatrix *self, PyObject *args, PyObject *kwds)
 {    
-    int i;
+    int i, j;
     PyObject *inittmp=NULL;
     static char *kwlist[] = {"rows", "cols", "init", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->rowsize, &self->colsize, &inittmp))
         return -1; 
 
-    //float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    self->data = (float **)realloc(self->data, (self->rowsize + 1) * sizeof(float));
 
-    self->data = (float *)realloc(self->data, (self->size + 1) * sizeof(float));
+    for (i=0; i<(self->rowsize+1); i++) {
+        self->data[i] = (float *)malloc((self->colsize + 1) * sizeof(float));
+    }
 
-    for (i=0; i<(self->size+1); i++) {
-        self->data[i] = 0.;
+    for(i=0; i<(self->rowsize+1); i++) {
+        for (j=0; j<(self->colsize+1); j++) {
+            self->data[i][j] = 0.0;
+        }    
+    }
+    
+    if (inittmp) {
+        PyObject_CallMethod((PyObject *)self, "setMatrix", "O", inittmp);
     }
     
     MatrixStream_setRowSize(self->matrixstream, self->rowsize);
@@ -234,15 +242,45 @@ static PyObject *
 NewMatrix_getMatrix(NewMatrix *self)
 {
     int i, j;
-    PyObject *samples;
+    PyObject *matrix, *samples;
     
-    samples = PyList_New(self->size);
-    for(i=0; i<self->colsize; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
+    matrix = PyList_New(self->rowsize);
+    for(i=0; i<self->rowsize; i++) {
+        samples = PyList_New(self->colsize);
+        for (j=0; j<self->colsize; j++) {
+            PyList_SetItem(samples, j, PyFloat_FromDouble(self->data[i][j]));
+        }    
+        PyList_SetItem(matrix, i, samples);
     }
     
-    return samples;
+    return matrix;
 };
+
+static PyObject *
+NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
+{
+    int i, j;
+    PyObject *innerlist;
+
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The matrix value value must be a list.");
+        return PyInt_FromLong(-1);
+    }
+
+    for(i=0; i<self->rowsize; i++) {
+        innerlist = PyList_GetItem(value, i);
+        for (j=0; j<self->colsize; j++) {
+            self->data[i][j] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(innerlist, j)));
+        }    
+    }
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
 
 static PyMemberDef NewMatrix_members[] = {
 {"server", T_OBJECT_EX, offsetof(NewMatrix, server), 0, "Pyo server."},
@@ -254,6 +292,7 @@ static PyMethodDef NewMatrix_methods[] = {
 {"getServer", (PyCFunction)NewMatrix_getServer, METH_NOARGS, "Returns server object."},
 {"getMatrix", (PyCFunction)NewMatrix_getMatrix, METH_NOARGS, "Returns a list of matrix samples."},
 {"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, "Returns matrixstream object created by this matrix."},
+{"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, "Sets the matrix from a list of list of floats."},
 //{"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the table from samples in a text file."},
 //{"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
