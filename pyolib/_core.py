@@ -1123,24 +1123,51 @@ class PyoTableObject(object):
         win.title("Table waveform")
 
 ######################################################################
+### View window for PyoTableObject (need revision)
+######################################################################
+class ViewMatrix(Frame):
+    def __init__(self, master=None, samples=None, size=None):
+        Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self.samples = samples
+        #self.line_points = []
+        self.width = size[0]
+        self.height = size[1]
+        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        for i in range(self.width):
+            for j in range(self.height):
+                self.line_points = [i]
+                self.line_points.append(self.height-j)
+                self.line_points.append(i+1)
+                self.line_points.append(self.height-(j-1))
+                amp = int(self.samples[i][j] * 127 + 127)
+                amp = hex(amp).replace('0x', '')
+                if len(amp) == 1:
+                    amp = "0%s" % amp
+                amp = "#%s%s%s" % (amp, amp, amp)
+                self.canvas.create_line(*self.line_points, fill=amp)
+        self.canvas.grid()
+        self.grid(ipadx=10, ipady=10)
+
+######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
 ######################################################################
 class PyoMatrixObject(object):
     """
     Base class for all pyo matrix objects. 
     
-    A table object is a buffer memory to store precomputed samples. 
+    A matrix object is 2 dimensions buffer memory to store 
+    precomputed samples. 
     
     The user should never instantiate an object of this class.
  
     Methods:
     
-    getSize() : Return table size in samples.
-    view() : Opens a window showing the contents of the table.
+    getSize() : Return matrix size in samples (x, y).
+    view() : Opens a window showing the contents of the matrix.
     dump() : Print current status of the object's attributes.
-    write(path) : Writes the content of the table into a text file.
-    read(path) : Sets the content of the table from a text file.
-    normalize() : Normalize table samples between -1 and 1.
+    write(path) : Writes the content of the matrix into a text file.
+    read(path) : Sets the content of the matrix from a text file.
+    normalize() : Normalize matrix samples between -1 and 1.
     
     Notes:
     
@@ -1184,23 +1211,23 @@ class PyoMatrixObject(object):
 
     def write(self, path):
         """
-        Writes the content of the table into a text file.
+        Writes the content of the matrix into a text file.
         
-        This function can be used to store the table data as a
-        list of floats into a text file.
+        This function can be used to store the matrix data as a
+        list of list of floats into a text file.
          
         """
         f = open(path, "w")
-        f.write(str([obj.getMatrix() for obj in self._base_objs]))
+        f.write(str([obj.getData() for obj in self._base_objs]))
         f.close()
 
     def read(self, path):
         """
-        Reads the content of a text file and replaces the table data
+        Reads the content of a text file and replaces the matrix data
         with the values in the file.
         
         Format is a list of lists of floats. For example, A two 
-        tablestreams object must be given a content like this:
+        matrixstreams object must be given a content like this:
         
         [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]
         
@@ -1241,11 +1268,11 @@ class PyoMatrixObject(object):
         Opens a window showing the contents of the table.
         
         """
-        samples = self._base_objs[0].getTable()
+        samples = self._base_objs[0].getData()
         win = Tk()
-        f = ViewTable(win, samples)
+        f = ViewMatrix(win, samples, self.getSize())
         win.resizable(False, False)
-        win.title("Table waveform")
+        win.title("Matrix viewer")
        
 ######################################################################
 ### Internal classes -> Used by pyo

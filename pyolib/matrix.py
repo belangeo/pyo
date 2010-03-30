@@ -24,28 +24,30 @@ from _core import *
 ######################################################################                                       
 class NewMatrix(PyoMatrixObject):
     """
-    Create an empty table ready for recording. 
+    Create a new matrix ready for recording. Optionally, the matrix
+    can be filled with the contents of the `init` parameter. 
     
-    See `TableRec` to write samples in the table.
+    See `MatrixRec` to write samples in the matrix.
     
-    Parent class: PyoTableObject
+    Parent class: PyoMatrixObject
     
     Parameters:
     
-    length : float
-        Length of the table in seconds.
-    chnls : int, optional
-        Number of channels that will be handled by the table. 
-        Defaults to 1.
+    rows : ints
+        Number of rows in the matrix.
+    cols : int
+        Number of columns in the matrix.
+    init : list of list of floats, optional
+        Initial matrix. Defaults to None.
         
     Methods:    
     
-    getSize() : Returns the length of the table in samples.
-    getLength() : Returns the length of the table in seconds.
+    replace() : Replaces the actual matrix.
+    getSize() : Returns the length of the matrix in samples (x, y).
     getRate() : Returns the frequency (cycle per second) to give 
-        to an oscillator to read the sound at its original pitch.
+        to an oscillator to read a row at its original pitch.
 
-    See also: TableRec
+    See also: MatrixRec
 
     Examples:
     
@@ -67,6 +69,18 @@ class NewMatrix(PyoMatrixObject):
             
     def __dir__(self):
         return []
+
+    def replace(self, x):
+        """
+        Replaces the actual matrix.
+        
+        Parameters:
+        
+        x : list of list of floats
+            New matrix. Must be of the same size as the actual matrix.
+
+        """
+        [obj.setMatrix(x) for obj in self._base_objs]
      
     def getSize(self):
         """
