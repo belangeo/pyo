@@ -37,6 +37,7 @@ from pyolib.server import *
 from pyolib.sfplayer import *
 from pyolib.tableprocess import *
 from pyolib.tables import *
+from pyolib.matrix import *
 from pyolib.triggers import *
 from pyolib.utils import *
 
@@ -66,6 +67,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 
                                 'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable']),
+        'PyoMatrixObject': sorted(['NewMatrix']),                        
         'Server': [], 
         'Stream': [], 
         'TableStream': [],

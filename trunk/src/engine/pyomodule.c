@@ -27,6 +27,7 @@
 #include "streammodule.h"
 #include "dummymodule.h"
 #include "tablemodule.h"
+#include "matrixmodule.h"
 
 /* Portaudio stuff */
 static void portaudio_assert(PaError ecode, const char* cmdName) {
@@ -311,6 +312,17 @@ init_pyo(void)
         return;
     Py_INCREF(&TableRecTrigType);
     PyModule_AddObject(m, "TableRecTrig_base", (PyObject *)&TableRecTrigType);
+
+    /* Matrix objects */
+    if (PyType_Ready(&MatrixStreamType) < 0)
+        return;
+    Py_INCREF(&MatrixStreamType);
+    PyModule_AddObject(m, "MatrixStream", (PyObject *)&MatrixStreamType);
+    
+    if (PyType_Ready(&NewMatrixType) < 0)
+        return;
+    Py_INCREF(&NewMatrixType);
+    PyModule_AddObject(m, "NewMatrix_base", (PyObject *)&NewMatrixType);
     
     if (PyType_Ready(&InputType) < 0)
         return;

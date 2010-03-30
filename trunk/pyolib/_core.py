@@ -1121,6 +1121,131 @@ class PyoTableObject(object):
         f = ViewTable(win, samples)
         win.resizable(False, False)
         win.title("Table waveform")
+
+######################################################################
+### PyoMatrixObject -> base class for pyo matrix objects
+######################################################################
+class PyoMatrixObject(object):
+    """
+    Base class for all pyo matrix objects. 
+    
+    A table object is a buffer memory to store precomputed samples. 
+    
+    The user should never instantiate an object of this class.
+ 
+    Methods:
+    
+    getSize() : Return table size in samples.
+    view() : Opens a window showing the contents of the table.
+    dump() : Print current status of the object's attributes.
+    write(path) : Writes the content of the table into a text file.
+    read(path) : Sets the content of the table from a text file.
+    normalize() : Normalize table samples between -1 and 1.
+    
+    Notes:
+    
+    Operations allowed on all table objects :
+    
+    len(obj) : Return the number of table streams in an object.
+    obj[x] : Return table stream `x` of the object. `x` is a number 
+        from 0 to len(obj) - 1.
+
+    """
+    def __init__(self):
+        pass
+
+    def __getitem__(self, i):
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+ 
+    def __len__(self):
+        return len(self._base_objs)
+
+    def __repr__(self):
+        return '< Instance of %s class >' % self.__class__.__name__
+        
+    def dump(self):
+        """
+        Print the number of streams and the current status of the 
+        object's attributes.
+        
+        """
+        attrs = dir(self)
+        pp =  '< Instance of %s class >' % self.__class__.__name__
+        pp += '\n-----------------------------'
+        pp += '\nNumber of audio streams: %d' % len(self)
+        pp += '\n--- Attributes ---'
+        for attr in attrs:
+            pp += '\n' + attr + ': ' + str(getattr(self, attr))
+        pp += '\n-----------------------------'
+        return pp    
+
+    def write(self, path):
+        """
+        Writes the content of the table into a text file.
+        
+        This function can be used to store the table data as a
+        list of floats into a text file.
+         
+        """
+        f = open(path, "w")
+        f.write(str([obj.getMatrix() for obj in self._base_objs]))
+        f.close()
+
+    def read(self, path):
+        """
+        Reads the content of a text file and replaces the table data
+        with the values in the file.
+        
+        Format is a list of lists of floats. For example, A two 
+        tablestreams object must be given a content like this:
+        
+        [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]
+        
+        Each object's tablestream will be resized according to the 
+        length of the lists.
+        
+        """
+        f = open(path, "r")
+        f_list = eval(f.read())
+        f_len = len(f_list)
+        f.close()
+        [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
+        
+    def getBaseObjects(self):
+        """
+        Return a list of table Stream objects.
+        
+        """
+        return self._base_objs
+
+    def getSize(self):
+        """
+        Return table size in samples.
+        
+        """
+        return self._size
+
+    def normalize(self):
+        """
+        Normalize table samples between -1 and 1.
+
+        """
+        [obj.normalize() for obj in self._base_objs]
+        return self
+
+    def view(self):
+        """
+        Opens a window showing the contents of the table.
+        
+        """
+        samples = self._base_objs[0].getTable()
+        win = Tk()
+        f = ViewTable(win, samples)
+        win.resizable(False, False)
+        win.title("Table waveform")
        
 ######################################################################
 ### Internal classes -> Used by pyo

@@ -26,7 +26,7 @@ typedef struct {
     PyObject_HEAD
     int rowsize;
     int colsize;
-    float *data;
+    float **data;
 } MatrixStream;
 
 
