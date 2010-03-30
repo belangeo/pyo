@@ -165,6 +165,14 @@ extern PyTypeObject M_TanType;
     int size; \
     float *data;
 
+#define pyo_matrix_HEAD \
+    PyObject_HEAD \
+    PyObject *server; \
+    TableStream *tablestream; \
+    int rowsize; \
+    int colsize; \
+    float *data;
+
 /* VISIT & CLEAR */
 #define pyo_VISIT \
     Py_VISIT(self->stream); \
@@ -266,7 +274,7 @@ extern PyTypeObject M_TanType;
 
 #define GET_STREAM \
     if (self->stream == NULL) { \
-        PyErr_SetString(PyExc_TypeError, "No stream found!"); \
+        PyErr_SetString(PyExc_TypeError, "No stream founded!"); \
         return PyInt_FromLong(-1); \
     } \
     Py_INCREF(self->stream); \
@@ -274,11 +282,19 @@ extern PyTypeObject M_TanType;
 
 #define GET_TABLE_STREAM \
     if (self->tablestream == NULL) { \
-        PyErr_SetString(PyExc_TypeError, "No table stream found!"); \
+        PyErr_SetString(PyExc_TypeError, "No table stream founded!"); \
         return PyInt_FromLong(-1); \
     } \
     Py_INCREF(self->tablestream); \
     return (PyObject *)self->tablestream; \
+
+#define GET_MATRIX_STREAM \
+    if (self->matrixstream == NULL) { \
+        PyErr_SetString(PyExc_TypeError, "No matrix stream founded!"); \
+        return PyInt_FromLong(-1); \
+    } \
+    Py_INCREF(self->matrixstream); \
+    return (PyObject *)self->matrixstream; \
 
 #define SET_MUL \
     PyObject *tmp, *streamtmp; \

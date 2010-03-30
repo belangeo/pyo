@@ -2027,7 +2027,7 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
     int i;
     static char *kwlist[] = {"length", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|i", kwlist, &self->length))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f", kwlist, &self->length))
         return -1; 
 
     float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
