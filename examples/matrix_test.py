@@ -18,6 +18,11 @@ def terrain(size=256, phase=32):
     return l
     
 m = NewMatrix(256, 256, terrain())
-m.view()
+#m.view()
+
+row = Sine(50, 0, .5, .5)
+col = Sine(25, 0, .5, .5)
+
+a = MatrixPointer(m, row, col).out()
 
 s.gui(locals())

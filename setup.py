@@ -26,15 +26,14 @@ path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
         'interpolation.c']
 source_files = [path + f for f in files]
+
 path = 'src/objects/'
-if 0:
-    files = ['matrixmodule.c']
-else:
-    files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 'sigmodule.c',
+files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 'sigmodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'oscmodule.c', 'delaymodule.c', 'sfplayermodule.c',
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
         'selectmodule.c', 'freeverbmodule.c', 'granulatormodule.c', 'compressmodule.c', 'analysismodule.c', 
-        'convolvemodule.c', 'randommodule.c', 'wgverbmodule.c', 'utilsmodule.c', 'arithmeticmodule.c', 'matrixmodule.c']
+        'convolvemodule.c', 'randommodule.c', 'wgverbmodule.c', 'utilsmodule.c', 'arithmeticmodule.c', 'matrixmodule.c',
+        'matrixprocessmodule.c']
 source_files = source_files + [path + f for f in files]
 
 include_dirs = ['include']
