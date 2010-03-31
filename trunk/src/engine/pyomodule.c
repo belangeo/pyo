@@ -323,6 +323,11 @@ init_pyo(void)
         return;
     Py_INCREF(&NewMatrixType);
     PyModule_AddObject(m, "NewMatrix_base", (PyObject *)&NewMatrixType);
+
+    if (PyType_Ready(&MatrixPointerType) < 0)
+        return;
+    Py_INCREF(&MatrixPointerType);
+    PyModule_AddObject(m, "MatrixPointer_base", (PyObject *)&MatrixPointerType);
     
     if (PyType_Ready(&InputType) < 0)
         return;

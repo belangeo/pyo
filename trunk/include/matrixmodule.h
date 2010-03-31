@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
  * Copyright 2010 Olivier Belanger                                        *                  
  *                                                                        * 
  * This file is part of pyo, a python module to help digital signal       *
@@ -40,7 +40,7 @@ if ((self) == rt_error) { return rt_error; }	\
 
 int MatrixStream_getRowSize(PyObject *self);
 int MatrixStream_getColSize(PyObject *self);
-float * MatrixStream_getData(PyObject *self);
+float ** MatrixStream_getData(PyObject *self);
 extern PyTypeObject MatrixStreamType;
 
 #endif

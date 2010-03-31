@@ -36,6 +36,7 @@ from pyolib.randoms import *
 from pyolib.server import *
 from pyolib.sfplayer import *
 from pyolib.tableprocess import *
+from pyolib.matrixprocess import *
 from pyolib.tables import *
 from pyolib.matrix import *
 from pyolib.triggers import *
@@ -59,6 +60,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'sfplayer': sorted(['SfMarkerShuffler', 'SfPlayer']),
                       'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 
                                             'TableRead', 'TableMorph']),
+                      'matrixprocess': sorted(['MatrixPointer']), 
                       'triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 
                                         'TrigFunc', 'Thresh', 'Cloud', 'Trig', 'TrigXnoise', 'TrigXnoiseMidi',
                                         'Change']),

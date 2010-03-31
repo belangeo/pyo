@@ -60,6 +60,7 @@ MatrixStream_getColSize(MatrixStream *self)
 float **
 MatrixStream_getData(MatrixStream *self)
 {
+    printf("%i\n", self->data[5][10]);
     return (float **)self->data;
 }    
 
