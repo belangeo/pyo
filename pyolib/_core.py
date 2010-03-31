@@ -89,6 +89,7 @@ def convertArgsToLists(*args):
     for i in args:
         if isinstance(i, PyoObject): pass  
         elif isinstance(i, PyoTableObject): pass 
+        elif isinstance(i, PyoMatrixObject): pass 
         elif type(i) != ListType: i = [i]
             
         if first: tup = (i,)
