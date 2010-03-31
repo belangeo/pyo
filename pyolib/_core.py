@@ -1050,7 +1050,7 @@ class PyoTableObject(object):
         attrs = dir(self)
         pp =  '< Instance of %s class >' % self.__class__.__name__
         pp += '\n-----------------------------'
-        pp += '\nNumber of audio streams: %d' % len(self)
+        pp += '\nNumber of table streams: %d' % len(self)
         pp += '\n--- Attributes ---'
         for attr in attrs:
             pp += '\n' + attr + ': ' + str(getattr(self, attr))
@@ -1123,7 +1123,7 @@ class PyoTableObject(object):
         win.title("Table waveform")
 
 ######################################################################
-### View window for PyoTableObject (need revision)
+### View window for PyoMatrixObject (need revision)
 ######################################################################
 class ViewMatrix(Frame):
     def __init__(self, master=None, samples=None, size=None):
@@ -1171,7 +1171,7 @@ class PyoMatrixObject(object):
     
     Notes:
     
-    Operations allowed on all table objects :
+    Operations allowed on all matrix objects :
     
     len(obj) : Return the number of table streams in an object.
     obj[x] : Return table stream `x` of the object. `x` is a number 
@@ -1202,7 +1202,7 @@ class PyoMatrixObject(object):
         attrs = dir(self)
         pp =  '< Instance of %s class >' % self.__class__.__name__
         pp += '\n-----------------------------'
-        pp += '\nNumber of audio streams: %d' % len(self)
+        pp += '\nNumber of matrix streams: %d' % len(self)
         pp += '\n--- Attributes ---'
         for attr in attrs:
             pp += '\n' + attr + ': ' + str(getattr(self, attr))
@@ -1229,7 +1229,8 @@ class PyoMatrixObject(object):
         Format is a list of lists of floats. For example, A two 
         matrixstreams object must be given a content like this:
         
-        [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]
+        [[[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]],
+        [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]]
         
         Each object's tablestream will be resized according to the 
         length of the lists.
