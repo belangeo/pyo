@@ -328,6 +328,16 @@ init_pyo(void)
         return;
     Py_INCREF(&MatrixPointerType);
     PyModule_AddObject(m, "MatrixPointer_base", (PyObject *)&MatrixPointerType);
+
+    if (PyType_Ready(&MatrixRecType) < 0)
+        return;
+    Py_INCREF(&MatrixRecType);
+    PyModule_AddObject(m, "MatrixRec_base", (PyObject *)&MatrixRecType);
+
+    if (PyType_Ready(&MatrixRecTrigType) < 0)
+        return;
+    Py_INCREF(&MatrixRecTrigType);
+    PyModule_AddObject(m, "MatrixRecTrig_base", (PyObject *)&MatrixRecTrigType);
     
     if (PyType_Ready(&InputType) < 0)
         return;

@@ -102,6 +102,8 @@ extern PyTypeObject TableMorphType;
 
 extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;
+extern PyTypeObject MatrixRecType;
+extern PyTypeObject MatrixRecTrigType;
 
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
