@@ -53,49 +53,13 @@ typedef struct {
 
 static void
 MatrixPointer_readframes(MatrixPointer *self) {
-    printf("inside readframes\n");
-    float rowpos, colpos, rfpart, cfpart, rx, rx1, cx, cx1;
-    int i, ripart, cipart;
-    float **matrixlist = MatrixStream_getData(self->matrix);
-    printf("initialized matrixlist\n");
-    int rowsize = MatrixStream_getRowSize(self->matrix);
-    int colsize = MatrixStream_getColSize(self->matrix);
+    int i;
     
     float *row = Stream_getData((Stream *)self->indexrow_stream);
     float *col = Stream_getData((Stream *)self->indexcol_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        rowpos = row[i] * rowsize;
-        if (rowpos < 0)
-            rowpos += rowsize;
-        else if (rowpos >= rowsize) {
-            while (rowpos >= rowsize) {
-                rowpos -= rowsize;
-            }
-        }    
-
-        colpos = col[i] * colsize;
-        if (colpos < 0)
-            colpos += colsize;
-        else if (colpos >= colsize) {
-            while (colpos >= colsize) {
-                colpos -= colsize;
-            }
-        }    
-        
-        ripart = (int)rowpos;
-        rfpart = rowpos - ripart;
-        
-        cipart = (int)colpos;
-        cfpart = colpos - cipart;
-        
-        rx = matrixlist[ripart][cipart];
-        rx1 = matrixlist[ripart+1][cipart];
-        
-        cx = matrixlist[ripart][cipart];
-        cx1 = matrixlist[ripart][cipart+1];
-        
-        self->data[i] = ((rx + (rx1 - rx) * rfpart) + (cx + (cx1 - cx) * cfpart)) * 0.5;
+        self->data[i] = MatrixStream_getInterpPointFromPos(self->matrix, row[i], col[i]);
     }
 }
 

@@ -57,12 +57,43 @@ MatrixStream_getColSize(MatrixStream *self)
     return self->colsize;
 }
 
-float **
-MatrixStream_getData(MatrixStream *self)
+/* row and col position normalized between 0 and 1 */
+float
+MatrixStream_getInterpPointFromPos(MatrixStream *self, float row, float col)
 {
-    printf("%i\n", self->data[5][10]);
-    return (float **)self->data;
-}    
+    float rowpos, colpos, rfpart, cfpart, x1, x2, x3;
+    int ripart, cipart;
+
+    rowpos = row * self->rowsize;
+    if (rowpos < 0)
+        rowpos += self->rowsize;
+    else if (rowpos >= self->rowsize) {
+        while (rowpos >= self->rowsize) {
+            rowpos -= self->rowsize;
+        }
+    }    
+
+    colpos = col * self->colsize;
+    if (colpos < 0)
+        colpos += self->colsize;
+    else if (colpos >= self->colsize) {
+        while (colpos >= self->colsize) {
+            colpos -= self->colsize;
+        }
+    }    
+
+    ripart = (int)rowpos;
+    rfpart = rowpos - ripart;
+        
+    cipart = (int)colpos;
+    cfpart = colpos - cipart;
+
+    x1 = self->data[ripart][cipart];
+    x2 = self->data[ripart+1][cipart];
+    x3 = self->data[ripart][cipart+1];
+        
+    return ((x1 + (x2 - x1) * rfpart) + (x1 + (x3 - x1) * cfpart)) * 0.5;
+}
 
 void
 MatrixStream_setData(MatrixStream *self, float **data)
@@ -136,7 +167,7 @@ typedef struct {
 static PyObject *
 NewMatrix_recordChunk(NewMatrix *self, float *data, int datasize)
 {
-    int i;
+    //int i;
 
 /*    for (i=0; i<datasize; i++) {
         self->data[self->pointer++] = data[i];

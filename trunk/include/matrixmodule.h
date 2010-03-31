@@ -40,7 +40,7 @@ if ((self) == rt_error) { return rt_error; }	\
 
 int MatrixStream_getRowSize(PyObject *self);
 int MatrixStream_getColSize(PyObject *self);
-float ** MatrixStream_getData(PyObject *self);
+float MatrixStream_getInterpPointFromPos(PyObject *self, float row, float col);
 extern PyTypeObject MatrixStreamType;
 
 #endif
