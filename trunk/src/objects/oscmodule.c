@@ -85,6 +85,14 @@ OscReceiver_dealloc(OscReceiver* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
+static PyObject *
+OscReceiver_free_port(OscReceiver *self)
+{
+    lo_server_free(self->osc_server);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject * OscReceiver_deleteStream(OscReceiver *self) { DELETE_STREAM };
 
 static PyObject *
@@ -160,6 +168,7 @@ static PyMethodDef OscReceiver_methods[] = {
 {"getServer", (PyCFunction)OscReceiver_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscReceiver_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)OscReceiver_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"free_port", (PyCFunction)OscReceiver_free_port, METH_NOARGS, "Call on __del__ method to free osc port used by the object."},
 {NULL}  /* Sentinel */
 };
 

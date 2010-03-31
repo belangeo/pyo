@@ -161,6 +161,7 @@ class OscReceive(PyoObject):
         return ['mul', 'add']
 
     def __del__(self):
+        self._mainReceiver.free_port()
         for obj in self._base_objs:
             obj.deleteStream()
             del obj

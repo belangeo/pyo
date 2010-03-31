@@ -24,8 +24,10 @@ from _core import *
 ######################################################################                                       
 class NewMatrix(PyoMatrixObject):
     """
-    Create a new matrix ready for recording. Optionally, the matrix
-    can be filled with the contents of the `init` parameter. 
+    Create a new matrix ready for recording. 
+
+    Optionally, the matrix can be filled with the contents of the 
+    `init` parameter. 
     
     See `MatrixRec` to write samples in the matrix.
     
@@ -43,7 +45,6 @@ class NewMatrix(PyoMatrixObject):
     Methods:    
     
     replace() : Replaces the actual matrix.
-    getSize() : Returns the length of the matrix in samples (x, y).
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read a row at its original pitch.
 
@@ -62,6 +63,7 @@ class NewMatrix(PyoMatrixObject):
 
     """
     def __init__(self, rows, cols, init=None):
+        self._size = (rows, cols)
         if init == None:
             self._base_objs = [NewMatrix_base(rows, cols)]
         else:
@@ -81,14 +83,7 @@ class NewMatrix(PyoMatrixObject):
 
         """
         [obj.setMatrix(x) for obj in self._base_objs]
-     
-    def getSize(self):
-        """
-        Returns the length of the table in samples.
-        
-        """
-        return self._base_objs[0].getSize()
-          
+         
     def getRate(self):
         """
         Returns the frequency (cycle per second) to give to an 
