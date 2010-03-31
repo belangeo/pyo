@@ -110,6 +110,10 @@ def wrap(arg, i):
     x = arg[i % len(arg)]
     if isinstance(x, PyoObject):
         return x[0]
+    elif isinstance(i, PyoTableObject):
+        return x[0]
+    elif isinstance(i, PyoMatrixObject):
+        return x[0]
     else:
         return x
 
