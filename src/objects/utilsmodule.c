@@ -62,7 +62,7 @@ Print_process_change(Print *self) {
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        if (inval != self->lastValue) {
+        if (inval < (self->lastValue-0.00001) || inval > (self->lastValue+0.00001)) {
             printf("%f\n", inval);
             self->lastValue = inval;
         }

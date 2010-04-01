@@ -63,7 +63,7 @@ MatrixStream_getColSize(MatrixStream *self)
 float
 MatrixStream_getInterpPointFromPos(MatrixStream *self, float row, float col)
 {
-    float rowpos, colpos, rfpart, cfpart, x1, x2, x3;
+    float rowpos, colpos, rfpart, cfpart, x1, x2, x3, x4;
     int ripart, cipart;
 
     rowpos = row * self->rowsize;
@@ -90,11 +90,12 @@ MatrixStream_getInterpPointFromPos(MatrixStream *self, float row, float col)
     cipart = (int)colpos;
     cfpart = colpos - cipart;
 
-    x1 = self->data[ripart][cipart];
-    x2 = self->data[ripart+1][cipart];
-    x3 = self->data[ripart][cipart+1];
+    x1 = self->data[ripart][cipart]; // (0, 0)
+    x2 = self->data[ripart+1][cipart]; // (1, 0)
+    x3 = self->data[ripart][cipart+1]; // (0, 1)
+    x4 = self->data[ripart+1][cipart+1]; // (1, 1)
         
-    return ((x1 + (x2 - x1) * rfpart) + (x1 + (x3 - x1) * cfpart)) * 0.5;
+    return (x1*(1-rfpart)*(1-cfpart) + x2*rfpart*(1-cfpart) + x3*(1-rfpart)*cfpart + x4*rfpart*cfpart);
 }
 
 void
@@ -435,7 +436,10 @@ MatrixRec_compute_next_data_frame(MatrixRec *self)
     else {
         num = size - self->pointer;
         if (self->active == 1) {
-            self->trigsBuffer[num-1] = 1.0;
+            if (num <= 0)
+                self->trigsBuffer[0] = 1.0;
+            else
+                self->trigsBuffer[num-1] = 1.0;
             self->active = 0;
         }    
     }

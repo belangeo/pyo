@@ -2171,7 +2171,10 @@ TableRec_compute_next_data_frame(TableRec *self)
     else {
         num = size - self->pointer;
         if (self->active == 1) {
-            self->trigsBuffer[num-1] = 1.0;
+            if (num <= 0)
+                self->trigsBuffer[0] = 1.0;
+            else
+                self->trigsBuffer[num-1] = 1.0;
             self->active = 0;
         }    
     }

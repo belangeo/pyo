@@ -188,7 +188,7 @@ MatrixPointer_init(MatrixPointer *self, PyObject *args, PyObject *kwds)
     }
 
     if (indexcoltmp) {
-        PyObject_CallMethod((PyObject *)self, "setIndexCol", "O", indexrowtmp);
+        PyObject_CallMethod((PyObject *)self, "setIndexCol", "O", indexcoltmp);
     }
     
     PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);

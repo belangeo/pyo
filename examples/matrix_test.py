@@ -6,49 +6,48 @@ Created by Guacamole Au Tofu on 2010-03-30.
 from pyo import *
 import random
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
+s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
-def terrain(size=256, phase=23):
+def terrain(size=256, freq=1.25, phase=16):
     l = []
     for i in range(size):
         ph = math.sin(i/float(phase))
-        amp = 0.5 + (math.cos(math.pi * 2 * (i - size/2) / size) * 0.5)
-        tmp = [amp * math.sin(2 * math.pi * 2 * (j/float(size)) + ph) for j in range(size)]
+        tmp = [math.sin(2 * math.pi * freq * (j/float(size)) + ph) for j in range(size)]
         l.append(tmp)
     return l
 
-"""
-    SIZE = 512
+TEST = 0
+if TEST == 0:
+    SIZE = 256
     m = NewMatrix(SIZE, SIZE, terrain(SIZE))
     m.normalize()
     m.view()
-
-    lfrow = Sine(.1, 0, .124, .25)
+    rnd = Randi(0.05, 0.45, .1)
+    row = Sine([99.5,99.76], 0, .49, .5)
+    col = Sine(12.5, 0, rnd, .5)
+    a = MatrixPointer(m, row, col, mul=.25).out()
+if TEST == 1:
+    SIZE = 512
+    mm = NewMatrix(SIZE, SIZE)
+    fmind = Sine(.2, 0, 2, 2.5)
+    aa = FM(carrier=25, index=fmind)
+    rec = MatrixRec(aa, mm, 1)
+    lfrow = Sine(.1, 0, .24, .25)
     lfcol = Sine(.15, 0, .124, .25)
-    row = Sine([124.5,124.76], 0, lfrow, .5)
-    col = Sine(250, 0, .25, lfcol)
+    row = Sine(1000, 0, lfrow, .5)
+    col = Sine(1.5, 0, lfcol, .5)
+    c = MatrixPointer(mm, row, col).out()
 
-    a = MatrixPointer(m, row, col).out()
-"""
-
-SIZE = 512
-mm = NewMatrix(SIZE, SIZE)
-
-fmind = Sine(.2, 0, 5, 6)
-aa = FM(index=fmind)
-
-def trigueux():
-    aa.speed = random.uniform(.25, 1)
-    print "sdfsdfsdfsdfsdf"
-    
-rec = MatrixRec(aa, mm, 1)
-tr = TrigFunc(rec["trig"], trigueux)
-
-lfrow = Sine(.1, 0, .24, .25)
-lfcol = Sine(.15, 0, .124, .25)
-row = Sine(1, 0, lfrow, .5)
-col = Sine(1.5, 0, lfcol, .5)
-
-c = MatrixPointer(mm, row, col).out()
-    
+    def func():
+        print "poutine"
+        
+    tr = TrigFunc(rec['trig'], func)
+if TEST == 2:
+    mat = [[0,1,2,3], [10,11,12,13], [20,21,22,23], [30,31,32,33]]
+    mm = NewMatrix(4,4,mat)
+    ph = RandInt(4, mul=.25)
+    co = Sig(0)
+    a = MatrixPointer(mm, co, ph)
+    p = Print(a, 1)
+            
 s.gui(locals())

@@ -1141,9 +1141,9 @@ class ViewMatrix(Frame):
         for i in range(self.width):
             for j in range(self.height):
                 self.line_points = [i]
-                self.line_points.append(self.height-j)
+                self.line_points.append(j)
                 self.line_points.append(i+1)
-                self.line_points.append(self.height-(j-1))
+                self.line_points.append(j+1)
                 amp = int(self.samples[i][j] * 127 + 127)
                 amp = hex(amp).replace('0x', '')
                 if len(amp) == 1:
@@ -1237,7 +1237,7 @@ class PyoMatrixObject(object):
         [[[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]],
         [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]]
         
-        Each object's tablestream will be resized according to the 
+        Each object's matrixstream will be resized according to the 
         length of the lists.
         
         """
