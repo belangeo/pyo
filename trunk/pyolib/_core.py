@@ -1134,7 +1134,6 @@ class ViewMatrix(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.samples = samples
-        #self.line_points = []
         self.width = size[0]
         self.height = size[1]
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
@@ -1173,6 +1172,7 @@ class PyoMatrixObject(object):
     write(path) : Writes the content of the matrix into a text file.
     read(path) : Sets the content of the matrix from a text file.
     normalize() : Normalize matrix samples between -1 and 1.
+    blur() : Apply a simple gaussian blur on the matrix.
     
     Notes:
     
@@ -1269,11 +1269,28 @@ class PyoMatrixObject(object):
         [obj.normalize() for obj in self._base_objs]
         return self
 
+    def blur(self):
+        """
+        Apply a simple gaussian blur on the matrix.
+
+        """
+        [obj.blur() for obj in self._base_objs]
+
     def view(self):
         """
         Opens a window showing the contents of the table.
         
         """
+        #from PIL import Image, ImageDraw, ImageTk
+        #im = Image.new("1", self.getSize(), None)
+        #draw = ImageDraw.Draw(im)
+        #size = self.getSize()
+        #data = self._base_objs[0].getData()
+        #[draw.point((x,y),fill=data[x][y]*128+128) for x in range(size[0]) for y in range(size[1])]
+        #bit = ImageTk.BitmapImage(im)
+        #im.save(os.getcwd() + "/test.bmp")
+        #im.show()
+        
         samples = self._base_objs[0].getData()
         win = Tk()
         f = ViewMatrix(win, samples, self.getSize())

@@ -270,6 +270,39 @@ static PyObject * NewMatrix_normalize(NewMatrix *self) { NORMALIZE_MATRIX };
 static PyObject * NewMatrix_setData(NewMatrix *self, PyObject *arg) { SET_MATRIX_DATA };
 
 static PyObject *
+NewMatrix_blur(NewMatrix *self) 
+{
+    int i,j;
+    float tmp[self->rowsize][self->colsize];
+    
+    /* handle boundaries */
+    int lc = self->colsize - 1;
+    int lr = self->rowsize - 1;
+    for (i=1; i<lc; i++) {
+        tmp[0][i] = (self->data[0][i-1] + self->data[0][i] + self->data[0][i+1]) * 0.3333333;
+        tmp[lr][i] = (self->data[lr][i-1] + self->data[lr][i] + self->data[lr][i+1]) * 0.3333333;
+    }
+    for (i=1; i<lr; i++) {
+        tmp[i][0] = (self->data[i-1][0] + self->data[i][0] + self->data[i+1][0]) * 0.3333333;
+        tmp[i][lc] = (self->data[i-1][lc] + self->data[i][lc] + self->data[i+1][lc]) * 0.3333333;
+    }
+    
+    /* handle all the rest of rows and cols */
+    for (i=1; i<lr; i++) {
+        for (j=1; j<lc; j++) {
+            tmp[i][j] = (self->data[i][j-1] + self->data[i][j] + self->data[i][j+1]) * 0.3333333;
+        }
+    }    
+    for (j=1; j<lc; j++) {
+        for (i=1; i<lr; i++) {
+            self->data[i][j] = (tmp[i-1][j] + tmp[i][j] + tmp[i+1][j]) * 0.3333333;
+        }
+    }        
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
+static PyObject *
 NewMatrix_getSize(NewMatrix *self)
 {
     return Py_BuildValue("(ii)", self->rowsize, self->colsize);
@@ -359,6 +392,7 @@ static PyMethodDef NewMatrix_methods[] = {
 {"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, "Sets the matrix from a list of list of floats (must be the same size as the object size)."},
 {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},
 {"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+{"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, "Blur the matrix."},
 {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
 {"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
 {NULL}  /* Sentinel */
