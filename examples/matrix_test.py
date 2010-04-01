@@ -16,7 +16,7 @@ def terrain(size=256, freq=1.25, phase=16):
         l.append(tmp)
     return l
 
-TEST = 0
+TEST = 1
 if TEST == 0:
     SIZE = 256
     m = NewMatrix(SIZE, SIZE, terrain(SIZE))
@@ -27,14 +27,15 @@ if TEST == 0:
     col = Sine(12.5, 0, rnd, .5)
     a = MatrixPointer(m, row, col, mul=.25).out()
 if TEST == 1:
-    SIZE = 512
+    SIZE = 256
     mm = NewMatrix(SIZE, SIZE)
     fmind = Sine(.2, 0, 2, 2.5)
-    aa = FM(carrier=25, index=fmind)
-    rec = MatrixRec(aa, mm, 1)
+    fmrat = Sine(.33, 0, .05, .5)
+    aa = FM(carrier=25, ratio=fmrat, index=fmind)
+    rec = MatrixRec(aa, mm, 0)
     lfrow = Sine(.1, 0, .24, .25)
     lfcol = Sine(.15, 0, .124, .25)
-    row = Sine(1000, 0, lfrow, .5)
+    row = Sine(10, 0, lfrow, .5)
     col = Sine(1.5, 0, lfcol, .5)
     c = MatrixPointer(mm, row, col).out()
 
