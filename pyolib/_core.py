@@ -1139,10 +1139,10 @@ class ViewMatrix(Frame):
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         for i in range(self.width):
             for j in range(self.height):
-                self.line_points = [i]
-                self.line_points.append(j)
-                self.line_points.append(i+1)
-                self.line_points.append(j+1)
+                self.line_points = [i+4]
+                self.line_points.append(j+4)
+                self.line_points.append(i+5)
+                self.line_points.append(j+5)
                 amp = int(self.samples[i][j] * 127 + 127)
                 amp = hex(amp).replace('0x', '')
                 if len(amp) == 1:
@@ -1150,7 +1150,7 @@ class ViewMatrix(Frame):
                 amp = "#%s%s%s" % (amp, amp, amp)
                 self.canvas.create_line(*self.line_points, fill=amp)
         self.canvas.grid()
-        self.grid(ipadx=10, ipady=10)
+        self.grid(ipadx=0, ipady=0)
 
 ######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
@@ -1173,6 +1173,7 @@ class PyoMatrixObject(object):
     read(path) : Sets the content of the matrix from a text file.
     normalize() : Normalize matrix samples between -1 and 1.
     blur() : Apply a simple gaussian blur on the matrix.
+    boost(min, max, boost) : Boost the contrast of values in the matrix.
     
     Notes:
     
@@ -1275,6 +1276,22 @@ class PyoMatrixObject(object):
 
         """
         [obj.blur() for obj in self._base_objs]
+
+    def boost(self, min=-1.0, max=1.0, boost=0.01):
+        """
+        Boost the constrast of value in the matrix.
+        
+        Parameters:
+        
+        min : float, optional
+            Minimum value. Defaults to -1.0.
+        max : float, optional
+            Maximum value. Defaults to 1.0.
+        boost : float, optional
+            Amount of boost applied on each value. Defaults to 0.01.
+
+        """
+        [obj.boost(min, max, boost) for obj in self._base_objs]
 
     def view(self):
         """
