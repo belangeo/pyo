@@ -8,7 +8,7 @@ import random
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
-def terrain(size=256, freq=1.25, phase=16):
+def terrain(size=256, freq=1, phase=16):
     l = []
     for i in range(size):
         ph = math.sin(i/float(phase))
@@ -16,7 +16,7 @@ def terrain(size=256, freq=1.25, phase=16):
         l.append(tmp)
     return l
 
-TEST = 1
+TEST = 0
 if TEST == 0:
     SIZE = 256
     m = NewMatrix(SIZE, SIZE, terrain(SIZE))
@@ -31,7 +31,7 @@ if TEST == 1:
     mm = NewMatrix(SIZE, SIZE)
     fmind = Sine(.2, 0, 2, 2.5)
     fmrat = Sine(.33, 0, .05, .5)
-    aa = FM(carrier=25, ratio=fmrat, index=fmind)
+    aa = FM(carrier=10, ratio=fmrat, index=fmind)
     rec = MatrixRec(aa, mm, 0)
     lfrow = Sine(.1, 0, .24, .25)
     lfcol = Sine(.15, 0, .124, .25)

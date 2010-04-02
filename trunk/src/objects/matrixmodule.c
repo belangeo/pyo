@@ -279,12 +279,12 @@ NewMatrix_blur(NewMatrix *self)
     int lc = self->colsize - 1;
     int lr = self->rowsize - 1;
     for (i=1; i<lc; i++) {
-        tmp[0][i] = (self->data[0][i-1] + self->data[0][i] + self->data[0][i+1]) * 0.3333333;
-        tmp[lr][i] = (self->data[lr][i-1] + self->data[lr][i] + self->data[lr][i+1]) * 0.3333333;
+        tmp[0][i] = (self->data[0][i-1] + self->data[0][i] + self->data[1][i] + self->data[0][i+1]) * 0.25;
+        tmp[lr][i] = (self->data[lr][i-1] + self->data[lr][i] + self->data[lr-1][i] + self->data[lr][i+1]) * 0.25;
     }
     for (i=1; i<lr; i++) {
-        tmp[i][0] = (self->data[i-1][0] + self->data[i][0] + self->data[i+1][0]) * 0.3333333;
-        tmp[i][lc] = (self->data[i-1][lc] + self->data[i][lc] + self->data[i+1][lc]) * 0.3333333;
+        tmp[i][0] = (self->data[i-1][0] + self->data[i][0] + self->data[i][1] + self->data[i+1][0]) * 0.25;
+        tmp[i][lc] = (self->data[i-1][lc] + self->data[i][lc] + self->data[i][lc-1] + self->data[i+1][lc]) * 0.25;
     }
     
     /* handle all the rest of rows and cols */
@@ -298,6 +298,35 @@ NewMatrix_blur(NewMatrix *self)
             self->data[i][j] = (tmp[i-1][j] + tmp[i][j] + tmp[i+1][j]) * 0.3333333;
         }
     }        
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
+float 
+NewMatrix_clip(float val, float min, float max) {
+    if (val < min) return min;
+    else if (val > max) return max;
+    else return val;
+}
+
+static PyObject *
+NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds)
+{
+    int i, j;
+    float min, max, boost, val;
+    static char *kwlist[] = {"min", "max", "boost", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "fff", kwlist, &min, &max, &boost))
+        return PyInt_FromLong(-1);
+
+    float mid = (min + max) * 0.5;
+    
+    for (i=0; i<self->rowsize; i++) {
+        for (j=0; j<self->colsize; j++) {
+            val = self->data[i][j];
+            self->data[i][j] = NewMatrix_clip(val + (val-mid) * boost, min, max);
+        }
+    }    
     Py_INCREF(Py_None);
     return Py_None;    
 }
@@ -393,6 +422,7 @@ static PyMethodDef NewMatrix_methods[] = {
 {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},
 {"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, "Blur the matrix."},
+{"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS|METH_KEYWORDS, "Boost the contrast of the matrix."},
 {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
 {"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
 {NULL}  /* Sentinel */
