@@ -52,14 +52,19 @@ class NewMatrix(PyoMatrixObject):
 
     Examples:
     
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> t = NewTable(length=2, chnls=1)
-    >>> a = Input(0)
-    >>> b = TableRec(a, t, .01)
-    >>> c = Osc(t, [t.getRate(), t.getRate()*.99]).out()
-    >>> # to record in the empty table, call:
-    >>> # b.play()
+    >>> SIZE = 256
+    >>> mm = NewMatrix(SIZE, SIZE)
+    >>> fmind = Sine(.2, 0, 2, 2.5)
+    >>> fmrat = Sine(.33, 0, .05, .5)
+    >>> aa = FM(carrier=250, ratio=fmrat, index=fmind)
+    >>> rec = MatrixRec(aa, mm, 0).play()
+    >>> lfrow = Sine([.1,.11], 0, .124, .25)
+    >>> lfcol = Sine([.15,.16], 0, .124, .25)
+    >>> row = Sine(10, 0, lfrow, .5)
+    >>> col = Sine(1.5, 0, lfcol, .5)
+    >>> c = MatrixPointer(mm, row, col, mul=.3).out()
 
     """
     def __init__(self, rows, cols, init=None):

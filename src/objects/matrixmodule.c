@@ -314,9 +314,12 @@ NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds)
 {
     int i, j;
     float min, max, boost, val;
+    min = -1.0;
+    max = 1.0;
+    boost = 0.01;
     static char *kwlist[] = {"min", "max", "boost", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "fff", kwlist, &min, &max, &boost))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fff", kwlist, &min, &max, &boost))
         return PyInt_FromLong(-1);
 
     float mid = (min + max) * 0.5;
@@ -329,6 +332,55 @@ NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds)
     }    
     Py_INCREF(Py_None);
     return Py_None;    
+}
+
+static PyObject *
+NewMatrix_put(NewMatrix *self, PyObject *args, PyObject *kwds)
+{
+    float val;
+    int row, col;
+    row = col = 0;
+    static char *kwlist[] = {"value", "row", "col", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|ii", kwlist, &val, &row, &col))
+        return PyInt_FromLong(-1);
+    
+    if (row >= self->rowsize) {
+        PyErr_SetString(PyExc_TypeError, "row position outside of matrix boundaries!.");
+        return PyInt_FromLong(-1);
+    }
+
+    if (col >= self->colsize) {
+        PyErr_SetString(PyExc_TypeError, "column position outside of matrix boundaries!.");
+        return PyInt_FromLong(-1);
+    }
+
+    self->data[row][col] = val;
+    
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
+static PyObject *
+NewMatrix_get(NewMatrix *self, PyObject *args, PyObject *kwds)
+{
+    int row, col;
+    static char *kwlist[] = {"row", "col", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &row, &col))
+        return PyInt_FromLong(-1);
+    
+    if (row >= self->rowsize) {
+        PyErr_SetString(PyExc_TypeError, "row position outside of matrix boundaries!.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (col >= self->colsize) {
+        PyErr_SetString(PyExc_TypeError, "column position outside of matrix boundaries!.");
+        return PyInt_FromLong(-1);
+    }
+    
+    return PyFloat_FromDouble(self->data[row][col]);
 }
 
 static PyObject *
@@ -423,6 +475,8 @@ static PyMethodDef NewMatrix_methods[] = {
 {"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, "Blur the matrix."},
 {"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS|METH_KEYWORDS, "Boost the contrast of the matrix."},
+{"put", (PyCFunction)NewMatrix_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the matrix."},
+{"get", (PyCFunction)NewMatrix_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the matrix."},
 {"getSize", (PyCFunction)NewMatrix_getSize, METH_NOARGS, "Return the size of the matrix in samples."},
 {"getRate", (PyCFunction)NewMatrix_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
 {NULL}  /* Sentinel */

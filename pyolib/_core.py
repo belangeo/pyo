@@ -1159,7 +1159,7 @@ class PyoMatrixObject(object):
     """
     Base class for all pyo matrix objects. 
     
-    A matrix object is 2 dimensions buffer memory to store 
+    A matrix object is a 2 dimensions buffer memory to store 
     precomputed samples. 
     
     The user should never instantiate an object of this class.
@@ -1174,6 +1174,8 @@ class PyoMatrixObject(object):
     normalize() : Normalize matrix samples between -1 and 1.
     blur() : Apply a simple gaussian blur on the matrix.
     boost(min, max, boost) : Boost the contrast of values in the matrix.
+    put(value, row, col) : Puts a value at specified position in the matrix.
+    get(row, col) : Returns the value at specified position in the matrix.
     
     Notes:
     
@@ -1239,7 +1241,8 @@ class PyoMatrixObject(object):
         [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]]
         
         Each object's matrixstream will be resized according to the 
-        length of the lists.
+        length of the lists, but the number of matrixstreams must be
+        the same.
         
         """
         f = open(path, "r")
@@ -1250,21 +1253,21 @@ class PyoMatrixObject(object):
         
     def getBaseObjects(self):
         """
-        Return a list of table Stream objects.
+        Returns a list of matrix stream objects.
         
         """
         return self._base_objs
 
     def getSize(self):
         """
-        Return table size in samples.
+        Returns matrix size in samples. Size is a tuple (x, y).
         
         """
         return self._size
 
     def normalize(self):
         """
-        Normalize table samples between -1 and 1.
+        Normalize matrix samples between -1 and 1.
 
         """
         [obj.normalize() for obj in self._base_objs]
@@ -1293,9 +1296,51 @@ class PyoMatrixObject(object):
         """
         [obj.boost(min, max, boost) for obj in self._base_objs]
 
+    def put(self, value, row=0, col=0):
+        """
+        Puts a value at specified position in the matrix.
+        
+        If the object has more than 1 matrixstream, the default is to
+        record the value in each matrix. User can call obj[x].put() 
+        to record in a specific matrix.
+        
+        Parameters:
+        
+        value : float
+            Value, as floating-point, to record in the matrix.
+        row : int, optional
+            Row position where to record value. Defaults to 0.
+        col : int, optional
+            Column position where to record value. Defaults to 0.
+        
+        """
+        [obj.put(value, row, col) for obj in self._base_objs]
+
+    def get(self, row, col):
+        """
+        Returns the value, as float, at specified position in the matrix.
+        
+        If the object has more than 1 matrixstream, the default is to
+        return a list with the value of each matrix. User can call 
+        obj[x].get() to get the value of a specific matrix.
+        
+        Parameters:
+        
+        value : float
+            Value, as floating-point, to record in the matrix.
+        row : int, optional
+            Row position where to record value. Defaults to 0.
+        col : int, optional
+            Column position where to record value. Defaults to 0.
+        
+        """
+        values = [obj.get(row, col) for obj in self._base_objs]
+        if len(values) == 1: return values[0]
+        else: return values
+
     def view(self):
         """
-        Opens a window showing the contents of the table.
+        Opens a window showing the contents of the matrix.
         
         """
         #from PIL import Image, ImageDraw, ImageTk
