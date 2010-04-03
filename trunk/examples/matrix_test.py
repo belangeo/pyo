@@ -16,7 +16,7 @@ def terrain(size=256, freq=1, phase=16):
         l.append(tmp)
     return l
 
-TEST = 0
+TEST = 2
 if TEST == 0:
     SIZE = 256
     m = NewMatrix(SIZE, SIZE, terrain(SIZE))
