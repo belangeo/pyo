@@ -167,6 +167,13 @@ typedef struct {
     int col_pointer;
 } NewMatrix;
 
+float 
+NewMatrix_clip(float val, float min, float max) {
+    if (val < min) return min;
+    else if (val > max) return max;
+    else return val;
+}
+
 static PyObject *
 NewMatrix_recordChunkAllRow(NewMatrix *self, float *data, int datasize)
 {
@@ -268,120 +275,10 @@ static PyObject * NewMatrix_getServer(NewMatrix* self) { GET_SERVER };
 static PyObject * NewMatrix_getMatrixStream(NewMatrix* self) { GET_MATRIX_STREAM };
 static PyObject * NewMatrix_normalize(NewMatrix *self) { NORMALIZE_MATRIX };
 static PyObject * NewMatrix_setData(NewMatrix *self, PyObject *arg) { SET_MATRIX_DATA };
-
-static PyObject *
-NewMatrix_blur(NewMatrix *self) 
-{
-    int i,j;
-    float tmp[self->rowsize][self->colsize];
-    
-    /* handle boundaries */
-    int lc = self->colsize - 1;
-    int lr = self->rowsize - 1;
-    for (i=1; i<lc; i++) {
-        tmp[0][i] = (self->data[0][i-1] + self->data[0][i] + self->data[1][i] + self->data[0][i+1]) * 0.25;
-        tmp[lr][i] = (self->data[lr][i-1] + self->data[lr][i] + self->data[lr-1][i] + self->data[lr][i+1]) * 0.25;
-    }
-    for (i=1; i<lr; i++) {
-        tmp[i][0] = (self->data[i-1][0] + self->data[i][0] + self->data[i][1] + self->data[i+1][0]) * 0.25;
-        tmp[i][lc] = (self->data[i-1][lc] + self->data[i][lc] + self->data[i][lc-1] + self->data[i+1][lc]) * 0.25;
-    }
-    
-    /* handle all the rest of rows and cols */
-    for (i=1; i<lr; i++) {
-        for (j=1; j<lc; j++) {
-            tmp[i][j] = (self->data[i][j-1] + self->data[i][j] + self->data[i][j+1]) * 0.3333333;
-        }
-    }    
-    for (j=1; j<lc; j++) {
-        for (i=1; i<lr; i++) {
-            self->data[i][j] = (tmp[i-1][j] + tmp[i][j] + tmp[i+1][j]) * 0.3333333;
-        }
-    }        
-    Py_INCREF(Py_None);
-    return Py_None;    
-}
-
-float 
-NewMatrix_clip(float val, float min, float max) {
-    if (val < min) return min;
-    else if (val > max) return max;
-    else return val;
-}
-
-static PyObject *
-NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds)
-{
-    int i, j;
-    float min, max, boost, val;
-    min = -1.0;
-    max = 1.0;
-    boost = 0.01;
-    static char *kwlist[] = {"min", "max", "boost", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fff", kwlist, &min, &max, &boost))
-        return PyInt_FromLong(-1);
-
-    float mid = (min + max) * 0.5;
-    
-    for (i=0; i<self->rowsize; i++) {
-        for (j=0; j<self->colsize; j++) {
-            val = self->data[i][j];
-            self->data[i][j] = NewMatrix_clip(val + (val-mid) * boost, min, max);
-        }
-    }    
-    Py_INCREF(Py_None);
-    return Py_None;    
-}
-
-static PyObject *
-NewMatrix_put(NewMatrix *self, PyObject *args, PyObject *kwds)
-{
-    float val;
-    int row, col;
-    row = col = 0;
-    static char *kwlist[] = {"value", "row", "col", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|ii", kwlist, &val, &row, &col))
-        return PyInt_FromLong(-1);
-    
-    if (row >= self->rowsize) {
-        PyErr_SetString(PyExc_TypeError, "row position outside of matrix boundaries!.");
-        return PyInt_FromLong(-1);
-    }
-
-    if (col >= self->colsize) {
-        PyErr_SetString(PyExc_TypeError, "column position outside of matrix boundaries!.");
-        return PyInt_FromLong(-1);
-    }
-
-    self->data[row][col] = val;
-    
-    Py_INCREF(Py_None);
-    return Py_None;    
-}
-
-static PyObject *
-NewMatrix_get(NewMatrix *self, PyObject *args, PyObject *kwds)
-{
-    int row, col;
-    static char *kwlist[] = {"row", "col", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &row, &col))
-        return PyInt_FromLong(-1);
-    
-    if (row >= self->rowsize) {
-        PyErr_SetString(PyExc_TypeError, "row position outside of matrix boundaries!.");
-        return PyInt_FromLong(-1);
-    }
-    
-    if (col >= self->colsize) {
-        PyErr_SetString(PyExc_TypeError, "column position outside of matrix boundaries!.");
-        return PyInt_FromLong(-1);
-    }
-    
-    return PyFloat_FromDouble(self->data[row][col]);
-}
+static PyObject * NewMatrix_blur(NewMatrix *self) { MATRIX_BLUR };
+static PyObject * NewMatrix_boost(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_BOOST };
+static PyObject * NewMatrix_put(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_PUT };
+static PyObject * NewMatrix_get(NewMatrix *self, PyObject *args, PyObject *kwds) { MATRIX_GET };
 
 static PyObject *
 NewMatrix_getSize(NewMatrix *self)
