@@ -35,7 +35,7 @@ if TEST == 1:
     rec = MatrixRec(aa, mm, 0)
     lfrow = Sine(.1, 0, .24, .25)
     lfcol = Sine(.15, 0, .124, .25)
-    row = Sine(10, 0, lfrow, .5)
+    row = Sine(1000, 0, lfrow, .5)
     col = Sine(1.5, 0, lfcol, .5)
     c = MatrixPointer(mm, row, col).out()
 

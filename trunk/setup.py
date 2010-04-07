@@ -36,7 +36,7 @@ files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'd
         'matrixprocessmodule.c']
 source_files = source_files + [path + f for f in files]
 
-include_dirs = ['include']
+include_dirs = ['include', '/usr/local/include']
 libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
 
 extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
