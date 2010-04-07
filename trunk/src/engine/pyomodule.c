@@ -42,6 +42,23 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
 }
 
 static PyObject*
+portaudio_count_host_api(){
+    int numApis;
+
+    int err = Pa_Initialize();
+
+    numApis = Pa_GetHostApiCount();
+    if( numApis < 0 ) {
+        printf( "ERROR: Pa_GetHostApiCount returned 0x%x\n", numApis );
+    }
+
+    if (err >= 0)
+        Pa_Terminate();
+    
+    return PyInt_FromLong(numApis);
+}
+
+static PyObject*
 portaudio_count_devices(){
     int numDevices;
 
@@ -74,10 +91,10 @@ portaudio_list_devices(){
         assert(info);
         
         if (info->maxInputChannels > 0){
-            fprintf(stdout, "%i: IN %s default: %i Hz, %f s latency\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
+            fprintf(stdout, "%i: IN %s, host api index: %i, default: %i Hz, %f s latency\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
         }
         if (info->maxOutputChannels > 0){
-            fprintf(stdout, "%i: OUT %s default: %i Hz, %f s latency\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
+            fprintf(stdout, "%i: OUT %s, host api index: %i default: %i Hz, %f s latency\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
         }
     }
     if (err >= 0)
@@ -86,6 +103,51 @@ portaudio_list_devices(){
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+static PyObject*
+portaudio_list_host_apis(){
+
+    int err = Pa_Initialize();
+
+    int n = Pa_GetHostApiCount();
+    if (n < 0){
+        portaudio_assert(n, "Pa_GetHostApiCount");
+    }
+    
+    int i;
+    if (n > 0) {
+        for (i=0; i < n; ++i){
+            const PaHostApiInfo *info=Pa_GetHostApiInfo(i);
+            assert(info);
+        
+            fprintf(stdout, "index: %i, id: %i, %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
+
+        }
+    }
+
+    if (err >= 0)
+        Pa_Terminate();
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+static PyObject*
+portaudio_get_default_host_api(){
+    
+    int err = Pa_Initialize();
+
+    int i = Pa_GetDefaultHostApi();
+    const PaHostApiInfo *info=Pa_GetHostApiInfo(i);
+    assert(info);
+    
+    fprintf(stdout, "index: %i, id: %i, %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
+
+    if (err >= 0)
+        Pa_Terminate();
+    
+    return PyInt_FromLong(i);
+}
+
 
 static PyObject*
 portaudio_get_default_input(){
@@ -189,8 +251,11 @@ secToSamps(PyObject *self, PyObject *arg) {
 
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
+{"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices found by Portaudio."},
+{"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Lists all host apis found by Portaudio."},
 {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
+{"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
 {"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, "Returns Portaudio default output device."},
 {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Lists all devices found by Portmidi."},
