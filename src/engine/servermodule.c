@@ -317,6 +317,18 @@ Server_setInputDevice(Server *self, PyObject *arg)
 }
 
 static PyObject *
+Server_setInOutDevice(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->input = PyInt_AsLong(arg);
+            self->output = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 Server_setOutputDevice(Server *self, PyObject *arg)
 {
 	if (arg != NULL) {
@@ -715,6 +727,7 @@ Server_getStreams(Server *self)
 static PyMethodDef Server_methods[] = {
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
     {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
+    {"setInOutDevice", (PyCFunction)Server_setInOutDevice, METH_O, "Sets both audio input and output device."},
     {"setMidiInputDevice", (PyCFunction)Server_setMidiInputDevice, METH_O, "Sets MIDI input device."},
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},

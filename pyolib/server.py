@@ -187,7 +187,7 @@ class Server(object):
         `buffer size / sampling rate` in seconds. Defaults to 256.
     duplex : int {0, 1}, optional
         Input - output mode. 0 is output only and 1 is both ways. 
-        Defaults to 0.
+        Defaults to 1.
 
     Methods:
 
@@ -205,7 +205,9 @@ class Server(object):
     getBufferSize() : Retrun the current buffer size.    
 
     * The next methods must be called before booting the server
-    
+
+    setInOutDevice(x) : Set both input and output devices.     
+        See `pa_list_devices()`.
     setInputDevice(x) : Set the audio input device number. 
         See `pa_list_devices()`.
     setOutputDevice(x) : Set the audio output device number. 
@@ -230,7 +232,7 @@ class Server(object):
     >>> s.start()
         
     """
-    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=0):
+    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1):
         self._nchnls = nchnls
         self._amp = 1.
         self._server = Server_base(sr, nchnls, buffersize, duplex)
@@ -241,6 +243,18 @@ class Server(object):
         f.master.title("pyo Server")
         self._server.setAmpCallable(f)
         win.mainloop()
+
+    def setInOutDevice(self, x):
+        """
+        Set both input and output audio devices. See `pa_list_devices()`.
+        
+        Parameters:
+
+        x : int
+            Number of the audio input and output devices.
+
+        """
+        self._server.setInOutDevice(x)
         
     def setInputDevice(self, x):
         """
