@@ -22,23 +22,23 @@ from types import SliceType
 
 class MatrixRec(PyoObject):
     """
-    TableRec is for writing samples into a previously created NewTable.
+    MatrixRec is for writing samples into a previously created NewMatrix.
      
-    See `NewTable` to create an empty table.
+    See `NewMatrix` to create an empty matrix.
 
     The play method is not called at the object creation time. It starts
-    the recording into the table until the table is full. Calling the 
-    play method again restarts the recording and overwrites previously
-    recorded samples.
+    the recording into the matrix, row after row, until the matrix is full. 
+    Calling the play method again restarts the recording and overwrites 
+    previously recorded samples.
     
     Parent class: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Audio signal to write in the table.
-    table : PyoTableObject
-        The table where to write samples.
+        Audio signal to write in the matrix.
+    matrix : PyoMatrixObject
+        The matrix where to write samples.
     fadetime : float, optional
         Fade time at the beginning and the end of the recording 
         in seconds. Defaults to 0.
@@ -46,44 +46,43 @@ class MatrixRec(PyoObject):
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
-    setTable(x) : Replace the `table` attribute.
-    play() : Start the recording at the beginning of the table.
+    setMatrix(x) : Replace the `matrix` attribute.
+    play() : Start the recording at the beginning of the matrix.
     stop() : Stop the recording. Otherwise, record through the 
-        end of the table.
+        end of the matrix.
 
     Attributes:
     
-    input : PyoObject. Audio signal to write in the table.
-    table : PyoTableObject. The table where to write samples.
+    input : PyoObject. Audio signal to write in the matrix.
+    matrix : PyoMatrixObject. The matrix where to write samples.
     
     Notes:
 
-    The out() method is bypassed. TableRec returns no signal.
+    The out() method is bypassed. MatrixRec returns no signal.
     
-    TableRec has no `mul` and `add` attributes.
+    MatrixRec has no `mul` and `add` attributes.
     
-    TableRec will sends a trigger signal at the end of the recording. 
-    User can retreive the trigger streams by calling obj['trig']. In
-    this example, the recorded table will be read automatically after
-    a recording:
-    
-    >>> a = Input(0)
-    >>> t = NewTable(length=1, chnls=1)
-    >>> rec = TableRec(a, table=t, fadetime=0.01)
-    >>> tr = TrigEnv(rec['trig'], table=t, dur=1).out()
+    MatrixRec will sends a trigger signal at the end of the recording. 
+    User can retreive the trigger streams by calling obj['trig']. See
+    `TableRec` documentation for an example.
 
-    See also: NewTable
+    See also: NewMatrix
     
     Examples:
     
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> t = NewTable(length=2, chnls=1)
-    >>> a = Input(0)
-    >>> b = TableRec(a, t, .01)
-    >>> c = Osc(t, [t.getRate(), t.getRate()*.99]).out()
-    >>> # to record in the empty table, call:
-    >>> # b.play()
+    >>> SIZE = 256
+    >>> mm = NewMatrix(SIZE, SIZE)
+    >>> fmind = Sine(.2, 0, 2, 2.5)
+    >>> fmrat = Sine(.33, 0, .05, .5)
+    >>> aa = FM(carrier=10, ratio=fmrat, index=fmind)
+    >>> rec = MatrixRec(aa, mm, 0).play()
+    >>> lfrow = Sine(.1, 0, .24, .25)
+    >>> lfcol = Sine(.15, 0, .124, .25)
+    >>> row = Sine(1000, 0, lfrow, .5)
+    >>> col = Sine(1.5, 0, lfcol, .5)
+    >>> c = MatrixPointer(mm, row, col, .5).out()
     
     """
     def __init__(self, input, matrix, fadetime=0):
@@ -170,7 +169,7 @@ class MatrixRec(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Audio signal to write in the table.""" 
+        """PyoObject. Audio signal to write in the matrix.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -184,34 +183,46 @@ class MatrixRec(PyoObject):
 
 class MatrixPointer(PyoObject):
     """
-    Table reader with control on the pointer position.
+    Matrix reader with control on the 2D pointer position.
     
     Parent class: PyoObject
     
     Parameters:
     
-    table : PyoTableObject
-        Table containing the waveform samples.
-    index : PyoObject
-        Normalized position in the table between 0 and 1.
+    matrix : PyoMatrixObject
+        Matrix containing the waveform samples.
+    indexrow : PyoObject
+        Normalized X position in the matrix between 0 and 1.
+    indexcol : PyoObject
+        Normalized Y position in the matrix between 0 and 1.
         
     Methods:
 
-    setTable(x) : Replace the `table` attribute.
-    setIndex(x) : Replace the `index` attribute.
+    setMatrix(x) : Replace the `matrix` attribute.
+    setIndexRow(x) : Replace the `indexrow` attribute.
+    setIndexCol(x) : Replace the `indexcol` attribute
 
     Attributes:
     
-    table : PyoTableObject. Table containing the waveform samples.
-    index : PyoObject. Pointer position in the table.
+    matrix : PyoMatrixObject. Matrix containing the waveform samples.
+    indexrow : PyoObject. X pointer position in the matrix.
+    indexcol : PyoObject. Y pointer position in the matrix.
     
     Examples:
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = SndTable('pyodemos/transparent.aif')
-    >>> p = Phasor(freq=t.getRate())
-    >>> a = Pointer(table=t, index=p).out()
+    >>> SIZE = 256
+    >>> mm = NewMatrix(SIZE, SIZE)
+    >>> fmind = Sine(.2, 0, 2, 2.5)
+    >>> fmrat = Sine(.33, 0, .05, .5)
+    >>> aa = FM(carrier=10, ratio=fmrat, index=fmind)
+    >>> rec = MatrixRec(aa, mm, 0).play()
+    >>> lfrow = Sine(.1, 0, .24, .25)
+    >>> lfcol = Sine(.15, 0, .124, .25)
+    >>> row = Sine(1000, 0, lfrow, .5)
+    >>> col = Sine(1.5, 0, lfcol, .5)
+    >>> c = MatrixPointer(mm, row, col, .5).out()
 
     """
     def __init__(self, matrix, indexrow, indexcol, mul=1, add=0):
