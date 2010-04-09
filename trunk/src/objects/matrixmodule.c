@@ -333,7 +333,7 @@ NewMatrix_getViewData(NewMatrix *self)
     for(i=0; i<self->rowsize; i++) {
         samples = PyList_New(self->colsize);
         for (j=0; j<self->colsize; j++) {
-            PyList_SetItem(samples, j, PyFloat_FromDouble(self->data[i][j])*128+128);
+            PyList_SetItem(samples, j, PyInt_FromLong((int)self->data[i][j]*128+128));
         }    
         PyList_SetItem(matrix, i, samples);
     }
