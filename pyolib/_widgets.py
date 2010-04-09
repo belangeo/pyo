@@ -34,21 +34,10 @@ Do you want to install it? (yes/no): """)
 WITH_PIL = 0
 try:
     from PIL import Image, ImageDraw, ImageTk
+    WITH_PIL = 1
 except:
-    response = raw_input("""The Python Imaging Library is not installed. It greatly improves the speed of matrix drawing.
-Do you want to install it? (yes/no): """)
-    if response == 'yes':
-        if sys.platform == 'linux2':
-            os.system('sudo apt-get install python-imaging python-imaging-tk')
-            sys.exit()
-        elif sys.platform == 'darwin':
-            os.system('cd; curl http://effbot.org/downloads/Imaging-1.1.7.tar.gz -o "Imaging-1.1.7.tar.gz"')    
-            os.system('cd; tar xsvf Imaging-1.1.7.tar.gz')    
-            os.system('cd; cd Imaging-1.1.7; sudo python setup.py install')
-            sys.exit()
-        else:
-            pass        
-    
+    pass
+
 # hack for OSX display
 if sys.platform == 'linux2':
     Y_OFFSET = 0
