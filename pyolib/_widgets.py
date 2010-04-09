@@ -34,8 +34,10 @@ Do you want to install it? (yes/no): """)
 # hack for OSX display
 if sys.platform == 'linux2':
     Y_OFFSET = 0
+    VM_OFFSET = 2
 else:
     Y_OFFSET = 4
+    VM_OFFSET = 0
 
 ######################################################################
 ### Multisliders
@@ -246,7 +248,7 @@ class ServerGUI(Frame):
         self.ampf = ampf
         self._started = False
         self._recstarted = False
-        self.B1, self.B2 = 193, 244
+        self.B1, self.B2 = 193 - VM_OFFSET, 244 - VM_OFFSET
         self._history = []
         self._histo_count = 0
         self.grid(ipadx=5)
@@ -280,8 +282,8 @@ class ServerGUI(Frame):
         self.yellow = []
         self.red = []
         for i in range(self.nchnls):
-            y = 5 * (i + 1) + 1
-            self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=6))
+            y = 5 * (i + 1) + 1 - VM_OFFSET
+            self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=6+VM_OFFSET))
             self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1, y, width=4, fill='yellow', dash=(9,1), dashoff=9))
             self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
         self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
@@ -348,7 +350,7 @@ class ServerGUI(Frame):
 
     def setRms(self, *args):
         for i in range(self.nchnls):
-            y = 5 * (i + 1) + 1
+            y = 5 * (i + 1) + 1 - VM_OFFSET
             db = math.log10(args[i]+0.00001) * 0.2 + 1.
             amp = int(db*250)
             if amp <= self.B1:
