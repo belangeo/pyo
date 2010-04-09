@@ -15,14 +15,27 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
+You should have received a copy of the GNU General Public Licensehack for OSX display
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
-import math
+import math, sys, os
 
-from Tkinter import *
-NoDefaultRoot()
+try:
+    from Tkinter import *
+    NoDefaultRoot()
+except:
+    response = raw_input("""python-tk package is missing! It is needed to use pyo graphical interfaces.
+Do you want to install it? (yes/no): """)
+    if response == 'yes':
+        os.system('sudo apt-get install python-tk')
+    sys.exit()
+
+# hack for OSX display
+if sys.platform == 'linux2':
+    Y_OFFSET = 0
+else:
+    Y_OFFSET = 4
 
 ######################################################################
 ### Multisliders
@@ -36,13 +49,12 @@ class MultiSlider(Frame):
         self._command = command
         self._lines = []
         self._height = 16
-        self._yoff = 4 # hack for OSX display
         self.canvas = Canvas(self, height=self._height*self._nchnls+1, 
                             width=225, relief=FLAT, bd=0, bg="#BCBCAA")
         w = self.canvas.winfo_width()
         for i in range(self._nchnls):
             x = int(self._values[i] * w)
-            y = self._height * i + self._yoff
+            y = self._height * i + Y_OFFSET
             self._lines.append(self.canvas.create_rectangle(0, y, x, 
                                 y+self._height-1, width=0, fill="#121212"))
         self.canvas.bind("<Button-1>", self.clicked)
@@ -55,7 +67,7 @@ class MultiSlider(Frame):
     def size(self, event):
         w = self.canvas.winfo_width()
         for i in range(len(self._lines)):
-            y = self._height * i + self._yoff
+            y = self._height * i + Y_OFFSET
             x = self._values[i] * w
             self.canvas.coords(self._lines[i], 0, y, x, y+self._height-1)
         
@@ -64,16 +76,16 @@ class MultiSlider(Frame):
         
     def move(self, event):
         if event.state == 0x0100:
-            slide = (event.y - self._yoff) / self._height
+            slide = (event.y - Y_OFFSET) / self._height
             if 0 <= slide < len(self._lines):
                 self.update(event)
 
     def update(self, event):
         w = self.canvas.winfo_width()
-        slide = (event.y - self._yoff) / self._height
+        slide = (event.y - Y_OFFSET) / self._height
         val = event.x / float(w)
         self._values[slide] = val
-        y = self._height * slide + self._yoff
+        y = self._height * slide + Y_OFFSET
         self.canvas.coords(self._lines[slide], 0, y, event.x, y+self._height-1)
         self._command(self._key, self._values)
            
@@ -139,7 +151,7 @@ class PyoObjectControl(Frame):
         top.rowconfigure(0, weight=1)
         top.columnconfigure(0, weight=1)       
         self.columnconfigure(1, weight=1)
-        self.grid(ipadx=15, ipady=15, sticky=E+W)
+        self.grid(ipadx=5, ipady=5, sticky=E+W)
 
     def _destroy(self, event):
         for m in self._map_list:
@@ -337,7 +349,7 @@ class ServerGUI(Frame):
     def setRms(self, *args):
         for i in range(self.nchnls):
             y = 5 * (i + 1) + 1
-            db = 20. * math.log10(args[i]+0.00001) * 0.01 + 1.
+            db = math.log10(args[i]+0.00001) * 0.2 + 1.
             amp = int(db*250)
             if amp <= self.B1:
                 self.vumeter.coords(self.green[i], 0, y, amp, y)
@@ -355,6 +367,7 @@ class ServerGUI(Frame):
 def createCtrlWindow(obj, map_list, title):
     win = Tk()
     f = PyoObjectControl(win, obj, map_list)
+    win.resizable(True, False)
     if title == None: title = obj.__class__.__name__
     win.title(title)
 
