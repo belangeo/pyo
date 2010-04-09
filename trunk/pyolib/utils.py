@@ -18,7 +18,49 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
+from _maps import *
 from types import SliceType
+import threading, time
+
+class Clean_objects(threading.Thread):
+    """
+    Stops and deletes PyoObjects after a given time.
+    
+    Parameters:
+    
+    time : float
+        Time, in seconds, to wait before calling stop on the given 
+        objects and deleting them.
+    *args : PyoObject(s)
+        Objects to delete.
+        
+    Methods:
+    
+    start() : Starts the thread. The timer begins on this call.    
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5).out()
+    >>> b = Fader(fadein=.1, fadeout=1, dur=5).play()
+    >>> c = Biquad(a, freq=1000, q=2, mul=b).out()
+    >>> dump = Clean_objects(time=6, a, b, c)
+    >>> dump.start()
+    
+    """
+    def __init__(self, time, *args):
+        threading.Thread.__init__(self)
+        self.t = time
+        self.args = args
+        
+    def run(self):
+        time.sleep(self.t)
+        for arg in self.args:
+            try: arg.stop()
+            except: pass
+        for arg in self.args:
+            del arg 
 
 class Print(PyoObject):
     """
