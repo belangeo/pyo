@@ -211,17 +211,20 @@ class ViewTable(Frame):
 class ViewMatrix_withPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
+        t = time.time()
         self.width = size[0]
         self.height = size[1]
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         im = Image.new("L", size, None)
         draw = ImageDraw.Draw(im)
         [draw.point((x,y),fill=samples[x][y]*128+128) for x in range(size[0]) for y in range(size[1])]
+        print 'draw points:', time.time() - t
         tmp = tempfile.NamedTemporaryFile(suffix='.gif')
         print 'Temporary generated GIF file: ', tmp.name
         im.save(tmp.name)
         self.img = PhotoImage(file=tmp.name)
         self.canvas.create_image(size[0]/2,size[1]/2,image=self.img)
+        print 'show:', time.time() - t
         self.canvas.grid()
         self.grid(ipadx=0, ipady=0)
 

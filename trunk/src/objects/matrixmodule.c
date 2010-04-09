@@ -324,6 +324,24 @@ NewMatrix_getData(NewMatrix *self)
 };
 
 static PyObject *
+NewMatrix_getViewData(NewMatrix *self)
+{
+    int i, j;
+    PyObject *matrix, *samples;
+    
+    matrix = PyList_New(self->rowsize);
+    for(i=0; i<self->rowsize; i++) {
+        samples = PyList_New(self->colsize);
+        for (j=0; j<self->colsize; j++) {
+            PyList_SetItem(samples, j, PyFloat_FromDouble(self->data[i][j])*128+128);
+        }    
+        PyList_SetItem(matrix, i, samples);
+    }
+    
+    return matrix;
+};
+
+static PyObject *
 NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
 {
     int i, j;
@@ -366,6 +384,7 @@ static PyMemberDef NewMatrix_members[] = {
 static PyMethodDef NewMatrix_methods[] = {
 {"getServer", (PyCFunction)NewMatrix_getServer, METH_NOARGS, "Returns server object."},
 {"getData", (PyCFunction)NewMatrix_getData, METH_NOARGS, "Returns a list of matrix samples."},
+{"getViewData", (PyCFunction)NewMatrix_getViewData, METH_NOARGS, "Returns a list of matrix samples normalized between 0 and 256 ."},
 {"getMatrixStream", (PyCFunction)NewMatrix_getMatrixStream, METH_NOARGS, "Returns matrixstream object created by this matrix."},
 {"setMatrix", (PyCFunction)NewMatrix_setMatrix, METH_O, "Sets the matrix from a list of list of floats (must be the same size as the object size)."},
 {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},
