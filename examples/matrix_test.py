@@ -18,7 +18,7 @@ def terrain(size=256, freq=1, phase=16):
 
 TEST = 0
 if TEST == 0:
-    SIZE = 1024
+    SIZE = 512
     m = NewMatrix(SIZE, SIZE, terrain(SIZE))
     m.normalize()
     m.view()

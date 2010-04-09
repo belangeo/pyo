@@ -789,7 +789,7 @@ class PyoMatrixObject(object):
         Opens a window showing the contents of the matrix.
         
         """        
-        samples = self._base_objs[0].getData()
+        samples = self._base_objs[0].getViewData()
         createViewMatrixWindow(samples, self.getSize())
         
 ######################################################################
