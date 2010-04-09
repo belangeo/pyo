@@ -216,8 +216,9 @@ class ViewMatrix_withPIL(Frame):
         self.height = size[1]
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         im = Image.new("L", size, None)
-        draw = ImageDraw.Draw(im)
-        [draw.point((x,y),fill=samples[x][y]*128+128) for x in range(size[0]) for y in range(size[1])]
+        im.putdata(samples, 0.00390625)
+        #draw = ImageDraw.Draw(im)
+        #[draw.point((x,y),fill=samples[x][y]) for x in range(size[0]) for y in range(size[1])]
         print 'draw points:', time.time() - t
         tmp = tempfile.NamedTemporaryFile(suffix='.gif')
         print 'Temporary generated GIF file: ', tmp.name
