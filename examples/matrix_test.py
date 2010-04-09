@@ -4,7 +4,7 @@
 Created by Guacamole Au Tofu on 2010-03-30.
 """
 from pyo import *
-import random
+import random, math
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
@@ -18,7 +18,7 @@ def terrain(size=256, freq=1, phase=16):
 
 TEST = 0
 if TEST == 0:
-    SIZE = 256
+    SIZE = 1024
     m = NewMatrix(SIZE, SIZE, terrain(SIZE))
     m.normalize()
     m.view()
