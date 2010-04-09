@@ -19,11 +19,11 @@ You should have received a copy of the GNU General Public Licensehack for OSX di
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
-import math, sys, os
+import math, sys, os, tempfile, time
 
 try:
     from Tkinter import *
-    NoDefaultRoot()
+    #NoDefaultRoot()
 except:
     response = raw_input("""python-tk package is missing! It is needed to use pyo graphical interfaces.
 Do you want to install it? (yes/no): """)
@@ -31,6 +31,24 @@ Do you want to install it? (yes/no): """)
         os.system('sudo apt-get install python-tk')
     sys.exit()
 
+WITH_PIL = 0
+try:
+    from PIL import Image, ImageDraw, ImageTk
+except:
+    response = raw_input("""The Python Imaging Library is not installed. It greatly improves the speed of matrix drawing.
+Do you want to install it? (yes/no): """)
+    if response == 'yes':
+        if sys.platform == 'linux2':
+            os.system('sudo apt-get install python-imaging python-imaging-tk')
+            sys.exit()
+        elif sys.platform == 'darwin':
+            os.system('cd; curl http://effbot.org/downloads/Imaging-1.1.7.tar.gz -o "Imaging-1.1.7.tar.gz"')    
+            os.system('cd; tar xsvf Imaging-1.1.7.tar.gz')    
+            os.system('cd; cd Imaging-1.1.7; sudo python setup.py install')
+            sys.exit()
+        else:
+            pass        
+    
 # hack for OSX display
 if sys.platform == 'linux2':
     Y_OFFSET = 0
@@ -199,18 +217,26 @@ class ViewTable(Frame):
         self.grid(ipadx=10, ipady=10)
 
 ######################################################################
-### View window for PyoMatrixObject (need revision)
-        #from PIL import Image, ImageDraw, ImageTk
-        #im = Image.new("1", self.getSize(), None)
-        #draw = ImageDraw.Draw(im)
-        #size = self.getSize()
-        #data = self._base_objs[0].getData()
-        #[draw.point((x,y),fill=data[x][y]*128+128) for x in range(size[0]) for y in range(size[1])]
-        #bit = ImageTk.BitmapImage(im)
-        #im.save(os.getcwd() + "/test.bmp")
-        #im.show()
-######################################################################
-class ViewMatrix(Frame):
+## View window for PyoMatrixObject (need revision)
+#####################################################################
+class ViewMatrix_withPIL(Frame):
+    def __init__(self, master=None, samples=None, size=None):
+        Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self.width = size[0]
+        self.height = size[1]
+        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        im = Image.new("L", size, None)
+        draw = ImageDraw.Draw(im)
+        [draw.point((x,y),fill=samples[x][y]*128+128) for x in range(size[0]) for y in range(size[1])]
+        tmp = tempfile.NamedTemporaryFile(suffix='.gif')
+        print 'Temporary generated GIF file: ', tmp.name
+        im.save(tmp.name)
+        self.img = PhotoImage(file=tmp.name)
+        self.canvas.create_image(size[0]/2,size[1]/2,image=self.img)
+        self.canvas.grid()
+        self.grid(ipadx=0, ipady=0)
+
+class ViewMatrix_withoutPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.samples = samples
@@ -381,7 +407,8 @@ def createViewTableWindow(samples):
 
 def createViewMatrixWindow(samples, size):
     win = Tk()
-    f = ViewMatrix(win, samples, size)
+    if WITH_PIL: f = ViewMatrix_withPIL(win, samples, size)
+    else: f = ViewMatrix_withoutPIL(win, samples, size)
     win.resizable(False, False)
     win.title("Matrix viewer")
 
