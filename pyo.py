@@ -20,7 +20,8 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from distutils.sysconfig import get_python_lib
 import os
 
-import pyolib.analysis as analysis
+from pyolib._maps import *
+import pyolib.analysis as analysis # ??
 from pyolib.analysis import *
 from pyolib.controls import *
 from pyolib.dynamics import *
@@ -65,7 +66,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'triggers': sorted(['Metro', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 
                                         'TrigFunc', 'Thresh', 'Cloud', 'Trig', 'TrigXnoise', 'TrigXnoiseMidi',
                                         'Change']),
-                      'utils': sorted(['Print', 'Snap']),
+                      'utils': sorted(['Clean_objects', 'Print', 'Snap']),
                       'arithmetic': sorted(['Sin', 'Cos', 'Tan'])},
         'Map': {'SLMap': sorted(['SLMapFreq', 'SLMapMul', 'SLMapPhase', 'SLMapQ', 'SLMapDur', 'SLMapPan'])},
         'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 
@@ -73,8 +74,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
         'PyoMatrixObject': sorted(['NewMatrix']),                        
         'Server': [], 
         'Stream': [], 
-        'TableStream': [],
-        'Clean_objects': []}
+        'TableStream': []}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also']
 

@@ -18,6 +18,7 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
+from _maps import *
 
 ######################################################################
 ### Matrix
