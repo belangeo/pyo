@@ -211,21 +211,13 @@ class ViewTable(Frame):
 class ViewMatrix_withPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        t = time.time()
         self.width = size[0]
         self.height = size[1]
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
         im = Image.new("L", size, None)
-        im.putdata(samples, 0.00390625)
-        #draw = ImageDraw.Draw(im)
-        #[draw.point((x,y),fill=samples[x][y]) for x in range(size[0]) for y in range(size[1])]
-        print 'draw points:', time.time() - t
-        tmp = tempfile.NamedTemporaryFile(suffix='.gif')
-        print 'Temporary generated GIF file: ', tmp.name
-        im.save(tmp.name)
-        self.img = PhotoImage(file=tmp.name)
+        im.putdata(samples)
+        self.img = ImageTk.PhotoImage(im)
         self.canvas.create_image(size[0]/2,size[1]/2,image=self.img)
-        print 'show:', time.time() - t
         self.canvas.grid()
         self.grid(ipadx=0, ipady=0)
 
@@ -233,16 +225,16 @@ class ViewMatrix_withoutPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
         self.samples = samples
-        self.width = size[0]
-        self.height = size[1]
-        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        for i in range(self.width):
-            for j in range(self.height):
-                self.line_points = [i+4]
-                self.line_points.append(j+4)
-                self.line_points.append(i+5)
-                self.line_points.append(j+5)
-                amp = int(self.samples[i][j] * 127 + 127)
+        self.rows = size[0]
+        self.cols = size[1]
+        self.canvas = Canvas(self, height=self.cols, width=self.rows, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.line_points = [j+Y_OFFSET]
+                self.line_points.append(i+Y_OFFSET)
+                self.line_points.append(j+Y_OFFSET+1)
+                self.line_points.append(i+Y_OFFSET+1)
+                amp = int(self.samples[i][j])
                 amp = hex(amp).replace('0x', '')
                 if len(amp) == 1:
                     amp = "0%s" % amp
@@ -399,6 +391,8 @@ def createViewTableWindow(samples):
     win.title("Table waveform")
 
 def createViewMatrixWindow(samples, size):
+    if not WITH_PIL: print """The Python Imaging Library is not installed. 
+It helps a lot to speed up matrix drawing!"""
     win = Tk()
     if WITH_PIL: f = ViewMatrix_withPIL(win, samples, size)
     else: f = ViewMatrix_withoutPIL(win, samples, size)
