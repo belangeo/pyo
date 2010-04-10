@@ -329,13 +329,13 @@ NewMatrix_getViewData(NewMatrix *self)
     int i, j;
     PyObject *matrix, *samples;
     
-    matrix = PyList_New(self->rowsize);
+    matrix = PyList_New(self->rowsize*self->colsize);
     for(i=0; i<self->rowsize; i++) {
-        samples = PyList_New(self->colsize);
+        //samples = PyList_New(self->colsize);
         for (j=0; j<self->colsize; j++) {
-            PyList_SET_ITEM(samples, j, PyFloat_FromDouble(self->data[i][j]*128+128));
+            PyList_SET_ITEM(matrix, i*self->colsize+j, PyFloat_FromDouble(self->data[i][j]*128+128));
         }    
-        PyList_SET_ITEM(matrix, i, samples);
+        //PyList_SET_ITEM(matrix, i, samples);
     }
     
     return matrix;
