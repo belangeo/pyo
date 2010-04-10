@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public Licensehack for OSX di
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
-import math, sys, os, tempfile, time
+import math, sys, os
 
 try:
     from Tkinter import *
@@ -31,12 +31,11 @@ Do you want to install it? (yes/no): """)
         os.system('sudo apt-get install python-tk')
     sys.exit()
 
-WITH_PIL = 0
 try:
     from PIL import Image, ImageDraw, ImageTk
     WITH_PIL = 1
 except:
-    pass
+    WITH_PIL = 0
 
 # hack for OSX display
 if sys.platform == 'linux2':
@@ -206,14 +205,12 @@ class ViewTable(Frame):
         self.grid(ipadx=10, ipady=10)
 
 ######################################################################
-## View window for PyoMatrixObject (need revision)
+## View window for PyoMatrixObject
 #####################################################################
 class ViewMatrix_withPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.width = size[0]
-        self.height = size[1]
-        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        self.canvas = Canvas(self, height=size[1], width=size[0], relief=SUNKEN, bd=1, bg="#EFEFEF")
         im = Image.new("L", size, None)
         im.putdata(samples)
         self.img = ImageTk.PhotoImage(im)
@@ -224,22 +221,22 @@ class ViewMatrix_withPIL(Frame):
 class ViewMatrix_withoutPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.samples = samples
         self.rows = size[0]
         self.cols = size[1]
         self.canvas = Canvas(self, height=self.cols, width=self.rows, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        for i in range(self.rows):
-            for j in range(self.cols):
-                self.line_points = [j+Y_OFFSET]
-                self.line_points.append(i+Y_OFFSET)
-                self.line_points.append(j+Y_OFFSET+1)
-                self.line_points.append(i+Y_OFFSET+1)
-                amp = int(self.samples[i][j])
-                amp = hex(amp).replace('0x', '')
-                if len(amp) == 1:
-                    amp = "0%s" % amp
-                amp = "#%s%s%s" % (amp, amp, amp)
-                self.canvas.create_line(*self.line_points, fill=amp)
+        for i in range(self.rows*self.cols):
+            y = i % self.cols
+            x = i / self.cols
+            self.line_points = [y+Y_OFFSET]
+            self.line_points.append(x+Y_OFFSET)
+            self.line_points.append(y+Y_OFFSET+1)
+            self.line_points.append(x+Y_OFFSET+1)
+            amp = int(samples[i])
+            amp = hex(amp).replace('0x', '')
+            if len(amp) == 1:
+                amp = "0%s" % amp
+            amp = "#%s%s%s" % (amp, amp, amp)
+            self.canvas.create_line(*self.line_points, fill=amp)
         self.canvas.grid()
         self.grid(ipadx=0, ipady=0)
 

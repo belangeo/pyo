@@ -19,8 +19,7 @@ def terrain(size=256, freq=1, phase=16):
 TEST = 0
 if TEST == 0:
     SIZE = 512
-    m = NewMatrix(SIZE, SIZE, terrain(SIZE))
-    m.normalize()
+    m = NewMatrix(SIZE, SIZE, terrain(SIZE)).normalize()
     m.view()
     rnd = Randi(0.05, 0.45, .1)
     row = Sine([99.5,99.76], 0, .49, .5)
