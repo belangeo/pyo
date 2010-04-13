@@ -10,9 +10,10 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
 def terrain(size=256, freq=1, phase=16):
     l = []
+    xfreq = 2 * math.pi * freq
     for i in range(size):
         ph = math.sin(i/float(phase))
-        tmp = [math.sin(2 * math.pi * freq * (j/float(size)) + ph) for j in range(size)]
+        tmp = [math.sin(xfreq * (j/float(size)) + ph) for j in range(size)]
         l.append(tmp)
     return l
 

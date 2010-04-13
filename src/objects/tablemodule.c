@@ -225,6 +225,8 @@ static PyObject * HarmTable_getServer(HarmTable* self) { GET_SERVER };
 static PyObject * HarmTable_getTableStream(HarmTable* self) { GET_TABLE_STREAM };
 static PyObject * HarmTable_setData(HarmTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * HarmTable_normalize(HarmTable *self) { NORMALIZE };
+static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
+static PyObject * HarmTable_getViewTable(HarmTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
@@ -254,20 +256,6 @@ static PyObject *
 HarmTable_getSize(HarmTable *self)
 {
     return PyInt_FromLong(self->size);
-};
-
-static PyObject *
-HarmTable_getTable(HarmTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
 };
 
 static PyObject *
@@ -303,6 +291,7 @@ static PyMemberDef HarmTable_members[] = {
 static PyMethodDef HarmTable_methods[] = {
 {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)HarmTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
@@ -504,6 +493,8 @@ static PyObject * ChebyTable_getServer(ChebyTable* self) { GET_SERVER };
 static PyObject * ChebyTable_getTableStream(ChebyTable* self) { GET_TABLE_STREAM };
 static PyObject * ChebyTable_setData(ChebyTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * ChebyTable_normalize(ChebyTable *self) { NORMALIZE };
+static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
+static PyObject * ChebyTable_getViewTable(ChebyTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
@@ -533,20 +524,6 @@ static PyObject *
 ChebyTable_getSize(ChebyTable *self)
 {
     return PyInt_FromLong(self->size);
-};
-
-static PyObject *
-ChebyTable_getTable(ChebyTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
 };
 
 static PyObject *
@@ -582,6 +559,7 @@ static PyMemberDef ChebyTable_members[] = {
 static PyMethodDef ChebyTable_methods[] = {
 {"getServer", (PyCFunction)ChebyTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -716,6 +694,8 @@ static PyObject * HannTable_getServer(HannTable* self) { GET_SERVER };
 static PyObject * HannTable_getTableStream(HannTable* self) { GET_TABLE_STREAM };
 static PyObject * HannTable_setData(HannTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * HannTable_normalize(HannTable *self) { NORMALIZE };
+static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
+static PyObject * HannTable_getViewTable(HannTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
@@ -747,20 +727,6 @@ HannTable_getSize(HannTable *self)
     return PyInt_FromLong(self->size);
 };
 
-static PyObject *
-HannTable_getTable(HannTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
-};
-
 static PyMemberDef HannTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(HannTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(HannTable, tablestream), 0, "Table stream object."},
@@ -770,6 +736,7 @@ static PyMemberDef HannTable_members[] = {
 static PyMethodDef HannTable_methods[] = {
 {"getServer", (PyCFunction)HannTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)HannTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -943,6 +910,8 @@ static PyObject * LinTable_getServer(LinTable* self) { GET_SERVER };
 static PyObject * LinTable_getTableStream(LinTable* self) { GET_TABLE_STREAM };
 static PyObject * LinTable_setData(LinTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * LinTable_normalize(LinTable *self) { NORMALIZE };
+static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
+static PyObject * LinTable_getViewTable(LinTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
@@ -998,20 +967,6 @@ LinTable_getSize(LinTable *self)
 };
 
 static PyObject *
-LinTable_getTable(LinTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
-};
-
-static PyObject *
 LinTable_getPoints(LinTable *self)
 {
     Py_INCREF(self->pointslist);
@@ -1051,6 +1006,7 @@ static PyMemberDef LinTable_members[] = {
 static PyMethodDef LinTable_methods[] = {
 {"getServer", (PyCFunction)LinTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)LinTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1228,6 +1184,8 @@ static PyObject * CosTable_getServer(CosTable* self) { GET_SERVER };
 static PyObject * CosTable_getTableStream(CosTable* self) { GET_TABLE_STREAM };
 static PyObject * CosTable_setData(CosTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * CosTable_normalize(CosTable *self) { NORMALIZE };
+static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
+static PyObject * CosTable_getViewTable(CosTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
@@ -1283,20 +1241,6 @@ CosTable_getSize(CosTable *self)
 };
 
 static PyObject *
-CosTable_getTable(CosTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
-};
-
-static PyObject *
 CosTable_getPoints(CosTable *self)
 {
     Py_INCREF(self->pointslist);
@@ -1336,6 +1280,7 @@ static PyMemberDef CosTable_members[] = {
 static PyMethodDef CosTable_methods[] = {
 {"getServer", (PyCFunction)CosTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)CosTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1540,6 +1485,8 @@ static PyObject * CurveTable_getServer(CurveTable* self) { GET_SERVER };
 static PyObject * CurveTable_getTableStream(CurveTable* self) { GET_TABLE_STREAM };
 static PyObject * CurveTable_setData(CurveTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * CurveTable_normalize(CurveTable * self) { NORMALIZE };
+static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
+static PyObject * CurveTable_getViewTable(CurveTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
@@ -1637,20 +1584,6 @@ CurveTable_getSize(CurveTable *self)
 };
 
 static PyObject *
-CurveTable_getTable(CurveTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
-};
-
-static PyObject *
 CurveTable_getPoints(CurveTable *self)
 {
     Py_INCREF(self->pointslist);
@@ -1690,6 +1623,7 @@ static PyMemberDef CurveTable_members[] = {
 static PyMethodDef CurveTable_methods[] = {
 {"getServer", (PyCFunction)CurveTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)CurveTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
@@ -1854,6 +1788,35 @@ static PyObject * SndTable_getServer(SndTable* self) { GET_SERVER };
 static PyObject * SndTable_getTableStream(SndTable* self) { GET_TABLE_STREAM };
 static PyObject * SndTable_setData(SndTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * SndTable_normalize(SndTable *self) { NORMALIZE };
+static PyObject * SndTable_getTable(SndTable *self) { GET_TABLE };
+static PyObject * 
+SndTable_getViewTable(SndTable *self) { 
+    int i, j, y;
+    int w = 500;
+    int h = 200;
+    int w2 = w/2;
+    int h2 = h/2;
+    int amp = h2;
+    int count = 0;
+    float absin;
+    int step = (int)(self->size / (float)(w - 1));
+    PyObject *samples;
+
+    samples = PyList_New(w*4);
+    for(i=0; i<w; i++) {
+        absin = 0.0;
+        for (j=0; j<step; j++) {
+            absin += self->data[count++];
+        }
+        y = (int)(fabsf(absin / step) * amp);
+        PyList_SetItem(samples, i*4, PyInt_FromLong(i));
+        PyList_SetItem(samples, i*4+1, PyInt_FromLong(h2-y));
+        PyList_SetItem(samples, i*4+2, PyInt_FromLong(i));
+        PyList_SetItem(samples, i*4+3, PyInt_FromLong(h2+y));
+    }
+
+    return samples;
+};
 
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
@@ -1884,20 +1847,6 @@ SndTable_getRate(SndTable *self)
     return PyFloat_FromDouble(sr * (self->sndSr/sr) / self->size);
 };
 
-static PyObject *
-SndTable_getTable(SndTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
-};
-
 static PyMemberDef SndTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(SndTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(SndTable, tablestream), 0, "Table stream object."},
@@ -1907,6 +1856,7 @@ static PyMemberDef SndTable_members[] = {
 static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)SndTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2049,6 +1999,8 @@ static PyObject * NewTable_getServer(NewTable* self) { GET_SERVER };
 static PyObject * NewTable_getTableStream(NewTable* self) { GET_TABLE_STREAM };
 static PyObject * NewTable_setData(NewTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * NewTable_normalize(NewTable *self) { NORMALIZE };
+static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
+static PyObject * NewTable_getViewTable(NewTable *self) { GET_VIEW_TABLE };
 
 static PyObject *
 NewTable_getSize(NewTable *self)
@@ -2069,20 +2021,6 @@ NewTable_getRate(NewTable *self)
     return PyFloat_FromDouble(sr / self->size);
 };
 
-static PyObject *
-NewTable_getTable(NewTable *self)
-{
-    int i;
-    PyObject *samples;
-    
-    samples = PyList_New(self->size);
-    for(i=0; i<self->size; i++) {
-        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i]));
-    }
-    
-    return samples;
-};
-
 static PyMemberDef NewTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
@@ -2092,6 +2030,7 @@ static PyMemberDef NewTable_members[] = {
 static PyMethodDef NewTable_methods[] = {
 {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)NewTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},

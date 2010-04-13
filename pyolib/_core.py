@@ -128,8 +128,8 @@ def class_args(cls):
 
     """
     name = cls.__name__
-    arg = inspect.getargspec(getattr(cls, "__init__"))
-    arg = inspect.formatargspec(*arg, formatvalue=removeExtraDecimals)
+    arg, varargs, varkw, defaults = inspect.getargspec(getattr(cls, "__init__"))
+    arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
     arg = arg.replace("self, ", "")
     return name + arg
         
@@ -595,9 +595,9 @@ class PyoTableObject(object):
         Opens a window showing the contents of the table.
         
         """
-        samples = self._base_objs[0].getTable()
+        samples = self._base_objs[0].getViewTable()
         createViewTableWindow(samples)
-
+        
 ######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
 ######################################################################
