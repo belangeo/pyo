@@ -1,4 +1,12 @@
 """
+PyoObjects to perform operations on PyoTableObjects.
+
+PyoTableObjects are 1 dimension containers. They can be used to store 
+audio samples or algorithmic sequences for future uses.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

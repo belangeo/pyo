@@ -1,4 +1,15 @@
 """
+Objects designed to create parameter's control at audio rate. 
+
+They create envelopes, line segments and conversion from number to 
+audio signal. 
+
+The audio streams of these objects can't be sent to the output 
+soundcard.
+ 
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

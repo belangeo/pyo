@@ -2,7 +2,6 @@
 Tools to perform arithmetic operations on audio signals.
 
 """
-
 """
 Copyright 2010 Olivier Belanger
 

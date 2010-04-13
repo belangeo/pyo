@@ -158,7 +158,13 @@ PyTypeObject StreamType = {
     0, /*tp_setattro*/
     0, /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
-    "Audio stream objects. For internal use only. Must never be instantiated by the user.", /* tp_doc */
+"\n\
+Audio stream objects. For internal use only. \n\n\
+A Stream object must never be instantiated by the user. \n\n\
+A Stream is a mono buffer of audio samples. It is used to pass \n\
+audio between objects and the server. A PyoObject can manage many \n\
+streams if, for example, a list is given to a parameter. \n\
+", /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */
     0, /* tp_richcompare */

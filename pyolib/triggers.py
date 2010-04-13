@@ -1,4 +1,14 @@
 """
+Objects to manage triggers streams.
+
+A trigger is an audio signal with a value of 1 surrounded by 0s.
+
+TrigXXX objects use this kind signal to generate some processes 
+with sampling rate time accuracy.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

@@ -1,4 +1,9 @@
 """
+Different kind of audio filtering operations.
+ 
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

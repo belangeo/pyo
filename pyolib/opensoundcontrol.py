@@ -1,4 +1,17 @@
 """
+Objects to manage values on an Open Sound Control port.
+
+OscSend take the first value of each buffersize and send it on an
+OSC port.
+
+OscReceive create and return audio streams from the value in input.
+
+The audio streams of these objects are essentially intended to be
+controls and can't be sent to the output soundcard.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
