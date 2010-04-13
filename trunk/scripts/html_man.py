@@ -162,7 +162,16 @@ def getDocFirstLine(obj):
     return f    
                     
 f.write('\\begin{LARGE}pyo documentation\\end{LARGE}\n\n') 
-f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')       
+f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')     
+f.write("""
+pyo is a Python module containing classes for a wide variety of audio signal processing types. With pyo, user will be
+able to include signal processing chains directly in Python scripts or projects, and to manipulate them in real time
+through the interpreter. Tools in pyo module offer primitives, like mathematical operations on audio signal, basic
+signal processing (filters, delays, synthesis generators, etc.), but also complex algorithms to create sound granulation
+and others creative sound manipulations. pyo supports OSC protocol (Open Sound Control), to ease communications
+between softwares, and MIDI protocol, for generating sound events and controlling process parameters. pyo allows
+creation of sophisticated signal processing chains with all the benefits of a mature, and wild used, general programming.
+""")  
 for key in sorted(OBJECTS_TREE.keys()):
     f.write('\section[%s</A> : %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
     f.write(getDoc(key))

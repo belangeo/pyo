@@ -1,4 +1,9 @@
 """
+Objects to place the sound on an arbitrary set of speakers.
+ 
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

@@ -1,4 +1,13 @@
 """
+PyoObjects to perform operations on PyoMatrixObjects.
+
+PyoMatrixObjects are 2 dimensions table containers. They can be used
+to store audio samples or algorithmic sequences. Writing and reading
+are done by giving row and column positions.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

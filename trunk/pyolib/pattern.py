@@ -1,4 +1,12 @@
 """
+Call Python functions from triggers or number counts.
+
+The audio streams of these objects are essentially intended to be
+controls and can't be sent to the output soundcard.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

@@ -1,4 +1,9 @@
 """
+Objects to modify the dynamic range and sample quality of audio streams.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

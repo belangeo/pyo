@@ -1,4 +1,11 @@
 """
+Play soundfiles from the disk.
+
+SfMarker's objects use markers features (store in the header) from 
+an AIFF file to create more specific reading patterns.
+
+"""
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

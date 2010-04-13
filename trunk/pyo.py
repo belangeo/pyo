@@ -21,26 +21,42 @@ from distutils.sysconfig import get_python_lib
 import os
 
 from pyolib._maps import *
-import pyolib.analysis as analysis # ??
+import pyolib.analysis as analysis
 from pyolib.analysis import *
+import pyolib.controls as controls
 from pyolib.controls import *
+import pyolib.dynamics as dynamics
 from pyolib.dynamics import *
+import pyolib.effects as effects
 from pyolib.effects import *
+import pyolib.filters as filters
 from pyolib.filters import *
+import pyolib.generators as generators
 from pyolib.generators import *
+import pyolib.arithmetic as arithmetic
 from pyolib.arithmetic import *
+import pyolib.midi as midi
 from pyolib.midi import *
+import pyolib.opensoundcontrol as opensoundcontrol
 from pyolib.opensoundcontrol import *
+import pyolib.pan as pan
 from pyolib.pan import *
+import pyolib.pattern as pattern
 from pyolib.pattern import *
+import pyolib.randoms as randoms
 from pyolib.randoms import *
 from pyolib.server import *
+import pyolib.sfplayer as sfplayer
 from pyolib.sfplayer import *
+import pyolib.tableprocess as tableprocess
 from pyolib.tableprocess import *
+import pyolib.matrixprocess as matrixprocess
 from pyolib.matrixprocess import *
 from pyolib.tables import *
 from pyolib.matrix import *
+import pyolib.triggers as triggers
 from pyolib.triggers import *
+import pyolib.utils as utils
 from pyolib.utils import *
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 

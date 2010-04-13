@@ -1,4 +1,9 @@
 """
+Objects to perform specific audio signal processing effects.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal

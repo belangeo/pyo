@@ -1,4 +1,12 @@
 """
+Synthesis generators.
+
+Classical synthesis generators that can be used as sources of a signal
+processing chain.
+
+"""
+
+"""
 Copyright 2010 Olivier Belanger
 
 This file is part of pyo, a python module to help digital signal
