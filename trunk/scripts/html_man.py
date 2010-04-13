@@ -73,8 +73,8 @@ def getMethodsDoc(text, obj):
                 ppos = l.find('(')
                 if ppos != -1:
                     meth = l[0:ppos]
-                    arg = inspect.getargspec(getattr(eval(obj), meth))
-                    arg = inspect.formatargspec(*arg, formatvalue=removeExtraDecimals)
+                    arg, varargs, varkw, defaults = inspect.getargspec(getattr(eval(obj), meth))
+                    arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
                     arg = arg.replace("self, ", "")
                     if add_tab:
                         methods += '    ' + obj + '.' + meth + arg + ':\n'

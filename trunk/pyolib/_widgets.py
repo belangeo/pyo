@@ -19,10 +19,11 @@ You should have received a copy of the GNU General Public Licensehack for OSX di
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
-import math, sys, os
+import math, sys, os, tempfile
 
 try:
     from Tkinter import *
+    WINDOWS = []
     #NoDefaultRoot()
 except:
     response = raw_input("""python-tk package is missing! It is needed to use pyo graphical interfaces.
@@ -182,25 +183,31 @@ class PyoObjectControl(Frame):
 ######################################################################
 ### View window for PyoTableObject
 ######################################################################
-class ViewTable(Frame):
+class ViewTable_withPIL(Frame):
     def __init__(self, master=None, samples=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.samples = samples
-        self.line_points = []
-        self.width = 400
-        self.height = 150
+        self.width = 500
+        self.height = 200
         self.half_height = self.height / 2
-        self.wave_amp = self.half_height -2
         self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        step = len(samples) / float(self.width - 1)
-        for i in range(self.width):
-            y = self.samples[int(i*step)-1] * self.wave_amp + self.wave_amp - 1
-            self.line_points.append(i+4)
-            self.line_points.append(self.height-y)
-            self.line_points.append(i+4)
-            self.line_points.append(self.height-y)
-        self.canvas.create_line(0, self.half_height+3, self.width, self.half_height+3, fill='grey', dash=(4,2))    
-        self.canvas.create_line(*self.line_points)
+        im = Image.new("L", (self.width, self.height), 255)
+        draw = ImageDraw.Draw(im)
+        draw.line(samples, fill=0, width=1)
+        self.img = ImageTk.PhotoImage(im)
+        self.canvas.create_image(self.width/2,self.height/2,image=self.img)
+        self.canvas.create_line(0, self.half_height+2, self.width, self.half_height+2, fill='grey', dash=(4,2))    
+        self.canvas.grid()
+        self.grid(ipadx=10, ipady=10)
+        
+class ViewTable_withoutPIL(Frame):
+    def __init__(self, master=None, samples=None):
+        Frame.__init__(self, master, bd=1, relief=GROOVE)
+        self.width = 500
+        self.height = 200
+        self.half_height = self.height / 2
+        self.canvas = Canvas(self, height=self.height, width=self.width, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        self.canvas.create_line(0, self.half_height+Y_OFFSET, self.width, self.half_height+Y_OFFSET, fill='grey', dash=(4,2))    
+        self.canvas.create_line(*samples)
         self.canvas.grid()
         self.grid(ipadx=10, ipady=10)
 
@@ -227,16 +234,16 @@ class ViewMatrix_withoutPIL(Frame):
         for i in range(self.rows*self.cols):
             y = i % self.cols
             x = i / self.cols
-            self.line_points = [y+Y_OFFSET]
-            self.line_points.append(x+Y_OFFSET)
-            self.line_points.append(y+Y_OFFSET+1)
-            self.line_points.append(x+Y_OFFSET+1)
+            x1 = [y+Y_OFFSET]
+            y1 = x+Y_OFFSET
+            x2 = y+Y_OFFSET+1
+            y2 = x+Y_OFFSET+1
             amp = int(samples[i])
             amp = hex(amp).replace('0x', '')
             if len(amp) == 1:
                 amp = "0%s" % amp
             amp = "#%s%s%s" % (amp, amp, amp)
-            self.canvas.create_line(*self.line_points, fill=amp)
+            self.canvas.create_line(x1, y1, x2, y2, fill=amp)
         self.canvas.grid()
         self.grid(ipadx=0, ipady=0)
 
@@ -374,30 +381,58 @@ class ServerGUI(Frame):
                 self.vumeter.coords(self.yellow[i], self.B1, y, self.B2, y)
                 self.vumeter.coords(self.red[i], self.B2, y, amp, y)
 
+def closeWindow(win):
+    win.destroy()
+    if win in WINDOWS: WINDOWS.remove(win)
+
+def closeWindowFromKeyboard(event):
+    win = event.widget
+    if not isinstance(win, ServerGUI): 
+        win.destroy()
+        if win in WINDOWS: WINDOWS.remove(win)
+
+def createRootWindow():
+    if len(WINDOWS) == 0:
+        root = Tk()
+        root.withdraw()
+
+def createToplevelWindow():
+    win = Toplevel()
+    WINDOWS.append(win)
+    win.protocol('WM_DELETE_WINDOW', lambda win=win: closeWindow(win))
+    win.bind("<Escape>", closeWindowFromKeyboard)
+    return win
+
 def createCtrlWindow(obj, map_list, title):
-    win = Tk()
+    createRootWindow()
+    win = createToplevelWindow()
     f = PyoObjectControl(win, obj, map_list)
     win.resizable(True, False)
     if title == None: title = obj.__class__.__name__
     win.title(title)
 
 def createViewTableWindow(samples):
-    win = Tk()
-    f = ViewTable(win, samples)
+    createRootWindow()
+    win = createToplevelWindow()
+    if WITH_PIL: f = ViewTable_withPIL(win, samples)
+    else: f = ViewTable_withoutPIL(win, samples)
     win.resizable(False, False)
     win.title("Table waveform")
-
+    
 def createViewMatrixWindow(samples, size):
     if not WITH_PIL: print """The Python Imaging Library is not installed. 
 It helps a lot to speed up matrix drawing!"""
-    win = Tk()
+    createRootWindow()    
+    win = createToplevelWindow()
     if WITH_PIL: f = ViewMatrix_withPIL(win, samples, size)
     else: f = ViewMatrix_withoutPIL(win, samples, size)
     win.resizable(False, False)
     win.title("Matrix viewer")
 
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, locals):
-    win = Tk()
+    createRootWindow()
+    win = createToplevelWindow()
     f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp, locals)
-    f.master.title("pyo Server")
+    f.master.title("pyo server")
+    f.focus_set()
     return f, win

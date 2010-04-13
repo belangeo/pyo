@@ -258,6 +258,38 @@ extern PyTypeObject M_TanType;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+#define GET_TABLE \
+    int i; \
+    PyObject *samples; \
+ \
+    samples = PyList_New(self->size); \
+    for(i=0; i<self->size; i++) { \
+        PyList_SetItem(samples, i, PyFloat_FromDouble(self->data[i])); \
+    } \
+ \
+    return samples;
+
+#define GET_VIEW_TABLE \
+    int i, y; \
+    int w = 500; \
+    int h = 200; \
+    int w2 = w/2; \
+    int h2 = h/2; \
+    int amp = h2 - 2; \
+    float step = (float)self->size / (float)(w - 1); \
+    PyObject *samples; \
+ \
+    samples = PyList_New(w*4); \
+    for(i=0; i<w; i++) { \
+        y = self->data[(int)(i*step)-1] * amp + amp + 1; \
+        PyList_SetItem(samples, i*4, PyInt_FromLong(i)); \
+        PyList_SetItem(samples, i*4+1, PyInt_FromLong(h-y)); \
+        PyList_SetItem(samples, i*4+2, PyInt_FromLong(i)); \
+        PyList_SetItem(samples, i*4+3, PyInt_FromLong(h-y)); \
+    } \
+ \
+    return samples;
+
 /* Normalize */
 #define NORMALIZE \
 	int i; \
