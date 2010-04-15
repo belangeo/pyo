@@ -803,6 +803,138 @@ class TrigEnv(PyoObject):
     @dur.setter
     def dur(self, x): self.setDur(x)
 
+class TrigLinseg(PyoObject):
+    """
+    Line segments trigger.
+    
+    TrigLinseg starts reading a break-points line segments each time it 
+    receives a trigger in its `input` parameter.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    list : list of tuples
+        Points used to construct the line segments. Each tuple is a
+        new point in the form (time, value). Times are given in seconds
+        and must be in increasing order.
+    
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setList(x) : Replace the `list` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Audio trigger signal.
+    list : list of tuples. Points used to construct the line segments.
+
+    Notes:
+
+    TrigLinseg will sends a trigger signal at the end of the playback. 
+    User can retreive the trigger streams by calling obj['trig']. 
+    Useful to synchronize other processes. 
+
+    The out() method is bypassed. TrigLinseg's signal can not be sent 
+    to audio outs.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro(2).play()
+    >>> pit = TrigLinseg(m, [(0,1000),(.1,1200),(.2,900),(.3,1000),(2,1000)])
+    >>> a = Sine(pit, mul=.3).out()
+    
+    """
+    def __init__(self, input, list, mul=1, add=0):
+        self._input = input
+        self._list = list
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [TrigLinseg_base(wrap(in_fader,i), list, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = [TrigLinsegTrig_base(obj) for obj in self._base_objs]
+
+    def __dir__(self):
+        return ['input', 'list', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
+
+    def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+        
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+
+    def play(self):
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
+        return self
+
+    def out(self, chnl=0, inc=1):
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setList(self, x):
+        """
+        Replace the `list` attribute.
+        
+        Parameters:
+
+        x : list of tuples
+            new `list` attribute.
+        
+        """
+        self._list = x
+        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def list(self): return self._list
+    @list.setter
+    def list(self, x): self.setList(x)
+
 class TrigXnoise(PyoObject):
     """
     Triggered X-class pseudo-random generator.

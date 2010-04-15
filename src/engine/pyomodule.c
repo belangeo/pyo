@@ -643,6 +643,16 @@ init_pyo(void)
         return;
     Py_INCREF(&TrigEnvTrigType);
     PyModule_AddObject(m, "TrigEnvTrig_base", (PyObject *)&TrigEnvTrigType);
+
+    if (PyType_Ready(&TrigLinsegType) < 0)
+        return;
+    Py_INCREF(&TrigLinsegType);
+    PyModule_AddObject(m, "TrigLinseg_base", (PyObject *)&TrigLinsegType);
+    
+    if (PyType_Ready(&TrigLinsegTrigType) < 0)
+        return;
+    Py_INCREF(&TrigLinsegTrigType);
+    PyModule_AddObject(m, "TrigLinsegTrig_base", (PyObject *)&TrigLinsegTrigType);
     
     if (PyType_Ready(&TrigFuncType) < 0)
         return;
