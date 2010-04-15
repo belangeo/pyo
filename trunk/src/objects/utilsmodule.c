@@ -650,3 +650,379 @@ PyTypeObject SnapType = {
     0,                                              /* tp_alloc */
     Snap_new,                                     /* tp_new */
 };
+
+/************/
+/* Interp */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *input2;
+    Stream *input2_stream;
+    PyObject *interp;
+    Stream *interp_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Interp;
+
+static void
+Interp_filters_i(Interp *self) {
+    float amp2;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *in2 = Stream_getData((Stream *)self->input2_stream);
+    float inter = PyFloat_AS_DOUBLE(self->interp);
+
+    if (inter < 0.0)
+        inter = 0.0;
+    else if (inter > 1.0)
+        inter = 1.0;
+    
+    amp2 = 1.0 - inter; 
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = in[i] * amp2 + in2[i] * inter;
+    }
+}
+
+static void
+Interp_filters_a(Interp *self) {
+    float amp1, amp2;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *in2 = Stream_getData((Stream *)self->input2_stream);
+    float *inter = Stream_getData((Stream *)self->interp_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        amp1 = inter[i];
+        if (amp1 < 0.0)
+            amp1 = 0.0;
+        else if (amp1 > 1.0)
+            amp1 = 1.0;
+        
+        amp2 = 1.0 - amp1; 
+        self->data[i] = in[i] * amp2 + in2[i] * amp1;
+    }
+}
+
+static void Interp_postprocessing_ii(Interp *self) { POST_PROCESSING_II };
+static void Interp_postprocessing_ai(Interp *self) { POST_PROCESSING_AI };
+static void Interp_postprocessing_ia(Interp *self) { POST_PROCESSING_IA };
+static void Interp_postprocessing_aa(Interp *self) { POST_PROCESSING_AA };
+static void Interp_postprocessing_ireva(Interp *self) { POST_PROCESSING_IREVA };
+static void Interp_postprocessing_areva(Interp *self) { POST_PROCESSING_AREVA };
+static void Interp_postprocessing_revai(Interp *self) { POST_PROCESSING_REVAI };
+static void Interp_postprocessing_revaa(Interp *self) { POST_PROCESSING_REVAA };
+static void Interp_postprocessing_revareva(Interp *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Interp_setProcMode(Interp *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Interp_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Interp_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Interp_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Interp_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Interp_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Interp_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Interp_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Interp_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Interp_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Interp_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Interp_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Interp_compute_next_data_frame(Interp *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Interp_traverse(Interp *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->interp);    
+    Py_VISIT(self->interp_stream);    
+    return 0;
+}
+
+static int 
+Interp_clear(Interp *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->interp);    
+    Py_CLEAR(self->interp_stream);    
+    return 0;
+}
+
+static void
+Interp_dealloc(Interp* self)
+{
+    free(self->data);
+    Interp_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Interp_deleteStream(Interp *self) { DELETE_STREAM };
+
+static PyObject *
+Interp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Interp *self;
+    self = (Interp *)type->tp_alloc(type, 0);
+    
+    self->interp = PyFloat_FromDouble(.5);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Interp_compute_next_data_frame);
+    self->mode_func_ptr = Interp_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Interp_init(Interp *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *interptmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "input2", "interp", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &input2tmp, &interptmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+
+    Py_XDECREF(self->input2); \
+    self->input2 = input2tmp; \
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL); \
+    Py_INCREF(input2_streamtmp); \
+    Py_XDECREF(self->input2_stream); \
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (interptmp) {
+        PyObject_CallMethod((PyObject *)self, "setInterp", "O", interptmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Interp_compute_next_data_frame((Interp *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Interp_getServer(Interp* self) { GET_SERVER };
+static PyObject * Interp_getStream(Interp* self) { GET_STREAM };
+static PyObject * Interp_setMul(Interp *self, PyObject *arg) { SET_MUL };	
+static PyObject * Interp_setAdd(Interp *self, PyObject *arg) { SET_ADD };	
+static PyObject * Interp_setSub(Interp *self, PyObject *arg) { SET_SUB };	
+static PyObject * Interp_setDiv(Interp *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Interp_play(Interp *self) { PLAY };
+static PyObject * Interp_out(Interp *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Interp_stop(Interp *self) { STOP };
+
+static PyObject * Interp_multiply(Interp *self, PyObject *arg) { MULTIPLY };
+static PyObject * Interp_inplace_multiply(Interp *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Interp_add(Interp *self, PyObject *arg) { ADD };
+static PyObject * Interp_inplace_add(Interp *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Interp_sub(Interp *self, PyObject *arg) { SUB };
+static PyObject * Interp_inplace_sub(Interp *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Interp_div(Interp *self, PyObject *arg) { DIV };
+static PyObject * Interp_inplace_div(Interp *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Interp_setInterp(Interp *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->interp);
+	if (isNumber == 1) {
+		self->interp = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->interp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->interp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->interp_stream);
+        self->interp_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef Interp_members[] = {
+{"server", T_OBJECT_EX, offsetof(Interp, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Interp, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Interp, input), 0, "Input sound object."},
+{"input2", T_OBJECT_EX, offsetof(Interp, input2), 0, "Second input sound object."},
+{"interp", T_OBJECT_EX, offsetof(Interp, interp), 0, "Cutoff interpuency in cycle per second."},
+{"mul", T_OBJECT_EX, offsetof(Interp, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Interp, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Interp_methods[] = {
+{"getServer", (PyCFunction)Interp_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Interp_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Interp_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Interp_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Interp_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Interp_stop, METH_NOARGS, "Stops computing."},
+{"setInterp", (PyCFunction)Interp_setInterp, METH_O, "Sets filter cutoff interpuency in cycle per second."},
+{"setMul", (PyCFunction)Interp_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Interp_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Interp_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Interp_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Interp_as_number = {
+(binaryfunc)Interp_add,                         /*nb_add*/
+(binaryfunc)Interp_sub,                         /*nb_subtract*/
+(binaryfunc)Interp_multiply,                    /*nb_multiply*/
+(binaryfunc)Interp_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Interp_inplace_add,                 /*inplace_add*/
+(binaryfunc)Interp_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Interp_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Interp_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject InterpType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Interp_base",                                   /*tp_name*/
+sizeof(Interp),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Interp_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Interp_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Interp objects. Interpolates between 2 audio streams.",           /* tp_doc */
+(traverseproc)Interp_traverse,                  /* tp_traverse */
+(inquiry)Interp_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Interp_methods,                                 /* tp_methods */
+Interp_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Interp_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Interp_new,                                     /* tp_new */
+};
