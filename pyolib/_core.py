@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, SliceType, FloatType, StringType
-import random, os, inspect
+import random, os, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
 
@@ -97,12 +97,11 @@ def example(cls, dur=5):
         if "..." in line: line = "    " +  line.lstrip("... ")
         ex += line + "\n"
     ex += "time.sleep(%f)\ns.stop()\ns.shutdown()\n" % dur
-    f = open("tmp_example.py", "w")
+    f = tempfile.NamedTemporaryFile(delete=False)
     f.write('print """\n%s\n"""\n' % ex)
     f.write(ex)
     f.close()    
-    p = call(["python", "tmp_example.py"])
-    os.remove("tmp_example.py")
+    p = call(["python", f.name])
       
 def removeExtraDecimals(x):
     if type(x) == FloatType:

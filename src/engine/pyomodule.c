@@ -794,4 +794,9 @@ init_pyo(void)
     Py_INCREF(&SnapType);
     PyModule_AddObject(m, "Snap_base", (PyObject *)&SnapType);
 
+    if (PyType_Ready(&InterpType) < 0)
+        return;
+    Py_INCREF(&InterpType);
+    PyModule_AddObject(m, "Interp_base", (PyObject *)&InterpType);
+    
 }

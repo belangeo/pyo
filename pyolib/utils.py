@@ -323,3 +323,123 @@ class Snap(PyoObject):
     @scale.setter
     def scale(self, x): self.setScale(x)
 
+class Interp(PyoObject):
+    """
+    Interpolates between two signals.
+ 
+    Parent class: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        First input signal.
+    input2 : PyoObject
+        Second input signal.
+    interp : float or PyoObject, optional
+        Averaging value. 0 means only first signal, 1 means only second
+        signal. Default to 0.5.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setInput2(x, fadetime) : Replace the `input2` attribute.
+    setInterp(x) : Replace the `interp` attribute.
+
+    Attributes:
+
+    input : PyoObject. First input signal.
+    input2 : PyoObject. Second input signal.
+    interp : float or PyoObject. Averaging value.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=1, loop=True, mul=.5)
+    >>> sf2 = SfPlayer(SNDS_PATH + '/transparent.aif', speed=1, loop=True, mul=.5)
+    >>> lfo = Osc(SquareTable(20), 5, 0, .5, .5)
+    >>> a = Interp(sf, sf2, lfo).out()
+
+    """
+    def __init__(self, input, input2, interp=0.5, mul=1, add=0):
+        self._input = input
+        self._input2 = input2
+        self._interp = interp
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(input2)
+        in_fader, in_fader2, interp, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, interp, mul, add)
+        self._base_objs = [Interp_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'input2', 'interp', 'mul', 'add']
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInput2(self, x, fadetime=0.05):
+        """
+        Replace the `input2` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input2 = x
+        self._in_fader2.setInput(x, fadetime)
+        
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `interp` attribute.
+
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0., 1., "lin", "interp", self._interp), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+      
+    @property
+    def input(self):
+        """PyoObject. First input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoObject. Second input signal.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)
+
+    @property
+    def interp(self):
+        """float or PyoObject. Averaging value.""" 
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
