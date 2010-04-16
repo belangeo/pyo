@@ -443,3 +443,127 @@ class Interp(PyoObject):
         return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
+
+class SampHold(PyoObject):
+    """
+    Performs a sample-and-hold operation on its input. 
+ 
+    SampHold performs a sample-and-hold operation on its input according 
+    to the value of `controlsig`. If `controlsig` equals `value`, the input 
+    is sampled and holded until next sampling.
+    
+    Parent class: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal.
+    controlsig : PyoObject
+        Controls when to sample the signal.
+    value : float or PyoObject, optional
+        Sampling targeted value. Default to 0.0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setControlsig(x, fadetime) : Replace the `controlsig` attribute.
+    setValue(x) : Replace the `value` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal.
+    controlsig : PyoObject. Controls when to sample the signal.
+    value : float or PyoObject. Targeted value.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(500,1000)
+    >>> b = Sine(4)
+    >>> c = SampHold(input=a, controlsig=b, value=0)
+    >>> d = Sine(c, mul=.3).out()
+
+    """
+    def __init__(self, input, controlsig, value=0.0, mul=1, add=0):
+        self._input = input
+        self._controlsig = controlsig
+        self._value = value
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(controlsig)
+        in_fader, in_fader2, value, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, value, mul, add)
+        self._base_objs = [SampHold_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'controlsig', 'value', 'mul', 'add']
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setControlsig(self, x, fadetime=0.05):
+        """
+        Replace the `controlsig` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New control signal.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._controlsig = x
+        self._in_fader2.setInput(x, fadetime)
+        
+    def setValue(self, x):
+        """
+        Replace the `value` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `value` attribute.
+
+        """
+        self._value = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def controlsig(self):
+        """PyoObject. Control signal.""" 
+        return self._controlsig
+    @controlsig.setter
+    def controlsig(self, x): self.setControlsig(x)
+
+    @property
+    def value(self):
+        """float or PyoObject. Targeted value.""" 
+        return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)
