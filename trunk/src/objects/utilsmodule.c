@@ -1026,3 +1026,389 @@ Interp_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Interp_new,                                     /* tp_new */
 };
+
+/************/
+/* SampHold */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *controlsig;
+    Stream *controlsig_stream;
+    PyObject *value;
+    Stream *value_stream;
+    float currentValue;
+    int flag;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} SampHold;
+
+static void
+SampHold_filters_i(SampHold *self) {
+    float ctrl;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
+    float val = PyFloat_AS_DOUBLE(self->value);
+
+    for (i=0; i<self->bufsize; i++) {
+        ctrl = ctrlsig[i];
+        if (ctrl > (val - 0.001) && ctrl < (val + 0.001)) {
+            if (self->flag == 1) {
+                self->currentValue = in[i];
+                self->flag = 0;
+            }    
+        }
+        else
+            self->flag = 1;
+        self->data[i] = self->currentValue;
+    }
+}
+
+static void
+SampHold_filters_a(SampHold *self) {
+    float ctrl, val;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
+    float *valsig = Stream_getData((Stream *)self->value_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        ctrl = ctrlsig[i];
+        val = valsig[i];
+        if (ctrl > (val - 0.001) && ctrl < (val + 0.001)) {
+            if (self->flag == 1) {
+                self->currentValue = in[i];
+                self->flag = 0;
+            }    
+        }
+        else
+            self->flag = 1;
+        self->data[i] = self->currentValue;
+    }
+}
+
+static void SampHold_postprocessing_ii(SampHold *self) { POST_PROCESSING_II };
+static void SampHold_postprocessing_ai(SampHold *self) { POST_PROCESSING_AI };
+static void SampHold_postprocessing_ia(SampHold *self) { POST_PROCESSING_IA };
+static void SampHold_postprocessing_aa(SampHold *self) { POST_PROCESSING_AA };
+static void SampHold_postprocessing_ireva(SampHold *self) { POST_PROCESSING_IREVA };
+static void SampHold_postprocessing_areva(SampHold *self) { POST_PROCESSING_AREVA };
+static void SampHold_postprocessing_revai(SampHold *self) { POST_PROCESSING_REVAI };
+static void SampHold_postprocessing_revaa(SampHold *self) { POST_PROCESSING_REVAA };
+static void SampHold_postprocessing_revareva(SampHold *self) { POST_PROCESSING_REVAREVA };
+
+static void
+SampHold_setProcMode(SampHold *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = SampHold_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = SampHold_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = SampHold_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = SampHold_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = SampHold_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = SampHold_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = SampHold_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = SampHold_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = SampHold_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = SampHold_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = SampHold_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+SampHold_compute_next_data_frame(SampHold *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+SampHold_traverse(SampHold *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->controlsig);
+    Py_VISIT(self->controlsig_stream);
+    Py_VISIT(self->value);    
+    Py_VISIT(self->value_stream);    
+    return 0;
+}
+
+static int 
+SampHold_clear(SampHold *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->controlsig);
+    Py_CLEAR(self->controlsig_stream);
+    Py_CLEAR(self->value);    
+    Py_CLEAR(self->value_stream);    
+    return 0;
+}
+
+static void
+SampHold_dealloc(SampHold* self)
+{
+    free(self->data);
+    SampHold_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * SampHold_deleteStream(SampHold *self) { DELETE_STREAM };
+
+static PyObject *
+SampHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    SampHold *self;
+    self = (SampHold *)type->tp_alloc(type, 0);
+    
+    self->value = PyFloat_FromDouble(0.0);
+    self->currentValue = 0.0;
+    self->flag = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, SampHold_compute_next_data_frame);
+    self->mode_func_ptr = SampHold_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+SampHold_init(SampHold *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *controlsigtmp, *controlsig_streamtmp, *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "controlsig", "value", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &controlsigtmp, &valuetmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_XDECREF(self->controlsig); \
+    self->controlsig = controlsigtmp; \
+    controlsig_streamtmp = PyObject_CallMethod((PyObject *)self->controlsig, "_getStream", NULL); \
+    Py_INCREF(controlsig_streamtmp); \
+    Py_XDECREF(self->controlsig_stream); \
+    self->controlsig_stream = (Stream *)controlsig_streamtmp;
+    
+    if (valuetmp) {
+        PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    SampHold_compute_next_data_frame((SampHold *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * SampHold_getServer(SampHold* self) { GET_SERVER };
+static PyObject * SampHold_getStream(SampHold* self) { GET_STREAM };
+static PyObject * SampHold_setMul(SampHold *self, PyObject *arg) { SET_MUL };	
+static PyObject * SampHold_setAdd(SampHold *self, PyObject *arg) { SET_ADD };	
+static PyObject * SampHold_setSub(SampHold *self, PyObject *arg) { SET_SUB };	
+static PyObject * SampHold_setDiv(SampHold *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * SampHold_play(SampHold *self) { PLAY };
+static PyObject * SampHold_out(SampHold *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * SampHold_stop(SampHold *self) { STOP };
+
+static PyObject * SampHold_multiply(SampHold *self, PyObject *arg) { MULTIPLY };
+static PyObject * SampHold_inplace_multiply(SampHold *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * SampHold_add(SampHold *self, PyObject *arg) { ADD };
+static PyObject * SampHold_inplace_add(SampHold *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * SampHold_sub(SampHold *self, PyObject *arg) { SUB };
+static PyObject * SampHold_inplace_sub(SampHold *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * SampHold_div(SampHold *self, PyObject *arg) { DIV };
+static PyObject * SampHold_inplace_div(SampHold *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+SampHold_setValue(SampHold *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->value);
+	if (isNumber == 1) {
+		self->value = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->value = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->value_stream);
+        self->value_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef SampHold_members[] = {
+{"server", T_OBJECT_EX, offsetof(SampHold, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(SampHold, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(SampHold, input), 0, "Input sound object."},
+{"controlsig", T_OBJECT_EX, offsetof(SampHold, controlsig), 0, "Control input object."},
+{"value", T_OBJECT_EX, offsetof(SampHold, value), 0, "Trigger value."},
+{"mul", T_OBJECT_EX, offsetof(SampHold, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(SampHold, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef SampHold_methods[] = {
+{"getServer", (PyCFunction)SampHold_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)SampHold_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)SampHold_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)SampHold_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)SampHold_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)SampHold_stop, METH_NOARGS, "Stops computing."},
+{"setValue", (PyCFunction)SampHold_setValue, METH_O, "Sets trigger value."},
+{"setMul", (PyCFunction)SampHold_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)SampHold_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)SampHold_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)SampHold_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods SampHold_as_number = {
+(binaryfunc)SampHold_add,                         /*nb_add*/
+(binaryfunc)SampHold_sub,                         /*nb_subtract*/
+(binaryfunc)SampHold_multiply,                    /*nb_multiply*/
+(binaryfunc)SampHold_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)SampHold_inplace_add,                 /*inplace_add*/
+(binaryfunc)SampHold_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)SampHold_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)SampHold_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject SampHoldType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.SampHold_base",                                   /*tp_name*/
+sizeof(SampHold),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)SampHold_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&SampHold_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"SampHold objects. SampHoldolates between 2 audio streams.",           /* tp_doc */
+(traverseproc)SampHold_traverse,                  /* tp_traverse */
+(inquiry)SampHold_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+SampHold_methods,                                 /* tp_methods */
+SampHold_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)SampHold_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+SampHold_new,                                     /* tp_new */
+};

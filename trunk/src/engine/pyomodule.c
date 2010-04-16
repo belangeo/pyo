@@ -798,5 +798,10 @@ init_pyo(void)
         return;
     Py_INCREF(&InterpType);
     PyModule_AddObject(m, "Interp_base", (PyObject *)&InterpType);
+
+    if (PyType_Ready(&SampHoldType) < 0)
+        return;
+    Py_INCREF(&SampHoldType);
+    PyModule_AddObject(m, "SampHold_base", (PyObject *)&SampHoldType);
     
 }
