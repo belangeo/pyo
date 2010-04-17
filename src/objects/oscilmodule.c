@@ -50,6 +50,17 @@ typedef struct {
     float twoPiOnSr;
 } Sine;
 
+static float
+Sine_clip(float x) {
+    if (x < 0) {
+        x += ((int)(-x / TWOPI) + 1) * TWOPI;
+    }
+    else if (x >= TWOPI) {
+        x -= (int)(x / TWOPI) * TWOPI;
+    }
+    return x;
+}
+
 static void
 Sine_readframes_ii(Sine *self) {
     float delta, fr, ph, val;
@@ -60,8 +71,7 @@ Sine_readframes_ii(Sine *self) {
     delta = fr * self->twoPiOnSr;
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
+        self->pointerPos = Sine_clip(self->pointerPos);
         val = sinf(self->pointerPos + ph);
         self->data[i] = val;
         self->pointerPos += delta;
@@ -78,8 +88,7 @@ Sine_readframes_ai(Sine *self) {
     
     for (i=0; i<self->bufsize; i++) {
         delta = fr[i] * self->twoPiOnSr;
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
+        self->pointerPos = Sine_clip(self->pointerPos);
         val = sinf(self->pointerPos + ph);
         self->data[i] = val;
         self->pointerPos += delta;
@@ -96,8 +105,7 @@ Sine_readframes_ia(Sine *self) {
     delta = fr * self->twoPiOnSr;
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
+        self->pointerPos = Sine_clip(self->pointerPos);
         val = sinf(self->pointerPos + (ph[i] * TWOPI));
         self->data[i] = val;
         self->pointerPos += delta;
@@ -114,8 +122,7 @@ Sine_readframes_aa(Sine *self) {
     
     for (i=0; i<self->bufsize; i++) {
         delta = fr[i] * self->twoPiOnSr;
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
+        self->pointerPos = Sine_clip(self->pointerPos);
         val = sinf(self->pointerPos + (ph[i] * TWOPI));
         self->data[i] = val;
         self->pointerPos += delta;
@@ -935,9 +942,20 @@ PyTypeObject SineLoopType = {
 	SineLoop_new,                 /* tp_new */
 };
 
-/**************/
-/* Osc object */
-/**************/
+/***************/
+/* Osc objects */
+/***************/
+static float
+Osc_clip(float x, int size) {
+    if (x < 0) {
+        x += ((int)(-x / size) + 1) * size;
+    }
+    else if (x >= size) {
+        x -= (int)(x / size) * size;
+    }
+    return x;
+}
+
 typedef struct {
     pyo_audio_HEAD
     PyObject *table;
@@ -963,19 +981,13 @@ Osc_readframes_ii(Osc *self) {
     ph *= size;
     for (i=0; i<self->bufsize; i++) {
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + ph;
         if (pos >= size)
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
         self->data[i] = linear(tablelist, ipart, fpart);
-        //self->data[i] = x + (x1 - x) * fpart;
     }
 }
 
@@ -994,18 +1006,13 @@ Osc_readframes_ai(Osc *self) {
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] * sizeOnSr;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + ph;
         if (pos >= size)
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = x + (x1 - x) * fpart;
+        self->data[i] = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -1023,18 +1030,13 @@ Osc_readframes_ia(Osc *self) {
     for (i=0; i<self->bufsize; i++) {
         pha = ph[i] * size;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + pha;
         if (pos >= size)
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = x + (x1 - x) * fpart;
+        self->data[i] = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -1053,18 +1055,13 @@ Osc_readframes_aa(Osc *self) {
         inc = fr[i] * sizeOnSr;
         pha = ph[i] * size;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + pha;
         if (pos >= size)
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = x + (x1 - x) * fpart;
+        self->data[i] = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -1487,10 +1484,7 @@ OscLoop_readframes_ii(OscLoop *self) {
     
     for (i=0; i<self->bufsize; i++) {
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + (self->lastValue * feed);
         if (pos >= size)
             pos -= size;
@@ -1498,9 +1492,7 @@ OscLoop_readframes_ii(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = self->lastValue = x + (x1 - x) * fpart;
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -1518,10 +1510,7 @@ OscLoop_readframes_ai(OscLoop *self) {
     for (i=0; i<self->bufsize; i++) {
         inc = fr[i] * sizeOnSr;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + (self->lastValue * feed);
         if (pos >= size)
             pos -= size;
@@ -1529,9 +1518,7 @@ OscLoop_readframes_ai(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = self->lastValue = x + (x1 - x) * fpart;
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -1549,10 +1536,7 @@ OscLoop_readframes_ia(OscLoop *self) {
     for (i=0; i<self->bufsize; i++) {
         feed = _clip(fd[i]) * size;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + (self->lastValue * feed);
         if (pos >= size)
             pos -= size;
@@ -1560,9 +1544,7 @@ OscLoop_readframes_ia(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = self->lastValue = x + (x1 - x) * fpart;
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -1581,10 +1563,7 @@ OscLoop_readframes_aa(OscLoop *self) {
         inc = fr[i] * sizeOnSr;
         feed = _clip(fd[i]) * size;
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
-            self->pointerPos = size + self->pointerPos;
-        else if (self->pointerPos >= size)
-            self->pointerPos -= size;
+        self->pointerPos = Osc_clip(self->pointerPos, size);
         pos = self->pointerPos + (self->lastValue * feed);
         if (pos >= size)
             pos -= size;
@@ -1592,9 +1571,7 @@ OscLoop_readframes_aa(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = self->lastValue = x + (x1 - x) * fpart;
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
     }
 }
 
@@ -4731,14 +4708,10 @@ typedef struct {
 static float
 Fm_clip(float x) {
     if (x < 0) {
-        while (x < 0) {
-            x += TWOPI;
-        }    
+        x += ((int)(-x / TWOPI) + 1) * TWOPI;
     }
     else if (x >= TWOPI) {
-        while (x >= TWOPI) {
-            x -= TWOPI;
-        }    
+        x -= (int)(x / TWOPI) * TWOPI;
     }
     return x;
 }
@@ -4757,8 +4730,7 @@ Fm_readframes_iii(Fm *self) {
     mod_delta = mod_freq * self->twoPiOnSr;
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4783,8 +4755,7 @@ Fm_readframes_aii(Fm *self) {
         mod_freq = car[i] * rat;
         mod_amp = mod_freq * ind;
         mod_delta = mod_freq * self->twoPiOnSr;
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4809,8 +4780,7 @@ Fm_readframes_iai(Fm *self) {
         mod_freq = car * rat[i];
         mod_amp = mod_freq * ind;
         mod_delta = mod_freq * self->twoPiOnSr;
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4835,8 +4805,7 @@ Fm_readframes_aai(Fm *self) {
         mod_freq = car[i] * rat[i];
         mod_amp = mod_freq * ind;
         mod_delta = mod_freq * self->twoPiOnSr;
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4861,8 +4830,7 @@ Fm_readframes_iia(Fm *self) {
     
     for (i=0; i<self->bufsize; i++) {
         mod_amp = mod_freq * ind[i];
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4887,8 +4855,7 @@ Fm_readframes_aia(Fm *self) {
         mod_freq = car[i] * rat;
         mod_amp = mod_freq * ind[i];
         mod_delta = mod_freq * self->twoPiOnSr;
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4913,8 +4880,7 @@ Fm_readframes_iaa(Fm *self) {
         mod_freq = car * rat[i];
         mod_amp = mod_freq * ind[i];
         mod_delta = mod_freq * self->twoPiOnSr;
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
@@ -4939,8 +4905,7 @@ Fm_readframes_aaa(Fm *self) {
         mod_freq = car[i] * rat[i];
         mod_amp = mod_freq * ind[i];
         mod_delta = mod_freq * self->twoPiOnSr;
-        if (self->pointerPos_mod > TWOPI)
-            self->pointerPos_mod -= TWOPI;
+        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
         mod_val = mod_amp * sinf(self->pointerPos_mod);
         self->pointerPos_mod += mod_delta;
         
