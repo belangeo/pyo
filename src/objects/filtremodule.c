@@ -59,9 +59,8 @@ typedef struct {
 static void 
 Biquad_compute_coeffs_lp(Biquad *self)
 {
-    self->b0 = (1 - self->c) / 2;
+    self->b0 = self->b2 = (1 - self->c) / 2;
     self->b1 = 1 - self->c;
-    self->b2 = self->b0;
     self->a0 = 1 + self->alpha;
     self->a1 = -2 * self->c;
     self->a2 = 1 - self->alpha;
@@ -93,18 +92,23 @@ static void
 Biquad_compute_coeffs_bs(Biquad *self)
 {
     self->b0 = 1;
-    self->b1 = -2 * self->c;
+    self->b1 = self->a1 = -2 * self->c;
     self->b2 = 1;
     self->a0 = 1 + self->alpha;
-    self->a1 = self->b1;
     self->a2 = 1 - self->alpha;
+}
+
+static void 
+Biquad_compute_coeffs_ap(Biquad *self)
+{
+    self->b0 = self->a2 = 1 - self->alpha;
+    self->b1 = self->a1 = -2 * self->c;
+    self->b2 = self->a0 = 1 + self->alpha;
 }
 
 static void
 Biquad_compute_variables(Biquad *self, float freq, float q)
-{
-    //float w0, c, alpha;
-    
+{    
     if (freq <= 1) 
         freq = 1;
     else if (freq >= self->sr)
@@ -241,6 +245,9 @@ Biquad_setProcMode(Biquad *self)
             break;
         case 3:
             self->coeffs_func_ptr = Biquad_compute_coeffs_bs;
+            break;
+        case 4:
+            self->coeffs_func_ptr = Biquad_compute_coeffs_ap;
             break;
     }
     
