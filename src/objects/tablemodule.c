@@ -1794,7 +1794,6 @@ SndTable_getViewTable(SndTable *self) {
     int i, j, y;
     int w = 500;
     int h = 200;
-    int w2 = w/2;
     int h2 = h/2;
     int amp = h2;
     int count = 0;

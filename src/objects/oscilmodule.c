@@ -969,7 +969,7 @@ typedef struct {
 
 static void
 Osc_readframes_ii(Osc *self) {
-    float fr, ph, pos, inc, fpart, x, x1;
+    float fr, ph, pos, inc, fpart;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -993,7 +993,7 @@ Osc_readframes_ii(Osc *self) {
 
 static void
 Osc_readframes_ai(Osc *self) {
-    float inc, ph, pos, fpart, x, x1, sizeOnSr;
+    float inc, ph, pos, fpart, sizeOnSr;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1018,7 +1018,7 @@ Osc_readframes_ai(Osc *self) {
 
 static void
 Osc_readframes_ia(Osc *self) {
-    float fr, pha, pos, inc, fpart, x, x1;
+    float fr, pha, pos, inc, fpart;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1042,7 +1042,7 @@ Osc_readframes_ia(Osc *self) {
 
 static void
 Osc_readframes_aa(Osc *self) {
-    float inc, pha, pos, fpart, x, x1, sizeOnSr;
+    float inc, pha, pos, fpart, sizeOnSr;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1473,7 +1473,7 @@ typedef struct {
 
 static void
 OscLoop_readframes_ii(OscLoop *self) {
-    float fr, feed, pos, inc, fpart, x, x1;
+    float fr, feed, pos, inc, fpart;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1498,7 +1498,7 @@ OscLoop_readframes_ii(OscLoop *self) {
 
 static void
 OscLoop_readframes_ai(OscLoop *self) {
-    float inc, feed, pos, fpart, x, x1, sizeOnSr;
+    float inc, feed, pos, fpart, sizeOnSr;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1524,7 +1524,7 @@ OscLoop_readframes_ai(OscLoop *self) {
 
 static void
 OscLoop_readframes_ia(OscLoop *self) {
-    float fr, feed, pos, inc, fpart, x, x1;
+    float fr, feed, pos, inc, fpart;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1550,7 +1550,7 @@ OscLoop_readframes_ia(OscLoop *self) {
 
 static void
 OscLoop_readframes_aa(OscLoop *self) {
-    float inc, feed, pos, fpart, x, x1, sizeOnSr;
+    float inc, feed, pos, fpart, sizeOnSr;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);

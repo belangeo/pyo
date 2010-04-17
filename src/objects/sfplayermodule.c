@@ -76,20 +76,6 @@ float min_arr(float *a,int n)
     return m;
 }
 
-float *reverseArray(float *orig, int b)
-{
-    int a=0;
-    float swap;
-
-    for (a; a<--b; a++) { //increment a and decrement b until they meet eachother
-        swap = orig[a];       //put what's in a into swap space
-        orig[a] = orig[b];    //put what's in b into a
-        orig[b] = swap;       //put what's in the swap (a) into b
-    }
-
-    return orig;    //return the new (reversed) array (a pointer to it)
-}
-
 static void
 SfPlayer_readframes_i(SfPlayer *self) {
     float sp, frac, bufpos, delta;
@@ -209,9 +195,9 @@ SfPlayer_readframes_i(SfPlayer *self) {
         /* reverse arrays */
         float swap;
         for (i=0; i<self->sndChnls; i++) {
-            int a = 0;
+            int a;
             int b = buflen; 
-            for (a; a<--b; a++) { //increment a and decrement b until they meet eachother
+            for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
@@ -365,9 +351,9 @@ SfPlayer_readframes_a(SfPlayer *self) {
         /* reverse arrays */
         float swap;
         for (i=0; i<self->sndChnls; i++) {
-            int a = 0;
+            int a;
             int b = buflen; 
-            for (a; a<--b; a++) { //increment a and decrement b until they meet eachother
+            for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
@@ -1312,9 +1298,9 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         /* reverse arrays */
         float swap;
         for (i=0; i<self->sndChnls; i++) {
-            int a = 0;
+            int a;
             int b = buflen; 
-            for (a; a<--b; a++) { //increment a and decrement b until they meet eachother
+            for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
@@ -1442,9 +1428,9 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
         /* reverse arrays */
         float swap;
         for (i=0; i<self->sndChnls; i++) {
-            int a = 0;
+            int a;
             int b = buflen; 
-            for (a; a<--b; a++) { //increment a and decrement b until they meet eachother
+            for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
                 swap = buffer2[i][a];       //put what's in a into swap space
                 buffer2[i][a] = buffer2[i][b];    //put what's in b into a
                 buffer2[i][b] = swap;       //put what's in the swap (a) into b
