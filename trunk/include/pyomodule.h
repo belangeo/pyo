@@ -277,7 +277,6 @@ extern PyTypeObject M_TanType;
     int i, y; \
     int w = 500; \
     int h = 200; \
-    int w2 = w/2; \
     int h2 = h/2; \
     int amp = h2 - 2; \
     float step = (float)self->size / (float)(w - 1); \
