@@ -49,6 +49,7 @@ class Biquad(PyoObject):
             1 = highpass
             2 = bandpass
             3 = bandstop
+            4 = allpass
 
     Methods:
 
@@ -138,7 +139,7 @@ class Biquad(PyoObject):
 
         x : int
             New `type` attribute. 
-            0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop.
+            0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop, 4 = allpass
 
         """
         self._type = x
