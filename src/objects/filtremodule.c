@@ -622,6 +622,759 @@ PyTypeObject BiquadType = {
     Biquad_new,                                     /* tp_new */
 };
 
+/*** Typical EQ filter ***/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    PyObject *boost;
+    Stream *boost_stream;
+    void (*coeffs_func_ptr)();
+    int init;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int filtertype;
+    // sample memories
+    float x1;
+    float x2;
+    float y1;
+    float y2;
+    // variables
+    float A;
+    float c;
+    float w0;
+    float alpha;
+    // coefficients
+    float b0;
+    float b1;
+    float b2;
+    float a0;
+    float a1;
+    float a2;
+} EQ;
+
+static void 
+EQ_compute_coeffs_peak(EQ *self)
+{
+    float alphaMul = self->alpha * self->A;
+    float alphaDiv = self->alpha / self->A;
+    
+    self->b0 = 1.0 + alphaMul;
+    self->b1 = self->a1 = -2.0 * self->c;
+    self->b2 = 1.0 - alphaMul;
+    self->a0 = 1.0 + alphaDiv;
+    self->a2 = 1.0 - alphaDiv;
+}
+
+static void
+EQ_compute_coeffs_lowshelf(EQ *self) 
+{
+    float twoSqrtAAlpha = 2.0 * sqrtf(self->A)*self->alpha;
+    float AminOneC = (self->A - 1.0) * self->c;
+    float AAddOneC = (self->A + 1.0) * self->c;
+    
+    self->b0 = self->A * ((self->A + 1.0) - AminOneC + twoSqrtAAlpha);
+    self->b1 = 2.0 * self->A * ((self->A - 1.0) - AAddOneC);
+    self->b2 = self->A * ((self->A + 1.0) - AminOneC - twoSqrtAAlpha);
+    self->a0 = (self->A + 1.0) + AminOneC + twoSqrtAAlpha;
+    self->a1 = -2.0 * ((self->A - 1.0) + AAddOneC);
+    self->a2 = (self->A + 1.0) + AminOneC - twoSqrtAAlpha;
+}    
+
+static void
+EQ_compute_coeffs_highshelf(EQ *self) 
+{
+    float twoSqrtAAlpha = 2.0 * sqrtf(self->A)*self->alpha;
+    float AminOneC = (self->A - 1.0) * self->c;
+    float AAddOneC = (self->A + 1.0) * self->c;
+    
+    self->b0 = self->A * ((self->A + 1.0) + AminOneC + twoSqrtAAlpha);
+    self->b1 = -2.0 * self->A * ((self->A - 1.0) + AAddOneC);
+    self->b2 = self->A * ((self->A + 1.0) + AminOneC - twoSqrtAAlpha);
+    self->a0 = (self->A + 1.0) - AminOneC + twoSqrtAAlpha;
+    self->a1 = 2.0 * ((self->A - 1.0) - AAddOneC);
+    self->a2 = (self->A + 1.0) - AminOneC - twoSqrtAAlpha;
+}    
+
+static void
+EQ_compute_variables(EQ *self, float freq, float q, float boost)
+{    
+    if (freq <= 1) 
+        freq = 1;
+    else if (freq >= self->sr)
+        freq = self->sr;
+    
+    self->A = powf(10.0, boost/40.0);
+    self->w0 = TWOPI * freq / self->sr;
+    self->c = cosf(self->w0);
+    self->alpha = sinf(self->w0) / (2 * q);
+    (*self->coeffs_func_ptr)(self);
+}
+
+static void
+EQ_filters_iii(EQ *self) {
+    float val;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_aii(EQ *self) {
+    float val, q, boost;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    boost = PyFloat_AS_DOUBLE(self->boost);
+    
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr[i], q, boost);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_iai(EQ *self) {
+    float val, fr, boost;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    boost = PyFloat_AS_DOUBLE(self->boost);
+    
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr, q[i], boost);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_aai(EQ *self) {
+    float val, boost;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    boost = PyFloat_AS_DOUBLE(self->boost);
+    
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr[i], q[i], boost);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_iia(EQ *self) {
+    float val, fr, q;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+    float *boost = Stream_getData((Stream *)self->boost_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr, q, boost[i]);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_aia(EQ *self) {
+    float val, q;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    float *boost = Stream_getData((Stream *)self->boost_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr[i], q, boost[i]);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_iaa(EQ *self) {
+    float val, fr;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    float *boost = Stream_getData((Stream *)self->boost_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr, q[i], boost[i]);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void
+EQ_filters_aaa(EQ *self) {
+    float val;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    float *boost = Stream_getData((Stream *)self->boost_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        EQ_compute_variables(self, fr[i], q[i], boost[i]);
+        val = ( (self->b0 * in[i]) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
+        self->y2 = self->y1;
+        self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->data[i] = val;
+    }
+}
+
+static void EQ_postprocessing_ii(EQ *self) { POST_PROCESSING_II };
+static void EQ_postprocessing_ai(EQ *self) { POST_PROCESSING_AI };
+static void EQ_postprocessing_ia(EQ *self) { POST_PROCESSING_IA };
+static void EQ_postprocessing_aa(EQ *self) { POST_PROCESSING_AA };
+static void EQ_postprocessing_ireva(EQ *self) { POST_PROCESSING_IREVA };
+static void EQ_postprocessing_areva(EQ *self) { POST_PROCESSING_AREVA };
+static void EQ_postprocessing_revai(EQ *self) { POST_PROCESSING_REVAI };
+static void EQ_postprocessing_revaa(EQ *self) { POST_PROCESSING_REVAA };
+static void EQ_postprocessing_revareva(EQ *self) { POST_PROCESSING_REVAREVA };
+
+static void
+EQ_setProcMode(EQ *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (self->filtertype) {
+        case 0:
+            self->coeffs_func_ptr = EQ_compute_coeffs_peak;
+            break;
+        case 1:
+            self->coeffs_func_ptr = EQ_compute_coeffs_lowshelf;
+            break;
+        case 2:
+            self->coeffs_func_ptr = EQ_compute_coeffs_highshelf;
+            break;
+    }
+    
+	switch (procmode) {
+        case 0:    
+            EQ_compute_variables(self, PyFloat_AS_DOUBLE(self->freq), PyFloat_AS_DOUBLE(self->q), PyFloat_AS_DOUBLE(self->boost));
+            self->proc_func_ptr = EQ_filters_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = EQ_filters_aii;
+            break;
+        case 10:        
+            self->proc_func_ptr = EQ_filters_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = EQ_filters_aai;
+            break;
+        case 100:    
+            self->proc_func_ptr = EQ_filters_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = EQ_filters_aia;
+            break;
+        case 110:        
+            self->proc_func_ptr = EQ_filters_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = EQ_filters_aaa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = EQ_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = EQ_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = EQ_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = EQ_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = EQ_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = EQ_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = EQ_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = EQ_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = EQ_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+EQ_compute_next_data_frame(EQ *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+EQ_traverse(EQ *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    Py_VISIT(self->boost);    
+    Py_VISIT(self->boost_stream);
+    return 0;
+}
+
+static int 
+EQ_clear(EQ *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);
+    Py_CLEAR(self->boost);
+    Py_CLEAR(self->boost_stream);
+    return 0;
+}
+
+static void
+EQ_dealloc(EQ* self)
+{
+    free(self->data);
+    EQ_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * EQ_deleteStream(EQ *self) { DELETE_STREAM };
+
+static PyObject *
+EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    EQ *self;
+    self = (EQ *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->boost = PyFloat_FromDouble(-3.0);
+    self->filtertype = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+    self->init = 1;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, EQ_compute_next_data_frame);
+    self->mode_func_ptr = EQ_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+EQ_init(EQ *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *boosttmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "freq", "q", "boost", "type", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &boosttmp, &self->filtertype, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+
+    if (boosttmp) {
+        PyObject_CallMethod((PyObject *)self, "setBoost", "O", boosttmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    EQ_compute_next_data_frame((EQ *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * EQ_getServer(EQ* self) { GET_SERVER };
+static PyObject * EQ_getStream(EQ* self) { GET_STREAM };
+static PyObject * EQ_setMul(EQ *self, PyObject *arg) { SET_MUL };	
+static PyObject * EQ_setAdd(EQ *self, PyObject *arg) { SET_ADD };	
+static PyObject * EQ_setSub(EQ *self, PyObject *arg) { SET_SUB };	
+static PyObject * EQ_setDiv(EQ *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * EQ_play(EQ *self) { PLAY };
+static PyObject * EQ_out(EQ *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * EQ_stop(EQ *self) { STOP };
+
+static PyObject * EQ_multiply(EQ *self, PyObject *arg) { MULTIPLY };
+static PyObject * EQ_inplace_multiply(EQ *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * EQ_add(EQ *self, PyObject *arg) { ADD };
+static PyObject * EQ_inplace_add(EQ *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * EQ_sub(EQ *self, PyObject *arg) { SUB };
+static PyObject * EQ_inplace_sub(EQ *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * EQ_div(EQ *self, PyObject *arg) { DIV };
+static PyObject * EQ_inplace_div(EQ *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+EQ_setFreq(EQ *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+EQ_setQ(EQ *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+EQ_setBoost(EQ *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->boost);
+	if (isNumber == 1) {
+		self->boost = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->boost = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->boost, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->boost_stream);
+        self->boost_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+EQ_setType(EQ *self, PyObject *arg)
+{
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		self->filtertype = PyInt_AsLong(arg);
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef EQ_members[] = {
+{"server", T_OBJECT_EX, offsetof(EQ, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(EQ, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(EQ, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(EQ, freq), 0, "Cutoff frequency in cycle per second."},
+{"q", T_OBJECT_EX, offsetof(EQ, q), 0, "Q factor."},
+{"boost", T_OBJECT_EX, offsetof(EQ, boost), 0, "Boost factor."},
+{"mul", T_OBJECT_EX, offsetof(EQ, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(EQ, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef EQ_methods[] = {
+{"getServer", (PyCFunction)EQ_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)EQ_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)EQ_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)EQ_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)EQ_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)EQ_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)EQ_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+{"setQ", (PyCFunction)EQ_setQ, METH_O, "Sets filter Q factor."},
+{"setBoost", (PyCFunction)EQ_setBoost, METH_O, "Sets filter boost factor."},
+{"setType", (PyCFunction)EQ_setType, METH_O, "Sets filter type factor."},
+{"setMul", (PyCFunction)EQ_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)EQ_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)EQ_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)EQ_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods EQ_as_number = {
+(binaryfunc)EQ_add,                         /*nb_add*/
+(binaryfunc)EQ_sub,                         /*nb_subtract*/
+(binaryfunc)EQ_multiply,                    /*nb_multiply*/
+(binaryfunc)EQ_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)EQ_inplace_add,                 /*inplace_add*/
+(binaryfunc)EQ_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)EQ_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)EQ_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject EQType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.EQ_base",                                   /*tp_name*/
+sizeof(EQ),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)EQ_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&EQ_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"EQ objects. Generates a biquadratic filter.",           /* tp_doc */
+(traverseproc)EQ_traverse,                  /* tp_traverse */
+(inquiry)EQ_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+EQ_methods,                                 /* tp_methods */
+EQ_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)EQ_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+EQ_new,                                     /* tp_new */
+};
+
 /* Performs portamento on audio signal */
 typedef struct {
     pyo_audio_HEAD

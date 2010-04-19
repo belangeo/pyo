@@ -25,9 +25,6 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from _core import *
 from _maps import *
 
-######################################################################
-### Effects
-######################################################################                                       
 class Biquad(PyoObject):
     """
     A sweepable general purpose biquadratic digital filter. 
@@ -41,10 +38,10 @@ class Biquad(PyoObject):
     freq : float or PyoObject, optional
         Cutoff or center frequency of the filter. Defaults to 1000.
     q : float or PyoObject, optional
-        Q of the filter, defined (for bandpass filters) as bandwidth/cutoff. 
+        Q of the filter, defined (for bandpass filters) as freq/bandwidth. 
         Should be between 1 and 500. Defaults to 1.
     type : int, optional
-        Filter type. Four possible values :
+        Filter type. Five possible values :
             0 = lowpass (default)
             1 = highpass
             2 = bandpass
@@ -170,6 +167,189 @@ class Biquad(PyoObject):
         return self._q
     @q.setter
     def q(self, x): self.setQ(x)
+
+    @property
+    def type(self):
+        """int. Filter type.""" 
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
+
+class EQ(PyoObject):
+    """
+    Equalizer filter. 
+    
+    EQ is a biquadratic digital filter designed for equalization. It 
+    provides peak/notch and lowshelf/highshelf filters for building 
+    parametric equalizers.
+    
+    Parent class : PyoObject
+    
+    Parameters:
+    
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Cutoff or center frequency of the filter. Defaults to 1000.
+    q : float or PyoObject, optional
+        Q of the filter, defined as freq/bandwidth. 
+        Should be between 1 and 500. Defaults to 1.
+    boost : float or PyoObject, optional
+        Gain, expressed in dB, to add or remove at the center frequency. 
+        Default to -3.
+    type : int, optional
+        Filter type. Three possible values :
+            0 = peak/notch (default)
+            1 = lowshelf
+            2 = highshelf
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setBoost(x) : Replace the `boost` attribute.
+    setType(x) : Replace the `type` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Cutoff or center frequency of the filter.
+    q : float or PyoObject. Q of the filter.
+    boost : float or PyoObject. Boost of the filter at center frequency.
+    type : int. Filter type.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> amp = Fader(1, 1, mul=.3).play()
+    >>> src = Noise(amp)
+    >>> fr = Sine(.2, 0, 500, 1500)
+    >>> boo = Sine(4, 0, 6)
+    >>> out = EQ(src, freq=fr, q=1, boost=boo, type=0).out()
+
+    """
+    def __init__(self, input, freq=1000, q=1, boost=-3.0, type=0, mul=1, add=0):
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._boost = boost
+        self._type = type
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, q, boost, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, boost, type, mul, add)
+        self._base_objs = [EQ_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(boost,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'q', 'boost', 'type', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 1 and 500.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setBoost(self, x):
+        """
+        Replace the `boost` attribute, expressed in dB.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `boost` attribute.
+
+        """
+        self._boost = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBoost(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setType(self, x):
+        """
+        Replace the `type` attribute.
+        
+        Parameters:
+
+        x : int
+            New `type` attribute. 
+            0 = peak, 1 = lowshelf, 2 = highshelf
+
+        """
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), 
+                          SLMap(-40.0, 40.0, "lin", "boost", self._boost), 
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff or center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q of the filter.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def boost(self):
+        """float or PyoObject. Boost factor of the filter.""" 
+        return self._boost
+    @boost.setter
+    def boost(self, x): self.setBoost(x)
 
     @property
     def type(self):
