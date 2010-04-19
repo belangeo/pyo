@@ -62,6 +62,7 @@ extern PyTypeObject XnoiseType;
 extern PyTypeObject XnoiseMidiType;
 
 extern PyTypeObject BiquadType;
+extern PyTypeObject EQType;
 extern PyTypeObject ToneType;
 extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;

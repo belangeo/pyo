@@ -142,8 +142,8 @@ class Randh(PyoObject):
     """
     Periodic pseudo-random generator.
     
-    Randi generates a pseudo-random number between `min` and `max` 
-    values at a frequency specified by `freq` parameter. Randi will 
+    Randh generates a pseudo-random number between `min` and `max` 
+    values at a frequency specified by `freq` parameter. Randh will 
     hold generated value until next generation.
     
     Parent class: PyoObject
