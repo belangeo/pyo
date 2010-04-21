@@ -26,7 +26,6 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 #include "matrixmodule.h"
-#include "interpolation.h"
 
 /**************/
 /* MatrixPointer object */

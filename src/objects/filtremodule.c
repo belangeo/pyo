@@ -672,7 +672,7 @@ EQ_compute_coeffs_peak(EQ *self)
 static void
 EQ_compute_coeffs_lowshelf(EQ *self) 
 {
-    float twoSqrtAAlpha = 2.0 * sqrtf(self->A)*self->alpha;
+    float twoSqrtAAlpha = sqrtf(self->A * 2.0)*self->alpha;
     float AminOneC = (self->A - 1.0) * self->c;
     float AAddOneC = (self->A + 1.0) * self->c;
     
@@ -687,7 +687,7 @@ EQ_compute_coeffs_lowshelf(EQ *self)
 static void
 EQ_compute_coeffs_highshelf(EQ *self) 
 {
-    float twoSqrtAAlpha = 2.0 * sqrtf(self->A)*self->alpha;
+    float twoSqrtAAlpha = sqrtf(self->A * 2.0)*self->alpha;
     float AminOneC = (self->A - 1.0) * self->c;
     float AAddOneC = (self->A + 1.0) * self->c;
     
