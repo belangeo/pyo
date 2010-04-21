@@ -28,6 +28,8 @@
 #include "tablemodule.h"
 #include "interpolation.h"
 
+float SINE_ARRAY[513] = {0.0, 0.012271538285719925, 0.024541228522912288, 0.036807222941358832, 0.049067674327418015, 0.061320736302208578, 0.073564563599667426, 0.085797312344439894, 0.098017140329560604, 0.11022220729388306, 0.1224106751992162, 0.13458070850712617, 0.14673047445536175, 0.15885814333386145, 0.17096188876030122, 0.18303988795514095, 0.19509032201612825, 0.20711137619221856, 0.2191012401568698, 0.23105810828067111, 0.24298017990326387, 0.25486565960451457, 0.26671275747489837, 0.27851968938505306, 0.29028467725446233, 0.30200594931922808, 0.31368174039889152, 0.32531029216226293, 0.33688985339222005, 0.34841868024943456, 0.35989503653498811, 0.37131719395183754, 0.38268343236508978, 0.3939920400610481, 0.40524131400498986, 0.41642956009763715, 0.42755509343028208, 0.43861623853852766, 0.44961132965460654, 0.46053871095824001, 0.47139673682599764, 0.48218377207912272, 0.49289819222978404, 0.50353838372571758, 0.51410274419322166, 0.52458968267846895, 0.53499761988709715, 0.54532498842204646, 0.55557023301960218, 0.56573181078361312, 0.57580819141784534, 0.58579785745643886, 0.59569930449243336, 0.60551104140432555, 0.61523159058062682, 0.62485948814238634, 0.63439328416364549, 0.64383154288979139, 0.65317284295377676, 0.66241577759017178, 0.67155895484701833, 0.68060099779545302, 0.68954054473706683, 0.69837624940897292, 0.70710678118654746, 0.71573082528381859, 0.72424708295146689, 0.7326542716724127, 0.74095112535495899, 0.74913639452345926, 0.75720884650648446, 0.76516726562245885, 0.77301045336273688, 0.78073722857209438, 0.78834642762660623, 0.79583690460888346, 0.80320753148064483, 0.81045719825259477, 0.81758481315158371, 0.82458930278502529, 0.83146961230254512, 0.83822470555483797, 0.84485356524970701, 0.8513551931052652, 0.85772861000027212, 0.8639728561215867, 0.87008699110871135, 0.87607009419540649, 0.88192126434835494, 0.88763962040285393, 0.89322430119551532, 0.89867446569395382, 0.90398929312344334, 0.90916798309052238, 0.91420975570353069, 0.91911385169005777, 0.92387953251128674, 0.92850608047321548, 0.93299279883473885, 0.93733901191257496, 0.94154406518302081, 0.94560732538052128, 0.94952818059303667, 0.95330604035419375, 0.95694033573220894, 0.96043051941556579, 0.96377606579543984, 0.96697647104485207, 0.97003125319454397, 0.97293995220556007, 0.97570213003852857, 0.97831737071962765, 0.98078528040323043, 0.98310548743121629, 0.98527764238894122, 0.98730141815785843, 0.98917650996478101, 0.99090263542778001, 0.99247953459870997, 0.99390697000235606, 0.99518472667219682, 0.996312612182778, 0.99729045667869021, 0.99811811290014918, 0.99879545620517241, 0.99932238458834954, 0.99969881869620425, 0.9999247018391445, 1.0, 0.9999247018391445, 0.99969881869620425, 0.99932238458834954, 0.99879545620517241, 0.99811811290014918, 0.99729045667869021, 0.996312612182778, 0.99518472667219693, 0.99390697000235606, 0.99247953459870997, 0.99090263542778001, 0.98917650996478101, 0.98730141815785843, 0.98527764238894122, 0.98310548743121629, 0.98078528040323043, 0.97831737071962765, 0.97570213003852857, 0.97293995220556018, 0.97003125319454397, 0.96697647104485207, 0.96377606579543984, 0.9604305194155659, 0.95694033573220894, 0.95330604035419386, 0.94952818059303667, 0.94560732538052139, 0.94154406518302081, 0.93733901191257496, 0.93299279883473885, 0.92850608047321559, 0.92387953251128674, 0.91911385169005777, 0.91420975570353069, 0.90916798309052249, 0.90398929312344345, 0.89867446569395393, 0.89322430119551521, 0.88763962040285393, 0.88192126434835505, 0.8760700941954066, 0.87008699110871146, 0.86397285612158681, 0.85772861000027212, 0.8513551931052652, 0.84485356524970723, 0.83822470555483819, 0.83146961230254546, 0.82458930278502529, 0.81758481315158371, 0.81045719825259477, 0.80320753148064494, 0.79583690460888357, 0.78834642762660634, 0.7807372285720946, 0.7730104533627371, 0.76516726562245907, 0.75720884650648479, 0.74913639452345926, 0.74095112535495899, 0.73265427167241282, 0.724247082951467, 0.71573082528381871, 0.70710678118654757, 0.69837624940897292, 0.68954054473706705, 0.68060099779545324, 0.67155895484701855, 0.66241577759017201, 0.65317284295377664, 0.64383154288979139, 0.63439328416364549, 0.62485948814238634, 0.61523159058062693, 0.60551104140432555, 0.59569930449243347, 0.58579785745643898, 0.57580819141784545, 0.56573181078361345, 0.55557023301960218, 0.54532498842204635, 0.53499761988709715, 0.52458968267846895, 0.51410274419322177, 0.50353838372571758, 0.49289819222978415, 0.48218377207912289, 0.47139673682599781, 0.46053871095824023, 0.44961132965460687, 0.43861623853852755, 0.42755509343028203, 0.41642956009763715, 0.40524131400498986, 0.39399204006104815, 0.38268343236508984, 0.37131719395183765, 0.35989503653498833, 0.34841868024943479, 0.33688985339222027, 0.3253102921622632, 0.31368174039889141, 0.30200594931922803, 0.29028467725446233, 0.27851968938505312, 0.26671275747489848, 0.25486565960451468, 0.24298017990326404, 0.2310581082806713, 0.21910124015687002, 0.20711137619221884, 0.19509032201612858, 0.1830398879551409, 0.17096188876030119, 0.15885814333386145, 0.1467304744553618, 0.13458070850712628, 0.12241067519921635, 0.11022220729388325, 0.09801714032956084, 0.085797312344440158, 0.073564563599667745, 0.061320736302208495, 0.049067674327417973, 0.036807222941358832, 0.024541228522912326, 0.012271538285720007, 1.2246467991473532e-16, -0.012271538285719761, -0.024541228522912083, -0.036807222941358582, -0.049067674327417724, -0.061320736302208245, -0.073564563599667496, -0.085797312344439922, -0.09801714032956059, -0.110222207293883, -0.1224106751992161, -0.13458070850712606, -0.14673047445536158, -0.15885814333386122, -0.17096188876030097, -0.18303988795514067, -0.19509032201612836, -0.20711137619221862, -0.21910124015686983, -0.23105810828067111, -0.24298017990326382, -0.25486565960451446, -0.26671275747489825, -0.27851968938505289, -0.29028467725446216, -0.30200594931922781, -0.31368174039889118, -0.32531029216226304, -0.33688985339222011, -0.34841868024943456, -0.35989503653498811, -0.37131719395183749, -0.38268343236508967, -0.39399204006104793, -0.40524131400498969, -0.41642956009763693, -0.42755509343028181, -0.43861623853852733, -0.44961132965460665, -0.46053871095824006, -0.47139673682599764, -0.48218377207912272, -0.49289819222978393, -0.50353838372571746, -0.51410274419322155, -0.52458968267846873, -0.53499761988709693, -0.54532498842204613, -0.55557023301960196, -0.56573181078361323, -0.57580819141784534, -0.58579785745643886, -0.59569930449243325, -0.60551104140432543, -0.61523159058062671, -0.62485948814238623, -0.63439328416364527, -0.64383154288979128, -0.65317284295377653, -0.66241577759017178, -0.67155895484701844, -0.68060099779545302, -0.68954054473706683, -0.6983762494089728, -0.70710678118654746, -0.71573082528381848, -0.72424708295146667, -0.73265427167241259, -0.74095112535495877, -0.74913639452345904, -0.75720884650648423, -0.76516726562245885, -0.77301045336273666, -0.78073722857209438, -0.78834642762660589, -0.79583690460888334, -0.80320753148064505, -0.81045719825259466, -0.81758481315158371, -0.82458930278502507, -0.83146961230254524, -0.83822470555483775, -0.84485356524970712, -0.85135519310526486, -0.85772861000027201, -0.86397285612158647, -0.87008699110871135, -0.87607009419540671, -0.88192126434835494, -0.88763962040285405, -0.89322430119551521, -0.89867446569395382, -0.90398929312344312, -0.90916798309052238, -0.91420975570353047, -0.91911385169005766, -0.92387953251128652, -0.92850608047321548, -0.93299279883473896, -0.93733901191257485, -0.94154406518302081, -0.94560732538052117, -0.94952818059303667, -0.95330604035419375, -0.95694033573220882, -0.96043051941556568, -0.96377606579543984, -0.96697647104485218, -0.97003125319454397, -0.97293995220556018, -0.97570213003852846, -0.97831737071962765, -0.98078528040323032, -0.98310548743121629, -0.98527764238894111, -0.98730141815785832, -0.9891765099647809, -0.99090263542778001, -0.99247953459871008, -0.99390697000235606, -0.99518472667219693, -0.996312612182778, -0.99729045667869021, -0.99811811290014918, -0.99879545620517241, -0.99932238458834943, -0.99969881869620425, -0.9999247018391445, -1.0, -0.9999247018391445, -0.99969881869620425, -0.99932238458834954, -0.99879545620517241, -0.99811811290014918, -0.99729045667869021, -0.996312612182778, -0.99518472667219693, -0.99390697000235606, -0.99247953459871008, -0.99090263542778001, -0.9891765099647809, -0.98730141815785843, -0.98527764238894122, -0.9831054874312164, -0.98078528040323043, -0.97831737071962777, -0.97570213003852857, -0.97293995220556029, -0.97003125319454397, -0.96697647104485229, -0.96377606579543995, -0.96043051941556579, -0.95694033573220894, -0.95330604035419375, -0.94952818059303679, -0.94560732538052128, -0.94154406518302092, -0.93733901191257496, -0.93299279883473907, -0.92850608047321559, -0.92387953251128663, -0.91911385169005788, -0.91420975570353058, -0.90916798309052249, -0.90398929312344334, -0.89867446569395404, -0.89322430119551532, -0.88763962040285416, -0.88192126434835505, -0.87607009419540693, -0.87008699110871146, -0.8639728561215867, -0.85772861000027223, -0.85135519310526508, -0.84485356524970734, -0.83822470555483797, -0.83146961230254557, -0.82458930278502529, -0.81758481315158404, -0.81045719825259488, -0.80320753148064528, -0.79583690460888368, -0.78834642762660612, -0.78073722857209471, -0.77301045336273688, -0.76516726562245918, -0.75720884650648457, -0.7491363945234597, -0.74095112535495922, -0.73265427167241315, -0.72424708295146711, -0.71573082528381904, -0.70710678118654768, -0.69837624940897269, -0.68954054473706716, -0.68060099779545302, -0.67155895484701866, -0.66241577759017178, -0.65317284295377709, -0.6438315428897915, -0.63439328416364593, -0.62485948814238645, -0.61523159058062737, -0.60551104140432566, -0.59569930449243325, -0.58579785745643909, -0.57580819141784523, -0.56573181078361356, -0.55557023301960218, -0.5453249884220468, -0.53499761988709726, -0.52458968267846939, -0.51410274419322188, -0.50353838372571813, -0.49289819222978426, -0.48218377207912261, -0.47139673682599792, -0.46053871095823995, -0.44961132965460698, -0.43861623853852766, -0.42755509343028253, -0.41642956009763726, -0.40524131400499042, -0.39399204006104827, -0.38268343236509039, -0.37131719395183777, -0.359895036534988, -0.3484186802494349, -0.33688985339222, -0.32531029216226331, -0.31368174039889152, -0.30200594931922853, -0.29028467725446244, -0.27851968938505367, -0.26671275747489859, -0.25486565960451435, -0.24298017990326418, -0.23105810828067103, -0.21910124015687016, -0.20711137619221853, -0.19509032201612872, -0.18303988795514103, -0.17096188876030177, -0.15885814333386158, -0.14673047445536239, -0.13458070850712642, -0.12241067519921603, -0.11022220729388338, -0.09801714032956052, -0.085797312344440282, -0.073564563599667426, -0.06132073630220905, -0.049067674327418091, -0.036807222941359394, -0.024541228522912451, -0.012271538285720572, 0.0};
+
 static float
 _clip(float x) {
     if (x < 0.0)
@@ -36,6 +38,17 @@ _clip(float x) {
         return 1.0;
     else
         return x;
+}
+
+static float
+Sine_clip(float x) {
+    if (x < 0) {
+        x += ((int)(-x / 512) + 1) * 512;
+    }
+    else if (x >= 512) {
+        x -= (int)(x / 512) * 512;
+    }
+    return x;
 }
 
 /* Sine object */
@@ -47,85 +60,91 @@ typedef struct {
     Stream *phase_stream;
     int modebuffer[4];
     float pointerPos;
-    float twoPiOnSr;
 } Sine;
-
-static float
-Sine_clip(float x) {
-    if (x < 0) {
-        x += ((int)(-x / TWOPI) + 1) * TWOPI;
-    }
-    else if (x >= TWOPI) {
-        x -= (int)(x / TWOPI) * TWOPI;
-    }
-    return x;
-}
 
 static void
 Sine_readframes_ii(Sine *self) {
-    float delta, fr, ph, val;
-    int i;
+    float inc, fr, ph, pos, fpart;
+    int i, ipart;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
-    delta = fr * self->twoPiOnSr;
+    ph = PyFloat_AS_DOUBLE(self->phase) * 512;
+    inc = fr * 512 / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
         self->pointerPos = Sine_clip(self->pointerPos);
-        val = sinf(self->pointerPos + ph);
-        self->data[i] = val;
-        self->pointerPos += delta;
+        pos = self->pointerPos + ph;
+        if (pos >= 512)
+            pos -= 512;
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_ai(Sine *self) {
-    float delta, ph, val;
-    int i;
+    float inc, ph, pos, fpart, fac;
+    int i, ipart;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
-    ph = PyFloat_AS_DOUBLE(self->phase) * TWOPI;
+    ph = PyFloat_AS_DOUBLE(self->phase) * 512;
     
+    fac = 512 / self->sr;
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] * self->twoPiOnSr;
+        inc = fr[i] * fac;
         self->pointerPos = Sine_clip(self->pointerPos);
-        val = sinf(self->pointerPos + ph);
-        self->data[i] = val;
-        self->pointerPos += delta;
+        pos = self->pointerPos + ph;
+        if (pos >= 512)
+            pos -= 512;
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_ia(Sine *self) {
-    float delta, fr, val;
-    int i;
+    float inc, fr, pos, fpart;
+    int i, ipart;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     float *ph = Stream_getData((Stream *)self->phase_stream);
-    delta = fr * self->twoPiOnSr;
+    inc = fr * 512 / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
         self->pointerPos = Sine_clip(self->pointerPos);
-        val = sinf(self->pointerPos + (ph[i] * TWOPI));
-        self->data[i] = val;
-        self->pointerPos += delta;
+        pos = self->pointerPos + ph[i] * 512;
+        if (pos >= 512)
+            pos -= 512;
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
 static void
 Sine_readframes_aa(Sine *self) {
-    float delta, val;
-    int i;
+    float inc, pos, fpart, fac;
+    int i, ipart;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
     float *ph = Stream_getData((Stream *)self->phase_stream);
     
+    fac = 512 / self->sr;
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] * self->twoPiOnSr;
+        inc = fr[i] * fac;
         self->pointerPos = Sine_clip(self->pointerPos);
-        val = sinf(self->pointerPos + (ph[i] * TWOPI));
-        self->data[i] = val;
-        self->pointerPos += delta;
+        pos = self->pointerPos + ph[i] * 512;
+        if (pos >= 512)
+            pos -= 512;
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
@@ -249,8 +268,6 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Sine_compute_next_data_frame);
     self->mode_func_ptr = Sine_setProcMode;
-
-    self->twoPiOnSr = TWOPI / self->sr;
 
     return (PyObject *)self;
 }
@@ -501,83 +518,86 @@ typedef struct {
     Stream *feedback_stream;
     int modebuffer[4];
     float pointerPos;
-    float twoPiOnSr;
     float lastValue;
 } SineLoop;
 
 static void
 SineLoop_readframes_ii(SineLoop *self) {
-    float delta, fr, feed, val;
-    int i;
+    float inc, fr, feed, pos, fpart;
+    int i, ipart;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    feed = _clip(PyFloat_AS_DOUBLE(self->feedback));
-    feed = feed * TWOPI;
-    delta = fr * self->twoPiOnSr;
+    feed = _clip(PyFloat_AS_DOUBLE(self->feedback)) * 512;
+    inc = fr * 512 / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
-        val = sinf(self->pointerPos + (self->lastValue * feed));
-        self->data[i] = self->lastValue = val;
-        self->pointerPos += delta;
+        self->pointerPos = Sine_clip(self->pointerPos);
+        pos = Sine_clip(self->pointerPos + self->lastValue * feed);
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_ai(SineLoop *self) {
-    float delta, feed, val;
-    int i;
+    float inc, feed, pos, fpart, fac;
+    int i, ipart;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
-    feed = _clip(PyFloat_AS_DOUBLE(self->feedback));
-    feed = feed * TWOPI;
+    feed = _clip(PyFloat_AS_DOUBLE(self->feedback)) * 512;
     
+    fac = 512 / self->sr;
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] * self->twoPiOnSr;
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
-        val = sinf(self->pointerPos + (self->lastValue * feed));
-        self->data[i] = self->lastValue = val;
-        self->pointerPos += delta;
+        inc = fr[i] * fac;
+        self->pointerPos = Sine_clip(self->pointerPos);
+        pos = Sine_clip(self->pointerPos + self->lastValue * feed);
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_ia(SineLoop *self) {
-    float delta, fr, val, feed;
-    int i;
+    float inc, fr, feed, pos, fpart;
+    int i, ipart;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     float *fd = Stream_getData((Stream *)self->feedback_stream);
-    delta = fr * self->twoPiOnSr;
+    inc = fr * 512 / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        feed = _clip(fd[i]) * TWOPI;
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
-        val = sinf(self->pointerPos + (self->lastValue * feed));
-        self->data[i] = self->lastValue = val;
-        self->pointerPos += delta;
+        feed = _clip(fd[i]) * 512;
+        self->pointerPos = Sine_clip(self->pointerPos);
+        pos = Sine_clip(self->pointerPos + self->lastValue * feed);
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
 static void
 SineLoop_readframes_aa(SineLoop *self) {
-    float delta, val, feed;
-    int i;
+    float inc, feed, pos, fpart, fac;
+    int i, ipart;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
     float *fd = Stream_getData((Stream *)self->feedback_stream);
     
+    fac = 512 / self->sr;
     for (i=0; i<self->bufsize; i++) {
-        delta = fr[i] * self->twoPiOnSr;
-        feed = _clip(fd[i]) * TWOPI;
-        if (self->pointerPos > TWOPI)
-            self->pointerPos -= TWOPI;
-        val = sinf(self->pointerPos + (self->lastValue * feed));
-        self->data[i] = self->lastValue = val;
-        self->pointerPos += delta;
+        inc = fr[i] * fac;
+        feed = _clip(fd[i]) * 512;
+        self->pointerPos = Sine_clip(self->pointerPos);
+        pos = Sine_clip(self->pointerPos + self->lastValue * feed);
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->data[i] = self->lastValue = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos += inc;
     }
 }
 
@@ -701,9 +721,7 @@ SineLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SineLoop_compute_next_data_frame);
     self->mode_func_ptr = SineLoop_setProcMode;
-	
-    self->twoPiOnSr = TWOPI / self->sr;
-	
+    
     return (PyObject *)self;
 }
 
@@ -1985,11 +2003,7 @@ Phasor_readframes_ii(Phasor *self) {
     int i;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    ph = PyFloat_AS_DOUBLE(self->phase);
-    if (ph < 0.0)
-        ph = 0.0;
-    else if (ph > 1.0)
-        ph = 1.0;
+    ph = _clip(PyFloat_AS_DOUBLE(self->phase));
     inc = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
@@ -2012,11 +2026,7 @@ Phasor_readframes_ai(Phasor *self) {
     int i;
     
     float *fr = Stream_getData((Stream *)self->freq_stream);
-    ph = PyFloat_AS_DOUBLE(self->phase);
-    if (ph < 0.0)
-        ph = 0.0;
-    else if (ph > 1.0)
-        ph = 1.0;
+    ph = _clip(PyFloat_AS_DOUBLE(self->phase));
     
     oneOnSr = 1.0 / self->sr;
     for (i=0; i<self->bufsize; i++) {
@@ -2045,11 +2055,7 @@ Phasor_readframes_ia(Phasor *self) {
     inc = fr / self->sr;
     
     for (i=0; i<self->bufsize; i++) {
-        pha = ph[i];
-        if (pha < 0.0)
-            pha = 0.0;
-        else if (pha > 1.0)
-            pha = 1.0;
+        pha = _clip(ph[i]);
 
         pos = self->pointerPos + pha;
         if (pos > 1)
@@ -2075,11 +2081,7 @@ Phasor_readframes_aa(Phasor *self) {
     oneOnSr = 1.0 / self->sr;
 
     for (i=0; i<self->bufsize; i++) {
-        pha = ph[i];
-        if (pha < 0.0)
-            pha = 0.0;
-        else if (pha > 1.0)
-            pha = 1.0;
+        pha = _clip(ph[i]);
         
         pos = self->pointerPos + pha;
         if (pos > 1)
@@ -2474,14 +2476,8 @@ Pointer_readframes_a(Pointer *self) {
     float *pha = Stream_getData((Stream *)self->index_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        ph = pha[i] * size;
-        if (ph < 0)
-            ph += size;
-        else if (ph >= size) {
-            while (ph >= size) {
-                ph -= size;
-            }
-        }    
+        ph = Osc_clip(pha[i] * size, size);
+   
         ipart = (int)ph;
         fpart = ph - ipart;
         x = tablelist[ipart];
