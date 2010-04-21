@@ -49,7 +49,7 @@ typedef struct {
     float *trigsBuffer;
     float *tempTrigsBuffer;
     int init;
-    float (*interp_func_ptr)(float *, int, float);
+    float (*interp_func_ptr)(float *, int, float, int);
 } SfPlayer;
 
 float max_arr(float *a,int n)
@@ -133,7 +133,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }    
             self->pointerPos += delta;
         }
@@ -210,7 +210,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }
             self->pointerPos -= delta;
         }
@@ -294,7 +294,7 @@ SfPlayer_readframes_a(SfPlayer *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }
             self->pointerPos += spobj[i] * self->srScale;
         }
@@ -366,7 +366,7 @@ SfPlayer_readframes_a(SfPlayer *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }
             self->pointerPos += spobj[i] * self->srScale;
         }
@@ -1186,7 +1186,7 @@ typedef struct {
     float *samplesBuffer;
     float *markers;
     int markers_size;
-    float (*interp_func_ptr)(float *, int, float);
+    float (*interp_func_ptr)(float *, int, float, int);
 } SfMarkerShuffler;
 
 /*** PROTOTYPES ***/
@@ -1247,7 +1247,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }    
             self->pointerPos += delta;
         }
@@ -1313,7 +1313,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }
             self->pointerPos -= delta;
         }
@@ -1382,7 +1382,7 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }
             self->pointerPos += spobj[i] * self->srScale;
         }
@@ -1443,7 +1443,7 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
             for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac);
+                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
             }
             self->pointerPos += spobj[i] * self->srScale;
         }

@@ -21,9 +21,9 @@
 #ifndef _INTERPOLATION_
 #define _INTERPOLATION_
 
-float nointerp(float *buf, int index, float frac);
-float linear(float *buf, int index, float frac);
-float cosine(float *buf, int index, float frac);
-float cubic(float *buf, int index, float frac);
+float nointerp(float *buf, int index, float frac, int size);
+float linear(float *buf, int index, float frac, int size);
+float cosine(float *buf, int index, float frac, int size);
+float cubic(float *buf, int index, float frac, int size);
 
 #endif

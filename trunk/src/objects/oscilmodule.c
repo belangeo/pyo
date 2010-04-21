@@ -987,7 +987,7 @@ Osc_readframes_ii(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart);
+        self->data[i] = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1012,7 +1012,7 @@ Osc_readframes_ai(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart);
+        self->data[i] = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1036,7 +1036,7 @@ Osc_readframes_ia(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart);
+        self->data[i] = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1061,7 +1061,7 @@ Osc_readframes_aa(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart);
+        self->data[i] = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1492,7 +1492,7 @@ OscLoop_readframes_ii(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1518,7 +1518,7 @@ OscLoop_readframes_ai(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1544,7 +1544,7 @@ OscLoop_readframes_ia(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1571,7 +1571,7 @@ OscLoop_readframes_aa(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart);
+        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
     }
 }
 
