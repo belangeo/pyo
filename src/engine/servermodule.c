@@ -70,7 +70,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
  
     float *out = (float*)outputBuffer;
 
-    int i, j;
+    int i, j, chnl;
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
     float amp = my_server->amp;
@@ -112,7 +112,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
         
         if (Stream_getStreamToDac(stream_tmp) != 0) {
             data = Stream_getData(stream_tmp);
-            int chnl = Stream_getStreamChnl(stream_tmp);
+            chnl = Stream_getStreamChnl(stream_tmp);
             for (j=0; j<framesPerBuffer; j++) {
                 buffer[chnl][j] += *data++;
             }
@@ -167,6 +167,24 @@ static int callback( const void *inputBuffer, void *outputBuffer,
                     break;
                 case 2:
                     PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "ff", my_server->lastRms[0], my_server->lastRms[1]);
+                    break;
+                case 3:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "fff", my_server->lastRms[0], my_server->lastRms[1], my_server->lastRms[2]);
+                    break;
+                case 4:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "ffff", my_server->lastRms[0], my_server->lastRms[1], my_server->lastRms[2], my_server->lastRms[3]);
+                    break;
+                case 5:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "fffff", my_server->lastRms[0], my_server->lastRms[1], my_server->lastRms[2], my_server->lastRms[3], my_server->lastRms[4]);
+                    break;
+                case 6:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "ffffff", my_server->lastRms[0], my_server->lastRms[1], my_server->lastRms[2], my_server->lastRms[3], my_server->lastRms[4], my_server->lastRms[5]);
+                    break;
+                case 7:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "fffffff", my_server->lastRms[0], my_server->lastRms[1], my_server->lastRms[2], my_server->lastRms[3], my_server->lastRms[4], my_server->lastRms[5], my_server->lastRms[6]);
+                    break;
+                case 8:
+                    PyObject_CallMethod((PyObject *)my_server->GUI, "setRms", "ffffffff", my_server->lastRms[0], my_server->lastRms[1], my_server->lastRms[2], my_server->lastRms[3], my_server->lastRms[4], my_server->lastRms[5], my_server->lastRms[6], my_server->lastRms[7]);
                     break;
             }        
             my_server->gcount = 0;
