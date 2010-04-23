@@ -302,6 +302,11 @@ init_pyo(void)
         return;
     Py_INCREF(&SigToType);
     PyModule_AddObject(m, "SigTo_base", (PyObject *)&SigToType);
+
+    if (PyType_Ready(&VarPortType) < 0)
+        return;
+    Py_INCREF(&VarPortType);
+    PyModule_AddObject(m, "VarPort_base", (PyObject *)&VarPortType);
     
     if (PyType_Ready(&InputFaderType) < 0)
         return;

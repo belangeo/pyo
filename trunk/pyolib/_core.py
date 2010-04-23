@@ -96,7 +96,7 @@ def example(cls, dur=5):
         if ">>>" in line: line = line.lstrip(">>> ")
         if "..." in line: line = "    " +  line.lstrip("... ")
         ex += line + "\n"
-    ex += "time.sleep(%f)\ns.stop()\ns.shutdown()\n" % dur
+    ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
     f = tempfile.NamedTemporaryFile(delete=False)
     f.write('print """\n%s\n"""\n' % ex)
     f.write(ex)
@@ -192,8 +192,6 @@ class PyoObject(object):
     def __init__(self):
         self._target_dict = {}
         self._signal_dict = {}
-        self._port_dict = {}
-        self._call_after_dict = {}
 
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
@@ -456,25 +454,14 @@ class PyoObject(object):
             Time, in seconds, to reach the new value
         
         """
-        from controls import SigTo
-        from pattern import CallAfter
-        from filters import Port
-        start_val = getattr(self, attr)
         self._target_dict[attr] = value
-        self._signal_dict[attr] = SigTo(start_val, port, start_val)
-        self._port_dict[attr] = Port(self._signal_dict[attr], .15, .15, start_val)
-        setattr(self, attr, self._port_dict[attr])
-        self._signal_dict[attr].value = value
-        self._call_after_dict[attr] = CallAfter(self._reset_from_set, port+0.2, attr)
+        self._signal_dict[attr] = VarPort(value, port, getattr(self, attr), self._reset_from_set, attr)
+        setattr(self, attr, self._signal_dict[attr])
 
     def _reset_from_set(self, attr=None):
         setattr(self, attr, self._target_dict[attr])
         self._signal_dict[attr].stop()
-        self._port_dict[attr].stop()
         del self._signal_dict[attr]
-        del self._port_dict[attr]
-        del self._call_after_dict[attr]
-        del self._target_dict[attr]
         
     def ctrl(self, map_list=None, title=None):
         """
@@ -1094,3 +1081,110 @@ class Sig(PyoObject):
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)    
+
+class VarPort(PyoObject):
+    """
+    Convert numeric value to PyoObject signal with ramp time and portamento.
+
+    When `value` attribute is changed, a smoothed ramp is applied from the
+    current value to the new value. If a callback is provided at `function`,
+    it will be called at the end of the line.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    value : float
+        Numerical value to convert.
+    time : float, optional
+        Ramp time, in seconds, to reach the new value. Defaults to 0.025.
+    init : float, optional
+        Initial value of the internal memory. Defaults to 0.
+    function : Python callable, optional
+        If provided, it will be called at the end of the line. 
+        Defaults to None.
+    arg : any Python object, optional
+        Optional argument sent to the function called at the end of the line.
+        Defaults to None.
+
+    Methods:
+
+    setValue(x) : Changes the value of the signal stream.
+    setTime(x) : Changes the ramp time.
+
+    Attributes:
+
+    value : float. Numerical value to convert.
+    time : float. Ramp time.
+
+    Notes:
+
+    The out() method is bypassed. VarPort's signal can not be sent to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> def callback(arg):
+    ...     print "end of line"
+    ...     print arg
+    .... 
+    >>> fr = VarPort(value=800, time=2, init=400, function=callback, arg="YEP!")
+    >>> a = Sine(freq=fr, mul=.5).out()
+
+    """
+    def __init__(self, value, time=0.025, init=0.0, function=None, arg=None, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._value = value
+        self._time = time
+        self._mul = mul
+        self._add = add
+        value, time, init, function, arg, mul ,add, lmax = convertArgsToLists(value, time, init, function, arg, mul, add)
+        self._base_objs = [VarPort_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(function,i), wrap(arg,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['value', 'time', 'mul', 'add']
+
+    def setValue(self, x):
+        """
+        Changes the value of the signal stream.
+
+        Parameters:
+
+        x : float
+            Numerical value to convert.
+
+        """
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setTime(self, x):
+        """
+        Changes the ramp time of the object.
+
+        Parameters:
+
+        x : float
+            New ramp time.
+
+        """
+        x, lmax = convertArgsToLists(x)
+        [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def value(self):
+        """float. Numerical value to convert.""" 
+        return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)    
+
+    @property
+    def time(self):
+        """float. Ramp time.""" 
+        return self._time
+    @time.setter
+    def time(self, x): self.setTime(x)

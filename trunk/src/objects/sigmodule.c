@@ -691,3 +691,403 @@ SigTo_members,             /* tp_members */
 SigTo_new,                 /* tp_new */
 };
 
+/***************************/
+/* VarPort - Sig + ramp time + portamento + callback */
+/***************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *callable;
+    PyObject *arg;
+    float value;
+    float time;
+    float lastValue;
+    float currentValue;
+    int timeStep;
+    int timeout;
+    float stepVal;
+    int timeCount;
+    int modebuffer[2];
+    float y1;
+    float factor;
+    int flag;
+} VarPort;
+
+static void
+VarPort_generates_i(VarPort *self) {
+    int i;
+    PyObject *tuple;
+
+    if (self->value != self->lastValue) {
+        self->flag = 1;
+        self->timeCount = 0;
+        self->stepVal = (self->value - self->currentValue) / self->timeStep;
+        self->lastValue = self->value;
+    }    
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->timeCount == (self->timeStep - 1))
+            self->currentValue = self->value;
+        else if (self->timeCount < self->timeStep)
+            self->currentValue += self->stepVal;
+
+        self->timeCount++;
+        self->data[i] = self->y1 = self->y1 + (self->currentValue - self->y1) * self->factor;
+    }
+    
+    if (self->timeCount >= self->timeout && self->flag == 1) {
+        self->flag = 0;
+        if (self->callable != Py_None) {
+            if (self->arg != Py_None) {
+                tuple = PyTuple_New(1);
+                PyTuple_SET_ITEM(tuple, 0, self->arg);
+            }
+            else {
+                tuple = PyTuple_New(0);
+            }
+
+            PyObject_Call(self->callable, tuple, NULL);
+        }   
+    }
+}
+
+static void VarPort_postprocessing_ii(VarPort *self) { POST_PROCESSING_II };
+static void VarPort_postprocessing_ai(VarPort *self) { POST_PROCESSING_AI };
+static void VarPort_postprocessing_ia(VarPort *self) { POST_PROCESSING_IA };
+static void VarPort_postprocessing_aa(VarPort *self) { POST_PROCESSING_AA };
+static void VarPort_postprocessing_ireva(VarPort *self) { POST_PROCESSING_IREVA };
+static void VarPort_postprocessing_areva(VarPort *self) { POST_PROCESSING_AREVA };
+static void VarPort_postprocessing_revai(VarPort *self) { POST_PROCESSING_REVAI };
+static void VarPort_postprocessing_revaa(VarPort *self) { POST_PROCESSING_REVAA };
+static void VarPort_postprocessing_revareva(VarPort *self) { POST_PROCESSING_REVAREVA };
+
+static void
+VarPort_setProcMode(VarPort *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = VarPort_generates_i;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = VarPort_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = VarPort_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = VarPort_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = VarPort_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = VarPort_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = VarPort_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = VarPort_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = VarPort_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = VarPort_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+VarPort_compute_next_data_frame(VarPort *self)
+{
+    (*self->proc_func_ptr)(self);  
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+VarPort_traverse(VarPort *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->callable);
+    Py_VISIT(self->arg);
+    return 0;
+}
+
+static int 
+VarPort_clear(VarPort *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->callable);
+    Py_CLEAR(self->arg);
+    return 0;
+}
+
+static void
+VarPort_dealloc(VarPort* self)
+{
+    free(self->data);
+    VarPort_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * VarPort_deleteStream(VarPort *self) { DELETE_STREAM };
+
+static PyObject *
+VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    VarPort *self;
+    self = (VarPort *)type->tp_alloc(type, 0);
+    
+    self->time = 0.025;
+    self->timeStep = (int)(self->time * self->sr);
+    self->timeout = (int)((self->time + 0.1) * self->sr);
+    self->timeCount = 0;
+    self->stepVal = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    self->callable = Py_None;
+    self->arg = Py_None;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, VarPort_compute_next_data_frame);
+    self->mode_func_ptr = VarPort_setProcMode;
+    
+    self->factor = 1. / (.1 * self->sr);
+    
+    return (PyObject *)self;
+}
+
+static int
+VarPort_init(VarPort *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    float inittmp = 0.0;
+    PyObject *valuetmp=NULL, *timetmp=NULL, *calltmp=NULL, *argtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OfOOOO", kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (valuetmp) {
+        PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
+    }
+    
+    if (timetmp) {
+        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    if (calltmp) {
+        Py_DECREF(self->callable);
+        Py_INCREF(calltmp);
+        self->callable = calltmp;
+    }
+
+    if (argtmp) {
+        Py_DECREF(self->arg);
+        Py_INCREF(argtmp);
+        self->arg = argtmp;
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->lastValue = self->currentValue = self->y1 = inittmp;
+    
+    (*self->mode_func_ptr)(self);
+    
+    for(i=0; i>self->bufsize; i++) {
+        self->data[i] = self->currentValue;
+    }
+    
+    VarPort_compute_next_data_frame((VarPort *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject *
+VarPort_setValue(VarPort *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	if (isNumber == 1)
+		self->value = PyFloat_AsDouble(PyNumber_Float(tmp));
+    else
+        self->value = self->lastValue;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+VarPort_setTime(VarPort *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	if (isNumber == 1) {
+		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+        self->timeStep = (int)(self->time * self->sr);
+        self->timeout = (int)((self->time + 0.1) * self->sr);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject * VarPort_getServer(VarPort* self) { GET_SERVER };
+static PyObject * VarPort_getStream(VarPort* self) { GET_STREAM };
+static PyObject * VarPort_setMul(VarPort *self, PyObject *arg) { SET_MUL };	
+static PyObject * VarPort_setAdd(VarPort *self, PyObject *arg) { SET_ADD };	
+static PyObject * VarPort_setSub(VarPort *self, PyObject *arg) { SET_SUB };	
+static PyObject * VarPort_setDiv(VarPort *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * VarPort_play(VarPort *self) { PLAY };
+static PyObject * VarPort_stop(VarPort *self) { STOP };
+
+static PyObject * VarPort_multiply(VarPort *self, PyObject *arg) { MULTIPLY };
+static PyObject * VarPort_inplace_multiply(VarPort *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * VarPort_add(VarPort *self, PyObject *arg) { ADD };
+static PyObject * VarPort_inplace_add(VarPort *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * VarPort_sub(VarPort *self, PyObject *arg) { SUB };
+static PyObject * VarPort_inplace_sub(VarPort *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * VarPort_div(VarPort *self, PyObject *arg) { DIV };
+static PyObject * VarPort_inplace_div(VarPort *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef VarPort_members[] = {
+    {"server", T_OBJECT_EX, offsetof(VarPort, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(VarPort, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(VarPort, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(VarPort, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef VarPort_methods[] = {
+    {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)VarPort_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)VarPort_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)VarPort_stop, METH_NOARGS, "Stops computing."},
+    {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
+    {"setTime", (PyCFunction)VarPort_setTime, METH_O, "Sets ramp time in seconds."},
+    {"setMul", (PyCFunction)VarPort_setMul, METH_O, "Sets VarPort mul factor."},
+    {"setAdd", (PyCFunction)VarPort_setAdd, METH_O, "Sets VarPort add factor."},
+    {"setSub", (PyCFunction)VarPort_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)VarPort_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods VarPort_as_number = {
+    (binaryfunc)VarPort_add,                      /*nb_add*/
+    (binaryfunc)VarPort_sub,                 /*nb_subtract*/
+    (binaryfunc)VarPort_multiply,                 /*nb_multiply*/
+    (binaryfunc)VarPort_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)VarPort_inplace_add,              /*inplace_add*/
+    (binaryfunc)VarPort_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)VarPort_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)VarPort_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject VarPortType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.VarPort_base",         /*tp_name*/
+    sizeof(VarPort),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)VarPort_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &VarPort_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "VarPort objects. Converts number into a signal stream and apply a ramp from last value.",           /* tp_doc */
+    (traverseproc)VarPort_traverse,   /* tp_traverse */
+    (inquiry)VarPort_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    VarPort_methods,             /* tp_methods */
+    VarPort_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)VarPort_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    VarPort_new,                 /* tp_new */
+};
+

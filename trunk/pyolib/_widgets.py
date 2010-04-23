@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public Licensehack for OSX di
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
-import math, sys, os, tempfile
+import math, sys, os, tempfile, time
 
 try:
     from Tkinter import *
@@ -310,9 +310,7 @@ class ServerGUI(Frame):
         self.text.bind("<Up>", self.getPrev)
         self.text.bind("<Down>", self.getNext)
         
-    def on_quit(self):
-        if self._started:
-            self.stopf()
+    def on_quit(self):   
         self.quit()
 
     def getPrev(self, event):
@@ -345,10 +343,12 @@ class ServerGUI(Frame):
             self.startf()
             self._started = True
             self.startStringVar.set('Stop')
+            self.quitButton.configure(state = DISABLED)
         else:
             self.stopf()
             self._started = False
             self.startStringVar.set('Start')
+            self.quitButton.configure(state = NORMAL)
 
     def record(self):
         if self._recstarted == False:
