@@ -70,6 +70,7 @@ class Midictl(PyoObject):
         
     """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
+        PyoObject.__init__(self)
         self._mul = mul
         self._add = add
         ctlnumber, minscale, maxscale, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, mul, add)
@@ -138,6 +139,7 @@ class Notein(PyoObject):
     
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):
+        PyoObject.__init__(self)
         self._pitch_dummy = None
         self._velocity_dummy = None
         self._poly = poly

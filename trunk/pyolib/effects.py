@@ -66,6 +66,7 @@ class Disto(PyoObject):
 
     """
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._drive = drive
         self._slope = slope
@@ -189,6 +190,7 @@ class Delay(PyoObject):
 
     """
     def __init__(self, input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._delay = delay
         self._feedback = feedback
@@ -318,6 +320,7 @@ class Waveguide(PyoObject):
 
     """
     def __init__(self, input, freq=100, dur=10, minfreq=20, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._freq = freq
         self._dur = dur
@@ -449,6 +452,7 @@ class Freeverb(PyoObject):
 
     """
     def __init__(self, input, size=.5, damp=.5, bal=.5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._size = size
         self._damp = damp
@@ -600,6 +604,7 @@ class Convolve(PyoObject):
 
     """
     def __init__(self, input, table, size, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._table = table
         self._size = size
@@ -710,6 +715,7 @@ class WGVerb(PyoObject):
 
     """
     def __init__(self, input, feedback=0.5, cutoff=5000, mix=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._feedback = feedback
         self._cutoff = cutoff

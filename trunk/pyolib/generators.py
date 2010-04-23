@@ -65,6 +65,7 @@ class Sine(PyoObject):
     
     """
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._freq = freq
         self._phase = phase
         self._mul = mul
@@ -159,6 +160,7 @@ class SineLoop(PyoObject):
 
     """
     def __init__(self, freq=1000, feedback=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._freq = freq
         self._feedback = feedback
         self._mul = mul
@@ -252,6 +254,7 @@ class Phasor(PyoObject):
     
     """
     def __init__(self, freq=100, phase=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._freq = freq
         self._phase = phase
         self._mul = mul
@@ -332,6 +335,7 @@ class Input(PyoObject):
     
     """
     def __init__(self, chnl=0, mul=1, add=0):                
+        PyoObject.__init__(self)
         self._chnl = chnl
         self._mul = mul
         self._add = add
@@ -360,6 +364,7 @@ class Noise(PyoObject):
         
     """
     def __init__(self, mul=1, add=0):                
+        PyoObject.__init__(self)
         self._mul = mul
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
@@ -414,6 +419,7 @@ class FM(PyoObject):
     
     """
     def __init__(self, carrier=100, ratio=0.5, index=5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._carrier = carrier
         self._ratio = ratio
         self._index = index

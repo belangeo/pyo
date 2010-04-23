@@ -64,6 +64,7 @@ class Trig(PyoObject):
     
     """
     def __init__(self):
+        PyoObject.__init__(self)
         self._base_objs = [Trig_base()]
 
     def __dir__(self):
@@ -132,6 +133,7 @@ class Metro(PyoObject):
     
     """
     def __init__(self, time=1, poly=1):
+        PyoObject.__init__(self)
         self._time = time
         self._poly = poly
         time, lmax = convertArgsToLists(time)
@@ -229,6 +231,7 @@ class Cloud(PyoObject):
     
     """
     def __init__(self, density=0.5, poly=1):
+        PyoObject.__init__(self)
         self._density = density
         self._poly = poly
         density, lmax = convertArgsToLists(density)
@@ -325,6 +328,7 @@ class TrigRand(PyoObject):
     
     """
     def __init__(self, input, min=0., max=1., port=0., init=0., mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._min = min
         self._max = max
@@ -462,6 +466,7 @@ class TrigChoice(PyoObject):
     
     """
     def __init__(self, input, choice, port=0., init=0., mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._choice = choice
         self._port = port
@@ -584,6 +589,7 @@ class TrigFunc(PyoObject):
 
     """
     def __init__(self, input, function, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._function = function
         self._in_fader = InputFader(input)
@@ -690,6 +696,7 @@ class TrigEnv(PyoObject):
     
     """
     def __init__(self, input, table, dur=1, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._table = table
         self._dur = dur
@@ -850,6 +857,7 @@ class TrigLinseg(PyoObject):
     
     """
     def __init__(self, input, list, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._list = list
         self._mul = mul
@@ -1035,6 +1043,7 @@ class TrigXnoise(PyoObject):
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._dist = dist
         self._x1 = x1
@@ -1243,6 +1252,7 @@ class TrigXnoiseMidi(PyoObject):
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._dist = dist
         self._x1 = x1
@@ -1438,6 +1448,7 @@ class Counter(PyoObject):
     
     """
     def __init__(self, input, min=0, max=100, dir=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._min = min
         self._max = max
@@ -1582,6 +1593,7 @@ class Select(PyoObject):
     
     """
     def __init__(self, input, value=0):
+        PyoObject.__init__(self)
         self._input = input
         self._value = value
         self._in_fader = InputFader(input)
@@ -1681,6 +1693,7 @@ class Change(PyoObject):
 
     """
     def __init__(self, input):
+        PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, lmax = convertArgsToLists(self._in_fader)
@@ -1783,6 +1796,7 @@ class Thresh(PyoObject):
     
     """
     def __init__(self, input, threshold=0., dir=0):
+        PyoObject.__init__(self)
         self._input = input
         self._threshold = threshold
         self._dir = dir

@@ -72,6 +72,7 @@ class Biquad(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._freq = freq
         self._q = q
@@ -231,6 +232,7 @@ class EQ(PyoObject):
 
     """
     def __init__(self, input, freq=1000, q=1, boost=-3.0, type=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._freq = freq
         self._q = q
@@ -390,6 +392,7 @@ class Tone(PyoObject):
 
     """
     def __init__(self, input, freq=1000, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._freq = freq
         self._mul = mul
@@ -493,6 +496,7 @@ class Port(PyoObject):
     
     """
     def __init__(self, input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._risetime = risetime
         self._falltime = falltime
@@ -603,6 +607,7 @@ class DCBlock(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._mul = mul
         self._add = add
@@ -684,6 +689,7 @@ class BandSplit(PyoObject):
 
     """
     def __init__(self, input, num=6, min=20, max=20000, q=1, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._num = num
         self._min = min
@@ -821,6 +827,7 @@ class Hilbert(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
         self._real_dummy = None
         self._imag_dummy = None
         self._input = input

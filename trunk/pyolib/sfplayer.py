@@ -95,6 +95,7 @@ class SfPlayer(PyoObject):
     
     """
     def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
+        PyoObject.__init__(self)
         self._sound = path
         self._speed = speed
         self._loop = loop
@@ -327,6 +328,7 @@ class SfMarkerShuffler(PyoObject):
     
     """
     def __init__(self, path, speed=1, interp=2, mul=1, add=0):
+        PyoObject.__init__(self)
         self._speed = speed
         self._interp = interp
         self._mul = mul

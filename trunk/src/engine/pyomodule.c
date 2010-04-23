@@ -679,6 +679,11 @@ init_pyo(void)
     Py_INCREF(&PatternType);
     PyModule_AddObject(m, "Pattern_base", (PyObject *)&PatternType);
 
+    if (PyType_Ready(&CallAfterType) < 0)
+        return;
+    Py_INCREF(&CallAfterType);
+    PyModule_AddObject(m, "CallAfter_base", (PyObject *)&CallAfterType);
+    
     if (PyType_Ready(&BandSplitterType) < 0)
         return;
     Py_INCREF(&BandSplitterType);

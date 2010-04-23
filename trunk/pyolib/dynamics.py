@@ -63,6 +63,7 @@ class Clip(PyoObject):
 
     """
     def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._min = min
         self._max = max
@@ -189,6 +190,7 @@ class Degrade(PyoObject):
     
     """
     def __init__(self, input, bitdepth=16, srscale=1.0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._bitdepth = bitdepth
         self._srscale = srscale
@@ -319,6 +321,7 @@ class Compress(PyoObject):
     
     """
     def __init__(self, input, thresh=-20, ratio=2, risetime=0.005, falltime=0.05, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._thresh = thresh
         self._ratio = ratio

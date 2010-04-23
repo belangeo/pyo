@@ -68,6 +68,7 @@ class Pattern(PyoObject):
     
     """
     def __init__(self, function, time=1):
+        PyoObject.__init__(self)
         self._function = function
         self._time = time
         function, time, lmax = convertArgsToLists(function, time)
@@ -170,6 +171,7 @@ class Score(PyoObject):
     
     """
     def __init__(self, input, fname="event_"):
+        PyoObject.__init__(self)
         self._input = input
         self._fname = fname
         self._in_fader = InputFader(input)
@@ -211,3 +213,64 @@ class Score(PyoObject):
     def input(self): return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class CallAfter(PyoObject):
+    """
+    Calls a Python function after a given time.
+        
+    Parent class: PyoObject
+    
+    Parameters:
+
+    function : Python function
+    time : float, optional
+        Time, in seconds, before the call. Default to 1.
+    arg : any Python object, optional
+        Argument sent to the called function. Default to None.
+  
+    Notes:
+
+    The out() method is bypassed. CallAfter doesn't return signal.
+    
+    CallAfter has no `mul` and `add` attributes.
+    
+    The object is not deleted after the call. The User must delete it himself.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> print "just started"
+    >>> def callback(arg):
+    ...     print arg
+    ...
+    >>> a = CallAfter(callback, 2, "YEP!")
+    
+    """
+    def __init__(self, function, time=1, arg=None):
+        PyoObject.__init__(self)
+        self._function = function
+        function, time, arg, lmax = convertArgsToLists(function, time, arg)
+        self._base_objs = [CallAfter_base(wrap(function,i), wrap(time,i), wrap(arg,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return []
+
+    def out(self, x=0, inc=1):
+        return self
+        
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+
+    def setSub(self, x):
+        pass
+
+    def setDiv(self, x):
+        pass
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
