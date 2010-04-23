@@ -510,6 +510,7 @@ CallAfter_traverse(CallAfter *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->callable);
+    Py_VISIT(self->arg);
     return 0;
 }
 
@@ -518,6 +519,7 @@ CallAfter_clear(CallAfter *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->callable);
+    Py_CLEAR(self->arg);
     return 0;
 }
 

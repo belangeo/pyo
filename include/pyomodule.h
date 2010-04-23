@@ -86,6 +86,7 @@ extern PyTypeObject DummyType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;
 extern PyTypeObject SigToType;
+extern PyTypeObject VarPortType;
 extern PyTypeObject InputFaderType;
 
 extern PyTypeObject HarmTableType;
