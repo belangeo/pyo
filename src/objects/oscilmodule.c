@@ -4698,24 +4698,13 @@ typedef struct {
     int modebuffer[5];
     float pointerPos_car;
     float pointerPos_mod;
-    float twoPiOnSr;
+    float scaleFactor;
 } Fm;
-
-static float
-Fm_clip(float x) {
-    if (x < 0) {
-        x += ((int)(-x / TWOPI) + 1) * TWOPI;
-    }
-    else if (x >= TWOPI) {
-        x -= (int)(x / TWOPI) * TWOPI;
-    }
-    return x;
-}
 
 static void
 Fm_readframes_iii(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float car = PyFloat_AS_DOUBLE(self->car);
     float rat = PyFloat_AS_DOUBLE(self->ratio);
@@ -4723,25 +4712,29 @@ Fm_readframes_iii(Fm *self) {
     
     mod_freq = car * rat;
     mod_amp = mod_freq * ind;
-    mod_delta = mod_freq * self->twoPiOnSr;
+    mod_delta = mod_freq * self->scaleFactor;
     
     for (i=0; i<self->bufsize; i++) {
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
 
 static void
 Fm_readframes_aii(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float *car = Stream_getData((Stream *)self->car_stream);
     float rat = PyFloat_AS_DOUBLE(self->ratio);
@@ -4750,23 +4743,27 @@ Fm_readframes_aii(Fm *self) {
     for (i=0; i<self->bufsize; i++) {
         mod_freq = car[i] * rat;
         mod_amp = mod_freq * ind;
-        mod_delta = mod_freq * self->twoPiOnSr;
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        mod_delta = mod_freq * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car[i] + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
 
 static void
 Fm_readframes_iai(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float car = PyFloat_AS_DOUBLE(self->car);
     float *rat = Stream_getData((Stream *)self->ratio_stream);
@@ -4775,23 +4772,27 @@ Fm_readframes_iai(Fm *self) {
     for (i=0; i<self->bufsize; i++) {
         mod_freq = car * rat[i];
         mod_amp = mod_freq * ind;
-        mod_delta = mod_freq * self->twoPiOnSr;
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        mod_delta = mod_freq * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
 
 static void
 Fm_readframes_aai(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float *car = Stream_getData((Stream *)self->car_stream);
     float *rat = Stream_getData((Stream *)self->ratio_stream);
@@ -4800,48 +4801,56 @@ Fm_readframes_aai(Fm *self) {
     for (i=0; i<self->bufsize; i++) {
         mod_freq = car[i] * rat[i];
         mod_amp = mod_freq * ind;
-        mod_delta = mod_freq * self->twoPiOnSr;
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        mod_delta = mod_freq * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car[i] + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }}
 
 static void
 Fm_readframes_iia(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float car = PyFloat_AS_DOUBLE(self->car);
     float rat = PyFloat_AS_DOUBLE(self->ratio);
     float *ind = Stream_getData((Stream *)self->index_stream);
     
     mod_freq = car * rat;
-    mod_delta = mod_freq * self->twoPiOnSr;
+    mod_delta = mod_freq * self->scaleFactor;
     
     for (i=0; i<self->bufsize; i++) {
         mod_amp = mod_freq * ind[i];
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
 
 static void
 Fm_readframes_aia(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float *car = Stream_getData((Stream *)self->car_stream);
     float rat = PyFloat_AS_DOUBLE(self->ratio);
@@ -4850,23 +4859,27 @@ Fm_readframes_aia(Fm *self) {
     for (i=0; i<self->bufsize; i++) {
         mod_freq = car[i] * rat;
         mod_amp = mod_freq * ind[i];
-        mod_delta = mod_freq * self->twoPiOnSr;
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        mod_delta = mod_freq * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car[i] + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
 
 static void
 Fm_readframes_iaa(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float car = PyFloat_AS_DOUBLE(self->car);
     float *rat = Stream_getData((Stream *)self->ratio_stream);
@@ -4875,23 +4888,27 @@ Fm_readframes_iaa(Fm *self) {
     for (i=0; i<self->bufsize; i++) {
         mod_freq = car * rat[i];
         mod_amp = mod_freq * ind[i];
-        mod_delta = mod_freq * self->twoPiOnSr;
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        mod_delta = mod_freq * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
 
 static void
 Fm_readframes_aaa(Fm *self) {
-    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta;
-    int i;
+    float mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_delta, fpart;
+    int i, ipart;
     
     float *car = Stream_getData((Stream *)self->car_stream);
     float *rat = Stream_getData((Stream *)self->ratio_stream);
@@ -4900,15 +4917,19 @@ Fm_readframes_aaa(Fm *self) {
     for (i=0; i<self->bufsize; i++) {
         mod_freq = car[i] * rat[i];
         mod_amp = mod_freq * ind[i];
-        mod_delta = mod_freq * self->twoPiOnSr;
-        self->pointerPos_mod = Fm_clip(self->pointerPos_mod);
-        mod_val = mod_amp * sinf(self->pointerPos_mod);
+        mod_delta = mod_freq * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = mod_amp * (SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart);
         self->pointerPos_mod += mod_delta;
         
         car_freq = car[i] + mod_val;
-        car_delta = car_freq * self->twoPiOnSr;
-        self->pointerPos_car = Fm_clip(self->pointerPos_car);
-        self->data[i] = sinf(self->pointerPos_car);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->data[i] = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
         self->pointerPos_car += car_delta;
     }
 }
@@ -5052,7 +5073,7 @@ Fm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Fm_compute_next_data_frame);
     self->mode_func_ptr = Fm_setProcMode;
 
-    self->twoPiOnSr = TWOPI / self->sr;
+    self->scaleFactor = 512.0 / self->sr;
 
     return (PyObject *)self;
 }

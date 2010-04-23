@@ -86,6 +86,7 @@ class Fader(PyoObject):
     
     """
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._fadein = fadein
         self._fadeout = fadeout
         self._dur = dur
@@ -243,6 +244,7 @@ class Adsr(PyoObject):
     
     """
     def __init__(self, attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._attack = attack
         self._decay = decay
         self._sustain = sustain
@@ -414,6 +416,7 @@ class Linseg(PyoObject):
     
     """
     def __init__(self, list, loop=False, mul=1, add=0):
+        PyoObject.__init__(self)
         self._list = list
         self._loop = loop
         self._mul = mul
@@ -502,7 +505,7 @@ class SigTo(PyoObject):
     
     Notes:
 
-    The out() method is bypassed. Sig's signal can not be sent to audio outs.
+    The out() method is bypassed. SigTo's signal can not be sent to audio outs.
     
     Examples:
     
@@ -514,6 +517,7 @@ class SigTo(PyoObject):
 
     """
     def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._value = value
         self._time = time
         self._mul = mul

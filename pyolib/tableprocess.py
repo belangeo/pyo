@@ -68,6 +68,7 @@ class Osc(PyoObject):
      
     """
     def __init__(self, table, freq=1000, phase=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._freq = freq
         self._phase = phase
@@ -193,6 +194,7 @@ class OscLoop(PyoObject):
 
     """
     def __init__(self, table, freq=1000, feedback=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._freq = freq
         self._feedback = feedback
@@ -323,6 +325,7 @@ class TableRead(PyoObject):
      
     """
     def __init__(self, table, freq=1, loop=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._freq = freq
         self._loop = loop
@@ -498,6 +501,7 @@ class Pulsar(PyoObject):
      
     """
     def __init__(self, table, env, freq=100, frac=0.5, phase=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._env = env
         self._freq = freq
@@ -656,6 +660,7 @@ class Pointer(PyoObject):
 
     """
     def __init__(self, table, index, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._index = index
         self._mul = mul
@@ -749,6 +754,7 @@ class Lookup(PyoObject):
 
     """
     def __init__(self, table, index, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._index = index
         self._mul = mul
@@ -872,6 +878,7 @@ class TableRec(PyoObject):
     
     """
     def __init__(self, input, table, fadetime=0):
+        PyoObject.__init__(self)
         self._input = input
         self._table = table
         self._in_fader = InputFader(input)
@@ -1019,6 +1026,7 @@ class TableMorph(PyoObject):
     
     """
     def __init__(self, input, table, sources):
+        PyoObject.__init__(self)
         self._input = input
         self._table = table
         self._sources = sources
@@ -1171,6 +1179,7 @@ class Granulator(PyoObject):
 
     """
     def __init__(self, table, env, pitch=1, pos=0, dur=.1, grains=8, basedur=.1, mul=1, add=0):
+        PyoObject.__init__(self)
         self._table = table
         self._env = env
         self._pitch = pitch

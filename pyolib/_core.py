@@ -154,6 +154,7 @@ class PyoObject(object):
     setAdd(x) : Replace the `add` attribute.
     setDiv(x) : Replace and inverse the `mul` attribute.
     setSub(x) : Replace and inverse the `add` attribute.
+    set(attr, value, port) : Replace any attribute with portamento. 
     ctrl(map_list, title) : Opens a sliders window to control parameters.
     get(all) : Return the first sample of the current buffer as a float.
     dump() : Print current status of the object's attributes.
@@ -189,7 +190,10 @@ class PyoObject(object):
     
     """
     def __init__(self):
-        pass
+        self._target_dict = {}
+        self._signal_dict = {}
+        self._port_dict = {}
+        self._call_after_dict = {}
 
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
@@ -434,6 +438,44 @@ class PyoObject(object):
         x, lmax = convertArgsToLists(x)
         [obj.setDiv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def set(self, attr, value, port=0.025):
+        """
+        Replace any attribute with portamento.
+        
+        This method is intended to be applied on attributes that are not
+        already assigned to PyoObjects. It will work only with floats or
+        list of floats.
+                
+        Parameters:
+
+        attr : string
+            Name of the attribute as a string.
+        value : float
+            New value.
+        port : float, optional
+            Time, in seconds, to reach the new value
+        
+        """
+        from controls import SigTo
+        from pattern import CallAfter
+        from filters import Port
+        start_val = getattr(self, attr)
+        self._target_dict[attr] = value
+        self._signal_dict[attr] = SigTo(start_val, port, start_val)
+        self._port_dict[attr] = Port(self._signal_dict[attr], .15, .15, start_val)
+        setattr(self, attr, self._port_dict[attr])
+        self._signal_dict[attr].value = value
+        self._call_after_dict[attr] = CallAfter(self._reset_from_set, port+0.2, attr)
+
+    def _reset_from_set(self, attr=None):
+        setattr(self, attr, self._target_dict[attr])
+        self._signal_dict[attr].stop()
+        self._port_dict[attr].stop()
+        del self._signal_dict[attr]
+        del self._port_dict[attr]
+        del self._call_after_dict[attr]
+        del self._target_dict[attr]
+        
     def ctrl(self, map_list=None, title=None):
         """
         Opens a sliders window to control parameters of the object. 
@@ -834,6 +876,7 @@ class Mix(PyoObject):
 
     """
     def __init__(self, input, voices=1, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._mul = mul
         self._add = add
@@ -842,12 +885,20 @@ class Mix(PyoObject):
             input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
         else:    
             input_objs = input.getBaseObjects()
-        if voices < 1: voices = 1
-        elif voices > len(input_objs): voices = len(input_objs)
+        input_len = len(input_objs)
+        if voices < 1: 
+            voices = 1
+            num = 1
+        elif voices > input_len: 
+            num = voices
+        else:
+            num = input_len   
         sub_lists = []
         for i in range(voices):
             sub_lists.append([])
-        [sub_lists[i % voices].append(obj) for i, obj in enumerate(input_objs)]
+        for i in range(num):
+            obj = input_objs[i % input_len]
+            sub_lists[i % voices].append(obj)
         self._base_objs = [Mix_base(l) for l in sub_lists]
 
     def __dir__(self):
@@ -897,6 +948,7 @@ class Dummy(PyoObject):
     
     """
     def __init__(self, objs_list):
+        PyoObject.__init__(self)
         self._mul = 1
         self._add = 0
         self._base_objs = objs_list
@@ -944,6 +996,7 @@ class InputFader(PyoObject):
     
     """
     def __init__(self, input):
+        PyoObject.__init__(self)
         self._input = input
         input, lmax = convertArgsToLists(input)
         self._base_objs = [InputFader_base(wrap(input,i)) for i in range(lmax)]
@@ -1008,6 +1061,7 @@ class Sig(PyoObject):
 
     """
     def __init__(self, value, mul=1, add=0):
+        PyoObject.__init__(self)
         self._value = value
         self._mul = mul
         self._add = add

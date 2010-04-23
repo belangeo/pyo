@@ -70,6 +70,7 @@ class Follower(PyoObject):
 
     """
     def __init__(self, input, freq=10, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._freq = freq
         self._mul = mul
@@ -175,6 +176,7 @@ class ZCross(PyoObject):
 
     """
     def __init__(self, input, thresh=0., mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._mul = mul
         self._add = add

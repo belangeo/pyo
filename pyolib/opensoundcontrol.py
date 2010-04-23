@@ -77,6 +77,7 @@ class OscSend(PyoObject):
     
     """
     def __init__(self, input, port, address, host="127.0.0.1"):    
+        PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
         in_fader, port, address, host, lmax = convertArgsToLists(self._in_fader, port, address, host)
@@ -164,6 +165,7 @@ class OscReceive(PyoObject):
     """
 
     def __init__(self, port, address, mul=1, add=0):    
+        PyoObject.__init__(self)
         self._mul = mul
         self._add = add
         address, mul, add, lmax = convertArgsToLists(address, mul, add)

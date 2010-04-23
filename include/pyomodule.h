@@ -120,6 +120,7 @@ extern PyTypeObject TrigXnoiseType;
 extern PyTypeObject TrigXnoiseMidiType;
 
 extern PyTypeObject PatternType;
+extern PyTypeObject CallAfterType;
 
 extern PyTypeObject BandSplitterType;
 extern PyTypeObject BandSplitType;

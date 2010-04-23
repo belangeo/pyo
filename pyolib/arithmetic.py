@@ -57,6 +57,7 @@ class Sin(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._mul = mul
         self._add = add
@@ -124,6 +125,7 @@ class Cos(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._mul = mul
         self._add = add
@@ -192,6 +194,7 @@ class Tan(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._mul = mul
         self._add = add

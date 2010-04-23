@@ -114,6 +114,7 @@ class Print(PyoObject):
 
     """
     def __init__(self, input, method=0, interval=0.25):
+        PyoObject.__init__(self)
         self._input = input
         self._method = method
         self._interval = interval
@@ -245,6 +246,7 @@ class Snap(PyoObject):
 
     """
     def __init__(self, input, choice, scale=0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._choice = choice
         self._scale = scale
@@ -362,6 +364,7 @@ class Interp(PyoObject):
 
     """
     def __init__(self, input, input2, interp=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._input2 = input2
         self._interp = interp
@@ -486,6 +489,7 @@ class SampHold(PyoObject):
 
     """
     def __init__(self, input, controlsig, value=0.0, mul=1, add=0):
+        PyoObject.__init__(self)
         self._input = input
         self._controlsig = controlsig
         self._value = value

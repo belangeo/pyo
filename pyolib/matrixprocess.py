@@ -96,6 +96,7 @@ class MatrixRec(PyoObject):
     
     """
     def __init__(self, input, matrix, fadetime=0):
+        PyoObject.__init__(self)
         self._input = input
         self._matrix = matrix
         self._in_fader = InputFader(input)
@@ -236,6 +237,7 @@ class MatrixPointer(PyoObject):
 
     """
     def __init__(self, matrix, indexrow, indexcol, mul=1, add=0):
+        PyoObject.__init__(self)
         self._matrix = matrix
         self._indexrow = indexrow
         self._indexcol = indexcol

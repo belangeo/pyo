@@ -65,6 +65,7 @@ class Randi(PyoObject):
     
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
+        PyoObject.__init__(self)
         self._min = min
         self._max = max
         self._freq = freq
@@ -178,6 +179,7 @@ class Randh(PyoObject):
     
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
+        PyoObject.__init__(self)
         self._min = min
         self._max = max
         self._freq = freq
@@ -287,6 +289,7 @@ class Choice(PyoObject):
     
     """
     def __init__(self, choice, freq=1., mul=1, add=0):
+        PyoObject.__init__(self)
         self._choice = choice
         self._freq = freq
         self._mul = mul
@@ -373,6 +376,7 @@ class RandInt(PyoObject):
     
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
+        PyoObject.__init__(self)
         self._max = max
         self._freq = freq
         self._mul = mul
@@ -522,6 +526,7 @@ class Xnoise(PyoObject):
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
         self._dist = dist
         self._freq = freq
         self._x1 = x1
@@ -724,6 +729,7 @@ class XnoiseMidi(PyoObject):
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
+        PyoObject.__init__(self)
         self._dist = dist
         self._freq = freq
         self._x1 = x1
