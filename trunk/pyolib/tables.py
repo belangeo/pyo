@@ -911,7 +911,7 @@ class NewTable(PyoTableObject):
     >>> t = NewTable(length=2, chnls=1)
     >>> a = Input(0)
     >>> b = TableRec(a, t, .01)
-    >>> c = Osc(t, [t.getRate(), t.getRate()*.99]).out()
+    >>> c = Osc(table=t, freq=[t.getRate(), t.getRate()*.99]).out()
     >>> # to record in the empty table, call:
     >>> # b.play()
 

@@ -667,18 +667,26 @@ class TrigEnv(PyoObject):
         Table containing the envelope.
     dur : float or PyoObject, optional
         Duration in seconds of the envelope. Defaults to 1.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
     
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setTable(x) : Replace the `table` attribute.
     setDur(x) : Replace the `dur` attribute.
+    setInterp(x) : Replace the `interp` attribute.
 
     Attributes:
     
     input : PyoObject. Audio trigger signal.
     table : PyoTableObject. Envelope table.
     dur : float or PyoObject. Duration in seconds.
+    interp : int {1, 2, 3, 4}, Interpolation method.
 
     TrigEnv will sends a trigger signal at the end of the playback. 
     User can retreive the trigger streams by calling obj['trig']. 
@@ -691,24 +699,25 @@ class TrigEnv(PyoObject):
     >>> env = HannTable()
     >>> m = Metro(.125).play()
     >>> tr = TrigRand(m, 400, 600)
-    >>> te = TrigEnv(m, env, .125)
+    >>> te = TrigEnv(m, table=env, dur=.125)
     >>> a = Sine(tr, mul=te).out()
     
     """
-    def __init__(self, input, table, dur=1, mul=1, add=0):
+    def __init__(self, input, table, dur=1, interp=2, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._table = table
         self._dur = dur
+        self._interp = interp
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, table, dur, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, mul, add)
-        self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, table, dur, interp, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, interp, mul, add)
+        self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = [TrigEnvTrig_base(obj) for obj in self._base_objs]
 
     def __dir__(self):
-        return ['input', 'table', 'dur', 'mul', 'add']
+        return ['input', 'table', 'dur', 'interp', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:
@@ -793,6 +802,20 @@ class TrigEnv(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+        
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         self._map_list = [SLMap(0.01, 10., 'lin', 'dur', self._dur), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title)
@@ -809,6 +832,12 @@ class TrigEnv(PyoObject):
     def dur(self): return self._dur
     @dur.setter
     def dur(self, x): self.setDur(x)
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
 
 class TrigLinseg(PyoObject):
     """
@@ -1037,9 +1066,9 @@ class TrigXnoise(PyoObject):
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 12).play()
-    >>> amp = TrigEnv(met, env, mul=.1)
+    >>> amp = TrigEnv(met, table=env, mul=.1)
     >>> pit = TrigXnoise(met, dist=4, x1=10, mul=500, add=300)
-    >>> a = Osc(wav, pit, 0, amp).out()
+    >>> a = Osc(table=wav, freq=pit, mul=amp).out()
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, mul=1, add=0):
@@ -1246,9 +1275,9 @@ class TrigXnoiseMidi(PyoObject):
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 12).play()
-    >>> amp = TrigEnv(met, env, mul=.1)
+    >>> amp = TrigEnv(met, table=env, mul=.1)
     >>> pit = TrigXnoiseMidi(met, dist=4, x1=20, scale=1, mrange=(48,84))
-    >>> a = Osc(wav, pit, 0, amp).out()
+    >>> a = Osc(table=wav, freq=pit, mul=amp).out()
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
@@ -1585,7 +1614,7 @@ class Select(PyoObject):
     >>> s.start()
     >>> env = HannTable()
     >>> m = Metro(.125).play()
-    >>> te = TrigEnv(m, env, .125)
+    >>> te = TrigEnv(m, table=env, dur=.125)
     >>> c = Counter(m, min=0, max=4)
     >>> se = Select(c, 0)
     >>> tr = TrigRand(se, 400, 600)

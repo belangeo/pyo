@@ -29,8 +29,8 @@ class FreqMod:
         self.amplitude = amplitude
         
         self.table = HarmTable([1])
-        self.modulator = Osc(self.table, self.modulatorFrequency, 0, self.modulatorAmplitude, self.carrierFrequency)
-        self.carrier = Osc(self.table, self.modulator, 0, self.amplitude)
+        self.modulator = Osc(self.table, self.modulatorFrequency, 0, 2, self.modulatorAmplitude, self.carrierFrequency)
+        self.carrier = Osc(self.table, self.modulator, 0, 2, self.amplitude)
         
     def play(self):
         self.modulator.play()

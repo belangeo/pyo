@@ -42,7 +42,7 @@ for j in range(olaps):
     for i in range(num):
         index = i + offset
         trrnds.append(TrigRand(cl[index], .5, 2))
-        trtabs.append(TrigEnv(cl[index], tabs[i], 1./tabs[i].getRate()*trrnds[index]))
+        trtabs.append(TrigEnv(cl[index], table=tabs[i], dur=1./tabs[i].getRate()*trrnds[index]))
 
 mix = Mix(trtabs, 2)
 out = Freeverb(mix, size=.9, damp=.95, bal=.1).out()

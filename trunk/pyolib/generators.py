@@ -414,7 +414,7 @@ class FM(PyoObject):
     >>> s.start()
     >>> ind = LinTable([(0,20), (200,5), (1000,2), (8191,1)])
     >>> m = Metro(4).play()
-    >>> tr = TrigEnv(m, ind, dur=4)
+    >>> tr = TrigEnv(m, table=ind, dur=4)
     >>> f = FM(carrier=[250.5,250], ratio=.2499, index=tr, mul=.5).out()
     
     """

@@ -239,10 +239,10 @@ class Snap(PyoObject):
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 8).play()
-    >>> amp = TrigEnv(met, env, mul=.1)
+    >>> amp = TrigEnv(met, table=env, mul=.1)
     >>> pit = TrigXnoiseMidi(met, dist=4, x1=20, mrange=(48,84))
     >>> hertz = Snap(pit, choice=[0,2,3,5,7,8,10], scale=1)
-    >>> a = Osc(wav, hertz, 0, amp).out()
+    >>> a = Osc(table=wav, freq=hertz, phase=0, mul=amp).out()
 
     """
     def __init__(self, input, choice, scale=0, mul=1, add=0):
@@ -359,7 +359,7 @@ class Interp(PyoObject):
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=1, loop=True, mul=.5)
     >>> sf2 = SfPlayer(SNDS_PATH + '/transparent.aif', speed=1, loop=True, mul=.5)
-    >>> lfo = Osc(SquareTable(20), 5, 0, .5, .5)
+    >>> lfo = Osc(table=SquareTable(20), freq=5, mul=.5, add=.5)
     >>> a = Interp(sf, sf2, lfo).out()
 
     """
