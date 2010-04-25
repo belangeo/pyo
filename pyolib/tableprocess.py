@@ -44,18 +44,26 @@ class Osc(PyoObject):
     phase : float or PyoObject, optional
         Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
         Defaults to 0.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
         
     Methods:
 
     setTable(x) : Replace the `table` attribute.
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
+    setInterp(x) : Replace the `interp` attribute.
 
     Attributes:
     
     table : PyoTableObject. Table containing the waveform samples.
     freq : float or PyoObject, Frequency in cycles per second.
     phase : float or PyoObject, Phase of sampling (0 -> 1).
+    interp : int {1, 2, 3, 4}, Interpolation method.
     
     See also: Phasor, Sine
 
@@ -67,18 +75,19 @@ class Osc(PyoObject):
     >>> a = Osc(table=t, freq=100).out()   
      
     """
-    def __init__(self, table, freq=1000, phase=0, mul=1, add=0):
+    def __init__(self, table, freq=1000, phase=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self)
         self._table = table
         self._freq = freq
         self._phase = phase
+        self._interp = interp
         self._mul = mul
         self._add = add
-        table, freq, phase, mul, add, lmax = convertArgsToLists(table, freq, phase, mul, add)
-        self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, freq, phase, interp, mul, add)
+        self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['table', 'freq', 'phase', 'mul', 'add']
+        return ['table', 'freq', 'phase', 'interp', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -122,6 +131,20 @@ class Osc(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+        
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         self._map_list = [SLMapFreq(self._freq),
                           SLMapPhase(self._phase),
@@ -148,6 +171,13 @@ class Osc(PyoObject):
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
 
 class OscLoop(PyoObject):
     """
@@ -292,18 +322,26 @@ class TableRead(PyoObject):
     loop : int {0, 1}, optional
         Looping mode, 0 means off, 1 means on. 
         Defaults to 0.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
         
     Methods:
 
     setTable(x) : Replace the `table` attribute.
     setFreq(x) : Replace the `freq` attribute.
     setLoop(x) : Replace the `loop` attribute.
+    setInterp(x) : Replace the `interp` attribute.
 
     Attributes:
     
     table : PyoTableObject. Table containing the waveform samples.
     freq : float or PyoObject, Frequency in cycles per second.
     loop : int, Looping mode.
+    interp : int {1, 2, 3, 4}, Interpolation method.
 
     Notes:
     
@@ -324,19 +362,20 @@ class TableRead(PyoObject):
     >>> a = TableRead(table=snd, freq=snd.getRate(), loop=0).out()   
      
     """
-    def __init__(self, table, freq=1, loop=0, mul=1, add=0):
+    def __init__(self, table, freq=1, loop=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self)
         self._table = table
         self._freq = freq
         self._loop = loop
+        self._interp = interp
         self._mul = mul
         self._add = add
-        table, freq, loop, mul, add, lmax = convertArgsToLists(table, freq, loop, mul, add)
-        self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, freq, loop, interp, mul, add, lmax = convertArgsToLists(table, freq, loop, interp, mul, add)
+        self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = [TableReadTrig_base(obj) for obj in self._base_objs]
 
     def __dir__(self):
-        return ['table', 'freq', 'loop', 'mul', 'add']
+        return ['table', 'freq', 'loop', 'interp', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:
@@ -420,6 +459,20 @@ class TableRead(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+        
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title)
@@ -444,6 +497,13 @@ class TableRead(PyoObject):
         return self._loop
     @loop.setter
     def loop(self, x): self.setLoop(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
 
 class Pulsar(PyoObject):
     """
@@ -471,6 +531,12 @@ class Pulsar(PyoObject):
     phase : float or PyoObject, optional
         Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
         Defaults to 0.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
         
     Methods:
 
@@ -479,6 +545,7 @@ class Pulsar(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setFrac(x) : Replace the `frac` attribute.
     setPhase(x) : Replace the `phase` attribute.
+    setInterp(x) : Replace the `interp` attribute.
 
     Attributes:
     
@@ -487,6 +554,7 @@ class Pulsar(PyoObject):
     freq : float or PyoObject, Frequency in cycles per second.
     frac : float or PyoObject, Fraction of the period assigned to waveform.
     phase : float or PyoObject, Phase of sampling (0 -> 1).
+    interp : int {1, 2, 3, 4}, Interpolation method.
     
     See also: Osc
 
@@ -500,20 +568,21 @@ class Pulsar(PyoObject):
     >>> a = Pulsar(table=w, env=e, freq=80, frac=lfo, mul=.25).out()
      
     """
-    def __init__(self, table, env, freq=100, frac=0.5, phase=0, mul=1, add=0):
+    def __init__(self, table, env, freq=100, frac=0.5, phase=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self)
         self._table = table
         self._env = env
         self._freq = freq
         self._frac = frac
         self._phase = phase
+        self._interp = interp
         self._mul = mul
         self._add = add
-        table, env, freq, frac, phase, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, mul, add)
-        self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        table, env, freq, frac, phase, interp, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, interp, mul, add)
+        self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['table', 'env', 'freq', 'frac', 'phase', 'mul', 'add']
+        return ['table', 'env', 'freq', 'frac', 'phase', 'interp', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -585,6 +654,20 @@ class Pulsar(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+        
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None):
         self._map_list = [SLMapFreq(self._freq),
                           SLMap(0., 1., 'lin', 'frac', self._frac),
@@ -626,6 +709,13 @@ class Pulsar(PyoObject):
         return self._phase
     @phase.setter
     def phase(self, x): self.setPhase(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
 
 class Pointer(PyoObject):
     """
@@ -749,7 +839,7 @@ class Lookup(PyoObject):
     >>> s.start()
     >>> lfo = Sine(freq=[.15,.2], mul=.45, add=.5)
     >>> a = Sine(freq=[100,150], mul=lfo)
-    >>> t = LinTable([(0,-1),(3072,-0.85),(4096,0),(5520,.85),(8192,1)])
+    >>> t = CosTable([(0,-1),(3072,-0.85),(4096,0),(5520,.85),(8192,1)])
     >>> b = Lookup(table=t, index=a, mul=1.-lfo).out()
 
     """

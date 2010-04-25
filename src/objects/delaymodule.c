@@ -43,7 +43,7 @@ typedef struct {
 
 static void
 Delay_process_ii(Delay *self) {
-    float val, x, x1, xind, frac;
+    float val, xind, frac;
     int i, ind;
 
     float del = PyFloat_AS_DOUBLE(self->delay);
@@ -68,9 +68,7 @@ Delay_process_ii(Delay *self) {
             xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
-        x = self->buffer[ind];
-        x1 = self->buffer[ind+1];
-        val = x + (x1 - x) * frac;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
         
         self->buffer[self->in_count] = in[i] + (val * feed);
@@ -82,7 +80,7 @@ Delay_process_ii(Delay *self) {
 
 static void
 Delay_process_ai(Delay *self) {
-    float val, x, x1, xind, frac, sampdel, del;
+    float val, xind, frac, sampdel, del;
     int i, ind;
 
     float *delobj = Stream_getData((Stream *)self->delay_stream);    
@@ -107,9 +105,7 @@ Delay_process_ai(Delay *self) {
             xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
-        x = self->buffer[ind];
-        x1 = self->buffer[ind+1];
-        val = x + (x1 - x) * frac;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
         
         self->buffer[self->in_count++] = in[i]  + (val * feed);
@@ -120,7 +116,7 @@ Delay_process_ai(Delay *self) {
 
 static void
 Delay_process_ia(Delay *self) {
-    float val, x, x1, xind, frac, feed;
+    float val, xind, frac, feed;
     int i, ind;
     
     float del = PyFloat_AS_DOUBLE(self->delay);
@@ -140,9 +136,7 @@ Delay_process_ia(Delay *self) {
             xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
-        x = self->buffer[ind];
-        x1 = self->buffer[ind+1];
-        val = x + (x1 - x) * frac;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
 
         feed = fdb[i];
@@ -159,7 +153,7 @@ Delay_process_ia(Delay *self) {
 
 static void
 Delay_process_aa(Delay *self) {
-    float val, x, x1, xind, frac, sampdel, feed, del;
+    float val, xind, frac, sampdel, feed, del;
     int i, ind;
     
     float *delobj = Stream_getData((Stream *)self->delay_stream);    
@@ -179,9 +173,7 @@ Delay_process_aa(Delay *self) {
             xind += (self->size-1);
         ind = (int)xind;
         frac = xind - ind;
-        x = self->buffer[ind];
-        x1 = self->buffer[ind+1];
-        val = x + (x1 - x) * frac;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val;
         
         feed = fdb[i];

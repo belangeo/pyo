@@ -188,9 +188,9 @@ class Tan(PyoObject):
     >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(t, 1, 0, .5, .5)
+    >>> a = Osc(table=t, freq=1, mul=.5, add=.5)
     >>> b = Tan(a)
-    >>> c = Osc(t, 100, mul=b).out()
+    >>> c = Osc(table=t, freq=100, mul=b).out()
 
     """
     def __init__(self, input, mul=1, add=0):

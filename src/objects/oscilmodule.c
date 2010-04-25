@@ -983,6 +983,8 @@ typedef struct {
     Stream *phase_stream;
     int modebuffer[4];
     float pointerPos;
+    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
+    float (*interp_func_ptr)(float *, int, float, int);
 } Osc;
 
 static void
@@ -1005,7 +1007,7 @@ Osc_readframes_ii(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart, size);
+        self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1030,7 +1032,7 @@ Osc_readframes_ai(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart, size);
+        self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1054,7 +1056,7 @@ Osc_readframes_ia(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart, size);
+        self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1079,7 +1081,7 @@ Osc_readframes_aa(Osc *self) {
             pos -= size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = linear(tablelist, ipart, fpart, size);
+        self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
     }
 }
 
@@ -1200,6 +1202,7 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
     self->pointerPos = 0.;
+    self->interp = 2;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Osc_compute_next_data_frame);
@@ -1213,9 +1216,9 @@ Osc_init(Osc *self, PyObject *args, PyObject *kwds)
 {
     PyObject *tabletmp, *freqtmp=NULL, *phasetmp=NULL, *multmp=NULL, *addtmp=NULL;
 
-    static char *kwlist[] = {"table", "freq", "phase", "mul", "add", NULL};
+    static char *kwlist[] = {"table", "freq", "phase", "interp", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &tabletmp, &freqtmp, &phasetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &tabletmp, &freqtmp, &phasetmp, &self->interp, &multmp, &addtmp))
         return -1; 
 
     Py_XDECREF(self->table);
@@ -1241,6 +1244,8 @@ Osc_init(Osc *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
+
+    SET_INTERP_POINTER
 
     Osc_compute_next_data_frame((Osc *)self);
 
@@ -1361,6 +1366,26 @@ Osc_setPhase(Osc *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Osc_setInterp(Osc *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+    
+    SET_INTERP_POINTER
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Osc_members[] = {
     {"server", T_OBJECT_EX, offsetof(Osc, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Osc, stream), 0, "Stream object."},
@@ -1383,6 +1408,7 @@ static PyMethodDef Osc_methods[] = {
     {"setTable", (PyCFunction)Osc_setTable, METH_O, "Sets oscillator table."},
 	{"setFreq", (PyCFunction)Osc_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setPhase", (PyCFunction)Osc_setPhase, METH_O, "Sets oscillator phase."},
+    {"setInterp", (PyCFunction)Osc_setInterp, METH_O, "Sets oscillator interpolation mode."},
 	{"setMul", (PyCFunction)Osc_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Osc_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Osc_setSub, METH_O, "Sets oscillator inverse add factor."},
@@ -1510,7 +1536,7 @@ OscLoop_readframes_ii(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
+        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
     }
 }
 
@@ -1536,7 +1562,7 @@ OscLoop_readframes_ai(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
+        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
     }
 }
 
@@ -1562,7 +1588,7 @@ OscLoop_readframes_ia(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
+        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
     }
 }
 
@@ -1589,7 +1615,7 @@ OscLoop_readframes_aa(OscLoop *self) {
             pos += size;
         ipart = (int)pos;
         fpart = pos - ipart;
-        self->data[i] = self->lastValue = linear(tablelist, ipart, fpart, size);
+        self->data[i] = self->lastValue = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
     }
 }
 
@@ -2468,7 +2494,7 @@ typedef struct {
 
 static void
 Pointer_readframes_a(Pointer *self) {
-    float ph, fpart, x, x1;
+    float ph, fpart;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2480,9 +2506,7 @@ Pointer_readframes_a(Pointer *self) {
    
         ipart = (int)ph;
         fpart = ph - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = x + (x1 - x) * fpart;
+        self->data[i] = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
     }
 }
 
@@ -2833,7 +2857,7 @@ Lookup_clip(float x) {
 
 static void
 Lookup_readframes_a(Lookup *self) {
-    float ph, fpart, x, x1;
+    float ph, fpart;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -2844,9 +2868,7 @@ Lookup_readframes_a(Lookup *self) {
         ph = (Lookup_clip(pha[i]) * 0.5 + 0.5) * size;   
         ipart = (int)ph;
         fpart = ph - ipart;
-        x = tablelist[ipart];
-        x1 = tablelist[ipart+1];
-        self->data[i] = x + (x1 - x) * fpart;
+        self->data[i] = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
     }
 }
 
@@ -3189,11 +3211,13 @@ typedef struct {
     Stream *frac_stream;
     int modebuffer[5];
     float pointerPos;
+    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
+    float (*interp_func_ptr)(float *, int, float, int);
 } Pulsar;
 
 static void
 Pulsar_readframes_iii(Pulsar *self) {
-    float fr, ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    float fr, ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3221,16 +3245,12 @@ Pulsar_readframes_iii(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3240,7 +3260,7 @@ Pulsar_readframes_iii(Pulsar *self) {
 
 static void
 Pulsar_readframes_aii(Pulsar *self) {
-    float ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    float ph, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3269,16 +3289,12 @@ Pulsar_readframes_aii(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3288,7 +3304,7 @@ Pulsar_readframes_aii(Pulsar *self) {
 
 static void
 Pulsar_readframes_iai(Pulsar *self) {
-    float fr, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    float fr, frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3316,16 +3332,12 @@ Pulsar_readframes_iai(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3335,7 +3347,7 @@ Pulsar_readframes_iai(Pulsar *self) {
 
 static void
 Pulsar_readframes_aai(Pulsar *self) {
-    float frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    float frac, invfrac, pos, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3364,16 +3376,12 @@ Pulsar_readframes_aai(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3383,7 +3391,7 @@ Pulsar_readframes_aai(Pulsar *self) {
 
 static void
 Pulsar_readframes_iia(Pulsar *self) {
-    float fr, ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    float fr, ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3411,16 +3419,12 @@ Pulsar_readframes_iia(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3430,7 +3434,7 @@ Pulsar_readframes_iia(Pulsar *self) {
 
 static void
 Pulsar_readframes_aia(Pulsar *self) {
-    float ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    float ph, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3459,16 +3463,12 @@ Pulsar_readframes_aia(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3478,7 +3478,7 @@ Pulsar_readframes_aia(Pulsar *self) {
 
 static void
 Pulsar_readframes_iaa(Pulsar *self) {
-    float fr, pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp;
+    float fr, pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3506,16 +3506,12 @@ Pulsar_readframes_iaa(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3525,7 +3521,7 @@ Pulsar_readframes_iaa(Pulsar *self) {
 
 static void
 Pulsar_readframes_aaa(Pulsar *self) {
-    float pos, curfrac, scl_pos, t_pos, e_pos, fpart, x, x1, tmp, oneOnSr;
+    float pos, curfrac, scl_pos, t_pos, e_pos, fpart, tmp, oneOnSr;
     double inc;
     int i, ipart;
     float *tablelist = TableStream_getData(self->table);
@@ -3554,16 +3550,12 @@ Pulsar_readframes_aaa(Pulsar *self) {
             t_pos = scl_pos * size;
             ipart = (int)t_pos;
             fpart = t_pos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            tmp = x + (x1 - x) * fpart;
+            tmp = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             
             e_pos = scl_pos * envsize;
             ipart = (int)e_pos;
             fpart = e_pos - ipart;
-            x = envlist[ipart];
-            x1 = envlist[ipart+1];            
-            self->data[i] = tmp * (x + (x1 - x) * fpart);
+            self->data[i] = tmp * (envlist[ipart] * (1.0 - fpart) + envlist[ipart+1] * fpart);
         }    
         else {
             self->data[i] = 0.0;
@@ -3702,6 +3694,7 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->freq = PyFloat_FromDouble(100);
     self->phase = PyFloat_FromDouble(0);
     self->frac = PyFloat_FromDouble(0.5);
+    self->interp = 2;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
@@ -3721,9 +3714,9 @@ Pulsar_init(Pulsar *self, PyObject *args, PyObject *kwds)
 {
     PyObject *tabletmp, *envtmp, *freqtmp=NULL, *phasetmp=NULL, *fractmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"table", "env", "freq", "frac", "phase", "mul", "add", NULL};
+    static char *kwlist[] = {"table", "env", "freq", "frac", "phase", "interp", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOO", kwlist, &tabletmp, &envtmp, &freqtmp, &fractmp, &phasetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOiOO", kwlist, &tabletmp, &envtmp, &freqtmp, &fractmp, &phasetmp, &self->interp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->table);
@@ -3756,7 +3749,9 @@ Pulsar_init(Pulsar *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
+
+    SET_INTERP_POINTER
+
     Pulsar_compute_next_data_frame((Pulsar *)self);
     
     Py_INCREF(self);
@@ -3935,6 +3930,26 @@ Pulsar_setFrac(Pulsar *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Pulsar_setInterp(Pulsar *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+    
+    SET_INTERP_POINTER
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Pulsar_members[] = {
 {"server", T_OBJECT_EX, offsetof(Pulsar, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Pulsar, stream), 0, "Stream object."},
@@ -3961,6 +3976,7 @@ static PyMethodDef Pulsar_methods[] = {
 {"setFreq", (PyCFunction)Pulsar_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 {"setPhase", (PyCFunction)Pulsar_setPhase, METH_O, "Sets oscillator phase."},
 {"setFrac", (PyCFunction)Pulsar_setFrac, METH_O, "Sets waveform width inside whole period length."},
+{"setInterp", (PyCFunction)Pulsar_setInterp, METH_O, "Sets Pulsar interpolation mode."},
 {"setMul", (PyCFunction)Pulsar_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Pulsar_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Pulsar_setSub, METH_O, "Sets oscillator inverse add factor."},
@@ -4066,11 +4082,13 @@ typedef struct {
     float *trigsBuffer;
     float *tempTrigsBuffer;
     int init;    
+    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
+    float (*interp_func_ptr)(float *, int, float, int);
 } TableRead;
 
 static void
 TableRead_readframes_i(TableRead *self) {
-    float fr, inc, fpart, x, x1;
+    float fr, inc, fpart;
     int i, ipart;
     int go = 1;
     float *tablelist = TableStream_getData(self->table);
@@ -4098,9 +4116,7 @@ TableRead_readframes_i(TableRead *self) {
         if (go == 1) {
             ipart = (int)self->pointerPos;
             fpart = self->pointerPos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            self->data[i] = x + (x1 - x) * fpart;
+            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }
         else
             self->data[i] = 0.0;
@@ -4112,7 +4128,7 @@ TableRead_readframes_i(TableRead *self) {
 
 static void
 TableRead_readframes_a(TableRead *self) {
-    float inc, fpart, x, x1, sizeOnSr;
+    float inc, fpart, sizeOnSr;
     int i, ipart;
     int go = 1;
     float *tablelist = TableStream_getData(self->table);
@@ -4141,9 +4157,7 @@ TableRead_readframes_a(TableRead *self) {
         if (go == 1) {
             ipart = (int)self->pointerPos;
             fpart = self->pointerPos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            self->data[i] = x + (x1 - x) * fpart;
+            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }    
         else
             self->data[i] = 0.0;
@@ -4261,6 +4275,7 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
     self->pointerPos = 0.;
+    self->interp = 2;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TableRead_compute_next_data_frame);
@@ -4275,9 +4290,9 @@ TableRead_init(TableRead *self, PyObject *args, PyObject *kwds)
     int i;
     PyObject *tabletmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"table", "freq", "loop", "mul", "add", NULL};
+    static char *kwlist[] = {"table", "freq", "loop", "interp", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiOO", kwlist, &tabletmp, &freqtmp, &self->loop, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiiOO", kwlist, &tabletmp, &freqtmp, &self->loop, &self->interp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->table);
@@ -4306,7 +4321,9 @@ TableRead_init(TableRead *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-    
+
+    SET_INTERP_POINTER
+
     TableRead_compute_next_data_frame((TableRead *)self);
     self->init = 1;
     
@@ -4417,6 +4434,26 @@ TableRead_setLoop(TableRead *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+TableRead_setInterp(TableRead *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+    
+    SET_INTERP_POINTER
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 float *
 TableRead_getTrigsBuffer(TableRead *self)
 {
@@ -4449,6 +4486,7 @@ static PyMethodDef TableRead_methods[] = {
 {"setTable", (PyCFunction)TableRead_setTable, METH_O, "Sets oscillator table."},
 {"setFreq", (PyCFunction)TableRead_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 {"setLoop", (PyCFunction)TableRead_setLoop, METH_O, "Sets the looping mode."},
+{"setInterp", (PyCFunction)TableRead_setInterp, METH_O, "Sets reader interpolation mode."},
 {"setMul", (PyCFunction)TableRead_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)TableRead_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)TableRead_setSub, METH_O, "Sets oscillator inverse add factor."},

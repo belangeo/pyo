@@ -59,7 +59,7 @@ class Pattern(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(t, 250, 0, .5).out()
+    >>> a = Osc(table=t, freq=250, mul=.5).out()
     >>> def pat():
     ...     a.freq = random.randint(200, 400)
     ...    

@@ -484,16 +484,7 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    if (self->interp == 0)
-        self->interp = 2;
-    if (self->interp == 1)
-        self->interp_func_ptr = nointerp;
-    else if (self->interp == 2)
-        self->interp_func_ptr = linear;
-    else if (self->interp == 3)
-        self->interp_func_ptr = cosine;
-    else if (self->interp == 4)
-        self->interp_func_ptr = cubic;
+    SET_INTERP_POINTER
     
     /* Open the sound file. */
     self->info.format = 0;
@@ -644,17 +635,8 @@ SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
 		self->interp = PyInt_AsLong(PyNumber_Int(arg));
     }  
 
-    if (self->interp == 0)
-        self->interp = 2;
-    if (self->interp == 1)
-        self->interp_func_ptr = nointerp;
-    else if (self->interp == 2)
-        self->interp_func_ptr = linear;
-    else if (self->interp == 3)
-        self->interp_func_ptr = cosine;
-    else if (self->interp == 4)
-        self->interp_func_ptr = cubic;
-
+    SET_INTERP_POINTER
+    
     Py_INCREF(Py_None);
     return Py_None;
 }

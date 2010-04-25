@@ -25,6 +25,7 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 #include "tablemodule.h"
+#include "interpolation.h"
 
 typedef struct {
     pyo_audio_HEAD
@@ -1124,11 +1125,13 @@ typedef struct {
     double pointerPos; // reading position in sample
     float *trigsBuffer;
     float *tempTrigsBuffer;
+    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
+    float (*interp_func_ptr)(float *, int, float, int);
 } TrigEnv;
 
 static void
 TrigEnv_readframes_i(TrigEnv *self) {
-    float fpart, x, x1;
+    float fpart;
     int i, ipart;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *tablelist = TableStream_getData(self->table);
@@ -1145,9 +1148,7 @@ TrigEnv_readframes_i(TrigEnv *self) {
         if (self->active == 1) {
             ipart = (int)self->pointerPos;
             fpart = self->pointerPos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            self->data[i] = x + (x1 - x) * fpart;
+            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             self->pointerPos += self->inc;
         }
         else
@@ -1162,7 +1163,7 @@ TrigEnv_readframes_i(TrigEnv *self) {
 
 static void
 TrigEnv_readframes_a(TrigEnv *self) {
-    float fpart, x, x1;
+    float fpart;
     int i, ipart;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *dur_st = Stream_getData((Stream *)self->dur_stream);
@@ -1180,9 +1181,7 @@ TrigEnv_readframes_a(TrigEnv *self) {
         if (self->active == 1) {
             ipart = (int)self->pointerPos;
             fpart = self->pointerPos - ipart;
-            x = tablelist[ipart];
-            x1 = tablelist[ipart+1];
-            self->data[i] = x + (x1 - x) * fpart;
+            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
             self->pointerPos += self->inc;
         }
         else
@@ -1307,6 +1306,7 @@ TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->pointerPos = 0.;
     self->active = 0;
+    self->interp = 2;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigEnv_compute_next_data_frame);
@@ -1324,9 +1324,9 @@ TrigEnv_init(TrigEnv *self, PyObject *args, PyObject *kwds)
     int i;
     PyObject *inputtmp, *input_streamtmp, *tabletmp, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "table", "dur", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "table", "dur", "interp", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &tabletmp, &durtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OiOO", kwlist, &inputtmp, &tabletmp, &durtmp, &self->interp, &multmp, &addtmp))
         return -1; 
 
     INIT_INPUT_STREAM
@@ -1357,6 +1357,8 @@ TrigEnv_init(TrigEnv *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
+    
+    SET_INTERP_POINTER
     
     TrigEnv_compute_next_data_frame((TrigEnv *)self);
     
@@ -1443,6 +1445,26 @@ TrigEnv_setDur(TrigEnv *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+    
+    SET_INTERP_POINTER
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 float *
 TrigEnv_getTrigsBuffer(TrigEnv *self)
 {
@@ -1474,6 +1496,7 @@ static PyMethodDef TrigEnv_methods[] = {
 {"stop", (PyCFunction)TrigEnv_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)TrigEnv_setTable, METH_O, "Sets envelope table."},
 {"setDur", (PyCFunction)TrigEnv_setDur, METH_O, "Sets envelope duration in second."},
+{"setInterp", (PyCFunction)TrigEnv_setInterp, METH_O, "Sets oscillator interpolation mode."},
 {"setMul", (PyCFunction)TrigEnv_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)TrigEnv_setAdd, METH_O, "Sets add factor."},
 {"setSub", (PyCFunction)TrigEnv_setSub, METH_O, "Sets inverse add factor."},

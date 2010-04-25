@@ -458,6 +458,18 @@ extern PyTypeObject M_TanType;
     Stream_setStreamId(self->stream, Stream_getNewStreamId());
 
 
+#define SET_INTERP_POINTER \
+    if (self->interp == 0) \
+        self->interp = 2; \
+    if (self->interp == 1) \
+        self->interp_func_ptr = nointerp; \
+    else if (self->interp == 2) \
+        self->interp_func_ptr = linear; \
+    else if (self->interp == 3) \
+        self->interp_func_ptr = cosine; \
+    else if (self->interp == 4) \
+        self->interp_func_ptr = cubic; \
+
 /* GETS & SETS */
 #define GET_SERVER \
     if (self->server == NULL) { \
