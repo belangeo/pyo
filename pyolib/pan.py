@@ -313,3 +313,137 @@ class SPan(PyoObject):
     @pan.setter
     def pan(self, x): self.setPan(x)
 
+class Switch(PyoObject):
+    """
+    Audio Switcher.
+
+    Switch takes an audio input and interpolates between multiple outputs.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    outs : int, optional
+        Number of outputs. Defaults to 2.
+    voice : float or PyoObject
+        Voice position pointer, between 0 and outs-1. 
+        Defaults to 0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setVoice(x) : Replace the `voice` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    voice : float or PyoObject. Voice position pointer.
+
+    Examples:
+
+    >>> s = Server(nchnls=2).boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
+    >>> lf = Sine(freq=.25, mul=1.5, add=1.5)
+    >>> b = Switch(a, outs=3, voice=lf)
+    >>> c = WGVerb(b[0], feedback=.8).out()
+    >>> d = Disto(b[1], mul=.1).out()
+    >>> e = Delay(b[2], delay=.2, feedback=.6).out()
+
+    """
+    def __init__(self, input, outs=2, voice=0., mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._outs = outs
+        self._voice = voice
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, voice, mul, add, lmax = convertArgsToLists(self._in_fader, voice, mul, add)
+        self._base_players = [Switcher_base(wrap(in_fader,i), outs, wrap(voice,i)) for i in range(lmax)]
+        self._base_objs = []
+        for i in range(lmax):
+            for j in range(outs):
+                self._base_objs.append(Switch_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['input', 'voice', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._base_players:
+            obj.deleteStream()
+            del obj
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setVoice(self, x):
+        """
+        Replace the `voice` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `voice` attribute.
+
+        """
+        self._voice = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setVoice(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def play(self):
+        self._base_players = [obj.play() for obj in self._base_players]
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        return self
+
+    def out(self, chnl=0, inc=1):
+        self._base_players = [obj.play() for obj in self._base_players]
+        if type(chnl) == ListType:
+            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+        else:
+            if chnl < 0:    
+                self._base_objs = [obj.out(((i*inc) % self._outs)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+            else:   
+                self._base_objs = [obj.out(chnl+((i*inc) % self._outs)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_players]
+        [obj.stop() for obj in self._base_objs]
+        return self
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0, self._outs-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): 
+        """PyoObject. Input signal to process."""
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def voice(self): 
+        """float or PyoObject. Voice position pointer."""
+        return self._voice
+    @voice.setter
+    def voice(self, x): self.setVoice(x)
+

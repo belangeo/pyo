@@ -1353,3 +1353,580 @@ SPan_members,             /* tp_members */
 0,                         /* tp_alloc */
 SPan_new,                 /* tp_new */
 };
+
+/*********************/
+/***** Switcher ******/
+/*********************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *voice;
+    Stream *voice_stream;
+    int chnls;
+    int k1;
+    int k2;
+    int modebuffer[1];
+    float *buffer_streams;
+} Switcher;
+
+static float
+Switcher_clip_voice(Switcher *self, float v) {
+    int chnls = self->chnls - 1;
+    if (v < 0.0)
+        return 0.0;
+    else if (v > chnls)
+        return chnls;
+    else 
+        return v;
+}
+
+static void
+Switcher_splitter_i(Switcher *self) {
+    float val, inval, voice1, voice2;
+    int j1, j, i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float voice = Switcher_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->buffer_streams[i+self->k1] = 0.0;
+        self->buffer_streams[i+self->k2] = 0.0;
+    }
+
+    j1 = (int)voice;
+    j = j1 + 1;
+    if (j1 >= (self->chnls-1)) {
+        j1--; j--;
+    }
+    
+    self->k1 = j1 * self->bufsize;
+    self->k2 = j * self->bufsize;
+
+    voice = P_clip(voice - j1);
+    voice1 = sqrtf(1.0 - voice);
+    voice2 = sqrtf(voice);
+
+    for (i=0; i<self->bufsize; i++) {
+        inval = in[i];
+        val = inval * voice1;
+        self->buffer_streams[i+self->k1] = val;
+        val = inval * voice2;
+        self->buffer_streams[i+self->k2] = val;
+    }    
+}
+
+static void
+Switcher_splitter_a(Switcher *self) {
+    float inval, voice;
+    int i, j, j1, len;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *avoice = Stream_getData((Stream *)self->voice_stream);
+    
+    len = self->chnls * self->bufsize;
+    for (i=0; i<len; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        voice = Switcher_clip_voice(self, avoice[i]);
+        inval = in[i];
+
+        j1 = (int)voice;
+        j = j1 + 1;
+        if (j1 >= (self->chnls-1)) {
+            j1--; j--;
+        }
+        
+        self->k1 = j1 * self->bufsize;
+        self->k2 = j * self->bufsize;
+        
+        voice = P_clip(voice - j1);
+        
+        self->buffer_streams[i+self->k1] = inval * sqrtf(1.0 - voice);
+        self->buffer_streams[i+self->k2] = inval * sqrtf(voice);
+    }    
+}
+
+float *
+Switcher_getSamplesBuffer(Switcher *self)
+{
+    return (float *)self->buffer_streams;
+}    
+
+static void
+Switcher_setProcMode(Switcher *self)
+{   
+    switch (self->modebuffer[0]) {
+        case 0:        
+            self->proc_func_ptr = Switcher_splitter_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Switcher_splitter_a;
+            break;
+    }
+}
+
+static void
+Switcher_compute_next_data_frame(Switcher *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+Switcher_traverse(Switcher *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->voice);
+    Py_VISIT(self->voice_stream);
+    return 0;
+}
+
+static int 
+Switcher_clear(Switcher *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->voice);
+    Py_CLEAR(self->voice_stream);
+    return 0;
+}
+
+static void
+Switcher_dealloc(Switcher* self)
+{
+    free(self->data);
+    free(self->buffer_streams);
+    Switcher_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Switcher_deleteStream(Switcher *self) { DELETE_STREAM };
+
+static PyObject *
+Switcher_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Switcher *self;
+    self = (Switcher *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Switcher_compute_next_data_frame);
+    self->mode_func_ptr = Switcher_setProcMode;
+    
+    self->voice = PyFloat_FromDouble(0.0);
+    self->chnls = 2;
+    self->k1 = 0;
+    self->k2 = self->bufsize;
+    self->modebuffer[0] = 0;
+    
+    return (PyObject *)self;
+}
+
+static int
+Switcher_init(Switcher *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *voicetmp=NULL;
+    
+    static char *kwlist[] = {"input", "outs", "voice", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iO", kwlist, &inputtmp, &self->chnls, &voicetmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (voicetmp) {
+        PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->buffer_streams = (float *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(float));
+    
+    (*self->mode_func_ptr)(self);
+    
+    int len = self->chnls*self->bufsize;
+    for (i=0; i<len; i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    Switcher_compute_next_data_frame((Switcher *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Switcher_getServer(Switcher* self) { GET_SERVER };
+static PyObject * Switcher_getStream(Switcher* self) { GET_STREAM };
+
+static PyObject * Switcher_play(Switcher *self) { PLAY };
+static PyObject * Switcher_stop(Switcher *self) { STOP };
+
+static PyObject *
+Switcher_setVoice(Switcher *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->voice);
+	if (isNumber == 1) {
+		self->voice = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->voice = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->voice, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->voice_stream);
+        self->voice_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Switcher_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Switcher, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Switcher, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Switcher, input), 0, "Input sound object."},
+    {"voice", T_OBJECT_EX, offsetof(Switcher, voice), 0, "voice object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Switcher_methods[] = {
+    {"getServer", (PyCFunction)Switcher_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Switcher_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Switcher_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Switcher_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Switcher_stop, METH_NOARGS, "Stops computing."},
+    {"setVoice", (PyCFunction)Switcher_setVoice, METH_O, "Sets voice value between 0 and outs-1."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject SwitcherType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Switcher_base",                                   /*tp_name*/
+    sizeof(Switcher),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Switcher_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    0,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Switcher main objects. Simple equal power voicener",           /* tp_doc */
+    (traverseproc)Switcher_traverse,                  /* tp_traverse */
+    (inquiry)Switcher_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Switcher_methods,                                 /* tp_methods */
+    Switcher_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Switcher_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Switcher_new,                                     /* tp_new */
+};
+
+/************************************************************************************************/
+/* SSwitch streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    Switcher *mainSplitter;
+    int modebuffer[2];
+    int chnl; // switch order
+} Switch;
+
+static void Switch_postprocessing_ii(Switch *self) { POST_PROCESSING_II };
+static void Switch_postprocessing_ai(Switch *self) { POST_PROCESSING_AI };
+static void Switch_postprocessing_ia(Switch *self) { POST_PROCESSING_IA };
+static void Switch_postprocessing_aa(Switch *self) { POST_PROCESSING_AA };
+static void Switch_postprocessing_ireva(Switch *self) { POST_PROCESSING_IREVA };
+static void Switch_postprocessing_areva(Switch *self) { POST_PROCESSING_AREVA };
+static void Switch_postprocessing_revai(Switch *self) { POST_PROCESSING_REVAI };
+static void Switch_postprocessing_revaa(Switch *self) { POST_PROCESSING_REVAA };
+static void Switch_postprocessing_revareva(Switch *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Switch_setProcMode(Switch *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Switch_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Switch_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Switch_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Switch_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Switch_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Switch_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Switch_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Switch_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Switch_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Switch_compute_next_data_frame(Switch *self)
+{
+    int i;
+    float *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = Switcher_getSamplesBuffer((Switcher *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Switch_traverse(Switch *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainSplitter);
+    return 0;
+}
+
+static int 
+Switch_clear(Switch *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainSplitter);    
+    return 0;
+}
+
+static void
+Switch_dealloc(Switch* self)
+{
+    free(self->data);
+    Switch_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Switch_deleteStream(Switch *self) { DELETE_STREAM };
+
+static PyObject *
+Switch_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Switch *self;
+    self = (Switch *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Switch_compute_next_data_frame);
+    self->mode_func_ptr = Switch_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Switch_init(Switch *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (Switcher *)maintmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Switch_compute_next_data_frame((Switch *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Switch_getServer(Switch* self) { GET_SERVER };
+static PyObject * Switch_getStream(Switch* self) { GET_STREAM };
+static PyObject * Switch_setMul(Switch *self, PyObject *arg) { SET_MUL };	
+static PyObject * Switch_setAdd(Switch *self, PyObject *arg) { SET_ADD };	
+static PyObject * Switch_setSub(Switch *self, PyObject *arg) { SET_SUB };	
+static PyObject * Switch_setDiv(Switch *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Switch_play(Switch *self) { PLAY };
+static PyObject * Switch_out(Switch *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Switch_stop(Switch *self) { STOP };
+
+static PyObject * Switch_multiply(Switch *self, PyObject *arg) { MULTIPLY };
+static PyObject * Switch_inplace_multiply(Switch *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Switch_add(Switch *self, PyObject *arg) { ADD };
+static PyObject * Switch_inplace_add(Switch *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Switch_sub(Switch *self, PyObject *arg) { SUB };
+static PyObject * Switch_inplace_sub(Switch *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Switch_div(Switch *self, PyObject *arg) { DIV };
+static PyObject * Switch_inplace_div(Switch *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Switch_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Switch, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Switch, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Switch, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Switch, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Switch_methods[] = {
+    {"getServer", (PyCFunction)Switch_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Switch_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Switch_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Switch_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Switch_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Switch_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)Switch_setMul, METH_O, "Sets Switch mul factor."},
+    {"setAdd", (PyCFunction)Switch_setAdd, METH_O, "Sets Switch add factor."},
+    {"setSub", (PyCFunction)Switch_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Switch_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Switch_as_number = {
+    (binaryfunc)Switch_add,                      /*nb_add*/
+    (binaryfunc)Switch_sub,                 /*nb_subtract*/
+    (binaryfunc)Switch_multiply,                 /*nb_multiply*/
+    (binaryfunc)Switch_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Switch_inplace_add,              /*inplace_add*/
+    (binaryfunc)Switch_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Switch_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Switch_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject SwitchType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Switch_base",         /*tp_name*/
+    sizeof(Switch),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Switch_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Switch_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Switch objects. Reads one band from a Switchner.",           /* tp_doc */
+    (traverseproc)Switch_traverse,   /* tp_traverse */
+    (inquiry)Switch_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Switch_methods,             /* tp_methods */
+    Switch_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Switch_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Switch_new,                 /* tp_new */
+};

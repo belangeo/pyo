@@ -478,7 +478,7 @@ typedef struct {
 
 static void
 CallAfter_generate(CallAfter *self) {
-    int i, flag;
+    int i;
     PyObject *tuple;
 
     for (i=0; i<self->bufsize; i++) {

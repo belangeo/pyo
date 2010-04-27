@@ -136,6 +136,8 @@ extern PyTypeObject SPannerType;
 extern PyTypeObject SPanType;
 extern PyTypeObject PannerType;
 extern PyTypeObject PanType;
+extern PyTypeObject SwitcherType;
+extern PyTypeObject SwitchType;
 
 extern PyTypeObject PrintType;
 extern PyTypeObject SnapType;
