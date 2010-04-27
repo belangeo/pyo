@@ -738,6 +738,16 @@ init_pyo(void)
         return;
     Py_INCREF(&SPanType);
     PyModule_AddObject(m, "SPan_base", (PyObject *)&SPanType);
+
+    if (PyType_Ready(&SwitcherType) < 0)
+        return;
+    Py_INCREF(&SwitcherType);
+    PyModule_AddObject(m, "Switcher_base", (PyObject *)&SwitcherType);
+    
+    if (PyType_Ready(&SwitchType) < 0)
+        return;
+    Py_INCREF(&SwitchType);
+    PyModule_AddObject(m, "Switch_base", (PyObject *)&SwitchType);
     
     if (PyType_Ready(&CounterType) < 0)
         return;
