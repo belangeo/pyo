@@ -315,9 +315,13 @@ class SPan(PyoObject):
 
 class Switch(PyoObject):
     """
-    Audio Switcher.
+    Audio switcher.
 
     Switch takes an audio input and interpolates between multiple outputs.
+    
+    User can retrieve the different streams by calling the output number
+    between brackets. obj[0] retrieve the first stream, obj[outs-1] the
+    last one.
     
     Parent class: PyoObject
 
