@@ -59,7 +59,9 @@ float OscReceiver_getValue(OscReceiver *self, PyObject *path)
 static void
 OscReceiver_compute_next_data_frame(OscReceiver *self)
 {
-    lo_server_recv_noblock(self->osc_server, 0);
+    while (lo_server_recv_noblock(self->osc_server, 0) != 0) {};
+    //double events = lo_server_next_event_delay(self->osc_server); 
+    //printf("%d\n", events);
 }
 
 static int
