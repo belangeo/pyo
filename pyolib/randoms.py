@@ -323,7 +323,7 @@ class Choice(PyoObject):
             new `freq` attribute.
         
         """
-        self._port = x
+        self._freq = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 

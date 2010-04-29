@@ -451,3 +451,116 @@ class Switch(PyoObject):
     @voice.setter
     def voice(self, x): self.setVoice(x)
 
+class Selector(PyoObject):
+    """
+    Audio selector.
+    
+    Selector takes multiple PyoObjects in input and interpolates between 
+    them to generate a single output.
+        
+    Parent class: PyoObject
+
+    Parameters:
+
+    inputs : list of PyoObject
+        Audio objects to interpolate from.
+    voice : float or PyoObject, optional
+        Voice position pointer, between 0 and len(inputs)-1. 
+        Defaults to 0.
+    
+    Methods:
+
+    setInputs(x) : Replace the `inputs` attribute.
+    setVoice(x) : Replace the `voice` attribute.
+
+    Attributes:
+    
+    inputs : list of PyoObject. Audio objects to interpolate from.
+    voice : float or PyoObject. Voice position pointer.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
+    >>> b = Noise(mul=.1)
+    >>> c = SfPlayer(SNDS_PATH + "/accord.aif", loop=True)
+    >>> lf = Sine(freq=.1, add=1)
+    >>> d = Selector(inputs=[a,b,c], voice=lf).out()
+    
+    """
+    def __init__(self, inputs, voice=0., mul=1, add=0):
+        PyoObject.__init__(self)
+        self._inputs = inputs
+        self._voice = voice
+        self._mul = mul
+        self._add = add
+        voice, mul, add, self._lmax = convertArgsToLists(voice, mul, add)
+        self._length = 1
+        for obj in self._inputs:
+            try:
+                if len(obj) > self._length: self._length = len(obj)
+            except:
+                pass    
+        self._base_objs = []        
+        for i in range(self._lmax):
+            for j in range(self._length):
+                choice = []
+                for obj in self._inputs:
+                    try:
+                        choice.append(obj[j%len(obj)])
+                    except:
+                        choice.append(obj)            
+                self._base_objs.append(Selector_base(choice, wrap(voice,i), wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['inputs', 'voice', 'mul', 'add']
+
+    def setInputs(self, x):
+        """
+        Replace the `inputs` attribute.
+        
+        Parameters:
+
+        x : list of PyoObject
+            new `inputs` attribute.
+        
+        """
+        self._inputs = x
+        for i in range(self._lmax):           
+            for j in range(self._length):
+                choice = []
+                for obj in self._inputs:
+                    try:
+                        choice.append(obj[j%len(obj)])
+                    except:
+                        choice.append(obj) 
+                self._base_objs[i+j*self._lmax].setInputs(choice)
+
+    def setVoice(self, x):
+        """
+        Replace the `voice` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `voice` attribute.
+        
+        """
+        self._voice = x
+        x, lmax = convertArgsToLists(x)
+        for i, obj in enumerate(self._base_objs):
+            obj.setVoice(wrap(x, i/self._length))
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0, len(self._inputs)-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def inputs(self): return self._inputs
+    @inputs.setter
+    def inputs(self, x): self.setInputs(x)
+    @property
+    def voice(self): return self._voice
+    @voice.setter
+    def voice(self, x): self.setVoice(x)

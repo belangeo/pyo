@@ -748,6 +748,11 @@ init_pyo(void)
         return;
     Py_INCREF(&SwitchType);
     PyModule_AddObject(m, "Switch_base", (PyObject *)&SwitchType);
+
+    if (PyType_Ready(&SelectorType) < 0)
+        return;
+    Py_INCREF(&SelectorType);
+    PyModule_AddObject(m, "Selector_base", (PyObject *)&SelectorType);
     
     if (PyType_Ready(&CounterType) < 0)
         return;
