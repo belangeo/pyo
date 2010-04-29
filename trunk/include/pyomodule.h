@@ -138,6 +138,7 @@ extern PyTypeObject PannerType;
 extern PyTypeObject PanType;
 extern PyTypeObject SwitcherType;
 extern PyTypeObject SwitchType;
+extern PyTypeObject SelectorType;
 
 extern PyTypeObject PrintType;
 extern PyTypeObject SnapType;

@@ -1930,3 +1930,419 @@ PyTypeObject SwitchType = {
     0,                         /* tp_alloc */
     Switch_new,                 /* tp_new */
 };
+
+/****************/
+/**** Selector *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *inputs;
+    PyObject *voice;
+    Stream *voice_stream;
+    int chSize;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Selector;
+
+static float
+Selector_clip_voice(Selector *self, float v) {
+    int chSize = self->chSize - 1;
+    if (v < 0.0)
+        return 0.0;
+    else if (v > chSize)
+        return chSize;
+    else 
+        return v;
+}
+
+static void
+Selector_generate_i(Selector *self) {
+    int j1, j, i;
+    float  voice1, voice2;
+    float voice = Selector_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
+
+    j1 = (int)voice;
+    j = j1 + 1;
+    if (j1 >= (self->chSize-1)) {
+        j1--; j--;
+    }
+
+    float *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+    float *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+
+    voice = P_clip(voice - j1);
+    voice1 = sqrtf(1.0 - voice);
+    voice2 = sqrtf(voice);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = st1[i] * voice1 + st2[i] * voice2;
+    }
+}
+
+static void
+Selector_generate_a(Selector *self) {
+    int old_j1, old_j, j1, j, i;
+    float  voice;
+    float *st1, *st2;
+    float *vc = Stream_getData((Stream *)self->voice_stream);
+
+    old_j1 = 0; 
+    old_j = 1;
+    st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j1), "_getStream", NULL));
+    st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, old_j), "_getStream", NULL));
+    
+    for (i=0; i<self->bufsize; i++) {
+        voice = Selector_clip_voice(self, vc[i]);
+        
+        j1 = (int)voice;
+        j = j1 + 1;
+        if (j1 >= (self->chSize-1)) {
+            j1--; j--;
+        }
+        if (j1 != old_j1) {
+            st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+            old_j1 = j1;
+        }    
+        if (j != old_j) {
+            st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+            old_j = j;
+        }    
+
+        voice = P_clip(voice - j1);
+
+        self->data[i] = st1[i] * sqrtf(1.0 - voice) + st2[i] * sqrtf(voice);
+    }
+}
+
+static void Selector_postprocessing_ii(Selector *self) { POST_PROCESSING_II };
+static void Selector_postprocessing_ai(Selector *self) { POST_PROCESSING_AI };
+static void Selector_postprocessing_ia(Selector *self) { POST_PROCESSING_IA };
+static void Selector_postprocessing_aa(Selector *self) { POST_PROCESSING_AA };
+static void Selector_postprocessing_ireva(Selector *self) { POST_PROCESSING_IREVA };
+static void Selector_postprocessing_areva(Selector *self) { POST_PROCESSING_AREVA };
+static void Selector_postprocessing_revai(Selector *self) { POST_PROCESSING_REVAI };
+static void Selector_postprocessing_revaa(Selector *self) { POST_PROCESSING_REVAA };
+static void Selector_postprocessing_revareva(Selector *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Selector_setProcMode(Selector *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Selector_generate_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Selector_generate_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Selector_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Selector_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Selector_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Selector_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Selector_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Selector_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Selector_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Selector_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Selector_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Selector_compute_next_data_frame(Selector *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Selector_traverse(Selector *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->inputs);
+    Py_VISIT(self->voice);
+    Py_VISIT(self->voice_stream);
+    return 0;
+}
+
+static int 
+Selector_clear(Selector *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->inputs);
+    Py_CLEAR(self->voice);
+    Py_CLEAR(self->voice_stream);
+    return 0;
+}
+
+static void
+Selector_dealloc(Selector* self)
+{
+    free(self->data);
+    Selector_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Selector_deleteStream(Selector *self) { DELETE_STREAM };
+
+static PyObject *
+Selector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Selector *self;
+    self = (Selector *)type->tp_alloc(type, 0);
+    
+    self->voice = PyFloat_FromDouble(0.);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Selector_compute_next_data_frame);
+    self->mode_func_ptr = Selector_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Selector_init(Selector *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputstmp=NULL, *voicetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"inputs", "voice", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputstmp, &voicetmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (inputstmp) {
+        PyObject_CallMethod((PyObject *)self, "setInputs", "O", inputstmp);
+    }
+    
+    if (voicetmp) {
+        PyObject_CallMethod((PyObject *)self, "setVoice", "O", voicetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Selector_compute_next_data_frame((Selector *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Selector_getServer(Selector* self) { GET_SERVER };
+static PyObject * Selector_getStream(Selector* self) { GET_STREAM };
+static PyObject * Selector_setMul(Selector *self, PyObject *arg) { SET_MUL };	
+static PyObject * Selector_setAdd(Selector *self, PyObject *arg) { SET_ADD };	
+static PyObject * Selector_setSub(Selector *self, PyObject *arg) { SET_SUB };	
+static PyObject * Selector_setDiv(Selector *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Selector_play(Selector *self) { PLAY };
+static PyObject * Selector_out(Selector *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Selector_stop(Selector *self) { STOP };
+
+static PyObject * Selector_multiply(Selector *self, PyObject *arg) { MULTIPLY };
+static PyObject * Selector_inplace_multiply(Selector *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Selector_add(Selector *self, PyObject *arg) { ADD };
+static PyObject * Selector_inplace_add(Selector *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Selector_sub(Selector *self, PyObject *arg) { SUB };
+static PyObject * Selector_inplace_sub(Selector *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Selector_div(Selector *self, PyObject *arg) { DIV };
+static PyObject * Selector_inplace_div(Selector *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Selector_setInputs(Selector *self, PyObject *arg)
+{
+    int i;
+	PyObject *tmp;
+	
+	if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    self->chSize = PyList_Size(tmp);
+    Py_INCREF(tmp);
+	Py_XDECREF(self->inputs);
+    self->inputs = tmp;
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Selector_setVoice(Selector *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->voice);
+	if (isNumber == 1) {
+		self->voice = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->voice = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->voice, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->voice_stream);
+        self->voice_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Selector_members[] = {
+{"server", T_OBJECT_EX, offsetof(Selector, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Selector, stream), 0, "Stream object."},
+{"inputs", T_OBJECT_EX, offsetof(Selector, inputs), 0, "List of input streams."},
+{"voice", T_OBJECT_EX, offsetof(Selector, voice), 0, "Voice position pointer."},
+{"mul", T_OBJECT_EX, offsetof(Selector, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Selector, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Selector_methods[] = {
+{"getServer", (PyCFunction)Selector_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Selector_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Selector_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Selector_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Selector_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Selector_stop, METH_NOARGS, "Stops computing."},
+{"setInputs", (PyCFunction)Selector_setInputs, METH_O, "Sets list of input streams."},
+{"setVoice", (PyCFunction)Selector_setVoice, METH_O, "Sets voice position pointer."},
+{"setMul", (PyCFunction)Selector_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Selector_setAdd, METH_O, "Sets add factor."},
+{"setSub", (PyCFunction)Selector_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Selector_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Selector_as_number = {
+(binaryfunc)Selector_add,                         /*nb_add*/
+(binaryfunc)Selector_sub,                         /*nb_subtract*/
+(binaryfunc)Selector_multiply,                    /*nb_multiply*/
+(binaryfunc)Selector_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Selector_inplace_add,                 /*inplace_add*/
+(binaryfunc)Selector_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Selector_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Selector_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject SelectorType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Selector_base",                                   /*tp_name*/
+sizeof(Selector),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Selector_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Selector_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Selector objects. Audio interpolation between multiple inputs.",           /* tp_doc */
+(traverseproc)Selector_traverse,                  /* tp_traverse */
+(inquiry)Selector_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Selector_methods,                                 /* tp_methods */
+Selector_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Selector_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Selector_new,                                     /* tp_new */
+};
