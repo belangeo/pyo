@@ -894,6 +894,10 @@ class NewTable(PyoTableObject):
     chnls : int, optional
         Number of channels that will be handled by the table. 
         Defaults to 1.
+    init : list of floats, optional
+        Initial table. List of list can match the number of channels,
+        otherwise, the list will be loaded in all tablestreams. 
+        Defaults to None.
         
     Methods:    
     
@@ -901,6 +905,7 @@ class NewTable(PyoTableObject):
     getLength() : Returns the length of the table in seconds.
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read the sound at its original pitch.
+    replace() : Replaces the actual table.
 
     See also: TableRec
 
@@ -916,12 +921,34 @@ class NewTable(PyoTableObject):
     >>> # b.play()
 
     """
-    def __init__(self, length, chnls=1):
-        self._base_objs = [NewTable_base(length) for i in range(chnls)]
+    def __init__(self, length, chnls=1, init=None):
+        if init == None:
+            self._base_objs = [NewTable_base(length) for i in range(chnls)]
+        else:
+            if type(init[0]) != ListType: 
+                init = [init]
+            self._base_objs = [NewTable_base(length, wrap(init,i)) for i in range(chnls)]
+                    
 
     def __dir__(self):
         return []
-     
+
+    def replace(self, x):
+        """
+        Replaces the actual table.
+        
+        Parameters:
+        
+        x : list of floats
+            New table. Must be of the same size as the actual table.
+            List of list can match the number of channels, otherwise, 
+            the list will be loaded in all tablestreams.
+
+        """
+        if type(x[0]) != ListType: 
+            x = [x]
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
     def getSize(self):
         """
         Returns the length of the table in samples.

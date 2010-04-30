@@ -524,6 +524,8 @@ class PyoTableObject(object):
     write(path) : Writes the content of the table into a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
+    put(value, pos) : Puts a value at specified position in the table.
+    get(pos) : Returns the value at specified position in the table.
     
     Notes:
     
@@ -641,6 +643,42 @@ class PyoTableObject(object):
         
         """
         return self._size
+
+    def put(self, value, pos=0):
+        """
+        Puts a value at specified position in the table.
+        
+        If the object has more than 1 tablestream, the default is to
+        record the value in each table. User can call obj[x].put() 
+        to record in a specific table.
+        
+        Parameters:
+        
+        value : float
+            Value, as floating-point, to record in the table.
+        pos : int, optional
+            Position where to record value. Defaults to 0.
+        
+        """
+        [obj.put(value, pos) for obj in self._base_objs]
+
+    def get(self, pos):
+        """
+        Returns the value, as float, at specified position in the table.
+        
+        If the object has more than 1 tablestream, the default is to
+        return a list with the value of each table. User can call 
+        obj[x].get() to get the value of a specific table.
+        
+        Parameters:
+        
+        pos : int, optional
+            Position where to get value. Defaults to 0.
+        
+        """
+        values = [obj.get(pos) for obj in self._base_objs]
+        if len(values) == 1: return values[0]
+        else: return values
 
     def normalize(self):
         """
@@ -832,12 +870,10 @@ class PyoMatrixObject(object):
         
         Parameters:
         
-        value : float
-            Value, as floating-point, to record in the matrix.
         row : int, optional
-            Row position where to record value. Defaults to 0.
+            Row position where to get value. Defaults to 0.
         col : int, optional
-            Column position where to record value. Defaults to 0.
+            Column position where to get value. Defaults to 0.
         
         """
         values = [obj.get(row, col) for obj in self._base_objs]

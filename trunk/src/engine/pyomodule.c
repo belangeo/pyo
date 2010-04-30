@@ -230,6 +230,22 @@ sndinfo(PyObject *self, PyObject *args) {
     return sndinfo;
 }    
 
+#define savefile_info \
+"\nCreates an audio file from a list of floats.\n\nsavefile(samples, path, sr=44100, channels=1, format=0)\n\nParameters:\n\n    \
+samples : list of floats\n        list of samples data, or list of list of samples data if more than 1 channels.\n    \
+path : string\n        Full path (including extension) of the new file.\n    \
+sr : int, optional\n        Sampling rate of the new file. Defaults to 44100.\n    \
+channels : int, optional\n        number of channels of the new file. Defaults to 1.\n    \
+format : int, optional\n        Format type of the new file. Possible formats are:\n    \
+        0 : AIFF 32 bits float (Default)\n    \
+        1 : WAV 32 bits float\n    \
+        2 : AIFF 16 bit int\n    \
+        3 : WAV 16 bits int\n    \
+        4 : AIFF 24 bits int\n    \
+        5 : WAV 24 bits int\n    \
+        6 : AIFF 32 bits int\n    \
+        7 : WAV 32 bits int\n\n"
+
 static PyObject *
 savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     int i, j, size;
@@ -323,22 +339,6 @@ secToSamps(PyObject *self, PyObject *arg) {
     float sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
     return Py_BuildValue("i", (int)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
 }                         
-
-#define savefile_info \
-"\nCreates an audio file from a list of floats.\n\nsavefile(samples, path, sr=44100, channels=1, format=0)\n\nParameters:\n\n    \
-samples : list of floats\n        list of samples data, or list of list of samples data if more than 1 channels.\n    \
-path : string\n        Full path (including extension) of the new file.\n    \
-sr : int, optional\n        Sampling rate of the new file. Defaults to 44100.\n    \
-channels : int, optional\n        number of channels of the new file. Defaults to 1.\n    \
-format : int, optional\n        Format type of the new file. Possible formats are:\n    \
-        0 : AIFF 32 bits float (Default)\n    \
-        1 : WAV 32 bits float\n    \
-        2 : AIFF 16 bit int\n    \
-        3 : WAV 16 bits int\n    \
-        4 : AIFF 24 bits int\n    \
-        5 : WAV 24 bits int\n    \
-        6 : AIFF 32 bits int\n    \
-        7 : WAV 32 bits int\n\n"
 
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
