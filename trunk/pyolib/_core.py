@@ -520,6 +520,7 @@ class PyoTableObject(object):
     getSize() : Return table size in samples.
     view() : Opens a window showing the contents of the table.
     dump() : Print current status of the object's attributes.
+    save(path, format) : Writes the content of the table in an audio file.
     write(path) : Writes the content of the table into a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
@@ -564,6 +565,37 @@ class PyoTableObject(object):
         pp += '\n-----------------------------'
         return pp    
 
+    def save(self, path, format=0):
+        """
+        Writes the content of the table in an audio file.
+        
+        The sampling rate of the file is the sampling rate of the server
+        and the number of channels is the number of table streams of the
+        object.
+
+        Parameters:
+        
+        path : string
+            Full path (including extension) of the new file.
+        format : int, optional
+            Format type of the file. Possible formats are:
+                0 : AIFF 32 bits float (Default)
+                1 : WAV 32 bits float
+                2 : AIFF 16 bits int
+                3 : WAV 16 bits int
+                4 : AIFF 24 bits int
+                5 : WAV 24 bits int
+                6 : AIFF 32 bits int
+                7 : WAV 32 bits int
+
+        """
+        sr = int(self._base_objs[0].getServer().getSamplingRate())
+        if len(self._base_objs) == 1:
+            samples = self._base_objs[0].getTable()
+        else:
+            samples = [obj.getTable() for i, obj in enumerate(self._base_objs)]
+        savefile(samples, path, sr, len(self._base_objs), format)    
+    
     def write(self, path):
         """
         Writes the content of the table into a text file.
