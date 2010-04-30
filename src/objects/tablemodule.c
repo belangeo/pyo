@@ -227,6 +227,8 @@ static PyObject * HarmTable_setData(HarmTable *self, PyObject *arg) { SET_TABLE_
 static PyObject * HarmTable_normalize(HarmTable *self) { NORMALIZE };
 static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
 static PyObject * HarmTable_getViewTable(HarmTable *self) { GET_VIEW_TABLE };
+static PyObject * HarmTable_put(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * HarmTable_get(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 HarmTable_setSize(HarmTable *self, PyObject *value)
@@ -297,6 +299,8 @@ static PyMethodDef HarmTable_methods[] = {
 {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HarmTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)HarmTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)HarmTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"replace", (PyCFunction)HarmTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
 {NULL}  /* Sentinel */
 };
@@ -495,6 +499,8 @@ static PyObject * ChebyTable_setData(ChebyTable *self, PyObject *arg) { SET_TABL
 static PyObject * ChebyTable_normalize(ChebyTable *self) { NORMALIZE };
 static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
 static PyObject * ChebyTable_getViewTable(ChebyTable *self) { GET_VIEW_TABLE };
+static PyObject * ChebyTable_put(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * ChebyTable_get(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 ChebyTable_setSize(ChebyTable *self, PyObject *value)
@@ -565,6 +571,8 @@ static PyMethodDef ChebyTable_methods[] = {
 {"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)ChebyTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)ChebyTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
 {NULL}  /* Sentinel */
 };
@@ -696,6 +704,8 @@ static PyObject * HannTable_setData(HannTable *self, PyObject *arg) { SET_TABLE_
 static PyObject * HannTable_normalize(HannTable *self) { NORMALIZE };
 static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
 static PyObject * HannTable_getViewTable(HannTable *self) { GET_VIEW_TABLE };
+static PyObject * HannTable_put(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * HannTable_get(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 HannTable_setSize(HannTable *self, PyObject *value)
@@ -742,6 +752,8 @@ static PyMethodDef HannTable_methods[] = {
 {"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)HannTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)HannTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {NULL}  /* Sentinel */
 };
 
@@ -912,6 +924,8 @@ static PyObject * LinTable_setData(LinTable *self, PyObject *arg) { SET_TABLE_DA
 static PyObject * LinTable_normalize(LinTable *self) { NORMALIZE };
 static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
 static PyObject * LinTable_getViewTable(LinTable *self) { GET_VIEW_TABLE };
+static PyObject * LinTable_put(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * LinTable_get(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 LinTable_setSize(LinTable *self, PyObject *value)
@@ -1012,6 +1026,8 @@ static PyMethodDef LinTable_methods[] = {
 {"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)LinTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)LinTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getPoints", (PyCFunction)LinTable_getPoints, METH_NOARGS, "Return the list of points."},
 {"replace", (PyCFunction)LinTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
 {NULL}  /* Sentinel */
@@ -1186,6 +1202,8 @@ static PyObject * CosTable_setData(CosTable *self, PyObject *arg) { SET_TABLE_DA
 static PyObject * CosTable_normalize(CosTable *self) { NORMALIZE };
 static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
 static PyObject * CosTable_getViewTable(CosTable *self) { GET_VIEW_TABLE };
+static PyObject * CosTable_put(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * CosTable_get(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 CosTable_setSize(CosTable *self, PyObject *value)
@@ -1286,6 +1304,8 @@ static PyMethodDef CosTable_methods[] = {
 {"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)CosTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)CosTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getPoints", (PyCFunction)CosTable_getPoints, METH_NOARGS, "Return the list of points."},
 {"replace", (PyCFunction)CosTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
 {NULL}  /* Sentinel */
@@ -1487,6 +1507,8 @@ static PyObject * CurveTable_setData(CurveTable *self, PyObject *arg) { SET_TABL
 static PyObject * CurveTable_normalize(CurveTable * self) { NORMALIZE };
 static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
 static PyObject * CurveTable_getViewTable(CurveTable *self) { GET_VIEW_TABLE };
+static PyObject * CurveTable_put(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * CurveTable_get(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 CurveTable_setTension(CurveTable *self, PyObject *value)
@@ -1628,6 +1650,8 @@ static PyMethodDef CurveTable_methods[] = {
 {"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)CurveTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)CurveTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)CurveTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getPoints", (PyCFunction)CurveTable_getPoints, METH_NOARGS, "Return the list of points."},
 {"setTension", (PyCFunction)CurveTable_setTension, METH_O, "Sets the curvature tension."},
 {"setBias", (PyCFunction)CurveTable_setBias, METH_O, "Sets the curve bias."},
@@ -1789,6 +1813,9 @@ static PyObject * SndTable_getTableStream(SndTable* self) { GET_TABLE_STREAM };
 static PyObject * SndTable_setData(SndTable *self, PyObject *arg) { SET_TABLE_DATA };
 static PyObject * SndTable_normalize(SndTable *self) { NORMALIZE };
 static PyObject * SndTable_getTable(SndTable *self) { GET_TABLE };
+static PyObject * SndTable_put(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * SndTable_get(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
 static PyObject * 
 SndTable_getViewTable(SndTable *self) { 
     int i, j, y;
@@ -1859,6 +1886,8 @@ static PyMethodDef SndTable_methods[] = {
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+{"put", (PyCFunction)SndTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)SndTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS|METH_KEYWORDS, "Load a new sound in the table."},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
@@ -1974,9 +2003,10 @@ static int
 NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
 {    
     int i;
-    static char *kwlist[] = {"length", NULL};
+    PyObject *inittmp=NULL;
+    static char *kwlist[] = {"length", "init", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f", kwlist, &self->length))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|O", kwlist, &self->length, &inittmp))
         return -1; 
 
     float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
@@ -1988,6 +2018,11 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
     }
     
     TableStream_setSize(self->tablestream, self->size);
+
+    if (inittmp) {
+        PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
+    }
+    
     TableStream_setData(self->tablestream, self->data);
 
     Py_INCREF(self);
@@ -2000,6 +2035,8 @@ static PyObject * NewTable_setData(NewTable *self, PyObject *arg) { SET_TABLE_DA
 static PyObject * NewTable_normalize(NewTable *self) { NORMALIZE };
 static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
 static PyObject * NewTable_getViewTable(NewTable *self) { GET_VIEW_TABLE };
+static PyObject * NewTable_put(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * NewTable_get(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject *
 NewTable_getSize(NewTable *self)
@@ -2020,6 +2057,34 @@ NewTable_getRate(NewTable *self)
     return PyFloat_FromDouble(sr / self->size);
 };
 
+static PyObject *
+NewTable_setTable(NewTable *self, PyObject *value)
+{
+    int i;
+    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "Arg must be a list.");
+        return PyInt_FromLong(-1);
+    }
+    
+    int size = PyList_Size(value);
+    if (size != self->size) {
+        PyErr_SetString(PyExc_TypeError, "New table must be of the same size as actual table.");
+        return PyInt_FromLong(-1);
+    }
+    
+    for(i=0; i<self->size; i++) {
+        self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(value, i)));
+    }
+    
+    Py_RETURN_NONE;    
+}
+
 static PyMemberDef NewTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
@@ -2029,10 +2094,13 @@ static PyMemberDef NewTable_members[] = {
 static PyMethodDef NewTable_methods[] = {
 {"getServer", (PyCFunction)NewTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)NewTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"setTable", (PyCFunction)NewTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getViewTable", (PyCFunction)NewTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+{"put", (PyCFunction)NewTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)NewTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getLength", (PyCFunction)NewTable_getLength, METH_NOARGS, "Return the length of the table in seconds."},
 {"getRate", (PyCFunction)NewTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},

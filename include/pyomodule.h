@@ -352,6 +352,38 @@ extern PyTypeObject M_TanType;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+
+#define TABLE_PUT \
+    float val; \
+    int pos = 0; \
+    static char *kwlist[] = {"value", "pos", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|i", kwlist, &val, &pos)) \
+        return PyInt_FromLong(-1); \
+ \
+    if (pos >= self->size) { \
+        PyErr_SetString(PyExc_TypeError, "position outside of table boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    self->data[pos] = val; \
+ \
+    Py_RETURN_NONE;
+
+#define TABLE_GET \
+    int pos; \
+    static char *kwlist[] = {"pos", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i", kwlist, &pos)) \
+        return PyInt_FromLong(-1); \
+ \
+    if (pos >= self->size) { \
+        PyErr_SetString(PyExc_TypeError, "position outside of table boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    return PyFloat_FromDouble(self->data[pos]);
+
 /* Matrix macros */
 #define MATRIX_BLUR \
     int i,j; \
