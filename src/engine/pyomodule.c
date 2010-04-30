@@ -231,6 +231,81 @@ sndinfo(PyObject *self, PyObject *args) {
 }    
 
 static PyObject *
+savefile(PyObject *self, PyObject *args, PyObject *kwds) {
+    int i, j, size;
+    char *recpath;
+    PyObject *samples;
+    float *sampsarray;
+    int sr = 44100;
+    int channels = 1;
+    int format = 0;
+    static char *kwlist[] = {"samples", "path", "sr", "channels", "format", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iii", kwlist, &samples, &recpath, &sr, &channels, &format))
+        return PyInt_FromLong(-1);
+    
+    SNDFILE *recfile;
+    SF_INFO recinfo;
+    recinfo.samplerate = sr;
+    recinfo.channels = channels;
+    switch (format) {
+        case 0:
+            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
+            break;
+        case 1:    
+            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+            break;
+        case 2:
+            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_16;
+            break;
+        case 3:    
+            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+            break;
+        case 4:
+            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_24;
+            break;
+        case 5:    
+            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+            break;
+        case 6:
+            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_32;
+            break;
+        case 7:    
+            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
+            break;
+    }
+    
+    if (channels == 1) {
+        size = PyList_Size(samples);
+        sampsarray = (float *)malloc(size * sizeof(float));
+        for (i=0; i<size; i++) {
+            sampsarray[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(samples, i));
+        }
+    }
+    else {
+        if (PyList_Size(samples) != channels) {
+            printf("Samples list size and channels must be the same!\n");
+            return PyInt_FromLong(-1);
+        }
+        size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
+        sampsarray = (float *)malloc(size * sizeof(float));
+        for (i=0; i<(size/channels); i++) {
+            for (j=0; j<channels; j++) {
+                sampsarray[i*channels+j] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
+            }
+        }    
+    }    
+    if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
+        printf ("Not able to open output file %s.\n", recpath) ;
+    }
+    sf_write_float(recfile, sampsarray, size);
+    sf_close(recfile);
+    free(sampsarray);
+    
+    Py_RETURN_NONE;    
+}
+
+static PyObject *
 midiToHz(PyObject *self, PyObject *arg) {
     return Py_BuildValue("f", 8.175798 * powf(1.0594633, PyFloat_AsDouble(PyNumber_Float(arg))));
 }    
@@ -249,6 +324,22 @@ secToSamps(PyObject *self, PyObject *arg) {
     return Py_BuildValue("i", (int)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
 }                         
 
+#define savefile_info \
+"\nCreates an audio file from a list of floats.\n\nsavefile(samples, path, sr=44100, channels=1, format=0)\n\nParameters:\n\n    \
+samples : list of floats\n        list of samples data, or list of list of samples data if more than 1 channels.\n    \
+path : string\n        Full path (including extension) of the new file.\n    \
+sr : int, optional\n        Sampling rate of the new file. Defaults to 44100.\n    \
+channels : int, optional\n        number of channels of the new file. Defaults to 1.\n    \
+format : int, optional\n        Format type of the new file. Possible formats are:\n    \
+        0 : AIFF 32 bits float (Default)\n    \
+        1 : WAV 32 bits float\n    \
+        2 : AIFF 16 bit int\n    \
+        3 : WAV 16 bits int\n    \
+        4 : AIFF 24 bits int\n    \
+        5 : WAV 24 bits int\n    \
+        6 : AIFF 32 bits int\n    \
+        7 : WAV 32 bits int\n\n"
+
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
@@ -263,6 +354,7 @@ static PyMethodDef pyo_functions[] = {
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Converts an returns a number of samples in seconds."},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, "Converts an returns a seconds value in number of samples."},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, duration in seconds, sampling rate and number of channels of the given sound file."},
+{"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {NULL, NULL, 0, NULL},
 };
 
