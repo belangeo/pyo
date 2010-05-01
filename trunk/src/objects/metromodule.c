@@ -292,7 +292,7 @@ Metro_new,                 /* tp_new */
 };
 
 /****************/
-/**** Cloud *****/
+/**** Clouder *****/
 /****************/
 typedef struct {
     pyo_audio_HEAD
@@ -300,92 +300,92 @@ typedef struct {
     Stream *density_stream;
     int modebuffer[1];
     int poly;
-    int wait;
-    unsigned int wait_count;
-} Cloud;
+    int voiceCount;
+    float *buffer_streams;
+} Clouder;
 
 static void
-Cloud_generate_i(Cloud *self) {
-    float maxrnd, val;
+Clouder_generate_i(Clouder *self) {
     int i, rnd;
-    
+
     float dens = PyFloat_AS_DOUBLE(self->density);
-    if (dens <= 0.0) {
+    if (dens <= 0.0)
         dens = 0.0;
-        maxrnd = 32768;
-    }    
-    else
-        maxrnd = (1.0 / dens) * 1500 * self->poly;
+    else if (dens > self->sr)
+        dens = self->sr;
+
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
     
+    dens *= 0.5;
     for (i=0; i<self->bufsize; i++) {
-        val = 0;
-        if (self->wait_count >= self->wait && dens > 0.0) {
-            rnd = (int)(rand()/(float)(RAND_MAX)*maxrnd);
-            if (rnd == 0) {
-                val = 1.0;
-                self->wait_count = 0;
-            }
-        }
-        
-        self->data[i] = val;
-        self->wait_count++;
+        rnd = (int)(rand() / (float)RAND_MAX * self->sr);
+        if (rnd < dens) {
+            self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
+            if (self->voiceCount == self->poly)
+                self->voiceCount = 0;
+        }        
     }
 }
 
 static void
-Cloud_generate_a(Cloud *self) {
-    float maxrnd, val, dens;
+Clouder_generate_a(Clouder *self) {
+    float dens;
     int i, rnd;
     
     float *density = Stream_getData((Stream *)self->density_stream);
+
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
     
     for (i=0; i<self->bufsize; i++) {
         dens = density[i];
-        if (dens <= 0.0) {
+        if (dens <= 0.0)
             dens = 0.0;
-            maxrnd = 32768;
-        }    
-        else
-            maxrnd = (1.0 / (dens*dens)) * 1000 * self->poly;
+        else if (dens > self->sr)
+            dens = self->sr;
         
-        val = 0;
-        if (self->wait_count >= self->wait && dens > 0.0) {
-            rnd = (int)(rand()/(float)(RAND_MAX)*maxrnd);
-            if (rnd == 0) {
-                val = 1.0;
-                self->wait_count = 0;
-            }
-        }
-        
-        self->data[i] = val;
-        self->wait_count++;
+        dens *= 0.5;
+        rnd = (int)(rand() / (float)RAND_MAX * self->sr);
+        if (rnd < dens) {
+            self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
+            if (self->voiceCount == self->poly)
+                self->voiceCount = 0;
+        } 
     }
 }
 
+float *
+Clouder_getSamplesBuffer(Clouder *self)
+{
+    return (float *)self->buffer_streams;
+}    
 
 static void
-Cloud_setProcMode(Cloud *self)
+Clouder_setProcMode(Clouder *self)
 {
     int procmode = self->modebuffer[0];
     switch (procmode) {
         case 0:        
-            self->proc_func_ptr = Cloud_generate_i;
+            self->proc_func_ptr = Clouder_generate_i;
             break;
         case 1:    
-            self->proc_func_ptr = Cloud_generate_a;
+            self->proc_func_ptr = Clouder_generate_a;
             break;
     }
 }
 
 static void
-Cloud_compute_next_data_frame(Cloud *self)
+Clouder_compute_next_data_frame(Clouder *self)
 {
     (*self->proc_func_ptr)(self);    
     Stream_setData(self->stream, self->data);
 }
 
 static int
-Cloud_traverse(Cloud *self, visitproc visit, void *arg)
+Clouder_traverse(Clouder *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->density);    
@@ -394,7 +394,7 @@ Cloud_traverse(Cloud *self, visitproc visit, void *arg)
 }
 
 static int 
-Cloud_clear(Cloud *self)
+Clouder_clear(Clouder *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->density);    
@@ -403,39 +403,38 @@ Cloud_clear(Cloud *self)
 }
 
 static void
-Cloud_dealloc(Cloud* self)
+Clouder_dealloc(Clouder* self)
 {
     free(self->data);
-    Cloud_clear(self);
+    free(self->buffer_streams);
+    Clouder_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Cloud_deleteStream(Cloud *self) { DELETE_STREAM };
+static PyObject * Clouder_deleteStream(Clouder *self) { DELETE_STREAM };
 
 static PyObject *
-Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    Cloud *self;
-    self = (Cloud *)type->tp_alloc(type, 0);
+    Clouder *self;
+    self = (Clouder *)type->tp_alloc(type, 0);
     
-    self->density = PyFloat_FromDouble(0.5);
+    self->density = PyFloat_FromDouble(10.0);
     self->poly = 1;
+    self->voiceCount = 0;
 	self->modebuffer[0] = 0;
     
     INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
-    self->mode_func_ptr = Cloud_setProcMode;
+    Stream_setFunctionPtr(self->stream, Clouder_compute_next_data_frame);
+    self->mode_func_ptr = Clouder_setProcMode;
     
     Stream_setStreamActive(self->stream, 0);
-
-    self->wait = (int)(0.001 * self->sr);
-    self->wait_count = self->wait;
     
     return (PyObject *)self;
 }
 
 static int
-Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
+Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
 {
     int i;
     PyObject *densitytmp=NULL;
@@ -456,23 +455,22 @@ Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
 
     srand((unsigned)(time(0)));
 
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }    
+    self->buffer_streams = (float *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(float));
+   
     Stream_setData(self->stream, self->data);
     
     Py_INCREF(self);
     return 0;
 }
 
-static PyObject * Cloud_getServer(Cloud* self) { GET_SERVER };
-static PyObject * Cloud_getStream(Cloud* self) { GET_STREAM };
+static PyObject * Clouder_getServer(Clouder* self) { GET_SERVER };
+static PyObject * Clouder_getStream(Clouder* self) { GET_STREAM };
 
-static PyObject * Cloud_play(Cloud *self) { PLAY };
-static PyObject * Cloud_stop(Cloud *self) { STOP };
+static PyObject * Clouder_play(Clouder *self) { PLAY };
+static PyObject * Clouder_stop(Clouder *self) { STOP };
 
 static PyObject *
-Cloud_setDensity(Cloud *self, PyObject *arg)
+Clouder_setDensity(Clouder *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 	
@@ -505,10 +503,166 @@ Cloud_setDensity(Cloud *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyMemberDef Clouder_members[] = {
+{"server", T_OBJECT_EX, offsetof(Clouder, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Clouder, stream), 0, "Stream object."},
+{"density", T_OBJECT_EX, offsetof(Clouder, density), 0, "Clouder density factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Clouder_methods[] = {
+{"getServer", (PyCFunction)Clouder_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Clouder_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Clouder_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Clouder_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Clouder_stop, METH_NOARGS, "Stops computing."},
+{"setDensity", (PyCFunction)Clouder_setDensity, METH_O, "Sets density factor."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject ClouderType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Clouder_base",         /*tp_name*/
+sizeof(Clouder),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Clouder_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Clouder objects. Create a cloud of triggers.",           /* tp_doc */
+(traverseproc)Clouder_traverse,   /* tp_traverse */
+(inquiry)Clouder_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Clouder_methods,             /* tp_methods */
+Clouder_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)Clouder_init,      /* tp_init */
+0,                         /* tp_alloc */
+Clouder_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* Cloud streamer object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    Clouder *mainPlayer;
+    int chnl; 
+} Cloud;
+
+static void
+Cloud_setProcMode(Cloud *self) {}
+
+static void
+Cloud_compute_next_data_frame(Cloud *self)
+{
+    int i;
+    float *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = Clouder_getSamplesBuffer((Clouder *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Cloud_traverse(Cloud *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+Cloud_clear(Cloud *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+Cloud_dealloc(Cloud* self)
+{
+    free(self->data);
+    Cloud_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Cloud_deleteStream(Cloud *self) { DELETE_STREAM };
+
+static PyObject *
+Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Cloud *self;
+    self = (Cloud *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
+    self->mode_func_ptr = Cloud_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL;
+    
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        return -1; 
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (Clouder *)maintmp;
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Cloud_compute_next_data_frame((Cloud *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Cloud_getServer(Cloud* self) { GET_SERVER };
+static PyObject * Cloud_getStream(Cloud* self) { GET_STREAM };
+
+static PyObject * Cloud_play(Cloud *self) { PLAY };
+static PyObject * Cloud_out(Cloud *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Cloud_stop(Cloud *self) { STOP };
+
 static PyMemberDef Cloud_members[] = {
 {"server", T_OBJECT_EX, offsetof(Cloud, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Cloud, stream), 0, "Stream object."},
-{"density", T_OBJECT_EX, offsetof(Cloud, density), 0, "Cloud density factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -517,8 +671,8 @@ static PyMethodDef Cloud_methods[] = {
 {"_getStream", (PyCFunction)Cloud_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Cloud_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Cloud_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Cloud_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Cloud_stop, METH_NOARGS, "Stops computing."},
-{"setDensity", (PyCFunction)Cloud_setDensity, METH_O, "Sets density factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -543,8 +697,8 @@ sizeof(Cloud),         /*tp_basicsize*/
 0,                         /*tp_getattro*/
 0,                         /*tp_setattro*/
 0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Cloud objects. Create a cloud of triggers.",           /* tp_doc */
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"Cloud objects. Reads a channel from a Clouder.",           /* tp_doc */
 (traverseproc)Cloud_traverse,   /* tp_traverse */
 (inquiry)Cloud_clear,           /* tp_clear */
 0,		               /* tp_richcompare */

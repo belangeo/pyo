@@ -516,6 +516,11 @@ init_pyo(void)
     Py_INCREF(&MetroType);
     PyModule_AddObject(m, "Metro_base", (PyObject *)&MetroType);
 
+    if (PyType_Ready(&ClouderType) < 0)
+        return;
+    Py_INCREF(&ClouderType);
+    PyModule_AddObject(m, "Clouder_base", (PyObject *)&ClouderType);
+
     if (PyType_Ready(&CloudType) < 0)
         return;
     Py_INCREF(&CloudType);
