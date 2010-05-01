@@ -31,7 +31,7 @@ tabs = []
 trtabs = []
 trrnds = []
 
-lfo = Phasor(.025)
+lfo = Phasor(.025, mul=10)
 cl = Cloud(density=lfo, poly=num*olaps).play()
 
 for i in range(num):
@@ -41,7 +41,7 @@ for j in range(olaps):
     offset = j * num
     for i in range(num):
         index = i + offset
-        trrnds.append(TrigRand(cl[index], .5, 2))
+        trrnds.append(TrigChoice(cl[index], [.5,.75,1,1.25,1.5,2]))
         trtabs.append(TrigEnv(cl[index], table=tabs[i], dur=1./tabs[i].getRate()*trrnds[index]))
 
 mix = Mix(trtabs, 2)
