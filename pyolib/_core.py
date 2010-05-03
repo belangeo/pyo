@@ -1140,7 +1140,7 @@ class Sig(PyoObject):
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
-        self._map_list = [SLMap(0, 1, "lin", "value", 0)]
+        self._map_list = [SLMap(0, 1, "lin", "value", self._value)]
         PyoObject.ctrl(self, map_list, title)
     
     @property

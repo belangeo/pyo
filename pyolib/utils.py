@@ -571,3 +571,133 @@ class SampHold(PyoObject):
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)
+
+class Compare(PyoObject):
+    """
+    Comparison object.
+    
+    Compare evaluates a comparison between a PyoObject and a number or
+    an other PyoObject and outputs 1.0, as audio stream, if the comparison 
+    is true, otherwise it outputs 0.0.
+ 
+    Parent class: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal.
+    comp : float or PyoObject
+        comparison signal.
+    mode : string, optional
+        Comparison operator as a string. Allowed operator are "<", "<=",
+        ">", ">=", "==", "!=". Default to "<".
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setComp(x, fadetime) : Replace the `comp` attribute.
+    setMode(x) : Replace the `mode` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal.
+    comp : float or PyoObject. Comparison signal.
+    mode : string. Comparison operator.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SineLoop(freq=200, feedback=.1)
+    >>> b = SineLoop(freq=150, feedback=.1)
+    >>> ph = Phasor(freq=1)
+    >>> ch = Compare(input=ph, comp=0.5, mode="<=")
+    >>> out = Selector(inputs=[a,b], voice=Port(ch), mul=.5).out()
+    
+    """
+    def __init__(self, input, comp, mode="<", mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._comp = comp
+        self._mode = mode
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, comp, mode, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mode, mul, add)
+        self._base_objs = [Compare_base(wrap(in_fader,i), wrap(comp,i), wrap(mode,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'comp', 'mode', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1):
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setComp(self, x):
+        """
+        Replace the `comp` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New comparison signal.
+
+        """
+        self._comp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setComp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setMode(self, x):
+        """
+        Replace the `mode` attribute. 
+        
+        Allowed operator are "<", "<=", ">", ">=", "==", "!=".
+        
+        Parameters:
+
+        x : string
+            New `mode` attribute.
+
+        """
+        self._mode = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def comp(self):
+        """PyoObject. Comparison signal.""" 
+        return self._comp
+    @comp.setter
+    def comp(self, x): self.setComp(x)
+
+    @property
+    def mode(self):
+        """string. Comparison operator.""" 
+        return self._mode
+    @mode.setter
+    def mode(self, x): self.setMode(x)

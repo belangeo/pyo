@@ -380,6 +380,11 @@ init_pyo(void)
     Py_INCREF(&DummyType);
     PyModule_AddObject(m, "Dummy_base", (PyObject *)&DummyType);
 
+    if (PyType_Ready(&CompareType) < 0)
+        return;
+    Py_INCREF(&CompareType);
+    PyModule_AddObject(m, "Compare_base", (PyObject *)&CompareType);
+    
     if (PyType_Ready(&MixType) < 0)
         return;
     Py_INCREF(&MixType);
