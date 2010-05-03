@@ -577,8 +577,8 @@ class Compare(PyoObject):
     Comparison object.
     
     Compare evaluates a comparison between a PyoObject and a number or
-    an other PyoObject and outputs 1.0, as audio stream, if the comparison 
-    is true, otherwise it outputs 0.0.
+    between two PyoObjects and outputs 1.0, as audio stream, if the
+    comparison is true, otherwise outputs 0.0.
  
     Parent class: PyoObject
    
