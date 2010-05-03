@@ -309,6 +309,7 @@ class SfMarkerShuffler(PyoObject):
     
     setSpeed(x) : Replace the `speed` attribute.
     setInterp(x) : Replace the `interp` attribute.
+    getMarkers() : Returns a list of marker time values in samples.
     
     Attributes:
     
@@ -342,10 +343,10 @@ class SfMarkerShuffler(PyoObject):
                 sf = aifc.open(wrap(path,i))
                 markerstmp = sf.getmarkers()
                 sf.close()
-                markers = [m[1] for m in markerstmp]
+                self._markers = [m[1] for m in markerstmp]
             except:
-                markers = []    
-            self._base_players.append(SfMarkerShuffler_base(wrap(path,i), markers, wrap(speed,i), wrap(interp,i)))
+                self._markers = []    
+            self._base_players.append(SfMarkerShuffler_base(wrap(path,i), self._markers, wrap(speed,i), wrap(interp,i)))
         for i in range(lmax * self._snd_chnls):
             j = i / self._snd_chnls
             self._base_objs.append(SfMarkerShuffle_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
@@ -410,6 +411,13 @@ class SfMarkerShuffler(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
+    def getMarkers(self):
+        """
+        Returns a list of marker time values in samples.
+        
+        """
+        return self._markers
+        
     def ctrl(self, map_list=None, title=None):
         self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title)
