@@ -84,6 +84,7 @@ extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
 
 extern PyTypeObject DummyType;
+extern PyTypeObject CompareType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;
 extern PyTypeObject SigToType;
@@ -814,9 +815,9 @@ extern PyTypeObject M_TanType;
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         tmp = mul[i]; \
-        if (tmp < 0.0002 && tmp > -0.0002) \
-            tmp = 0.0002; \
-        val = tmp * old + add; \
+        if (tmp < 0.00001 && tmp > -0.00001) \
+            tmp = 0.00001; \
+        val = old / tmp + add; \
         self->data[i] = val; \
     }
 
@@ -828,9 +829,9 @@ extern PyTypeObject M_TanType;
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         tmp = mul[i]; \
-        if (tmp < 0.0002 && tmp > -0.0002) \
-            tmp = 0.0002; \
-        val = tmp * old + add[i]; \
+        if (tmp < 0.00001 && tmp > -0.00001) \
+            tmp = 0.00001; \
+        val = old / tmp + add[i]; \
         self->data[i] = val; \
     }
 
@@ -864,9 +865,9 @@ extern PyTypeObject M_TanType;
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         tmp = mul[i]; \
-        if (tmp < 0.0002 && tmp > -0.0002) \
-            tmp = 0.0002; \
-        val = tmp * old - add[i]; \
+        if (tmp < 0.00001 && tmp > -0.00001) \
+            tmp = 0.00001; \
+        val = old / tmp - add[i]; \
         self->data[i] = val; \
     }
 

@@ -1412,3 +1412,420 @@ SampHold_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 SampHold_new,                                     /* tp_new */
 };
+
+/************/
+/* Compare */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *comp;
+    Stream *comp_stream;
+    float (*compare_func_ptr)(float, float); // true = 1.0, false = 0.0
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Compare;
+
+static float
+Compare_lt(float in, float comp) {
+    if (in < comp) { return 1.0; }
+    else { return 0.0; }
+}
+
+static float
+Compare_elt(float in, float comp) {
+    if (in <= comp) { return 1.0; }
+    else { return 0.0; }
+}
+
+static float
+Compare_gt(float in, float comp) {
+    if (in > comp) { return 1.0; }
+    else { return 0.0; }
+}
+
+static float
+Compare_egt(float in, float comp) {
+    if (in >= comp) { return 1.0; }
+    else { return 0.0; }
+}
+
+static float
+Compare_eq(float in, float comp) {
+    if (in >= (comp - 0.0001) && in <= (comp + 0.0001)) { return 1.0; }
+    else { return 0.0; }
+}
+
+static float
+Compare_neq(float in, float comp) {
+    if (in <= (comp - 0.0001) || in >= (comp + 0.0001)) { return 1.0; }
+    else { return 0.0; }
+}
+
+static void
+Compare_process_i(Compare *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float comp = PyFloat_AS_DOUBLE(self->comp);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = (*self->compare_func_ptr)(in[i], comp);
+    }
+}
+
+static void
+Compare_process_a(Compare *self) {
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *comp = Stream_getData((Stream *)self->comp_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = (*self->compare_func_ptr)(in[i], comp[i]);
+    }
+}
+
+static void Compare_postprocessing_ii(Compare *self) { POST_PROCESSING_II };
+static void Compare_postprocessing_ai(Compare *self) { POST_PROCESSING_AI };
+static void Compare_postprocessing_ia(Compare *self) { POST_PROCESSING_IA };
+static void Compare_postprocessing_aa(Compare *self) { POST_PROCESSING_AA };
+static void Compare_postprocessing_ireva(Compare *self) { POST_PROCESSING_IREVA };
+static void Compare_postprocessing_areva(Compare *self) { POST_PROCESSING_AREVA };
+static void Compare_postprocessing_revai(Compare *self) { POST_PROCESSING_REVAI };
+static void Compare_postprocessing_revaa(Compare *self) { POST_PROCESSING_REVAA };
+static void Compare_postprocessing_revareva(Compare *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Compare_setProcMode(Compare *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Compare_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Compare_process_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Compare_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Compare_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Compare_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Compare_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Compare_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Compare_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Compare_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Compare_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Compare_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Compare_compute_next_data_frame(Compare *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Compare_traverse(Compare *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->comp);
+    Py_VISIT(self->comp_stream);
+    return 0;
+}
+
+static int 
+Compare_clear(Compare *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->comp);
+    Py_CLEAR(self->comp_stream);
+    return 0;
+}
+
+static void
+Compare_dealloc(Compare* self)
+{
+    free(self->data);
+    Compare_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Compare_deleteStream(Compare *self) { DELETE_STREAM };
+
+static PyObject *
+Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Compare *self;
+    self = (Compare *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    self->compare_func_ptr = Compare_lt;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Compare_compute_next_data_frame);
+    self->mode_func_ptr = Compare_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Compare_init(Compare *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *comptmp, *modetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    char *mode = NULL;
+    
+    static char *kwlist[] = {"input", "comp", "mode", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &comptmp, &modetmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (comptmp) {
+        PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
+    }
+    
+    if (modetmp) {
+        PyObject_CallMethod((PyObject *)self, "setMode", "O", modetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Compare_compute_next_data_frame((Compare *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Compare_getServer(Compare* self) { GET_SERVER };
+static PyObject * Compare_getStream(Compare* self) { GET_STREAM };
+static PyObject * Compare_setMul(Compare *self, PyObject *arg) { SET_MUL };	
+static PyObject * Compare_setAdd(Compare *self, PyObject *arg) { SET_ADD };	
+static PyObject * Compare_setSub(Compare *self, PyObject *arg) { SET_SUB };	
+static PyObject * Compare_setDiv(Compare *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Compare_play(Compare *self) { PLAY };
+static PyObject * Compare_stop(Compare *self) { STOP };
+
+static PyObject * Compare_multiply(Compare *self, PyObject *arg) { MULTIPLY };
+static PyObject * Compare_inplace_multiply(Compare *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Compare_add(Compare *self, PyObject *arg) { ADD };
+static PyObject * Compare_inplace_add(Compare *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Compare_sub(Compare *self, PyObject *arg) { SUB };
+static PyObject * Compare_inplace_sub(Compare *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Compare_div(Compare *self, PyObject *arg) { DIV };
+static PyObject * Compare_inplace_div(Compare *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Compare_setComp(Compare *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+    
+	if (arg == NULL) {
+		Py_RETURN_NONE;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_XDECREF(self->comp);
+	if (isNumber == 1) {
+		self->comp = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->comp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->comp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->comp_stream);
+        self->comp_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Compare_setMode(Compare *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_RETURN_NONE;
+	}
+    
+	if (! PyString_Check(arg)) {
+        printf("mode should be a comparison operator as a string\n");
+		Py_RETURN_NONE;
+    }
+	
+	char *tmp;
+    tmp = PyString_AsString(arg);
+    
+    if (tmp == "<")
+        self->compare_func_ptr = Compare_lt;
+    else if (tmp == "<=")
+        self->compare_func_ptr = Compare_elt;
+    else if (tmp == ">")
+        self->compare_func_ptr = Compare_gt;
+    else if (tmp == ">=")
+        self->compare_func_ptr = Compare_egt;
+    else if (tmp == "==")
+        self->compare_func_ptr = Compare_eq;
+    else if (tmp == "!=")
+        self->compare_func_ptr = Compare_neq;
+    
+    Py_RETURN_NONE;
+}
+
+static PyMemberDef Compare_members[] = {
+{"server", T_OBJECT_EX, offsetof(Compare, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Compare, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Compare, input), 0, "Input sound object."},
+{"comp", T_OBJECT_EX, offsetof(Compare, comp), 0, "Comparison object."},
+{"mul", T_OBJECT_EX, offsetof(Compare, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Compare, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Compare_methods[] = {
+{"getServer", (PyCFunction)Compare_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Compare_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Compare_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Compare_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Compare_stop, METH_NOARGS, "Stops computing."},
+{"setComp", (PyCFunction)Compare_setComp, METH_O, "Sets the comparison object."},
+{"setMode", (PyCFunction)Compare_setMode, METH_O, "Sets the comparison mode."},
+{"setMul", (PyCFunction)Compare_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Compare_setAdd, METH_O, "Sets add factor."},
+{"setSub", (PyCFunction)Compare_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Compare_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Compare_as_number = {
+(binaryfunc)Compare_add,                         /*nb_add*/
+(binaryfunc)Compare_sub,                         /*nb_subtract*/
+(binaryfunc)Compare_multiply,                    /*nb_multiply*/
+(binaryfunc)Compare_div,                         /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Compare_inplace_add,                 /*inplace_add*/
+(binaryfunc)Compare_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Compare_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Compare_inplace_div,                 /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject CompareType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Compare_base",                                   /*tp_name*/
+sizeof(Compare),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Compare_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Compare_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Compare objects. Comparison between 2 audio streams.",           /* tp_doc */
+(traverseproc)Compare_traverse,                  /* tp_traverse */
+(inquiry)Compare_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Compare_methods,                                 /* tp_methods */
+Compare_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Compare_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Compare_new,                                     /* tp_new */
+};
