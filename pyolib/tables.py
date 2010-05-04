@@ -802,7 +802,154 @@ class CurveTable(PyoTableObject):
         return self.getPoints()
     @list.setter
     def list(self, x): self.replace(x)
+
+class ExpTable(PyoTableObject):
+    """
+    Construct a table from exponential interpolated segments.
+    
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    list : list, optional
+        List of tuples indicating location and value of each points 
+        in the table. The default, [(0,0.), (8192, 1.)], creates a 
+        exponential line from 0.0 at location 0 to 1.0 at the end of 
+        the table. Location must be an integer.
+    exp : float, optional
+        Exponent factor. Used to control the slope of the curve.
+        Defaults to 10.
+    inverse : boolean, optional
+        If True, downward slope will be inversed. Useful to create 
+        biexponential curves. Defaults to True.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
         
+    Methods:
+    
+    setSize(size) : Change the size of the table and rescale the envelope.
+    setExp(x) : Replace the `exp` attribute.
+    setInverse(x) : Replace the `inverse` attribute.
+    replace(list) : Draw a new envelope according to the `list` parameter.
+    
+    Notes:
+    
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros.
+    
+    Attributes:
+    
+    list : list
+        List of tuples [(location, value), ...].
+    exp : float
+        Exponent factor.    
+    inverse : boolean
+        Inversion of downward slope.
+    size : int, optional
+        Table size in samples.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = ExpTable([(0,0),(4096,1),(8192,0)], exp=5, inverse=True)
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
+    """
+    def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
+        self._size = size
+        self._exp = exp
+        self._inverse = inverse
+        self._base_objs = [ExpTable_base(list, exp, inverse, size)]
+
+    def __dir__(self):
+        return ['list', 'exp', 'inverse', 'size']
+        
+    def setSize(self, size):
+        """
+        Change the size of the table and rescale the envelope.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+
+    def setExp(self, x):
+        """
+        Replace the `exp` attribute.
+                
+        Parameters:
+        
+        x : float
+            New `exp` attribute.
+        
+        """
+        self._exp = x
+        [obj.setExp(x) for obj in self._base_objs]
+
+    def setInverse(self, x):
+        """
+        Replace the `inverse` attribute.
+                
+        Parameters:
+        
+        x : boolean
+            New `inverse` attribute.
+        
+        """
+        self._inverse = x
+        [obj.setInverse(x) for obj in self._base_objs]
+  
+    def replace(self, list):
+        """
+        Draw a new envelope according to the new `list` parameter.
+        
+        Parameters:
+        
+        list : list
+            List of tuples indicating location and value of each points 
+            in the table. Location must be integer.
+
+        """      
+        self._list = list
+        [obj.replace(list) for obj in self._base_objs]
+        
+    def getPoints(self):
+        return self._base_objs[0].getPoints()
+        
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def exp(self):
+        """float. Exponent factor.""" 
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
+
+    @property
+    def inverse(self):
+        """boolean. Inverse factor.""" 
+        return self._inverse
+    @inverse.setter
+    def inverse(self, x): self.setInverse(x)
+
+    @property
+    def list(self):
+        """list. List of tuples indicating location and value of each points in the table.""" 
+        return self.getPoints()
+    @list.setter
+    def list(self, x): self.replace(x)
+            
 class SndTable(PyoTableObject):
     """
     Load data from a soundfile into a function table.

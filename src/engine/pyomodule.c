@@ -454,6 +454,11 @@ init_pyo(void)
         return;
     Py_INCREF(&CurveTableType);
     PyModule_AddObject(m, "CurveTable_base", (PyObject *)&CurveTableType);
+
+    if (PyType_Ready(&ExpTableType) < 0)
+        return;
+    Py_INCREF(&ExpTableType);
+    PyModule_AddObject(m, "ExpTable_base", (PyObject *)&ExpTableType);
     
     if (PyType_Ready(&SndTableType) < 0)
         return;
