@@ -419,6 +419,11 @@ init_pyo(void)
         return;
     Py_INCREF(&LinsegType);
     PyModule_AddObject(m, "Linseg_base", (PyObject *)&LinsegType);
+
+    if (PyType_Ready(&ExpsegType) < 0)
+        return;
+    Py_INCREF(&ExpsegType);
+    PyModule_AddObject(m, "Expseg_base", (PyObject *)&ExpsegType);
     
     if (PyType_Ready(&TableStreamType) < 0)
         return;

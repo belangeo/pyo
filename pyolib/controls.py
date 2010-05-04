@@ -475,6 +475,152 @@ class Linseg(PyoObject):
     @loop.setter
     def loop(self, x): self.setLoop(x)
 
+class Expseg(PyoObject):
+    """
+    Trace a series of line segments between specified break-points. 
+
+    The play() method starts the envelope and is not called at the 
+    object creation time.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    list : list of tuples
+        Points used to construct the line segments. Each tuple is a
+        new point in the form (time, value). Times are given in seconds
+        and must be in increasing order.
+    loop : boolean, optional
+        Looping mode. Defaults to False.
+
+    Methods:
+
+    setList(x) : Replace the `list` attribute.
+    setLoop(x) : Replace the `loop` attribute.
+
+    Attributes:
+
+    list : list of tuples. Points used to construct the line segments.
+    loop : boolean. Looping mode.
+
+    Notes:
+
+    The out() method is bypassed. Linseg's signal can not be sent to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
+    >>> a = Sine(freq=l, mul=.5).out()
+    >>> # then call:
+    >>> l.play()
+
+    """
+    def __init__(self, list, loop=False, exp=10, inverse=True, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._list = list
+        self._loop = loop
+        self._exp = exp
+        self._inverse = inverse
+        self._mul = mul
+        self._add = add
+        loop, exp, inverse, mul, add, lmax = convertArgsToLists(loop, exp, inverse, mul, add)
+        self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['list', 'loop', 'exp', 'inverse', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1):
+        pass
+
+    def setList(self, x):
+        """
+        Replace the `list` attribute.
+
+        Parameters:
+
+        x : list of tuples
+            new `list` attribute.
+
+        """
+        self._list = x
+        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+
+    def setLoop(self, x):
+        """
+        Replace the `loop` attribute.
+
+        Parameters:
+
+        x : boolean
+            new `loop` attribute.
+
+        """
+        self._loop = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setExp(self, x):
+        """
+        Replace the `exp` attribute.
+
+        Parameters:
+
+        x : float
+            new `exp` attribute.
+
+        """
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInverse(self, x):
+        """
+        Replace the `inverse` attribute.
+
+        Parameters:
+
+        x : boolean
+            new `inver` attribute.
+
+        """
+        self._inverse = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def list(self):
+        """float. List of points (time, value).""" 
+        return self._list
+    @list.setter
+    def list(self, x): self.setList(x)
+
+    @property
+    def loop(self):
+        """boolean. Looping mode.""" 
+        return self._loop
+    @loop.setter
+    def loop(self, x): self.setLoop(x)
+
+    @property
+    def exp(self):
+        """float. Exponent factor.""" 
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
+
+    @property
+    def inverse(self):
+        """boolean. Inverse downward slope.""" 
+        return self._inverse
+    @inverse.setter
+    def inverse(self, x): self.setInverse(x)
+
 class SigTo(PyoObject):
     """
     Convert numeric value to PyoObject signal with ramp time.
