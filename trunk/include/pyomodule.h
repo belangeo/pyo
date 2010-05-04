@@ -97,6 +97,7 @@ extern PyTypeObject HannTableType;
 extern PyTypeObject LinTableType;
 extern PyTypeObject CosTableType;
 extern PyTypeObject CurveTableType;
+extern PyTypeObject ExpTableType;
 extern PyTypeObject SndTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;

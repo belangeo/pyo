@@ -1703,6 +1703,351 @@ CurveTable_new,                 /* tp_new */
 };
 
 /***********************/
+/* ExpTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    PyObject *pointslist;
+    float exp;
+    int inverse;
+} ExpTable;
+
+static void
+ExpTable_generate(ExpTable *self) {
+    Py_ssize_t i, j, steps;
+    Py_ssize_t listsize;
+    PyObject *tup;
+    int x1, x2, biexpon;
+    float y1, y2, range, inc, pointer, scl, exp; 
+    
+    for (i=0; i<self->size; i++) {
+        self->data[i] = 0.0;
+    }
+    
+    listsize = PyList_Size(self->pointslist);
+    int times[listsize];
+    float values[listsize];
+    
+    for (i=0; i<listsize; i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        times[i] = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        values[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));        
+    }
+
+    for(i=0; i<(listsize-1); i++) {
+        x1 = times[i];
+        x2 = times[i+1];   
+        y1 = values[i]; 
+        y2 = values[i+1];
+        
+        range = y2 - y1;
+        steps = x2 - x1;
+        inc = 1.0 / steps;
+        pointer = 0.0;
+        if (self->inverse == 1) {
+            if (range >= 0) {
+                for(j=0; j<steps; j++) {
+                    scl = powf(pointer, self->exp);
+                    self->data[x1+j] = scl * range + y1;
+                    pointer += inc;
+                }
+            }
+            else {
+                for(j=0; j<steps; j++) {
+                    scl = 1.0 - powf(1.0 - pointer, self->exp);
+                    self->data[x1+j] = scl * range + y1;
+                    pointer += inc;
+                }
+            }
+        }    
+        else {
+            for(j=0; j<steps; j++) {
+                scl = powf(pointer, self->exp);
+                self->data[x1+j] = scl * range + y1;
+                pointer += inc;
+            }
+        }    
+    }
+    
+    self->data[self->size] = y2;
+}
+
+static int
+ExpTable_traverse(ExpTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->pointslist);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+ExpTable_clear(ExpTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->pointslist);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+ExpTable_dealloc(ExpTable* self)
+{
+    free(self->data);
+    ExpTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    ExpTable *self;
+    
+    self = (ExpTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->pointslist = PyList_New(0);
+    self->size = 8192;
+    self->exp = 10.0;
+    self->inverse = 1;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+ExpTable_init(ExpTable *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pointslist=NULL;
+    
+    static char *kwlist[] = {"list", "exp", "inverse", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Ofii", kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
+        return -1; 
+    
+    if (pointslist) {
+        Py_INCREF(pointslist);
+        Py_DECREF(self->pointslist);
+        self->pointslist = pointslist;
+    }
+    else {
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+    }
+    
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
+    TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
+    ExpTable_generate(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * ExpTable_getServer(ExpTable* self) { GET_SERVER };
+static PyObject * ExpTable_getTableStream(ExpTable* self) { GET_TABLE_STREAM };
+static PyObject * ExpTable_setData(ExpTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * ExpTable_normalize(ExpTable * self) { NORMALIZE };
+static PyObject * ExpTable_getTable(ExpTable *self) { GET_TABLE };
+static PyObject * ExpTable_getViewTable(ExpTable *self) { GET_VIEW_TABLE };
+static PyObject * ExpTable_put(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * ExpTable_get(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+ExpTable_setExp(ExpTable *self, PyObject *value)
+{    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the exp attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyNumber_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The exp attribute value must be a float.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->exp = PyFloat_AsDouble(PyNumber_Float(value)); 
+    
+    ExpTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+ExpTable_setInverse(ExpTable *self, PyObject *value)
+{    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the inverse attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The inverse attribute value must be a boolean (True or False or 0 or 1).");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->inverse = PyInt_AsLong(value); 
+    
+    ExpTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+ExpTable_setSize(ExpTable *self, PyObject *value)
+{
+    Py_ssize_t i;
+    PyObject *tup, *x2;
+    int old_size, x1;
+    float factor;
+    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    old_size = self->size;
+    self->size = PyInt_AsLong(value); 
+    
+    factor = (float)(self->size) / old_size;
+    
+    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    Py_ssize_t listsize = PyList_Size(self->pointslist);
+    
+    PyObject *listtemp = PyList_New(0);
+    
+    for(i=0; i<(listsize); i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+    }
+    
+    Py_INCREF(listtemp);
+    Py_DECREF(self->pointslist);
+    self->pointslist = listtemp;
+    
+    ExpTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+ExpTable_getSize(ExpTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+ExpTable_getPoints(ExpTable *self)
+{
+    Py_INCREF(self->pointslist);
+    return self->pointslist;
+};
+
+static PyObject *
+ExpTable_replace(ExpTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value; 
+    
+    ExpTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef ExpTable_members[] = {
+{"server", T_OBJECT_EX, offsetof(ExpTable, server), 0, "Pyo server."},
+{"tablestream", T_OBJECT_EX, offsetof(ExpTable, tablestream), 0, "Table stream object."},
+{"pointslist", T_OBJECT_EX, offsetof(ExpTable, pointslist), 0, "Harmonics amplitude values."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef ExpTable_methods[] = {
+{"getServer", (PyCFunction)ExpTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)ExpTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getTableStream", (PyCFunction)ExpTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)ExpTable_setData, METH_O, "Sets the table from samples in a text file."},
+{"setSize", (PyCFunction)ExpTable_setSize, METH_O, "Sets the size of the table in samples"},
+{"getSize", (PyCFunction)ExpTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"put", (PyCFunction)ExpTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)ExpTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+{"getPoints", (PyCFunction)ExpTable_getPoints, METH_NOARGS, "Return the list of points."},
+{"setExp", (PyCFunction)ExpTable_setExp, METH_O, "Sets the exponent factor."},
+{"setInverse", (PyCFunction)ExpTable_setInverse, METH_O, "Sets the inverse factor."},
+{"replace", (PyCFunction)ExpTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{"normalize", (PyCFunction)ExpTable_normalize, METH_NOARGS, "Normalize table between -1 and 1."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject ExpTableType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.ExpTable_base",         /*tp_name*/
+sizeof(ExpTable),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)ExpTable_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,                         /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+"ExpTable objects. Generates a table filled with one or more straight lines.",  /* tp_doc */
+(traverseproc)ExpTable_traverse,   /* tp_traverse */
+(inquiry)ExpTable_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+ExpTable_methods,             /* tp_methods */
+ExpTable_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)ExpTable_init,      /* tp_init */
+0,                         /* tp_alloc */
+ExpTable_new,                 /* tp_new */
+};
+
+/***********************/
 /* SndTable structure */
 /***********************/
 typedef struct {

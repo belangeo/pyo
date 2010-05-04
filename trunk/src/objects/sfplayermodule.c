@@ -996,7 +996,7 @@ SfPlay_new,                 /* tp_new */
 };
 
 /************************************************************************************************/
-/* Sfplay streamer object per channel */
+/* Sfplay trig streamer object per channel */
 /************************************************************************************************/
 typedef struct {
     pyo_audio_HEAD
