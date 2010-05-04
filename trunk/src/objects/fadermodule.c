@@ -1205,3 +1205,443 @@ Linseg_members,             /* tp_members */
 0,                         /* tp_alloc */
 Linseg_new,                 /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pointslist;
+    int modebuffer[2];
+    double currentTime;
+    float currentValue;
+    float sampleToSec;
+    float inc;
+    float pointer;
+    float range;
+    float steps;
+    float *targets;
+    float *times;
+    int which;
+    int flag;
+    int newlist;
+    int loop;
+    int listsize;
+    float exp;
+    float exp_tmp;
+    int inverse;
+    int inverse_tmp;
+} Expseg;
+
+static void
+Expseg_convert_pointslist(Expseg *self) {
+    int i;
+    PyObject *tup;
+    
+    self->listsize = PyList_Size(self->pointslist);
+    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
+    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    for (i=0; i<self->listsize; i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
+        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+    }
+}
+
+static void 
+Expseg_reinit(Expseg *self) {
+    if (self->newlist == 1) {
+        Expseg_convert_pointslist((Expseg *)self);
+        self->newlist = 0;
+    }    
+    self->currentTime = 0.0;
+    self->currentValue = self->targets[0];
+    self->which = 0;
+    self->flag = 1;
+    self->exp = self->exp_tmp;
+    self->inverse = self->inverse_tmp;
+}
+
+static void
+Expseg_generate(Expseg *self) {
+    int i;
+    float scl;
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->flag == 1) {
+            if (self->currentTime >= self->times[self->which]) {
+                self->which++;
+                if (self->which == self->listsize) {
+                    if (self->loop == 1)
+                        Expseg_reinit((Expseg *)self);
+                    else {
+                        self->flag = 0;
+                        self->currentValue = self->targets[self->which-1];
+                    }    
+                }    
+                else {
+                    self->range = self->targets[self->which] - self->targets[self->which-1];
+                    self->steps = (int)((self->times[self->which] - self->times[self->which-1]) / self->sampleToSec);
+                    self->inc = 1.0 / self->steps;
+                    self->pointer = 0.0;                    
+                }    
+            }
+            if (self->currentTime <= self->times[self->listsize-1]) {
+                if (self->inverse == 1 && self->range < 0.0)
+                    scl = 1.0 - powf(1.0 - self->pointer, self->exp);
+                else
+                    scl = powf(self->pointer, self->exp);
+
+                self->currentValue = scl * self->range + self->targets[self->which-1];
+                self->pointer += self->inc;
+            }    
+            self->data[i] = self->currentValue;
+            self->currentTime += self->sampleToSec;    
+        }
+        else
+            self->data[i] = self->currentValue;
+    }
+}
+
+static void Expseg_postprocessing_ii(Expseg *self) { POST_PROCESSING_II };
+static void Expseg_postprocessing_ai(Expseg *self) { POST_PROCESSING_AI };
+static void Expseg_postprocessing_ia(Expseg *self) { POST_PROCESSING_IA };
+static void Expseg_postprocessing_aa(Expseg *self) { POST_PROCESSING_AA };
+static void Expseg_postprocessing_ireva(Expseg *self) { POST_PROCESSING_IREVA };
+static void Expseg_postprocessing_areva(Expseg *self) { POST_PROCESSING_AREVA };
+static void Expseg_postprocessing_revai(Expseg *self) { POST_PROCESSING_REVAI };
+static void Expseg_postprocessing_revaa(Expseg *self) { POST_PROCESSING_REVAA };
+static void Expseg_postprocessing_revareva(Expseg *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Expseg_setProcMode(Expseg *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Expseg_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Expseg_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Expseg_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Expseg_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Expseg_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Expseg_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Expseg_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Expseg_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Expseg_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Expseg_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Expseg_compute_next_data_frame(Expseg *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Expseg_traverse(Expseg *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pointslist);
+    return 0;
+}
+
+static int 
+Expseg_clear(Expseg *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pointslist);
+    return 0;
+}
+
+static void
+Expseg_dealloc(Expseg* self)
+{
+    free(self->data);
+    free(self->targets);
+    free(self->times);
+    Expseg_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Expseg_deleteStream(Expseg *self) { DELETE_STREAM };
+
+static PyObject *
+Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Expseg *self;
+    self = (Expseg *)type->tp_alloc(type, 0);
+    
+    self->loop = 0;
+    self->newlist = 1;
+    self->exp = self->exp_tmp = 10;
+    self->inverse = self->inverse_tmp = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Expseg_compute_next_data_frame);
+    self->mode_func_ptr = Expseg_setProcMode;
+    
+    Stream_setStreamActive(self->stream, 0);
+    
+    self->sampleToSec = 1. / self->sr;
+    
+    return (PyObject *)self;
+}
+
+static int
+Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
+    int i;
+    
+    static char *kwlist[] = {"list", "loop", "exp", "inverse", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|ifiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_INCREF(pointslist);
+    Py_XDECREF(self->pointslist);
+    self->pointslist = pointslist;
+    Expseg_convert_pointslist((Expseg *)self);
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }
+    Stream_setData(self->stream, self->data);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Expseg_getServer(Expseg* self) { GET_SERVER };
+static PyObject * Expseg_getStream(Expseg* self) { GET_STREAM };
+static PyObject * Expseg_setMul(Expseg *self, PyObject *arg) { SET_MUL };	
+static PyObject * Expseg_setAdd(Expseg *self, PyObject *arg) { SET_ADD };	
+static PyObject * Expseg_setSub(Expseg *self, PyObject *arg) { SET_SUB };	
+static PyObject * Expseg_setDiv(Expseg *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Expseg_play(Expseg *self) 
+{
+    Expseg_reinit((Expseg *)self);
+    PLAY
+};
+
+static PyObject * Expseg_stop(Expseg *self) { STOP };
+
+static PyObject * Expseg_multiply(Expseg *self, PyObject *arg) { MULTIPLY };
+static PyObject * Expseg_inplace_multiply(Expseg *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Expseg_add(Expseg *self, PyObject *arg) { ADD };
+static PyObject * Expseg_inplace_add(Expseg *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Expseg_sub(Expseg *self, PyObject *arg) { SUB };
+static PyObject * Expseg_inplace_sub(Expseg *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Expseg_div(Expseg *self, PyObject *arg) { DIV };
+static PyObject * Expseg_inplace_div(Expseg *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Expseg_setList(Expseg *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value; 
+    
+    self->newlist = 1;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Expseg_setLoop(Expseg *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->loop = PyInt_AsLong(arg);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Expseg_setExp(Expseg *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->exp_tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Expseg_setInverse(Expseg *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef Expseg_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Expseg, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Expseg, stream), 0, "Stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(Expseg, pointslist), 0, "List of target points."},
+    {"mul", T_OBJECT_EX, offsetof(Expseg, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Expseg, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Expseg_methods[] = {
+    {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Expseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Expseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Expseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+    {"setList", (PyCFunction)Expseg_setList, METH_O, "Sets target points list."},
+    {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, "Sets looping mode."},
+    {"setExp", (PyCFunction)Expseg_setExp, METH_O, "Sets exponent factor."},
+    {"setInverse", (PyCFunction)Expseg_setInverse, METH_O, "Sets inverse factor."},
+    {"setMul", (PyCFunction)Expseg_setMul, METH_O, "Sets Expseg mul factor."},
+    {"setAdd", (PyCFunction)Expseg_setAdd, METH_O, "Sets Expseg add factor."},
+    {"setSub", (PyCFunction)Expseg_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Expseg_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Expseg_as_number = {
+    (binaryfunc)Expseg_add,                      /*nb_add*/
+    (binaryfunc)Expseg_sub,                 /*nb_subtract*/
+    (binaryfunc)Expseg_multiply,                 /*nb_multiply*/
+    (binaryfunc)Expseg_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Expseg_inplace_add,              /*inplace_add*/
+    (binaryfunc)Expseg_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Expseg_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Expseg_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject ExpsegType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Expseg_base",         /*tp_name*/
+    sizeof(Expseg),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Expseg_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Expseg_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Expseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+    (traverseproc)Expseg_traverse,   /* tp_traverse */
+    (inquiry)Expseg_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Expseg_methods,             /* tp_methods */
+    Expseg_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Expseg_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Expseg_new,                 /* tp_new */
+};

@@ -54,6 +54,7 @@ extern PyTypeObject ScoreType;
 extern PyTypeObject FaderType;
 extern PyTypeObject AdsrType;
 extern PyTypeObject LinsegType;
+extern PyTypeObject ExpsegType;
 
 extern PyTypeObject RandiType;
 extern PyTypeObject RandhType;
