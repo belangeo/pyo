@@ -982,6 +982,187 @@ class TrigLinseg(PyoObject):
     @list.setter
     def list(self, x): self.setList(x)
 
+class TrigExpseg(PyoObject):
+    """
+    Exponential segments trigger.
+    
+    TrigExpseg starts reading break-points exponential segments each time 
+    it receives a trigger in its `input` parameter.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    list : list of tuples
+        Points used to construct the line segments. Each tuple is a
+        new point in the form (time, value). Times are given in seconds
+        and must be in increasing order.
+    exp : float, optional
+        Exponent factor. Used to control the slope of the curves.
+        Defaults to 10.
+    inverse : boolean, optional
+        If True, downward slope will be inversed. Useful to create 
+        biexponential curves. Defaults to True.
+    
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setList(x) : Replace the `list` attribute.
+    setExp(x) : Replace the `exp` attribute.
+    setInverse(x) : Replace the `inverse` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Audio trigger signal.
+    list : list of tuples. Points used to construct the line segments.
+    exp : float. Exponent factor.    
+    inverse : boolean. Inversion of downward slope.
+
+    Notes:
+
+    TrigExpseg will sends a trigger signal at the end of the playback. 
+    User can retreive the trigger streams by calling obj['trig']. 
+    Useful to synchronize other processes. 
+
+    The out() method is bypassed. TrigExpseg's signal can not be sent 
+    to audio outs.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro(1).play()
+    >>> pit = TrigExpseg(m, [(0,1000),(.25,1200),(.5,1000),(1,1000)])
+    >>> a = Sine(pit, mul=.3).out()
+    
+    """
+    def __init__(self, input, list, exp=10, inverse=True, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._list = list
+        self._exp = exp
+        self._inverse = inverse
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, exp, inverse, mul, add, lmax = convertArgsToLists(self._in_fader, exp, inverse, mul, add)
+        self._base_objs = [TrigExpseg_base(wrap(in_fader,i), list, wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._trig_objs = [TrigExpsegTrig_base(obj) for obj in self._base_objs]
+
+    def __dir__(self):
+        return ['input', 'list', 'exp', 'inverse', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
+
+    def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+        
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+
+    def play(self):
+        self._base_objs = [obj.play() for obj in self._base_objs]
+        self._trig_objs = [obj.play() for obj in self._trig_objs]
+        return self
+
+    def out(self, chnl=0, inc=1):
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setList(self, x):
+        """
+        Replace the `list` attribute.
+        
+        Parameters:
+
+        x : list of tuples
+            new `list` attribute.
+        
+        """
+        self._list = x
+        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+
+    def setExp(self, x):
+        """
+        Replace the `exp` attribute.
+
+        Parameters:
+
+        x : float
+            new `exp` attribute.
+
+        """
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInverse(self, x):
+        """
+        Replace the `inverse` attribute.
+
+        Parameters:
+
+        x : boolean
+            new `inverse` attribute.
+
+        """
+        self._inverse = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def list(self): return self._list
+    @list.setter
+    def list(self, x): self.setList(x)
+    @property
+    def exp(self): return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)
+    @property
+    def inverse(self): return self._inverse
+    @inverse.setter
+    def inverse(self, x): self.setInverse(x)
+
 class TrigXnoise(PyoObject):
     """
     Triggered X-class pseudo-random generator.
