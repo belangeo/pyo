@@ -1,23 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
+
 """
-Copyright 2010 Olivier Belanger
+Live convolution example. A white noise is filtered by four impulses
+taken from the input mic. Call r1.play(), r2.play(), r3.play(), r4.play()
+while making some noise in the mic to fill the impulse response tables.
+The slider handles the morphing between the four impulses.
 
-This file is part of pyo, a python module to help digital signal
-processing script creation.
+Circular convolution is very expensive, so keep TLEN (in samples) small.
 
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from pyo import *
 
@@ -46,6 +37,6 @@ pha.ctrl()
 
 t = NewTable(length=sampsToSec(TLEN), chnls=1)
 m = TableMorph(pha, t, [t1,t2,t3,t4])
-a = Convolve(sf, table=t, size=t.getSize(), mul=.2).out()
+a = Convolve(sf, table=t, size=t.getSize(), mul=.1).mix(2).out()
 
 s.gui(locals())

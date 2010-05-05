@@ -1,24 +1,5 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""
-Copyright 2010 Olivier Belanger
-
-This file is part of pyo, a python module to help digital signal
-processing script creation.
-
-pyo is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-pyo is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with pyo.  If not, see <http://www.gnu.org/licenses/>.
-"""
 from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
@@ -28,13 +9,12 @@ env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
 
 met = Metro(.1, 10).play()
 lfo = Phasor(.1, 0, .5, 0)
-amp = TrigEnv(met, env, mul=.1)
+amp = TrigEnv(met, env, mul=.2)
 pit = TrigXnoiseMidi(met, dist='loopseg', x1=1, x2=lfo, scale=1, mrange=(60,84))
 
 b = Osc(wav, pit,  mul=amp).out()
 
 s.gui(locals())
-
 
 ######################
 ######################
