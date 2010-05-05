@@ -935,3 +935,140 @@ class Hilbert(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Allpass(PyoObject):
+    """
+    Delay line based allpass filter.
+    
+    Allpass is based on the combination of feedforward and feedback comb
+    filter. This kind of filter is often used in simple digital reverb
+    implementations.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to filtered.
+    delay : float or PyoObject, optional
+        Delay time in seconds. Defaults to 0.01.
+    feedback : float or PyoObject, optional
+        Amount of output signal sent back into the delay line.
+        Defaults to 0.
+    maxdelay : float, optional
+        Maximum delay length in seconds. Available only at initialization. 
+        Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setDelay(x) : Replace the `delay` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to delayed.
+    delay : float or PyoObject. Delay time in seconds.
+    feedback : float or PyoObject. Amount of output signal sent back 
+        into the delay line.
+
+    Examples:
+
+    >>> # SIMPLE REVERB
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=0.25).mix(2).out()
+    >>> b1 = Allpass(a, delay=[.0204,.02011], feedback=0.25)
+    >>> b2 = Allpass(b1, delay=[.06653,.06641], feedback=0.31)
+    >>> b3 = Allpass(b2, delay=[.035007,.03504], feedback=0.4)
+    >>> b4 = Allpass(b3, delay=[.023021 ,.022987], feedback=0.55)
+    >>> c1 = Tone(b1, 5000, mul=0.2).out()
+    >>> c2 = Tone(b2, 3000, mul=0.2).out()
+    >>> c3 = Tone(b3, 1500, mul=0.2).out()
+    >>> c4 = Tone(b4, 500, mul=0.2).out()
+    
+    """
+    def __init__(self, input, delay=0.01, feedback=0, maxdelay=1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._delay = delay
+        self._feedback = feedback
+        self._maxdelay = maxdelay
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, delay, feedback, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
+        self._base_objs = [Allpass_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'delay', 'feedback', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDelay(self, x):
+        """
+        Replace the `delay` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `delay` attribute.
+
+        """
+        self._delay = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+                          SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filtered.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def delay(self):
+        """float or PyoObject. Delay time in seconds.""" 
+        return self._delay
+    @delay.setter
+    def delay(self, x): self.setDelay(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)

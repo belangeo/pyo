@@ -68,6 +68,7 @@ extern PyTypeObject EQType;
 extern PyTypeObject ToneType;
 extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;
+extern PyTypeObject AllpassType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject DegradeType;
