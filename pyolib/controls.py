@@ -477,7 +477,7 @@ class Linseg(PyoObject):
 
 class Expseg(PyoObject):
     """
-    Trace a series of line segments between specified break-points. 
+    Trace a series of exponential segments between specified break-points. 
 
     The play() method starts the envelope and is not called at the 
     object creation time.
@@ -492,26 +492,36 @@ class Expseg(PyoObject):
         and must be in increasing order.
     loop : boolean, optional
         Looping mode. Defaults to False.
+    exp : float, optional
+        Exponent factor. Used to control the slope of the curves.
+        Defaults to 10.
+    inverse : boolean, optional
+        If True, downward slope will be inversed. Useful to create 
+        biexponential curves. Defaults to True.
 
     Methods:
 
     setList(x) : Replace the `list` attribute.
     setLoop(x) : Replace the `loop` attribute.
+    setExp(x) : Replace the `exp` attribute.
+    setInverse(x) : Replace the `inverse` attribute.
 
     Attributes:
 
     list : list of tuples. Points used to construct the line segments.
     loop : boolean. Looping mode.
+    exp : float. Exponent factor.    
+    inverse : boolean. Inversion of downward slope.
 
     Notes:
 
-    The out() method is bypassed. Linseg's signal can not be sent to audio outs.
+    The out() method is bypassed. Expseg's signal can not be sent to audio outs.
 
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
+    >>> l = Expseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
     >>> a = Sine(freq=l, mul=.5).out()
     >>> # then call:
     >>> l.play()
@@ -582,7 +592,7 @@ class Expseg(PyoObject):
         Parameters:
 
         x : boolean
-            new `inver` attribute.
+            new `inverse` attribute.
 
         """
         self._inverse = x

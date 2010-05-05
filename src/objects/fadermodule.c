@@ -1278,12 +1278,14 @@ Expseg_generate(Expseg *self) {
                 }    
                 else {
                     self->range = self->targets[self->which] - self->targets[self->which-1];
-                    self->steps = (int)((self->times[self->which] - self->times[self->which-1]) / self->sampleToSec);
+                    self->steps = (self->times[self->which] - self->times[self->which-1]) * self->sr;
                     self->inc = 1.0 / self->steps;
-                    self->pointer = 0.0;                    
+                    self->pointer = 0.0;   
                 }    
             }
             if (self->currentTime <= self->times[self->listsize-1]) {
+                if (self->pointer > 1.0)
+                    self->pointer = 1.0;
                 if (self->inverse == 1 && self->range < 0.0)
                     scl = 1.0 - powf(1.0 - self->pointer, self->exp);
                 else

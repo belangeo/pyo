@@ -120,6 +120,8 @@ extern PyTypeObject TrigEnvType;
 extern PyTypeObject TrigEnvTrigType;
 extern PyTypeObject TrigLinsegType;
 extern PyTypeObject TrigLinsegTrigType;
+extern PyTypeObject TrigExpsegType;
+extern PyTypeObject TrigExpsegTrigType;
 extern PyTypeObject TrigFuncType;
 extern PyTypeObject TrigXnoiseType;
 extern PyTypeObject TrigXnoiseMidiType;

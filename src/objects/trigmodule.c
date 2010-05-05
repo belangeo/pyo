@@ -2267,6 +2267,599 @@ TrigLinsegTrig_members,             /* tp_members */
 TrigLinsegTrig_new,                 /* tp_new */
 };
 
+/*********************************************************************************************/
+/* TrigExpseg *********************************************************************************/
+/*********************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pointslist;
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2];
+    double currentTime;
+    float currentValue;
+    float sampleToSec;
+    float inc;
+    float pointer;
+    float range;
+    float steps;
+    float *targets;
+    float *times;
+    int which;
+    int flag;
+    int newlist;
+    int listsize;
+    float exp;
+    float exp_tmp;
+    int inverse;
+    int inverse_tmp;    
+    float *trigsBuffer;
+    float *tempTrigsBuffer;
+} TrigExpseg;
+
+static void
+TrigExpseg_convert_pointslist(TrigExpseg *self) {
+    int i;
+    PyObject *tup;
+    
+    self->listsize = PyList_Size(self->pointslist);
+    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
+    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    for (i=0; i<self->listsize; i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
+        self->targets[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+    }
+}
+
+static void 
+TrigExpseg_reinit(TrigExpseg *self) {
+    if (self->newlist == 1) {
+        TrigExpseg_convert_pointslist((TrigExpseg *)self);
+        self->newlist = 0;
+    }    
+    self->currentTime = 0.0;
+    self->currentValue = self->targets[0];
+    self->which = 0;
+    self->flag = 1;
+    self->exp = self->exp_tmp;
+    self->inverse = self->inverse_tmp;
+}
+
+static void
+TrigExpseg_generate(TrigExpseg *self) {
+    int i;
+    float scl;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (in[i] == 1)
+            TrigExpseg_reinit((TrigExpseg *)self);
+        
+        if (self->flag == 1) {
+            if (self->currentTime >= self->times[self->which]) {
+                self->which++;
+                if (self->which == self->listsize) {
+                    self->trigsBuffer[i] = 1.0;
+                    self->flag = 0;
+                    self->currentValue = self->targets[self->which-1];
+                }    
+                else {
+                    self->range = self->targets[self->which] - self->targets[self->which-1];
+                    self->steps = (self->times[self->which] - self->times[self->which-1]) * self->sr;
+                    self->inc = 1.0 / self->steps;
+                    self->pointer = 0.0;                    
+                }
+            }    
+            if (self->currentTime <= self->times[self->listsize-1]) {
+                if (self->pointer > 1.0)
+                    self->pointer = 1.0;
+                if (self->inverse == 1 && self->range < 0.0)
+                    scl = 1.0 - powf(1.0 - self->pointer, self->exp);
+                else
+                    scl = powf(self->pointer, self->exp);
+                
+                self->currentValue = scl * self->range + self->targets[self->which-1];
+                self->pointer += self->inc;
+            } 
+            self->data[i] = self->currentValue;
+            self->currentTime += self->sampleToSec;    
+        }
+        else
+            self->data[i] = self->currentValue;
+    }
+}
+
+static void TrigExpseg_postprocessing_ii(TrigExpseg *self) { POST_PROCESSING_II };
+static void TrigExpseg_postprocessing_ai(TrigExpseg *self) { POST_PROCESSING_AI };
+static void TrigExpseg_postprocessing_ia(TrigExpseg *self) { POST_PROCESSING_IA };
+static void TrigExpseg_postprocessing_aa(TrigExpseg *self) { POST_PROCESSING_AA };
+static void TrigExpseg_postprocessing_ireva(TrigExpseg *self) { POST_PROCESSING_IREVA };
+static void TrigExpseg_postprocessing_areva(TrigExpseg *self) { POST_PROCESSING_AREVA };
+static void TrigExpseg_postprocessing_revai(TrigExpseg *self) { POST_PROCESSING_REVAI };
+static void TrigExpseg_postprocessing_revaa(TrigExpseg *self) { POST_PROCESSING_REVAA };
+static void TrigExpseg_postprocessing_revareva(TrigExpseg *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigExpseg_setProcMode(TrigExpseg *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = TrigExpseg_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigExpseg_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigExpseg_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigExpseg_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigExpseg_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigExpseg_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigExpseg_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigExpseg_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigExpseg_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigExpseg_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+TrigExpseg_compute_next_data_frame(TrigExpseg *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+TrigExpseg_traverse(TrigExpseg *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pointslist);
+    return 0;
+}
+
+static int 
+TrigExpseg_clear(TrigExpseg *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pointslist);
+    return 0;
+}
+
+static void
+TrigExpseg_dealloc(TrigExpseg* self)
+{
+    free(self->data);
+    free(self->targets);
+    free(self->times);
+    free(self->trigsBuffer);
+    free(self->tempTrigsBuffer);
+
+    TrigExpseg_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TrigExpseg_deleteStream(TrigExpseg *self) { DELETE_STREAM };
+
+static PyObject *
+TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TrigExpseg *self;
+    self = (TrigExpseg *)type->tp_alloc(type, 0);
+    
+    self->newlist = 1;
+    self->exp = self->exp_tmp = 10;
+    self->inverse = self->inverse_tmp = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigExpseg_compute_next_data_frame);
+    self->mode_func_ptr = TrigExpseg_setProcMode;
+    
+    self->sampleToSec = 1. / self->sr;
+    
+    return (PyObject *)self;
+}
+
+static int
+TrigExpseg_init(TrigExpseg *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
+    int i;
+    
+    static char *kwlist[] = {"input", "list", "exp", "inverse", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|fiOO", kwlist, &inputtmp, &pointslist, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_INCREF(pointslist);
+    Py_XDECREF(self->pointslist);
+    self->pointslist = pointslist;
+    TrigExpseg_convert_pointslist((TrigExpseg *)self);
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
+    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
+    
+    (*self->mode_func_ptr)(self);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+    }
+    Stream_setData(self->stream, self->data);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TrigExpseg_getServer(TrigExpseg* self) { GET_SERVER };
+static PyObject * TrigExpseg_getStream(TrigExpseg* self) { GET_STREAM };
+static PyObject * TrigExpseg_setMul(TrigExpseg *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigExpseg_setAdd(TrigExpseg *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigExpseg_setSub(TrigExpseg *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigExpseg_setDiv(TrigExpseg *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigExpseg_play(TrigExpseg *self) { PLAY };
+static PyObject * TrigExpseg_stop(TrigExpseg *self) { STOP };
+
+static PyObject * TrigExpseg_multiply(TrigExpseg *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigExpseg_inplace_multiply(TrigExpseg *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigExpseg_add(TrigExpseg *self, PyObject *arg) { ADD };
+static PyObject * TrigExpseg_inplace_add(TrigExpseg *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigExpseg_sub(TrigExpseg *self, PyObject *arg) { SUB };
+static PyObject * TrigExpseg_inplace_sub(TrigExpseg *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigExpseg_div(TrigExpseg *self, PyObject *arg) { DIV };
+static PyObject * TrigExpseg_inplace_div(TrigExpseg *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+TrigExpseg_setList(TrigExpseg *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The points list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value; 
+    
+    self->newlist = 1;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+TrigExpseg_setExp(TrigExpseg *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->exp_tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+TrigExpseg_setInverse(TrigExpseg *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->inverse_tmp = PyInt_AsLong(PyNumber_Int(arg));
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+float *
+TrigExpseg_getTrigsBuffer(TrigExpseg *self)
+{
+    int i;
+    for (i=0; i<self->bufsize; i++) {
+        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
+        self->trigsBuffer[i] = 0.0;
+    }    
+    return (float *)self->tempTrigsBuffer;
+}    
+
+static PyMemberDef TrigExpseg_members[] = {
+{"server", T_OBJECT_EX, offsetof(TrigExpseg, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TrigExpseg, stream), 0, "Stream object."},
+{"pointslist", T_OBJECT_EX, offsetof(TrigExpseg, pointslist), 0, "List of target points."},
+{"mul", T_OBJECT_EX, offsetof(TrigExpseg, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TrigExpseg, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigExpseg_methods[] = {
+{"getServer", (PyCFunction)TrigExpseg_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TrigExpseg_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TrigExpseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)TrigExpseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TrigExpseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+{"setList", (PyCFunction)TrigExpseg_setList, METH_O, "Sets target points list."},
+{"setExp", (PyCFunction)TrigExpseg_setExp, METH_O, "Sets exponent factor."},
+{"setInverse", (PyCFunction)TrigExpseg_setInverse, METH_O, "Sets inverse factor."},
+{"setMul", (PyCFunction)TrigExpseg_setMul, METH_O, "Sets TrigExpseg mul factor."},
+{"setAdd", (PyCFunction)TrigExpseg_setAdd, METH_O, "Sets TrigExpseg add factor."},
+{"setSub", (PyCFunction)TrigExpseg_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)TrigExpseg_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigExpseg_as_number = {
+(binaryfunc)TrigExpseg_add,                      /*nb_add*/
+(binaryfunc)TrigExpseg_sub,                 /*nb_subtract*/
+(binaryfunc)TrigExpseg_multiply,                 /*nb_multiply*/
+(binaryfunc)TrigExpseg_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)TrigExpseg_inplace_add,              /*inplace_add*/
+(binaryfunc)TrigExpseg_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)TrigExpseg_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)TrigExpseg_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject TrigExpsegType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TrigExpseg_base",         /*tp_name*/
+sizeof(TrigExpseg),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TrigExpseg_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&TrigExpseg_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TrigExpseg objects. Generates a linear segments break-points line.",           /* tp_doc */
+(traverseproc)TrigExpseg_traverse,   /* tp_traverse */
+(inquiry)TrigExpseg_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TrigExpseg_methods,             /* tp_methods */
+TrigExpseg_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)TrigExpseg_init,      /* tp_init */
+0,                         /* tp_alloc */
+TrigExpseg_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* TrigExpseg trig streamer */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    TrigExpseg *mainReader;
+} TrigExpsegTrig;
+
+static void
+TrigExpsegTrig_compute_next_data_frame(TrigExpsegTrig *self)
+{
+    int i;
+    float *tmp;
+    tmp = TrigExpseg_getTrigsBuffer((TrigExpseg *)self->mainReader);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+TrigExpsegTrig_traverse(TrigExpsegTrig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainReader);
+    return 0;
+}
+
+static int 
+TrigExpsegTrig_clear(TrigExpsegTrig *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainReader);    
+    return 0;
+}
+
+static void
+TrigExpsegTrig_dealloc(TrigExpsegTrig* self)
+{
+    free(self->data);
+    TrigExpsegTrig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TrigExpsegTrig_deleteStream(TrigExpsegTrig *self) { DELETE_STREAM };
+
+static PyObject *
+TrigExpsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    TrigExpsegTrig *self;
+    self = (TrigExpsegTrig *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigExpsegTrig_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+TrigExpsegTrig_init(TrigExpsegTrig *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL;
+    
+    static char *kwlist[] = {"mainReader", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainReader);
+    Py_INCREF(maintmp);
+    self->mainReader = (TrigExpseg *)maintmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    TrigExpsegTrig_compute_next_data_frame((TrigExpsegTrig *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TrigExpsegTrig_getServer(TrigExpsegTrig* self) { GET_SERVER };
+static PyObject * TrigExpsegTrig_getStream(TrigExpsegTrig* self) { GET_STREAM };
+
+static PyObject * TrigExpsegTrig_play(TrigExpsegTrig *self) { PLAY };
+static PyObject * TrigExpsegTrig_stop(TrigExpsegTrig *self) { STOP };
+
+static PyMemberDef TrigExpsegTrig_members[] = {
+{"server", T_OBJECT_EX, offsetof(TrigExpsegTrig, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TrigExpsegTrig, stream), 0, "Stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigExpsegTrig_methods[] = {
+{"getServer", (PyCFunction)TrigExpsegTrig_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TrigExpsegTrig_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)TrigExpsegTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)TrigExpsegTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TrigExpsegTrig_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TrigExpsegTrigType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TrigExpsegTrig_base",         /*tp_name*/
+sizeof(TrigExpsegTrig),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TrigExpsegTrig_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+"TrigExpsegTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
+(traverseproc)TrigExpsegTrig_traverse,   /* tp_traverse */
+(inquiry)TrigExpsegTrig_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TrigExpsegTrig_methods,             /* tp_methods */
+TrigExpsegTrig_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)TrigExpsegTrig_init,      /* tp_init */
+0,                         /* tp_alloc */
+TrigExpsegTrig_new,                 /* tp_new */
+};
+
 /****************/
 /**** TrigXnoise *****/
 /****************/
