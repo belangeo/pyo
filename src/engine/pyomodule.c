@@ -680,6 +680,11 @@ init_pyo(void)
         return;
     Py_INCREF(&DCBlockType);
     PyModule_AddObject(m, "DCBlock_base", (PyObject *)&DCBlockType);
+
+    if (PyType_Ready(&AllpassType) < 0)
+        return;
+    Py_INCREF(&AllpassType);
+    PyModule_AddObject(m, "Allpass_base", (PyObject *)&AllpassType);
     
     if (PyType_Ready(&PortType) < 0)
         return;

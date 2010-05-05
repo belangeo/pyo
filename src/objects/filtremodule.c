@@ -2516,3 +2516,538 @@ DCBlock_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 DCBlock_new,                                     /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *delay;
+    Stream *delay_stream;
+    PyObject *feedback;
+    Stream *feedback_stream;
+    float maxDelay;
+    long size;
+    int in_count;
+    int modebuffer[4];
+    float *buffer; // samples memory
+} Allpass;
+
+static void
+Allpass_process_ii(Allpass *self) {
+    float val, xind, frac;
+    int i, ind;
+    
+    float del = PyFloat_AS_DOUBLE(self->delay);
+    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    
+    if (del < 0.)
+        del = 0.;
+    else if (del > self->maxDelay)
+        del = self->maxDelay;
+    float sampdel = del * self->sr;
+    
+    if (feed < 0)
+        feed = 0;
+    else if (feed > 1)
+        feed = 1;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (int)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
+        
+        self->buffer[self->in_count] = in[i] + (val * feed);
+        self->in_count++;
+        if (self->in_count >= self->size)
+            self->in_count = 0;
+    }
+}
+
+static void
+Allpass_process_ai(Allpass *self) {
+    float val, xind, frac, sampdel, del;
+    int i, ind;
+    
+    float *delobj = Stream_getData((Stream *)self->delay_stream);    
+    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    
+    if (feed < 0)
+        feed = 0;
+    else if (feed > 1)
+        feed = 1;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        del = delobj[i];
+        if (del < 0.)
+            del = 0.;
+        else if (del > self->maxDelay)
+            del = self->maxDelay;
+        sampdel = del * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (int)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
+        
+        self->buffer[self->in_count++] = in[i]  + (val * feed);
+        if (self->in_count >= self->size)
+            self->in_count = 0;
+    }
+}
+
+static void
+Allpass_process_ia(Allpass *self) {
+    float val, xind, frac, feed;
+    int i, ind;
+    
+    float del = PyFloat_AS_DOUBLE(self->delay);
+    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    
+    if (del < 0.)
+        del = 0.;
+    else if (del > self->maxDelay)
+        del = self->maxDelay;
+    float sampdel = del * self->sr;
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        feed = fdb[i];
+        if (feed < 0)
+            feed = 0;
+        else if (feed > 1)
+            feed = 1;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (int)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
+
+        self->buffer[self->in_count++] = in[i] + (val * feed);
+        if (self->in_count == self->size)
+            self->in_count = 0;
+    }
+}
+
+static void
+Allpass_process_aa(Allpass *self) {
+    float val, xind, frac, sampdel, feed, del;
+    int i, ind;
+    
+    float *delobj = Stream_getData((Stream *)self->delay_stream);    
+    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        del = delobj[i];
+        feed = fdb[i];
+        if (feed < 0)
+            feed = 0;
+        else if (feed > 1)
+            feed = 1;
+        if (del < 0.)
+            del = 0.;
+        else if (del > self->maxDelay)
+            del = self->maxDelay;
+        sampdel = del * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (int)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
+          
+        self->buffer[self->in_count++] = in[i] + (val * feed);
+        if (self->in_count == self->size)
+            self->in_count = 0;
+    }
+}
+
+static void Allpass_postprocessing_ii(Allpass *self) { POST_PROCESSING_II };
+static void Allpass_postprocessing_ai(Allpass *self) { POST_PROCESSING_AI };
+static void Allpass_postprocessing_ia(Allpass *self) { POST_PROCESSING_IA };
+static void Allpass_postprocessing_aa(Allpass *self) { POST_PROCESSING_AA };
+static void Allpass_postprocessing_ireva(Allpass *self) { POST_PROCESSING_IREVA };
+static void Allpass_postprocessing_areva(Allpass *self) { POST_PROCESSING_AREVA };
+static void Allpass_postprocessing_revai(Allpass *self) { POST_PROCESSING_REVAI };
+static void Allpass_postprocessing_revaa(Allpass *self) { POST_PROCESSING_REVAA };
+static void Allpass_postprocessing_revareva(Allpass *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Allpass_setProcMode(Allpass *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Allpass_process_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Allpass_process_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = Allpass_process_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Allpass_process_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Allpass_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Allpass_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Allpass_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Allpass_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Allpass_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Allpass_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Allpass_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Allpass_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Allpass_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Allpass_compute_next_data_frame(Allpass *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Allpass_traverse(Allpass *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->delay);    
+    Py_VISIT(self->delay_stream);    
+    Py_VISIT(self->feedback);    
+    Py_VISIT(self->feedback_stream);    
+    return 0;
+}
+
+static int 
+Allpass_clear(Allpass *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);    
+    Py_CLEAR(self->delay);    
+    Py_CLEAR(self->delay_stream);    
+    Py_CLEAR(self->feedback);    
+    Py_CLEAR(self->feedback_stream);    
+    return 0;
+}
+
+static void
+Allpass_dealloc(Allpass* self)
+{
+    free(self->data);
+    free(self->buffer);
+    Allpass_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Allpass_deleteStream(Allpass *self) { DELETE_STREAM };
+
+static PyObject *
+Allpass_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Allpass *self;
+    self = (Allpass *)type->tp_alloc(type, 0);
+    
+    self->delay = PyFloat_FromDouble(0);
+    self->feedback = PyFloat_FromDouble(0);
+    self->maxDelay = 1;
+    self->in_count = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Allpass_compute_next_data_frame);
+    self->mode_func_ptr = Allpass_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Allpass_init(Allpass *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
+    int i;
+    
+    static char *kwlist[] = {"input", "delay", "feedback", "maxDelay", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxDelay, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (delaytmp) {
+        PyObject_CallMethod((PyObject *)self, "setDelay", "O", delaytmp);
+    }
+    
+    if (feedbacktmp) {
+        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->size = self->maxDelay * self->sr + 0.5;
+    
+    self->buffer = (float *)realloc(self->buffer, (self->size+1) * sizeof(float));
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }    
+    
+    (*self->mode_func_ptr)(self);
+    
+    Allpass_compute_next_data_frame((Allpass *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Allpass_getServer(Allpass* self) { GET_SERVER };
+static PyObject * Allpass_getStream(Allpass* self) { GET_STREAM };
+static PyObject * Allpass_setMul(Allpass *self, PyObject *arg) { SET_MUL };	
+static PyObject * Allpass_setAdd(Allpass *self, PyObject *arg) { SET_ADD };	
+static PyObject * Allpass_setSub(Allpass *self, PyObject *arg) { SET_SUB };	
+static PyObject * Allpass_setDiv(Allpass *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Allpass_play(Allpass *self) { PLAY };
+static PyObject * Allpass_out(Allpass *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Allpass_stop(Allpass *self) { STOP };
+
+static PyObject * Allpass_multiply(Allpass *self, PyObject *arg) { MULTIPLY };
+static PyObject * Allpass_inplace_multiply(Allpass *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Allpass_add(Allpass *self, PyObject *arg) { ADD };
+static PyObject * Allpass_inplace_add(Allpass *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Allpass_sub(Allpass *self, PyObject *arg) { SUB };
+static PyObject * Allpass_inplace_sub(Allpass *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Allpass_div(Allpass *self, PyObject *arg) { DIV };
+static PyObject * Allpass_inplace_div(Allpass *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Allpass_setDelay(Allpass *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->delay);
+	if (isNumber == 1) {
+		self->delay = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->delay = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->delay, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->delay_stream);
+        self->delay_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Allpass_setFeedback(Allpass *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->feedback);
+	if (isNumber == 1) {
+		self->feedback = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->feedback = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->feedback_stream);
+        self->feedback_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Allpass_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Allpass, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Allpass, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Allpass, input), 0, "Input sound object."},
+    {"delay", T_OBJECT_EX, offsetof(Allpass, delay), 0, "delay time in seconds."},
+    {"feedback", T_OBJECT_EX, offsetof(Allpass, feedback), 0, "Feedback value."},
+    {"mul", T_OBJECT_EX, offsetof(Allpass, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Allpass, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Allpass_methods[] = {
+    {"getServer", (PyCFunction)Allpass_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Allpass_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Allpass_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Allpass_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Allpass_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Allpass_stop, METH_NOARGS, "Stops computing."},
+	{"setDelay", (PyCFunction)Allpass_setDelay, METH_O, "Sets delay time in seconds."},
+    {"setFeedback", (PyCFunction)Allpass_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
+	{"setMul", (PyCFunction)Allpass_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Allpass_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Allpass_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Allpass_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Allpass_as_number = {
+    (binaryfunc)Allpass_add,                      /*nb_add*/
+    (binaryfunc)Allpass_sub,                 /*nb_subtract*/
+    (binaryfunc)Allpass_multiply,                 /*nb_multiply*/
+    (binaryfunc)Allpass_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Allpass_inplace_add,              /*inplace_add*/
+    (binaryfunc)Allpass_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Allpass_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Allpass_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject AllpassType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Allpass_base",         /*tp_name*/
+    sizeof(Allpass),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Allpass_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Allpass_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Allpass objects. Allpass signal by x samples.",           /* tp_doc */
+    (traverseproc)Allpass_traverse,   /* tp_traverse */
+    (inquiry)Allpass_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Allpass_methods,             /* tp_methods */
+    Allpass_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Allpass_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Allpass_new,                 /* tp_new */
+};
