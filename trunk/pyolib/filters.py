@@ -967,7 +967,7 @@ class Allpass(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to delayed.
+    input : PyoObject. Input signal to filtered.
     delay : float or PyoObject. Delay time in seconds.
     feedback : float or PyoObject. Amount of output signal sent back 
         into the delay line.
@@ -1072,3 +1072,131 @@ class Allpass(PyoObject):
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
+
+class Allpass2(PyoObject):
+    """
+    Second-order phase shifter allpass. 
+    
+    This kind of filter is used in phaser implementations. The signal
+    of this filter, when added to original sound, creates a notch in
+    the spectrum at frequencies that are in phase opposition.
+    
+    Parent class : PyoObject
+    
+    Parameters:
+    
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Center frequency of the filter. Defaults to 1000.
+    bw : float or PyoObject, optional
+        Bandwidth of the filter in Hertz. Defaults to 100.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setBw(x) : Replace the `bw` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Center frequency of the filter.
+    bw : float or PyoObject. Bandwidth of the filter.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # 3 STAGES PHASER
+    >>> a = Noise(.025).mix(2).out()
+    >>> blfo = Sine(freq=.1, mul=250, add=500)
+    >>> b = Allpass2(a, freq=blfo, bw=125).out()
+    >>> clfo = Sine(freq=.14, mul=500, add=1000)
+    >>> c = Allpass2(b, freq=clfo, bw=350).out()
+    >>> dlfo = Sine(freq=.17, mul=1000, add=2500)
+    >>> d = Allpass2(c, freq=dlfo, bw=800).out()
+
+    """
+    def __init__(self, input, freq=1000, bw=100, type=0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._freq = freq
+        self._bw = bw
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, bw, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, mul, add)
+        self._base_objs = [Allpass2_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'bw', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setBw(self, x):
+        """
+        Replace the `bw` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `bw` attribute.
+
+        """
+        self._bw = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBw(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapFreq(self._freq), SLMap(10, 1000, "lin", "bw", self._bw), 
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def bw(self):
+        """float or PyoObject. Bandwidth of the filter.""" 
+        return self._bw
+    @bw.setter
+    def bw(self, x): self.setBw(x)
