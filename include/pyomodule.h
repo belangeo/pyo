@@ -69,6 +69,7 @@ extern PyTypeObject ToneType;
 extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;
 extern PyTypeObject AllpassType;
+extern PyTypeObject Allpass2Type;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject DegradeType;
@@ -157,6 +158,7 @@ extern PyTypeObject M_CosType;
 extern PyTypeObject M_TanType;
 
 /* Constants */
+#define E M_E
 #define PI M_PI
 #define TWOPI (2 * M_PI)
 

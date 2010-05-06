@@ -685,6 +685,11 @@ init_pyo(void)
         return;
     Py_INCREF(&AllpassType);
     PyModule_AddObject(m, "Allpass_base", (PyObject *)&AllpassType);
+
+    if (PyType_Ready(&Allpass2Type) < 0)
+        return;
+    Py_INCREF(&Allpass2Type);
+    PyModule_AddObject(m, "Allpass2_base", (PyObject *)&Allpass2Type);
     
     if (PyType_Ready(&PortType) < 0)
         return;

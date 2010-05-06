@@ -3051,3 +3051,495 @@ PyTypeObject AllpassType = {
     0,                         /* tp_alloc */
     Allpass_new,                 /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *bw;
+    Stream *bw_stream;
+    int init;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int filtertype;
+    float oneOnSr;
+    // sample memories
+    float y1;
+    float y2;
+    // coefficients
+    float alpha;
+    float beta;
+} Allpass2;
+
+static void
+Allpass2_compute_variables(Allpass2 *self, float freq, float bw)
+{    
+    float radius, angle;
+    if (freq <= 1) 
+        freq = 1;
+    else if (freq >= (self->sr/2.0))
+        freq = self->sr/2.0;
+    
+    radius = powf(E, -PI * bw * self->oneOnSr);
+    angle = TWOPI * freq * self->oneOnSr;
+    
+    self->alpha = radius * radius;
+    self->beta = -2.0 * radius * cosf(angle);
+}
+
+static void
+Allpass2_filters_ii(Allpass2 *self) {
+    float val;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i] + (self->y1 * -self->beta) + (self->y2 * -self->alpha);
+        self->data[i] = (val * self->alpha) + (self->y1 * self->beta) + self->y2;
+        self->y2 = self->y1;
+        self->y1 = val;
+    }
+}
+
+static void
+Allpass2_filters_ai(Allpass2 *self) {
+    float val, bw;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    bw = PyFloat_AS_DOUBLE(self->bw);
+    
+    for (i=0; i<self->bufsize; i++) {
+        Allpass2_compute_variables(self, fr[i], bw);
+        val = in[i] + (self->y1 * -self->beta) + (self->y2 * -self->alpha);
+        self->data[i] = (val * self->alpha) + (self->y1 * self->beta) + self->y2;
+        self->y2 = self->y1;
+        self->y1 = val;
+    }
+}
+
+static void
+Allpass2_filters_ia(Allpass2 *self) {
+    float val, fr;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *bw = Stream_getData((Stream *)self->bw_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        Allpass2_compute_variables(self, fr, bw[i]);
+        val = in[i] + (self->y1 * -self->beta) + (self->y2 * -self->alpha);
+        self->data[i] = (val * self->alpha) + (self->y1 * self->beta) + self->y2;
+        self->y2 = self->y1;
+        self->y1 = val;
+    }
+}
+
+static void
+Allpass2_filters_aa(Allpass2 *self) {
+    float val;
+    int i;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *bw = Stream_getData((Stream *)self->bw_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        Allpass2_compute_variables(self, fr[i], bw[i]);
+        val = in[i] + (self->y1 * -self->beta) + (self->y2 * -self->alpha);
+        self->data[i] = (val * self->alpha) + (self->y1 * self->beta) + self->y2;
+        self->y2 = self->y1;
+        self->y1 = val;
+    }
+}
+
+static void Allpass2_postprocessing_ii(Allpass2 *self) { POST_PROCESSING_II };
+static void Allpass2_postprocessing_ai(Allpass2 *self) { POST_PROCESSING_AI };
+static void Allpass2_postprocessing_ia(Allpass2 *self) { POST_PROCESSING_IA };
+static void Allpass2_postprocessing_aa(Allpass2 *self) { POST_PROCESSING_AA };
+static void Allpass2_postprocessing_ireva(Allpass2 *self) { POST_PROCESSING_IREVA };
+static void Allpass2_postprocessing_areva(Allpass2 *self) { POST_PROCESSING_AREVA };
+static void Allpass2_postprocessing_revai(Allpass2 *self) { POST_PROCESSING_REVAI };
+static void Allpass2_postprocessing_revaa(Allpass2 *self) { POST_PROCESSING_REVAA };
+static void Allpass2_postprocessing_revareva(Allpass2 *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Allpass2_setProcMode(Allpass2 *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:    
+            Allpass2_compute_variables(self, PyFloat_AS_DOUBLE(self->freq), PyFloat_AS_DOUBLE(self->bw));
+            self->proc_func_ptr = Allpass2_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Allpass2_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Allpass2_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Allpass2_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Allpass2_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Allpass2_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Allpass2_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Allpass2_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Allpass2_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Allpass2_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Allpass2_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Allpass2_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Allpass2_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Allpass2_compute_next_data_frame(Allpass2 *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Allpass2_traverse(Allpass2 *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->bw);    
+    Py_VISIT(self->bw_stream);    
+    return 0;
+}
+
+static int 
+Allpass2_clear(Allpass2 *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->bw);    
+    Py_CLEAR(self->bw_stream);    
+    return 0;
+}
+
+static void
+Allpass2_dealloc(Allpass2* self)
+{
+    free(self->data);
+    Allpass2_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Allpass2_deleteStream(Allpass2 *self) { DELETE_STREAM };
+
+static PyObject *
+Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Allpass2 *self;
+    self = (Allpass2 *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->bw = PyFloat_FromDouble(100);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    self->init = 1;
+    
+    INIT_OBJECT_COMMON
+    
+    self->oneOnSr = 1.0 / self->sr;
+    
+    Stream_setFunctionPtr(self->stream, Allpass2_compute_next_data_frame);
+    self->mode_func_ptr = Allpass2_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Allpass2_init(Allpass2 *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bwtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "freq", "bw", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &bwtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (bwtmp) {
+        PyObject_CallMethod((PyObject *)self, "setBw", "O", bwtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Allpass2_compute_next_data_frame((Allpass2 *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Allpass2_getServer(Allpass2* self) { GET_SERVER };
+static PyObject * Allpass2_getStream(Allpass2* self) { GET_STREAM };
+static PyObject * Allpass2_setMul(Allpass2 *self, PyObject *arg) { SET_MUL };	
+static PyObject * Allpass2_setAdd(Allpass2 *self, PyObject *arg) { SET_ADD };	
+static PyObject * Allpass2_setSub(Allpass2 *self, PyObject *arg) { SET_SUB };	
+static PyObject * Allpass2_setDiv(Allpass2 *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Allpass2_play(Allpass2 *self) { PLAY };
+static PyObject * Allpass2_out(Allpass2 *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Allpass2_stop(Allpass2 *self) { STOP };
+
+static PyObject * Allpass2_multiply(Allpass2 *self, PyObject *arg) { MULTIPLY };
+static PyObject * Allpass2_inplace_multiply(Allpass2 *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Allpass2_add(Allpass2 *self, PyObject *arg) { ADD };
+static PyObject * Allpass2_inplace_add(Allpass2 *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Allpass2_sub(Allpass2 *self, PyObject *arg) { SUB };
+static PyObject * Allpass2_inplace_sub(Allpass2 *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Allpass2_div(Allpass2 *self, PyObject *arg) { DIV };
+static PyObject * Allpass2_inplace_div(Allpass2 *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Allpass2_setFreq(Allpass2 *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Allpass2_setBw(Allpass2 *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->bw);
+	if (isNumber == 1) {
+		self->bw = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->bw = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->bw, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->bw_stream);
+        self->bw_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Allpass2_members[] = {
+{"server", T_OBJECT_EX, offsetof(Allpass2, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Allpass2, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Allpass2, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(Allpass2, freq), 0, "Cutoff frequency in cycle per second."},
+{"bw", T_OBJECT_EX, offsetof(Allpass2, bw), 0, "Bandwidth."},
+{"mul", T_OBJECT_EX, offsetof(Allpass2, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Allpass2, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Allpass2_methods[] = {
+{"getServer", (PyCFunction)Allpass2_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Allpass2_getStream, METH_NOARGS, "Returns stream object."},
+{"deleteStream", (PyCFunction)Allpass2_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Allpass2_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Allpass2_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Allpass2_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)Allpass2_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+{"setBw", (PyCFunction)Allpass2_setBw, METH_O, "Sets filter bandwidth."},
+{"setMul", (PyCFunction)Allpass2_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Allpass2_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Allpass2_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Allpass2_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Allpass2_as_number = {
+(binaryfunc)Allpass2_add,                         /*nb_add*/
+(binaryfunc)Allpass2_sub,                         /*nb_subtract*/
+(binaryfunc)Allpass2_multiply,                    /*nb_multiply*/
+(binaryfunc)Allpass2_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Allpass2_inplace_add,                 /*inplace_add*/
+(binaryfunc)Allpass2_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Allpass2_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Allpass2_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject Allpass2Type = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Allpass2_base",                                   /*tp_name*/
+sizeof(Allpass2),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Allpass2_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Allpass2_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Allpass2 objects. Second order allpass filter.",           /* tp_doc */
+(traverseproc)Allpass2_traverse,                  /* tp_traverse */
+(inquiry)Allpass2_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Allpass2_methods,                                 /* tp_methods */
+Allpass2_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Allpass2_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Allpass2_new,                                     /* tp_new */
+};
