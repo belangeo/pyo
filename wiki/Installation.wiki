@@ -19,7 +19,7 @@ Under Ubuntu 10.04 you can type the following to get the dependencies installed:
 sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion
 svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
 cd pyo-read_only
-python setup.py install --install-layout=deb
+sudo python setup.py install --install-layout=deb
 }}}
 
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
