@@ -690,6 +690,11 @@ init_pyo(void)
         return;
     Py_INCREF(&Allpass2Type);
     PyModule_AddObject(m, "Allpass2_base", (PyObject *)&Allpass2Type);
+
+    if (PyType_Ready(&PhaserType) < 0)
+        return;
+    Py_INCREF(&PhaserType);
+    PyModule_AddObject(m, "Phaser_base", (PyObject *)&PhaserType);    
     
     if (PyType_Ready(&PortType) < 0)
         return;

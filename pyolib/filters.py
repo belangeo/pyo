@@ -1118,7 +1118,7 @@ class Allpass2(PyoObject):
     >>> d = Allpass2(c, freq=dlfo, bw=800).out()
 
     """
-    def __init__(self, input, freq=1000, bw=100, type=0, mul=1, add=0):
+    def __init__(self, input, freq=1000, bw=100, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._freq = freq
@@ -1200,3 +1200,187 @@ class Allpass2(PyoObject):
         return self._bw
     @bw.setter
     def bw(self, x): self.setBw(x)
+
+class Phaser(PyoObject):
+    """
+    Multi-stages second-order phase shifter allpass filters. 
+
+    Phaser implements `num` number of second-order allpass filters.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Center frequency of the first notch. Defaults to 1000.
+    spread : float or PyoObject, optional
+        Spreading factor for upper notch frequencies. Defaults to 1.1.
+    q : float or PyoObject, optional
+        Q of the filter as center frequency / bandwidth. Defaults to 10.
+    feedback : float or PyoObject, optional
+        Amount of output signal which is fed back into the input of the
+        allpass chain. Defaults to 0.
+    num : int, optional
+        The number of allpass stages in series. Determine the number of
+        notches in the spectrum. Available at initialization only.
+        Defaults to 8.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setSpread(x) : Replace the `spread` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Center frequency of the first notch.
+    spread : float or PyoObject. Spreading factor for upper notch frequencies.
+    q : float or PyoObject. Q factor of the filter.
+    feedback : float or PyoObject. Amount of output signal fed back in input.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> fade = Fader(fadein=.1, mul=.1).play()
+    >>> a = Noise(fade).out()
+    >>> lf1 = Sine(freq=.1, mul=100, add=250)
+    >>> lf2 = Sine(freq=.15, mul=.4, add=1.5)
+    >>> b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=.5).out(1)
+
+    """
+    def __init__(self, input, freq=1000, spread=1.1, q=10, feedback=0, num=8, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._freq = freq
+        self._spread = spread
+        self._q = q
+        self._feedback = feedback
+        self._num= num
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, spread, q, feedback, num, mul, add, lmax = convertArgsToLists(self._in_fader, freq, spread, q, feedback, num, mul, add)
+        self._base_objs = [Phaser_base(wrap(in_fader,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(feedback,i), wrap(num,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'spread', 'q', 'feedback', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSpread(self, x):
+        """
+        Replace the `spread` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `spread` attribute.
+
+        """
+        self._spread = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(20, 2000, "log", "freq", self._freq), 
+                          SLMap(0.5, 2, "lin", "spread", self._spread),
+                          SLMap(0.5, 100, "log", "q", self._q), 
+                          SLMap(0, 1, "lin", "feedback", self._feedback),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Center frequency of the first notch.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def spread(self):
+        """float or PyoObject. Spreading factor for upper notch frequencies.""" 
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q factor of the filter.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Feedback factor of the filter.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)

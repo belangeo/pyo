@@ -70,6 +70,7 @@ extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;
 extern PyTypeObject AllpassType;
 extern PyTypeObject Allpass2Type;
+extern PyTypeObject PhaserType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject DegradeType;
