@@ -3062,7 +3062,6 @@ typedef struct {
     Stream *bw_stream;
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add 
-    int filtertype;
     float oneOnSr;
     // sample memories
     float y1;
@@ -3543,3 +3542,868 @@ Allpass2_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Allpass2_new,                                     /* tp_new */
 };
+
+/*******************/
+/***** Phaser ******/
+/*******************/
+
+float HALF_COS_ARRAY[513] = {1.0, 0.99998110153278696, 0.99992440684545181, 0.99982991808087995, 0.99969763881045715, 0.99952757403393411, 0.99931973017923825, 0.99907411510222999, 0.99879073808640628, 0.99846960984254973, 0.99811074250832332, 0.99771414964781235, 0.99727984625101107, 0.99680784873325645, 0.99629817493460782, 0.99575084411917214, 0.99516587697437664, 0.99454329561018584, 0.99388312355826691, 0.9931853857710996, 0.99245010862103322, 0.99167731989928998, 0.99086704881491472, 0.99001932599367026, 0.98913418347688054, 0.98821165472021921, 0.9872517745924454, 0.98625457937408512, 0.98522010675606064, 0.98414839583826585, 0.98303948712808786, 0.98189342253887657, 0.98071024538836005, 0.97949000039700762, 0.97823273368633901, 0.9769384927771817, 0.97560732658787452, 0.97423928543241856, 0.97283442101857576, 0.97139278644591409, 0.96991443620380113, 0.96839942616934394, 0.96684781360527761, 0.96525965715780015, 0.96363501685435693, 0.96197395410137099, 0.96027653168192206, 0.95854281375337425, 0.95677286584495025, 0.95496675485525528, 0.95312454904974775, 0.95124631805815985, 0.94933213287186513, 0.94738206584119555, 0.94539619067270686, 0.9433745824263926, 0.94131731751284708, 0.9392244736903772, 0.93709613006206383, 0.9349323670727715, 0.93273326650610799, 0.93049891148133324, 0.92822938645021758, 0.92592477719384991, 0.92358517081939495, 0.92121065575680161, 0.91880132175545981, 0.91635725988080907, 0.91387856251089561, 0.91136532333288145, 0.90881763733950294, 0.9062356008254806, 0.90361931138387919, 0.90096886790241915, 0.89828437055973898, 0.89556592082160869, 0.89281362143709486, 0.89002757643467667, 0.88720789111831455, 0.8843546720634694, 0.88146802711307481, 0.87854806537346075, 0.87559489721022943, 0.8726086342440843, 0.86958938934661101, 0.86653727663601088, 0.86345241147278784, 0.86033491045538835, 0.85718489141579368, 0.85400247341506719, 0.8507877767388532, 0.84754092289283123, 0.8442620345981231, 0.84095123578665476, 0.8376086515964718, 0.83423440836700968, 0.83082863363431847, 0.82739145612624232, 0.82392300575755428, 0.82042341362504534, 0.81689281200256991, 0.81333133433604599, 0.80973911523841147, 0.80611629048453592, 0.80246299700608914, 0.79877937288636502, 0.7950655573550629, 0.79132169078302494, 0.78754791467693042, 0.78374437167394739, 0.77991120553634141, 0.77604856114604148, 0.77215658449916424, 0.76823542270049605, 0.76428522395793219, 0.7603061375768756, 0.75629831395459302, 0.75226190457453135, 0.74819706200059122, 0.7441039398713607, 0.73998269289430851, 0.73583347683993672, 0.73165644853589207, 0.72745176586103977, 0.72321958773949491, 0.71896007413461649, 0.71467338604296105, 0.71035968548819706, 0.70601913551498185, 0.70165190018279788, 0.69725814455975277, 0.69283803471633953, 0.68839173771916018, 0.68391942162461061, 0.6794212554725293, 0.67489740927980701, 0.67034805403396192, 0.66577336168667567, 0.66117350514729512, 0.65654865827629605, 0.65189899587871258, 0.64722469369752944, 0.6425259284070397, 0.63780287760616672, 0.63305571981175202, 0.62828463445180749, 0.62348980185873359, 0.61867140326250347, 0.61382962078381298, 0.60896463742719675, 0.60407663707411186, 0.59916580447598711, 0.59423232524724023, 0.58927638585826192, 0.58429817362836856, 0.57929787671872113, 0.57427568412521424, 0.56923178567133192, 0.56416637200097319, 0.55907963457124654, 0.55397176564523298, 0.5488429582847193, 0.5436934063429012, 0.53852330445705543, 0.53333284804118442, 0.52812223327862839, 0.52289165711465235, 0.51764131724900009, 0.51237141212842374, 0.50708214093918114, 0.50177370359950879, 0.49644630075206486, 0.49110013375634509, 0.48573540468107329, 0.48035231629656205, 0.47495107206705045, 0.46953187614301212, 0.46409493335344021, 0.45864044919810504, 0.45316862983978612, 0.44767968209648135, 0.44217381343358825, 0.43665123195606403, 0.43111214640055828, 0.42555676612752463, 0.41998530111330729, 0.41439796194220363, 0.40879495979850627, 0.40317650645851943, 0.39754281428255606, 0.3918940962069094, 0.38623056573580644, 0.38055243693333718, 0.3748599244153632, 0.36915324334140731, 0.36343260940651945, 0.35769823883312568, 0.35195034836285416, 0.34618915524834432, 0.34041487724503472, 0.33462773260293199, 0.32882794005836308, 0.32301571882570607, 0.31719128858910622, 0.31135486949417079, 0.30550668213964982, 0.29964694756909749, 0.29377588726251663, 0.28789372312798917, 0.28200067749328667, 0.27609697309746906, 0.27018283308246382, 0.26425848098463345, 0.25832414072632598, 0.25238003660741054, 0.24642639329680122, 0.24046343582396335, 0.23449138957040974, 0.22851048026118126, 0.22252093395631445, 0.21652297704229864, 0.21051683622351761, 0.20450273851368242, 0.19848091122724945, 0.19245158197082995, 0.18641497863458675, 0.1803713293836198, 0.17432086264934399, 0.16826380712085329, 0.16220039173627876, 0.15613084567413366, 0.1500553983446527, 0.14397427938112045, 0.13788771863119115, 0.13179594614820278, 0.12569919218247999, 0.11959768717263308, 0.11349166173684638, 0.10738134666416307, 0.10126697290576155, 0.095148771566225324, 0.089026973894809708, 0.082901811276699419, 0.076773515224264705, 0.070642317368309157, 0.064508449449316344, 0.058372143308689985, 0.052233630879990445, 0.046093144180169916, 0.039950915300801082, 0.033807176399306589, 0.027662159690182372, 0.021516097436222258, 0.01536922193973846, 0.0092217655337806046, 0.0030739605733557966, -0.0030739605733554522, -0.0092217655337804832, -0.015369221939738116, -0.021516097436222133, -0.027662159690182025, -0.033807176399306464, -0.039950915300800735, -0.046093144180169791, -0.052233630879990098, -0.05837214330868986, -0.064508449449316232, -0.07064231736830906, -0.076773515224264371, -0.082901811276699308, -0.089026973894809375, -0.095148771566225213, -0.10126697290576121, -0.10738134666416296, -0.11349166173684605, -0.11959768717263299, -0.12569919218247966, -0.13179594614820267, -0.13788771863119104, -0.14397427938112034, -0.15005539834465259, -0.15613084567413354, -0.16220039173627843, -0.16826380712085318, -0.17432086264934366, -0.18037132938361969, -0.18641497863458642, -0.19245158197082984, -0.19848091122724912, -0.20450273851368231, -0.21051683622351727, -0.21652297704229853, -0.22252093395631434, -0.22851048026118118, -0.23449138957040966, -0.24046343582396323, -0.24642639329680088, -0.25238003660741043, -0.25832414072632565, -0.26425848098463334, -0.27018283308246349, -0.27609697309746895, -0.28200067749328633, -0.28789372312798905, -0.2937758872625163, -0.29964694756909738, -0.30550668213964971, -0.31135486949417068, -0.31719128858910589, -0.32301571882570601, -0.32882794005836274, -0.33462773260293188, -0.34041487724503444, -0.3461891552483442, -0.35195034836285388, -0.35769823883312557, -0.36343260940651911, -0.3691532433414072, -0.37485992441536287, -0.38055243693333707, -0.38623056573580633, -0.39189409620690935, -0.39754281428255578, -0.40317650645851938, -0.408794959798506, -0.41439796194220352, -0.41998530111330723, -0.42555676612752458, -0.43111214640055795, -0.43665123195606392, -0.44217381343358819, -0.44767968209648107, -0.45316862983978584, -0.45864044919810493, -0.46409493335344015, -0.46953187614301223, -0.47495107206704995, -0.48035231629656183, -0.4857354046810729, -0.49110013375634509, -0.4964463007520647, -0.50177370359950857, -0.5070821409391808, -0.51237141212842352, -0.51764131724899998, -0.52289165711465191, -0.52812223327862795, -0.53333284804118419, -0.53852330445705532, -0.5436934063429012, -0.54884295828471885, -0.55397176564523276, -0.55907963457124621, -0.56416637200097308, -0.5692317856713317, -0.57427568412521401, -0.57929787671872079, -0.58429817362836844, -0.5892763858582617, -0.5942323252472399, -0.59916580447598666, -0.60407663707411174, -0.60896463742719653, -0.61382962078381298, -0.61867140326250303, -0.62348980185873337, -0.62828463445180716, -0.6330557198117519, -0.6378028776061665, -0.64252592840703937, -0.64722469369752911, -0.65189899587871247, -0.65654865827629583, -0.66117350514729478, -0.66577336168667522, -0.67034805403396169, -0.67489740927980679, -0.6794212554725293, -0.68391942162461028, -0.68839173771915996, -0.6928380347163392, -0.69725814455975266, -0.70165190018279777, -0.70601913551498163, -0.71035968548819683, -0.71467338604296105, -0.71896007413461638, -0.72321958773949468, -0.72745176586103955, -0.73165644853589207, -0.73583347683993661, -0.73998269289430874, -0.74410393987136036, -0.74819706200059111, -0.75226190457453113, -0.75629831395459302, -0.76030613757687548, -0.76428522395793208, -0.76823542270049594, -0.77215658449916424, -0.77604856114604126, -0.77991120553634119, -0.78374437167394717, -0.78754791467693031, -0.79132169078302472, -0.7950655573550629, -0.79877937288636469, -0.80246299700608903, -0.80611629048453581, -0.80973911523841147, -0.81333133433604599, -0.8168928120025698, -0.82042341362504512, -0.82392300575755417, -0.82739145612624221, -0.83082863363431825, -0.83423440836700946, -0.8376086515964718, -0.84095123578665465, -0.8442620345981231, -0.84754092289283089, -0.85078777673885309, -0.85400247341506696, -0.85718489141579368, -0.86033491045538824, -0.86345241147278773, -0.86653727663601066, -0.86958938934661101, -0.87260863424408419, -0.87559489721022921, -0.87854806537346053, -0.88146802711307481, -0.88435467206346929, -0.88720789111831455, -0.89002757643467667, -0.89281362143709475, -0.89556592082160857, -0.89828437055973898, -0.90096886790241903, -0.90361931138387908, -0.90623560082548038, -0.90881763733950294, -0.91136532333288134, -0.9138785625108955, -0.91635725988080885, -0.91880132175545981, -0.92121065575680139, -0.92358517081939495, -0.9259247771938498, -0.92822938645021758, -0.93049891148133312, -0.93273326650610799, -0.9349323670727715, -0.93709613006206383, -0.93922447369037709, -0.94131731751284708, -0.9433745824263926, -0.94539619067270697, -0.94738206584119544, -0.94933213287186502, -0.95124631805815973, -0.95312454904974775, -0.95496675485525517, -0.95677286584495025, -0.95854281375337413, -0.96027653168192206, -0.96197395410137099, -0.96363501685435693, -0.96525965715780004, -0.9668478136052775, -0.96839942616934394, -0.96991443620380113, -0.97139278644591398, -0.97283442101857565, -0.97423928543241844, -0.97560732658787452, -0.9769384927771817, -0.9782327336863389, -0.97949000039700751, -0.98071024538836005, -0.98189342253887657, -0.98303948712808775, -0.98414839583826574, -0.98522010675606064, -0.98625457937408501, -0.9872517745924454, -0.98821165472021921, -0.98913418347688054, -0.99001932599367015, -0.99086704881491472, -0.99167731989928998, -0.99245010862103311, -0.99318538577109949, -0.99388312355826691, -0.99454329561018584, -0.99516587697437653, -0.99575084411917214, -0.99629817493460782, -0.99680784873325645, -0.99727984625101107, -0.99771414964781235, -0.99811074250832332, -0.99846960984254973, -0.99879073808640628, -0.99907411510222999, -0.99931973017923825, -0.99952757403393411, -0.99969763881045715, -0.99982991808087995, -0.99992440684545181, -0.99998110153278685, -1.0, -1.0}; 
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *spread;
+    Stream *spread_stream;
+    PyObject *q;
+    Stream *q_stream;
+    PyObject *feedback;
+    Stream *feedback_stream;
+    int stages;
+    int modebuffer[6]; // need at least 2 slots for mul & add 
+    float halfSr;
+    float minusPiOnSr;
+    float twoPiOnSr;
+    float norm_arr_pos;
+    // sample memories
+    float *y1;
+    float *y2;
+    // coefficients
+    float *alpha;
+    float *beta;
+} Phaser;
+
+static float
+Phaser_clip(float x) {
+    if (x < -1.0)
+        return -1.0;
+    else if (x > 1.0)
+        return 1.0;
+    else 
+        return x;
+}    
+
+static void
+Phaser_compute_variables(Phaser *self, float freq, float spread, float q)
+{    
+    int i, ipart;
+    float radius, angle, fr, qfactor, pos, fpart;
+
+    qfactor = 1.0 / q * self->minusPiOnSr;
+    fr = freq;
+    for (i=0; i<self->stages; i++) {
+        if (fr <= 1) 
+            fr = 1;
+        else if (fr >= self->halfSr)
+            fr = self->halfSr;
+    
+        radius = powf(E, fr * qfactor);
+        angle = fr * self->twoPiOnSr;
+    
+        self->alpha[i] = radius * radius;
+        
+        pos = angle * self->norm_arr_pos;
+        ipart = (int)pos;
+        fpart = pos - ipart;
+        self->beta[i] = -2.0 * radius * (HALF_COS_ARRAY[i] * (1.0 - fpart) + HALF_COS_ARRAY[i+1] * fpart);
+        fr *= spread;
+    }    
+}
+
+static void
+Phaser_filters_iii(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_aii(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *freq = Stream_getData((Stream *)self->freq_stream);
+    float spread = PyFloat_AS_DOUBLE(self->spread);
+    float q = PyFloat_AS_DOUBLE(self->q);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread, q);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread, q);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_iai(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float freq = PyFloat_AS_DOUBLE(self->freq);
+    float *spread = Stream_getData((Stream *)self->spread_stream);
+    float q = PyFloat_AS_DOUBLE(self->q);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq, spread[i], q);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq, spread[i], q);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_aai(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *freq = Stream_getData((Stream *)self->freq_stream);
+    float *spread = Stream_getData((Stream *)self->spread_stream);
+    float q = PyFloat_AS_DOUBLE(self->q);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread[i], q);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread[i], q);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_iia(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float freq = PyFloat_AS_DOUBLE(self->freq);
+    float spread = PyFloat_AS_DOUBLE(self->spread);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq, spread, q[i]);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq, spread, q[i]);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_aia(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *freq = Stream_getData((Stream *)self->freq_stream);
+    float spread = PyFloat_AS_DOUBLE(self->spread);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread, q[i]);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread, q[i]);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_iaa(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float freq = PyFloat_AS_DOUBLE(self->freq);
+    float *spread = Stream_getData((Stream *)self->spread_stream);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq, spread[i], q[i]);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq, spread[i], q[i]);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void
+Phaser_filters_aaa(Phaser *self) {
+    float val, tmp;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    float *freq = Stream_getData((Stream *)self->freq_stream);
+    float *spread = Stream_getData((Stream *)self->spread_stream);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0) {
+        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread[i], q[i]);
+            tmp = in[i] + tmp * feed;
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }    
+    else {
+        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        for (i=0; i<self->bufsize; i++) {
+            Phaser_compute_variables(self, freq[i], spread[i], q[i]);
+            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            for (j=0; j<self->stages; j++) {
+                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                self->y2[j] = self->y1[j];
+                self->y1[j] = val;
+            }
+            self->data[i] = tmp;
+        }
+    }
+}
+
+static void Phaser_postprocessing_ii(Phaser *self) { POST_PROCESSING_II };
+static void Phaser_postprocessing_ai(Phaser *self) { POST_PROCESSING_AI };
+static void Phaser_postprocessing_ia(Phaser *self) { POST_PROCESSING_IA };
+static void Phaser_postprocessing_aa(Phaser *self) { POST_PROCESSING_AA };
+static void Phaser_postprocessing_ireva(Phaser *self) { POST_PROCESSING_IREVA };
+static void Phaser_postprocessing_areva(Phaser *self) { POST_PROCESSING_AREVA };
+static void Phaser_postprocessing_revai(Phaser *self) { POST_PROCESSING_REVAI };
+static void Phaser_postprocessing_revaa(Phaser *self) { POST_PROCESSING_REVAA };
+static void Phaser_postprocessing_revareva(Phaser *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Phaser_setProcMode(Phaser *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            Phaser_compute_variables(self, PyFloat_AS_DOUBLE(self->freq), PyFloat_AS_DOUBLE(self->spread), PyFloat_AS_DOUBLE(self->q));
+            self->proc_func_ptr = Phaser_filters_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Phaser_filters_aii;
+            break;
+        case 10:        
+            self->proc_func_ptr = Phaser_filters_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = Phaser_filters_aai;
+            break;
+        case 100:    
+            self->proc_func_ptr = Phaser_filters_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = Phaser_filters_aia;
+            break;
+        case 110:        
+            self->proc_func_ptr = Phaser_filters_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = Phaser_filters_aaa;
+            break;            
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Phaser_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Phaser_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Phaser_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Phaser_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Phaser_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Phaser_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Phaser_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Phaser_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Phaser_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Phaser_compute_next_data_frame(Phaser *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Phaser_traverse(Phaser *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->spread);    
+    Py_VISIT(self->spread_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    Py_VISIT(self->feedback);    
+    Py_VISIT(self->feedback_stream);    
+    return 0;
+}
+
+static int 
+Phaser_clear(Phaser *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->spread);    
+    Py_CLEAR(self->spread_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    Py_CLEAR(self->feedback);    
+    Py_CLEAR(self->feedback_stream);    
+    return 0;
+}
+
+static void
+Phaser_dealloc(Phaser* self)
+{
+    free(self->data);
+    free(self->y1);
+    free(self->y2);
+    free(self->alpha);
+    free(self->beta);
+    Phaser_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Phaser_deleteStream(Phaser *self) { DELETE_STREAM };
+
+static PyObject *
+Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Phaser *self;
+    self = (Phaser *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000.0);
+    self->spread = PyFloat_FromDouble(1.0);
+    self->q = PyFloat_FromDouble(10.0);
+    self->feedback = PyFloat_FromDouble(0.0);
+    self->stages = 8;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    self->halfSr = self->sr / 2.0;
+    self->minusPiOnSr = -PI / self->sr;
+    self->twoPiOnSr = TWOPI / self->sr;
+    self->norm_arr_pos = 1.0 / PI * 512.0;
+    
+    Stream_setFunctionPtr(self->stream, Phaser_compute_next_data_frame);
+    self->mode_func_ptr = Phaser_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Phaser_init(Phaser *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *spreadtmp=NULL, *qtmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "freq", "spread", "q", "feedback", "num", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &freqtmp, &spreadtmp, &qtmp, &feedbacktmp, &self->stages, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+
+    self->y1 = (float *)realloc(self->y1, self->stages * sizeof(float));
+    self->y2 = (float *)realloc(self->y2, self->stages * sizeof(float));
+    self->alpha = (float *)realloc(self->alpha, self->stages * sizeof(float));
+    self->beta = (float *)realloc(self->beta, self->stages * sizeof(float));
+    
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (spreadtmp) {
+        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+    }
+    
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+
+    if (feedbacktmp) {
+        PyObject_CallMethod((PyObject *)self, "setFeedback", "O", feedbacktmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    for (i=0; i<self->stages; i++) {
+        self->y1[i] = self->y2[i] = 0.0;
+    }
+    
+    Phaser_compute_next_data_frame((Phaser *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Phaser_getServer(Phaser* self) { GET_SERVER };
+static PyObject * Phaser_getStream(Phaser* self) { GET_STREAM };
+static PyObject * Phaser_setMul(Phaser *self, PyObject *arg) { SET_MUL };	
+static PyObject * Phaser_setAdd(Phaser *self, PyObject *arg) { SET_ADD };	
+static PyObject * Phaser_setSub(Phaser *self, PyObject *arg) { SET_SUB };	
+static PyObject * Phaser_setDiv(Phaser *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Phaser_play(Phaser *self) { PLAY };
+static PyObject * Phaser_out(Phaser *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Phaser_stop(Phaser *self) { STOP };
+
+static PyObject * Phaser_multiply(Phaser *self, PyObject *arg) { MULTIPLY };
+static PyObject * Phaser_inplace_multiply(Phaser *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Phaser_add(Phaser *self, PyObject *arg) { ADD };
+static PyObject * Phaser_inplace_add(Phaser *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Phaser_sub(Phaser *self, PyObject *arg) { SUB };
+static PyObject * Phaser_inplace_sub(Phaser *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Phaser_div(Phaser *self, PyObject *arg) { DIV };
+static PyObject * Phaser_inplace_div(Phaser *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Phaser_setFreq(Phaser *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Phaser_setSpread(Phaser *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->spread);
+	if (isNumber == 1) {
+		self->spread = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->spread = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->spread_stream);
+        self->spread_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Phaser_setQ(Phaser *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Phaser_setFeedback(Phaser *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->feedback);
+	if (isNumber == 1) {
+		self->feedback = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->feedback = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->feedback, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->feedback_stream);
+        self->feedback_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Phaser_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Phaser, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Phaser, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Phaser, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(Phaser, freq), 0, "Base frequency in Hertz."},
+    {"spread", T_OBJECT_EX, offsetof(Phaser, spread), 0, "Frequencies spreading factor."},
+    {"q", T_OBJECT_EX, offsetof(Phaser, q), 0, "Q factor."},
+    {"feedback", T_OBJECT_EX, offsetof(Phaser, feedback), 0, "Feedback factor."},
+    {"mul", T_OBJECT_EX, offsetof(Phaser, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Phaser, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Phaser_methods[] = {
+    {"getServer", (PyCFunction)Phaser_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Phaser_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Phaser_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Phaser_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Phaser_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Phaser_stop, METH_NOARGS, "Stops computing."},
+    {"setFreq", (PyCFunction)Phaser_setFreq, METH_O, "Sets base frequency in Hertz."},
+    {"setSpread", (PyCFunction)Phaser_setSpread, METH_O, "Sets spreading factor."},
+    {"setQ", (PyCFunction)Phaser_setQ, METH_O, "Sets filter Q factor."},
+    {"setFeedback", (PyCFunction)Phaser_setFeedback, METH_O, "Sets filter Feedback factor."},
+    {"setMul", (PyCFunction)Phaser_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Phaser_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Phaser_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Phaser_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Phaser_as_number = {
+    (binaryfunc)Phaser_add,                         /*nb_add*/
+    (binaryfunc)Phaser_sub,                         /*nb_subtract*/
+    (binaryfunc)Phaser_multiply,                    /*nb_multiply*/
+    (binaryfunc)Phaser_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Phaser_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Phaser_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Phaser_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Phaser_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject PhaserType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Phaser_base",                                   /*tp_name*/
+    sizeof(Phaser),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Phaser_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Phaser_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Phaser objects. Multi-stages second order allpass filters.",           /* tp_doc */
+    (traverseproc)Phaser_traverse,                  /* tp_traverse */
+    (inquiry)Phaser_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Phaser_methods,                                 /* tp_methods */
+    Phaser_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Phaser_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Phaser_new,                                     /* tp_new */
+};
+
