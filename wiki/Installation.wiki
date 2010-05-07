@@ -13,6 +13,12 @@ The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [
 
 Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip]
 
+Under Ubuntu 10.04 you can type the following to get the dependencies installed:
+
+{{{
+sudo apt-get install libportmidi-dev libportaudio-dev liblo-dev libsndfile-dev python-dev python-tk
+}}}
+
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
 
 To retrieve necessary dependencies headers to compile pyo, you can run the "get_dep_headers.sh" script from the scripts folder, it will download them to /usr/local/include directory :
