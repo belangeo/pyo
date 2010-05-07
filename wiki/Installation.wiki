@@ -16,7 +16,7 @@ Under Ubuntu 9.10, the default portmidi package is broken, get the one from Nove
 Under Ubuntu 10.04 you can type the following to get the dependencies installed:
 
 {{{
-sudo apt-get install libportmidi-dev libportaudio-dev liblo-dev libsndfile-dev python-dev python-tk
+sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk
 }}}
 
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
