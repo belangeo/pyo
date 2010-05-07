@@ -11,17 +11,6 @@ To install pyo, you will need the following dependencies:
 
 The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [http://csound.sourceforge.net/ csound], it will install those libraries for you.
 
-Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip]
-
-Under Ubuntu 10.04 you can type the following to get the dependencies installed:
-
-{{{
-sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion
-svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
-cd pyo-read_only
-sudo python setup.py install --install-layout=deb
-}}}
-
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
 
 To retrieve necessary dependencies headers to compile pyo, you can run the "get_dep_headers.sh" script from the scripts folder, it will download them to /usr/local/include directory :
@@ -47,7 +36,17 @@ In pyo's directory you then need to build the extension :
 python setup.py install
 }}}
 
-Under Ubuntu, use this instead to install :
+=Ubuntu 10.04=
+
+Under Ubuntu 10.04 you can type the following commands to get pyo up and running:
+
 {{{
-python setup.py install --install-layout=deb
+sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion
+svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
+cd pyo-read_only
+sudo python setup.py install --install-layout=deb
 }}}
+
+=Ubuntu 9.10=
+
+Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip] (for 32 bits systems)
