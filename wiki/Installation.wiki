@@ -41,7 +41,7 @@ python setup.py install
 Under Ubuntu 10.04 you can type the following commands to get pyo up and running:
 
 {{{
-sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion
+sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion python-imaging-tk
 svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
 cd pyo-read_only
 sudo python setup.py install --install-layout=deb
