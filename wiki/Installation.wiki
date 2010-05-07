@@ -49,4 +49,4 @@ sudo python setup.py install --install-layout=deb
 
 =Ubuntu 9.10=
 
-Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip] (for 32 bits systems)
+Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip] (for 32 bit systems)
