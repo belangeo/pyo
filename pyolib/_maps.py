@@ -41,7 +41,10 @@ class Map:
     Methods:
     
     get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range. 
+    setMin(x) : Replaces the 'min' attribute. 
+    setMax(x) : Replaces the 'max' attribute. 
+    setScale(x) : Replaces the 'scale' attribute. 
 
     Attributes:
     
@@ -86,12 +89,54 @@ class Map:
         else:
             return (x - self._min) / (self._max - self._min)
 
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+        
+        Parameters:
+
+        x : float
+            New `min` attribute.
+
+        """
+        self._min = x
+        
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+        
+        Parameters:
+
+        x : float
+            New `max` attribute.
+
+        """
+        self._max = x
+
+    def setScale(self, x):
+        """
+        Replace the `scale` attribute.
+        
+        Parameters:
+
+        x : string
+            New `scale` attribute.
+
+        """
+        self._scale = x
+
     @property
     def min(self): return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)    
     @property
     def max(self): return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
     @property
     def scale(self): return self._scale
+    @scale.setter
+    def scale(self, x): self.setScale(x)
 
 class SLMap(Map):
     """
