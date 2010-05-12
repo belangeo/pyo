@@ -105,6 +105,37 @@ portaudio_list_devices(){
 }
 
 static PyObject*
+portaudio_get_output_devices(){
+    
+    PyObject *list, *list_index;
+    list = PyList_New(0);
+    list_index = PyList_New(0);
+    
+    int err = Pa_Initialize();
+    
+    int n = Pa_GetDeviceCount();
+    if (n < 0){
+        portaudio_assert(n, "Pa_GetDeviceCount");
+    }
+    
+    int i;
+    for (i=0; i < n; ++i){
+        const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+        assert(info);
+
+        if (info->maxOutputChannels > 0){
+            fprintf(stdout, "%i: OUT %s, host api index: %i default: %i Hz, %f s latency\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
+            PyList_Append(list, PyString_FromString(info->name));
+            PyList_Append(list_index, PyInt_FromLong(i));
+        }
+    }
+    if (err >= 0)
+        Pa_Terminate();
+    
+    return Py_BuildValue("OO", list, list_index);
+}
+
+static PyObject*
 portaudio_list_host_apis(){
 
     int err = Pa_Initialize();
@@ -341,9 +372,10 @@ secToSamps(PyObject *self, PyObject *arg) {
 }                         
 
 static PyMethodDef pyo_functions[] = {
-{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
-{"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
-{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices found by Portaudio."},
+{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices founded by Portaudio."},
+{"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis founded by Portaudio."},
+{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices founded by Portaudio."},
+{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices ([devive names], [device indexes])founded by Portaudio."},
 {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Lists all host apis found by Portaudio."},
 {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
 {"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
