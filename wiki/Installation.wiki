@@ -16,7 +16,7 @@ Please note that under Mac OS X you will need to install the developer tools to 
 To retrieve necessary dependencies headers to compile pyo, you can run the "get_dep_headers.sh" script from the scripts folder, it will download them to /usr/local/include directory :
 
 {{{
-sh scripts/get_dep_headers.sh
+sh scripts/get_dependencies.sh
 }}}
 
 Under 10.6 if compilation fails, you might want to try installing csound 5.10 instead of 5.11.  Also, setting your Python installation to 32 bits may help, to do so :
