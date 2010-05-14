@@ -633,16 +633,30 @@ Server_stop(Server *self)
 }
 
 static PyObject *
-Server_start_rec(Server *self, PyObject *args)
+Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
 {    
+	char *filename=NULL;
+	
+    static char *kwlist[] = {"filename", NULL};
+
+	if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &filename))
+        return PyInt_FromLong(-1);
+
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->samplingRate;
     self->recinfo.channels = self->nchnls;
     self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
     
     /* Open the output file. */
-    if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
-        printf ("Not able to open output file %s.\n", self->recpath) ;
+	if (filename == NULL) {
+		if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
+			printf ("Not able to open output file %s.\n", self->recpath);
+		}	
+    }
+	else {
+		if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {   
+			printf ("Not able to open output file %s.\n", filename);
+		}	
     }
     
     self->record = 1;
@@ -757,7 +771,7 @@ static PyMethodDef Server_methods[] = {
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
 	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
-    {"recstart", (PyCFunction)Server_start_rec, METH_NOARGS, "Start automatic output recording."},
+    {"recstart", (PyCFunction)Server_start_rec, METH_VARARGS|METH_KEYWORDS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
     {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
                                                                 This is for internal use and must never be called by the user."},

@@ -58,8 +58,8 @@ class Server(object):
     shutdown() : Shut down and clear the server.
     start() : Start the audio callback loop.
     stop() : Stop the audio callback loop.
-    recstart() : Begin recording sound sent to output. Create a file called 
-        `pyo_rec.aif` in the user's home directory.
+    recstart(str) : Begin recording sound sent to output. Creates a file called 
+        `pyo_rec.aif` in the user's home directory if a path is not supplied.
     recstop() : Stop previously started recording.
     getSamplingRate() : Return the current sampling rate.
     getNchnls() : Return the current number of channels.
@@ -247,14 +247,22 @@ class Server(object):
         """
         self._server.stop()
         
-    def recstart(self):
+    def recstart(self, filename=None):
         """
         Begin a default recording of the sound that is sent to output. 
         This will create a file called `pyo_rec.aif` in the user's 
-        home directory.
+        home directory if no path is supplied.
+        
+        Parameters:
+        
+        filename : string, optional
+            Name of the file to be created. Defaults to None.
         
         """
-        self._server.recstart()
+        if filename == None:
+            self._server.recstart()
+        else:
+            self._server.recstart(filename)    
         
     def recstop(self):
         """
