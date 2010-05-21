@@ -583,3 +583,93 @@ class Log10(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Pow(PyoObject):
+    """
+    Performs a power function on audio signal.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    base : float or PyoObject, optional
+        Base composant. Defaults to 10.
+    exponent : float or PyoObject, optional
+        Exponent composant. Defaults to 1.
+
+    Methods:
+
+    setBase(x) : Replace the `base` attribute.
+    setExponent(x) : Replace the `exponent` attribute.
+
+    Attributes:
+
+    base : float or PyoObject, Base composant.
+    exponent : float or PyoObject, Exponent composant.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Phasor(freq=.2, mul=10)
+    >>> b = Pow(10, a)
+    >>> c = Print(input=b, interval=0.1)
+
+    """
+    def __init__(self, base=10, exponent=1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._base = base
+        self._exponent = exponent
+        self._mul = mul
+        self._add = add
+        base, exponent, mul, add, lmax = convertArgsToLists(base, exponent, mul, add)
+        self._base_objs = [M_Pow_base(wrap(base,i), wrap(exponent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['base', 'exponent', 'mul', 'add']
+
+    def setBase(self, x):
+        """
+        Replace the `base` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `base` attribute.
+
+        """
+        self._base = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setExponent(self, x):
+        """
+        Replace the `exponent` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `exponent` attribute.
+
+        """
+        self._exponent = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExponent(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def base(self):
+        """float or PyoObject. Base composant.""" 
+        return self._base
+    @base.setter
+    def base(self, x): self.setBase(x)
+
+    @property
+    def exponent(self):
+        """float or PyoObject. Exponent composant.""" 
+        return self._exponent
+    @exponent.setter
+    def exponent(self, x): self.setExponent(x)
