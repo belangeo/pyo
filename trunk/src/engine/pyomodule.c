@@ -988,6 +988,31 @@ init_pyo(void)
     Py_INCREF(&M_TanType);
     PyModule_AddObject(m, "M_Tan_base", (PyObject *)&M_TanType);
 
+    if (PyType_Ready(&M_AbsType) < 0)
+        return;
+    Py_INCREF(&M_AbsType);
+    PyModule_AddObject(m, "M_Abs_base", (PyObject *)&M_AbsType);    
+
+    if (PyType_Ready(&M_SqrtType) < 0)
+        return;
+    Py_INCREF(&M_SqrtType);
+    PyModule_AddObject(m, "M_Sqrt_base", (PyObject *)&M_SqrtType);    
+
+    if (PyType_Ready(&M_LogType) < 0)
+        return;
+    Py_INCREF(&M_LogType);
+    PyModule_AddObject(m, "M_Log_base", (PyObject *)&M_LogType);    
+
+    if (PyType_Ready(&M_Log2Type) < 0)
+        return;
+    Py_INCREF(&M_Log2Type);
+    PyModule_AddObject(m, "M_Log2_base", (PyObject *)&M_Log2Type);    
+
+    if (PyType_Ready(&M_Log10Type) < 0)
+        return;
+    Py_INCREF(&M_Log10Type);
+    PyModule_AddObject(m, "M_Log10_base", (PyObject *)&M_Log10Type);    
+    
     if (PyType_Ready(&SnapType) < 0)
         return;
     Py_INCREF(&SnapType);
