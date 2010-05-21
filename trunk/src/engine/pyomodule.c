@@ -1012,6 +1012,11 @@ init_pyo(void)
         return;
     Py_INCREF(&M_Log10Type);
     PyModule_AddObject(m, "M_Log10_base", (PyObject *)&M_Log10Type);    
+
+    if (PyType_Ready(&M_PowType) < 0)
+        return;
+    Py_INCREF(&M_PowType);
+    PyModule_AddObject(m, "M_Pow_base", (PyObject *)&M_PowType);    
     
     if (PyType_Ready(&SnapType) < 0)
         return;

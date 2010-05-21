@@ -162,6 +162,7 @@ extern PyTypeObject M_SqrtType;
 extern PyTypeObject M_LogType;
 extern PyTypeObject M_Log2Type;
 extern PyTypeObject M_Log10Type;
+extern PyTypeObject M_PowType;
 
 /* Constants */
 #define E M_E

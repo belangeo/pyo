@@ -2274,3 +2274,420 @@ PyTypeObject M_Log2Type = {
     0,                                              /* tp_alloc */
     M_Log2_new,                                     /* tp_new */
 };
+
+/**************/
+/* M_Pow object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *base;
+    Stream *base_stream;
+    PyObject *exponent;
+    Stream *exponent_stream;
+    int modebuffer[4];
+} M_Pow;
+
+static void
+M_Pow_readframes_ii(M_Pow *self) {
+    int i;
+    
+    float base = PyFloat_AS_DOUBLE(self->base);
+    float exp = PyFloat_AS_DOUBLE(self->exponent);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = powf(base, exp);
+    }
+}
+
+static void
+M_Pow_readframes_ai(M_Pow *self) {
+    int i;
+    
+    float *base = Stream_getData((Stream *)self->base_stream);
+    float exp = PyFloat_AS_DOUBLE(self->exponent);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = powf(base[i], exp);
+    }
+}
+
+static void
+M_Pow_readframes_ia(M_Pow *self) {
+    int i;
+    
+    float base = PyFloat_AS_DOUBLE(self->base);
+    float *exp = Stream_getData((Stream *)self->exponent_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = powf(base, exp[i]);
+    }
+}
+
+static void
+M_Pow_readframes_aa(M_Pow *self) {
+    int i;
+    
+    float *base = Stream_getData((Stream *)self->base_stream);
+    float *exp = Stream_getData((Stream *)self->exponent_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = powf(base[i], exp[i]);
+    }
+}
+
+static void M_Pow_postprocessing_ii(M_Pow *self) { POST_PROCESSING_II };
+static void M_Pow_postprocessing_ai(M_Pow *self) { POST_PROCESSING_AI };
+static void M_Pow_postprocessing_ia(M_Pow *self) { POST_PROCESSING_IA };
+static void M_Pow_postprocessing_aa(M_Pow *self) { POST_PROCESSING_AA };
+static void M_Pow_postprocessing_ireva(M_Pow *self) { POST_PROCESSING_IREVA };
+static void M_Pow_postprocessing_areva(M_Pow *self) { POST_PROCESSING_AREVA };
+static void M_Pow_postprocessing_revai(M_Pow *self) { POST_PROCESSING_REVAI };
+static void M_Pow_postprocessing_revaa(M_Pow *self) { POST_PROCESSING_REVAA };
+static void M_Pow_postprocessing_revareva(M_Pow *self) { POST_PROCESSING_REVAREVA };
+
+static void
+M_Pow_setProcMode(M_Pow *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = M_Pow_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = M_Pow_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = M_Pow_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = M_Pow_readframes_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = M_Pow_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = M_Pow_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = M_Pow_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = M_Pow_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = M_Pow_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = M_Pow_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = M_Pow_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = M_Pow_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = M_Pow_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+M_Pow_compute_next_data_frame(M_Pow *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+M_Pow_traverse(M_Pow *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->exponent);    
+    Py_VISIT(self->exponent_stream);    
+    Py_VISIT(self->base);    
+    Py_VISIT(self->base_stream);    
+    return 0;
+}
+
+static int 
+M_Pow_clear(M_Pow *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->exponent);    
+    Py_CLEAR(self->exponent_stream);    
+    Py_CLEAR(self->base);    
+    Py_CLEAR(self->base_stream);    
+    return 0;
+}
+
+static void
+M_Pow_dealloc(M_Pow* self)
+{
+    free(self->data);
+    M_Pow_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * M_Pow_deleteStream(M_Pow *self) { DELETE_STREAM };
+
+static PyObject *
+M_Pow_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    M_Pow *self;
+    self = (M_Pow *)type->tp_alloc(type, 0);
+    
+    self->base = PyFloat_FromDouble(10);
+    self->exponent = PyFloat_FromDouble(1);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, M_Pow_compute_next_data_frame);
+    self->mode_func_ptr = M_Pow_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+M_Pow_init(M_Pow *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *basetmp=NULL, *exponenttmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"base", "exponent", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &basetmp, &exponenttmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (basetmp) {
+        PyObject_CallMethod((PyObject *)self, "setBase", "O", basetmp);
+    }
+    
+    if (exponenttmp) {
+        PyObject_CallMethod((PyObject *)self, "setExponent", "O", exponenttmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    M_Pow_compute_next_data_frame((M_Pow *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * M_Pow_getServer(M_Pow* self) { GET_SERVER };
+static PyObject * M_Pow_getStream(M_Pow* self) { GET_STREAM };
+static PyObject * M_Pow_setMul(M_Pow *self, PyObject *arg) { SET_MUL };	
+static PyObject * M_Pow_setAdd(M_Pow *self, PyObject *arg) { SET_ADD };	
+static PyObject * M_Pow_setSub(M_Pow *self, PyObject *arg) { SET_SUB };	
+static PyObject * M_Pow_setDiv(M_Pow *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * M_Pow_play(M_Pow *self) { PLAY };
+static PyObject * M_Pow_out(M_Pow *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * M_Pow_stop(M_Pow *self) { STOP };
+
+static PyObject * M_Pow_multiply(M_Pow *self, PyObject *arg) { MULTIPLY };
+static PyObject * M_Pow_inplace_multiply(M_Pow *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * M_Pow_add(M_Pow *self, PyObject *arg) { ADD };
+static PyObject * M_Pow_inplace_add(M_Pow *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * M_Pow_sub(M_Pow *self, PyObject *arg) { SUB };
+static PyObject * M_Pow_inplace_sub(M_Pow *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * M_Pow_div(M_Pow *self, PyObject *arg) { DIV };
+static PyObject * M_Pow_inplace_div(M_Pow *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+M_Pow_setBase(M_Pow *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->base);
+	if (isNumber == 1) {
+		self->base = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->base = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->base, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->base_stream);
+        self->base_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+M_Pow_setExponent(M_Pow *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->exponent);
+	if (isNumber == 1) {
+		self->exponent = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->exponent = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->exponent, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->exponent_stream);
+        self->exponent_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef M_Pow_members[] = {
+    {"server", T_OBJECT_EX, offsetof(M_Pow, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(M_Pow, stream), 0, "Stream object."},
+    {"base", T_OBJECT_EX, offsetof(M_Pow, base), 0, "base composant."},
+    {"exponent", T_OBJECT_EX, offsetof(M_Pow, exponent), 0, "exponent composant."},
+    {"mul", T_OBJECT_EX, offsetof(M_Pow, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(M_Pow, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef M_Pow_methods[] = {
+    {"getServer", (PyCFunction)M_Pow_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)M_Pow_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)M_Pow_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)M_Pow_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)M_Pow_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)M_Pow_stop, METH_NOARGS, "Stops computing."},
+    {"setBase", (PyCFunction)M_Pow_setBase, METH_O, "Sets base."},
+    {"setExponent", (PyCFunction)M_Pow_setExponent, METH_O, "Sets exponent."},
+    {"setMul", (PyCFunction)M_Pow_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)M_Pow_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)M_Pow_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)M_Pow_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods M_Pow_as_number = {
+    (binaryfunc)M_Pow_add,                      /*nb_add*/
+    (binaryfunc)M_Pow_sub,                 /*nb_subtract*/
+    (binaryfunc)M_Pow_multiply,                 /*nb_multiply*/
+    (binaryfunc)M_Pow_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)M_Pow_inplace_add,              /*inplace_add*/
+    (binaryfunc)M_Pow_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)M_Pow_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)M_Pow_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject M_PowType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.M_Pow_base",         /*tp_name*/
+    sizeof(M_Pow),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)M_Pow_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &M_Pow_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "M_Pow objects. Power function.",           /* tp_doc */
+    (traverseproc)M_Pow_traverse,   /* tp_traverse */
+    (inquiry)M_Pow_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    M_Pow_methods,             /* tp_methods */
+    M_Pow_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)M_Pow_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    M_Pow_new,                 /* tp_new */
+};
