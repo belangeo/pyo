@@ -20,6 +20,38 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from distutils.sysconfig import get_python_lib
 import os
 
+import sys
+import __builtin__
+
+# For Python 2.5-, this will enable the simliar property mechanism as in
+# Python 2.6+/3.0+. The code is based on
+# http://bruynooghe.blogspot.com/2008/04/xsetter-syntax-in-python-25.html
+if sys.version_info[:2] <= (2, 5):
+    class property(property):
+        def __init__(self, fget, *args, **kwargs):
+            self.__doc__ = fget.__doc__
+            super(property, self).__init__(fget, *args, **kwargs)
+
+        def setter(self, fset):
+            cls_ns = sys._getframe(1).f_locals
+            for k, v in cls_ns.iteritems():
+                if v == self:
+                    propname = k
+                    break
+            cls_ns[propname] = property(self.fget, fset, self.fdel, self.__doc__)
+            return cls_ns[propname]
+
+        def deleter(self, fdel):
+            cls_ns = sys._getframe(1).f_locals
+            for k, v in cls_ns.iteritems():
+                if v == self:
+                    propname = k
+                    break
+            cls_ns[propname] = property(self.fget, self.fset, fdel, self.__doc__)
+            return cls_ns[propname]
+
+    __builtin__.property = property
+
 from pyolib._maps import *
 import pyolib.analysis as analysis
 from pyolib.analysis import *
