@@ -157,6 +157,11 @@ extern PyTypeObject SampHoldType;
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
 extern PyTypeObject M_TanType;
+extern PyTypeObject M_AbsType;
+extern PyTypeObject M_SqrtType;
+extern PyTypeObject M_LogType;
+extern PyTypeObject M_Log2Type;
+extern PyTypeObject M_Log10Type;
 
 /* Constants */
 #define E M_E

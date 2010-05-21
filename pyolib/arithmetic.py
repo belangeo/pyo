@@ -230,3 +230,356 @@ class Tan(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Abs(PyoObject):
+    """
+    Performs a absolute function on audio signal.
+
+    Returns the absolute value of input.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, angle in radians.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> t = SndTable(SNDS_PATH + "/transparent.aif")
+    >>> a = Phasor(freq=t.getRate()*0.5, mul=2, add=-1)
+    >>> b = Pointer(table=t, index=Abs(a), mul=0.5).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Abs_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+class Sqrt(PyoObject):
+    """
+    Performs a square-root function on audio signal.
+
+    Returns the square-root value of input.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, angle in radians.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> src = Sine(mul=.5)
+    >>> a = Abs(Phasor(freq=1, mul=2, add=-1))
+    >>> left = Sqrt(1.0 - a)
+    >>> right = Sqrt(a)
+    >>> oL = src * left
+    >>> oR = src * right
+    >>> oL.out()
+    >>> oR.out(1)
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Sqrt_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+class Log(PyoObject):
+    """
+    Performs a natural log function on audio signal.
+
+    Returns the natural log value of input. Values less than 0.0
+    return 0.0.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, angle in radians.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> a = RandInt(max=1000, freq=4)
+    >>> b = Log(a)
+    >>> c = Print(input=b, method=1)
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Log_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+class Log2(PyoObject):
+    """
+    Performs a base 2 log function on audio signal.
+
+    Returns the base 2 log value of input. Values less than 0.0
+    return 0.0.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, angle in radians.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> a = RandInt(max=1000, freq=4)
+    >>> b = Log2(a)
+    >>> c = Print(input=b, method=1)
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Log2_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+class Log10(PyoObject):
+    """
+    Performs a base 10 log function on audio signal.
+
+    Returns the base 10 log value of input. Values less than 0.0
+    return 0.0.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, angle in radians.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> a = RandInt(max=1000, freq=4)
+    >>> b = Log10(a)
+    >>> c = Print(input=b, method=1)
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Log10_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
