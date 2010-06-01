@@ -2184,7 +2184,6 @@ static PyObject * Selector_inplace_div(Selector *self, PyObject *arg) { INPLACE_
 static PyObject *
 Selector_setInputs(Selector *self, PyObject *arg)
 {
-    int i;
 	PyObject *tmp;
 	
 	if (! PyList_Check(arg)) {

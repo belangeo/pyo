@@ -635,7 +635,7 @@ typedef struct {
     Stream *boost_stream;
     void (*coeffs_func_ptr)();
     int init;
-    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int modebuffer[5]; // need at least 2 slots for mul & add 
     int filtertype;
     // sample memories
     float x1;
@@ -3567,6 +3567,7 @@ typedef struct {
     float minusPiOnSr;
     float twoPiOnSr;
     float norm_arr_pos;
+    float tmp;
     // sample memories
     float *y1;
     float *y2;
@@ -3614,41 +3615,41 @@ Phaser_compute_variables(Phaser *self, float freq, float spread, float q)
 
 static void
 Phaser_filters_iii(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
 
     if (self->modebuffer[5] == 0) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_aii(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *freq = Stream_getData((Stream *)self->freq_stream);
@@ -3659,35 +3660,35 @@ Phaser_filters_aii(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_iai(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float freq = PyFloat_AS_DOUBLE(self->freq);
@@ -3698,35 +3699,35 @@ Phaser_filters_iai(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_aai(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *freq = Stream_getData((Stream *)self->freq_stream);
@@ -3737,35 +3738,35 @@ Phaser_filters_aai(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_iia(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float freq = PyFloat_AS_DOUBLE(self->freq);
@@ -3776,35 +3777,35 @@ Phaser_filters_iia(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread, q[i]);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread, q[i]);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_aia(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *freq = Stream_getData((Stream *)self->freq_stream);
@@ -3815,35 +3816,35 @@ Phaser_filters_aia(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q[i]);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q[i]);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_iaa(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float freq = PyFloat_AS_DOUBLE(self->freq);
@@ -3854,35 +3855,35 @@ Phaser_filters_iaa(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q[i]);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q[i]);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
 
 static void
 Phaser_filters_aaa(Phaser *self) {
-    float val, tmp;
+    float val;
     int i, j;
     float *in = Stream_getData((Stream *)self->input_stream);
     float *freq = Stream_getData((Stream *)self->freq_stream);
@@ -3893,28 +3894,28 @@ Phaser_filters_aaa(Phaser *self) {
         float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q[i]);
-            tmp = in[i] + tmp * feed;
+            self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }    
     else {
         float *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q[i]);
-            tmp = in[i] + tmp * Phaser_clip(feed[i]);
+            self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
-                val = tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
-                tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
+                val = self->tmp + (self->y1[j] * -self->beta[j]) + (self->y2[j] * -self->alpha[j]);
+                self->tmp = (val * self->alpha[j]) + (self->y1[j] * self->beta[j]) + self->y2[j];
                 self->y2[j] = self->y1[j];
                 self->y1[j] = val;
             }
-            self->data[i] = tmp;
+            self->data[i] = self->tmp;
         }
     }
 }
@@ -4060,6 +4061,7 @@ Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->spread = PyFloat_FromDouble(1.0);
     self->q = PyFloat_FromDouble(10.0);
     self->feedback = PyFloat_FromDouble(0.0);
+    self->tmp = 0.0;
     self->stages = 8;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;

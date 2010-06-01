@@ -1602,7 +1602,6 @@ static int
 Compare_init(Compare *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp, *comptmp, *modetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    char *mode = NULL;
     
     static char *kwlist[] = {"input", "comp", "mode", "mul", "add", NULL};
     
@@ -1697,25 +1696,24 @@ Compare_setMode(Compare *self, PyObject *arg)
 		Py_RETURN_NONE;
 	}
     
-	if (! PyString_Check(arg)) {
+	if (! PyInt_Check(arg)) {
         printf("mode should be a comparison operator as a string\n");
 		Py_RETURN_NONE;
     }
-	
-	char *tmp;
-    tmp = PyString_AsString(arg);
+
+    int tmp = PyInt_AsLong(arg);
     
-    if (tmp == "<")
+    if (tmp == 0)
         self->compare_func_ptr = Compare_lt;
-    else if (tmp == "<=")
+    else if (tmp == 1)
         self->compare_func_ptr = Compare_elt;
-    else if (tmp == ">")
+    else if (tmp == 2)
         self->compare_func_ptr = Compare_gt;
-    else if (tmp == ">=")
+    else if (tmp == 3)
         self->compare_func_ptr = Compare_egt;
-    else if (tmp == "==")
+    else if (tmp == 4)
         self->compare_func_ptr = Compare_eq;
-    else if (tmp == "!=")
+    else if (tmp == 5)
         self->compare_func_ptr = Compare_neq;
     
     Py_RETURN_NONE;

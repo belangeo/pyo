@@ -623,8 +623,9 @@ class Compare(PyoObject):
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
+        self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
         in_fader, comp, mode, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mode, mul, add)
-        self._base_objs = [Compare_base(wrap(in_fader,i), wrap(comp,i), wrap(mode,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [Compare_base(wrap(in_fader,i), wrap(comp,i), self.comp_dict[wrap(mode,i)], wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['input', 'comp', 'mode', 'mul', 'add']
@@ -675,7 +676,7 @@ class Compare(PyoObject):
         """
         self._mode = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMode(self.comp_dict[wrap(x,i)]) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None):
         self._map_list = []
