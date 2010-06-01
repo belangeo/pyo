@@ -436,7 +436,6 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *densitytmp=NULL;
     
     static char *kwlist[] = {"density", "poly", NULL};

@@ -1717,8 +1717,8 @@ ExpTable_generate(ExpTable *self) {
     Py_ssize_t i, j, steps;
     Py_ssize_t listsize;
     PyObject *tup;
-    int x1, x2, biexpon;
-    float y1, y2, range, inc, pointer, scl, exp; 
+    int x1, x2;
+    float y1, y2, range, inc, pointer, scl; 
     
     for (i=0; i<self->size; i++) {
         self->data[i] = 0.0;
