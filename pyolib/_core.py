@@ -192,13 +192,16 @@ class PyoObject(object):
     def __init__(self):
         self._target_dict = {}
         self._signal_dict = {}
+        self._keep_trace = []
 
     def __add__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
         return self._add_dummy
         
     def __radd__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
         return self._add_dummy
@@ -208,11 +211,13 @@ class PyoObject(object):
         return self
 
     def __sub__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
         return self._add_dummy
 
     def __rsub__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._add_dummy = Dummy([Sig(wrap(x,i)) - obj for i, obj in enumerate(self._base_objs)])
         return self._add_dummy
@@ -222,11 +227,13 @@ class PyoObject(object):
         return self
  
     def __mul__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
         return self._mul_dummy
         
     def __rmul__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
         return self._mul_dummy
@@ -236,11 +243,13 @@ class PyoObject(object):
         return self
  
     def __div__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
         return self._mul_dummy
 
     def __rdiv__(self, x):
+        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         self._mul_dummy = Dummy([Sig(wrap(x,i)) / obj for i, obj in enumerate(self._base_objs)])
         return self._mul_dummy
