@@ -5,7 +5,7 @@ from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 
-snds = ['/Users/olipet/Documents/MaxMSP/@sons/sequenceur/0%dgam%d' % (i,i) for i in range(1,7)]
+snds = ['/Users/olivier/Desktop/snds/rec_%d.aif' % i for i in range(1,7)]
 num = len(snds)
 olaps = 4
 
