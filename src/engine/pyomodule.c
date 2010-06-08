@@ -46,9 +46,7 @@ portaudio_count_host_api(){
     int numApis, err;
 
     err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
-        Pa_Terminate();
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -67,8 +65,7 @@ portaudio_count_devices(){
     int err;
 	
 	err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -87,8 +84,7 @@ portaudio_list_devices(){
     int err, n, i;
 	
 	err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -124,8 +120,7 @@ portaudio_get_output_devices(){
     list_index = PyList_New(0);
     	
 	err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -155,8 +150,7 @@ portaudio_list_host_apis(){
     int err, n, i;
 	
 	err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -185,8 +179,7 @@ portaudio_get_default_host_api(){
     int err, i;
 	
 	err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -207,8 +200,7 @@ portaudio_get_default_input(){
     int err, i;
 	
 	err = Pa_Initialize();
-    if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+    if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
@@ -230,8 +222,7 @@ portaudio_get_default_output(){
     int err, i;
 	
 	err = Pa_Initialize();
-	if (err >= 0) {
-        portaudio_assert(err, "Pa_Initialize");
+	if (err < 0) {
 		Py_INCREF(Py_None);
 		return Py_None;
 	}
