@@ -13,7 +13,7 @@ The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [
 
 Please note that under Mac OS X you will need to install the developer tools to compile pyo.
 
-To retrieve necessary dependencies headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder, it will download them to /usr/local/include directory :
+To retrieve necessary dependency librairies and headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder, it will download them to /usr/local/lib and /usr/local/include directory :
 
 {{{
 sh scripts/get_dependencies.sh
