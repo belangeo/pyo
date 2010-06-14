@@ -375,7 +375,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
 
 static PyObject *
 midiToHz(PyObject *self, PyObject *arg) {
-    return Py_BuildValue("f", 8.175798 * powf(1.0594633, PyFloat_AsDouble(PyNumber_Float(arg))));
+    return Py_BuildValue("f", 8.1757989156437 * powf(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))));
 }    
 
 static PyObject *
@@ -988,7 +988,12 @@ init_pyo(void)
         return;
     Py_INCREF(&GranulatorType);
     PyModule_AddObject(m, "Granulator_base", (PyObject *)&GranulatorType);
-    
+
+	if (PyType_Ready(&HarmonizerType) < 0)
+        return;
+    Py_INCREF(&HarmonizerType);
+    PyModule_AddObject(m, "Harmonizer_base", (PyObject *)&HarmonizerType);
+	
     if (PyType_Ready(&PrintType) < 0)
         return;
     Py_INCREF(&PrintType);

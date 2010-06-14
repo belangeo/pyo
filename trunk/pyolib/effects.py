@@ -820,3 +820,151 @@ class WGVerb(PyoObject):
         return self._mix
     @mix.setter
     def mix(self, x): self.setMix(x)
+
+class Harmonizer(PyoObject):
+    """
+    Generates harmonizing voices in synchrony with its input.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal.
+    transpo : float or PyoObject, optional
+       Transposition factor in semitone. Defaults to -7.0.
+    feedback : float or PyoObject, optional
+        Amount of output signal sent back into the delay line.
+         Defaults to 0.
+    winsize : float, optional
+        Window size in seconds (max = 1.0). 
+        Defaults to 0.05.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setTranspo(x) : Replace the `transpo` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+    setWinsize(x) : Replace the `winsize` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal.
+    transpo : float or PyoObject. Transposition factor in semitone.
+    feedback : float or PyoObject. Amount of output signal sent back 
+        into the delay line.
+    winsize : float. Window size in seconds (max = 1.0).
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5).out(0)
+    >>> harm = Harmonizer(sf, 4).out(1)
+
+    """
+    def __init__(self, input, transpo=-7.0, feedback=0, winsize=0.05, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._transpo = transpo
+        self._feedback = feedback
+        self._winsize = winsize
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, transpo, feedback, winsize, mul, add, lmax = convertArgsToLists(self._in_fader, transpo, feedback, winsize, mul, add)
+        self._base_objs = [Harmonizer_base(wrap(in_fader,i), wrap(transpo,i), wrap(feedback,i), wrap(winsize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'transpo', 'feedback', 'winsize', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTranspo(self, x):
+        """
+        Replace the `transpo` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `transpo` attribute.
+
+        """
+        self._transpo = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTranspo(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setWinsize(self, x):
+        """
+        Replace the `winsize` attribute.
+
+        Parameters:
+
+        x : float
+            New `winsize` attribute.
+
+        """
+        self._winsize = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setWinsize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(-24.0, 24.0, 'lin', 'transpo',  self._transpo),
+                          SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to delayed.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def transpo(self):
+        """float or PyoObject. Transposition factor in semitone.""" 
+        return self._transpo
+    @transpo.setter
+    def transpo(self, x): self.setTranspo(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
+
+    @property
+    def winsize(self):
+        """float. Window size in seconds (max = 1.0).""" 
+        return self._winsize
+    @winsize.setter
+    def winsize(self, x): self.setWinsize(x)

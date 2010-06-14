@@ -82,6 +82,7 @@ extern PyTypeObject WGVerbType;
 extern PyTypeObject ConvolveType;
 
 extern PyTypeObject GranulatorType;
+extern PyTypeObject HarmonizerType;
 
 extern PyTypeObject MidictlType;
 extern PyTypeObject MidiNoteType;
