@@ -252,7 +252,7 @@ class ViewMatrix_withoutPIL(Frame):
 ######################################################################
 class ServerGUI(Frame):
     def __init__(self, master=None, nchnls=2, startf=None, stopf=None, 
-                 recstartf=None, recstopf=None, ampf=None, locals=None):
+                 recstartf=None, recstopf=None, ampf=None, started=0, locals=None):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
         self.locals = locals
         self.nchnls = nchnls
@@ -271,6 +271,8 @@ class ServerGUI(Frame):
         self.rowconfigure(1, pad=10)
         self.rowconfigure(2, pad=10)
         self.createWidgets()
+        if started == 1:
+            self.start(True)
 
     def createWidgets(self):
         self.startStringVar = StringVar(self)
@@ -338,9 +340,10 @@ class ServerGUI(Frame):
         self._histo_count = len(self._history)
         return "break"
         
-    def start(self):
+    def start(self, justSet=False):
         if self._started == False:
-            self.startf()
+            if not justSet:
+                self.startf()
             self._started = True
             self.startStringVar.set('Stop')
             self.quitButton.configure(state = DISABLED)
@@ -429,10 +432,10 @@ It helps a lot to speed up matrix drawing!"""
     win.resizable(False, False)
     win.title("Matrix viewer")
 
-def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, locals):
+def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals):
     createRootWindow()
     win = createToplevelWindow()
-    f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp, locals)
+    f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp, started, locals)
     f.master.title("pyo server")
     f.focus_set()
     return f, win

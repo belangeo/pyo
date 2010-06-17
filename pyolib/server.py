@@ -61,9 +61,10 @@ class Server(object):
     recstart(str) : Begin recording sound sent to output. Creates a file called 
         `pyo_rec.aif` in the user's home directory if a path is not supplied.
     recstop() : Stop previously started recording.
-    getSamplingRate() : Return the current sampling rate.
-    getNchnls() : Return the current number of channels.
-    getBufferSize() : Retrun the current buffer size.    
+    getSamplingRate() : Returns the current sampling rate.
+    getNchnls() : Returns the current number of channels.
+    getBufferSize() : Returns the current buffer size.
+    getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
 
     * The next methods must be called before booting the server
 
@@ -99,7 +100,7 @@ class Server(object):
         self._server = Server_base(sr, nchnls, buffersize, duplex)
 
     def gui(self, locals=None):
-        f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop, self.setAmp, locals)
+        f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop, self.setAmp, self.getIsStarted(), locals)
         self._server.setAmpCallable(f)
         win.mainloop()
 
@@ -298,6 +299,13 @@ class Server(object):
         
         """
         return self._server.getBufferSize()
+
+    def getIsStarted(self):
+        """
+        Returns 1 if the server is started, otherwise returns 0.
+        
+        """
+        return self._server.getIsStarted()
 
     @property
     def amp(self):
