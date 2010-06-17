@@ -750,6 +750,12 @@ Server_getBufferSize(Server *self)
 }
 
 static PyObject *
+Server_getIsStarted(Server *self)
+{
+    return PyInt_FromLong(self->server_started);
+}
+
+static PyObject *
 Server_getStreams(Server *self)
 {
     Py_INCREF(self->streams);
@@ -781,6 +787,7 @@ static PyMethodDef Server_methods[] = {
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
     {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of channels."},
     {"getBufferSize", (PyCFunction)Server_getBufferSize, METH_NOARGS, "Returns the server's buffer size."},
+    {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
     {NULL}  /* Sentinel */
 };
 
