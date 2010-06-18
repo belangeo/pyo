@@ -702,3 +702,77 @@ class Compare(PyoObject):
         return self._mode
     @mode.setter
     def mode(self, x): self.setMode(x)
+
+class Record(PyoObject):
+    """
+    Writes input sound in an audio file on the disk.
+
+    `input` parameter must be a valid PyoObject or an addition of 
+    PyoObjects. Parameters can't be in list format.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to record.
+    filename : string
+        Full path of the file to create.
+    chnls : int, optional
+        Number of channels in the audio file. Defaults to 2.
+    format : int, optional      
+        Format type of the audio file. Possible formats are:
+            0 : AIFF 32 bits float (Default)
+            1 : WAV 32 bits float
+            2 : AIFF 16 bit int
+            3 : WAV 16 bits int
+            4 : AIFF 24 bits int
+            5 : WAV 24 bits int
+            6 : AIFF 32 bits int
+            7 : WAV 32 bits int
+    buffering : int, optional
+        Number of bufferSize to wait before writing samples to disk.
+        High buffering uses more memory but improves performance.
+        Defaults to 4.
+        
+    Notes:
+    
+    All parameters can only be set at intialization time.    
+
+    The `stop` method must be called on the object to close the file 
+    properly.
+    
+    The out() method is bypassed. Record's signal can not be sent to 
+    audio outs.
+    
+    Record has no `mul` and `add` attributes.
+        
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> from random import uniform
+    >>> import os
+    >>> t = HarmTable([1, 0, 0, .2, 0, 0, 0, .1, 0, 0, .05])
+    >>> amp = Fader(fadein=.05, fadeout=2, dur=4, mul=.05).play()
+    >>> osc = Osc(t, freq=[uniform(350,360) for i in range(10)], mul=amp).out()
+    >>> home = os.path.expanduser('~')
+    >>> rec = Record(osc, filename=home+"/example_synth.aif", format=2)
+    >>> clean = Clean_objects(4.5, rec)
+    >>> clean.start()
+
+    """
+    def __init__(self, input, filename, chnls=2, format=0, buffering=4):
+        PyoObject.__init__(self)
+        self._input = input
+        self._base_objs = [Record_base(self._input.getBaseObjects(), filename, chnls, format, buffering)]
+
+    def out(self, chnl=0, inc=1):
+        pass
+
+    def __dir__(self):
+        return []
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title)

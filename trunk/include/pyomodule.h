@@ -89,6 +89,7 @@ extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
 
 extern PyTypeObject DummyType;
+extern PyTypeObject RecordType;
 extern PyTypeObject CompareType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;
