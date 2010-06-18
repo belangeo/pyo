@@ -4,7 +4,7 @@
 from pyo import *
 s = Server(buffersize=512).boot()
 
-snd = SndTable(DEMOS_PATH + '/transparent.aif')
+snd = SndTable(SNDS_PATH + '/transparent.aif')
 snd.view()
 env = HannTable()
 

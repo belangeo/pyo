@@ -433,6 +433,11 @@ init_pyo(void)
     Py_INCREF(&DummyType);
     PyModule_AddObject(m, "Dummy_base", (PyObject *)&DummyType);
 
+    if (PyType_Ready(&RecordType) < 0)
+        return;
+    Py_INCREF(&RecordType);
+    PyModule_AddObject(m, "Record_base", (PyObject *)&RecordType);
+    
     if (PyType_Ready(&CompareType) < 0)
         return;
     Py_INCREF(&CompareType);
