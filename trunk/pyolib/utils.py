@@ -708,7 +708,7 @@ class Record(PyoObject):
     Writes input sound in an audio file on the disk.
 
     `input` parameter must be a valid PyoObject or an addition of 
-    PyoObjects. Parameters can't be in list format.
+    PyoObjects, parameters can't be in list format.
 
     Parent class: PyoObject
 
