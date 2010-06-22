@@ -176,6 +176,188 @@ class Biquad(PyoObject):
     @type.setter
     def type(self, x): self.setType(x)
 
+class Biquadx(PyoObject):
+    """
+    A multi-stages sweepable general purpose biquadratic digital filter. 
+    
+    Biquadx is equivalent to a filter consisting of more layers of Biquad
+    with the same arguments, serially connected. It is faster than using
+    a large number of instances of the Biquad object, uses less memory 
+    and allows filters with sharper cutoff.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to filter.
+    freq : float or PyoObject, optional
+        Cutoff or center frequency of the filter. Defaults to 1000.
+    q : float or PyoObject, optional
+        Q of the filter, defined (for bandpass filters) as freq/bandwidth. 
+        Should be between 1 and 500. Defaults to 1.
+    type : int, optional
+        Filter type. Five possible values :
+            0 = lowpass (default)
+            1 = highpass
+            2 = bandpass
+            3 = bandstop
+            4 = allpass
+    stages : int, optional
+        The number of filtering stages in the filter stack. Defaults to 4.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setType(x) : Replace the `type` attribute.
+    setType(x) : Replace the `stages` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    freq : float or PyoObject. Cutoff or center frequency of the filter.
+    q : float or PyoObject. Q of the filter.
+    type : int. Filter type.
+    stages : int. The number of filtering stages.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5)
+    >>> lfo = Sine(freq=.25, mul=1000, add=1000)
+    >>> f = Biquadx(a, freq=lfo, q=5, type=2).out()
+
+    """
+    def __init__(self, input, freq=1000, q=1, type=0, stages=4, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._type = type
+        self._stages = stages
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, q, type, stages, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, stages, mul, add)
+        self._base_objs = [Biquadx_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'q', 'type', 'stages', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 1 and 500.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setType(self, x):
+        """
+        Replace the `type` attribute.
+
+        Parameters:
+
+        x : int
+            New `type` attribute. 
+            0 = lowpass, 1 = highpass, 2 = bandpass, 3 = bandstop, 4 = allpass
+
+        """
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setStages(self, x):
+        """
+        Replace the `stages` attribute.
+
+        Parameters:
+
+        x : int
+            New `stages` attribute. 
+
+        """
+        self._stages = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff or center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q of the filter.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def type(self):
+        """int. Filter type.""" 
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
+
+    @property
+    def stages(self):
+        """int. The number of filtering stages.""" 
+        return self._stages
+    @stages.setter
+    def stages(self, x): self.setStages(x)
+
 class EQ(PyoObject):
     """
     Equalizer filter. 
