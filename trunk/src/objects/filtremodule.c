@@ -622,6 +622,661 @@ PyTypeObject BiquadType = {
     Biquad_new,                                     /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    void (*coeffs_func_ptr)();
+    int init;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int filtertype;
+    int stages;
+    // sample memories
+    float *x1;
+    float *x2;
+    float *y1;
+    float *y2;
+    // variables
+    float c;
+    float w0;
+    float alpha;
+    // coefficients
+    float b0;
+    float b1;
+    float b2;
+    float a0;
+    float a1;
+    float a2;
+} Biquadx;
+
+static void
+Biquadx_allocate_memories(Biquadx *self)
+{
+    self->x1 = (float *)realloc(self->x1, self->stages * sizeof(float));
+    self->x2 = (float *)realloc(self->x2, self->stages * sizeof(float));
+    self->y1 = (float *)realloc(self->y1, self->stages * sizeof(float));
+    self->y2 = (float *)realloc(self->y2, self->stages * sizeof(float));
+    self->init = 1;
+}
+
+static void 
+Biquadx_compute_coeffs_lp(Biquadx *self)
+{
+    self->b0 = self->b2 = (1 - self->c) / 2;
+    self->b1 = 1 - self->c;
+    self->a0 = 1 + self->alpha;
+    self->a1 = -2 * self->c;
+    self->a2 = 1 - self->alpha;
+}
+
+static void 
+Biquadx_compute_coeffs_hp(Biquadx *self)
+{
+    self->b0 = (1 + self->c) / 2;
+    self->b1 = -(1 + self->c);
+    self->b2 = self->b0;
+    self->a0 = 1 + self->alpha;
+    self->a1 = -2 * self->c;
+    self->a2 = 1 - self->alpha;
+}
+
+static void 
+Biquadx_compute_coeffs_bp(Biquadx *self)
+{
+    self->b0 = self->alpha;
+    self->b1 = 0;
+    self->b2 = -self->alpha;
+    self->a0 = 1 + self->alpha;
+    self->a1 = -2 * self->c;
+    self->a2 = 1 - self->alpha;
+}
+
+static void 
+Biquadx_compute_coeffs_bs(Biquadx *self)
+{
+    self->b0 = 1;
+    self->b1 = self->a1 = -2 * self->c;
+    self->b2 = 1;
+    self->a0 = 1 + self->alpha;
+    self->a2 = 1 - self->alpha;
+}
+
+static void 
+Biquadx_compute_coeffs_ap(Biquadx *self)
+{
+    self->b0 = self->a2 = 1 - self->alpha;
+    self->b1 = self->a1 = -2 * self->c;
+    self->b2 = self->a0 = 1 + self->alpha;
+}
+
+static void
+Biquadx_compute_variables(Biquadx *self, float freq, float q)
+{    
+    if (freq <= 1) 
+        freq = 1;
+    else if (freq >= self->sr)
+        freq = self->sr;
+    
+    self->w0 = TWOPI * freq / self->sr;
+    self->c = cosf(self->w0);
+    self->alpha = sinf(self->w0) / (2 * q);
+    (*self->coeffs_func_ptr)(self);
+}
+
+static void
+Biquadx_filters_ii(Biquadx *self) {
+    float vin, vout;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        for (i=0; i<self->stages; i++) {
+            self->x1[i] = self->x2[i] = self->y1[i] = self->y2[i] = in[0];
+        }    
+        self->init = 0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        vin = in[i];
+        for (j=0; j<self->stages; j++) {   
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void
+Biquadx_filters_ai(Biquadx *self) {
+    float vin, vout, q;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        for (i=0; i<self->stages; i++) {
+            self->x1[i] = self->x2[i] = self->y1[i] = self->y2[i] = in[0];
+        }    
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    
+    for (i=0; i<self->bufsize; i++) {
+        Biquadx_compute_variables(self, fr[i], q);
+        vin = in[i];
+        for (j=0; j<self->stages; j++) {   
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void
+Biquadx_filters_ia(Biquadx *self) {
+    float vin, vout, fr;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        for (i=0; i<self->stages; i++) {
+            self->x1[i] = self->x2[i] = self->y1[i] = self->y2[i] = in[0];
+        }    
+        self->init = 0;
+    }
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        Biquadx_compute_variables(self, fr, q[i]);
+        vin = in[i];
+        for (j=0; j<self->stages; j++) {   
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void
+Biquadx_filters_aa(Biquadx *self) {
+    float vin, vout;
+    int i, j;
+    float *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->init == 1) {
+        for (i=0; i<self->stages; i++) {
+            self->x1[i] = self->x2[i] = self->y1[i] = self->y2[i] = in[0];
+        }    
+        self->init = 0;
+    }
+    
+    float *fr = Stream_getData((Stream *)self->freq_stream);
+    float *q = Stream_getData((Stream *)self->q_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        Biquadx_compute_variables(self, fr[i], q[i]);
+        vin = in[i];
+        for (j=0; j<self->stages; j++) {   
+            vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void Biquadx_postprocessing_ii(Biquadx *self) { POST_PROCESSING_II };
+static void Biquadx_postprocessing_ai(Biquadx *self) { POST_PROCESSING_AI };
+static void Biquadx_postprocessing_ia(Biquadx *self) { POST_PROCESSING_IA };
+static void Biquadx_postprocessing_aa(Biquadx *self) { POST_PROCESSING_AA };
+static void Biquadx_postprocessing_ireva(Biquadx *self) { POST_PROCESSING_IREVA };
+static void Biquadx_postprocessing_areva(Biquadx *self) { POST_PROCESSING_AREVA };
+static void Biquadx_postprocessing_revai(Biquadx *self) { POST_PROCESSING_REVAI };
+static void Biquadx_postprocessing_revaa(Biquadx *self) { POST_PROCESSING_REVAA };
+static void Biquadx_postprocessing_revareva(Biquadx *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Biquadx_setProcMode(Biquadx *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (self->filtertype) {
+        case 0:
+            self->coeffs_func_ptr = Biquadx_compute_coeffs_lp;
+            break;
+        case 1:
+            self->coeffs_func_ptr = Biquadx_compute_coeffs_hp;
+            break;
+        case 2:
+            self->coeffs_func_ptr = Biquadx_compute_coeffs_bp;
+            break;
+        case 3:
+            self->coeffs_func_ptr = Biquadx_compute_coeffs_bs;
+            break;
+        case 4:
+            self->coeffs_func_ptr = Biquadx_compute_coeffs_ap;
+            break;
+    }
+    
+	switch (procmode) {
+        case 0:    
+            Biquadx_compute_variables(self, PyFloat_AS_DOUBLE(self->freq), PyFloat_AS_DOUBLE(self->q));
+            self->proc_func_ptr = Biquadx_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Biquadx_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Biquadx_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Biquadx_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Biquadx_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Biquadx_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Biquadx_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Biquadx_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Biquadx_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Biquadx_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Biquadx_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Biquadx_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Biquadx_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Biquadx_compute_next_data_frame(Biquadx *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Biquadx_traverse(Biquadx *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    return 0;
+}
+
+static int 
+Biquadx_clear(Biquadx *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    return 0;
+}
+
+static void
+Biquadx_dealloc(Biquadx* self)
+{
+    free(self->data);
+    free(self->x1);
+    free(self->x2);
+    free(self->y1);
+    free(self->y2);
+    Biquadx_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Biquadx_deleteStream(Biquadx *self) { DELETE_STREAM };
+
+static PyObject *
+Biquadx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    Biquadx *self;
+    self = (Biquadx *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->filtertype = 0;
+    self->stages = 4;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    self->init = 1;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Biquadx_compute_next_data_frame);
+    self->mode_func_ptr = Biquadx_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Biquadx_init(Biquadx *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "freq", "q", "type", "stages", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->filtertype, &self->stages, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    Biquadx_allocate_memories(self);
+
+    (*self->mode_func_ptr)(self);
+    
+    Biquadx_compute_next_data_frame((Biquadx *)self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Biquadx_getServer(Biquadx* self) { GET_SERVER };
+static PyObject * Biquadx_getStream(Biquadx* self) { GET_STREAM };
+static PyObject * Biquadx_setMul(Biquadx *self, PyObject *arg) { SET_MUL };	
+static PyObject * Biquadx_setAdd(Biquadx *self, PyObject *arg) { SET_ADD };	
+static PyObject * Biquadx_setSub(Biquadx *self, PyObject *arg) { SET_SUB };	
+static PyObject * Biquadx_setDiv(Biquadx *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Biquadx_play(Biquadx *self) { PLAY };
+static PyObject * Biquadx_out(Biquadx *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Biquadx_stop(Biquadx *self) { STOP };
+
+static PyObject * Biquadx_multiply(Biquadx *self, PyObject *arg) { MULTIPLY };
+static PyObject * Biquadx_inplace_multiply(Biquadx *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Biquadx_add(Biquadx *self, PyObject *arg) { ADD };
+static PyObject * Biquadx_inplace_add(Biquadx *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Biquadx_sub(Biquadx *self, PyObject *arg) { SUB };
+static PyObject * Biquadx_inplace_sub(Biquadx *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Biquadx_div(Biquadx *self, PyObject *arg) { DIV };
+static PyObject * Biquadx_inplace_div(Biquadx *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Biquadx_setFreq(Biquadx *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Biquadx_setQ(Biquadx *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Biquadx_setType(Biquadx *self, PyObject *arg)
+{
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		self->filtertype = PyInt_AsLong(arg);
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Biquadx_setStages(Biquadx *self, PyObject *arg)
+{
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		self->stages = PyInt_AsLong(arg);
+        Biquadx_allocate_memories(self);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Biquadx_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Biquadx, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Biquadx, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Biquadx, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(Biquadx, freq), 0, "Cutoff frequency in cycle per second."},
+    {"q", T_OBJECT_EX, offsetof(Biquadx, q), 0, "Q factor."},
+    {"mul", T_OBJECT_EX, offsetof(Biquadx, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Biquadx, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Biquadx_methods[] = {
+    {"getServer", (PyCFunction)Biquadx_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Biquadx_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Biquadx_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Biquadx_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Biquadx_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Biquadx_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)Biquadx_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setQ", (PyCFunction)Biquadx_setQ, METH_O, "Sets filter Q factor."},
+    {"setType", (PyCFunction)Biquadx_setType, METH_O, "Sets filter type factor."},
+    {"setStages", (PyCFunction)Biquadx_setStages, METH_O, "Sets the number of filtering stages."},
+	{"setMul", (PyCFunction)Biquadx_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Biquadx_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Biquadx_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Biquadx_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Biquadx_as_number = {
+    (binaryfunc)Biquadx_add,                         /*nb_add*/
+    (binaryfunc)Biquadx_sub,                         /*nb_subtract*/
+    (binaryfunc)Biquadx_multiply,                    /*nb_multiply*/
+    (binaryfunc)Biquadx_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Biquadx_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Biquadx_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Biquadx_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Biquadx_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject BiquadxType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Biquadx_base",                                   /*tp_name*/
+    sizeof(Biquadx),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Biquadx_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Biquadx_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Biquadx objects. Generates a biquadratic filter.",           /* tp_doc */
+    (traverseproc)Biquadx_traverse,                  /* tp_traverse */
+    (inquiry)Biquadx_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Biquadx_methods,                                 /* tp_methods */
+    Biquadx_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Biquadx_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Biquadx_new,                                     /* tp_new */
+};
+
 /*** Typical EQ filter ***/
 typedef struct {
     pyo_audio_HEAD
