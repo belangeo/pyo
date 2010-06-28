@@ -80,6 +80,7 @@ extern PyTypeObject DelayType;
 extern PyTypeObject WaveguideType;
 extern PyTypeObject FreeverbType;
 extern PyTypeObject WGVerbType;
+extern PyTypeObject ChorusType;
 extern PyTypeObject ConvolveType;
 
 extern PyTypeObject GranulatorType;

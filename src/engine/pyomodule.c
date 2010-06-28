@@ -988,6 +988,11 @@ init_pyo(void)
         return;
     Py_INCREF(&WGVerbType);
     PyModule_AddObject(m, "WGVerb_base", (PyObject *)&WGVerbType);
+
+    if (PyType_Ready(&ChorusType) < 0)
+        return;
+    Py_INCREF(&ChorusType);
+    PyModule_AddObject(m, "Chorus_base", (PyObject *)&ChorusType);
     
     if (PyType_Ready(&ConvolveType) < 0)
         return;
