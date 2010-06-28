@@ -686,7 +686,7 @@ class WGVerb(PyoObject):
     cutoff : float or PyoObject, optional
         cutoff frequency of simple first order lowpass filters in the 
         feedback loop of delay lines, in Hz. Defaults to 5000.
-    mix : float, optional
+    mix : float or PyoObject, optional
         Balance between wet and dry signal, between 0 and 1. 0 means no 
         reverb. Defaults to 0.5.
 
@@ -813,6 +813,155 @@ class WGVerb(PyoObject):
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
+
+    @property
+    def mix(self):
+        """float or PyoObject. wet - dry balance.""" 
+        return self._mix
+    @mix.setter
+    def mix(self, x): self.setMix(x)
+
+class Chorus(PyoObject):
+    """
+    8 modulated delay lines chorus processor.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    depth : float or PyoObject, optional
+        Chorus depth, between 0 and 5. Defaults to 1.
+    feedback : float or PyoObject, optional
+        Amount of output signal sent back into the delay lines.
+        Defaults to 0.25.
+    mix : float or PyoObject, optional
+        Balance between wet and dry signal, between 0 and 1. 0 means no 
+        chorus. Defaults to 0.5.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setDepth(x) : Replace the `depth` attribute.
+    setFeedback(x) : Replace the `feedback` attribute.
+    setMix(x) : Replace the `mix` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    depth : float or PyoObject. Chorus depth, between 0 and 5.
+    feedback : float or PyoObject. Amount of output signal sent back 
+        into the delay line.
+    mix : float or PyoObject. Balance between wet and dry signal.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5)
+    >>> chor = Chorus(sf, depth=2, feedback=0.5, mix=0.5).out()
+
+    """
+    def __init__(self, input, depth=1, feedback=0.25, mix=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._depth = depth
+        self._feedback = feedback
+        self._mix = mix
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, depth, feedback, mix, mul, add, lmax = convertArgsToLists(self._in_fader, depth, feedback, mix, mul, add)
+        self._base_objs = [Chorus_base(wrap(in_fader,i), wrap(depth,i), wrap(feedback,i), wrap(mix,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'depth', 'feedback', 'mix', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDepth(self, x):
+        """
+        Replace the `depth` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `depth` attribute.
+
+        """
+        self._depth = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDepth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replace the `feedback` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `feedback` attribute.
+
+        """
+        self._feedback = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMix(self, x):
+        """
+        Replace the `mix` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `mix` attribute.
+
+        """
+        self._cutoff = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0., 5., 'lin', 'depth', self._depth),
+                          SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMap(0., 1., 'lin', 'mix', self._mix),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def depth(self):
+        """float or PyoObject. Chorus depth, between 0 and 5.""" 
+        return self._depth
+    @depth.setter
+    def depth(self, x): self.setDepth(x)
+
+    @property
+    def feedback(self):
+        """float or PyoObject. Amount of output signal sent back into the delay lines.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
 
     @property
     def mix(self):

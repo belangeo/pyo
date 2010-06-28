@@ -33,7 +33,7 @@ files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'd
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
         'selectmodule.c', 'freeverbmodule.c', 'granulatormodule.c', 'compressmodule.c', 'analysismodule.c', 
         'convolvemodule.c', 'randommodule.c', 'wgverbmodule.c', 'utilsmodule.c', 'arithmeticmodule.c', 'matrixmodule.c',
-        'matrixprocessmodule.c', 'harmonizermodule.c', 'recordmodule.c']
+        'matrixprocessmodule.c', 'harmonizermodule.c', 'recordmodule.c', 'chorusmodule.c']
 source_files = source_files + [path + f for f in files]
 
 include_dirs = ['include', '/usr/local/include']
