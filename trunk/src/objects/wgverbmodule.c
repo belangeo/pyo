@@ -108,7 +108,7 @@ WGVerb_process_ii(WGVerb *self) {
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
             
-            xind = self->in_count[j] - (self->delays[j]);
+            xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += (self->size[j]-1);
             ind = (int)xind;
@@ -166,7 +166,7 @@ WGVerb_process_ai(WGVerb *self) {
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
             
-            xind = self->in_count[j] - (self->delays[j]);
+            xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += (self->size[j]-1);
             ind = (int)xind;
@@ -224,7 +224,7 @@ WGVerb_process_ia(WGVerb *self) {
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
             
-            xind = self->in_count[j] - (self->delays[j]);
+            xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += (self->size[j]-1);
             ind = (int)xind;
@@ -282,7 +282,7 @@ WGVerb_process_aa(WGVerb *self) {
             }
             self->rnd[j] = self->rnd_oldValue[j] + self->rnd_diff[j] * self->rnd_time[j];
             
-            xind = self->in_count[j] - (self->delays[j]);
+            xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
                 xind += (self->size[j]-1);
             ind = (int)xind;
@@ -307,7 +307,7 @@ WGVerb_process_aa(WGVerb *self) {
 static void
 WGVerb_mix_i(WGVerb *self) {
     int i;
-    float dry, val;
+    float val;
     
     float mix = PyFloat_AS_DOUBLE(self->mix);
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -317,9 +317,8 @@ WGVerb_mix_i(WGVerb *self) {
     else if (mix > 1.0)
         mix = 1.0;
     
-    dry = 1.0 - mix;
     for (i=0; i<self->bufsize; i++) {
-        val = in[i] * dry + self->data[i] * mix;
+        val = in[i] * (1.0 - mix) + self->data[i] * mix;
         self->data[i] = val;
     }
 }
@@ -327,7 +326,7 @@ WGVerb_mix_i(WGVerb *self) {
 static void
 WGVerb_mix_a(WGVerb *self) {
     int i;
-    float dry, mix, val;
+    float mix, val;
     
     float *mi = Stream_getData((Stream *)self->mix_stream);
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -339,8 +338,7 @@ WGVerb_mix_a(WGVerb *self) {
         else if (mix > 1.0)
             mix = 1.0;
         
-        dry = 1.0 - mix;
-        val = in[i] * dry + self->data[i] * mix;
+        val = in[i] * (1.0 - mix) + self->data[i] * mix;
         self->data[i] = val;
     }
 }
@@ -505,8 +503,8 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->rnd[i] = self->rnd_value[i] = self->rnd_oldValue[i] = self->rnd_diff[i] = 0.0;
         self->rnd_time[i] = 1.0;
         self->rnd_timeInc[i] = reverbParams[i][2] * randomScaling / self->sr;
-        self->rnd_halfRange[i] = reverbParams[i][1] * randomScaling * self->sr;
-        self->rnd_range[i] = self->rnd_halfRange[i] * 0.5;
+        self->rnd_range[i] = reverbParams[i][1] * randomScaling * self->sr;
+        self->rnd_halfRange[i] = self->rnd_range[i] * 0.5;
         self->delays[i] = reverbParams[i][0] * (self->sr / 44100.0);
     }
     
