@@ -39,6 +39,8 @@ extern PyTypeObject SfPlayType;
 extern PyTypeObject SfPlayTrigType;
 extern PyTypeObject SfMarkerShufflerType;
 extern PyTypeObject SfMarkerShuffleType;
+extern PyTypeObject SfMarkerLooperType;
+extern PyTypeObject SfMarkerLoopType;
 
 extern PyTypeObject TrigType;
 extern PyTypeObject MetroType;

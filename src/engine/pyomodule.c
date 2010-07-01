@@ -658,7 +658,17 @@ init_pyo(void)
         return;
     Py_INCREF(&SfMarkerShuffleType);
     PyModule_AddObject(m, "SfMarkerShuffle_base", (PyObject *)&SfMarkerShuffleType);
-        
+
+    if (PyType_Ready(&SfMarkerLooperType) < 0)
+        return;
+    Py_INCREF(&SfMarkerLooperType);
+    PyModule_AddObject(m, "SfMarkerLooper_base", (PyObject *)&SfMarkerLooperType);
+    
+    if (PyType_Ready(&SfMarkerLoopType) < 0)
+        return;
+    Py_INCREF(&SfMarkerLoopType);
+    PyModule_AddObject(m, "SfMarkerLoop_base", (PyObject *)&SfMarkerLoopType);
+    
     if (PyType_Ready(&OscType) < 0)
         return;
     Py_INCREF(&OscType);
