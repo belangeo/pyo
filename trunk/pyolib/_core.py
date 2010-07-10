@@ -1145,6 +1145,7 @@ class Sig(PyoObject):
             Numerical value to convert.
 
         """
+        self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -1232,6 +1233,7 @@ class VarPort(PyoObject):
             Numerical value to convert.
 
         """
+        self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -1245,6 +1247,7 @@ class VarPort(PyoObject):
             New ramp time.
 
         """
+        self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
