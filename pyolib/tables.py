@@ -19,6 +19,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
+from types import ListType
 
 ######################################################################
 ### Tables
@@ -980,19 +981,23 @@ class SndTable(PyoTableObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> # Sharp attack envelope
     >>> snd_path = SNDS_PATH + '/transparent.aif'
     >>> t = SndTable(snd_path)
     >>> a = Osc(table=t, freq=t.getRate(), mul=.5).out()
 
     """
     def __init__(self, path, chnl=None):
-        self._size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path)
+        self._size = []
+        self._base_objs = []
         self._path = path
-        if chnl == None:
-            self._base_objs = [SndTable_base(path, i) for i in range(self._snd_chnls)]
-        else:
-            self._base_objs = [SndTable_base(path, chnl)]
+        path, lmax = convertArgsToLists(path)
+        for p in path:
+            _size, _dur, _snd_sr, _snd_chnls = sndinfo(p)
+            self._size.append(_size)
+            if chnl == None:
+                self._base_objs.extend([SndTable_base(p, i) for i in range(_snd_chnls)])
+            else:
+                self._base_objs.append(SndTable_base(p, chnl))
 
     def __dir__(self):
         return ['sound']
@@ -1012,9 +1017,17 @@ class SndTable(PyoTableObject):
             Full path of the new sound.
 
         """
-        _size, _dur, _snd_sr, _snd_chnls = sndinfo(path)
         self._path = path
-        [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
+        if type(path) == ListType:
+            path, lmax = convertArgsToLists(path)
+            for i, obj in enumerate(self._base_objs):
+                p = path[i%lmax]
+                _size, _dur, _snd_sr, _snd_chnls = sndinfo(p)
+                obj.setSound(p, 0)
+        else:    
+            _size, _dur, _snd_sr, _snd_chnls = sndinfo(path)
+            self._path = path
+            [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
         
     def getRate(self):
         return self._base_objs[0].getRate()
