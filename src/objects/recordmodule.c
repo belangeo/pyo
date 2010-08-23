@@ -135,7 +135,7 @@ Record_init(Record *self, PyObject *args, PyObject *kwds)
 {
     int i, buflen;
     int format = 0;
-    PyObject *input_listtmp, *input_streamtmp;
+    PyObject *input_listtmp;
     
     static char *kwlist[] = {"input", "filename", "chnls", "format", "buffering", NULL};
     

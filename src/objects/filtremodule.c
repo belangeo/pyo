@@ -740,6 +740,7 @@ Biquadx_filters_ii(Biquadx *self) {
         self->init = 0;
     }
     
+    vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
         vin = in[i];
         for (j=0; j<self->stages; j++) {   
@@ -769,6 +770,7 @@ Biquadx_filters_ai(Biquadx *self) {
     float *fr = Stream_getData((Stream *)self->freq_stream);
     q = PyFloat_AS_DOUBLE(self->q);
     
+    vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
         Biquadx_compute_variables(self, fr[i], q);
         vin = in[i];
@@ -799,6 +801,7 @@ Biquadx_filters_ia(Biquadx *self) {
     fr = PyFloat_AS_DOUBLE(self->freq);
     float *q = Stream_getData((Stream *)self->q_stream);
     
+    vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
         Biquadx_compute_variables(self, fr, q[i]);
         vin = in[i];
@@ -829,6 +832,7 @@ Biquadx_filters_aa(Biquadx *self) {
     float *fr = Stream_getData((Stream *)self->freq_stream);
     float *q = Stream_getData((Stream *)self->q_stream);
     
+    vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
         Biquadx_compute_variables(self, fr[i], q[i]);
         vin = in[i];

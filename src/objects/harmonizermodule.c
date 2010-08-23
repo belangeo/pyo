@@ -46,7 +46,7 @@ typedef struct {
 
 static void
 Harmonizer_transform_ii(Harmonizer *self) {
-    float val, amp, x, x1, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
+    float val, amp, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
     int i, ipart;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -113,7 +113,7 @@ Harmonizer_transform_ii(Harmonizer *self) {
 
 static void
 Harmonizer_transform_ai(Harmonizer *self) {
-    float val, amp, x, x1, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
+    float val, amp, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
     int i, ipart;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -182,7 +182,7 @@ Harmonizer_transform_ai(Harmonizer *self) {
 
 static void
 Harmonizer_transform_ia(Harmonizer *self) {
-    float val, amp, x, x1, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
+    float val, amp, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
     int i, ipart;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -249,7 +249,7 @@ Harmonizer_transform_ia(Harmonizer *self) {
 
 static void
 Harmonizer_transform_aa(Harmonizer *self) {
-    float val, amp, x, x1, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
+    float val, amp, inc, hertz, ratio, rate, del, xind, pos, envpos, fpart;
     int i, ipart;
     
     float *in = Stream_getData((Stream *)self->input_stream);
@@ -450,7 +450,6 @@ static int
 Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    float phase;
     PyObject *inputtmp, *input_streamtmp, *transpotmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"input", "transpo", "feedback", "winsize", "mul", "add", NULL};

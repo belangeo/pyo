@@ -1734,6 +1734,7 @@ ExpTable_generate(ExpTable *self) {
         values[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));        
     }
 
+    y1 = y2 = 0.0;
     for(i=0; i<(listsize-1); i++) {
         x1 = times[i];
         x2 = times[i+1];   
