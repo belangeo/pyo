@@ -139,7 +139,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     if (my_server->record == 1)
         sf_write_float(my_server->recfile, out, framesPerBuffer * nchnls);
 
-    if (my_server->withGUI == 1) {
+    if (my_server->withGUI == 1 && nchnls <= 8) {
         float rms[nchnls];
         float outAmp;
         for (j=0; j<nchnls; j++) {

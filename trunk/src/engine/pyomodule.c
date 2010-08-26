@@ -598,6 +598,31 @@ init_pyo(void)
         return;
     Py_INCREF(&CloudType);
     PyModule_AddObject(m, "Cloud_base", (PyObject *)&CloudType);
+
+    if (PyType_Ready(&BeaterType) < 0)
+        return;
+    Py_INCREF(&BeaterType);
+    PyModule_AddObject(m, "Beater_base", (PyObject *)&BeaterType);
+    
+    if (PyType_Ready(&BeatType) < 0)
+        return;
+    Py_INCREF(&BeatType);
+    PyModule_AddObject(m, "Beat_base", (PyObject *)&BeatType);
+
+    if (PyType_Ready(&BeatAmpStreamType) < 0)
+        return;
+    Py_INCREF(&BeatAmpStreamType);
+    PyModule_AddObject(m, "BeatAmpStream_base", (PyObject *)&BeatAmpStreamType);
+
+    if (PyType_Ready(&BeatDurStreamType) < 0)
+        return;
+    Py_INCREF(&BeatDurStreamType);
+    PyModule_AddObject(m, "BeatDurStream_base", (PyObject *)&BeatDurStreamType);
+
+    if (PyType_Ready(&BeatEndStreamType) < 0)
+        return;
+    Py_INCREF(&BeatEndStreamType);
+    PyModule_AddObject(m, "BeatEndStream_base", (PyObject *)&BeatEndStreamType);
     
     if (PyType_Ready(&FaderType) < 0)
         return;
