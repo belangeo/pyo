@@ -837,7 +837,7 @@ class Chorus(PyoObject):
         Amount of output signal sent back into the delay lines.
         Defaults to 0.25.
     mix : float or PyoObject, optional
-        Balance between wet and dry signal, between 0 and 1. 0 means no 
+        Balance between wet and dry signals, between 0 and 1. 0 means no 
         chorus. Defaults to 0.5.
 
     Methods:

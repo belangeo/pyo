@@ -396,7 +396,7 @@ static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices founded by Portaudio."},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis founded by Portaudio."},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices founded by Portaudio."},
-{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices ([devive names], [device indexes])founded by Portaudio."},
+{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices (device names, device indexes) founded by Portaudio."},
 {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Lists all host apis found by Portaudio."},
 {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
 {"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
