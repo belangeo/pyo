@@ -5005,7 +5005,7 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->threshold = PyFloat_FromDouble(0.);
     self->dir = 0;
-    self->ready = 1;
+    self->ready = 0;
     self->modebuffer[0] = 0;
     
     INIT_OBJECT_COMMON

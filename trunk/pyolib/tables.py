@@ -1003,7 +1003,7 @@ class SndTable(PyoTableObject):
                 self._base_objs.append(SndTable_base(p, chnl))
         if lmax == 1:
             self._size = _size
-            self._dur = dur
+            self._dur = _dur
 
     def __dir__(self):
         return ['sound']
@@ -1081,6 +1081,7 @@ class NewTable(PyoTableObject):
     
     getSize() : Returns the length of the table in samples.
     getLength() : Returns the length of the table in seconds.
+    getDur() : Returns the length of the table in seconds.
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read the sound at its original pitch.
     replace() : Replaces the actual table.
@@ -1100,6 +1101,8 @@ class NewTable(PyoTableObject):
 
     """
     def __init__(self, length, chnls=1, init=None):
+        self._length = length
+        self._chnls = chnls
         if init == None:
             self._base_objs = [NewTable_base(length) for i in range(chnls)]
         else:
@@ -1140,7 +1143,14 @@ class NewTable(PyoTableObject):
         
         """
         return self._base_objs[0].getLength()
-             
+
+    def getDur(self):
+        """
+        Returns the length of the table in seconds.
+        
+        """
+        return self._base_objs[0].getLength()
+        
     def getRate(self):
         """
         Returns the frequency (cycle per second) to give to an 
