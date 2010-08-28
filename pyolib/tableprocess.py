@@ -183,7 +183,7 @@ class OscLoop(PyoObject):
     """
     A simple oscillator with feedback reading a waveform table.
 
-    Osc reads a waveform table with linear interpolation and feedback control.
+    OscLoop reads a waveform table with linear interpolation and feedback control.
     The oscillator output, multiplied by `feedback`, is added to the position
     increment and can be used to control the brightness of the oscillator.
     

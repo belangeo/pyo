@@ -22,6 +22,7 @@ import os
 
 import sys
 import __builtin__
+from types import IntType, FloatType
 
 # For Python 2.5-, this will enable the simliar property mechanism as in
 # Python 2.6+/3.0+. The code is based on
@@ -90,6 +91,237 @@ import pyolib.triggers as triggers
 from pyolib.triggers import *
 import pyolib.utils as utils
 from pyolib.utils import *
+from pyolib._core import *
+
+# Temporary objects, need to be coded in C
+class Looper(PyoObject):
+    """
+    Crossfading looper.
+
+    Looper reads audio from a PyoTableObject and plays it back in a loop with 
+    user-defined pitch, start time, duration and crossfade time. It allows
+    negative pitch value for reading backward.
+    
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    table : PyoTableObject
+        Table containing the waveform samples.
+    pitch : float or PyoObject, optional
+        Transposition factor. 1 is normal pitch, 0.5 is one octave lower, 
+        2 is one octave higher and negative pitch signifies backwards playback.
+        Defaults to 1.
+    start : float or PyoObject, optional
+        Starting point, in seconds, of the loop. Defaults to 0.
+    dur : float or PyoObject, optional
+        Duration, in seconds, of the loop. Defaults to 1.
+    xfade : float {0 -> 100}, optional
+        Pourcentage of the loop time used to crossfade readers.
+        Available at intialization time only. Defaults to 20.
+        
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setPitch(x) : Replace the `pitch` attribute.
+    setStart(x) : Replace the `start` attribute.
+    setDur(x) : Replace the `dur` attribute.
+    
+    Attributes:
+
+    table : PyoTableObject. Table containing the waveform samples.
+    pitch : float or PyoObject, Transposition factor.
+    start : float or PyoObject, Loop start position in seconds.
+    dur : float or PyoObject, Loop duration in seconds.
+
+    See also: TableRead, Pointer
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> tab = SndTable(SNDS_PATH + '/transparent.aif')
+    >>> pit = Choice(choice=[.5,.75,1,1.25,1.5], freq=[3,4])
+    >>> start = Phasor(freq=.05, mul=tab.getDur())
+    >>> dur = Choice(choice=[.0625,.125,.125,.25,.33], freq=4)
+    >>> a = Looper(table=tab, pitch=pit, start=start, dur=dur, xfade=20).out()
+
+    """
+    def __init__(self, table, pitch=1, start=0, dur=1, xfade=20, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._0to1Line = LinTable()
+        self._table = table
+        self._pitch = pitch
+        self._start = start
+        self._dur = dur
+        self._xfade = xfade
+        self._mul = mul
+        self._add = add
+        self._x1 = self._xfade * 49
+        self._x2 = 10000 - self._x1
+        self._invtabdur = 1. / self._table.getDur()
+        self._env = LinTable([(0,0), (self._x1,1),(self._x2,1),(10000,0)], size=10000)
+
+        dump1, dump2, dump3, dump4, dump5, dump6, lmax = convertArgsToLists(table, pitch, start, dur, mul, add)
+        if type(pitch) in [IntType, FloatType] and lmax > 1:
+            self._pitchStream = Sig([pitch for i in range(lmax)])
+        elif isinstance(pitch, PyoObject) and len(pitch) < lmax:
+            self._pitchStream = pitch.mix(lmax)
+        else:
+            self._pitchStream = Sig(pitch)
+
+        if type(start) in [IntType, FloatType] and lmax > 1:
+            self._startStream = Sig([start for i in range(lmax)])
+        elif isinstance(start, PyoObject) and len(start) < lmax:
+            self._startStream = start.mix(lmax)
+        else:    
+            self._startStream = Sig(start)
+            
+        self._durStream = Sig(self._pitchStream, dur)
+        self._absDurStream = Abs(self._durStream)
+        self._absPitchStream = Abs(self._pitchStream)
+        self._durOnPitch = self._absDurStream / self._absPitchStream
+        self._normStart = Sig(self._startStream, self._invtabdur)
+        self._normDur = Sig(self._durStream, self._invtabdur)
+        
+        self._t1 = Trig().play()
+
+        self._normstart1 = SampHold(self._normStart, self._t1, 1.0)
+        self._normdur1 = SampHold(self._normDur, self._t1, 1.0)
+        self._sampDur1 = SampHold(self._durOnPitch, self._t1, 1.0)
+        self._ph1 = TrigEnv(self._t1, self._0to1Line, self._sampDur1)
+        self._amp1 = Pointer(self._env, self._ph1)
+        self._out1 = Pointer(self._table, (self._ph1*self._normdur1+self._normstart1), mul=self._amp1)
+        self._comp1 = Thresh(self._amp1, 1.0, 1)
+
+        self._normstart2 = SampHold(self._normStart, self._comp1, 1.0)
+        self._normdur2 = SampHold(self._normDur, self._comp1, 1.0)
+        self._sampDur2 = SampHold(self._durOnPitch, self._comp1, 1.0)
+        self._ph2 = TrigEnv(self._comp1, self._0to1Line, self._sampDur2)
+        self._amp2 = Pointer(self._env, self._ph2)
+        self._out2 = Pointer(self._table, (self._ph2*self._normdur2+self._normstart2), mul=self._amp2)
+        self._comp2 = Thresh(self._amp2, 1.0, 1)
+
+        self._ph1.input = self._comp2
+        self._normstart1.controlsig = self._comp2
+        self._normdur1.controlsig = self._comp2
+        self._sampDur1.controlsig = self._comp2
+        
+        self._out = Interp(self._out1, self._out2, mul=self._mul, add=self._add)
+        self._base_objs = self._out.getBaseObjects()
+
+    def __dir__(self):
+        return ['table', 'pitch', 'start', 'dur', 'mul', 'add']
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+
+        """
+        self._table = x
+        self._invtabdur = 1. / self._table.getDur()
+        self._out1.table = self._table
+        self._out2.table = self._table
+        self._normstart.mul = self._invtabdur
+        self._normdur.mul = self._invtabdur
+
+    def setPitch(self, x):
+        """
+        Replace the `pitch` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `pitch` attribute.
+
+        """
+        self._pitch = x
+        if isinstance(x, PyoObject):
+            l = len(self._pitchStream)
+            if len(x) == l:
+                self._pitchStream = x
+            else:    
+                self._pitchStream = x.mix(l)
+            self._durStream.value = self._pitchStream
+            self._absPitchStream.input = self._pitchStream
+        else:
+            self._pitchStream.value = x
+
+    def setStart(self, x):
+        """
+        Replace the `start` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `start` attribute.
+
+        """
+        self._start = x
+        if isinstance(x, PyoObject):
+            l = len(self._pitchStream)
+            if len(x) == l:
+                self._startStream = x
+            else:    
+                self._startStream = x.mix(l)
+            self._normStart.value = self._startStream
+        else:
+            self._startStream.value = x
+
+    def setDur(self, x):
+        """
+        Replace the `dur` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `dur` attribute.
+
+        """
+        self._dur = x
+        self._durStream.mul = x
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(-2., 2., "lin", "pitch", self._pitch),
+                          SLMap(0, self._table.getDur(), "lin", "start", self._start),
+                          SLMap(0.001, 2, "lin", "dur", self._dur),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title)
+            
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def pitch(self):
+        """float or PyoObject. Transposition factor.""" 
+        return self._pitch
+    @pitch.setter
+    def pitch(self, x): self.setPitch(x)
+
+    @property
+    def start(self):
+        """float or PyoObject. Loop start position in seconds.""" 
+        return self._start
+    @start.setter
+    def start(self, x): self.setStart(x)
+
+    @property
+    def dur(self):
+        """float or PyoObject. Loop duration in seconds.""" 
+        return self._dur
+    @dur.setter
+    def dur(self, x): self.setDur(x)
+
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 
                                     'pa_list_devices', 'pa_count_host_apis', 'pa_list_host_apis', 'pa_get_default_host_api', 
@@ -110,7 +342,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 'XnoiseMidi']),
                       'sfplayer': sorted(['SfMarkerShuffler', 'SfPlayer', 'SfMarkerLooper']),
                       'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 
-                                            'TableRead', 'TableMorph']),
+                                            'TableRead', 'TableMorph', 'Looper']),
                       'matrixprocess': sorted(['MatrixRec', 'MatrixPointer']), 
                       'triggers': sorted(['Metro', 'Beat', 'TrigEnv', 'TrigRand', 'Select', 'Counter', 'TrigChoice', 
                                         'TrigFunc', 'Thresh', 'Cloud', 'Trig', 'TrigXnoise', 'TrigXnoiseMidi',
