@@ -62,7 +62,7 @@ class Map:
     
     """
     def __init__(self, min, max, scale):
-        self._min, self._max, self._scale = min, max, scale
+        self._min, self._max, self._scale = float(min), float(max), scale
 
     def get(self, x):
         """
