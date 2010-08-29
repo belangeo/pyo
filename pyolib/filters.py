@@ -1,5 +1,5 @@
 """
-Different kind of audio filtering operations.
+Different kinds of audio filtering operations.
  
 """
 

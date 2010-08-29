@@ -181,7 +181,7 @@ class PyoObject(object):
     between pyo objects or between pyo objects and numbers. Doing so 
     returns a Dummy object with the result of the operation.
     `b = a * 0.5` creates a Dummy object `b` with `mul` attribute set 
-    to 0.5 and leave `a` untouched.
+    to 0.5 and leave `a` unchanged.
     
     Inplace multiplication, addition, division and substraction can be 
     applied between pyo objects or between pyo objects and numbers. 
@@ -297,9 +297,9 @@ class PyoObject(object):
         
         Can be used to convert audio stream to usable Python data.
         
-        Object that implements string identifier for audio stream
-        must use the corresponding string to specify which stream
-        to get value. See man page.
+        Object that implements string identifier for specific audio 
+        streams must use the corresponding string to specify which stream
+        to get value.
         
         Parameters:
 
@@ -341,7 +341,7 @@ class PyoObject(object):
             Physical output assigned to the first audio stream of the object. 
             Defaults to 0.
 
-            If `chnl` is an integer equal or greater than 0: successive 
+            If `chnl` is an integer equal or greater than 0, successive 
             streams increment the output number by `inc` and wrap around 
             the global number of channels.
             

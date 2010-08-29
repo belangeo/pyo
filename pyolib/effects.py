@@ -27,9 +27,9 @@ from _maps import *
 
 class Disto(PyoObject):
     """
-    Arctan distortion.
+    Arc tangent distortion.
     
-    Apply an arctan distortion with controllable drive to the input signal. 
+    Apply an arc tangent distortion with controllable drive to the input signal. 
     
     Parent class : PyoObject
 
