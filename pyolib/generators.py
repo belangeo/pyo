@@ -313,7 +313,7 @@ class Phasor(PyoObject):
 
 class Input(PyoObject):
     """
-    Read from a numbered channel in an external audio signal or stream.
+    Read from a numbered channel in an external audio signal.
 
     Parent class: PyoObject
 
