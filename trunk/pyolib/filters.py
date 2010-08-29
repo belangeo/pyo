@@ -182,7 +182,7 @@ class Biquadx(PyoObject):
     
     Biquadx is equivalent to a filter consisting of more layers of Biquad
     with the same arguments, serially connected. It is faster than using
-    a large number of instances of the Biquad object, uses less memory 
+    a large number of instances of the Biquad object, It uses less memory 
     and allows filters with sharper cutoff.
 
     Parent class : PyoObject
@@ -828,11 +828,11 @@ class DCBlock(PyoObject):
 
 class BandSplit(PyoObject):
     """
-    Split an input signal into multiple frequency bands.
+    Splits an input signal into multiple frequency bands.
     
-    The signal will be filtered into `num` bands between `min` and `max` 
-    frequencies. Each band will then be assigned to an independent audio 
-    stream. Useful for multiband processing.
+    The input signal will be separated into `num` bands between `min` 
+    and `max` frequencies. Each band will then be assigned to an 
+    independent audio stream. Useful for multiband processing.
 
     Parent class: PyoObject
     
@@ -841,15 +841,17 @@ class BandSplit(PyoObject):
     input : PyoObject
         Input signal to filter.
     num : int, optional
-        Number of frequency bands created. Initialization time only. 
-        Defaults to 6.
+        Number of frequency bands created. Available at initialization 
+        time only. Defaults to 6.
     min : float, optional
-        Lowest frequency. Initialization time only. Defaults to 20.
+        Lowest frequency. Available at initialization time only. 
+        Defaults to 20.
     max : float, optional
-        Highest frequency. Initialization time only. Defaults to 20000.
+        Highest frequency. Available at initialization time only. 
+        Defaults to 20000.
     q : float or PyoObject, optional
-        Q of the filters, defined as bandwidth/cutoff. Should be 
-        between 1 and 500. Defaults to 1.
+        Q of the filters, defined as center frequency / bandwidth. 
+        Should be between 1 and 500. Defaults to 1.
 
     Methods:
     
@@ -1131,7 +1133,7 @@ class Allpass(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filtered.
+        Input signal to process.
     delay : float or PyoObject, optional
         Delay time in seconds. Defaults to 0.01.
     feedback : float or PyoObject, optional
@@ -1149,7 +1151,7 @@ class Allpass(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filtered.
+    input : PyoObject. Input signal to process.
     delay : float or PyoObject. Delay time in seconds.
     feedback : float or PyoObject. Amount of output signal sent back 
         into the delay line.
@@ -1236,7 +1238,7 @@ class Allpass(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filtered.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1259,7 +1261,7 @@ class Allpass2(PyoObject):
     """
     Second-order phase shifter allpass. 
     
-    This kind of filter is used in phaser implementations. The signal
+    This kind of filter is used in phaser implementation. The signal
     of this filter, when added to original sound, creates a notch in
     the spectrum at frequencies that are in phase opposition.
     
