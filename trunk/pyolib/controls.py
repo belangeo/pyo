@@ -633,7 +633,7 @@ class Expseg(PyoObject):
 
 class SigTo(PyoObject):
     """
-    Convert numeric value to PyoObject signal with ramp time.
+    Convert numeric value to PyoObject signal with portamento.
     
     When `value` attribute is changed, a ramp is applied from the
     current value to the new value.

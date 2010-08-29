@@ -170,7 +170,7 @@ through the interpreter. Tools in pyo module offer primitives, like mathematical
 signal processing (filters, delays, synthesis generators, etc.), but also complex algorithms to create sound granulation
 and others creative sound manipulations. pyo supports OSC protocol (Open Sound Control), to ease communications
 between softwares, and MIDI protocol, for generating sound events and controlling process parameters. pyo allows
-creation of sophisticated signal processing chains with all the benefits of a mature, and wild used, general programming.
+creation of sophisticated signal processing chains with all the benefits of a mature, and wild used, general programming language.
 """)  
 for key in sorted(OBJECTS_TREE.keys()):
     f.write('\section[%s</A> : %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
