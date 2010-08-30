@@ -1,10 +1,11 @@
 """
-Objects to retreive Midi informations for a specific Midi port.
+Objects to retrieve Midi informations for a specific Midi port.
 
-Objects create and return audio streams from the value in input.
+Objects creates and returns audio streams from the value in their 
+Midi input.
 
 The audio streams of these objects are essentially intended to be
-controls and can't be sent to the output soundcard.
+used as controls and can't be sent to the output soundcard.
 
 """
 
@@ -35,7 +36,7 @@ from _maps import *
 ######################################################################                                       
 class Midictl(PyoObject):
     """
-    Get the current value of a MIDI channel controller.
+    Get the current value of a Midi channel controller.
     
     Get the current value of a controller and optionally map it 
     inside a specified range.
@@ -88,11 +89,12 @@ class Midictl(PyoObject):
 
 class Notein(PyoObject):
     """
-    Generates MIDI note messages.
+    Generates Midi note messages.
     
-    From a MIDI device, takes the notes in the range defined with 
-    `first` and `last` parameters, and outputs `poly` noteon - noteoff 
-    streams in the `scale` format (MIDI, hertz or transpo).
+    From a Midi device, takes the notes in the range defined with 
+    `first` and `last` parameters, and outputs up to `poly` 
+    noteon - noteoff streams in the `scale` format (Midi, hertz 
+    or transpo).
     
     Parent class: PyoObject
 
@@ -101,13 +103,13 @@ class Notein(PyoObject):
     poly : int, optional
         Number of streams of polyphony generated. Defaults to 10.
     scale : int, optional
-        Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. 
+        Pitch output format. 0 = Midi, 1 = Hertz, 2 = transpo. 
         In the transpo mode, the central key (the key where there 
         is no transposition) is (`first` + `last`) / 2.
     first : int, optional
-        Lowest MIDI value. Defaults to 0.
+        Lowest Midi value. Defaults to 0.
     last : int, optional
-        Highest MIDI value. Defaults to 127.
+        Highest Midi value. Defaults to 127.
 
     Methods:
 

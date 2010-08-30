@@ -1,9 +1,6 @@
 """
 Call Python functions from triggers or number counts.
 
-The audio streams of these objects are essentially intended to be
-controls and can't be sent to the output soundcard.
-
 """
 
 """

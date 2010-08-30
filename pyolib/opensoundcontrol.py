@@ -4,7 +4,8 @@ Objects to manage values on an Open Sound Control port.
 OscSend take the first value of each buffersize and send it on an
 OSC port.
 
-OscReceive create and return audio streams from the value in input.
+OscReceive creates and returns audio streams from the value in its 
+input port.
 
 The audio streams of these objects are essentially intended to be
 controls and can't be sent to the output soundcard.
@@ -126,7 +127,7 @@ class OscReceive(PyoObject):
     Receives values over a network via the Open Sound Control protocol.
     
     Uses the OSC protocol to receive values from other softwares or 
-    other computers. Gets a value at the beginning of each buffersize 
+    other computers. Get a value at the beginning of each buffersize 
     and fill it's buffer with it.
 
     Parent class: PyoObject
