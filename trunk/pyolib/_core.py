@@ -299,7 +299,7 @@ class PyoObject(object):
         
         Object that implements string identifier for specific audio 
         streams must use the corresponding string to specify which stream
-        to get value.
+        to get value. See get() method definition in these object's man pages.
         
         Parameters:
 
@@ -474,7 +474,7 @@ class PyoObject(object):
         
     def ctrl(self, map_list=None, title=None):
         """
-        Opens a sliders window to control parameters of the object. 
+        Opens a sliders window to control the parameters of the object. 
         Only parameters that can be set to a PyoObject are allowed 
         to be mapped on a slider.
 
@@ -530,7 +530,7 @@ class PyoTableObject(object):
     view() : Opens a window showing the contents of the table.
     dump() : Print current status of the object's attributes.
     save(path, format) : Writes the content of the table in an audio file.
-    write(path) : Writes the content of the table into a text file.
+    write(path) : Writes the content of the table in a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
     put(value, pos) : Puts a value at specified position in the table.
@@ -609,7 +609,7 @@ class PyoTableObject(object):
     
     def write(self, path):
         """
-        Writes the content of the table into a text file.
+        Writes the content of the table in a text file.
         
         This function can be used to store the table data as a
         list of floats into a text file.
@@ -676,7 +676,7 @@ class PyoTableObject(object):
         Returns the value, as float, at specified position in the table.
         
         If the object has more than 1 tablestream, the default is to
-        return a list with the value of each table. User can call 
+        return a list with the value of each tablestream. User can call 
         obj[x].get() to get the value of a specific table.
         
         Parameters:
@@ -722,7 +722,7 @@ class PyoMatrixObject(object):
     getSize() : Return matrix size in samples (x, y).
     view() : Opens a window showing the contents of the matrix.
     dump() : Print current status of the object's attributes.
-    write(path) : Writes the content of the matrix into a text file.
+    write(path) : Writes the content of the matrix in a text file.
     read(path) : Sets the content of the matrix from a text file.
     normalize() : Normalize matrix samples between -1 and 1.
     blur() : Apply a simple gaussian blur on the matrix.
@@ -835,7 +835,7 @@ class PyoMatrixObject(object):
 
     def boost(self, min=-1.0, max=1.0, boost=0.01):
         """
-        Boost the constrast of value in the matrix.
+        Boost the constrast of values in the matrix.
         
         Parameters:
         
@@ -874,7 +874,7 @@ class PyoMatrixObject(object):
         Returns the value, as float, at specified position in the matrix.
         
         If the object has more than 1 matrixstream, the default is to
-        return a list with the value of each matrix. User can call 
+        return a list with the value of each matrixstream. User can call 
         obj[x].get() to get the value of a specific matrix.
         
         Parameters:
@@ -913,9 +913,9 @@ class Mix(PyoObject):
     input : PyoObject or list of PyoObjects
         Input signal(s) to mix the streams.
     voices : int, optional
-        Number of streams of the Mix object. If more than 1, object's 
-        streams are alternated and added into Mix object's streams. 
-        Defaults to 1.
+        Number of streams of the Mix object. If more than 1, input 
+        object's streams are alternated and added into Mix object's 
+        streams. Defaults to 1.
 
     Notes:
     
@@ -979,8 +979,8 @@ class Dummy(PyoObject):
     Parameters:
 
     objs_list : list of audio Stream objects
-        List of Stream objects return by the PyoObject hiden method 
-        getBaseObjects.
+        List of Stream objects return by the PyoObject hidden method 
+        getBaseObjects().
 
     Notes:
     
@@ -988,9 +988,9 @@ class Dummy(PyoObject):
     the PyoObject on which the operation is performed. A dummy object
     is created, which is just a copy of the audio Streams of the object,
     and the operation is applied on the Dummy, leaving the original
-    object unmodified. This lets the user performs multiple different 
+    object unchanged. This lets the user performs multiple different 
     arithmetic operations on an object without conficts. Here, `b` is
-    a thru of the audio processing of `a` with a different `mul` 
+    a Dummy object with `a` as its input with a `mul` attribute of 0.5. 
     attribute:
 
     >>> a = Sine()
@@ -1044,7 +1044,7 @@ class InputFader(PyoObject):
 
     Notes:
     
-    The setInput method, on object with `input` attribute, already uses 
+    The setInput method, on object with `input` attribute, uses 
     an InputFader object to performs crossfade between the old and the 
     new `input` of an object. 
     
@@ -1109,7 +1109,7 @@ class Sig(PyoObject):
     Attributes:
     
     value : float or PyoObject. Numerical value to convert.
-    
+
     Notes:
 
     The out() method is bypassed. Sig's signal can not be sent to audio outs.
@@ -1162,7 +1162,9 @@ class Sig(PyoObject):
 
 class VarPort(PyoObject):
     """
-    Convert numeric value to PyoObject signal with ramp time and portamento.
+    Convert numeric value to PyoObject signal with portamento.    Notes:
+
+    The out() method is bypassed. VarPort's signal can not be sent to audio outs.
 
     When `value` attribute is changed, a smoothed ramp is applied from the
     current value to the new value. If a callback is provided at `function`,

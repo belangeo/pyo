@@ -694,7 +694,7 @@ class XnoiseMidi(PyoObject):
     x2 : float or PyoObject, optional
         Second parameter. Defaults to 0.5.
     scale : int {0, 1, 2}, optional
-        Output format. 0 = MIDI, 1 = Hertz, 2 = transposition factor. 
+        Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor. 
         In the transposition mode, the central key (the key where there 
         is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
         to 0.
