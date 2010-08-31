@@ -912,11 +912,13 @@ typedef struct {
 static float
 Beater_defineAccent(int n) {
 	if (n == 1)
-		return (float)((rand() % 15) + 112) / 127. ; // 112 -> 127
+		return (float)((rand() % 15) + 112) / 127.; // 112 -> 127
 	else if (n == 2)
-		return (float)((rand() % 20) + 80) / 127. ; // 80 -> 100
+		return (float)((rand() % 20) + 80) / 127.; // 80 -> 100
 	else if (n == 3)
-		return (float)((rand() % 20) + 50) / 127. ; // 50 -> 70
+		return (float)((rand() % 20) + 50) / 127.; // 50 -> 70
+    else
+        return 0.5;
 }
 
 static void 
@@ -1359,7 +1361,7 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     self->dur_buffer_streams = (float *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(float));
     self->end_buffer_streams = (float *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(float));
     self->amplitudes = (float *)realloc(self->amplitudes, self->poly * sizeof(float));
-    for (i==0; i<self->poly; i++) { 
+    for (i=0; i<self->poly; i++) { 
         self->amplitudes[i] = 0.0;
     }
     
@@ -1489,7 +1491,7 @@ Beater_recallPreset(Beater *self, PyObject *arg)
     int x;
     if (PyInt_Check(arg)) {
         x = PyInt_AS_LONG(arg);
-        if (0 <= x < 32)
+        if (x >= 0 && x < 32)
             self->preCall = x;
     }
     
