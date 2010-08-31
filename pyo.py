@@ -79,8 +79,8 @@ from pyolib.pattern import *
 import pyolib.randoms as randoms
 from pyolib.randoms import *
 from pyolib.server import *
-import pyolib.sfplayer as sfplayer
-from pyolib.sfplayer import *
+import pyolib.players as players
+from pyolib.players import *
 import pyolib.tableprocess as tableprocess
 from pyolib.tableprocess import *
 import pyolib.matrixprocess as matrixprocess
@@ -340,7 +340,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'pan': sorted(['Pan', 'SPan', 'Switch', 'Selector']),
                       'patterns': sorted(['Pattern', 'Score', 'CallAfter']),
                       'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 'XnoiseMidi']),
-                      'sfplayer': sorted(['SfMarkerShuffler', 'SfPlayer', 'SfMarkerLooper']),
+                      'players': sorted(['SfMarkerShuffler', 'SfPlayer', 'SfMarkerLooper']),
                       'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 
                                             'TableRead', 'TableMorph', 'Looper']),
                       'matrixprocess': sorted(['MatrixRec', 'MatrixPointer']), 

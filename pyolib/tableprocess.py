@@ -31,7 +31,7 @@ from types import SliceType
  
 class Osc(PyoObject):
     """
-    A simple oscillator with linear interpolation reading a waveform table.
+    A simple oscillator reading a waveform table.
     
     Parent class: PyoObject
     
@@ -511,9 +511,10 @@ class Pulsar(PyoObject):
     
     Pulsar synthesis produces a train of sound particles called pulsars 
     that can make rhythms or tones, depending on the fundamental frequency 
-    of the train. Varying the `frac` portion of the period assigned to the
-    waveform and its following silence, but maintaining the overall pulsar 
-    period gives an effect much like a band-pass filter.
+    of the train. Varying the `frac` parameter changes the portion of the
+    period assigned to the waveform and the portion of the period assigned 
+    to its following silence, but maintain the overall pulsar period. This 
+    results in an effect much like a sweeping band-pass filter.
 
     Parent class: PyoObject
     
@@ -944,7 +945,7 @@ class TableRec(PyoObject):
     TableRec has no `mul` and `add` attributes.
     
     TableRec will sends a trigger signal at the end of the recording. 
-    User can retreive the trigger streams by calling obj['trig']. In
+    User can retrieve the trigger streams by calling obj['trig']. In
     this example, the recorded table will be read automatically after
     a recording:
     

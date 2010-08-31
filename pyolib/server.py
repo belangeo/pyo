@@ -58,24 +58,21 @@ class Server(object):
     shutdown() : Shut down and clear the server.
     start() : Start the audio callback loop.
     stop() : Stop the audio callback loop.
-    recstart(str) : Begin recording sound sent to output. Creates a file called 
-        `pyo_rec.aif` in the user's home directory if a path is not supplied.
-    recstop() : Stop previously started recording.
+    recstart(str) : Begins recording of the sound sent to output. 
+        This method creates a file called `pyo_rec.aif` in the 
+        user's home directory if a path is not supplied.
+    recstop() : Stops previously started recording.
     getSamplingRate() : Returns the current sampling rate.
     getNchnls() : Returns the current number of channels.
     getBufferSize() : Returns the current buffer size.
     getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
 
-    * The next methods must be called before booting the server
+    The next methods must be called before booting the server
 
-    setInOutDevice(x) : Set both input and output devices.     
-        See `pa_list_devices()`.
-    setInputDevice(x) : Set the audio input device number. 
-        See `pa_list_devices()`.
-    setOutputDevice(x) : Set the audio output device number. 
-        See `pa_list_devices()`.
-    setMidiInputDevice(x) : Set the MIDI input device number. 
-        See `pm_list_devices()`.
+    setInOutDevice(x) : Set both input and output devices. See `pa_list_devices()`.
+    setInputDevice(x) : Set the audio input device number. See `pa_list_devices()`.
+    setOutputDevice(x) : Set the audio output device number. See `pa_list_devices()`.
+    setMidiInputDevice(x) : Set the MIDI input device number. See `pm_list_devices()`.
     setSamplingRate(x) : Set the sampling rate used by the server.
     setBufferSize(x) : Set the buffer size used by the server.
     setNchnls(x) : Set the number of channels used by the server.
@@ -84,7 +81,7 @@ class Server(object):
     Attributes:
     
     amp : Overall amplitude of the Server. This value is applied on any 
-        stream sent to the output.
+        stream sent to the soundcard.
         
     Examples:
     
@@ -142,12 +139,12 @@ class Server(object):
 
     def setMidiInputDevice(self, x):
         """
-        Set the MIDI input device number. See `pm_list_devices()`.
+        Set the Midi input device number. See `pm_list_devices()`.
         
         Parameters:
 
         x : int
-            Number of the MIDI device listed by Portmidi.
+            Number of the Midi device listed by Portmidi.
 
         """
         self._server.setMidiInputDevice(x)
@@ -250,9 +247,9 @@ class Server(object):
         
     def recstart(self, filename=None):
         """
-        Begin a default recording of the sound that is sent to output. 
-        This will create a file called `pyo_rec.aif` in the user's 
-        home directory if no path is supplied.
+        Begins a default recording of the sound that is sent to the
+        soundcard. This will create a file called `pyo_rec.aif` in 
+        the user's home directory if no path is supplied.
         
         Parameters:
         
