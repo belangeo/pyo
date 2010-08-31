@@ -1,3 +1,8 @@
+"""
+Example of user's class.
+
+"""
+
 from pyo import *
 
 class FreqMod:
@@ -43,3 +48,11 @@ class FreqMod:
         self.modulator.setFreq(self.modulatorFrequency) 
         self.modulator.setMul(self.modulatorAmplitude)
         self.modulator.setAdd(self.carrierFrequency)       
+
+
+s = Server().boot()
+a = FreqMod(carrier=150, ratio=.249, index=6, amplitude=0.5).play()
+lf = Sine(.1, 0, 50, 300)
+b = FreqMod(carrier=lf, ratio=.5, index=5, amplitude=0.5).play()
+
+s.gui(locals())

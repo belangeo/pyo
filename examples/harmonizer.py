@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""
+Hand-written harmonizer.
+
+"""
+
 import math
 from pyo import *
     

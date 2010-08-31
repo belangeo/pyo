@@ -1,7 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Created by Guacamole Au Tofu on 2010-03-30.
+Test with PyoMatrixObject.
+TEST == 0 : 
+    Simple wave terrain synthesis. The terrain is generated with sin functions.
+TEST == 1 :
+    Wave terrain synthesis of a live recording of FM synthesis in the matrix.
+TEST == 2 :
+    How to use the matrix to do some algorithmic generation of notes.
+
 """
 from pyo import *
 import random, math
@@ -17,7 +24,7 @@ def terrain(size=256, freq=1, phase=16):
         l.append(tmp)
     return l
 
-TEST = 0
+TEST = 2
 if TEST == 0:
     SIZE = 512
     m = NewMatrix(SIZE, SIZE, terrain(SIZE)).normalize()
@@ -46,8 +53,9 @@ if TEST == 1:
 if TEST == 2:
     mat = [[0,1,2,3], [10,11,12,13], [20,21,22,23], [30,31,32,33]]
     mm = NewMatrix(4,4,mat)
-    ph = RandInt(4, mul=.25)
-    co = Sig(0)
+    ph = RandInt(4, freq=2, mul=.25)
+    met = Metro(time=4).play()
+    co = Counter(met, 0, 4, mul=.25)
     a = MatrixPointer(mm, co, ph)
     p = Print(a, 1)
             

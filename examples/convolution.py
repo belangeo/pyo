@@ -16,7 +16,7 @@ s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
 sf = Noise(.5)
 
-TLEN = 1000
+TLEN = 512
 
 inmic = Input()
 

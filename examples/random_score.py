@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""
+Calling Python function from an audio stream with the Score object.
+ 
+"""
 from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=256, duplex=0).boot()
@@ -24,6 +28,6 @@ def event_2():
     d.play()
     
 tr = RandInt(3, 5)
-sc = Score(tr)
+sc = Score(input=tr, fname='event_')
 
 s.gui(locals())

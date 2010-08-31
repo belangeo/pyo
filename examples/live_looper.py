@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-To record sound from input mic in a 4 seconds buffer, call:
+To record sound from input mic in the buffer (4 seconds), call:
 rec.play() 
 
 The buffer is looped with some funny parameters...
