@@ -646,7 +646,7 @@ class CurveTable(PyoTableObject):
     Construct a table from curve interpolated segments.
     
     CurveTable uses Hermite interpolation (sort of cubic interpolation)
-    to calculate each points of the curve. This algorithm allow tension
+    to calculate each points of the curve. This algorithm allows tension
     and biasing controls. Tension can be used to tighten up the curvature 
     at the known points. The bias is used to twist the curve about the 
     known points.
