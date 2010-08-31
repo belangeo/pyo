@@ -163,7 +163,22 @@ Audio stream objects. For internal use only. \n\n\
 A Stream object must never be instantiated by the user. \n\n\
 A Stream is a mono buffer of audio samples. It is used to pass \n\
 audio between objects and the server. A PyoObject can manage many \n\
-streams if, for example, a list is given to a parameter. \n\
+streams if, for example, a list is given to a parameter. \n\n\
+A Sine object with only one stream:\n\n\
+    >>> a = Sine(freq=1000)\n\
+    >>> len(a)\n\
+    1\n\
+    >>>\n\n\
+A Sine object with four streams:\n\n\
+    >>> a = Sine(freq=[250,500,750,100])\n\
+    >>> len(a)\n\
+    4\n\
+    >>>\n\n\
+The first stream of this object contains the samples from the 250Hz waveform.\n\
+The second stream contains the samples from the 500Hz waveform, and so on.\n\n\
+User can call a specific stream of an object by giving the position of the stream\n\
+between brackets, beginning at 0. To retrieve only the third stream of our object:\n\n\
+    >>> a[2].out()\n\
 ", /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */
