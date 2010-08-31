@@ -810,11 +810,12 @@ class Pointer(PyoObject):
 
 class Lookup(PyoObject):
     """
-    Uses samples table to do waveshaping on an audio signal.
+    Uses table to do waveshaping on an audio signal.
     
-    The input signal amplitudes, between -1 and 1 are scaled between 
-    0 and the table size and used as position index in the table to 
-    apply waveshaping on the input signal.  
+    Lookup uses a table to apply waveshaping on an input signal
+    `index`. The index must be between -1 and 1, it is automatically
+    scaled between 0 and len(table)-1 and is used as a position
+    pointer in the table.  
     
     Parent class: PyoObject
     
@@ -1067,12 +1068,12 @@ class TableRec(PyoObject):
 
 class TableMorph(PyoObject):
     """
-    Morphs between multiple PyoTableObject.
+    Morphs between multiple PyoTableObjects.
      
     Uses an index into a list of PyoTableObjects to morph between adjacent 
-    tables in the list. This morphed function is written into the `table`
-    object at the beginning of each buffer size. The tables in the list and 
-    the resulting table must be equal in size.
+    tables in the list. The resulting morphed function is written into the 
+    `table` object at the beginning of each buffer size. The tables in the 
+    list and the resulting table must be equal in size.
     
     Parent class: PyoObject
 

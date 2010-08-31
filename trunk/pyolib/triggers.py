@@ -91,7 +91,7 @@ class Trig(PyoObject):
 
 class Metro(PyoObject):
     """
-    Generate isochronous trigger signals.
+    Generates isochronous trigger signals.
     
     A trigger is an audio signal with a value of 1 surrounded by 0s.
 
@@ -1055,6 +1055,8 @@ class TrigEnv(PyoObject):
     dur : float or PyoObject. Duration in seconds.
     interp : int {1, 2, 3, 4}, Interpolation method.
 
+    Notes:
+    
     TrigEnv will sends a trigger signal at the end of the playback. 
     User can retreive the trigger streams by calling obj['trig']. 
     Useful to synchronize other processes. 
