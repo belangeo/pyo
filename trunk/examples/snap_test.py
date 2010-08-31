@@ -1,3 +1,8 @@
+"""
+Algorithmic melody patterns snapped on a specific scale...
+
+"""
+
 from pyo import *
 
 s = Server().boot()

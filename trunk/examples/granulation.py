@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+"""
+Classic granulation stretching...
+
+"""
 from pyo import *
 s = Server(buffersize=512).boot()
 
@@ -14,7 +18,7 @@ pnz = Noise(5)
 dur = Noise(.002, .1)
 
 gran = Granulator(table=snd, env=env, pitch=[.999, 1.0011], pos=pos+pnz, 
-                  dur=dur, grains=100, basedur=.1, mul=.03).out()
+                  dur=dur, grains=40, basedur=.1, mul=.03).out()
          
 s.gui(locals())
 

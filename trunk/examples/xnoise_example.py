@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""
+Algorithmic generation...
+
+"""
+
 from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()

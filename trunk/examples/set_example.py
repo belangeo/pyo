@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-set method let change parameter's value with portamento.
+The set() method of PyoObject lets change parameter's value with portamento.
 call go() to start changes.
 call reset() to get back initial values.
 
