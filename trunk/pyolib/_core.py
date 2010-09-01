@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, SliceType, FloatType, StringType
-import random, os, inspect, tempfile
+import random, os, sys, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
 
@@ -74,34 +74,64 @@ def wrap(arg, i):
     else:
         return x
 
-def example(cls, dur=5):
-    """
-    Runs the example given in the __doc__ string of the object in argument.
+if sys.version_info[:2] <= (2, 5):
+    def example(cls, dur=5):
+        """
+        Runs the example given in the __doc__ string of the object in argument.
     
-    example(cls, dur=5)
+        example(cls, dur=5)
     
-    Parameters:
+        Parameters:
     
-    cls : PyoObject class
-        Class reference of the desired object example.
-    dur : float, optional
-        Duration of the example.
+        cls : PyoObject class
+            Class reference of the desired object example.
+        dur : float, optional
+            Duration of the example.
         
-    """
-    doc = cls.__doc__.split("Examples:")[1]
-    lines = doc.splitlines()
-    ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-    ex = "import time\nfrom pyo import *\n"
-    for line in ex_lines:
-        if ">>>" in line: line = line.lstrip(">>> ")
-        if "..." in line: line = "    " +  line.lstrip("... ")
-        ex += line + "\n"
-    ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
-    f = tempfile.NamedTemporaryFile(delete=False)
-    f.write('print """\n%s\n"""\n' % ex)
-    f.write(ex)
-    f.close()    
-    p = call(["python", f.name])
+        """
+        doc = cls.__doc__.split("Examples:")[1]
+        lines = doc.splitlines()
+        ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
+        ex = "import time\nfrom pyo import *\n"
+        for line in ex_lines:
+            if ">>>" in line: line = line.lstrip(">>> ")
+            if "..." in line: line = "    " +  line.lstrip("... ")
+            ex += line + "\n"
+        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+        f = open('/tmp/pyo_example.py', 'w')
+        f.write('print """\n%s\n"""\n' % ex)
+        f.write(ex)
+        f.close()    
+        p = call(["python", '/tmp/pyo_example.py'])
+else:
+    def example(cls, dur=5):
+        """
+        Runs the example given in the __doc__ string of the object in argument.
+    
+        example(cls, dur=5)
+    
+        Parameters:
+    
+        cls : PyoObject class
+            Class reference of the desired object example.
+        dur : float, optional
+            Duration of the example.
+        
+        """
+        doc = cls.__doc__.split("Examples:")[1]
+        lines = doc.splitlines()
+        ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
+        ex = "import time\nfrom pyo import *\n"
+        for line in ex_lines:
+            if ">>>" in line: line = line.lstrip(">>> ")
+            if "..." in line: line = "    " +  line.lstrip("... ")
+            ex += line + "\n"
+        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+        f = tempfile.NamedTemporaryFile(delete=False)
+        f.write('print """\n%s\n"""\n' % ex)
+        f.write(ex)
+        f.close()    
+        p = call(["python", f.name])
       
 def removeExtraDecimals(x):
     if type(x) == FloatType:
