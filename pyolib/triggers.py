@@ -344,6 +344,8 @@ class Beat(PyoObject):
     recall(x) : Recall the pattern previously stored in memory `x`.
     getPresets() : Returns the list of stored presets.
     setPresets(list) : Store a list of presets.
+    get(identifier, all) : Return the first sample of the current 
+        buffer as a float.
      
     Attributes:
 
@@ -427,6 +429,32 @@ class Beat(PyoObject):
             return self._base_objs[i]
         else:
             print "'i' too large!"         
+
+    def get(self, identifier="amp", all=False):
+        """
+        Return the first sample of the current buffer as a float.
+
+        Can be used to convert audio stream to usable Python data.
+
+        "amp" or "dur" must be given to `identifier` to specify
+        which stream to get value from.
+
+        Parameters:
+
+            identifier : string {"amp", "dur"}
+                Address string parameter identifying audio stream.
+                Defaults to "amp".
+            all : boolean, optional
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
+                of the first object's stream will be returned as a float.
+                Defaults to False.
+
+        """
+        if not all:
+            return self.__getitem__(identifier)[0]._getStream().getValue()
+        else:
+            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
 
     def new(self):
         """
