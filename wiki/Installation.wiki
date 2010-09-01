@@ -8,32 +8,32 @@ To install pyo, you will need the following dependencies:
   * Ubuntu: python-tk (doesn't come installed by default on Ubuntu)
   * Ubuntu: python-dev package
 
-
-The easiest way to get portaudio, portmidi, libsndfile and liblo is to install [http://csound.sourceforge.net/ csound], it will install those libraries for you.
-
-Please note that under Mac OS X you will need to install the developer tools to compile pyo.
-
 To retrieve necessary dependency librairies and headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder, it will download them to /usr/local/lib and /usr/local/include directory :
 
 {{{
 sh scripts/get_dependencies.sh
 }}}
 
-Under 10.6 if compilation fails, you might want to try installing csound 5.10 instead of 5.11.  Also, setting your Python installation to 32 bits may help, to do so :
+=Get sources=
+You can download pyo's source checking out the source code here:
 
-{{{
-defaults write com.apple.versioner.python Prefer-32-Bit -bool yes
-}}}
-
-=Compilation=
-Once you have all the required dependencies, you can download pyo's source checking out the source code here:
 {{{
 svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
 }}}
 
-In pyo's directory you then need to build the extension : 
+=Compilation=
+Please note that under Mac OS X you will need to install the developer tools to compile pyo.
+
+Once you have all the required dependencies, go in pyo's directory:
+
 {{{
-python setup.py install
+cd pyo-read-only
+}}}
+
+You then need to build the extension: 
+
+{{{
+sudo python setup.py install
 }}}
 
 =Ubuntu 10.04=
