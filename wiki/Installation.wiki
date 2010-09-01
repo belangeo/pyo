@@ -8,7 +8,7 @@ To install pyo, you will need the following dependencies:
   * Ubuntu: python-tk (doesn't come installed by default on Ubuntu)
   * Ubuntu: python-dev package
 
-To retrieve necessary dependency librairies and headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder, it will download them to /usr/local/lib and /usr/local/include directory :
+Under Mac OS X, to retrieve necessary dependency librairies and headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder, it will download them to /usr/local/lib and /usr/local/include directory :
 
 {{{
 sh scripts/get_dependencies.sh
