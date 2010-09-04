@@ -258,9 +258,8 @@ class Server(object):
         
         """
         if filename == None:
-            self._server.recstart()
-        else:
-            self._server.recstart(filename)    
+            filename = os.path.join(os.path.expanduser("~"), "pyo_rec.aif")
+        self._server.recstart(filename)    
         
     def recstop(self):
         """

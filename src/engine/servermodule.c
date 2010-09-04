@@ -287,7 +287,6 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         PyErr_Warn(NULL, "A Server is already created!\nIf you put this Server in a new variable, please delete it!");
         return PyServer_get_server();
     }    
-    
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
     self->server_booted = 0;
@@ -318,7 +317,8 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         return -1;
 
     self->recpath = getenv("HOME");
-    strncat(self->recpath, "/pyo_rec.aif", strlen("/pyo_rec.aif"));
+    if (self->recpath != NULL)
+        strncat(self->recpath, "/pyo_rec.aif", strlen("/pyo_rec.aif"));
 
     return 0;
 }
