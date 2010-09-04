@@ -97,7 +97,8 @@ class Server(object):
         self._server = Server_base(sr, nchnls, buffersize, duplex)
 
     def gui(self, locals=None):
-        f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop, self.setAmp, self.getIsStarted(), locals)
+        f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
+                                 self.setAmp, self.getIsStarted(), locals, self.shutdown)
         self._server.setAmpCallable(f)
         win.mainloop()
 

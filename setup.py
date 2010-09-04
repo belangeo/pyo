@@ -36,11 +36,18 @@ files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'd
         'matrixprocessmodule.c', 'harmonizermodule.c', 'recordmodule.c', 'chorusmodule.c']
 source_files = source_files + [path + f for f in files]
 
-include_dirs = ['include', '/usr/local/include']
-libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
-
-extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
-             extra_compile_args=["-Wno-strict-prototypes"])]
+if sys.platform == "win32":
+    include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
+                    'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include']
+    library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo']
+    libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo']
+    extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
+                library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"])]
+else:
+    include_dirs = ['include', '/usr/local/include']
+    libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
+    extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
+                extra_compile_args=["-Wno-strict-prototypes"])]
        
 setup(  name = "pyo",
         author = "Olivier Belanger",
@@ -54,6 +61,4 @@ setup(  name = "pyo",
         data_files=[(get_python_lib(), ['pyo.py']),
         (os.path.join(get_python_lib(), 'pyolib', 'snds'), ['pyolib/snds/'+ f for f in os.listdir('pyolib/snds') if f.endswith('aif')])],
         ext_modules = extension )
-         
-#os.system('rm -rf build')
       

@@ -372,6 +372,7 @@ ChebyTable_generate(ChebyTable *self) {
     ihalfsize = 1.0 / halfsize;
     factor = 1. / (self->size * 0.5) * PI;
     
+    x = 0.0;
     for(i=0; i<self->size; i++) {
         val = 0;
         index = (i - halfsize) * ihalfsize;
