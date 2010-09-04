@@ -296,7 +296,7 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     char *fname;
-    char *curfname;
+    char curfname[100];
     int last_value;
 } Score;
 
@@ -309,7 +309,7 @@ Score_selector(Score *self) {
     for (i=0; i<self->bufsize; i++) {
         inval = (int)in[i];
         if (inval != self->last_value) {
-            res = asprintf(&self->curfname, "%s%i()\n", self->fname, inval);
+            res = sprintf(&self->curfname, "%s%i()\n", self->fname, inval);
             state = PyRun_SimpleString(self->curfname);
             self->last_value = inval;
         }    
