@@ -42,6 +42,9 @@ except:
 if sys.platform == 'linux2':
     Y_OFFSET = 0
     VM_OFFSET = 2
+elif sys.platform == 'win32':
+    Y_OFFSET = 3
+    VM_OFFSET = 1   
 else:
     Y_OFFSET = 4
     VM_OFFSET = 0
@@ -312,7 +315,7 @@ class ServerGUI(Frame):
         self.text.bind("<Up>", self.getPrev)
         self.text.bind("<Down>", self.getNext)
         
-    def on_quit(self):   
+    def on_quit(self):
         self.quit()
 
     def getPrev(self, event):
