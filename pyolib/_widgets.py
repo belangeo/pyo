@@ -26,10 +26,13 @@ try:
     WINDOWS = []
     #NoDefaultRoot()
 except:
-    response = raw_input("""python-tk package is missing! It is needed to use pyo graphical interfaces.
+    if sys.platform == "linux2":
+        response = raw_input("""python-tk package is missing! It is needed to use pyo graphical interfaces.
 Do you want to install it? (yes/no): """)
-    if response == 'yes':
-        os.system('sudo apt-get install python-tk')
+        if response == 'yes':
+            os.system('sudo apt-get install python-tk')
+    else:
+        print "Tkinter is missing! It is need to use pyo graphical interfaces. Please install it!"
     sys.exit()
 
 try:
