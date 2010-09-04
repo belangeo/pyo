@@ -254,3 +254,6 @@ Depends(test, portmidi)
 --- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
 [build]
 compiler = mingw32
+
+
+*** For Python 2.5, comment line 428 to 434 in Python25/include/pyconfig.py
