@@ -5,7 +5,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{EB2DD071-9BBC-495B-84B5-6F06E972837E}
+AppId={{4F72B6EF-CFA0-434F-A2B4-B130F94F54EB}
 AppName=Pyo
 AppVersion=0.01
 AppPublisher=iACT.umontreal.ca
