@@ -40,6 +40,7 @@ Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{sd}\Python27\Lib\site-pack
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\pyo-0.01-py2.7.egg-info"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples"; Flags: ignoreversion
+Source: "C:\pyo\scripts\README-win32-py27.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 
