@@ -1194,8 +1194,6 @@ class VarPort(PyoObject):
     """
     Convert numeric value to PyoObject signal with portamento.
 
-    The out() method is bypassed. VarPort's signal can not be sent to audio outs.
-
     When `value` attribute is changed, a smoothed ramp is applied from the
     current value to the new value. If a callback is provided at `function`,
     it will be called at the end of the line.
