@@ -1192,7 +1192,7 @@ class Sig(PyoObject):
 
 class VarPort(PyoObject):
     """
-    Convert numeric value to PyoObject signal with portamento.    Notes:
+    Convert numeric value to PyoObject signal with portamento.
 
     The out() method is bypassed. VarPort's signal can not be sent to audio outs.
 
