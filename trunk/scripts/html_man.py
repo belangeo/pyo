@@ -21,7 +21,10 @@ import os, inspect
 from types import StringType, TupleType, ListType, DictType
 from pyo import *
  
-f = open(os.getcwd() + '/doc/manual.tex', 'w')
+# 'manuel-dev' for development, 'manual' for production  
+man_file = 'manual-dev'
+
+f = open(os.getcwd() + '/doc/%s.tex' % man_file, 'w')
 
 # Header
 f.write("\documentclass[12pt,oneside]{article}\n")
@@ -191,13 +194,13 @@ f.write('\end{document}\n')
 f.close()
 
 os.chdir('doc/')
-os.system('latex2html -html_version 4.0,unicode -noinfo -long_titles 1 -noaddress -local_icons -image_type gif manual.tex')
-for file in os.listdir("manual"):
-    with open("manual/%s" % file, 'r') as f:
+os.system('latex2html %s.tex' % man_file)
+for file in os.listdir(man_file):
+    with open("%s/%s" % (man_file, file), 'r') as f:
         text = f.read()
     text = text.replace("&lt;/A&gt;", "</A>")
-    with open("manual/%s" % file, 'w') as f:
+    with open("%s/%s" % (man_file, file), 'w') as f:
         f.write(text)
-os.remove('manual.tex')
+os.remove('%s.tex' % man_file)
 os.chdir('../')
-os.system('scp -r doc/manual sysop@132.204.178.49:/Library/WebServer/Documents/pyo/')
+os.system('scp -r doc/%s sysop@132.204.178.49:/Library/WebServer/Documents/pyo/' % man_file)
