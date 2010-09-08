@@ -1,3 +1,5 @@
+--- Install Python (2.5 -> 2.7)
+
 --- Install Slick SVN (Slick-Subversion-1.6.12-win32.msi)
 http://www.sliksvn.com/pub/Slik-Subversion-1.6.12-win32.msi
 
@@ -12,7 +14,6 @@ ftp://sourceware.org/pub/pthreads-win32/dll-latest/
 1 --- Update libsndfile from http://www.mega-nerd.com/libsndfile  to the most recent version that works, which may be pre-release or release; currently it the latest stable release (1.0.20). Do not build from sources.
 
 2 --- Update liblo tag 0.26 from the tarball at http://liblo.sourceforge.net (not SVN!), and build with this SConstruct:
-######### modified SConstruct ##########
 
 # S C O N S T R U C T   F O R   L I B L O . D L L
 # Michael Gogins
@@ -54,7 +55,7 @@ environment.Append(LINKFLAGS = ['-Wl,--enable-stdcall-fixup', '-Wl,-export-dynam
 
 liblo = environment.SharedLibrary('lo', Split(sources))
 
-3 --- Update the PortAudio library http://portmedia.sourceforge.net from SVN and build it. Try the trunk version first, if that doesn't work use the most recent tag. At this time, I can't figure out how to build the kernel streaming driver, so omit it.
+3 --- Update the PortAudio library http://portmedia.sourceforge.net from SVN and build it. Try the trunk version first, if that doesn't work use the most recent tag. 
 --- Check the pa_win_hostapis.c file and make sure that it is configured like this to build the DirectSound, WMME, and ASIO drivers:
 --- Install Directx 9.0
 --- Download Asio sdk
@@ -255,5 +256,8 @@ Depends(test, portmidi)
 [build]
 compiler = mingw32
 
-
 *** For Python 2.5, comment line 428 to 434 in Python25/include/pyconfig.py
+
+--- Download pyo sources from svn and build it with:
+
+python setup.py install
