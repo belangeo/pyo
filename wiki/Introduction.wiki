@@ -59,3 +59,24 @@ mod = Sine(freq=6, mul=50)
 a = Sine(freq=mod + 440, mul=0.1).out()
 s.gui(locals())
 }}}
+
+You can create an envelope for a sine wave like this:
+{{{
+from pyo import *
+s = Server().boot()
+f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=5, mul=.5)
+a = Sine(mul=f).out()
+f.play()
+s.gui(locals())
+}}}
+<wiki:comment>
+
+= Defining instruments =
+
+{{{
+def mysynth(note=60,veloc=100):
+    freq = 
+    f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=5, mul=.5)
+    a = Sine(mul=f).out()
+    f.play()
+</wiki:comment>
