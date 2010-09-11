@@ -1,0 +1,47 @@
+#summary Introductory tutorial to Pyo
+Here is quick introduction to Pyo. It assumes you already know Python and basics about Object-oriented programming.
+
+= The Pyo Server =
+
+The first thing you need to do to use Pyo is import the pyo python module and boot the server. This audio server will open audio and midi interfaces and will be ready to send to them the audio and MIDI produced by other pyo objects.
+You then need to make some sound (be careful this might be quite loud...):
+
+{{{
+from pyo import *
+s = Server().boot()
+a = Sine().out()
+s.gui()
+}}}
+
+The _s_ variable holds the _Server_ instance, which has been booted. Then we create a _Sine_ object, and store it in variable _a_, after calling its _out_ method. The _Sine_ class defines a Sine wave oscillator. The _out_ method from this class connects the output of the oscillator to the server audio outputs.
+In the last line, you can see a very handy method from the `Server` class, which creates a small control GUI for the current instance. It is the _gui_ method for the _Server_ object stored in _s_, and from it you can start and stop the server, control the output volume and record to an audio file the sound generated in the server.
+= Attributes =
+The Sine class constructor is:
+{{{
+Sine(self, freq=1000, phase=0, mul=1, add=0)
+}}}
+So you can give it a frequency, phase, multiplier and offset value when you create it.
+Also, if you want to do without the gui, you might need to use the _sleep_ function from the _time_ module to have your script run the server for a while if you are running Python non interactively:
+
+{{{
+from pyo import *
+import time
+s = Server().boot()
+a = Sine(440, 0, 0.1).out()
+s.start()
+time.sleep(1)
+}}}
+
+Notice that you can set the parameters for Sine in the order in which they are defined, but you can also give the parameters a name if you want to leave the rest at their default:
+{{{
+a = Sine(mul=0.1).out()
+}}}
+
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
