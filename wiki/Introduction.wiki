@@ -1,8 +1,7 @@
-#summary Introductory tutorial to Pyo
+= Introductory tutorial to Pyo =
 Here is quick introduction to Pyo. It assumes you already know Python and basics about Object-oriented programming.
 
-= The Pyo Server =
-
+== The Pyo Server and GUI ==
 The first thing you need to do to use Pyo is import the pyo python module and boot the server. This audio server will open audio and midi interfaces and will be ready to send to them the audio and MIDI produced by other pyo objects.
 You then need to make some sound (be careful this might be quite loud...):
 
@@ -10,18 +9,21 @@ You then need to make some sound (be careful this might be quite loud...):
 from pyo import *
 s = Server().boot()
 a = Sine().out()
-s.gui()
+s.gui(locals())
 }}}
 
-The _s_ variable holds the _Server_ instance, which has been booted. Then we create a _Sine_ object, and store it in variable _a_, after calling its _out_ method. The _Sine_ class defines a Sine wave oscillator. The _out_ method from this class connects the output of the oscillator to the server audio outputs.
+The _s_ variable holds the _Server_ instance, which has been booted, using the _boot_ function. Then we create a _Sine_ object, and store it in variable _a_, after calling its _out_ method. The _Sine_ class defines a Sine wave oscillator. The _out_ method from this class connects the output of the oscillator to the server audio outputs.
+
 In the last line, you can see a very handy method from the `Server` class, which creates a small control GUI for the current instance. It is the _gui_ method for the _Server_ object stored in _s_, and from it you can start and stop the server, control the output volume and record to an audio file the sound generated in the server.
-= Attributes =
-The Sine class constructor is:
+
+== Changing Object Characteristics ==
+
+The Sine class constructor is defined as:
 {{{
 Sine(self, freq=1000, phase=0, mul=1, add=0)
 }}}
-So you can give it a frequency, phase, multiplier and offset value when you create it.
-Also, if you want to do without the gui, you might need to use the _sleep_ function from the _time_ module to have your script run the server for a while if you are running Python non interactively:
+So you can give it a frequency, starting phase, multiplier and DC offset value when you create it.
+Also, if you want to do without the server gui, you can use the server method _start()_ from your script, but you might need to use the _sleep_ function from the _time_ module to have your script run the server for a while if you are running Python non-interactively:
 
 {{{
 from pyo import *
@@ -37,11 +39,23 @@ Notice that you can set the parameters for Sine in the order in which they are d
 a = Sine(mul=0.1).out()
 }}}
 
+Once the object has been created, you can modify its attributes using the access methods. For example, to modify the frequency of the _a_ oscillator object after it has been created you can use:
+{{{
+a.setFreq(1000)
+}}}
+But you can also set the attributes directly:
+{{{
+a.freq = 1000
+}}}
 
+== Chaining objects ==
 
-= Details =
+Oscillators like the _Sine_ class can be used as inputs to other classes, for example for frequency modulation:
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+{{{
+from pyo import *
+s = Server().boot()
+mod = Sine(freq=6, mul=50)
+a = Sine(freq=mod + 440, mul=0.1).out()
+s.gui(locals())
+}}}
