@@ -33,6 +33,7 @@ s.gui(locals())
 }}}
 
 In the last line, you can see a very handy method from the `Server` class, which creates a small control GUI for the current instance. The _gui_ method for the _Server_ object, keeps a script running and allows you to start and stop the server, control the output volume and record to an audio file the sound generated in the server.
+A handy feature of the server GUI is the interpreter text box in the bottom. From it you can send commands interactively to the interpreter, to start and stop objects, create or destroy them, etc.
 
 == Changing Object Characteristics ==
 
