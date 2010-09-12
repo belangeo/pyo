@@ -14,6 +14,10 @@ a = Sine(mul=0.01).out()
 
 The _s_ variable holds the _Server_ instance, which has been booted, using the _boot_ function. Booting the server includes opening audio and MIDI interfaces, and setting up the sample rate and number of channels, but the server will not be processing audio until its _start()_ method is called.
 Then we create a _Sine_ object, and store it in variable _a_, after calling its _out_ method. The _Sine_ class defines a Sine wave oscillator. The _out_ method from this class connects the output of the oscillator to the server audio outputs. I have set the _mul_ attribute of the _Sine_ object to make sure you don't blow your ears when you play this, as the default amplitude multiplier is 1, i.e. a sine wave at the maximum amplitude before clipping! (But I'll talk about attributes later...)
+You can stop the server with:
+{{{
+s.stop()
+}}}
 
 == To interact or not to interact ==
 
@@ -83,6 +87,15 @@ a = Sine(mul=f).out()
 f.play()
 s.gui(locals())
 }}}
+
+== Class examples ==
+
+All Classes in Pyo come with an example which shows how it can be used. To execute the example you can do:
+{{{
+from pyo import *
+example(Harmonizer)
+}}}
+This will show and execute the example for the Harmonizer class.
 
 <wiki:comment>
 
