@@ -44,6 +44,8 @@ TODO before releasing _pyo_ version 0.02.
 
 - !UdpSend, !UdpReceive
 
+- Autodiscovery on the network using Bonjour/Avahi/Zeroconf (in progress)
+
 ----
 
 *PyoFFTObject* (new base class)
