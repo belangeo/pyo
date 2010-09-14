@@ -1,0 +1,60 @@
+TODO before releasing _pyo_ version 0.02.
+
+= TODO =
+
+*Misc*
+
+- Add "dur" and "delay" arguments to play and stop methods of PyoObject.
+
+- float and double versions
+
+*GUI*
+
+- MixerGui (matrix for setting dsp graph)
+
+- Editable TableView. Edit, Zoom, Drag, Scrub and Select Region. Resizable windows.
+
+
+*Variable rate table*
+
+- Add a speed factor to TableRec
+
+- TableRead2 controled with a speed factor (1 = sr, 0.5 = sr/2)
+
+*Midi*
+
+- Improved Midi scheduling with time stamp.
+
+- Midiout, MidiFileIn, MidiFileOut
+
+*OSC*
+
+- Improved OSC scheduling with time stamp.
+
+- Communication in data mode, possibility to send and receive string, list or other message types directly in Python. OscDataSend, OscDataReceive
+
+- UdpSend, UdpReceive
+
+*PyoFFTObject* (new base class)
+
+- FFTAnal, FFTSynth, Freeze, Gate, Transposer, Filter, SpectralDelay, CrossSynth, Shifter, ...
+
+*New objects*
+
+- Mixer: many streams with amplitude control
+
+- Granulator2(multi-streams)
+
+- TrigGrains(one-stream and multi-stream)
+
+- Vocoder
+
+- CrossFM, CrossPM, CrossFMPM
+
+- TrigProb (PyoMatrix), TrigMarkov (PyoTable)
+
+- Looper (rewrite in C)
+
+- SfMarkerTrigger
+
+- AttackDetector, PitchTrack
