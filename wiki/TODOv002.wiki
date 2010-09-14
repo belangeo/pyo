@@ -8,12 +8,15 @@ TODO before releasing _pyo_ version 0.02.
 
 - float and double versions
 
+----
+
 *GUI*
 
 - !MixerGui (matrix for setting dsp graph)
 
 - Editable !TableView. Edit, Zoom, Drag, Scrub and Select Region. Resizable windows.
 
+----
 
 *Variable rate table*
 
@@ -21,11 +24,15 @@ TODO before releasing _pyo_ version 0.02.
 
 - !TableRead2 controled with a speed factor (1 = sr, 0.5 = sr/2)
 
+----
+
 *Midi*
 
 - Improved Midi scheduling with time stamp.
 
 - Midiout, !MidiFileIn, !MidiFileOut
+
+----
 
 *OSC*
 
@@ -35,26 +42,30 @@ TODO before releasing _pyo_ version 0.02.
 
 - !UdpSend, !UdpReceive
 
+----
+
 *PyoFFTObject* (new base class)
 
 - FFTAnal, FFTSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
 
+----
+
 *New objects*
 
-- Mixer: many streams with amplitude control
+* Mixer: many streams with amplitude control
 
-- Granulator2(multi-streams)
+* Granulator2(multi-streams)
 
-- !TrigGrains(one-stream and multi-stream)
+* !TrigGrains(one-stream and multi-stream)
 
-- Vocoder
+* Vocoder
 
-- CrossFM, CrossPM, CrossFMPM
+* CrossFM, CrossPM, CrossFMPM
 
-- !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
+* !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
 
-- Looper (rewrite in C)
+* Looper (rewrite in C)
 
-- !SfMarkerTrigger
+* !SfMarkerTrigger
 
-- !AttackDetector, !PitchTrack
+* !AttackDetector, !PitchTrack
