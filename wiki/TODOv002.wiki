@@ -37,7 +37,7 @@ TODO before releasing _pyo_ version 0.02.
 
 *PyoFFTObject* (new base class)
 
-- FFTAnal, FFTSynth, Freeze, Gate, Transposer, Filter, SpectralDelay, CrossSynth, Shifter, ...
+- FFTAnal, FFTSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
 
 *New objects*
 
@@ -45,16 +45,16 @@ TODO before releasing _pyo_ version 0.02.
 
 - Granulator2(multi-streams)
 
-- TrigGrains(one-stream and multi-stream)
+- !TrigGrains(one-stream and multi-stream)
 
 - Vocoder
 
 - CrossFM, CrossPM, CrossFMPM
 
-- TrigProb (PyoMatrix), TrigMarkov (PyoTable)
+- !TrigProb (PyoMatrix), !TrigMarkov (PyoTable)
 
 - Looper (rewrite in C)
 
-- SfMarkerTrigger
+- !SfMarkerTrigger
 
-- AttackDetector, PitchTrack
+- !AttackDetector, !PitchTrack
