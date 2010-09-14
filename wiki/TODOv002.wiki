@@ -4,7 +4,7 @@ TODO before releasing _pyo_ version 0.02.
 
 *Misc*
 
-- Add "dur" and "delay" arguments to play and stop methods of PyoObject.
+- Add "dur" and "delay" arguments to play and stop methods of !PyoObject.
 
 - float and double versions
 
