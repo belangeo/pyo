@@ -52,20 +52,12 @@ TODO before releasing _pyo_ version 0.02.
 
 *New objects*
 
-* Mixer: many streams with amplitude control
-
-* Granulator2(multi-streams)
-
-* !TrigGrains(one-stream and multi-stream)
-
-* Vocoder
-
-* CrossFM, CrossPM, CrossFMPM
-
-* !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
-
-* Looper (rewrite in C)
-
-* !SfMarkerTrigger
-
-* !AttackDetector, !PitchTrack
+  * Mixer: many streams with amplitude control
+  * Granulator2(multi-streams)
+  * !TrigGrains(one-stream and multi-stream)
+  * Vocoder
+  * CrossFM, CrossPM, CrossFMPM
+  * !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
+  * Looper (rewrite in C)
+  * !SfMarkerTrigger
+  * !AttackDetector, !PitchTrack
