@@ -10,16 +10,16 @@ TODO before releasing _pyo_ version 0.02.
 
 *GUI*
 
-- MixerGui (matrix for setting dsp graph)
+- !MixerGui (matrix for setting dsp graph)
 
-- Editable TableView. Edit, Zoom, Drag, Scrub and Select Region. Resizable windows.
+- Editable !TableView. Edit, Zoom, Drag, Scrub and Select Region. Resizable windows.
 
 
 *Variable rate table*
 
-- Add a speed factor to TableRec
+- Add a speed factor to !TableRec
 
-- TableRead2 controled with a speed factor (1 = sr, 0.5 = sr/2)
+- !TableRead2 controled with a speed factor (1 = sr, 0.5 = sr/2)
 
 *Midi*
 
