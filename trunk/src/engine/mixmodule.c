@@ -134,6 +134,7 @@ static PyObject * Mix_deleteStream(Mix *self) { DELETE_STREAM };
 static PyObject *
 Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Mix *self;
     self = (Mix *)type->tp_alloc(type, 0);
 
@@ -174,8 +175,6 @@ Mix_init(Mix *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    Mix_compute_next_data_frame((Mix *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -187,7 +186,7 @@ static PyObject * Mix_setAdd(Mix *self, PyObject *arg) { SET_ADD };
 static PyObject * Mix_setSub(Mix *self, PyObject *arg) { SET_SUB };	
 static PyObject * Mix_setDiv(Mix *self, PyObject *arg) { SET_DIV };
 
-static PyObject * Mix_play(Mix *self) { PLAY };
+static PyObject * Mix_play(Mix *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Mix_out(Mix *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Mix_stop(Mix *self) { STOP };
 
@@ -212,7 +211,7 @@ static PyMethodDef Mix_methods[] = {
     {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Mix_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Mix_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Mix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Mix_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Mix_setMul, METH_O, "Sets oscillator mul factor."},

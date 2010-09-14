@@ -120,6 +120,7 @@ static PyObject * Input_deleteStream(Input *self) { DELETE_STREAM };
 static PyObject *
 Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Input *self;
     self = (Input *)type->tp_alloc(type, 0);
 
@@ -157,8 +158,6 @@ Input_init(Input *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    Input_compute_next_data_frame((Input *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -170,7 +169,7 @@ static PyObject * Input_setAdd(Input *self, PyObject *arg) { SET_ADD };
 static PyObject * Input_setSub(Input *self, PyObject *arg) { SET_SUB };	
 static PyObject * Input_setDiv(Input *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Input_play(Input *self) { PLAY };
+static PyObject * Input_play(Input *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Input_out(Input *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Input_stop(Input *self) { STOP };
 
@@ -195,7 +194,7 @@ static PyMethodDef Input_methods[] = {
     {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Input_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Input_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Input_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Input_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Input_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Input_setMul, METH_O, "Sets oscillator mul factor."},

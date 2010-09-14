@@ -22,6 +22,11 @@ from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib
 import os, sys, getopt
     
+macros = []
+if '--use_double' in sys.argv: 
+    sys.argv.remove('--use_double') 
+    macros.append(('USE_DOUBLE',None))
+    
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
         'interpolation.c']
@@ -35,19 +40,19 @@ files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'd
         'convolvemodule.c', 'randommodule.c', 'wgverbmodule.c', 'utilsmodule.c', 'arithmeticmodule.c', 'matrixmodule.c',
         'matrixprocessmodule.c', 'harmonizermodule.c', 'recordmodule.c', 'chorusmodule.c']
 source_files = source_files + [path + f for f in files]
-
+    
 if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include']
     library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo']
     libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo']
     extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
-                library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"])]
+                library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
 else:
     include_dirs = ['include', '/usr/local/include']
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
     extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
-                extra_compile_args=["-Wno-strict-prototypes"])]
+                extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
        
 setup(  name = "pyo",
         author = "Olivier Belanger",

@@ -248,6 +248,7 @@ static PyObject * Disto_deleteStream(Disto *self) { DELETE_STREAM };
 static PyObject *
 Disto_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Disto *self;
     self = (Disto *)type->tp_alloc(type, 0);
 
@@ -299,8 +300,6 @@ Disto_init(Disto *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    Disto_compute_next_data_frame((Disto *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -312,7 +311,7 @@ static PyObject * Disto_setAdd(Disto *self, PyObject *arg) { SET_ADD };
 static PyObject * Disto_setSub(Disto *self, PyObject *arg) { SET_SUB };	
 static PyObject * Disto_setDiv(Disto *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Disto_play(Disto *self) { PLAY };
+static PyObject * Disto_play(Disto *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Disto_out(Disto *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Disto_stop(Disto *self) { STOP };
 
@@ -408,7 +407,7 @@ static PyMethodDef Disto_methods[] = {
     {"getServer", (PyCFunction)Disto_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Disto_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Disto_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Disto_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Disto_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Disto_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Disto_stop, METH_NOARGS, "Stops computing."},
 	{"setDrive", (PyCFunction)Disto_setDrive, METH_O, "Sets distortion drive factor (0 -> 1)."},
@@ -708,6 +707,7 @@ static PyObject * Clip_deleteStream(Clip *self) { DELETE_STREAM };
 static PyObject *
 Clip_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Clip *self;
     self = (Clip *)type->tp_alloc(type, 0);
     
@@ -757,9 +757,7 @@ Clip_init(Clip *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Clip_compute_next_data_frame((Clip *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -771,7 +769,7 @@ static PyObject * Clip_setAdd(Clip *self, PyObject *arg) { SET_ADD };
 static PyObject * Clip_setSub(Clip *self, PyObject *arg) { SET_SUB };	
 static PyObject * Clip_setDiv(Clip *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Clip_play(Clip *self) { PLAY };
+static PyObject * Clip_play(Clip *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Clip_out(Clip *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Clip_stop(Clip *self) { STOP };
 
@@ -867,7 +865,7 @@ static PyMethodDef Clip_methods[] = {
 {"getServer", (PyCFunction)Clip_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Clip_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Clip_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Clip_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Clip_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Clip_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Clip_stop, METH_NOARGS, "Stops computing."},
 {"setMin", (PyCFunction)Clip_setMin, METH_O, "Sets the minimum value."},
@@ -1210,6 +1208,7 @@ static PyObject * Degrade_deleteStream(Degrade *self) { DELETE_STREAM };
 static PyObject *
 Degrade_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Degrade *self;
     self = (Degrade *)type->tp_alloc(type, 0);
     
@@ -1261,9 +1260,7 @@ Degrade_init(Degrade *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Degrade_compute_next_data_frame((Degrade *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1275,7 +1272,7 @@ static PyObject * Degrade_setAdd(Degrade *self, PyObject *arg) { SET_ADD };
 static PyObject * Degrade_setSub(Degrade *self, PyObject *arg) { SET_SUB };	
 static PyObject * Degrade_setDiv(Degrade *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Degrade_play(Degrade *self) { PLAY };
+static PyObject * Degrade_play(Degrade *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Degrade_out(Degrade *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Degrade_stop(Degrade *self) { STOP };
 
@@ -1371,7 +1368,7 @@ static PyMethodDef Degrade_methods[] = {
 {"getServer", (PyCFunction)Degrade_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Degrade_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Degrade_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Degrade_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Degrade_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Degrade_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Degrade_stop, METH_NOARGS, "Stops computing."},
 {"setBitdepth", (PyCFunction)Degrade_setBitdepth, METH_O, "Sets the bitdepth value."},

@@ -130,6 +130,7 @@ static PyObject * Sig_deleteStream(Sig *self) { DELETE_STREAM };
 static PyObject *
 Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Sig *self;
     self = (Sig *)type->tp_alloc(type, 0);
     
@@ -217,7 +218,7 @@ static PyObject * Sig_setAdd(Sig *self, PyObject *arg) { SET_ADD };
 static PyObject * Sig_setSub(Sig *self, PyObject *arg) { SET_SUB };	
 static PyObject * Sig_setDiv(Sig *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Sig_play(Sig *self) { PLAY };
+static PyObject * Sig_play(Sig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Sig_stop(Sig *self) { STOP };
 
 static PyObject * Sig_multiply(Sig *self, PyObject *arg) { MULTIPLY };
@@ -241,7 +242,7 @@ static PyMethodDef Sig_methods[] = {
 {"getServer", (PyCFunction)Sig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Sig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Sig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Sig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Sig_stop, METH_NOARGS, "Stops computing."},
 {"setValue", (PyCFunction)Sig_setValue, METH_O, "Sets Sig value."},
 {"setMul", (PyCFunction)Sig_setMul, METH_O, "Sets Sig mul factor."},
@@ -457,6 +458,7 @@ static PyObject * SigTo_deleteStream(SigTo *self) { DELETE_STREAM };
 static PyObject *
 SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SigTo *self;
     self = (SigTo *)type->tp_alloc(type, 0);
 
@@ -512,9 +514,7 @@ SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
     for(i=0; i>self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
-    
-    SigTo_compute_next_data_frame((SigTo *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -572,7 +572,7 @@ static PyObject * SigTo_setAdd(SigTo *self, PyObject *arg) { SET_ADD };
 static PyObject * SigTo_setSub(SigTo *self, PyObject *arg) { SET_SUB };	
 static PyObject * SigTo_setDiv(SigTo *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * SigTo_play(SigTo *self) { PLAY };
+static PyObject * SigTo_play(SigTo *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SigTo_stop(SigTo *self) { STOP };
 
 static PyObject * SigTo_multiply(SigTo *self, PyObject *arg) { MULTIPLY };
@@ -596,7 +596,7 @@ static PyMethodDef SigTo_methods[] = {
 {"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SigTo_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SigTo_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SigTo_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)SigTo_stop, METH_NOARGS, "Stops computing."},
 {"setValue", (PyCFunction)SigTo_setValue, METH_O, "Sets SigTo value."},
 {"setTime", (PyCFunction)SigTo_setTime, METH_O, "Sets ramp time in seconds."},
@@ -838,6 +838,7 @@ static PyObject * VarPort_deleteStream(VarPort *self) { DELETE_STREAM };
 static PyObject *
 VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     VarPort *self;
     self = (VarPort *)type->tp_alloc(type, 0);
     
@@ -911,9 +912,7 @@ VarPort_init(VarPort *self, PyObject *args, PyObject *kwds)
     for(i=0; i>self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
-    
-    VarPort_compute_next_data_frame((VarPort *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -972,7 +971,7 @@ static PyObject * VarPort_setAdd(VarPort *self, PyObject *arg) { SET_ADD };
 static PyObject * VarPort_setSub(VarPort *self, PyObject *arg) { SET_SUB };	
 static PyObject * VarPort_setDiv(VarPort *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * VarPort_play(VarPort *self) { PLAY };
+static PyObject * VarPort_play(VarPort *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * VarPort_stop(VarPort *self) { STOP };
 
 static PyObject * VarPort_multiply(VarPort *self, PyObject *arg) { MULTIPLY };
@@ -996,7 +995,7 @@ static PyMethodDef VarPort_methods[] = {
     {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)VarPort_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)VarPort_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)VarPort_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)VarPort_stop, METH_NOARGS, "Stops computing."},
     {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
     {"setTime", (PyCFunction)VarPort_setTime, METH_O, "Sets ramp time in seconds."},

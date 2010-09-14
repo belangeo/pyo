@@ -217,6 +217,7 @@ static PyObject * Follower_deleteStream(Follower *self) { DELETE_STREAM };
 static PyObject *
 Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Follower *self;
     self = (Follower *)type->tp_alloc(type, 0);
     
@@ -260,9 +261,7 @@ Follower_init(Follower *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Follower_compute_next_data_frame((Follower *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -274,7 +273,7 @@ static PyObject * Follower_setAdd(Follower *self, PyObject *arg) { SET_ADD };
 static PyObject * Follower_setSub(Follower *self, PyObject *arg) { SET_SUB };	
 static PyObject * Follower_setDiv(Follower *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Follower_play(Follower *self) { PLAY };
+static PyObject * Follower_play(Follower *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Follower_stop(Follower *self) { STOP };
 
 static PyObject * Follower_multiply(Follower *self, PyObject *arg) { MULTIPLY };
@@ -334,7 +333,7 @@ static PyMethodDef Follower_methods[] = {
 {"getServer", (PyCFunction)Follower_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Follower_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Follower_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Follower_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Follower_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Follower_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Follower_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
 {"setMul", (PyCFunction)Follower_setMul, METH_O, "Sets oscillator mul factor."},
@@ -552,6 +551,7 @@ static PyObject * ZCross_deleteStream(ZCross *self) { DELETE_STREAM };
 static PyObject *
 ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     ZCross *self;
     self = (ZCross *)type->tp_alloc(type, 0);
     
@@ -590,9 +590,7 @@ ZCross_init(ZCross *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    ZCross_compute_next_data_frame((ZCross *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -604,7 +602,7 @@ static PyObject * ZCross_setAdd(ZCross *self, PyObject *arg) { SET_ADD };
 static PyObject * ZCross_setSub(ZCross *self, PyObject *arg) { SET_SUB };	
 static PyObject * ZCross_setDiv(ZCross *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * ZCross_play(ZCross *self) { PLAY };
+static PyObject * ZCross_play(ZCross *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * ZCross_stop(ZCross *self) { STOP };
 
 static PyObject * ZCross_multiply(ZCross *self, PyObject *arg) { MULTIPLY };
@@ -647,7 +645,7 @@ static PyMethodDef ZCross_methods[] = {
 {"getServer", (PyCFunction)ZCross_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)ZCross_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)ZCross_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)ZCross_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)ZCross_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)ZCross_stop, METH_NOARGS, "Stops computing."},
 {"setThresh", (PyCFunction)ZCross_setThresh, METH_O, "Sets the threshold factor."},
 {"setMul", (PyCFunction)ZCross_setMul, METH_O, "Sets oscillator mul factor."},

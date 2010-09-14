@@ -622,6 +622,7 @@ static PyObject * Freeverb_deleteStream(Freeverb *self) { DELETE_STREAM };
 static PyObject *
 Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Freeverb *self;
     self = (Freeverb *)type->tp_alloc(type, 0);
 
@@ -704,8 +705,6 @@ Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
             }
     }
 
-    Freeverb_compute_next_data_frame((Freeverb *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -717,7 +716,7 @@ static PyObject * Freeverb_setAdd(Freeverb *self, PyObject *arg) { SET_ADD };
 static PyObject * Freeverb_setSub(Freeverb *self, PyObject *arg) { SET_SUB };	
 static PyObject * Freeverb_setDiv(Freeverb *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Freeverb_play(Freeverb *self) { PLAY };
+static PyObject * Freeverb_play(Freeverb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Freeverb_out(Freeverb *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Freeverb_stop(Freeverb *self) { STOP };
 
@@ -847,7 +846,7 @@ static PyMethodDef Freeverb_methods[] = {
     {"getServer", (PyCFunction)Freeverb_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Freeverb_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Freeverb_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Freeverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Freeverb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Freeverb_stop, METH_NOARGS, "Stops computing."},
 	{"setSize", (PyCFunction)Freeverb_setSize, METH_O, "Sets distortion size factor (0 -> 1)."},

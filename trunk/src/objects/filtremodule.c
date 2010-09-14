@@ -344,6 +344,7 @@ static PyObject * Biquad_deleteStream(Biquad *self) { DELETE_STREAM };
 static PyObject *
 Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Biquad *self;
     self = (Biquad *)type->tp_alloc(type, 0);
         
@@ -395,8 +396,6 @@ Biquad_init(Biquad *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    Biquad_compute_next_data_frame((Biquad *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -408,7 +407,7 @@ static PyObject * Biquad_setAdd(Biquad *self, PyObject *arg) { SET_ADD };
 static PyObject * Biquad_setSub(Biquad *self, PyObject *arg) { SET_SUB };	
 static PyObject * Biquad_setDiv(Biquad *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Biquad_play(Biquad *self) { PLAY };
+static PyObject * Biquad_play(Biquad *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Biquad_out(Biquad *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Biquad_stop(Biquad *self) { STOP };
 
@@ -525,7 +524,7 @@ static PyMethodDef Biquad_methods[] = {
     {"getServer", (PyCFunction)Biquad_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Biquad_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Biquad_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Biquad_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Biquad_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Biquad_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Biquad_stop, METH_NOARGS, "Stops computing."},
 	{"setFreq", (PyCFunction)Biquad_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -979,6 +978,7 @@ static PyObject * Biquadx_deleteStream(Biquadx *self) { DELETE_STREAM };
 static PyObject *
 Biquadx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Biquadx *self;
     self = (Biquadx *)type->tp_alloc(type, 0);
     
@@ -1032,9 +1032,7 @@ Biquadx_init(Biquadx *self, PyObject *args, PyObject *kwds)
     Biquadx_allocate_memories(self);
 
     (*self->mode_func_ptr)(self);
-    
-    Biquadx_compute_next_data_frame((Biquadx *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1046,7 +1044,7 @@ static PyObject * Biquadx_setAdd(Biquadx *self, PyObject *arg) { SET_ADD };
 static PyObject * Biquadx_setSub(Biquadx *self, PyObject *arg) { SET_SUB };	
 static PyObject * Biquadx_setDiv(Biquadx *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Biquadx_play(Biquadx *self) { PLAY };
+static PyObject * Biquadx_play(Biquadx *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Biquadx_out(Biquadx *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Biquadx_stop(Biquadx *self) { STOP };
 
@@ -1183,7 +1181,7 @@ static PyMethodDef Biquadx_methods[] = {
     {"getServer", (PyCFunction)Biquadx_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Biquadx_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Biquadx_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Biquadx_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Biquadx_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Biquadx_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Biquadx_stop, METH_NOARGS, "Stops computing."},
 	{"setFreq", (PyCFunction)Biquadx_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -1714,6 +1712,7 @@ static PyObject * EQ_deleteStream(EQ *self) { DELETE_STREAM };
 static PyObject *
 EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     EQ *self;
     self = (EQ *)type->tp_alloc(type, 0);
     
@@ -1770,9 +1769,7 @@ EQ_init(EQ *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    EQ_compute_next_data_frame((EQ *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1784,7 +1781,7 @@ static PyObject * EQ_setAdd(EQ *self, PyObject *arg) { SET_ADD };
 static PyObject * EQ_setSub(EQ *self, PyObject *arg) { SET_SUB };	
 static PyObject * EQ_setDiv(EQ *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * EQ_play(EQ *self) { PLAY };
+static PyObject * EQ_play(EQ *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * EQ_out(EQ *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * EQ_stop(EQ *self) { STOP };
 
@@ -1936,7 +1933,7 @@ static PyMethodDef EQ_methods[] = {
 {"getServer", (PyCFunction)EQ_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)EQ_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)EQ_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)EQ_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)EQ_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)EQ_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)EQ_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)EQ_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -2256,6 +2253,7 @@ static PyObject * Port_deleteStream(Port *self) { DELETE_STREAM };
 static PyObject *
 Port_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Port *self;
     self = (Port *)type->tp_alloc(type, 0);
     
@@ -2311,9 +2309,7 @@ Port_init(Port *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Port_compute_next_data_frame((Port *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2325,7 +2321,7 @@ static PyObject * Port_setAdd(Port *self, PyObject *arg) { SET_ADD };
 static PyObject * Port_setSub(Port *self, PyObject *arg) { SET_SUB };	
 static PyObject * Port_setDiv(Port *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Port_play(Port *self) { PLAY };
+static PyObject * Port_play(Port *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Port_out(Port *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Port_stop(Port *self) { STOP };
 
@@ -2421,7 +2417,7 @@ static PyMethodDef Port_methods[] = {
 {"getServer", (PyCFunction)Port_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Port_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Port_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Port_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Port_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Port_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Port_stop, METH_NOARGS, "Stops computing."},
 {"setRiseTime", (PyCFunction)Port_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
@@ -2676,6 +2672,7 @@ static PyObject * Tone_deleteStream(Tone *self) { DELETE_STREAM };
 static PyObject *
 Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Tone *self;
     self = (Tone *)type->tp_alloc(type, 0);
     
@@ -2720,9 +2717,7 @@ Tone_init(Tone *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Tone_compute_next_data_frame((Tone *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2734,7 +2729,7 @@ static PyObject * Tone_setAdd(Tone *self, PyObject *arg) { SET_ADD };
 static PyObject * Tone_setSub(Tone *self, PyObject *arg) { SET_SUB };	
 static PyObject * Tone_setDiv(Tone *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Tone_play(Tone *self) { PLAY };
+static PyObject * Tone_play(Tone *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Tone_out(Tone *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Tone_stop(Tone *self) { STOP };
 
@@ -2795,7 +2790,7 @@ static PyMethodDef Tone_methods[] = {
 {"getServer", (PyCFunction)Tone_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Tone_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Tone_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Tone_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Tone_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Tone_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Tone_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Tone_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -3005,6 +3000,7 @@ static PyObject * DCBlock_deleteStream(DCBlock *self) { DELETE_STREAM };
 static PyObject *
 DCBlock_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     DCBlock *self;
     self = (DCBlock *)type->tp_alloc(type, 0);
     
@@ -3042,9 +3038,7 @@ DCBlock_init(DCBlock *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    DCBlock_compute_next_data_frame((DCBlock *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -3056,7 +3050,7 @@ static PyObject * DCBlock_setAdd(DCBlock *self, PyObject *arg) { SET_ADD };
 static PyObject * DCBlock_setSub(DCBlock *self, PyObject *arg) { SET_SUB };	
 static PyObject * DCBlock_setDiv(DCBlock *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * DCBlock_play(DCBlock *self) { PLAY };
+static PyObject * DCBlock_play(DCBlock *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * DCBlock_out(DCBlock *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * DCBlock_stop(DCBlock *self) { STOP };
 
@@ -3082,7 +3076,7 @@ static PyMethodDef DCBlock_methods[] = {
 {"getServer", (PyCFunction)DCBlock_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)DCBlock_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)DCBlock_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)DCBlock_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)DCBlock_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)DCBlock_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)DCBlock_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)DCBlock_setMul, METH_O, "Sets oscillator mul factor."},
@@ -3446,6 +3440,7 @@ static PyObject * Allpass_deleteStream(Allpass *self) { DELETE_STREAM };
 static PyObject *
 Allpass_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Allpass *self;
     self = (Allpass *)type->tp_alloc(type, 0);
     
@@ -3505,9 +3500,7 @@ Allpass_init(Allpass *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-    
-    Allpass_compute_next_data_frame((Allpass *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -3519,7 +3512,7 @@ static PyObject * Allpass_setAdd(Allpass *self, PyObject *arg) { SET_ADD };
 static PyObject * Allpass_setSub(Allpass *self, PyObject *arg) { SET_SUB };	
 static PyObject * Allpass_setDiv(Allpass *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Allpass_play(Allpass *self) { PLAY };
+static PyObject * Allpass_play(Allpass *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Allpass_out(Allpass *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Allpass_stop(Allpass *self) { STOP };
 
@@ -3615,7 +3608,7 @@ static PyMethodDef Allpass_methods[] = {
     {"getServer", (PyCFunction)Allpass_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Allpass_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Allpass_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Allpass_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Allpass_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Allpass_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Allpass_stop, METH_NOARGS, "Stops computing."},
 	{"setDelay", (PyCFunction)Allpass_setDelay, METH_O, "Sets delay time in seconds."},
@@ -3944,6 +3937,7 @@ static PyObject * Allpass2_deleteStream(Allpass2 *self) { DELETE_STREAM };
 static PyObject *
 Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Allpass2 *self;
     self = (Allpass2 *)type->tp_alloc(type, 0);
     
@@ -3996,9 +3990,7 @@ Allpass2_init(Allpass2 *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Allpass2_compute_next_data_frame((Allpass2 *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -4010,7 +4002,7 @@ static PyObject * Allpass2_setAdd(Allpass2 *self, PyObject *arg) { SET_ADD };
 static PyObject * Allpass2_setSub(Allpass2 *self, PyObject *arg) { SET_SUB };	
 static PyObject * Allpass2_setDiv(Allpass2 *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Allpass2_play(Allpass2 *self) { PLAY };
+static PyObject * Allpass2_play(Allpass2 *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Allpass2_out(Allpass2 *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Allpass2_stop(Allpass2 *self) { STOP };
 
@@ -4106,7 +4098,7 @@ static PyMethodDef Allpass2_methods[] = {
 {"getServer", (PyCFunction)Allpass2_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Allpass2_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Allpass2_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Allpass2_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Allpass2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Allpass2_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Allpass2_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Allpass2_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -4713,6 +4705,7 @@ static PyObject * Phaser_deleteStream(Phaser *self) { DELETE_STREAM };
 static PyObject *
 Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Phaser *self;
     self = (Phaser *)type->tp_alloc(type, 0);
     
@@ -4792,9 +4785,7 @@ Phaser_init(Phaser *self, PyObject *args, PyObject *kwds)
     for (i=0; i<self->stages; i++) {
         self->y1[i] = self->y2[i] = 0.0;
     }
-    
-    Phaser_compute_next_data_frame((Phaser *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -4806,7 +4797,7 @@ static PyObject * Phaser_setAdd(Phaser *self, PyObject *arg) { SET_ADD };
 static PyObject * Phaser_setSub(Phaser *self, PyObject *arg) { SET_SUB };	
 static PyObject * Phaser_setDiv(Phaser *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Phaser_play(Phaser *self) { PLAY };
+static PyObject * Phaser_play(Phaser *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Phaser_out(Phaser *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Phaser_stop(Phaser *self) { STOP };
 
@@ -4970,7 +4961,7 @@ static PyMethodDef Phaser_methods[] = {
     {"getServer", (PyCFunction)Phaser_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Phaser_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Phaser_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Phaser_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Phaser_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Phaser_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Phaser_stop, METH_NOARGS, "Stops computing."},
     {"setFreq", (PyCFunction)Phaser_setFreq, METH_O, "Sets base frequency in Hertz."},

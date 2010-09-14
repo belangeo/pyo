@@ -24,7 +24,7 @@ def terrain(size=256, freq=1, phase=16):
         l.append(tmp)
     return l
 
-TEST = 2
+TEST = 0
 if TEST == 0:
     SIZE = 512
     m = NewMatrix(SIZE, SIZE, terrain(SIZE)).normalize()

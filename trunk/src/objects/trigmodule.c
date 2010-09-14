@@ -277,6 +277,7 @@ static PyObject * TrigRand_deleteStream(TrigRand *self) { DELETE_STREAM };
 static PyObject *
 TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigRand *self;
     self = (TrigRand *)type->tp_alloc(type, 0);
     
@@ -334,9 +335,7 @@ TrigRand_init(TrigRand *self, PyObject *args, PyObject *kwds)
     self->timeStep = (int)(self->time * self->sr);
 
     (*self->mode_func_ptr)(self);
-    
-    TrigRand_compute_next_data_frame((TrigRand *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -348,7 +347,7 @@ static PyObject * TrigRand_setAdd(TrigRand *self, PyObject *arg) { SET_ADD };
 static PyObject * TrigRand_setSub(TrigRand *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigRand_setDiv(TrigRand *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigRand_play(TrigRand *self) { PLAY };
+static PyObject * TrigRand_play(TrigRand *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigRand_out(TrigRand *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * TrigRand_stop(TrigRand *self) { STOP };
 
@@ -467,7 +466,7 @@ static PyMethodDef TrigRand_methods[] = {
 {"getServer", (PyCFunction)TrigRand_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigRand_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigRand_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigRand_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigRand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigRand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)TrigRand_stop, METH_NOARGS, "Stops computing."},
 {"setMin", (PyCFunction)TrigRand_setMin, METH_O, "Sets minimum possible value."},
@@ -699,6 +698,7 @@ static PyObject * TrigChoice_deleteStream(TrigChoice *self) { DELETE_STREAM };
 static PyObject *
 TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigChoice *self;
     self = (TrigChoice *)type->tp_alloc(type, 0);
     
@@ -748,9 +748,7 @@ TrigChoice_init(TrigChoice *self, PyObject *args, PyObject *kwds)
     self->timeStep = (int)(self->time * self->sr);
     
     (*self->mode_func_ptr)(self);
-    
-    TrigChoice_compute_next_data_frame((TrigChoice *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -762,7 +760,7 @@ static PyObject * TrigChoice_setAdd(TrigChoice *self, PyObject *arg) { SET_ADD }
 static PyObject * TrigChoice_setSub(TrigChoice *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigChoice_setDiv(TrigChoice *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigChoice_play(TrigChoice *self) { PLAY };
+static PyObject * TrigChoice_play(TrigChoice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigChoice_out(TrigChoice *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * TrigChoice_stop(TrigChoice *self) { STOP };
 
@@ -836,7 +834,7 @@ static PyMethodDef TrigChoice_methods[] = {
 {"getServer", (PyCFunction)TrigChoice_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigChoice_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigChoice_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigChoice_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigChoice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigChoice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)TrigChoice_stop, METH_NOARGS, "Stops computing."},
 {"setChoice", (PyCFunction)TrigChoice_setChoice, METH_O, "Sets possible values."},
@@ -990,6 +988,7 @@ static PyObject * TrigFunc_deleteStream(TrigFunc *self) { DELETE_STREAM };
 static PyObject *
 TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigFunc *self;
     self = (TrigFunc *)type->tp_alloc(type, 0);
     
@@ -1016,8 +1015,6 @@ TrigFunc_init(TrigFunc *self, PyObject *args, PyObject *kwds)
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-
-    TrigFunc_compute_next_data_frame((TrigFunc *)self);
     
     Py_INCREF(self);
     return 0;
@@ -1026,7 +1023,7 @@ TrigFunc_init(TrigFunc *self, PyObject *args, PyObject *kwds)
 static PyObject * TrigFunc_getServer(TrigFunc* self) { GET_SERVER };
 static PyObject * TrigFunc_getStream(TrigFunc* self) { GET_STREAM };
 
-static PyObject * TrigFunc_play(TrigFunc *self) { PLAY };
+static PyObject * TrigFunc_play(TrigFunc *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigFunc_stop(TrigFunc *self) { STOP };
 
 static PyObject *
@@ -1060,7 +1057,7 @@ static PyMethodDef TrigFunc_methods[] = {
 {"getServer", (PyCFunction)TrigFunc_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigFunc_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigFunc_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigFunc_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigFunc_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigFunc_stop, METH_NOARGS, "Stops computing."},
 {"setFunction", (PyCFunction)TrigFunc_setFunction, METH_O, "Sets function to be called."},
 {NULL}  /* Sentinel */
@@ -1297,6 +1294,7 @@ static PyObject * TrigEnv_deleteStream(TrigEnv *self) { DELETE_STREAM };
 static PyObject *
 TrigEnv_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigEnv *self;
     self = (TrigEnv *)type->tp_alloc(type, 0);
     
@@ -1359,9 +1357,7 @@ TrigEnv_init(TrigEnv *self, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
     
     SET_INTERP_POINTER
-    
-    TrigEnv_compute_next_data_frame((TrigEnv *)self);
-    
+
     Py_INCREF(self);
     return 0;
 }
@@ -1373,7 +1369,7 @@ static PyObject * TrigEnv_setAdd(TrigEnv *self, PyObject *arg) { SET_ADD };
 static PyObject * TrigEnv_setSub(TrigEnv *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigEnv_setDiv(TrigEnv *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigEnv_play(TrigEnv *self) { PLAY };
+static PyObject * TrigEnv_play(TrigEnv *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigEnv_out(TrigEnv *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * TrigEnv_stop(TrigEnv *self) { STOP };
 
@@ -1491,7 +1487,7 @@ static PyMethodDef TrigEnv_methods[] = {
 {"getServer", (PyCFunction)TrigEnv_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigEnv_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigEnv_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigEnv_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigEnv_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)TrigEnv_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)TrigEnv_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)TrigEnv_setTable, METH_O, "Sets envelope table."},
@@ -1637,6 +1633,7 @@ static PyObject * TrigEnvTrig_deleteStream(TrigEnvTrig *self) { DELETE_STREAM };
 static PyObject *
 TrigEnvTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigEnvTrig *self;
     self = (TrigEnvTrig *)type->tp_alloc(type, 0);
     
@@ -1662,9 +1659,7 @@ TrigEnvTrig_init(TrigEnvTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    TrigEnvTrig_compute_next_data_frame((TrigEnvTrig *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1672,7 +1667,7 @@ TrigEnvTrig_init(TrigEnvTrig *self, PyObject *args, PyObject *kwds)
 static PyObject * TrigEnvTrig_getServer(TrigEnvTrig* self) { GET_SERVER };
 static PyObject * TrigEnvTrig_getStream(TrigEnvTrig* self) { GET_STREAM };
 
-static PyObject * TrigEnvTrig_play(TrigEnvTrig *self) { PLAY };
+static PyObject * TrigEnvTrig_play(TrigEnvTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigEnvTrig_stop(TrigEnvTrig *self) { STOP };
 
 static PyMemberDef TrigEnvTrig_members[] = {
@@ -1685,7 +1680,7 @@ static PyMethodDef TrigEnvTrig_methods[] = {
 {"getServer", (PyCFunction)TrigEnvTrig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigEnvTrig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigEnvTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigEnvTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigEnvTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigEnvTrig_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -1900,6 +1895,7 @@ static PyObject * TrigLinseg_deleteStream(TrigLinseg *self) { DELETE_STREAM };
 static PyObject *
 TrigLinseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigLinseg *self;
     self = (TrigLinseg *)type->tp_alloc(type, 0);
     
@@ -1970,7 +1966,7 @@ static PyObject * TrigLinseg_setAdd(TrigLinseg *self, PyObject *arg) { SET_ADD }
 static PyObject * TrigLinseg_setSub(TrigLinseg *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigLinseg_setDiv(TrigLinseg *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigLinseg_play(TrigLinseg *self) { PLAY };
+static PyObject * TrigLinseg_play(TrigLinseg *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigLinseg_stop(TrigLinseg *self) { STOP };
 
 static PyObject * TrigLinseg_multiply(TrigLinseg *self, PyObject *arg) { MULTIPLY };
@@ -2029,7 +2025,7 @@ static PyMethodDef TrigLinseg_methods[] = {
 {"getServer", (PyCFunction)TrigLinseg_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigLinseg_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigLinseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigLinseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigLinseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigLinseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)TrigLinseg_setList, METH_O, "Sets target points list."},
 {"setMul", (PyCFunction)TrigLinseg_setMul, METH_O, "Sets TrigLinseg mul factor."},
@@ -2172,6 +2168,7 @@ static PyObject * TrigLinsegTrig_deleteStream(TrigLinsegTrig *self) { DELETE_STR
 static PyObject *
 TrigLinsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigLinsegTrig *self;
     self = (TrigLinsegTrig *)type->tp_alloc(type, 0);
     
@@ -2197,9 +2194,7 @@ TrigLinsegTrig_init(TrigLinsegTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    TrigLinsegTrig_compute_next_data_frame((TrigLinsegTrig *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2207,7 +2202,7 @@ TrigLinsegTrig_init(TrigLinsegTrig *self, PyObject *args, PyObject *kwds)
 static PyObject * TrigLinsegTrig_getServer(TrigLinsegTrig* self) { GET_SERVER };
 static PyObject * TrigLinsegTrig_getStream(TrigLinsegTrig* self) { GET_STREAM };
 
-static PyObject * TrigLinsegTrig_play(TrigLinsegTrig *self) { PLAY };
+static PyObject * TrigLinsegTrig_play(TrigLinsegTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigLinsegTrig_stop(TrigLinsegTrig *self) { STOP };
 
 static PyMemberDef TrigLinsegTrig_members[] = {
@@ -2220,7 +2215,7 @@ static PyMethodDef TrigLinsegTrig_methods[] = {
 {"getServer", (PyCFunction)TrigLinsegTrig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigLinsegTrig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigLinsegTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigLinsegTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigLinsegTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigLinsegTrig_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -2461,6 +2456,7 @@ static PyObject * TrigExpseg_deleteStream(TrigExpseg *self) { DELETE_STREAM };
 static PyObject *
 TrigExpseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigExpseg *self;
     self = (TrigExpseg *)type->tp_alloc(type, 0);
     
@@ -2533,7 +2529,7 @@ static PyObject * TrigExpseg_setAdd(TrigExpseg *self, PyObject *arg) { SET_ADD }
 static PyObject * TrigExpseg_setSub(TrigExpseg *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigExpseg_setDiv(TrigExpseg *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigExpseg_play(TrigExpseg *self) { PLAY };
+static PyObject * TrigExpseg_play(TrigExpseg *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigExpseg_stop(TrigExpseg *self) { STOP };
 
 static PyObject * TrigExpseg_multiply(TrigExpseg *self, PyObject *arg) { MULTIPLY };
@@ -2620,7 +2616,7 @@ static PyMethodDef TrigExpseg_methods[] = {
 {"getServer", (PyCFunction)TrigExpseg_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigExpseg_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigExpseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigExpseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigExpseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigExpseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)TrigExpseg_setList, METH_O, "Sets target points list."},
 {"setExp", (PyCFunction)TrigExpseg_setExp, METH_O, "Sets exponent factor."},
@@ -2765,6 +2761,7 @@ static PyObject * TrigExpsegTrig_deleteStream(TrigExpsegTrig *self) { DELETE_STR
 static PyObject *
 TrigExpsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TrigExpsegTrig *self;
     self = (TrigExpsegTrig *)type->tp_alloc(type, 0);
     
@@ -2790,9 +2787,7 @@ TrigExpsegTrig_init(TrigExpsegTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    TrigExpsegTrig_compute_next_data_frame((TrigExpsegTrig *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2800,7 +2795,7 @@ TrigExpsegTrig_init(TrigExpsegTrig *self, PyObject *args, PyObject *kwds)
 static PyObject * TrigExpsegTrig_getServer(TrigExpsegTrig* self) { GET_SERVER };
 static PyObject * TrigExpsegTrig_getStream(TrigExpsegTrig* self) { GET_STREAM };
 
-static PyObject * TrigExpsegTrig_play(TrigExpsegTrig *self) { PLAY };
+static PyObject * TrigExpsegTrig_play(TrigExpsegTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigExpsegTrig_stop(TrigExpsegTrig *self) { STOP };
 
 static PyMemberDef TrigExpsegTrig_members[] = {
@@ -2813,7 +2808,7 @@ static PyMethodDef TrigExpsegTrig_methods[] = {
 {"getServer", (PyCFunction)TrigExpsegTrig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TrigExpsegTrig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TrigExpsegTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TrigExpsegTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TrigExpsegTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigExpsegTrig_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -3397,9 +3392,7 @@ TrigXnoise_init(TrigXnoise *self, PyObject *args, PyObject *kwds)
     TrigXnoise_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-    
-    TrigXnoise_compute_next_data_frame((TrigXnoise *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -3411,7 +3404,7 @@ static PyObject * TrigXnoise_setAdd(TrigXnoise *self, PyObject *arg) { SET_ADD }
 static PyObject * TrigXnoise_setSub(TrigXnoise *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigXnoise_setDiv(TrigXnoise *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigXnoise_play(TrigXnoise *self) { PLAY };
+static PyObject * TrigXnoise_play(TrigXnoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigXnoise_out(TrigXnoise *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * TrigXnoise_stop(TrigXnoise *self) { STOP };
 
@@ -3526,7 +3519,7 @@ static PyMethodDef TrigXnoise_methods[] = {
     {"getServer", (PyCFunction)TrigXnoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigXnoise_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)TrigXnoise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)TrigXnoise_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)TrigXnoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigXnoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigXnoise_stop, METH_NOARGS, "Stops computing."},
     {"setType", (PyCFunction)TrigXnoise_setType, METH_O, "Sets distribution type."},
@@ -4202,9 +4195,7 @@ TrigXnoiseMidi_init(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds)
     TrigXnoiseMidi_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-    
-    TrigXnoiseMidi_compute_next_data_frame((TrigXnoiseMidi *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -4216,7 +4207,7 @@ static PyObject * TrigXnoiseMidi_setAdd(TrigXnoiseMidi *self, PyObject *arg) { S
 static PyObject * TrigXnoiseMidi_setSub(TrigXnoiseMidi *self, PyObject *arg) { SET_SUB };	
 static PyObject * TrigXnoiseMidi_setDiv(TrigXnoiseMidi *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * TrigXnoiseMidi_play(TrigXnoiseMidi *self) { PLAY };
+static PyObject * TrigXnoiseMidi_play(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigXnoiseMidi_out(TrigXnoiseMidi *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * TrigXnoiseMidi_stop(TrigXnoiseMidi *self) { STOP };
 
@@ -4374,7 +4365,7 @@ static PyMethodDef TrigXnoiseMidi_methods[] = {
     {"getServer", (PyCFunction)TrigXnoiseMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigXnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)TrigXnoiseMidi_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)TrigXnoiseMidi_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)TrigXnoiseMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)TrigXnoiseMidi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)TrigXnoiseMidi_stop, METH_NOARGS, "Stops computing."},
     {"setType", (PyCFunction)TrigXnoiseMidi_setType, METH_O, "Sets distribution type."},
@@ -4613,6 +4604,7 @@ static PyObject * Counter_deleteStream(Counter *self) { DELETE_STREAM };
 static PyObject *
 Counter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Counter *self;
     self = (Counter *)type->tp_alloc(type, 0);
     
@@ -4658,9 +4650,7 @@ Counter_init(Counter *self, PyObject *args, PyObject *kwds)
         self->tmp = self->max;
     
     (*self->mode_func_ptr)(self);
-    
-    Counter_compute_next_data_frame((Counter *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -4672,7 +4662,7 @@ static PyObject * Counter_setAdd(Counter *self, PyObject *arg) { SET_ADD };
 static PyObject * Counter_setSub(Counter *self, PyObject *arg) { SET_SUB };	
 static PyObject * Counter_setDiv(Counter *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Counter_play(Counter *self) { PLAY };
+static PyObject * Counter_play(Counter *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Counter_stop(Counter *self) { STOP };
 
 static PyObject * Counter_multiply(Counter *self, PyObject *arg) { MULTIPLY };
@@ -4745,7 +4735,7 @@ static PyMethodDef Counter_methods[] = {
 {"getServer", (PyCFunction)Counter_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Counter_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Counter_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Counter_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Counter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Counter_stop, METH_NOARGS, "Stops computing."},
 {"setMin", (PyCFunction)Counter_setMin, METH_O, "Sets minimum value."},
 {"setMax", (PyCFunction)Counter_setMax, METH_O, "Sets maximum value."},
@@ -5000,6 +4990,7 @@ static PyObject * Thresh_deleteStream(Thresh *self) { DELETE_STREAM };
 static PyObject *
 Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Thresh *self;
     self = (Thresh *)type->tp_alloc(type, 0);
     
@@ -5034,9 +5025,7 @@ Thresh_init(Thresh *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
-    Thresh_compute_next_data_frame((Thresh *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -5044,7 +5033,7 @@ Thresh_init(Thresh *self, PyObject *args, PyObject *kwds)
 static PyObject * Thresh_getServer(Thresh* self) { GET_SERVER };
 static PyObject * Thresh_getStream(Thresh* self) { GET_STREAM };
 
-static PyObject * Thresh_play(Thresh *self) { PLAY };
+static PyObject * Thresh_play(Thresh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Thresh_stop(Thresh *self) { STOP };
 
 static PyObject *
@@ -5109,7 +5098,7 @@ static PyMethodDef Thresh_methods[] = {
 {"getServer", (PyCFunction)Thresh_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Thresh_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Thresh_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Thresh_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Thresh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Thresh_stop, METH_NOARGS, "Stops computing."},
 {"setThreshold", (PyCFunction)Thresh_setThreshold, METH_O, "Sets threshold value."},
 {"setDir", (PyCFunction)Thresh_setDir, METH_O, "Sets direction. 0 = upward, 1 = downward, 2 = up and down"},

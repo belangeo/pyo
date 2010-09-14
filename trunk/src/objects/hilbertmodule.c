@@ -171,8 +171,6 @@ HilbertMain_init(HilbertMain *self, PyObject *args, PyObject *kwds)
     HilbertMain_compute_variables((HilbertMain *)self);
 
     (*self->mode_func_ptr)(self);
-
-    HilbertMain_compute_next_data_frame((HilbertMain *)self);
     
     Py_INCREF(self);
     return 0;
@@ -181,7 +179,7 @@ HilbertMain_init(HilbertMain *self, PyObject *args, PyObject *kwds)
 static PyObject * HilbertMain_getServer(HilbertMain* self) { GET_SERVER };
 static PyObject * HilbertMain_getStream(HilbertMain* self) { GET_STREAM };
 
-static PyObject * HilbertMain_play(HilbertMain *self) { PLAY };
+static PyObject * HilbertMain_play(HilbertMain *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * HilbertMain_stop(HilbertMain *self) { STOP };
 
 static PyMemberDef HilbertMain_members[] = {
@@ -195,7 +193,7 @@ static PyMethodDef HilbertMain_methods[] = {
 {"getServer", (PyCFunction)HilbertMain_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)HilbertMain_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)HilbertMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)HilbertMain_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)HilbertMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)HilbertMain_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -342,6 +340,7 @@ static PyObject * Hilbert_deleteStream(Hilbert *self) { DELETE_STREAM };
 static PyObject *
 Hilbert_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Hilbert *self;
     self = (Hilbert *)type->tp_alloc(type, 0);
     
@@ -381,9 +380,7 @@ Hilbert_init(Hilbert *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Hilbert_compute_next_data_frame((Hilbert *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -395,7 +392,7 @@ static PyObject * Hilbert_setAdd(Hilbert *self, PyObject *arg) { SET_ADD };
 static PyObject * Hilbert_setSub(Hilbert *self, PyObject *arg) { SET_SUB };	
 static PyObject * Hilbert_setDiv(Hilbert *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Hilbert_play(Hilbert *self) { PLAY };
+static PyObject * Hilbert_play(Hilbert *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Hilbert_out(Hilbert *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Hilbert_stop(Hilbert *self) { STOP };
 
@@ -420,7 +417,7 @@ static PyMethodDef Hilbert_methods[] = {
 {"getServer", (PyCFunction)Hilbert_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Hilbert_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Hilbert_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Hilbert_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Hilbert_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Hilbert_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Hilbert_setMul, METH_O, "Sets Hilbert mul factor."},

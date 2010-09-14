@@ -25,6 +25,7 @@
 #include "portmidi.h"
 #include "sndfile.h"
 #include "streammodule.h"
+#include "pyomodule.h"
 
 #define SERVER_MODULE
 #include "servermodule.h"
@@ -99,25 +100,23 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     
     PyGILState_STATE s = PyGILState_Ensure();
     
-/*
-#pragma omp parallel for \
-    shared(my_server->streams, buffer) private(stream_tmp, data, i, j) ordered
-*/
     for (i=0; i<count; i++) {
-
         stream_tmp = (Stream *)PyList_GET_ITEM(my_server->streams, i);
-        if (Stream_getStreamActive(stream_tmp) == 0) {
-            continue;
-        }
-        
-        if (Stream_getStreamToDac(stream_tmp) != 0) {
-            data = Stream_getData(stream_tmp);
-            chnl = Stream_getStreamChnl(stream_tmp);
-            for (j=0; j<framesPerBuffer; j++) {
-                buffer[chnl][j] += *data++;
+        if (Stream_getStreamActive(stream_tmp) == 1) {
+            Stream_callFunction(stream_tmp);
+            if (Stream_getStreamToDac(stream_tmp) != 0) {
+                data = Stream_getData(stream_tmp);
+                chnl = Stream_getStreamChnl(stream_tmp);
+                for (j=0; j<framesPerBuffer; j++) {
+                    buffer[chnl][j] += *data++;
+                }
             }
-        } 
-        Stream_callFunction(stream_tmp);
+            if (Stream_getDuration(stream_tmp) != 0) {
+                Stream_IncrementDurationCount(stream_tmp);
+            }    
+        }
+        else if (Stream_getBufferCountWait(stream_tmp) != 0)
+            Stream_IncrementBufferCount(stream_tmp);
     }
 
     if (amp != my_server->lastAmp) {

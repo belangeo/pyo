@@ -354,6 +354,7 @@ static PyObject * Randi_deleteStream(Randi *self) { DELETE_STREAM };
 static PyObject *
 Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Randi *self;
     self = (Randi *)type->tp_alloc(type, 0);
     
@@ -421,9 +422,7 @@ Randi_init(Randi *self, PyObject *args, PyObject *kwds)
     self->value = self->oldValue = (mi + ma) * 0.5;
 
     (*self->mode_func_ptr)(self);
-    
-    Randi_compute_next_data_frame((Randi *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -435,7 +434,7 @@ static PyObject * Randi_setAdd(Randi *self, PyObject *arg) { SET_ADD };
 static PyObject * Randi_setSub(Randi *self, PyObject *arg) { SET_SUB };	
 static PyObject * Randi_setDiv(Randi *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Randi_play(Randi *self) { PLAY };
+static PyObject * Randi_play(Randi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Randi_out(Randi *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Randi_stop(Randi *self) { STOP };
 
@@ -565,7 +564,7 @@ static PyMethodDef Randi_methods[] = {
 {"getServer", (PyCFunction)Randi_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Randi_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Randi_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Randi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Randi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Randi_stop, METH_NOARGS, "Stops computing."},
 {"setMin", (PyCFunction)Randi_setMin, METH_O, "Sets minimum possible value."},
@@ -975,6 +974,7 @@ static PyObject * Randh_deleteStream(Randh *self) { DELETE_STREAM };
 static PyObject *
 Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Randh *self;
     self = (Randh *)type->tp_alloc(type, 0);
     
@@ -1042,9 +1042,7 @@ Randh_init(Randh *self, PyObject *args, PyObject *kwds)
     self->value = (mi + ma) * 0.5;
     
     (*self->mode_func_ptr)(self);
-    
-    Randh_compute_next_data_frame((Randh *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1056,7 +1054,7 @@ static PyObject * Randh_setAdd(Randh *self, PyObject *arg) { SET_ADD };
 static PyObject * Randh_setSub(Randh *self, PyObject *arg) { SET_SUB };	
 static PyObject * Randh_setDiv(Randh *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Randh_play(Randh *self) { PLAY };
+static PyObject * Randh_play(Randh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Randh_out(Randh *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Randh_stop(Randh *self) { STOP };
 
@@ -1186,7 +1184,7 @@ static PyMethodDef Randh_methods[] = {
 {"getServer", (PyCFunction)Randh_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Randh_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Randh_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Randh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Randh_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Randh_stop, METH_NOARGS, "Stops computing."},
 {"setMin", (PyCFunction)Randh_setMin, METH_O, "Sets minimum possible value."},
@@ -1431,6 +1429,7 @@ static PyObject * Choice_deleteStream(Choice *self) { DELETE_STREAM };
 static PyObject *
 Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Choice *self;
     self = (Choice *)type->tp_alloc(type, 0);
     
@@ -1477,9 +1476,7 @@ Choice_init(Choice *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Choice_compute_next_data_frame((Choice *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1491,7 +1488,7 @@ static PyObject * Choice_setAdd(Choice *self, PyObject *arg) { SET_ADD };
 static PyObject * Choice_setSub(Choice *self, PyObject *arg) { SET_SUB };	
 static PyObject * Choice_setDiv(Choice *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Choice_play(Choice *self) { PLAY };
+static PyObject * Choice_play(Choice *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Choice_out(Choice *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Choice_stop(Choice *self) { STOP };
 
@@ -1576,7 +1573,7 @@ static PyMethodDef Choice_methods[] = {
 {"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Choice_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Choice_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Choice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Choice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Choice_stop, METH_NOARGS, "Stops computing."},
 {"setChoice", (PyCFunction)Choice_setChoice, METH_O, "Sets list of possible floats."},
@@ -1871,6 +1868,7 @@ static PyObject * RandInt_deleteStream(RandInt *self) { DELETE_STREAM };
 static PyObject *
 RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     RandInt *self;
     self = (RandInt *)type->tp_alloc(type, 0);
     
@@ -1919,9 +1917,7 @@ RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
-    RandInt_compute_next_data_frame((RandInt *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1933,7 +1929,7 @@ static PyObject * RandInt_setAdd(RandInt *self, PyObject *arg) { SET_ADD };
 static PyObject * RandInt_setSub(RandInt *self, PyObject *arg) { SET_SUB };	
 static PyObject * RandInt_setDiv(RandInt *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * RandInt_play(RandInt *self) { PLAY };
+static PyObject * RandInt_play(RandInt *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * RandInt_out(RandInt *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * RandInt_stop(RandInt *self) { STOP };
 
@@ -2028,7 +2024,7 @@ static PyMethodDef RandInt_methods[] = {
 {"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)RandInt_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)RandInt_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)RandInt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)RandInt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)RandInt_stop, METH_NOARGS, "Stops computing."},
 {"setMax", (PyCFunction)RandInt_setMax, METH_O, "Sets maximum possible value."},
@@ -2792,9 +2788,7 @@ Xnoise_init(Xnoise *self, PyObject *args, PyObject *kwds)
     Xnoise_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-    
-    Xnoise_compute_next_data_frame((Xnoise *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2806,7 +2800,7 @@ static PyObject * Xnoise_setAdd(Xnoise *self, PyObject *arg) { SET_ADD };
 static PyObject * Xnoise_setSub(Xnoise *self, PyObject *arg) { SET_SUB };	
 static PyObject * Xnoise_setDiv(Xnoise *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Xnoise_play(Xnoise *self) { PLAY };
+static PyObject * Xnoise_play(Xnoise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Xnoise_out(Xnoise *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Xnoise_stop(Xnoise *self) { STOP };
 
@@ -2955,7 +2949,7 @@ static PyMethodDef Xnoise_methods[] = {
     {"getServer", (PyCFunction)Xnoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Xnoise_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Xnoise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Xnoise_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Xnoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Xnoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Xnoise_stop, METH_NOARGS, "Stops computing."},
     {"setType", (PyCFunction)Xnoise_setType, METH_O, "Sets distribution type."},
@@ -3765,9 +3759,7 @@ XnoiseMidi_init(XnoiseMidi *self, PyObject *args, PyObject *kwds)
     XnoiseMidi_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-    
-    XnoiseMidi_compute_next_data_frame((XnoiseMidi *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -3779,7 +3771,7 @@ static PyObject * XnoiseMidi_setAdd(XnoiseMidi *self, PyObject *arg) { SET_ADD }
 static PyObject * XnoiseMidi_setSub(XnoiseMidi *self, PyObject *arg) { SET_SUB };	
 static PyObject * XnoiseMidi_setDiv(XnoiseMidi *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * XnoiseMidi_play(XnoiseMidi *self) { PLAY };
+static PyObject * XnoiseMidi_play(XnoiseMidi *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * XnoiseMidi_out(XnoiseMidi *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * XnoiseMidi_stop(XnoiseMidi *self) { STOP };
 
@@ -3971,7 +3963,7 @@ static PyMethodDef XnoiseMidi_methods[] = {
     {"getServer", (PyCFunction)XnoiseMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)XnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)XnoiseMidi_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)XnoiseMidi_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)XnoiseMidi_stop, METH_NOARGS, "Stops computing."},
     {"setType", (PyCFunction)XnoiseMidi_setType, METH_O, "Sets distribution type."},

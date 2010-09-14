@@ -2589,6 +2589,7 @@ static PyObject * TableRec_deleteStream(TableRec *self) { DELETE_STREAM };
 static PyObject *
 TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TableRec *self;
     self = (TableRec *)type->tp_alloc(type, 0);
     
@@ -2639,11 +2640,7 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
     if ((self->fadetime * self->sr) > (size * 0.5))
         self->fadetime = size * 0.5 / self->sr;
     self->fadeInSample = roundf(self->fadetime * self->sr + 0.5);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.;
-    }    
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2651,7 +2648,7 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
 static PyObject * TableRec_getServer(TableRec* self) { GET_SERVER };
 static PyObject * TableRec_getStream(TableRec* self) { GET_STREAM };
 
-static PyObject * TableRec_play(TableRec *self) 
+static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds) 
 { 
     self->pointer = 0;
     self->active = 1;
@@ -2704,7 +2701,7 @@ static PyMethodDef TableRec_methods[] = {
 {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
-{"play", (PyCFunction)TableRec_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableRec_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -2800,6 +2797,7 @@ static PyObject * TableRecTrig_deleteStream(TableRecTrig *self) { DELETE_STREAM 
 static PyObject *
 TableRecTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TableRecTrig *self;
     self = (TableRecTrig *)type->tp_alloc(type, 0);
     
@@ -2825,9 +2823,7 @@ TableRecTrig_init(TableRecTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    TableRecTrig_compute_next_data_frame((TableRecTrig *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2835,7 +2831,7 @@ TableRecTrig_init(TableRecTrig *self, PyObject *args, PyObject *kwds)
 static PyObject * TableRecTrig_getServer(TableRecTrig* self) { GET_SERVER };
 static PyObject * TableRecTrig_getStream(TableRecTrig* self) { GET_STREAM };
 
-static PyObject * TableRecTrig_play(TableRecTrig *self) { PLAY };
+static PyObject * TableRecTrig_play(TableRecTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TableRecTrig_stop(TableRecTrig *self) { STOP };
 
 static PyMemberDef TableRecTrig_members[] = {
@@ -2848,7 +2844,7 @@ static PyMethodDef TableRecTrig_methods[] = {
 {"getServer", (PyCFunction)TableRecTrig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableRecTrig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)TableRecTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TableRecTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TableRecTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableRecTrig_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -2982,6 +2978,7 @@ static PyObject * TableMorph_deleteStream(TableMorph *self) { DELETE_STREAM };
 static PyObject *
 TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     TableMorph *self;
     self = (TableMorph *)type->tp_alloc(type, 0);
     
@@ -3025,7 +3022,7 @@ TableMorph_init(TableMorph *self, PyObject *args, PyObject *kwds)
 static PyObject * TableMorph_getServer(TableMorph* self) { GET_SERVER };
 static PyObject * TableMorph_getStream(TableMorph* self) { GET_STREAM };
 
-static PyObject * TableMorph_play(TableMorph *self) { PLAY };
+static PyObject * TableMorph_play(TableMorph *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TableMorph_stop(TableMorph *self) { STOP };
 
 static PyObject *
@@ -3083,7 +3080,7 @@ static PyMethodDef TableMorph_methods[] = {
 {"deleteStream", (PyCFunction)TableMorph_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setTable", (PyCFunction)TableMorph_setTable, METH_O, "Sets a new table."},
 {"setSources", (PyCFunction)TableMorph_setSources, METH_O, "Changes the sources tables."},
-{"play", (PyCFunction)TableMorph_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)TableMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableMorph_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };

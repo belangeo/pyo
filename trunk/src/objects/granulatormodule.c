@@ -668,6 +668,7 @@ static PyObject * Granulator_deleteStream(Granulator *self) { DELETE_STREAM };
 static PyObject *
 Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Granulator *self;
     self = (Granulator *)type->tp_alloc(type, 0);
 
@@ -746,8 +747,6 @@ Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    Granulator_compute_next_data_frame((Granulator *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -759,7 +758,7 @@ static PyObject * Granulator_setAdd(Granulator *self, PyObject *arg) { SET_ADD }
 static PyObject * Granulator_setSub(Granulator *self, PyObject *arg) { SET_SUB };	
 static PyObject * Granulator_setDiv(Granulator *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Granulator_play(Granulator *self) { PLAY };
+static PyObject * Granulator_play(Granulator *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Granulator_out(Granulator *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Granulator_stop(Granulator *self) { STOP };
 
@@ -978,7 +977,7 @@ static PyMethodDef Granulator_methods[] = {
     {"getServer", (PyCFunction)Granulator_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Granulator_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Granulator_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Granulator_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Granulator_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Granulator_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Granulator_stop, METH_NOARGS, "Stops computing."},
 	{"setPitch", (PyCFunction)Granulator_setPitch, METH_O, "Sets global pitch factor."},

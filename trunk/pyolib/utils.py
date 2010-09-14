@@ -168,8 +168,8 @@ class Print(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterval(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def ctrl(self, map_list=None, title=None):
         self._map_list = []
@@ -630,7 +630,7 @@ class Compare(PyoObject):
     def __dir__(self):
         return ['input', 'comp', 'mode', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setInput(self, x, fadetime=0.05):
@@ -767,8 +767,8 @@ class Record(PyoObject):
         self._input = input
         self._base_objs = [Record_base(self._input.getBaseObjects(), filename, chnls, format, buffering)]
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def __dir__(self):
         return []

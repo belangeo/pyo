@@ -111,8 +111,8 @@ class Follower(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def ctrl(self, map_list=None, title=None):
         self._map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
@@ -217,8 +217,8 @@ class ZCross(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def ctrl(self, map_list=None, title=None):
         self._map_list = []

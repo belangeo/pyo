@@ -122,6 +122,7 @@ static PyObject * Print_deleteStream(Print *self) { DELETE_STREAM };
 static PyObject *
 Print_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Print *self;
     self = (Print *)type->tp_alloc(type, 0);
 
@@ -155,16 +156,8 @@ Print_init(Print *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }
-    
-    Stream_setData(self->stream, self->data);
-
     (*self->mode_func_ptr)(self);
-    
-    Print_compute_next_data_frame((Print *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -172,7 +165,7 @@ Print_init(Print *self, PyObject *args, PyObject *kwds)
 static PyObject * Print_getServer(Print* self) { GET_SERVER };
 static PyObject * Print_getStream(Print* self) { GET_STREAM };
 
-static PyObject * Print_play(Print *self) { PLAY };
+static PyObject * Print_play(Print *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Print_stop(Print *self) { STOP };
 
 static PyObject *
@@ -223,7 +216,7 @@ static PyMethodDef Print_methods[] = {
 {"getServer", (PyCFunction)Print_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Print_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Print_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Print_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Print_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Print_stop, METH_NOARGS, "Stops computing."},
 {"setMethod", (PyCFunction)Print_setMethod, METH_O, "Sets the printing method."},
 {"setInterval", (PyCFunction)Print_setInterval, METH_O, "Sets the time interval."},
@@ -424,6 +417,7 @@ static PyObject * Snap_deleteStream(Snap *self) { DELETE_STREAM };
 static PyObject *
 Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Snap *self;
     self = (Snap *)type->tp_alloc(type, 0);
     
@@ -466,9 +460,7 @@ Snap_init(Snap *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
-    Snap_compute_next_data_frame((Snap *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -480,7 +472,7 @@ static PyObject * Snap_setAdd(Snap *self, PyObject *arg) { SET_ADD };
 static PyObject * Snap_setSub(Snap *self, PyObject *arg) { SET_SUB };	
 static PyObject * Snap_setDiv(Snap *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Snap_play(Snap *self) { PLAY };
+static PyObject * Snap_play(Snap *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Snap_out(Snap *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Snap_stop(Snap *self) { STOP };
 
@@ -555,7 +547,7 @@ static PyMethodDef Snap_methods[] = {
     {"getServer", (PyCFunction)Snap_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Snap_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Snap_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Snap_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Snap_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Snap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Snap_stop, METH_NOARGS, "Stops computing."},
     {"setChoice", (PyCFunction)Snap_setChoice, METH_O, "Sets output scale."},
@@ -807,6 +799,7 @@ static PyObject * Interp_deleteStream(Interp *self) { DELETE_STREAM };
 static PyObject *
 Interp_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Interp *self;
     self = (Interp *)type->tp_alloc(type, 0);
     
@@ -856,9 +849,7 @@ Interp_init(Interp *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Interp_compute_next_data_frame((Interp *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -870,7 +861,7 @@ static PyObject * Interp_setAdd(Interp *self, PyObject *arg) { SET_ADD };
 static PyObject * Interp_setSub(Interp *self, PyObject *arg) { SET_SUB };	
 static PyObject * Interp_setDiv(Interp *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Interp_play(Interp *self) { PLAY };
+static PyObject * Interp_play(Interp *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Interp_out(Interp *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Interp_stop(Interp *self) { STOP };
 
@@ -932,7 +923,7 @@ static PyMethodDef Interp_methods[] = {
 {"getServer", (PyCFunction)Interp_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Interp_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Interp_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Interp_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Interp_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Interp_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Interp_stop, METH_NOARGS, "Stops computing."},
 {"setInterp", (PyCFunction)Interp_setInterp, METH_O, "Sets filter cutoff interpuency in cycle per second."},
@@ -1191,6 +1182,7 @@ static PyObject * SampHold_deleteStream(SampHold *self) { DELETE_STREAM };
 static PyObject *
 SampHold_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SampHold *self;
     self = (SampHold *)type->tp_alloc(type, 0);
     
@@ -1242,9 +1234,7 @@ SampHold_init(SampHold *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    SampHold_compute_next_data_frame((SampHold *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1256,7 +1246,7 @@ static PyObject * SampHold_setAdd(SampHold *self, PyObject *arg) { SET_ADD };
 static PyObject * SampHold_setSub(SampHold *self, PyObject *arg) { SET_SUB };	
 static PyObject * SampHold_setDiv(SampHold *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * SampHold_play(SampHold *self) { PLAY };
+static PyObject * SampHold_play(SampHold *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SampHold_out(SampHold *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SampHold_stop(SampHold *self) { STOP };
 
@@ -1318,7 +1308,7 @@ static PyMethodDef SampHold_methods[] = {
 {"getServer", (PyCFunction)SampHold_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SampHold_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SampHold_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SampHold_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SampHold_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SampHold_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SampHold_stop, METH_NOARGS, "Stops computing."},
 {"setValue", (PyCFunction)SampHold_setValue, METH_O, "Sets trigger value."},
@@ -1583,6 +1573,7 @@ static PyObject * Compare_deleteStream(Compare *self) { DELETE_STREAM };
 static PyObject *
 Compare_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Compare *self;
     self = (Compare *)type->tp_alloc(type, 0);
     
@@ -1630,9 +1621,7 @@ Compare_init(Compare *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Compare_compute_next_data_frame((Compare *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1644,7 +1633,7 @@ static PyObject * Compare_setAdd(Compare *self, PyObject *arg) { SET_ADD };
 static PyObject * Compare_setSub(Compare *self, PyObject *arg) { SET_SUB };	
 static PyObject * Compare_setDiv(Compare *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Compare_play(Compare *self) { PLAY };
+static PyObject * Compare_play(Compare *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Compare_stop(Compare *self) { STOP };
 
 static PyObject * Compare_multiply(Compare *self, PyObject *arg) { MULTIPLY };
@@ -1733,7 +1722,7 @@ static PyMethodDef Compare_methods[] = {
 {"getServer", (PyCFunction)Compare_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Compare_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Compare_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Compare_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Compare_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Compare_stop, METH_NOARGS, "Stops computing."},
 {"setComp", (PyCFunction)Compare_setComp, METH_O, "Sets the comparison object."},
 {"setMode", (PyCFunction)Compare_setMode, METH_O, "Sets the comparison mode."},

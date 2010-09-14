@@ -123,6 +123,7 @@ static PyObject * Noise_deleteStream(Noise *self) { DELETE_STREAM };
 static PyObject *
 Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
     
@@ -160,7 +161,6 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
     
     srand((unsigned)(time(0)));
-    Noise_compute_next_data_frame((Noise *)self);
     
     Py_INCREF(self);
     return 0;
@@ -173,7 +173,7 @@ static PyObject * Noise_setAdd(Noise *self, PyObject *arg) { SET_ADD };
 static PyObject * Noise_setSub(Noise *self, PyObject *arg) { SET_SUB };	
 static PyObject * Noise_setDiv(Noise *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Noise_play(Noise *self) { PLAY };
+static PyObject * Noise_play(Noise *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Noise_out(Noise *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Noise_stop(Noise *self) { STOP };
 
@@ -198,7 +198,7 @@ static PyMethodDef Noise_methods[] = {
 {"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Noise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Noise_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Noise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Noise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Noise_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},

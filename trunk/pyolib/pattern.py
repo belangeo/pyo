@@ -88,7 +88,7 @@ class Pattern(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, x=0, inc=1):
+    def out(self, x=0, inc=1, dur=0, delay=0):
         return self
         
     def setMul(self, x):
@@ -178,7 +178,7 @@ class Score(PyoObject):
     def __dir__(self):
         return ['input']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setMul(self, x):
@@ -253,7 +253,7 @@ class CallAfter(PyoObject):
     def __dir__(self):
         return []
 
-    def out(self, x=0, inc=1):
+    def out(self, x=0, inc=1, dur=0, delay=0):
         return self
         
     def setMul(self, x):

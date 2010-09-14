@@ -116,6 +116,7 @@ static PyObject * Dummy_deleteStream(Dummy *self) { DELETE_STREAM };
 PyObject *
 Dummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Dummy *self;
     self = (Dummy *)type->tp_alloc(type, 0);
         
@@ -123,6 +124,8 @@ Dummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
+    self->mode_func_ptr = Dummy_setProcMode;
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);    
@@ -133,6 +136,7 @@ Dummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 PyObject * 
 Dummy_initialize(Dummy *self)
 {
+    int i;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
     
@@ -172,7 +176,7 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     self->input_stream = (Stream *)streamtmp;
 
     (*self->mode_func_ptr)(self);
-    Dummy_compute_next_data_frame((Dummy *)self);
+    //Dummy_compute_next_data_frame((Dummy *)self);
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -185,7 +189,7 @@ static PyObject * Dummy_setAdd(Dummy *self, PyObject *arg) { SET_ADD };
 static PyObject * Dummy_setSub(Dummy *self, PyObject *arg) { SET_SUB };	
 static PyObject * Dummy_setDiv(Dummy *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Dummy_play(Dummy *self) { PLAY };
+static PyObject * Dummy_play(Dummy *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Dummy_out(Dummy *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Dummy_stop(Dummy *self) { STOP };
 
@@ -211,7 +215,7 @@ static PyMethodDef Dummy_methods[] = {
     {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Dummy_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Dummy_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Dummy_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Dummy_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Dummy_stop, METH_NOARGS, "Stops computing."},
 	{"setInput", (PyCFunction)Dummy_setInput, METH_O, "Sets the input sound object."},
