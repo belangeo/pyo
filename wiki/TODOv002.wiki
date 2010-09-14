@@ -25,15 +25,15 @@ TODO before releasing _pyo_ version 0.02.
 
 - Improved Midi scheduling with time stamp.
 
-- Midiout, MidiFileIn, MidiFileOut
+- Midiout, !MidiFileIn, !MidiFileOut
 
 *OSC*
 
 - Improved OSC scheduling with time stamp.
 
-- Communication in data mode, possibility to send and receive string, list or other message types directly in Python. OscDataSend, OscDataReceive
+- Communication in data mode, possibility to send and receive string, list or other message types directly in Python. !OscDataSend, !OscDataReceive
 
-- UdpSend, UdpReceive
+- !UdpSend, !UdpReceive
 
 *PyoFFTObject* (new base class)
 
