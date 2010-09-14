@@ -312,9 +312,11 @@ class ServerGUI(Frame):
             self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
         self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
         
-        self.text = Text(self, height=1, width=30, bd=1, relief=RIDGE, highlightthickness=0,
+        self.interp_label = Label(self, text='Interpreter:')
+        self.interp_label.grid(ipadx=5, row=3, column=0)
+        self.text = Text(self, height=1, width=33, bd=1, relief=RIDGE, highlightthickness=0,
                         spacing1=2, spacing3=2)
-        self.text.grid(ipadx=5, row=3, column=0, columnspan=3)
+        self.text.grid(ipadx=5, row=4, column=0, columnspan=3)
         self.text.bind("<Return>", self.getText)
         self.text.bind("<Up>", self.getPrev)
         self.text.bind("<Down>", self.getNext)

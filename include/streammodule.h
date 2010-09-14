@@ -28,6 +28,9 @@ typedef struct {
     int chnl;
     int active;
     int todac;
+    int duration;
+    int bufferCountWait;
+    int bufferCount;
     float *data;
 } Stream;
 
@@ -35,19 +38,23 @@ extern int Stream_getNewStreamId();
 extern PyObject * Stream_getStreamObject(Stream *self);
 extern int Stream_getStreamId(Stream *self);
 extern int Stream_getStreamActive(Stream *self);
+extern int Stream_getBufferCountWait(Stream *self);
+extern int Stream_getDuration(Stream *self);
 extern int Stream_getStreamChnl(Stream *self);
 extern int Stream_getStreamToDac(Stream *self);
 extern float * Stream_getData(Stream *self);
 extern void Stream_setData(Stream * self, float *data);
 extern void Stream_setFunctionPtr(Stream *self, void *ptr);
 extern void Stream_callFunction(Stream *self);
+extern void Stream_IncrementBufferCount(Stream *self);
+extern void Stream_IncrementDurationCount(Stream *self);
 extern PyTypeObject StreamType;
 
 #define MAKE_NEW_STREAM(self, type, rt_error)	\
   (self) = (Stream *)(type)->tp_alloc((type), 0);	\
   if ((self) == rt_error) { return rt_error; }	\
 						\
-  (self)->sid = (self)->chnl = (self)->todac = 0; \
+  (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = 0; \
   (self)->active = 1;
 
 #ifdef __STREAM_MODULE
@@ -61,6 +68,8 @@ extern PyTypeObject StreamType;
 #define Stream_setStreamChnl(op, v) (((Stream *)(op))->chnl = (v))
 #define Stream_setStreamActive(op, v) (((Stream *)(op))->active = (v))
 #define Stream_setStreamToDac(op, v) (((Stream *)(op))->todac = (v))
+#define Stream_setBufferCountWait(op, v) (((Stream *)(op))->bufferCountWait = (v))
+#define Stream_setDuration(op, v) (((Stream *)(op))->duration = (v))
  
 #endif
 /* __STREAMMODULE */

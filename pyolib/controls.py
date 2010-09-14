@@ -98,11 +98,8 @@ class Fader(PyoObject):
     def __dir__(self):
         return ['fadein', 'fadeout', 'dur', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
-        """
-        Bypassed. Can't be sent to audio outs.
-        """
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setFadein(self, x):
         """
@@ -258,11 +255,8 @@ class Adsr(PyoObject):
     def __dir__(self):
         return ['attack', 'decay', 'sustain', 'release', 'dur', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
-        """
-        Bypassed. Can't be sent to audio outs.
-        """
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setAttack(self, x):
         """
@@ -427,8 +421,8 @@ class Linseg(PyoObject):
     def __dir__(self):
         return ['list', 'loop', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setList(self, x):
         """
@@ -541,8 +535,8 @@ class Expseg(PyoObject):
     def __dir__(self):
         return ['list', 'loop', 'exp', 'inverse', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setList(self, x):
         """

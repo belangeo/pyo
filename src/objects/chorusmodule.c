@@ -496,9 +496,7 @@ Chorus_init(Chorus *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-    
-    Chorus_compute_next_data_frame((Chorus *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -510,7 +508,7 @@ static PyObject * Chorus_setAdd(Chorus *self, PyObject *arg) { SET_ADD };
 static PyObject * Chorus_setSub(Chorus *self, PyObject *arg) { SET_SUB };	
 static PyObject * Chorus_setDiv(Chorus *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Chorus_play(Chorus *self) { PLAY };
+static PyObject * Chorus_play(Chorus *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Chorus_out(Chorus *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Chorus_stop(Chorus *self) { STOP };
 
@@ -641,7 +639,7 @@ static PyMethodDef Chorus_methods[] = {
 {"getServer", (PyCFunction)Chorus_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Chorus_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Chorus_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Chorus_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Chorus_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Chorus_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Chorus_stop, METH_NOARGS, "Stops computing."},
 {"setFeedback", (PyCFunction)Chorus_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},

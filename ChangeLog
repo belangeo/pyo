@@ -1,0 +1,7 @@
+2010-09-13 belangeo	<belangeo@gmail.com>
+	
+	* Added "dur" and "delay" arguments to play and stop methods of PyoObject.
+	
+2010-09-06 belangeo <belangeo@gmail.com>
+
+	* rev 390 - pyo 0.01 release.

@@ -360,6 +360,7 @@ static PyObject * Compress_deleteStream(Compress *self) { DELETE_STREAM };
 static PyObject *
 Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Compress *self;
     self = (Compress *)type->tp_alloc(type, 0);
     
@@ -425,9 +426,7 @@ Compress_init(Compress *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Compress_compute_next_data_frame((Compress *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -439,7 +438,7 @@ static PyObject * Compress_setAdd(Compress *self, PyObject *arg) { SET_ADD };
 static PyObject * Compress_setSub(Compress *self, PyObject *arg) { SET_SUB };	
 static PyObject * Compress_setDiv(Compress *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Compress_play(Compress *self) { PLAY };
+static PyObject * Compress_play(Compress *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Compress_out(Compress *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Compress_stop(Compress *self) { STOP };
 
@@ -605,7 +604,7 @@ static PyMethodDef Compress_methods[] = {
 {"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Compress_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Compress_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Compress_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Compress_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Compress_stop, METH_NOARGS, "Stops computing."},
 {"setThresh", (PyCFunction)Compress_setThresh, METH_O, "Sets compressor threshold."},

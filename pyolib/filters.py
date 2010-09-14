@@ -930,20 +930,22 @@ class BandSplit(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_players)]
                         
-    def play(self):
-        self._base_players = [obj.play() for obj in self._base_players]
-        self._base_objs = [obj.play() for obj in self._base_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
-        self._base_players = [obj.play() for obj in self._base_players]
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:   
-                self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
+                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
     
     def stop(self):
@@ -1000,14 +1002,14 @@ class Hilbert(PyoObject):
     
     Examples:
     
-    >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True).out()
+    >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True).out(0)
     >>> b = Hilbert(a)
     >>> quad = Sine([250, 500], [0, .25])
     >>> mod1 = b['real'] * quad[0]
     >>> mod2 = b['imag'] * quad[1]
     >>> up = mod1 - mod2
     >>> down = mod1 + mod2
-    >>> up.out()
+    >>> up.out(1)
 
     """
     def __init__(self, input, mul=1, add=0):
@@ -1088,20 +1090,22 @@ class Hilbert(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
                     
-    def play(self):
-        self._base_players = [obj.play() for obj in self._base_players]
-        self._base_objs = [obj.play() for obj in self._base_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
-        self._base_players = [obj.play() for obj in self._base_players]
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:   
-                self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
+                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
     
     def stop(self):

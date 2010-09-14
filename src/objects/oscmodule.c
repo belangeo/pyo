@@ -98,6 +98,7 @@ static PyObject * OscReceiver_deleteStream(OscReceiver *self) { DELETE_STREAM };
 static PyObject *
 OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     OscReceiver *self;
     self = (OscReceiver *)type->tp_alloc(type, 0);
     
@@ -148,9 +149,7 @@ OscReceiver_init(OscReceiver *self, PyObject *args, PyObject *kwds)
     self->osc_server = lo_server_new(buf, error);
     
     lo_server_add_method(self->osc_server, NULL, "f", OscReceiver_handler, self);
-    
-    OscReceiver_compute_next_data_frame((OscReceiver *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -316,6 +315,7 @@ static PyObject * OscReceive_deleteStream(OscReceive *self) { DELETE_STREAM };
 static PyObject *
 OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     OscReceive *self;
     self = (OscReceive *)type->tp_alloc(type, 0);
 
@@ -367,8 +367,6 @@ OscReceive_init(OscReceive *self, PyObject *args, PyObject *kwds)
         
     (*self->mode_func_ptr)(self);
 
-    OscReceive_compute_next_data_frame((OscReceive *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -380,7 +378,7 @@ static PyObject * OscReceive_setAdd(OscReceive *self, PyObject *arg) { SET_ADD }
 static PyObject * OscReceive_setSub(OscReceive *self, PyObject *arg) { SET_SUB };	
 static PyObject * OscReceive_setDiv(OscReceive *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * OscReceive_play(OscReceive *self) { PLAY };
+static PyObject * OscReceive_play(OscReceive *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * OscReceive_stop(OscReceive *self) { STOP };
 
 static PyObject * OscReceive_multiply(OscReceive *self, PyObject *arg) { MULTIPLY };
@@ -404,7 +402,7 @@ static PyMethodDef OscReceive_methods[] = {
     {"getServer", (PyCFunction)OscReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscReceive_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)OscReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)OscReceive_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)OscReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)OscReceive_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)OscReceive_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)OscReceive_setAdd, METH_O, "Sets oscillator add factor."},
@@ -550,6 +548,7 @@ static PyObject * OscSend_deleteStream(OscSend *self) { DELETE_STREAM };
 static PyObject *
 OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     OscSend *self;
     self = (OscSend *)type->tp_alloc(type, 0);
     
@@ -593,9 +592,7 @@ OscSend_init(OscSend *self, PyObject *args, PyObject *kwds)
     char buf[20];
     sprintf(buf, "%i", self->port);
     self->address = lo_address_new(self->host, buf);
-    
-    OscSend_compute_next_data_frame((OscSend *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -603,7 +600,7 @@ OscSend_init(OscSend *self, PyObject *args, PyObject *kwds)
 static PyObject * OscSend_getServer(OscSend* self) { GET_SERVER };
 static PyObject * OscSend_getStream(OscSend* self) { GET_STREAM };
 
-static PyObject * OscSend_play(OscSend *self) { PLAY };
+static PyObject * OscSend_play(OscSend *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * OscSend_stop(OscSend *self) { STOP };
 
 static PyMemberDef OscSend_members[] = {
@@ -617,7 +614,7 @@ static PyMethodDef OscSend_methods[] = {
 {"getServer", (PyCFunction)OscSend_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscSend_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)OscSend_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)OscSend_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)OscSend_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)OscSend_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };

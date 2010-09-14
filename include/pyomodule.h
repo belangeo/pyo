@@ -21,6 +21,15 @@
 #include "Python.h"
 #include <math.h>
 
+#ifndef __MYFLT_DEF
+#define __MYFLT_DEF
+#ifndef USE_DOUBLE
+#define MYFLT float
+#else
+#define MYFLT double
+#endif
+#endif
+
 extern PyTypeObject SineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
@@ -517,7 +526,10 @@ extern PyTypeObject M_PowType;
     self->data = (float *)realloc(self->data, (self->bufsize) * sizeof(float)); \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
-    Stream_setStreamId(self->stream, Stream_getNewStreamId());
+    Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
+    for (i=0; i<self->bufsize; i++) \
+        self->data[i] = 0.0; \
+    Stream_setData(self->stream, self->data);
 
 
 #define SET_INTERP_POINTER \
@@ -755,22 +767,68 @@ extern PyTypeObject M_PowType;
 
 /* PLAY, OUT, STOP */
 #define PLAY \
-    Stream_setStreamActive(self->stream, 1); \
+    float del = 0; \
+    float dur = 0; \
+    int nearestBuf = 0; \
+    int i; \
+ \
+    static char *kwlist[] = {"dur", "delay", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ff", kwlist, &dur, &del)) \
+        return PyInt_FromLong(-1); \
+ \
     Stream_setStreamToDac(self->stream, 0); \
+    if (del == 0) { \
+        Stream_setBufferCountWait(self->stream, 0); \
+        Stream_setStreamActive(self->stream, 1); \
+    } \
+    else { \
+        Stream_setStreamActive(self->stream, 0); \
+        for (i=0; i<self->bufsize; i++) \
+            self->data[i] = 0.0; \
+        nearestBuf = (int)roundf((del * self->sr) / self->bufsize); \
+        Stream_setBufferCountWait(self->stream, nearestBuf); \
+    } \
+    if (dur == 0) \
+        Stream_setDuration(self->stream, 0); \
+    else { \
+        nearestBuf = (int)roundf((dur * self->sr) / self->bufsize); \
+        Stream_setDuration(self->stream, nearestBuf); \
+    } \
     Py_INCREF(self); \
     return (PyObject *)self;
 
 # define OUT \
     int chnltmp = 0; \
+    float del = 0; \
+    float dur = 0; \
+    int nearestBuf = 0; \
+    int i; \
+\
+    static char *kwlist[] = {"chnl", "dur", "delay", NULL}; \
  \
-    static char *kwlist[] = {"chnl", NULL}; \
- \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &chnltmp)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iff", kwlist, &chnltmp, &dur, &del)) \
         return PyInt_FromLong(-1); \
  \
     Stream_setStreamChnl(self->stream, chnltmp % self->nchnls); \
     Stream_setStreamToDac(self->stream, 1); \
-    Stream_setStreamActive(self->stream, 1); \
+    if (del == 0) { \
+        Stream_setBufferCountWait(self->stream, 0); \
+        Stream_setStreamActive(self->stream, 1); \
+    } \
+    else { \
+        Stream_setStreamActive(self->stream, 0); \
+        for (i=0; i<self->bufsize; i++) \
+            self->data[i] = 0.0; \
+        nearestBuf = (int)roundf((del * self->sr) / self->bufsize); \
+        Stream_setBufferCountWait(self->stream, nearestBuf); \
+    } \
+    if (dur == 0) \
+        Stream_setDuration(self->stream, 0); \
+    else { \
+        nearestBuf = (int)roundf((dur * self->sr) / self->bufsize); \
+        Stream_setDuration(self->stream, nearestBuf); \
+    } \
     Py_INCREF(self); \
     return (PyObject *)self;
 

@@ -144,6 +144,7 @@ static PyObject * Metro_deleteStream(Metro *self) { DELETE_STREAM };
 static PyObject *
 Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Metro *self;
     self = (Metro *)type->tp_alloc(type, 0);
     
@@ -182,12 +183,7 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }    
-    Stream_setData(self->stream, self->data);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -195,7 +191,7 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 static PyObject * Metro_getServer(Metro* self) { GET_SERVER };
 static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
 
-static PyObject * Metro_play(Metro *self) { PLAY };
+static PyObject * Metro_play(Metro *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Metro_stop(Metro *self) { STOP };
 
 static PyObject *
@@ -243,7 +239,7 @@ static PyMethodDef Metro_methods[] = {
 {"getServer", (PyCFunction)Metro_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Metro_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Metro_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Metro_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Metro_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Metro_stop, METH_NOARGS, "Stops computing."},
 {"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
 {NULL}  /* Sentinel */
@@ -416,6 +412,7 @@ static PyObject * Clouder_deleteStream(Clouder *self) { DELETE_STREAM };
 static PyObject *
 Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Clouder *self;
     self = (Clouder *)type->tp_alloc(type, 0);
     
@@ -455,9 +452,7 @@ Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
     srand((unsigned)(time(0)));
 
     self->buffer_streams = (float *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(float));
-   
-    Stream_setData(self->stream, self->data);
-    
+       
     Py_INCREF(self);
     return 0;
 }
@@ -465,7 +460,7 @@ Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
 static PyObject * Clouder_getServer(Clouder* self) { GET_SERVER };
 static PyObject * Clouder_getStream(Clouder* self) { GET_STREAM };
 
-static PyObject * Clouder_play(Clouder *self) { PLAY };
+static PyObject * Clouder_play(Clouder *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Clouder_stop(Clouder *self) { STOP };
 
 static PyObject *
@@ -513,7 +508,7 @@ static PyMethodDef Clouder_methods[] = {
 {"getServer", (PyCFunction)Clouder_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Clouder_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Clouder_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Clouder_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Clouder_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Clouder_stop, METH_NOARGS, "Stops computing."},
 {"setDensity", (PyCFunction)Clouder_setDensity, METH_O, "Sets density factor."},
 {NULL}  /* Sentinel */
@@ -615,6 +610,7 @@ static PyObject * Cloud_deleteStream(Cloud *self) { DELETE_STREAM };
 static PyObject *
 Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Cloud *self;
     self = (Cloud *)type->tp_alloc(type, 0);
     
@@ -645,9 +641,7 @@ Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Cloud_compute_next_data_frame((Cloud *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -655,7 +649,7 @@ Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
 static PyObject * Cloud_getServer(Cloud* self) { GET_SERVER };
 static PyObject * Cloud_getStream(Cloud* self) { GET_STREAM };
 
-static PyObject * Cloud_play(Cloud *self) { PLAY };
+static PyObject * Cloud_play(Cloud *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Cloud_out(Cloud *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Cloud_stop(Cloud *self) { STOP };
 
@@ -669,7 +663,7 @@ static PyMethodDef Cloud_methods[] = {
 {"getServer", (PyCFunction)Cloud_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Cloud_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Cloud_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Cloud_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Cloud_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Cloud_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Cloud_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
@@ -764,6 +758,7 @@ static PyObject * Trig_deleteStream(Trig *self) { DELETE_STREAM };
 static PyObject *
 Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Trig *self;
     self = (Trig *)type->tp_alloc(type, 0);
     
@@ -787,13 +782,7 @@ Trig_init(Trig *self, PyObject *args, PyObject *kwds)
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }    
-    
-    Trig_compute_next_data_frame((Trig *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -801,7 +790,7 @@ Trig_init(Trig *self, PyObject *args, PyObject *kwds)
 static PyObject * Trig_getServer(Trig* self) { GET_SERVER };
 static PyObject * Trig_getStream(Trig* self) { GET_STREAM };
 
-static PyObject * Trig_play(Trig *self) 
+static PyObject * Trig_play(Trig *self, PyObject *args, PyObject *kwds) 
 { 
     self->flag = 1;
     PLAY 
@@ -819,7 +808,7 @@ static PyMethodDef Trig_methods[] = {
 {"getServer", (PyCFunction)Trig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Trig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Trig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Trig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Trig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Trig_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -1066,11 +1055,18 @@ Beater_makeSequence(Beater *self) {
 		else	
 			self->sequence[i] = 0;
 	}
-	
-    for (k=0; k < (j-1); k++) {
-		self->durations[self->tapList[k]] = (self->tapList[k+1] - self->tapList[k]) * self->tapDur - 0.005;
+
+    self->tapLength = j;
+}
+
+static void
+Beater_calculateDurations(Beater *self) {
+    int i;
+    
+    for (i=0; i < (self->tapLength-1); i++) {
+		self->durations[self->tapList[i]] = (self->tapList[i+1] - self->tapList[i]) * self->tapDur - 0.005;
 	}
-	self->durations[self->tapList[j-1]] = (self->taps - self->tapList[j-1] + self->tapList[0]) * self->tapDur - 0.005;
+	self->durations[self->tapList[self->tapLength-1]] = (self->taps - self->tapList[self->tapLength-1] + self->tapList[0]) * self->tapDur - 0.005;
 }
 
 static void
@@ -1092,10 +1088,7 @@ Beater_makePresetActive(Beater *self, int n)
             self->tapList[j++] = i;
     }
     
-    for (i=0; i < (j-1); i++) {
-        self->durations[self->tapList[i]] = (self->tapList[i+1] - self->tapList[i]) * self->tapDur - 0.005;
-    }
-    self->durations[self->tapList[j-1]] = (self->taps - self->tapList[j-1] + self->tapList[0]) * self->tapDur - 0.005;
+    self->tapLength = j;
 }
 
 static void
@@ -1103,6 +1096,9 @@ Beater_generate_i(Beater *self) {
     int i;
     
     float tm = PyFloat_AS_DOUBLE(self->time);
+    
+    self->tapDur = tm;
+    Beater_calculateDurations(self);
     
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
@@ -1161,7 +1157,10 @@ Beater_generate_a(Beater *self) {
     int i;
     
     float *time = Stream_getData((Stream *)self->time_stream);
-    
+
+    self->tapDur = time[0];
+    Beater_calculateDurations(self);
+
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
         self->end_buffer_streams[i] = 0.0;
@@ -1364,9 +1363,7 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     for (i=0; i<self->poly; i++) { 
         self->amplitudes[i] = 0.0;
     }
-    
-    Stream_setData(self->stream, self->data);
-    
+        
     Beater_makeTable(self, 0);
     Beater_makeSequence(self);
     
@@ -1377,7 +1374,7 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
 static PyObject * Beater_getServer(Beater* self) { GET_SERVER };
 static PyObject * Beater_getStream(Beater* self) { GET_STREAM };
 
-static PyObject * Beater_play(Beater *self) { PLAY };
+static PyObject * Beater_play(Beater *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Beater_stop(Beater *self) { STOP };
 
 static PyObject *
@@ -1556,7 +1553,7 @@ static PyMethodDef Beater_methods[] = {
     {"getServer", (PyCFunction)Beater_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beater_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Beater_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Beater_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Beater_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Beater_stop, METH_NOARGS, "Stops computing."},
     {"setTime", (PyCFunction)Beater_setTime, METH_O, "Sets tap duration."},
     {"setTaps", (PyCFunction)Beater_setTaps, METH_O, "Sets number of taps in the pattern."},
@@ -1666,6 +1663,7 @@ static PyObject * Beat_deleteStream(Beat *self) { DELETE_STREAM };
 static PyObject *
 Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Beat *self;
     self = (Beat *)type->tp_alloc(type, 0);
     
@@ -1696,9 +1694,7 @@ Beat_init(Beat *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Beat_compute_next_data_frame((Beat *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1706,7 +1702,7 @@ Beat_init(Beat *self, PyObject *args, PyObject *kwds)
 static PyObject * Beat_getServer(Beat* self) { GET_SERVER };
 static PyObject * Beat_getStream(Beat* self) { GET_STREAM };
 
-static PyObject * Beat_play(Beat *self) { PLAY };
+static PyObject * Beat_play(Beat *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Beat_out(Beat *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Beat_stop(Beat *self) { STOP };
 
@@ -1720,7 +1716,7 @@ static PyMethodDef Beat_methods[] = {
     {"getServer", (PyCFunction)Beat_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beat_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Beat_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Beat_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Beat_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Beat_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Beat_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */
@@ -1822,6 +1818,7 @@ static PyObject * BeatAmpStream_deleteStream(BeatAmpStream *self) { DELETE_STREA
 static PyObject *
 BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     BeatAmpStream *self;
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
     
@@ -1852,9 +1849,7 @@ BeatAmpStream_init(BeatAmpStream *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    BeatAmpStream_compute_next_data_frame((BeatAmpStream *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1862,7 +1857,7 @@ BeatAmpStream_init(BeatAmpStream *self, PyObject *args, PyObject *kwds)
 static PyObject * BeatAmpStream_getServer(BeatAmpStream* self) { GET_SERVER };
 static PyObject * BeatAmpStream_getStream(BeatAmpStream* self) { GET_STREAM };
 
-static PyObject * BeatAmpStream_play(BeatAmpStream *self) { PLAY };
+static PyObject * BeatAmpStream_play(BeatAmpStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatAmpStream_out(BeatAmpStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatAmpStream_stop(BeatAmpStream *self) { STOP };
 
@@ -1876,7 +1871,7 @@ static PyMethodDef BeatAmpStream_methods[] = {
     {"getServer", (PyCFunction)BeatAmpStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatAmpStream_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)BeatAmpStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)BeatAmpStream_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)BeatAmpStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatAmpStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatAmpStream_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */
@@ -1978,6 +1973,7 @@ static PyObject * BeatDurStream_deleteStream(BeatDurStream *self) { DELETE_STREA
 static PyObject *
 BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     BeatDurStream *self;
     self = (BeatDurStream *)type->tp_alloc(type, 0);
     
@@ -2008,9 +2004,7 @@ BeatDurStream_init(BeatDurStream *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    BeatDurStream_compute_next_data_frame((BeatDurStream *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2018,7 +2012,7 @@ BeatDurStream_init(BeatDurStream *self, PyObject *args, PyObject *kwds)
 static PyObject * BeatDurStream_getServer(BeatDurStream* self) { GET_SERVER };
 static PyObject * BeatDurStream_getStream(BeatDurStream* self) { GET_STREAM };
 
-static PyObject * BeatDurStream_play(BeatDurStream *self) { PLAY };
+static PyObject * BeatDurStream_play(BeatDurStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatDurStream_out(BeatDurStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatDurStream_stop(BeatDurStream *self) { STOP };
 
@@ -2032,7 +2026,7 @@ static PyMethodDef BeatDurStream_methods[] = {
     {"getServer", (PyCFunction)BeatDurStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatDurStream_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)BeatDurStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)BeatDurStream_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)BeatDurStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatDurStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatDurStream_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */
@@ -2134,6 +2128,7 @@ static PyObject * BeatEndStream_deleteStream(BeatEndStream *self) { DELETE_STREA
 static PyObject *
 BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     BeatEndStream *self;
     self = (BeatEndStream *)type->tp_alloc(type, 0);
     
@@ -2164,9 +2159,7 @@ BeatEndStream_init(BeatEndStream *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    BeatEndStream_compute_next_data_frame((BeatEndStream *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2174,7 +2167,7 @@ BeatEndStream_init(BeatEndStream *self, PyObject *args, PyObject *kwds)
 static PyObject * BeatEndStream_getServer(BeatEndStream* self) { GET_SERVER };
 static PyObject * BeatEndStream_getStream(BeatEndStream* self) { GET_STREAM };
 
-static PyObject * BeatEndStream_play(BeatEndStream *self) { PLAY };
+static PyObject * BeatEndStream_play(BeatEndStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatEndStream_out(BeatEndStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatEndStream_stop(BeatEndStream *self) { STOP };
 
@@ -2188,7 +2181,7 @@ static PyMethodDef BeatEndStream_methods[] = {
     {"getServer", (PyCFunction)BeatEndStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatEndStream_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)BeatEndStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)BeatEndStream_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)BeatEndStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatEndStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatEndStream_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */

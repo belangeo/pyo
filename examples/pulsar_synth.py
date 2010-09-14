@@ -17,6 +17,7 @@ frac.ctrl(title="Pulsar fraction")
 
 b = Compare(input=a, comp=frac, mode="<=")
 scl = a * b * (1. / frac)
+dd = Print(scl)
 c = Pointer(table=HannTable(), index=scl, mul=.5)
 d = Pointer(table=t, index=scl, mul=c).out()
 

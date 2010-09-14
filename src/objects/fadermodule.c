@@ -182,6 +182,7 @@ static PyObject * Fader_deleteStream(Fader *self) { DELETE_STREAM };
 static PyObject *
 Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Fader *self;
     self = (Fader *)type->tp_alloc(type, 0);
     
@@ -229,12 +230,7 @@ Fader_init(Fader *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }
-    Stream_setData(self->stream, self->data);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -246,7 +242,7 @@ static PyObject * Fader_setAdd(Fader *self, PyObject *arg) { SET_ADD };
 static PyObject * Fader_setSub(Fader *self, PyObject *arg) { SET_SUB };	
 static PyObject * Fader_setDiv(Fader *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Fader_play(Fader *self) 
+static PyObject * Fader_play(Fader *self, PyObject *args, PyObject *kwds) 
 {
     self->fademode = 0;
     self->currentTime = 0.0;
@@ -313,7 +309,7 @@ static PyMethodDef Fader_methods[] = {
 {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Fader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Fader_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Fader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Fader_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
 {"setAdd", (PyCFunction)Fader_setAdd, METH_O, "Sets Fader add factor."},
@@ -572,6 +568,7 @@ static PyObject * Adsr_deleteStream(Adsr *self) { DELETE_STREAM };
 static PyObject *
 Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Adsr *self;
     self = (Adsr *)type->tp_alloc(type, 0);
     
@@ -621,12 +618,7 @@ Adsr_init(Adsr *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }
-    Stream_setData(self->stream, self->data);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -638,7 +630,7 @@ static PyObject * Adsr_setAdd(Adsr *self, PyObject *arg) { SET_ADD };
 static PyObject * Adsr_setSub(Adsr *self, PyObject *arg) { SET_SUB };	
 static PyObject * Adsr_setDiv(Adsr *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Adsr_play(Adsr *self) 
+static PyObject * Adsr_play(Adsr *self, PyObject *args, PyObject *kwds) 
 {
     self->fademode = 0;
     self->currentTime = 0.0;
@@ -721,7 +713,7 @@ static PyMethodDef Adsr_methods[] = {
 {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Adsr_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Adsr_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Adsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Adsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Adsr_setMul, METH_O, "Sets Adsr mul factor."},
 {"setAdd", (PyCFunction)Adsr_setAdd, METH_O, "Sets Adsr add factor."},
@@ -980,6 +972,7 @@ static PyObject * Linseg_deleteStream(Linseg *self) { DELETE_STREAM };
 static PyObject *
 Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Linseg *self;
     self = (Linseg *)type->tp_alloc(type, 0);
     
@@ -1027,12 +1020,7 @@ Linseg_init(Linseg *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }
-    Stream_setData(self->stream, self->data);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1044,7 +1032,7 @@ static PyObject * Linseg_setAdd(Linseg *self, PyObject *arg) { SET_ADD };
 static PyObject * Linseg_setSub(Linseg *self, PyObject *arg) { SET_SUB };	
 static PyObject * Linseg_setDiv(Linseg *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Linseg_play(Linseg *self) 
+static PyObject * Linseg_play(Linseg *self, PyObject *args, PyObject *kwds) 
 {
     Linseg_reinit((Linseg *)self);
     PLAY
@@ -1111,7 +1099,7 @@ static PyMethodDef Linseg_methods[] = {
 {"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Linseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Linseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Linseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Linseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
 {"setLoop", (PyCFunction)Linseg_setLoop, METH_O, "Sets looping mode."},
@@ -1390,6 +1378,7 @@ static PyObject * Expseg_deleteStream(Expseg *self) { DELETE_STREAM };
 static PyObject *
 Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Expseg *self;
     self = (Expseg *)type->tp_alloc(type, 0);
     
@@ -1439,12 +1428,7 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.0;
-    }
-    Stream_setData(self->stream, self->data);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1456,7 +1440,7 @@ static PyObject * Expseg_setAdd(Expseg *self, PyObject *arg) { SET_ADD };
 static PyObject * Expseg_setSub(Expseg *self, PyObject *arg) { SET_SUB };	
 static PyObject * Expseg_setDiv(Expseg *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Expseg_play(Expseg *self) 
+static PyObject * Expseg_play(Expseg *self, PyObject *args, PyObject *kwds) 
 {
     Expseg_reinit((Expseg *)self);
     PLAY
@@ -1551,7 +1535,7 @@ static PyMethodDef Expseg_methods[] = {
     {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Expseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Expseg_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Expseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Expseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
     {"setList", (PyCFunction)Expseg_setList, METH_O, "Sets target points list."},
     {"setLoop", (PyCFunction)Expseg_setLoop, METH_O, "Sets looping mode."},

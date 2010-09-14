@@ -396,20 +396,22 @@ class TableRead(PyoObject):
         else:
             print "'i' too large!"         
 
-    def play(self):
-        self._base_objs = [obj.play() for obj in self._base_objs]
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:   
-                self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
+                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
     def stop(self):
@@ -1000,9 +1002,10 @@ class TableRec(PyoObject):
         else:
             print "'i' too large!"         
 
-    def play(self):
-        self._base_objs = [obj.play() for obj in self._base_objs]
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def stop(self):
@@ -1010,8 +1013,8 @@ class TableRec(PyoObject):
         [obj.stop() for obj in self._trig_objs]
         return self
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setMul(self, x):
         pass
@@ -1130,8 +1133,8 @@ class TableMorph(PyoObject):
     def __dir__(self):
         return ['input', 'table', 'sources', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setMul(self, x):
         pass

@@ -102,7 +102,7 @@ class OscSend(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
             
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setMul(self, x):
@@ -220,7 +220,7 @@ class OscReceive(PyoObject):
         else:
             return [obj._getStream().getValue() for obj in self._base_objs]
              
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def ctrl(self, map_list=None, title=None):

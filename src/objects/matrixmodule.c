@@ -533,6 +533,7 @@ static PyObject * MatrixRec_deleteStream(MatrixRec *self) { DELETE_STREAM };
 static PyObject *
 MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     MatrixRec *self;
     self = (MatrixRec *)type->tp_alloc(type, 0);
     
@@ -585,11 +586,7 @@ MatrixRec_init(MatrixRec *self, PyObject *args, PyObject *kwds)
     if ((self->fadetime * self->sr) > (size * 0.5))
         self->fadetime = size * 0.5 / self->sr;
     self->fadeInSample = roundf(self->fadetime * self->sr + 0.5);
-    
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.;
-    }    
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -597,7 +594,7 @@ MatrixRec_init(MatrixRec *self, PyObject *args, PyObject *kwds)
 static PyObject * MatrixRec_getServer(MatrixRec* self) { GET_SERVER };
 static PyObject * MatrixRec_getStream(MatrixRec* self) { GET_STREAM };
 
-static PyObject * MatrixRec_play(MatrixRec *self) 
+static PyObject * MatrixRec_play(MatrixRec *self, PyObject *args, PyObject *kwds) 
 { 
     self->pointer = 0;
     self->active = 1;
@@ -650,7 +647,7 @@ static PyMethodDef MatrixRec_methods[] = {
     {"_getStream", (PyCFunction)MatrixRec_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)MatrixRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"setMatrix", (PyCFunction)MatrixRec_setMatrix, METH_O, "Sets a new Matrix."},
-    {"play", (PyCFunction)MatrixRec_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)MatrixRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MatrixRec_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */
 };
@@ -746,6 +743,7 @@ static PyObject * MatrixRecTrig_deleteStream(MatrixRecTrig *self) { DELETE_STREA
 static PyObject *
 MatrixRecTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     MatrixRecTrig *self;
     self = (MatrixRecTrig *)type->tp_alloc(type, 0);
     
@@ -771,9 +769,7 @@ MatrixRecTrig_init(MatrixRecTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    MatrixRecTrig_compute_next_data_frame((MatrixRecTrig *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -781,7 +777,7 @@ MatrixRecTrig_init(MatrixRecTrig *self, PyObject *args, PyObject *kwds)
 static PyObject * MatrixRecTrig_getServer(MatrixRecTrig* self) { GET_SERVER };
 static PyObject * MatrixRecTrig_getStream(MatrixRecTrig* self) { GET_STREAM };
 
-static PyObject * MatrixRecTrig_play(MatrixRecTrig *self) { PLAY };
+static PyObject * MatrixRecTrig_play(MatrixRecTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MatrixRecTrig_stop(MatrixRecTrig *self) { STOP };
 
 static PyMemberDef MatrixRecTrig_members[] = {
@@ -794,7 +790,7 @@ static PyMethodDef MatrixRecTrig_methods[] = {
     {"getServer", (PyCFunction)MatrixRecTrig_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MatrixRecTrig_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)MatrixRecTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)MatrixRecTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)MatrixRecTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MatrixRecTrig_stop, METH_NOARGS, "Stops computing."},
     {NULL}  /* Sentinel */
 };

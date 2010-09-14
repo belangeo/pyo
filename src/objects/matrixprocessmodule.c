@@ -146,6 +146,7 @@ static PyObject * MatrixPointer_deleteStream(MatrixPointer *self) { DELETE_STREA
 static PyObject *
 MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     MatrixPointer *self;
     self = (MatrixPointer *)type->tp_alloc(type, 0);
     
@@ -190,9 +191,7 @@ MatrixPointer_init(MatrixPointer *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    MatrixPointer_compute_next_data_frame((MatrixPointer *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -204,7 +203,7 @@ static PyObject * MatrixPointer_setAdd(MatrixPointer *self, PyObject *arg) { SET
 static PyObject * MatrixPointer_setSub(MatrixPointer *self, PyObject *arg) { SET_SUB };	
 static PyObject * MatrixPointer_setDiv(MatrixPointer *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * MatrixPointer_play(MatrixPointer *self) { PLAY };
+static PyObject * MatrixPointer_play(MatrixPointer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MatrixPointer_out(MatrixPointer *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * MatrixPointer_stop(MatrixPointer *self) { STOP };
 
@@ -320,7 +319,7 @@ static PyMethodDef MatrixPointer_methods[] = {
 {"getServer", (PyCFunction)MatrixPointer_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)MatrixPointer_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)MatrixPointer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)MatrixPointer_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)MatrixPointer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)MatrixPointer_stop, METH_NOARGS, "Stops computing."},
 {"setMatrix", (PyCFunction)MatrixPointer_setMatrix, METH_O, "Sets oscillator matrix."},

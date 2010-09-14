@@ -445,6 +445,7 @@ static PyObject * SfPlayer_deleteStream(SfPlayer *self) { DELETE_STREAM };
 static PyObject *
 SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfPlayer *self;
     self = (SfPlayer *)type->tp_alloc(type, 0);
     
@@ -509,8 +510,6 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     self->startPos = offset * self->sr * self->srScale;
     self->pointerPos = self->startPos;
     
-    SfPlayer_compute_next_data_frame((SfPlayer *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -518,7 +517,7 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
 static PyObject * SfPlayer_getServer(SfPlayer* self) { GET_SERVER };
 static PyObject * SfPlayer_getStream(SfPlayer* self) { GET_STREAM };
 
-static PyObject * SfPlayer_play(SfPlayer *self) { PLAY };
+static PyObject * SfPlayer_play(SfPlayer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfPlayer_out(SfPlayer *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfPlayer_stop(SfPlayer *self) { STOP };
 
@@ -669,7 +668,7 @@ static PyMethodDef SfPlayer_methods[] = {
 {"getServer", (PyCFunction)SfPlayer_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfPlayer_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SfPlayer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SfPlayer_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SfPlayer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlayer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfPlayer_stop, METH_NOARGS, "Stops computing."},
 {"setSound", (PyCFunction)SfPlayer_setSound, METH_O, "Sets sfplayer sound path."},
@@ -822,6 +821,7 @@ static PyObject * SfPlay_deleteStream(SfPlay *self) { DELETE_STREAM };
 static PyObject *
 SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfPlay *self;
     self = (SfPlay *)type->tp_alloc(type, 0);
     
@@ -862,9 +862,7 @@ SfPlay_init(SfPlay *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    SfPlay_compute_next_data_frame((SfPlay *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -876,7 +874,7 @@ static PyObject * SfPlay_setAdd(SfPlay *self, PyObject *arg) { SET_ADD };
 static PyObject * SfPlay_setSub(SfPlay *self, PyObject *arg) { SET_SUB };	
 static PyObject * SfPlay_setDiv(SfPlay *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * SfPlay_play(SfPlay *self) { PLAY };
+static PyObject * SfPlay_play(SfPlay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfPlay_out(SfPlay *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfPlay_stop(SfPlay *self) { STOP };
 
@@ -901,7 +899,7 @@ static PyMethodDef SfPlay_methods[] = {
 {"getServer", (PyCFunction)SfPlay_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfPlay_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SfPlay_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SfPlay_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SfPlay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfPlay_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)SfPlay_setMul, METH_O, "Sets SfPlay mul factor."},
@@ -1046,6 +1044,7 @@ static PyObject * SfPlayTrig_deleteStream(SfPlayTrig *self) { DELETE_STREAM };
 static PyObject *
 SfPlayTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfPlayTrig *self;
     self = (SfPlayTrig *)type->tp_alloc(type, 0);
     
@@ -1073,8 +1072,6 @@ SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-
-    SfPlayTrig_compute_next_data_frame((SfPlayTrig *)self);
     
     Py_INCREF(self);
     return 0;
@@ -1083,7 +1080,7 @@ SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
 static PyObject * SfPlayTrig_getServer(SfPlayTrig* self) { GET_SERVER };
 static PyObject * SfPlayTrig_getStream(SfPlayTrig* self) { GET_STREAM };
 
-static PyObject * SfPlayTrig_play(SfPlayTrig *self) { PLAY };
+static PyObject * SfPlayTrig_play(SfPlayTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfPlayTrig_stop(SfPlayTrig *self) { STOP };
 
 static PyMemberDef SfPlayTrig_members[] = {
@@ -1096,7 +1093,7 @@ static PyMethodDef SfPlayTrig_methods[] = {
 {"getServer", (PyCFunction)SfPlayTrig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfPlayTrig_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SfPlayTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SfPlayTrig_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SfPlayTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)SfPlayTrig_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -1543,6 +1540,7 @@ static PyObject * SfMarkerShuffler_deleteStream(SfMarkerShuffler *self) { DELETE
 static PyObject *
 SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfMarkerShuffler *self;
     self = (SfMarkerShuffler *)type->tp_alloc(type, 0);
     
@@ -1610,7 +1608,6 @@ SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
 
     srand((unsigned)(time(0)));
 
-    SfMarkerShuffler_compute_next_data_frame((SfMarkerShuffler *)self);
     Py_INCREF(self);
     return 0;
 }
@@ -1618,7 +1615,7 @@ SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
 static PyObject * SfMarkerShuffler_getServer(SfMarkerShuffler* self) { GET_SERVER };
 static PyObject * SfMarkerShuffler_getStream(SfMarkerShuffler* self) { GET_STREAM };
 
-static PyObject * SfMarkerShuffler_play(SfMarkerShuffler *self) { PLAY };
+static PyObject * SfMarkerShuffler_play(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerShuffler_out(SfMarkerShuffler *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfMarkerShuffler_stop(SfMarkerShuffler *self) { STOP };
 
@@ -1702,7 +1699,7 @@ static PyMethodDef SfMarkerShuffler_methods[] = {
 {"getServer", (PyCFunction)SfMarkerShuffler_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfMarkerShuffler_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SfMarkerShuffler_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SfMarkerShuffler_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SfMarkerShuffler_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfMarkerShuffler_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfMarkerShuffler_stop, METH_NOARGS, "Stops computing."},
 {"setSpeed", (PyCFunction)SfMarkerShuffler_setSpeed, METH_O, "Sets sfplayer reading speed."},
@@ -1852,6 +1849,7 @@ static PyObject * SfMarkerShuffle_deleteStream(SfMarkerShuffle *self) { DELETE_S
 static PyObject *
 SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfMarkerShuffle *self;
     self = (SfMarkerShuffle *)type->tp_alloc(type, 0);
     
@@ -1892,9 +1890,7 @@ SfMarkerShuffle_init(SfMarkerShuffle *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    SfMarkerShuffle_compute_next_data_frame((SfMarkerShuffle *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1906,7 +1902,7 @@ static PyObject * SfMarkerShuffle_setAdd(SfMarkerShuffle *self, PyObject *arg) {
 static PyObject * SfMarkerShuffle_setSub(SfMarkerShuffle *self, PyObject *arg) { SET_SUB };	
 static PyObject * SfMarkerShuffle_setDiv(SfMarkerShuffle *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * SfMarkerShuffle_play(SfMarkerShuffle *self) { PLAY };
+static PyObject * SfMarkerShuffle_play(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerShuffle_out(SfMarkerShuffle *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfMarkerShuffle_stop(SfMarkerShuffle *self) { STOP };
 
@@ -1931,7 +1927,7 @@ static PyMethodDef SfMarkerShuffle_methods[] = {
 {"getServer", (PyCFunction)SfMarkerShuffle_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfMarkerShuffle_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)SfMarkerShuffle_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SfMarkerShuffle_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)SfMarkerShuffle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfMarkerShuffle_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfMarkerShuffle_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)SfMarkerShuffle_setMul, METH_O, "Sets SfMarkerShuffle mul factor."},
@@ -2436,6 +2432,7 @@ static PyObject * SfMarkerLooper_deleteStream(SfMarkerLooper *self) { DELETE_STR
 static PyObject *
 SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfMarkerLooper *self;
     self = (SfMarkerLooper *)type->tp_alloc(type, 0);
     
@@ -2509,7 +2506,6 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
     
     srand((unsigned)(time(0)));
     
-    SfMarkerLooper_compute_next_data_frame((SfMarkerLooper *)self);
     Py_INCREF(self);
     return 0;
 }
@@ -2517,7 +2513,7 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
 static PyObject * SfMarkerLooper_getServer(SfMarkerLooper* self) { GET_SERVER };
 static PyObject * SfMarkerLooper_getStream(SfMarkerLooper* self) { GET_STREAM };
 
-static PyObject * SfMarkerLooper_play(SfMarkerLooper *self) { PLAY };
+static PyObject * SfMarkerLooper_play(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerLooper_out(SfMarkerLooper *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfMarkerLooper_stop(SfMarkerLooper *self) { STOP };
 
@@ -2634,7 +2630,7 @@ static PyMethodDef SfMarkerLooper_methods[] = {
     {"getServer", (PyCFunction)SfMarkerLooper_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfMarkerLooper_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)SfMarkerLooper_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)SfMarkerLooper_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)SfMarkerLooper_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLooper_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfMarkerLooper_stop, METH_NOARGS, "Stops computing."},
     {"setSpeed", (PyCFunction)SfMarkerLooper_setSpeed, METH_O, "Sets sfplayer reading speed."},
@@ -2785,6 +2781,7 @@ static PyObject * SfMarkerLoop_deleteStream(SfMarkerLoop *self) { DELETE_STREAM 
 static PyObject *
 SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SfMarkerLoop *self;
     self = (SfMarkerLoop *)type->tp_alloc(type, 0);
     
@@ -2825,9 +2822,7 @@ SfMarkerLoop_init(SfMarkerLoop *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    SfMarkerLoop_compute_next_data_frame((SfMarkerLoop *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -2839,7 +2834,7 @@ static PyObject * SfMarkerLoop_setAdd(SfMarkerLoop *self, PyObject *arg) { SET_A
 static PyObject * SfMarkerLoop_setSub(SfMarkerLoop *self, PyObject *arg) { SET_SUB };	
 static PyObject * SfMarkerLoop_setDiv(SfMarkerLoop *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * SfMarkerLoop_play(SfMarkerLoop *self) { PLAY };
+static PyObject * SfMarkerLoop_play(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfMarkerLoop_out(SfMarkerLoop *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * SfMarkerLoop_stop(SfMarkerLoop *self) { STOP };
 
@@ -2864,7 +2859,7 @@ static PyMethodDef SfMarkerLoop_methods[] = {
     {"getServer", (PyCFunction)SfMarkerLoop_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfMarkerLoop_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)SfMarkerLoop_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)SfMarkerLoop_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)SfMarkerLoop_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLoop_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfMarkerLoop_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)SfMarkerLoop_setMul, METH_O, "Sets SfMarkerLoop mul factor."},

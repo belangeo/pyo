@@ -298,6 +298,7 @@ static PyObject * Delay_deleteStream(Delay *self) { DELETE_STREAM };
 static PyObject *
 Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Delay *self;
     self = (Delay *)type->tp_alloc(type, 0);
 
@@ -358,8 +359,6 @@ Delay_init(Delay *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    Delay_compute_next_data_frame((Delay *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -371,7 +370,7 @@ static PyObject * Delay_setAdd(Delay *self, PyObject *arg) { SET_ADD };
 static PyObject * Delay_setSub(Delay *self, PyObject *arg) { SET_SUB };	
 static PyObject * Delay_setDiv(Delay *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Delay_play(Delay *self) { PLAY };
+static PyObject * Delay_play(Delay *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Delay_out(Delay *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Delay_stop(Delay *self) { STOP };
 
@@ -467,7 +466,7 @@ static PyMethodDef Delay_methods[] = {
     {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Delay_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Delay_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Delay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Delay_stop, METH_NOARGS, "Stops computing."},
 	{"setDelay", (PyCFunction)Delay_setDelay, METH_O, "Sets delay time in seconds."},
@@ -1093,9 +1092,7 @@ Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-    
-    Waveguide_compute_next_data_frame((Waveguide *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -1107,7 +1104,7 @@ static PyObject * Waveguide_setAdd(Waveguide *self, PyObject *arg) { SET_ADD };
 static PyObject * Waveguide_setSub(Waveguide *self, PyObject *arg) { SET_SUB };	
 static PyObject * Waveguide_setDiv(Waveguide *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Waveguide_play(Waveguide *self) { PLAY };
+static PyObject * Waveguide_play(Waveguide *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Waveguide_out(Waveguide *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Waveguide_stop(Waveguide *self) { STOP };
 
@@ -1203,7 +1200,7 @@ static PyMethodDef Waveguide_methods[] = {
 {"getServer", (PyCFunction)Waveguide_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Waveguide_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Waveguide_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Waveguide_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Waveguide_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Waveguide_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Waveguide_setFreq, METH_O, "Sets freq time in seconds."},

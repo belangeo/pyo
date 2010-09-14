@@ -67,6 +67,9 @@ Stream_init(Stream *self, PyObject *args, PyObject *kwds)
         self->active = 0;
         self->chnl = 0;
         self->todac = 0;
+        self->duration = 0;
+        self->bufferCountWait = 0;
+        self->bufferCount = 0;
         Py_DECREF(tmp);
     }
  
@@ -104,6 +107,18 @@ Stream_getStreamToDac(Stream *self)
     return self->todac;
 }
 
+int
+Stream_getBufferCountWait(Stream *self)
+{
+    return self->bufferCountWait;
+}
+
+int
+Stream_getDuration(Stream *self)
+{
+    return self->duration;
+}
+
 float *
 Stream_getData(Stream *self)
 {
@@ -125,6 +140,24 @@ void Stream_callFunction(Stream *self)
 {
     (*self->funcptr)(self->streamobject);
 }    
+
+void Stream_IncrementBufferCount(Stream *self) 
+{
+    self->bufferCount++;
+    if (self->bufferCount >= self->bufferCountWait) {
+        self->active = 1;
+        self->bufferCountWait = self->bufferCount = 0;
+    }
+}
+
+void Stream_IncrementDurationCount(Stream *self) 
+{
+    self->bufferCount++;
+    if (self->bufferCount >= self->duration) {
+        PyObject_CallMethod((PyObject *)Stream_getStreamObject(self), "stop", NULL);
+        self->duration = self->bufferCount = 0;
+    }
+}
 
 static PyObject *
 Stream_getValue(Stream *self) {

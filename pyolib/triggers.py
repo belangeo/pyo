@@ -70,8 +70,8 @@ class Trig(PyoObject):
     def __dir__(self):
         return []
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
         
     def setMul(self, x):
         pass
@@ -156,8 +156,8 @@ class Metro(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)*self._poly) for i, obj in enumerate(self._base_objs)]
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
         
     def setMul(self, x):
         pass
@@ -254,9 +254,10 @@ class Cloud(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDensity(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
-    def play(self):
-        self._base_players = [obj.play() for obj in self._base_players]
-        self._base_objs = [obj.play() for obj in self._base_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
     def stop(self):
@@ -264,8 +265,8 @@ class Cloud(PyoObject):
         [obj.stop() for obj in self._base_objs]
         return self
         
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
         
     def setMul(self, x):
         pass
@@ -605,12 +606,13 @@ class Beat(PyoObject):
         w1, w2, w3, lmax = convertArgsToLists(w1, w2, w3)
         [obj.setWeights(wrap(w1,i), wrap(w2,i), wrap(w3,i)) for i, obj in enumerate(self._base_players)]
 
-    def play(self):
-        self._base_players = [obj.play() for obj in self._base_players]
-        self._base_objs = [obj.play() for obj in self._base_objs]
-        self._amp_objs = [obj.play() for obj in self._amp_objs]
-        self._dur_objs = [obj.play() for obj in self._dur_objs]
-        self._end_objs = [obj.play() for obj in self._end_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
+        self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
+        self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
         return self
 
     def stop(self):
@@ -621,8 +623,8 @@ class Beat(PyoObject):
         [obj.stop() for obj in self._end_objs]
         return self
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def setMul(self, x):
         pass
@@ -994,7 +996,7 @@ class TrigFunc(PyoObject):
     def __dir__(self):
         return ['input', 'function']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setMul(self, x):
@@ -1135,20 +1137,22 @@ class TrigEnv(PyoObject):
         else:
             print "'i' too large!"         
 
-    def play(self):
-        self._base_objs = [obj.play() for obj in self._base_objs]
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i)) for i, obj in enumerate(self._base_objs)]
+            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:   
-                self._base_objs = [obj.out(chnl+i*inc) for i, obj in enumerate(self._base_objs)]
+                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
     def stop(self):
@@ -1315,12 +1319,13 @@ class TrigLinseg(PyoObject):
         else:
             print "'i' too large!"         
 
-    def play(self):
-        self._base_objs = [obj.play() for obj in self._base_objs]
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def stop(self):
@@ -1460,12 +1465,13 @@ class TrigExpseg(PyoObject):
         else:
             print "'i' too large!"         
 
-    def play(self):
-        self._base_objs = [obj.play() for obj in self._base_objs]
-        self._trig_objs = [obj.play() for obj in self._trig_objs]
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def stop(self):
@@ -2069,7 +2075,7 @@ class Counter(PyoObject):
     def __dir__(self):
         return ['input', 'min', 'max', 'dir', 'mul', 'add']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setInput(self, x, fadetime=0.05):
@@ -2210,7 +2216,7 @@ class Select(PyoObject):
     def __dir__(self):
         return ['input', 'value']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setMul(self, x):
@@ -2309,7 +2315,7 @@ class Change(PyoObject):
     def __dir__(self):
         return ['input']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setMul(self, x):
@@ -2414,7 +2420,7 @@ class Thresh(PyoObject):
     def __dir__(self):
         return ['input', 'threshold', 'dir']
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def setInput(self, x, fadetime=0.05):

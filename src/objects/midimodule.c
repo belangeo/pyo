@@ -150,6 +150,7 @@ static PyObject * Midictl_deleteStream(Midictl *self) { DELETE_STREAM };
 static PyObject *
 Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     
     Midictl *self;
     self = (Midictl *)type->tp_alloc(type, 0);
@@ -191,8 +192,6 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    Midictl_compute_next_data_frame((Midictl *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -204,8 +203,7 @@ static PyObject * Midictl_setAdd(Midictl *self, PyObject *arg) { SET_ADD };
 static PyObject * Midictl_setSub(Midictl *self, PyObject *arg) { SET_SUB };	
 static PyObject * Midictl_setDiv(Midictl *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Midictl_play(Midictl *self) { PLAY };
-static PyObject * Midictl_out(Midictl *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Midictl_play(Midictl *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Midictl_stop(Midictl *self) { STOP };
 
 static PyObject * Midictl_multiply(Midictl *self, PyObject *arg) { MULTIPLY };
@@ -230,8 +228,7 @@ static PyMethodDef Midictl_methods[] = {
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Midictl_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-    {"out", (PyCFunction)Midictl_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
 	{"setMul", (PyCFunction)Midictl_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Midictl_setAdd, METH_O, "Sets oscillator add factor."},
@@ -452,6 +449,7 @@ static PyObject * MidiNote_deleteStream(MidiNote *self) { DELETE_STREAM };
 static PyObject *
 MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     
     MidiNote *self;
     self = (MidiNote *)type->tp_alloc(type, 0);
@@ -492,9 +490,7 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
     self->centralkey = (self->first + self->last) / 2;
     
     (*self->mode_func_ptr)(self);
-    
-    MidiNote_compute_next_data_frame((MidiNote *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -521,7 +517,7 @@ float MidiNote_getValue(MidiNote *self, int voice, int which)
 static PyObject * MidiNote_getServer(MidiNote* self) { GET_SERVER };
 static PyObject * MidiNote_getStream(MidiNote* self) { GET_STREAM };
 
-static PyObject * MidiNote_play(MidiNote *self) { PLAY };
+static PyObject * MidiNote_play(MidiNote *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MidiNote_stop(MidiNote *self) { STOP };
 
 static PyMemberDef MidiNote_members[] = {
@@ -534,7 +530,7 @@ static PyMethodDef MidiNote_methods[] = {
 {"getServer", (PyCFunction)MidiNote_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)MidiNote_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)MidiNote_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)MidiNote_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)MidiNote_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)MidiNote_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -687,6 +683,7 @@ static PyObject * Notein_deleteStream(Notein *self) { DELETE_STREAM };
 static PyObject *
 Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Notein *self;
     self = (Notein *)type->tp_alloc(type, 0);
     
@@ -729,12 +726,6 @@ Notein_init(Notein *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = 0.;
-    }  
-    
-    Notein_compute_next_data_frame((Notein *)self);
     
     Py_INCREF(self);
     return 0;
@@ -747,8 +738,7 @@ static PyObject * Notein_setAdd(Notein *self, PyObject *arg) { SET_ADD };
 static PyObject * Notein_setSub(Notein *self, PyObject *arg) { SET_SUB };	
 static PyObject * Notein_setDiv(Notein *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Notein_play(Notein *self) { PLAY };
-static PyObject * Notein_out(Notein *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Notein_play(Notein *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Notein_stop(Notein *self) { STOP };
 
 static PyObject * Notein_multiply(Notein *self, PyObject *arg) { MULTIPLY };
@@ -772,8 +762,7 @@ static PyMethodDef Notein_methods[] = {
 {"getServer", (PyCFunction)Notein_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Notein_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Notein_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Notein_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
-{"out", (PyCFunction)Notein_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"play", (PyCFunction)Notein_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Notein_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
 {"setAdd", (PyCFunction)Notein_setAdd, METH_O, "Sets Notein add factor."},

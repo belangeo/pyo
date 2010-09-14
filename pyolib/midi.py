@@ -80,8 +80,8 @@ class Midictl(PyoObject):
     def __dir__(self):
         return ['mul', 'add']
 
-    def out(self, chnl=0, inc=1):
-        pass
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def ctrl(self, map_list=None, title=None):
         self._map_list = []
@@ -203,12 +203,13 @@ class Notein(PyoObject):
         else:
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
                         
-    def play(self):
+    def play(self, dur=0, delay=0):
         self._base_handler.play()
-        self._base_objs = [obj.play() for obj in self._base_objs]
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
-    def out(self, chnl=0, inc=1):
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
     
     def stop(self):

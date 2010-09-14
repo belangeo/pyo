@@ -214,6 +214,7 @@ static PyObject * BandSplitter_deleteStream(BandSplitter *self) { DELETE_STREAM 
 static PyObject *
 BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     BandSplitter *self;
     self = (BandSplitter *)type->tp_alloc(type, 0);
 
@@ -272,8 +273,6 @@ BandSplitter_init(BandSplitter *self, PyObject *args, PyObject *kwds)
     }
 
     (*self->mode_func_ptr)(self);
-
-    BandSplitter_compute_next_data_frame((BandSplitter *)self);
     
     Py_INCREF(self);
     return 0;
@@ -317,7 +316,7 @@ BandSplitter_setQ(BandSplitter *self, PyObject *arg)
 static PyObject * BandSplitter_getServer(BandSplitter* self) { GET_SERVER };
 static PyObject * BandSplitter_getStream(BandSplitter* self) { GET_STREAM };
 
-static PyObject * BandSplitter_play(BandSplitter *self) { PLAY };
+static PyObject * BandSplitter_play(BandSplitter *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BandSplitter_stop(BandSplitter *self) { STOP };
 
 static PyMemberDef BandSplitter_members[] = {
@@ -333,7 +332,7 @@ static PyMethodDef BandSplitter_methods[] = {
 {"_getStream", (PyCFunction)BandSplitter_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)BandSplitter_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setQ", (PyCFunction)BandSplitter_setQ, METH_O, "Sets the filters Q."},
-{"play", (PyCFunction)BandSplitter_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)BandSplitter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)BandSplitter_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };
@@ -480,6 +479,7 @@ static PyObject * BandSplit_deleteStream(BandSplit *self) { DELETE_STREAM };
 static PyObject *
 BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     BandSplit *self;
     self = (BandSplit *)type->tp_alloc(type, 0);
     
@@ -520,9 +520,7 @@ BandSplit_init(BandSplit *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    BandSplit_compute_next_data_frame((BandSplit *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -534,7 +532,7 @@ static PyObject * BandSplit_setAdd(BandSplit *self, PyObject *arg) { SET_ADD };
 static PyObject * BandSplit_setSub(BandSplit *self, PyObject *arg) { SET_SUB };	
 static PyObject * BandSplit_setDiv(BandSplit *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * BandSplit_play(BandSplit *self) { PLAY };
+static PyObject * BandSplit_play(BandSplit *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BandSplit_out(BandSplit *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BandSplit_stop(BandSplit *self) { STOP };
 
@@ -559,7 +557,7 @@ static PyMethodDef BandSplit_methods[] = {
 {"getServer", (PyCFunction)BandSplit_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)BandSplit_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)BandSplit_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)BandSplit_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)BandSplit_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)BandSplit_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)BandSplit_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)BandSplit_setMul, METH_O, "Sets BandSplit mul factor."},

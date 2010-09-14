@@ -152,6 +152,7 @@ static PyObject * Convolve_deleteStream(Convolve *self) { DELETE_STREAM };
 static PyObject *
 Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Convolve *self;
     self = (Convolve *)type->tp_alloc(type, 0);
     
@@ -198,9 +199,7 @@ Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
     for (i=0; i<self->size; i++) {
         self->input_tmp[i] = 0.0;
     }
-    
-    Convolve_compute_next_data_frame((Convolve *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -212,7 +211,7 @@ static PyObject * Convolve_setAdd(Convolve *self, PyObject *arg) { SET_ADD };
 static PyObject * Convolve_setSub(Convolve *self, PyObject *arg) { SET_SUB };	
 static PyObject * Convolve_setDiv(Convolve *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Convolve_play(Convolve *self) { PLAY };
+static PyObject * Convolve_play(Convolve *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Convolve_out(Convolve *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Convolve_stop(Convolve *self) { STOP };
 
@@ -264,7 +263,7 @@ static PyMethodDef Convolve_methods[] = {
 {"getServer", (PyCFunction)Convolve_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Convolve_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Convolve_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Convolve_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Convolve_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Convolve_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)Convolve_setTable, METH_O, "Sets inpulse response table."},

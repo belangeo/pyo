@@ -556,9 +556,7 @@ WGVerb_init(WGVerb *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-    
-    WGVerb_compute_next_data_frame((WGVerb *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -570,7 +568,7 @@ static PyObject * WGVerb_setAdd(WGVerb *self, PyObject *arg) { SET_ADD };
 static PyObject * WGVerb_setSub(WGVerb *self, PyObject *arg) { SET_SUB };	
 static PyObject * WGVerb_setDiv(WGVerb *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * WGVerb_play(WGVerb *self) { PLAY };
+static PyObject * WGVerb_play(WGVerb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * WGVerb_out(WGVerb *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * WGVerb_stop(WGVerb *self) { STOP };
 
@@ -701,7 +699,7 @@ static PyMethodDef WGVerb_methods[] = {
 {"getServer", (PyCFunction)WGVerb_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)WGVerb_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)WGVerb_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)WGVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)WGVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)WGVerb_stop, METH_NOARGS, "Stops computing."},
 {"setFeedback", (PyCFunction)WGVerb_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},

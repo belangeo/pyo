@@ -117,6 +117,7 @@ static PyObject * Record_deleteStream(Record *self) { DELETE_STREAM };
 static PyObject *
 Record_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Record *self;
     self = (Record *)type->tp_alloc(type, 0);
     
@@ -195,9 +196,7 @@ Record_init(Record *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Record_compute_next_data_frame((Record *)self);
-    
+        
     Py_INCREF(self);
     return 0;
 }
@@ -205,7 +204,7 @@ Record_init(Record *self, PyObject *args, PyObject *kwds)
 static PyObject * Record_getServer(Record* self) { GET_SERVER };
 static PyObject * Record_getStream(Record* self) { GET_STREAM };
 
-static PyObject * Record_play(Record *self) { PLAY };
+static PyObject * Record_play(Record *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Record_stop(Record *self) 
 { 
     sf_close(self->recfile);
@@ -223,7 +222,7 @@ static PyMethodDef Record_methods[] = {
 {"getServer", (PyCFunction)Record_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Record_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)Record_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)Record_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+{"play", (PyCFunction)Record_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Record_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
 };

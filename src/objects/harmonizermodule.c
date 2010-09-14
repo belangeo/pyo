@@ -426,6 +426,7 @@ static PyObject * Harmonizer_deleteStream(Harmonizer *self) { DELETE_STREAM };
 static PyObject *
 Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     Harmonizer *self;
     self = (Harmonizer *)type->tp_alloc(type, 0);
 
@@ -485,8 +486,6 @@ Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
 	
     (*self->mode_func_ptr)(self);
 
-    Harmonizer_compute_next_data_frame((Harmonizer *)self);
-
     Py_INCREF(self);
     return 0;
 }
@@ -498,7 +497,7 @@ static PyObject * Harmonizer_setAdd(Harmonizer *self, PyObject *arg) { SET_ADD }
 static PyObject * Harmonizer_setSub(Harmonizer *self, PyObject *arg) { SET_SUB };	
 static PyObject * Harmonizer_setDiv(Harmonizer *self, PyObject *arg) { SET_DIV };	
 
-static PyObject * Harmonizer_play(Harmonizer *self) { PLAY };
+static PyObject * Harmonizer_play(Harmonizer *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Harmonizer_out(Harmonizer *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Harmonizer_stop(Harmonizer *self) { STOP };
 
@@ -608,7 +607,7 @@ static PyMethodDef Harmonizer_methods[] = {
     {"getServer", (PyCFunction)Harmonizer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Harmonizer_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Harmonizer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)Harmonizer_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)Harmonizer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Harmonizer_out, METH_VARARGS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Harmonizer_stop, METH_NOARGS, "Stops computing."},
 	{"setTranspo", (PyCFunction)Harmonizer_setTranspo, METH_O, "Sets global transpo factor."},

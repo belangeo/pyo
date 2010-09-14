@@ -149,6 +149,7 @@ static PyObject * InputFader_deleteStream(InputFader *self) { DELETE_STREAM };
 static PyObject *
 InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
     
@@ -187,8 +188,6 @@ InputFader_init(InputFader *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-
-    InputFader_compute_next_data_frame((InputFader *)self);
     
     Py_INCREF(self);
     return 0;
@@ -237,7 +236,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
 static PyObject * InputFader_getServer(InputFader* self) { GET_SERVER };
 static PyObject * InputFader_getStream(InputFader* self) { GET_STREAM };
 
-static PyObject * InputFader_play(InputFader *self) { PLAY };
+static PyObject * InputFader_play(InputFader *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * InputFader_out(InputFader *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * InputFader_stop(InputFader *self) { STOP };
 
@@ -253,7 +252,7 @@ static PyMethodDef InputFader_methods[] = {
     {"getServer", (PyCFunction)InputFader_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)InputFader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)InputFader_play, METH_NOARGS, "Starts computing without sending sound to soundcard."},
+    {"play", (PyCFunction)InputFader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)InputFader_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS|METH_KEYWORDS, "Crossfade between current stream and given stream."},
     {"stop", (PyCFunction)InputFader_stop, METH_NOARGS, "Stops computing."},
