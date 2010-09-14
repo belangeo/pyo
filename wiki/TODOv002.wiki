@@ -51,7 +51,7 @@ TODO before releasing _pyo_ version 0.02.
 
 - CrossFM, CrossPM, CrossFMPM
 
-- !TrigProb (PyoMatrix), !TrigMarkov (PyoTable)
+- !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
 
 - Looper (rewrite in C)
 
