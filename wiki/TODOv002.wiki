@@ -4,7 +4,7 @@ TODO before releasing _pyo_ version 0.02.
 
 *Misc*
 
-- Add "dur" and "delay" arguments to play and stop methods of !PyoObject.
+- ~~Add "dur" and "delay" arguments to play and stop methods of !PyoObject.~~
 
 - float and double versions
 
@@ -28,7 +28,7 @@ TODO before releasing _pyo_ version 0.02.
 
 *Midi*
 
-- Improved Midi scheduling with time stamp.
+- Improve Midi scheduling with time stamp.
 
 - Midiout, !MidiFileIn, !MidiFileOut
 
@@ -36,7 +36,7 @@ TODO before releasing _pyo_ version 0.02.
 
 *OSC*
 
-- Improved OSC scheduling with time stamp.
+- Improve OSC scheduling with time stamp.
 
 - Communication in data mode, possibility to send and receive string, list or other message types directly in Python. !OscDataSend, !OscDataReceive
 
