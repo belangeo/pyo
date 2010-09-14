@@ -8,7 +8,7 @@ TODO before releasing _pyo_ version 0.02.
 
 - float and double versions.
 
-- Replace all printf statements with PyErr_Warn.
+- Replace all printf statements with !PyErr_Warn.
 
 ----
 
