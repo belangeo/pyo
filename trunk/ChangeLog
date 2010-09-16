@@ -1,7 +1,17 @@
+2010-09-16 belangeo <belangeo@gmail.com>
+
+	* Added --use_double flag to compile pyo in double version.
+	It creates a new library, called _pyo64.so, in the same directory
+	as _pyo.so. To use it, simply import pyo64 (from pyo64 import *).
+	- rev 417.
+
 2010-09-13 belangeo	<belangeo@gmail.com>
 	
 	* Added "dur" and "delay" arguments to play and stop methods of PyoObject.
+	- rev 413.
 	
 2010-09-06 belangeo <belangeo@gmail.com>
 
 	* rev 390 - pyo 0.01 release.
+	
+	
