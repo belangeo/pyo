@@ -20,6 +20,7 @@
 
 #include <Python.h>
 #include "structmember.h"
+#include "pyomodule.h"
 
 #define __STREAM_MODULE
 #include "streammodule.h"
@@ -119,14 +120,14 @@ Stream_getDuration(Stream *self)
     return self->duration;
 }
 
-float *
+MYFLT *
 Stream_getData(Stream *self)
 {
-    return (float *)self->data;
+    return (MYFLT *)self->data;
 }    
 
 void
-Stream_setData(Stream *self, float *data)
+Stream_setData(Stream *self, MYFLT *data)
 {
     self->data = data;
 }    
@@ -161,7 +162,7 @@ void Stream_IncrementDurationCount(Stream *self)
 
 static PyObject *
 Stream_getValue(Stream *self) {
-    return Py_BuildValue("f", self->data[0]);
+    return Py_BuildValue(TYPE_F, self->data[0]);
 }
 
 static PyMethodDef Stream_methods[] = {

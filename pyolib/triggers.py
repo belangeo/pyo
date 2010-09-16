@@ -976,9 +976,7 @@ class TrigFunc(PyoObject):
     >>> def count():
     ...     global c
     ...     c += 1
-    ...     if c == 10:
-    ...         m.stop()
-    ...         a.stop()
+    ...     print c
     >>> m = Metro(.125).play()
     >>> tr = TrigRand(m, 400, 600)
     >>> tf = TrigFunc(m, count)

@@ -84,13 +84,13 @@ Sig_compute_next_data_frame(Sig *self)
 {
     int i;
     if (self->modebuffer[2] == 0) {
-        float val = PyFloat_AS_DOUBLE(self->value);
+        MYFLT val = PyFloat_AS_DOUBLE(self->value);
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = val;
         }
     }
     else {
-        float *vals = Stream_getData((Stream *)self->value_stream);
+        MYFLT *vals = Stream_getData((Stream *)self->value_stream);
         for (i=0; i<self->bufsize; i++) {
             self->data[i] = vals[i];
         }
@@ -341,12 +341,12 @@ Sig_new,                 /* tp_new */
 /***************************/
 typedef struct {
     pyo_audio_HEAD
-    float value;
-    float time;
-    float lastValue;
-    float currentValue;
+    MYFLT value;
+    MYFLT time;
+    MYFLT lastValue;
+    MYFLT currentValue;
     int timeStep;
-    float stepVal;
+    MYFLT stepVal;
     int timeCount;
     int modebuffer[2];
 } SigTo;
@@ -480,12 +480,12 @@ static int
 SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    float inittmp = 0.0;
+    MYFLT inittmp = 0.0;
     PyObject *valuetmp=NULL, *timetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"value", "time", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OfOO", kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp))
         return -1; 
     
     if (valuetmp) {
@@ -698,17 +698,17 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *callable;
     PyObject *arg;
-    float value;
-    float time;
-    float lastValue;
-    float currentValue;
+    MYFLT value;
+    MYFLT time;
+    MYFLT lastValue;
+    MYFLT currentValue;
     int timeStep;
     int timeout;
-    float stepVal;
+    MYFLT stepVal;
     int timeCount;
     int modebuffer[2];
-    float y1;
-    float factor;
+    MYFLT y1;
+    MYFLT factor;
     int flag;
 } VarPort;
 
@@ -866,12 +866,12 @@ static int
 VarPort_init(VarPort *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    float inittmp = 0.0;
+    MYFLT inittmp = 0.0;
     PyObject *valuetmp=NULL, *timetmp=NULL, *calltmp=NULL, *argtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OfOOOO", kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOOOO, kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
         return -1; 
     
     if (valuetmp) {

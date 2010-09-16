@@ -23,10 +23,91 @@
 
 #ifndef __MYFLT_DEF
 #define __MYFLT_DEF
+
 #ifndef USE_DOUBLE
+#define LIB_BASE_NAME "_pyo"
 #define MYFLT float
+#define FLOAT_VALUE f
+#define TYPE_F "f"
+#define TYPE_F_I "f|i"
+#define TYPE_F_II "f|ii"
+#define TYPE__FIII "|fiii"
+#define TYPE__FFF "|fff"
+#define TYPE_O_F "O|f"
+#define TYPE__OF "|Of"
+#define TYPE_O_FOO "O|fOO"
+#define TYPE_I_FFOO "i|ffOO"
+#define TYPE__FFFOO "|fffOO"
+#define TYPE__FFFFFOO "|fffffOO"
+#define TYPE_OO_F "OO|f"
+#define TYPE_F_O "f|O"
+#define TYPE__OFFI "|Offi"
+#define TYPE_O_OFOO "O|OfOO"
+#define TYPE_O_IFFO "O|iffO"
+#define TYPE_OO_FFOO "OO|ffOO"
+#define TYPE_OO_FIOO "OO|fiOO"
+#define TYPE_O_IFIOO "O|ifiOO"
+#define TYPE_O_OFOOOO "O|OfOOOO"
+#define TYPE_O_OOFOO "O|OOfOO"
+#define TYPE_O_OOFFOO "O|OOffOO"
+#define TYPE_OO_OOOIFOO "OO|OOOifOO"
+
+#define SF_WRITE sf_write_float
+#define SF_READ sf_read_float
+
+#define MYSQRT sqrtf
+#define MYLOG logf
+#define MYLOG2 log2f
+#define MYLOG10 log10f
+#define MYCOS cosf
+#define MYSIN sinf
+#define MYTAN tanf
+#define MYPOW powf
+#define MYFABS fabsf
+#define MYFMOD fmodf
+
 #else
+#define LIB_BASE_NAME "_pyo64"
 #define MYFLT double
+#define FLOAT_VALUE d
+#define TYPE_F "d"
+#define TYPE_F_I "d|i"
+#define TYPE_F_II "d|ii"
+#define TYPE__FIII "|diii"
+#define TYPE__FFF "|ddd"
+#define TYPE_O_F "O|d"
+#define TYPE__OF "|Od"
+#define TYPE_O_FOO "O|dOO"
+#define TYPE_I_FFOO "i|ddOO"
+#define TYPE__FFFOO "|dddOO"
+#define TYPE__FFFFFOO "|dddddOO"
+#define TYPE_OO_F "OO|d"
+#define TYPE_F_O "d|O"
+#define TYPE__OFFI "|Oddi"
+#define TYPE_O_OFOO "O|OdOO"
+#define TYPE_O_IFFO "O|iddO"
+#define TYPE_OO_FFOO "OO|ddOO"
+#define TYPE_OO_FIOO "OO|diOO"
+#define TYPE_O_IFIOO "O|idiOO"
+#define TYPE_O_OFOOOO "O|OdOOOO"
+#define TYPE_O_OOFOO "O|OOdOO"
+#define TYPE_O_OOFFOO "O|OOddOO"
+#define TYPE_OO_OOOIFOO "OO|OOOidOO"
+
+#define SF_WRITE sf_write_double
+#define SF_READ sf_read_double
+
+#define MYSQRT sqrt
+#define MYLOG log
+#define MYLOG2 log2
+#define MYLOG10 log10
+#define MYCOS cos
+#define MYSIN sin
+#define MYTAN tan
+#define MYPOW pow
+#define MYFABS fabs
+#define MYFMOD fmod
+
 #endif
 #endif
 
@@ -190,7 +271,7 @@ extern PyTypeObject M_PowType;
 #define TWOPI (2 * M_PI)
 
 /* random uniform (0.0 -> 1.0) */
-#define RANDOM_UNIFORM rand()/((float)(RAND_MAX)+1)
+#define RANDOM_UNIFORM rand()/((MYFLT)(RAND_MAX)+1)
 
 /* object headers */
 #define pyo_audio_HEAD \
@@ -206,15 +287,15 @@ extern PyTypeObject M_PowType;
     Stream *add_stream; \
     int bufsize; \
     int nchnls; \
-    float sr; \
-    float *data; 
+    MYFLT sr; \
+    MYFLT *data; 
 
 #define pyo_table_HEAD \
     PyObject_HEAD \
     PyObject *server; \
     TableStream *tablestream; \
     int size; \
-    float *data;
+    MYFLT *data;
 
 #define pyo_matrix_HEAD \
     PyObject_HEAD \
@@ -222,7 +303,7 @@ extern PyTypeObject M_PowType;
     MatrixStream *matrixstream; \
     int rowsize; \
     int colsize; \
-    float **data;
+    MYFLT **data;
 
 /* VISIT & CLEAR */
 #define pyo_VISIT \
@@ -264,7 +345,7 @@ extern PyTypeObject M_PowType;
         return PyInt_FromLong(-1); \
     } \
     self->size = PyList_Size(arg)-1; \
-    self->data = (float *)realloc(self->data, (self->size+1) * sizeof(float)); \
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT)); \
     TableStream_setSize(self->tablestream, self->size+1); \
  \
     for (i=0; i<(self->size+1); i++) { \
@@ -285,9 +366,9 @@ extern PyTypeObject M_PowType;
     } \
     self->rowsize = PyList_Size(arg); \
     self->colsize = PyList_Size(PyList_GetItem(arg, 0)); \
-    self->data = (float **)realloc(self->data, (self->rowsize + 1) * sizeof(float)); \
+    self->data = (MYFLT **)realloc(self->data, (self->rowsize + 1) * sizeof(MYFLT)); \
     for (i=0; i<(self->rowsize+1); i++) { \
-        self->data[i] = (float *)realloc(self->data[i], (self->colsize + 1) * sizeof(float)); \
+        self->data[i] = (MYFLT *)realloc(self->data[i], (self->colsize + 1) * sizeof(MYFLT)); \
     } \
     MatrixStream_setRowSize(self->matrixstream, self->rowsize); \
     MatrixStream_setColSize(self->matrixstream, self->colsize); \
@@ -338,7 +419,7 @@ extern PyTypeObject M_PowType;
 /* Normalize */
 #define NORMALIZE \
 	int i; \
-	float mi, ma, max, ratio; \
+	MYFLT mi, ma, max, ratio; \
 	mi = ma = *self->data; \
 	for (i=1; i<self->size; i++) { \
 		if (mi > *(self->data+i)) \
@@ -347,9 +428,9 @@ extern PyTypeObject M_PowType;
 			ma = *(self->data+i); \
 	} \
 	if ((mi*mi) > (ma*ma)) \
-		max = fabsf(mi); \
+		max = MYFABS(mi); \
 	else \
-		max = fabsf(ma); \
+		max = MYFABS(ma); \
  \
 	if (max > 0.0) { \
 		ratio = 0.99 / max; \
@@ -362,7 +443,7 @@ extern PyTypeObject M_PowType;
 
 #define NORMALIZE_MATRIX \
     int i, j; \
-    float mi, ma, max, ratio; \
+    MYFLT mi, ma, max, ratio; \
     mi = ma = self->data[0][0]; \
     for (i=1; i<self->rowsize; i++) { \
         for (j=1; j<self->colsize; j++) { \
@@ -373,9 +454,9 @@ extern PyTypeObject M_PowType;
         } \
     } \
     if ((mi*mi) > (ma*ma)) \
-        max = fabsf(mi); \
+        max = MYFABS(mi); \
     else \
-        max = fabsf(ma); \
+        max = MYFABS(ma); \
  \
     if (max > 0.0) { \
         ratio = 0.99 / max; \
@@ -390,11 +471,11 @@ extern PyTypeObject M_PowType;
 
 
 #define TABLE_PUT \
-    float val; \
+    MYFLT val; \
     int pos = 0; \
     static char *kwlist[] = {"value", "pos", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|i", kwlist, &val, &pos)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_I, kwlist, &val, &pos)) \
         return PyInt_FromLong(-1); \
  \
     if (pos >= self->size) { \
@@ -423,7 +504,7 @@ extern PyTypeObject M_PowType;
 /* Matrix macros */
 #define MATRIX_BLUR \
     int i,j; \
-    float tmp[self->rowsize][self->colsize]; \
+    MYFLT tmp[self->rowsize][self->colsize]; \
  \
     int lc = self->colsize - 1; \
     int lr = self->rowsize - 1; \
@@ -451,13 +532,13 @@ extern PyTypeObject M_PowType;
 
 #define MATRIX_BOOST \
     int i, j; \
-    float min, max, boost, val; \
+    MYFLT min, max, boost, val; \
     min = -1.0; \
     max = 1.0; \
     boost = 0.01; \
     static char *kwlist[] = {"min", "max", "boost", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fff", kwlist, &min, &max, &boost)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFF, kwlist, &min, &max, &boost)) \
         return PyInt_FromLong(-1); \
  \
     float mid = (min + max) * 0.5; \
@@ -472,12 +553,12 @@ extern PyTypeObject M_PowType;
     return Py_None; \
 
 #define MATRIX_PUT \
-    float val; \
+    MYFLT val; \
     int row, col; \
     row = col = 0; \
     static char *kwlist[] = {"value", "row", "col", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "f|ii", kwlist, &val, &row, &col)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_II, kwlist, &val, &row, &col)) \
         return PyInt_FromLong(-1); \
  \
     if (row >= self->rowsize) { \
@@ -523,7 +604,7 @@ extern PyTypeObject M_PowType;
     self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
     self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
     self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
-    self->data = (float *)realloc(self->data, (self->bufsize) * sizeof(float)); \
+    self->data = (MYFLT *)realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
     Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
@@ -547,7 +628,7 @@ extern PyTypeObject M_PowType;
 /* GETS & SETS */
 #define GET_SERVER \
     if (self->server == NULL) { \
-        PyErr_SetString(PyExc_TypeError, "No server found!"); \
+        PyErr_SetString(PyExc_TypeError, "No server founded!"); \
         return PyInt_FromLong(-1); \
     } \
     Py_INCREF(self->server); \
@@ -845,7 +926,7 @@ extern PyTypeObject M_PowType;
 
 /* Post processing (mul & add) macros */
 #define POST_PROCESSING_II \
-    float mul, add, old, val; \
+    MYFLT mul, add, old, val; \
     int i; \
     mul = PyFloat_AS_DOUBLE(self->mul); \
     add = PyFloat_AS_DOUBLE(self->add); \
@@ -858,9 +939,9 @@ extern PyTypeObject M_PowType;
     }
 
 #define POST_PROCESSING_AI \
-    float add, old, val; \
+    MYFLT add, old, val; \
     int i; \
-    float *mul = Stream_getData((Stream *)self->mul_stream); \
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream); \
     add = PyFloat_AS_DOUBLE(self->add); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
@@ -869,10 +950,10 @@ extern PyTypeObject M_PowType;
     }
 
 #define POST_PROCESSING_IA \
-    float mul, old, val; \
+    MYFLT mul, old, val; \
     int i; \
     mul = PyFloat_AS_DOUBLE(self->mul); \
-    float *add = Stream_getData((Stream *)self->add_stream); \
+    MYFLT *add = Stream_getData((Stream *)self->add_stream); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         val = mul * old + add[i]; \
@@ -880,10 +961,10 @@ extern PyTypeObject M_PowType;
     } 
 
 #define POST_PROCESSING_AA \
-    float old, val; \
+    MYFLT old, val; \
     int i; \
-    float *mul = Stream_getData((Stream *)self->mul_stream); \
-    float *add = Stream_getData((Stream *)self->add_stream); \
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream); \
+    MYFLT *add = Stream_getData((Stream *)self->add_stream); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         val = mul[i] * old + add[i]; \
@@ -891,9 +972,9 @@ extern PyTypeObject M_PowType;
     }
 
 #define POST_PROCESSING_REVAI \
-    float tmp, add, old, val; \
+    MYFLT tmp, add, old, val; \
     int i; \
-    float *mul = Stream_getData((Stream *)self->mul_stream); \
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream); \
     add = PyFloat_AS_DOUBLE(self->add); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
@@ -905,10 +986,10 @@ extern PyTypeObject M_PowType;
     }
 
 #define POST_PROCESSING_REVAA \
-    float tmp, old, val; \
+    MYFLT tmp, old, val; \
     int i; \
-    float *mul = Stream_getData((Stream *)self->mul_stream); \
-    float *add = Stream_getData((Stream *)self->add_stream); \
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream); \
+    MYFLT *add = Stream_getData((Stream *)self->add_stream); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         tmp = mul[i]; \
@@ -919,10 +1000,10 @@ extern PyTypeObject M_PowType;
     }
 
 #define POST_PROCESSING_IREVA \
-    float mul, old, val; \
+    MYFLT mul, old, val; \
     int i; \
     mul = PyFloat_AS_DOUBLE(self->mul); \
-    float *add = Stream_getData((Stream *)self->add_stream); \
+    MYFLT *add = Stream_getData((Stream *)self->add_stream); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         val = mul * old - add[i]; \
@@ -930,10 +1011,10 @@ extern PyTypeObject M_PowType;
     } 
 
 #define POST_PROCESSING_AREVA \
-    float old, val; \
+    MYFLT old, val; \
     int i; \
-    float *mul = Stream_getData((Stream *)self->mul_stream); \
-    float *add = Stream_getData((Stream *)self->add_stream); \
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream); \
+    MYFLT *add = Stream_getData((Stream *)self->add_stream); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         val = mul[i] * old - add[i]; \
@@ -941,10 +1022,10 @@ extern PyTypeObject M_PowType;
     }
 
 #define POST_PROCESSING_REVAREVA \
-    float tmp, old, val; \
+    MYFLT tmp, old, val; \
     int i; \
-    float *mul = Stream_getData((Stream *)self->mul_stream); \
-    float *add = Stream_getData((Stream *)self->add_stream); \
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream); \
+    MYFLT *add = Stream_getData((Stream *)self->add_stream); \
     for (i=0; i<self->bufsize; i++) { \
         old = self->data[i]; \
         tmp = mul[i]; \

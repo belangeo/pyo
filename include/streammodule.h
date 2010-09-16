@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include <Python.h>
+#include "pyomodule.h"
 
 typedef struct {
     PyObject_HEAD
@@ -31,7 +32,7 @@ typedef struct {
     int duration;
     int bufferCountWait;
     int bufferCount;
-    float *data;
+    MYFLT *data;
 } Stream;
 
 extern int Stream_getNewStreamId();
@@ -42,8 +43,8 @@ extern int Stream_getBufferCountWait(Stream *self);
 extern int Stream_getDuration(Stream *self);
 extern int Stream_getStreamChnl(Stream *self);
 extern int Stream_getStreamToDac(Stream *self);
-extern float * Stream_getData(Stream *self);
-extern void Stream_setData(Stream * self, float *data);
+extern MYFLT * Stream_getData(Stream *self);
+extern void Stream_setData(Stream * self, MYFLT *data);
 extern void Stream_setFunctionPtr(Stream *self, void *ptr);
 extern void Stream_callFunction(Stream *self);
 extern void Stream_IncrementBufferCount(Stream *self);

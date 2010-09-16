@@ -747,7 +747,7 @@ class Pointer(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = SndTable('pyodemos/transparent.aif')
+    >>> t = SndTable(SNDS_PATH + '/transparent.aif')
     >>> p = Phasor(freq=t.getRate())
     >>> a = Pointer(table=t, index=p).out()
 

@@ -34,16 +34,16 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     int method; // 0 -> interval, 1 -> change
-    float lastValue;
-    float time;
-    float currentTime;
-    float sampleToSec;
+    MYFLT lastValue;
+    MYFLT time;
+    MYFLT currentTime;
+    MYFLT sampleToSec;
 } Print;
 
 static void
 Print_process_time(Print *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= self->time) {
@@ -57,8 +57,8 @@ Print_process_time(Print *self) {
 static void
 Print_process_change(Print *self) {
     int i;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
@@ -274,23 +274,23 @@ typedef struct {
     Stream *input_stream;
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     int chSize;
-    float *choice;
-    float value;
-    float last_input;
+    MYFLT *choice;
+    MYFLT value;
+    MYFLT last_input;
     int modebuffer[2]; // need at least 2 slots for mul & add 
 } Snap;
 
-static float
+static MYFLT
 Snap_convert(Snap *self) {
     int midival;
-    float val;
+    MYFLT val;
     
     midival = self->value;
 
     if (self->scale == 1)
-        val = 8.175798 * powf(1.0594633, midival);
+        val = 8.1757989156437 * MYPOW(1.0594630943593, midival);
     else if (self->scale == 2)
-        val = powf(1.0594633, midival - 60);
+        val = MYPOW(1.0594630943593, midival - 60);
     else
         val = midival;
     
@@ -300,8 +300,8 @@ Snap_convert(Snap *self) {
 static void
 Snap_generate(Snap *self) {
     int i, j, pos;
-    float intmp, diff, difftmp;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT intmp, diff, difftmp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] < (self->last_input-0.001) || in[i] > (self->last_input + 0.001)) {
@@ -311,10 +311,10 @@ Snap_generate(Snap *self) {
                 oct++;
                 intmp -= 12.0;
             }
-            diff = fabsf(self->choice[0]-intmp);
+            diff = MYFABS(self->choice[0]-intmp);
             pos = 0;
             for (j=1; j<self->chSize; j++) {
-                difftmp = fabsf(self->choice[j]-intmp);
+                difftmp = MYFABS(self->choice[j]-intmp);
                 if (difftmp < diff) {
                     diff = difftmp;
                     pos = j;
@@ -499,7 +499,7 @@ Snap_setChoice(Snap *self, PyObject *arg)
     
     tmp = arg;
     self->chSize = PyList_Size(tmp);
-    self->choice = (float *)realloc(self->choice, self->chSize * sizeof(float));
+    self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
@@ -659,11 +659,11 @@ typedef struct {
 
 static void
 Interp_filters_i(Interp *self) {
-    float amp2;
+    MYFLT amp2;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *in2 = Stream_getData((Stream *)self->input2_stream);
-    float inter = PyFloat_AS_DOUBLE(self->interp);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    MYFLT inter = PyFloat_AS_DOUBLE(self->interp);
 
     if (inter < 0.0)
         inter = 0.0;
@@ -678,11 +678,11 @@ Interp_filters_i(Interp *self) {
 
 static void
 Interp_filters_a(Interp *self) {
-    float amp1, amp2;
+    MYFLT amp1, amp2;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *in2 = Stream_getData((Stream *)self->input2_stream);
-    float *inter = Stream_getData((Stream *)self->interp_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    MYFLT *inter = Stream_getData((Stream *)self->interp_stream);
     
     for (i=0; i<self->bufsize; i++) {
         amp1 = inter[i];
@@ -1029,18 +1029,18 @@ typedef struct {
     Stream *controlsig_stream;
     PyObject *value;
     Stream *value_stream;
-    float currentValue;
+    MYFLT currentValue;
     int flag;
     int modebuffer[3]; // need at least 2 slots for mul & add 
 } SampHold;
 
 static void
 SampHold_filters_i(SampHold *self) {
-    float ctrl;
+    MYFLT ctrl;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
-    float val = PyFloat_AS_DOUBLE(self->value);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
+    MYFLT val = PyFloat_AS_DOUBLE(self->value);
 
     for (i=0; i<self->bufsize; i++) {
         ctrl = ctrlsig[i];
@@ -1058,11 +1058,11 @@ SampHold_filters_i(SampHold *self) {
 
 static void
 SampHold_filters_a(SampHold *self) {
-    float ctrl, val;
+    MYFLT ctrl, val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
-    float *valsig = Stream_getData((Stream *)self->value_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *ctrlsig = Stream_getData((Stream *)self->controlsig_stream);
+    MYFLT *valsig = Stream_getData((Stream *)self->value_stream);
     
     for (i=0; i<self->bufsize; i++) {
         ctrl = ctrlsig[i];
@@ -1412,42 +1412,42 @@ typedef struct {
     Stream *input_stream;
     PyObject *comp;
     Stream *comp_stream;
-    float (*compare_func_ptr)(float, float); // true = 1.0, false = 0.0
+    MYFLT (*compare_func_ptr)(MYFLT, MYFLT); // true = 1.0, false = 0.0
     int modebuffer[3]; // need at least 2 slots for mul & add 
 } Compare;
 
-static float
-Compare_lt(float in, float comp) {
+static MYFLT
+Compare_lt(MYFLT in, MYFLT comp) {
     if (in < comp) { return 1.0; }
     else { return 0.0; }
 }
 
-static float
-Compare_elt(float in, float comp) {
+static MYFLT
+Compare_elt(MYFLT in, MYFLT comp) {
     if (in <= comp) { return 1.0; }
     else { return 0.0; }
 }
 
-static float
-Compare_gt(float in, float comp) {
+static MYFLT
+Compare_gt(MYFLT in, MYFLT comp) {
     if (in > comp) { return 1.0; }
     else { return 0.0; }
 }
 
-static float
-Compare_egt(float in, float comp) {
+static MYFLT
+Compare_egt(MYFLT in, MYFLT comp) {
     if (in >= comp) { return 1.0; }
     else { return 0.0; }
 }
 
-static float
-Compare_eq(float in, float comp) {
+static MYFLT
+Compare_eq(MYFLT in, MYFLT comp) {
     if (in >= (comp - 0.0001) && in <= (comp + 0.0001)) { return 1.0; }
     else { return 0.0; }
 }
 
-static float
-Compare_neq(float in, float comp) {
+static MYFLT
+Compare_neq(MYFLT in, MYFLT comp) {
     if (in <= (comp - 0.0001) || in >= (comp + 0.0001)) { return 1.0; }
     else { return 0.0; }
 }
@@ -1455,8 +1455,8 @@ Compare_neq(float in, float comp) {
 static void
 Compare_process_i(Compare *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float comp = PyFloat_AS_DOUBLE(self->comp);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT comp = PyFloat_AS_DOUBLE(self->comp);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (*self->compare_func_ptr)(in[i], comp);
@@ -1466,8 +1466,8 @@ Compare_process_i(Compare *self) {
 static void
 Compare_process_a(Compare *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *comp = Stream_getData((Stream *)self->comp_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *comp = Stream_getData((Stream *)self->comp_stream);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = (*self->compare_func_ptr)(in[i], comp[i]);

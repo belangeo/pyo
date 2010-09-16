@@ -83,16 +83,16 @@ static void
 Mix_compute_next_data_frame(Mix *self)
 {   
     int i, j;
-    float old;
+    MYFLT old;
     PyObject *stream;
     Py_ssize_t lsize = PyList_Size(self->input);
 
-    float buffer[self->bufsize];
+    MYFLT buffer[self->bufsize];
     memset(&buffer, 0, sizeof(buffer));
 
     for (i=0; i<lsize; i++) {
         stream = PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, i), "_getStream", NULL);
-        float *in = Stream_getData((Stream *)stream);
+        MYFLT *in = Stream_getData((Stream *)stream);
         for (j=0; j<self->bufsize; j++) {
             old = buffer[j];
             buffer[j] = in[j] + old;

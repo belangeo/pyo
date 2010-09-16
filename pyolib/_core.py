@@ -23,7 +23,14 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
 
-from _pyo import *
+import __builtin__
+if hasattr(__builtin__, 'pyo_use_double'):
+    from _pyo64 import *
+    print "pyo uses double precision."
+else:    
+    from _pyo import *
+    print "pyo uses single precision."
+    
 from _maps import *
 from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
 
@@ -92,7 +99,10 @@ if sys.version_info[:2] <= (2, 5):
         doc = cls.__doc__.split("Examples:")[1]
         lines = doc.splitlines()
         ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-        ex = "import time\nfrom pyo import *\n"
+        if hasattr(__builtin__, 'pyo_use_double'):
+            ex = "import time\nfrom pyo64 import *\n"
+        else:
+            ex = "import time\nfrom pyo import *\n"
         for line in ex_lines:
             if ">>>" in line: line = line.lstrip(">>> ")
             if "..." in line: line = "    " +  line.lstrip("... ")
@@ -121,7 +131,10 @@ else:
         doc = cls.__doc__.split("Examples:")[1]
         lines = doc.splitlines()
         ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-        ex = "import time\nfrom pyo import *\n"
+        if hasattr(__builtin__, 'pyo_use_double'):
+            ex = "import time\nfrom pyo64 import *\n"
+        else:
+            ex = "import time\nfrom pyo import *\n"
         for line in ex_lines:
             if ">>>" in line: line = line.lstrip(">>> ")
             if "..." in line: line = "    " +  line.lstrip("... ")

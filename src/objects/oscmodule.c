@@ -45,11 +45,11 @@ int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int 
                         void *data, void *user_data)
 {
     OscReceiver *self = user_data;
-    PyDict_SetItem(self->dict, PyString_FromString(path), PyFloat_FromDouble(argv[0]->f));
+    PyDict_SetItem(self->dict, PyString_FromString(path), PyFloat_FromDouble(argv[0]->FLOAT_VALUE));
     return 0;
 }
 
-float OscReceiver_getValue(OscReceiver *self, PyObject *path)
+MYFLT OscReceiver_getValue(OscReceiver *self, PyObject *path)
 {
     PyObject *tmp;
     tmp = PyDict_GetItem(self->dict, path);
@@ -148,7 +148,7 @@ OscReceiver_init(OscReceiver *self, PyObject *args, PyObject *kwds)
     sprintf(buf, "%i", self->port);
     self->osc_server = lo_server_new(buf, error);
     
-    lo_server_add_method(self->osc_server, NULL, "f", OscReceiver_handler, self);
+    lo_server_add_method(self->osc_server, NULL, TYPE_F, OscReceiver_handler, self);
         
     Py_INCREF(self);
     return 0;
@@ -220,8 +220,8 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     PyObject *address_path;
-    float oldValue;
-    float value;
+    MYFLT oldValue;
+    MYFLT value;
     int modebuffer[2];
 } OscReceive;
 
@@ -277,7 +277,7 @@ OscReceive_compute_next_data_frame(OscReceive *self)
 {
     int i;
     self->value = OscReceiver_getValue((OscReceiver *)self->input, self->address_path);
-    float step = (self->value - self->oldValue) / self->bufsize;
+    MYFLT step = (self->value - self->oldValue) / self->bufsize;
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = self->oldValue + step;
@@ -509,8 +509,8 @@ typedef struct {
 static void
 OscSend_compute_next_data_frame(OscSend *self)
 {
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float value = in[0];
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    float value = (float)in[0];
     
     char *path  = PyString_AsString(self->address_path);
     

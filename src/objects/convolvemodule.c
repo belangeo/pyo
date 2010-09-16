@@ -20,7 +20,6 @@
 
 #include <Python.h>
 #include "structmember.h"
-#include <math.h>
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
@@ -36,7 +35,7 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     int modebuffer[2]; // need at least 2 slots for mul & add 
-    float *input_tmp;
+    MYFLT *input_tmp;
     int size;
     int count;
 } Convolve;
@@ -44,9 +43,9 @@ typedef struct {
 static void
 Convolve_filters(Convolve *self) {
     int i,j,tmp_count;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    float *impulse = TableStream_getData(self->table);
+    MYFLT *impulse = TableStream_getData(self->table);
 
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = 0.0;
@@ -195,7 +194,7 @@ Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    self->input_tmp = (float *)realloc(self->input_tmp, self->size * sizeof(float));
+    self->input_tmp = (MYFLT *)realloc(self->input_tmp, self->size * sizeof(MYFLT));
     for (i=0; i<self->size; i++) {
         self->input_tmp[i] = 0.0;
     }

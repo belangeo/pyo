@@ -730,6 +730,8 @@ class Record(PyoObject):
             5 : WAV 24 bits int
             6 : AIFF 32 bits int
             7 : WAV 32 bits int
+            8 : AIFF 64 bits float
+            9 : WAV 64 bits flaot
     buffering : int, optional
         Number of bufferSize to wait before writing samples to disk.
         High buffering uses more memory but improves performance.

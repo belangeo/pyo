@@ -33,34 +33,34 @@ typedef struct {
     PyObject *q;
     Stream *q_stream;
     int bands;
-    float min_freq;
-    float max_freq;
+    MYFLT min_freq;
+    MYFLT max_freq;
     int init;
-    float halfSr;
-    float TwoPiOnSr;
-    float *band_freqs;
+    MYFLT halfSr;
+    MYFLT TwoPiOnSr;
+    MYFLT *band_freqs;
     // sample memories
-    float *x1;
-    float *x2;
-    float *y1;
-    float *y2;
+    MYFLT *x1;
+    MYFLT *x2;
+    MYFLT *y1;
+    MYFLT *y2;
     // coefficients
-    float *b0;
-    float *b1;
-    float *b2;
-    float *a0;
-    float *a1;
-    float *a2;
-    float *buffer_streams;
+    MYFLT *b0;
+    MYFLT *b1;
+    MYFLT *b2;
+    MYFLT *a0;
+    MYFLT *a1;
+    MYFLT *a2;
+    MYFLT *buffer_streams;
     int modebuffer[1];
 } BandSplitter;
 
 
 static void
-BandSplitter_compute_variables(BandSplitter *self, float q)
+BandSplitter_compute_variables(BandSplitter *self, MYFLT q)
 {    
     int i;
-    float freq;
+    MYFLT freq;
     for (i=0; i<self->bands; i++) {
         freq = self->band_freqs[i];
         if (freq <= 1) 
@@ -68,9 +68,9 @@ BandSplitter_compute_variables(BandSplitter *self, float q)
         else if (freq >= self->halfSr)
             freq = self->halfSr;
     
-        float w0 = self->TwoPiOnSr * freq;
-        float c = cosf(w0);
-        float alpha = sinf(w0) / (2 * q);
+        MYFLT w0 = self->TwoPiOnSr * freq;
+        MYFLT c = MYCOS(w0);
+        MYFLT alpha = MYSIN(w0) / (2 * q);
     
         self->b0[i] = alpha;
         self->b2[i] = -alpha;
@@ -84,17 +84,17 @@ static void
 BandSplitter_setFrequencies(BandSplitter *self)
 {
     int i;
-    float frac = 1. / self->bands;
+    MYFLT frac = 1. / self->bands;
     for (i=0; i<self->bands; i++) {        
-        self->band_freqs[i] = powf(powf(self->max_freq/self->min_freq, frac), i) * self->min_freq;
+        self->band_freqs[i] = MYPOW(MYPOW(self->max_freq/self->min_freq, frac), i) * self->min_freq;
     }
 }
 
 static void
 BandSplitter_filters_i(BandSplitter *self) {
-    float val;
+    MYFLT val;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         for (j=0; j<self->bands; j++) {
@@ -117,9 +117,9 @@ BandSplitter_filters_i(BandSplitter *self) {
 
 static void
 BandSplitter_filters_a(BandSplitter *self) {
-    float val;
+    MYFLT val;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         for (j=0; j<self->bands; j++) {
@@ -128,7 +128,7 @@ BandSplitter_filters_a(BandSplitter *self) {
         self->init = 0;
     }
 
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
 
     for (i=0; i<self->bufsize; i++) {
         BandSplitter_compute_variables((BandSplitter *)self, q[i]);
@@ -143,10 +143,10 @@ BandSplitter_filters_a(BandSplitter *self) {
     }
 }
 
-float *
+MYFLT *
 BandSplitter_getSamplesBuffer(BandSplitter *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
 static void
@@ -239,7 +239,7 @@ BandSplitter_init(BandSplitter *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "bands", "min", "max", "q", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iffO", kwlist, &inputtmp, &self->bands, &self->min_freq, &self->max_freq, &qtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFFO, kwlist, &inputtmp, &self->bands, &self->min_freq, &self->max_freq, &qtmp))
         return -1; 
 
     INIT_INPUT_STREAM
@@ -247,21 +247,21 @@ BandSplitter_init(BandSplitter *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    self->band_freqs = (float *)realloc(self->band_freqs, self->bands * sizeof(float));
+    self->band_freqs = (MYFLT *)realloc(self->band_freqs, self->bands * sizeof(MYFLT));
     
-    self->x1 = (float *)realloc(self->x1, self->bands * sizeof(float));
-    self->x2 = (float *)realloc(self->x2, self->bands * sizeof(float));
-    self->y1 = (float *)realloc(self->y1, self->bands * sizeof(float));
-    self->y2 = (float *)realloc(self->y2, self->bands * sizeof(float));
+    self->x1 = (MYFLT *)realloc(self->x1, self->bands * sizeof(MYFLT));
+    self->x2 = (MYFLT *)realloc(self->x2, self->bands * sizeof(MYFLT));
+    self->y1 = (MYFLT *)realloc(self->y1, self->bands * sizeof(MYFLT));
+    self->y2 = (MYFLT *)realloc(self->y2, self->bands * sizeof(MYFLT));
 
-    self->b0 = (float *)realloc(self->b0, self->bands * sizeof(float));
-    self->b1 = (float *)realloc(self->b1, self->bands * sizeof(float));
-    self->b2 = (float *)realloc(self->b2, self->bands * sizeof(float));
-    self->a0 = (float *)realloc(self->a0, self->bands * sizeof(float));
-    self->a1 = (float *)realloc(self->a1, self->bands * sizeof(float));
-    self->a2 = (float *)realloc(self->a2, self->bands * sizeof(float));
+    self->b0 = (MYFLT *)realloc(self->b0, self->bands * sizeof(MYFLT));
+    self->b1 = (MYFLT *)realloc(self->b1, self->bands * sizeof(MYFLT));
+    self->b2 = (MYFLT *)realloc(self->b2, self->bands * sizeof(MYFLT));
+    self->a0 = (MYFLT *)realloc(self->a0, self->bands * sizeof(MYFLT));
+    self->a1 = (MYFLT *)realloc(self->a1, self->bands * sizeof(MYFLT));
+    self->a2 = (MYFLT *)realloc(self->a2, self->bands * sizeof(MYFLT));
 
-    self->buffer_streams = (float *)realloc(self->buffer_streams, self->bands * self->bufsize * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->bands * self->bufsize * sizeof(MYFLT));
 
     BandSplitter_setFrequencies((BandSplitter *)self);
 
@@ -440,7 +440,7 @@ static void
 BandSplit_compute_next_data_frame(BandSplit *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = BandSplitter_getSamplesBuffer((BandSplitter *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {

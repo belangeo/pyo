@@ -26,10 +26,7 @@
 #include "sndfile.h"
 #include "streammodule.h"
 #include "pyomodule.h"
-
-#define SERVER_MODULE
 #include "servermodule.h"
-#undef SERVER_MODULE
 
 static Server *my_server = NULL;
 
@@ -69,14 +66,14 @@ static int callback( const void *inputBuffer, void *outputBuffer,
                             void *server )
 {
  
-    float *out = (float*)outputBuffer;
+    float *out = (float *)outputBuffer;
 
     int i, j, chnl;
     int count = my_server->stream_count;
     int nchnls = my_server->nchnls;
-    float amp = my_server->amp;
+    MYFLT amp = my_server->amp;
     Stream *stream_tmp;
-    float *data;
+    MYFLT *data;
     
     /* avoid unused variable warnings */
     (void) timeInfo;
@@ -87,15 +84,15 @@ static int callback( const void *inputBuffer, void *outputBuffer,
     }
     
     if (my_server->duplex == 1) {
-        float *in = (float*)inputBuffer;
+        float *in = (float *)inputBuffer;
         for (i=0; i<framesPerBuffer*nchnls; i++) {
-            my_server->input_buffer[i] = in[i];
+            my_server->input_buffer[i] = (MYFLT)in[i];
         }
     }    
     else 
         (void) inputBuffer;
     
-    float buffer[nchnls][framesPerBuffer];
+    MYFLT buffer[nchnls][framesPerBuffer];
     memset(&buffer, 0, sizeof(buffer));
     
     PyGILState_STATE s = PyGILState_Ensure();
@@ -131,7 +128,7 @@ static int callback( const void *inputBuffer, void *outputBuffer,
             my_server->timeCount++;
         }
         for (j=0; j<nchnls; j++) {
-            out[i*nchnls+j] = buffer[j][i] * my_server->currentAmp;
+            out[i*nchnls+j] = (float)(buffer[j][i] * my_server->currentAmp);
         }
     }
     
@@ -312,7 +309,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fiii", kwlist, &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIII, kwlist, &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex))
         return -1;
 
     self->recpath = getenv("HOME");
@@ -512,7 +509,7 @@ Server_boot(Server *self)
     //err = Pa_IsFormatSupported(&inputParameters, &outputParameters, self->samplingRate);
     //portaudio_assert(err, "Pa_IsFormatSupported");
 
-    self->input_buffer = (float *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(float));
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(MYFLT));
     for (i=0; i<self->bufferSize*self->nchnls; i++) {
         self->input_buffer[i] = 0.;
     }    
@@ -715,9 +712,9 @@ Server_removeStream(Server *self, int id)
     return Py_None;    
 }
 
-float *
+MYFLT *
 Server_getInputBuffer(Server *self) {
-    return (float *)self->input_buffer;
+    return (MYFLT *)self->input_buffer;
 }
 
 PmEvent *

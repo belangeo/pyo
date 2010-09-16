@@ -39,21 +39,21 @@ typedef struct {
     int modebuffer[4]; // need at least 2 slots for mul & add 
     int filtertype;
     // sample memories
-    float x1;
-    float x2;
-    float y1;
-    float y2;
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
     // variables
-    float c;
-    float w0;
-    float alpha;
+    MYFLT c;
+    MYFLT w0;
+    MYFLT alpha;
     // coefficients
-    float b0;
-    float b1;
-    float b2;
-    float a0;
-    float a1;
-    float a2;
+    MYFLT b0;
+    MYFLT b1;
+    MYFLT b2;
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
 } Biquad;
 
 static void 
@@ -107,7 +107,7 @@ Biquad_compute_coeffs_ap(Biquad *self)
 }
 
 static void
-Biquad_compute_variables(Biquad *self, float freq, float q)
+Biquad_compute_variables(Biquad *self, MYFLT freq, MYFLT q)
 {    
     if (freq <= 1) 
         freq = 1;
@@ -115,16 +115,16 @@ Biquad_compute_variables(Biquad *self, float freq, float q)
         freq = self->sr;
     
     self->w0 = TWOPI * freq / self->sr;
-    self->c = cosf(self->w0);
-    self->alpha = sinf(self->w0) / (2 * q);
+    self->c = MYCOS(self->w0);
+    self->alpha = MYSIN(self->w0) / (2 * q);
     (*self->coeffs_func_ptr)(self);
 }
 
 static void
 Biquad_filters_ii(Biquad *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
@@ -143,16 +143,16 @@ Biquad_filters_ii(Biquad *self) {
 
 static void
 Biquad_filters_ai(Biquad *self) {
-    float val, q;
+    MYFLT val, q;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
 
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     q = PyFloat_AS_DOUBLE(self->q);
     
     for (i=0; i<self->bufsize; i++) {
@@ -168,9 +168,9 @@ Biquad_filters_ai(Biquad *self) {
 
 static void
 Biquad_filters_ia(Biquad *self) {
-    float val, fr;
+    MYFLT val, fr;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
@@ -178,7 +178,7 @@ Biquad_filters_ia(Biquad *self) {
     }
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     for (i=0; i<self->bufsize; i++) {
         Biquad_compute_variables(self, fr, q[i]);
@@ -193,17 +193,17 @@ Biquad_filters_ia(Biquad *self) {
 
 static void
 Biquad_filters_aa(Biquad *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
 
-    float *fr = Stream_getData((Stream *)self->freq_stream);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
 
     for (i=0; i<self->bufsize; i++) {
         Biquad_compute_variables(self, fr[i], q[i]);
@@ -635,30 +635,30 @@ typedef struct {
     int filtertype;
     int stages;
     // sample memories
-    float *x1;
-    float *x2;
-    float *y1;
-    float *y2;
+    MYFLT *x1;
+    MYFLT *x2;
+    MYFLT *y1;
+    MYFLT *y2;
     // variables
-    float c;
-    float w0;
-    float alpha;
+    MYFLT c;
+    MYFLT w0;
+    MYFLT alpha;
     // coefficients
-    float b0;
-    float b1;
-    float b2;
-    float a0;
-    float a1;
-    float a2;
+    MYFLT b0;
+    MYFLT b1;
+    MYFLT b2;
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
 } Biquadx;
 
 static void
 Biquadx_allocate_memories(Biquadx *self)
 {
-    self->x1 = (float *)realloc(self->x1, self->stages * sizeof(float));
-    self->x2 = (float *)realloc(self->x2, self->stages * sizeof(float));
-    self->y1 = (float *)realloc(self->y1, self->stages * sizeof(float));
-    self->y2 = (float *)realloc(self->y2, self->stages * sizeof(float));
+    self->x1 = (MYFLT *)realloc(self->x1, self->stages * sizeof(MYFLT));
+    self->x2 = (MYFLT *)realloc(self->x2, self->stages * sizeof(MYFLT));
+    self->y1 = (MYFLT *)realloc(self->y1, self->stages * sizeof(MYFLT));
+    self->y2 = (MYFLT *)realloc(self->y2, self->stages * sizeof(MYFLT));
     self->init = 1;
 }
 
@@ -713,7 +713,7 @@ Biquadx_compute_coeffs_ap(Biquadx *self)
 }
 
 static void
-Biquadx_compute_variables(Biquadx *self, float freq, float q)
+Biquadx_compute_variables(Biquadx *self, MYFLT freq, MYFLT q)
 {    
     if (freq <= 1) 
         freq = 1;
@@ -721,16 +721,16 @@ Biquadx_compute_variables(Biquadx *self, float freq, float q)
         freq = self->sr;
     
     self->w0 = TWOPI * freq / self->sr;
-    self->c = cosf(self->w0);
-    self->alpha = sinf(self->w0) / (2 * q);
+    self->c = MYCOS(self->w0);
+    self->alpha = MYSIN(self->w0) / (2 * q);
     (*self->coeffs_func_ptr)(self);
 }
 
 static void
 Biquadx_filters_ii(Biquadx *self) {
-    float vin, vout;
+    MYFLT vin, vout;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         for (i=0; i<self->stages; i++) {
@@ -755,9 +755,9 @@ Biquadx_filters_ii(Biquadx *self) {
 
 static void
 Biquadx_filters_ai(Biquadx *self) {
-    float vin, vout, q;
+    MYFLT vin, vout, q;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         for (i=0; i<self->stages; i++) {
@@ -766,7 +766,7 @@ Biquadx_filters_ai(Biquadx *self) {
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     q = PyFloat_AS_DOUBLE(self->q);
     
     vout = 0.0;
@@ -786,9 +786,9 @@ Biquadx_filters_ai(Biquadx *self) {
 
 static void
 Biquadx_filters_ia(Biquadx *self) {
-    float vin, vout, fr;
+    MYFLT vin, vout, fr;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         for (i=0; i<self->stages; i++) {
@@ -798,7 +798,7 @@ Biquadx_filters_ia(Biquadx *self) {
     }
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
@@ -817,9 +817,9 @@ Biquadx_filters_ia(Biquadx *self) {
 
 static void
 Biquadx_filters_aa(Biquadx *self) {
-    float vin, vout;
+    MYFLT vin, vout;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         for (i=0; i<self->stages; i++) {
@@ -828,8 +828,8 @@ Biquadx_filters_aa(Biquadx *self) {
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
@@ -1295,29 +1295,29 @@ typedef struct {
     int modebuffer[5]; // need at least 2 slots for mul & add 
     int filtertype;
     // sample memories
-    float x1;
-    float x2;
-    float y1;
-    float y2;
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
     // variables
-    float A;
-    float c;
-    float w0;
-    float alpha;
+    MYFLT A;
+    MYFLT c;
+    MYFLT w0;
+    MYFLT alpha;
     // coefficients
-    float b0;
-    float b1;
-    float b2;
-    float a0;
-    float a1;
-    float a2;
+    MYFLT b0;
+    MYFLT b1;
+    MYFLT b2;
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
 } EQ;
 
 static void 
 EQ_compute_coeffs_peak(EQ *self)
 {
-    float alphaMul = self->alpha * self->A;
-    float alphaDiv = self->alpha / self->A;
+    MYFLT alphaMul = self->alpha * self->A;
+    MYFLT alphaDiv = self->alpha / self->A;
     
     self->b0 = 1.0 + alphaMul;
     self->b1 = self->a1 = -2.0 * self->c;
@@ -1329,9 +1329,9 @@ EQ_compute_coeffs_peak(EQ *self)
 static void
 EQ_compute_coeffs_lowshelf(EQ *self) 
 {
-    float twoSqrtAAlpha = sqrtf(self->A * 2.0)*self->alpha;
-    float AminOneC = (self->A - 1.0) * self->c;
-    float AAddOneC = (self->A + 1.0) * self->c;
+    MYFLT twoSqrtAAlpha = MYSQRT(self->A * 2.0)*self->alpha;
+    MYFLT AminOneC = (self->A - 1.0) * self->c;
+    MYFLT AAddOneC = (self->A + 1.0) * self->c;
     
     self->b0 = self->A * ((self->A + 1.0) - AminOneC + twoSqrtAAlpha);
     self->b1 = 2.0 * self->A * ((self->A - 1.0) - AAddOneC);
@@ -1344,9 +1344,9 @@ EQ_compute_coeffs_lowshelf(EQ *self)
 static void
 EQ_compute_coeffs_highshelf(EQ *self) 
 {
-    float twoSqrtAAlpha = sqrtf(self->A * 2.0)*self->alpha;
-    float AminOneC = (self->A - 1.0) * self->c;
-    float AAddOneC = (self->A + 1.0) * self->c;
+    MYFLT twoSqrtAAlpha = MYSQRT(self->A * 2.0)*self->alpha;
+    MYFLT AminOneC = (self->A - 1.0) * self->c;
+    MYFLT AAddOneC = (self->A + 1.0) * self->c;
     
     self->b0 = self->A * ((self->A + 1.0) + AminOneC + twoSqrtAAlpha);
     self->b1 = -2.0 * self->A * ((self->A - 1.0) + AAddOneC);
@@ -1357,25 +1357,25 @@ EQ_compute_coeffs_highshelf(EQ *self)
 }    
 
 static void
-EQ_compute_variables(EQ *self, float freq, float q, float boost)
+EQ_compute_variables(EQ *self, MYFLT freq, MYFLT q, MYFLT boost)
 {    
     if (freq <= 1) 
         freq = 1;
     else if (freq >= self->sr)
         freq = self->sr;
     
-    self->A = powf(10.0, boost/40.0);
+    self->A = MYPOW(10.0, boost/40.0);
     self->w0 = TWOPI * freq / self->sr;
-    self->c = cosf(self->w0);
-    self->alpha = sinf(self->w0) / (2 * q);
+    self->c = MYCOS(self->w0);
+    self->alpha = MYSIN(self->w0) / (2 * q);
     (*self->coeffs_func_ptr)(self);
 }
 
 static void
 EQ_filters_iii(EQ *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
@@ -1394,16 +1394,16 @@ EQ_filters_iii(EQ *self) {
 
 static void
 EQ_filters_aii(EQ *self) {
-    float val, q, boost;
+    MYFLT val, q, boost;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     q = PyFloat_AS_DOUBLE(self->q);
     boost = PyFloat_AS_DOUBLE(self->boost);
     
@@ -1420,9 +1420,9 @@ EQ_filters_aii(EQ *self) {
 
 static void
 EQ_filters_iai(EQ *self) {
-    float val, fr, boost;
+    MYFLT val, fr, boost;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
@@ -1430,7 +1430,7 @@ EQ_filters_iai(EQ *self) {
     }
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     boost = PyFloat_AS_DOUBLE(self->boost);
     
     for (i=0; i<self->bufsize; i++) {
@@ -1446,17 +1446,17 @@ EQ_filters_iai(EQ *self) {
 
 static void
 EQ_filters_aai(EQ *self) {
-    float val, boost;
+    MYFLT val, boost;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     boost = PyFloat_AS_DOUBLE(self->boost);
     
     for (i=0; i<self->bufsize; i++) {
@@ -1472,9 +1472,9 @@ EQ_filters_aai(EQ *self) {
 
 static void
 EQ_filters_iia(EQ *self) {
-    float val, fr, q;
+    MYFLT val, fr, q;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
@@ -1483,7 +1483,7 @@ EQ_filters_iia(EQ *self) {
 
     fr = PyFloat_AS_DOUBLE(self->freq);
     q = PyFloat_AS_DOUBLE(self->q);
-    float *boost = Stream_getData((Stream *)self->boost_stream);
+    MYFLT *boost = Stream_getData((Stream *)self->boost_stream);
 
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr, q, boost[i]);
@@ -1498,18 +1498,18 @@ EQ_filters_iia(EQ *self) {
 
 static void
 EQ_filters_aia(EQ *self) {
-    float val, q;
+    MYFLT val, q;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     q = PyFloat_AS_DOUBLE(self->q);
-    float *boost = Stream_getData((Stream *)self->boost_stream);
+    MYFLT *boost = Stream_getData((Stream *)self->boost_stream);
     
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr[i], q, boost[i]);
@@ -1524,9 +1524,9 @@ EQ_filters_aia(EQ *self) {
 
 static void
 EQ_filters_iaa(EQ *self) {
-    float val, fr;
+    MYFLT val, fr;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
@@ -1534,8 +1534,8 @@ EQ_filters_iaa(EQ *self) {
     }
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    float *q = Stream_getData((Stream *)self->q_stream);
-    float *boost = Stream_getData((Stream *)self->boost_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *boost = Stream_getData((Stream *)self->boost_stream);
     
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr, q[i], boost[i]);
@@ -1550,18 +1550,18 @@ EQ_filters_iaa(EQ *self) {
 
 static void
 EQ_filters_aaa(EQ *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->x1 = self->x2 = self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
-    float *q = Stream_getData((Stream *)self->q_stream);
-    float *boost = Stream_getData((Stream *)self->boost_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *boost = Stream_getData((Stream *)self->boost_stream);
     
     for (i=0; i<self->bufsize; i++) {
         EQ_compute_variables(self, fr[i], q[i], boost[i]);
@@ -2041,13 +2041,13 @@ typedef struct {
     Stream *risetime_stream;
     Stream *falltime_stream;
     int modebuffer[4]; // need at least 2 slots for mul & add 
-    float y1; // sample memory
-    float x1;
+    MYFLT y1; // sample memory
+    MYFLT x1;
     int dir;
 } Port;
 
 static void 
-direction(Port *self, float val)
+direction(Port *self, MYFLT val)
 {
     if (val == self->x1)
         return;
@@ -2064,14 +2064,14 @@ direction(Port *self, float val)
     
 static void
 Port_filters_ii(Port *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float risetime = PyFloat_AS_DOUBLE(self->risetime);
-    float falltime = PyFloat_AS_DOUBLE(self->falltime);
-    float risefactor = 1. / (risetime * self->sr);
-    float fallfactor = 1. / (falltime * self->sr);
-    float factors[2] = {fallfactor, risefactor};
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
+    MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
+    MYFLT risefactor = 1. / (risetime * self->sr);
+    MYFLT fallfactor = 1. / (falltime * self->sr);
+    MYFLT factors[2] = {fallfactor, risefactor};
 
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
@@ -2083,12 +2083,12 @@ Port_filters_ii(Port *self) {
 
 static void
 Port_filters_ai(Port *self) {
-    float val, risefactor;
+    MYFLT val, risefactor;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *risetime = Stream_getData((Stream *)self->risetime_stream);
-    float falltime = PyFloat_AS_DOUBLE(self->falltime);
-    float fallfactor = 1. / (falltime * self->sr);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
+    MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
+    MYFLT fallfactor = 1. / (falltime * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
@@ -2104,12 +2104,12 @@ Port_filters_ai(Port *self) {
 
 static void
 Port_filters_ia(Port *self) {
-    float val, fallfactor;
+    MYFLT val, fallfactor;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *falltime = Stream_getData((Stream *)self->falltime_stream);
-    float risetime = PyFloat_AS_DOUBLE(self->risetime);
-    float risefactor = 1. / (risetime * self->sr);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
+    MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
+    MYFLT risefactor = 1. / (risetime * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
@@ -2125,11 +2125,11 @@ Port_filters_ia(Port *self) {
 
 static void
 Port_filters_aa(Port *self) {
-    float val, risefactor, fallfactor;
+    MYFLT val, risefactor, fallfactor;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *risetime = Stream_getData((Stream *)self->risetime_stream);
-    float *falltime = Stream_getData((Stream *)self->falltime_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
+    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
@@ -2277,7 +2277,7 @@ static int
 Port_init(Port *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    float inittmp = 0.0;
+    MYFLT inittmp = 0.0;
     
     static char *kwlist[] = {"input", "risetime", "falltime", "init", "mul", "add", NULL};
     
@@ -2523,25 +2523,25 @@ typedef struct {
     PyObject *freq;
     Stream *freq_stream;
     int modebuffer[3]; // need at least 2 slots for mul & add 
-    float lastFreq;
+    MYFLT lastFreq;
     // sample memories
-    float y1;
+    MYFLT y1;
     // variables
-    float c1;
-    float c2;
+    MYFLT c1;
+    MYFLT c2;
 } Tone;
 
 static void
 Tone_filters_i(Tone *self) {
-    float val, b;
+    MYFLT val, b;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
     
     if (fr != self->lastFreq) {
         self->lastFreq = fr;
-        b = 2.0 - cosf(TWOPI * fr / self->sr);
-        self->c2 = (b - sqrtf(b * b - 1.0));
+        b = 2.0 - MYCOS(TWOPI * fr / self->sr);
+        self->c2 = (b - MYSQRT(b * b - 1.0));
         self->c1 = 1.0 - self->c2;
     }
     
@@ -2554,17 +2554,17 @@ Tone_filters_i(Tone *self) {
 
 static void
 Tone_filters_a(Tone *self) {
-    float val, freq, b;
+    MYFLT val, freq, b;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
         
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
         if (freq != self->lastFreq) {
             self->lastFreq = freq;
-            b = 2.0 - cosf(TWOPI * freq / self->sr);
-            self->c2 = (b - sqrtf(b * b - 1.0));
+            b = 2.0 - MYCOS(TWOPI * freq / self->sr);
+            self->c2 = (b - MYSQRT(b * b - 1.0));
             self->c1 = 1.0 - self->c2;
         }
         val = self->c1 * in[i] + self->c2 * self->y1;
@@ -2894,15 +2894,15 @@ typedef struct {
     Stream *input_stream;
     int modebuffer[2]; // need at least 2 slots for mul & add 
     // sample memories
-    float x1;
-    float y1;
+    MYFLT x1;
+    MYFLT y1;
 } DCBlock;
 
 static void
 DCBlock_filters(DCBlock *self) {
-    float x, y;
+    MYFLT x, y;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     for (i=0; i<self->bufsize; i++) {
         x = in[i];
@@ -3178,33 +3178,33 @@ typedef struct {
     Stream *delay_stream;
     PyObject *feedback;
     Stream *feedback_stream;
-    float maxDelay;
+    MYFLT maxDelay;
     long size;
     int in_count;
     int modebuffer[4];
-    float *buffer; // samples memory
+    MYFLT *buffer; // samples memory
 } Allpass;
 
 static void
 Allpass_process_ii(Allpass *self) {
-    float val, xind, frac;
+    MYFLT val, xind, frac;
     int i, ind;
     
-    float del = PyFloat_AS_DOUBLE(self->delay);
-    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    MYFLT del = PyFloat_AS_DOUBLE(self->delay);
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
     
     if (del < 0.)
         del = 0.;
     else if (del > self->maxDelay)
         del = self->maxDelay;
-    float sampdel = del * self->sr;
+    MYFLT sampdel = del * self->sr;
     
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
         feed = 1;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
@@ -3224,18 +3224,18 @@ Allpass_process_ii(Allpass *self) {
 
 static void
 Allpass_process_ai(Allpass *self) {
-    float val, xind, frac, sampdel, del;
+    MYFLT val, xind, frac, sampdel, del;
     int i, ind;
     
-    float *delobj = Stream_getData((Stream *)self->delay_stream);    
-    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);    
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
     
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
         feed = 1;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
@@ -3260,19 +3260,19 @@ Allpass_process_ai(Allpass *self) {
 
 static void
 Allpass_process_ia(Allpass *self) {
-    float val, xind, frac, feed;
+    MYFLT val, xind, frac, feed;
     int i, ind;
     
-    float del = PyFloat_AS_DOUBLE(self->delay);
-    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    MYFLT del = PyFloat_AS_DOUBLE(self->delay);
+    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
     
     if (del < 0.)
         del = 0.;
     else if (del > self->maxDelay)
         del = self->maxDelay;
-    float sampdel = del * self->sr;
+    MYFLT sampdel = del * self->sr;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         feed = fdb[i];
@@ -3296,13 +3296,13 @@ Allpass_process_ia(Allpass *self) {
 
 static void
 Allpass_process_aa(Allpass *self) {
-    float val, xind, frac, sampdel, feed, del;
+    MYFLT val, xind, frac, sampdel, feed, del;
     int i, ind;
     
-    float *delobj = Stream_getData((Stream *)self->delay_stream);    
-    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);    
+    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
@@ -3494,7 +3494,7 @@ Allpass_init(Allpass *self, PyObject *args, PyObject *kwds)
     
     self->size = self->maxDelay * self->sr + 0.5;
     
-    self->buffer = (float *)realloc(self->buffer, (self->size+1) * sizeof(float));
+    self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
     }    
@@ -3714,36 +3714,36 @@ typedef struct {
     Stream *bw_stream;
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add 
-    float oneOnSr;
+    MYFLT oneOnSr;
     // sample memories
-    float y1;
-    float y2;
+    MYFLT y1;
+    MYFLT y2;
     // coefficients
-    float alpha;
-    float beta;
+    MYFLT alpha;
+    MYFLT beta;
 } Allpass2;
 
 static void
-Allpass2_compute_variables(Allpass2 *self, float freq, float bw)
+Allpass2_compute_variables(Allpass2 *self, MYFLT freq, MYFLT bw)
 {    
-    float radius, angle;
+    MYFLT radius, angle;
     if (freq <= 1) 
         freq = 1;
     else if (freq >= (self->sr/2.0))
         freq = self->sr/2.0;
     
-    radius = powf(E, -PI * bw * self->oneOnSr);
+    radius = MYPOW(E, -PI * bw * self->oneOnSr);
     angle = TWOPI * freq * self->oneOnSr;
     
     self->alpha = radius * radius;
-    self->beta = -2.0 * radius * cosf(angle);
+    self->beta = -2.0 * radius * MYCOS(angle);
 }
 
 static void
 Allpass2_filters_ii(Allpass2 *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->y1 = self->y2 = in[0];
@@ -3760,16 +3760,16 @@ Allpass2_filters_ii(Allpass2 *self) {
 
 static void
 Allpass2_filters_ai(Allpass2 *self) {
-    float val, bw;
+    MYFLT val, bw;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     bw = PyFloat_AS_DOUBLE(self->bw);
     
     for (i=0; i<self->bufsize; i++) {
@@ -3783,9 +3783,9 @@ Allpass2_filters_ai(Allpass2 *self) {
 
 static void
 Allpass2_filters_ia(Allpass2 *self) {
-    float val, fr;
+    MYFLT val, fr;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->y1 = self->y2 = in[0];
@@ -3793,7 +3793,7 @@ Allpass2_filters_ia(Allpass2 *self) {
     }
     
     fr = PyFloat_AS_DOUBLE(self->freq);
-    float *bw = Stream_getData((Stream *)self->bw_stream);
+    MYFLT *bw = Stream_getData((Stream *)self->bw_stream);
     
     for (i=0; i<self->bufsize; i++) {
         Allpass2_compute_variables(self, fr, bw[i]);
@@ -3806,17 +3806,17 @@ Allpass2_filters_ia(Allpass2 *self) {
 
 static void
 Allpass2_filters_aa(Allpass2 *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     if (self->init == 1) {
         self->y1 = self->y2 = in[0];
         self->init = 0;
     }
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
-    float *bw = Stream_getData((Stream *)self->bw_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *bw = Stream_getData((Stream *)self->bw_stream);
     
     for (i=0; i<self->bufsize; i++) {
         Allpass2_compute_variables(self, fr[i], bw[i]);
@@ -4198,7 +4198,7 @@ Allpass2_new,                                     /* tp_new */
 /***** Phaser ******/
 /*******************/
 
-float HALF_COS_ARRAY[513] = {1.0, 0.99998110153278696, 0.99992440684545181, 0.99982991808087995, 0.99969763881045715, 0.99952757403393411, 0.99931973017923825, 0.99907411510222999, 0.99879073808640628, 0.99846960984254973, 0.99811074250832332, 0.99771414964781235, 0.99727984625101107, 0.99680784873325645, 0.99629817493460782, 0.99575084411917214, 0.99516587697437664, 0.99454329561018584, 0.99388312355826691, 0.9931853857710996, 0.99245010862103322, 0.99167731989928998, 0.99086704881491472, 0.99001932599367026, 0.98913418347688054, 0.98821165472021921, 0.9872517745924454, 0.98625457937408512, 0.98522010675606064, 0.98414839583826585, 0.98303948712808786, 0.98189342253887657, 0.98071024538836005, 0.97949000039700762, 0.97823273368633901, 0.9769384927771817, 0.97560732658787452, 0.97423928543241856, 0.97283442101857576, 0.97139278644591409, 0.96991443620380113, 0.96839942616934394, 0.96684781360527761, 0.96525965715780015, 0.96363501685435693, 0.96197395410137099, 0.96027653168192206, 0.95854281375337425, 0.95677286584495025, 0.95496675485525528, 0.95312454904974775, 0.95124631805815985, 0.94933213287186513, 0.94738206584119555, 0.94539619067270686, 0.9433745824263926, 0.94131731751284708, 0.9392244736903772, 0.93709613006206383, 0.9349323670727715, 0.93273326650610799, 0.93049891148133324, 0.92822938645021758, 0.92592477719384991, 0.92358517081939495, 0.92121065575680161, 0.91880132175545981, 0.91635725988080907, 0.91387856251089561, 0.91136532333288145, 0.90881763733950294, 0.9062356008254806, 0.90361931138387919, 0.90096886790241915, 0.89828437055973898, 0.89556592082160869, 0.89281362143709486, 0.89002757643467667, 0.88720789111831455, 0.8843546720634694, 0.88146802711307481, 0.87854806537346075, 0.87559489721022943, 0.8726086342440843, 0.86958938934661101, 0.86653727663601088, 0.86345241147278784, 0.86033491045538835, 0.85718489141579368, 0.85400247341506719, 0.8507877767388532, 0.84754092289283123, 0.8442620345981231, 0.84095123578665476, 0.8376086515964718, 0.83423440836700968, 0.83082863363431847, 0.82739145612624232, 0.82392300575755428, 0.82042341362504534, 0.81689281200256991, 0.81333133433604599, 0.80973911523841147, 0.80611629048453592, 0.80246299700608914, 0.79877937288636502, 0.7950655573550629, 0.79132169078302494, 0.78754791467693042, 0.78374437167394739, 0.77991120553634141, 0.77604856114604148, 0.77215658449916424, 0.76823542270049605, 0.76428522395793219, 0.7603061375768756, 0.75629831395459302, 0.75226190457453135, 0.74819706200059122, 0.7441039398713607, 0.73998269289430851, 0.73583347683993672, 0.73165644853589207, 0.72745176586103977, 0.72321958773949491, 0.71896007413461649, 0.71467338604296105, 0.71035968548819706, 0.70601913551498185, 0.70165190018279788, 0.69725814455975277, 0.69283803471633953, 0.68839173771916018, 0.68391942162461061, 0.6794212554725293, 0.67489740927980701, 0.67034805403396192, 0.66577336168667567, 0.66117350514729512, 0.65654865827629605, 0.65189899587871258, 0.64722469369752944, 0.6425259284070397, 0.63780287760616672, 0.63305571981175202, 0.62828463445180749, 0.62348980185873359, 0.61867140326250347, 0.61382962078381298, 0.60896463742719675, 0.60407663707411186, 0.59916580447598711, 0.59423232524724023, 0.58927638585826192, 0.58429817362836856, 0.57929787671872113, 0.57427568412521424, 0.56923178567133192, 0.56416637200097319, 0.55907963457124654, 0.55397176564523298, 0.5488429582847193, 0.5436934063429012, 0.53852330445705543, 0.53333284804118442, 0.52812223327862839, 0.52289165711465235, 0.51764131724900009, 0.51237141212842374, 0.50708214093918114, 0.50177370359950879, 0.49644630075206486, 0.49110013375634509, 0.48573540468107329, 0.48035231629656205, 0.47495107206705045, 0.46953187614301212, 0.46409493335344021, 0.45864044919810504, 0.45316862983978612, 0.44767968209648135, 0.44217381343358825, 0.43665123195606403, 0.43111214640055828, 0.42555676612752463, 0.41998530111330729, 0.41439796194220363, 0.40879495979850627, 0.40317650645851943, 0.39754281428255606, 0.3918940962069094, 0.38623056573580644, 0.38055243693333718, 0.3748599244153632, 0.36915324334140731, 0.36343260940651945, 0.35769823883312568, 0.35195034836285416, 0.34618915524834432, 0.34041487724503472, 0.33462773260293199, 0.32882794005836308, 0.32301571882570607, 0.31719128858910622, 0.31135486949417079, 0.30550668213964982, 0.29964694756909749, 0.29377588726251663, 0.28789372312798917, 0.28200067749328667, 0.27609697309746906, 0.27018283308246382, 0.26425848098463345, 0.25832414072632598, 0.25238003660741054, 0.24642639329680122, 0.24046343582396335, 0.23449138957040974, 0.22851048026118126, 0.22252093395631445, 0.21652297704229864, 0.21051683622351761, 0.20450273851368242, 0.19848091122724945, 0.19245158197082995, 0.18641497863458675, 0.1803713293836198, 0.17432086264934399, 0.16826380712085329, 0.16220039173627876, 0.15613084567413366, 0.1500553983446527, 0.14397427938112045, 0.13788771863119115, 0.13179594614820278, 0.12569919218247999, 0.11959768717263308, 0.11349166173684638, 0.10738134666416307, 0.10126697290576155, 0.095148771566225324, 0.089026973894809708, 0.082901811276699419, 0.076773515224264705, 0.070642317368309157, 0.064508449449316344, 0.058372143308689985, 0.052233630879990445, 0.046093144180169916, 0.039950915300801082, 0.033807176399306589, 0.027662159690182372, 0.021516097436222258, 0.01536922193973846, 0.0092217655337806046, 0.0030739605733557966, -0.0030739605733554522, -0.0092217655337804832, -0.015369221939738116, -0.021516097436222133, -0.027662159690182025, -0.033807176399306464, -0.039950915300800735, -0.046093144180169791, -0.052233630879990098, -0.05837214330868986, -0.064508449449316232, -0.07064231736830906, -0.076773515224264371, -0.082901811276699308, -0.089026973894809375, -0.095148771566225213, -0.10126697290576121, -0.10738134666416296, -0.11349166173684605, -0.11959768717263299, -0.12569919218247966, -0.13179594614820267, -0.13788771863119104, -0.14397427938112034, -0.15005539834465259, -0.15613084567413354, -0.16220039173627843, -0.16826380712085318, -0.17432086264934366, -0.18037132938361969, -0.18641497863458642, -0.19245158197082984, -0.19848091122724912, -0.20450273851368231, -0.21051683622351727, -0.21652297704229853, -0.22252093395631434, -0.22851048026118118, -0.23449138957040966, -0.24046343582396323, -0.24642639329680088, -0.25238003660741043, -0.25832414072632565, -0.26425848098463334, -0.27018283308246349, -0.27609697309746895, -0.28200067749328633, -0.28789372312798905, -0.2937758872625163, -0.29964694756909738, -0.30550668213964971, -0.31135486949417068, -0.31719128858910589, -0.32301571882570601, -0.32882794005836274, -0.33462773260293188, -0.34041487724503444, -0.3461891552483442, -0.35195034836285388, -0.35769823883312557, -0.36343260940651911, -0.3691532433414072, -0.37485992441536287, -0.38055243693333707, -0.38623056573580633, -0.39189409620690935, -0.39754281428255578, -0.40317650645851938, -0.408794959798506, -0.41439796194220352, -0.41998530111330723, -0.42555676612752458, -0.43111214640055795, -0.43665123195606392, -0.44217381343358819, -0.44767968209648107, -0.45316862983978584, -0.45864044919810493, -0.46409493335344015, -0.46953187614301223, -0.47495107206704995, -0.48035231629656183, -0.4857354046810729, -0.49110013375634509, -0.4964463007520647, -0.50177370359950857, -0.5070821409391808, -0.51237141212842352, -0.51764131724899998, -0.52289165711465191, -0.52812223327862795, -0.53333284804118419, -0.53852330445705532, -0.5436934063429012, -0.54884295828471885, -0.55397176564523276, -0.55907963457124621, -0.56416637200097308, -0.5692317856713317, -0.57427568412521401, -0.57929787671872079, -0.58429817362836844, -0.5892763858582617, -0.5942323252472399, -0.59916580447598666, -0.60407663707411174, -0.60896463742719653, -0.61382962078381298, -0.61867140326250303, -0.62348980185873337, -0.62828463445180716, -0.6330557198117519, -0.6378028776061665, -0.64252592840703937, -0.64722469369752911, -0.65189899587871247, -0.65654865827629583, -0.66117350514729478, -0.66577336168667522, -0.67034805403396169, -0.67489740927980679, -0.6794212554725293, -0.68391942162461028, -0.68839173771915996, -0.6928380347163392, -0.69725814455975266, -0.70165190018279777, -0.70601913551498163, -0.71035968548819683, -0.71467338604296105, -0.71896007413461638, -0.72321958773949468, -0.72745176586103955, -0.73165644853589207, -0.73583347683993661, -0.73998269289430874, -0.74410393987136036, -0.74819706200059111, -0.75226190457453113, -0.75629831395459302, -0.76030613757687548, -0.76428522395793208, -0.76823542270049594, -0.77215658449916424, -0.77604856114604126, -0.77991120553634119, -0.78374437167394717, -0.78754791467693031, -0.79132169078302472, -0.7950655573550629, -0.79877937288636469, -0.80246299700608903, -0.80611629048453581, -0.80973911523841147, -0.81333133433604599, -0.8168928120025698, -0.82042341362504512, -0.82392300575755417, -0.82739145612624221, -0.83082863363431825, -0.83423440836700946, -0.8376086515964718, -0.84095123578665465, -0.8442620345981231, -0.84754092289283089, -0.85078777673885309, -0.85400247341506696, -0.85718489141579368, -0.86033491045538824, -0.86345241147278773, -0.86653727663601066, -0.86958938934661101, -0.87260863424408419, -0.87559489721022921, -0.87854806537346053, -0.88146802711307481, -0.88435467206346929, -0.88720789111831455, -0.89002757643467667, -0.89281362143709475, -0.89556592082160857, -0.89828437055973898, -0.90096886790241903, -0.90361931138387908, -0.90623560082548038, -0.90881763733950294, -0.91136532333288134, -0.9138785625108955, -0.91635725988080885, -0.91880132175545981, -0.92121065575680139, -0.92358517081939495, -0.9259247771938498, -0.92822938645021758, -0.93049891148133312, -0.93273326650610799, -0.9349323670727715, -0.93709613006206383, -0.93922447369037709, -0.94131731751284708, -0.9433745824263926, -0.94539619067270697, -0.94738206584119544, -0.94933213287186502, -0.95124631805815973, -0.95312454904974775, -0.95496675485525517, -0.95677286584495025, -0.95854281375337413, -0.96027653168192206, -0.96197395410137099, -0.96363501685435693, -0.96525965715780004, -0.9668478136052775, -0.96839942616934394, -0.96991443620380113, -0.97139278644591398, -0.97283442101857565, -0.97423928543241844, -0.97560732658787452, -0.9769384927771817, -0.9782327336863389, -0.97949000039700751, -0.98071024538836005, -0.98189342253887657, -0.98303948712808775, -0.98414839583826574, -0.98522010675606064, -0.98625457937408501, -0.9872517745924454, -0.98821165472021921, -0.98913418347688054, -0.99001932599367015, -0.99086704881491472, -0.99167731989928998, -0.99245010862103311, -0.99318538577109949, -0.99388312355826691, -0.99454329561018584, -0.99516587697437653, -0.99575084411917214, -0.99629817493460782, -0.99680784873325645, -0.99727984625101107, -0.99771414964781235, -0.99811074250832332, -0.99846960984254973, -0.99879073808640628, -0.99907411510222999, -0.99931973017923825, -0.99952757403393411, -0.99969763881045715, -0.99982991808087995, -0.99992440684545181, -0.99998110153278685, -1.0, -1.0}; 
+MYFLT HALF_COS_ARRAY[513] = {1.0, 0.99998110153278696, 0.99992440684545181, 0.99982991808087995, 0.99969763881045715, 0.99952757403393411, 0.99931973017923825, 0.99907411510222999, 0.99879073808640628, 0.99846960984254973, 0.99811074250832332, 0.99771414964781235, 0.99727984625101107, 0.99680784873325645, 0.99629817493460782, 0.99575084411917214, 0.99516587697437664, 0.99454329561018584, 0.99388312355826691, 0.9931853857710996, 0.99245010862103322, 0.99167731989928998, 0.99086704881491472, 0.99001932599367026, 0.98913418347688054, 0.98821165472021921, 0.9872517745924454, 0.98625457937408512, 0.98522010675606064, 0.98414839583826585, 0.98303948712808786, 0.98189342253887657, 0.98071024538836005, 0.97949000039700762, 0.97823273368633901, 0.9769384927771817, 0.97560732658787452, 0.97423928543241856, 0.97283442101857576, 0.97139278644591409, 0.96991443620380113, 0.96839942616934394, 0.96684781360527761, 0.96525965715780015, 0.96363501685435693, 0.96197395410137099, 0.96027653168192206, 0.95854281375337425, 0.95677286584495025, 0.95496675485525528, 0.95312454904974775, 0.95124631805815985, 0.94933213287186513, 0.94738206584119555, 0.94539619067270686, 0.9433745824263926, 0.94131731751284708, 0.9392244736903772, 0.93709613006206383, 0.9349323670727715, 0.93273326650610799, 0.93049891148133324, 0.92822938645021758, 0.92592477719384991, 0.92358517081939495, 0.92121065575680161, 0.91880132175545981, 0.91635725988080907, 0.91387856251089561, 0.91136532333288145, 0.90881763733950294, 0.9062356008254806, 0.90361931138387919, 0.90096886790241915, 0.89828437055973898, 0.89556592082160869, 0.89281362143709486, 0.89002757643467667, 0.88720789111831455, 0.8843546720634694, 0.88146802711307481, 0.87854806537346075, 0.87559489721022943, 0.8726086342440843, 0.86958938934661101, 0.86653727663601088, 0.86345241147278784, 0.86033491045538835, 0.85718489141579368, 0.85400247341506719, 0.8507877767388532, 0.84754092289283123, 0.8442620345981231, 0.84095123578665476, 0.8376086515964718, 0.83423440836700968, 0.83082863363431847, 0.82739145612624232, 0.82392300575755428, 0.82042341362504534, 0.81689281200256991, 0.81333133433604599, 0.80973911523841147, 0.80611629048453592, 0.80246299700608914, 0.79877937288636502, 0.7950655573550629, 0.79132169078302494, 0.78754791467693042, 0.78374437167394739, 0.77991120553634141, 0.77604856114604148, 0.77215658449916424, 0.76823542270049605, 0.76428522395793219, 0.7603061375768756, 0.75629831395459302, 0.75226190457453135, 0.74819706200059122, 0.7441039398713607, 0.73998269289430851, 0.73583347683993672, 0.73165644853589207, 0.72745176586103977, 0.72321958773949491, 0.71896007413461649, 0.71467338604296105, 0.71035968548819706, 0.70601913551498185, 0.70165190018279788, 0.69725814455975277, 0.69283803471633953, 0.68839173771916018, 0.68391942162461061, 0.6794212554725293, 0.67489740927980701, 0.67034805403396192, 0.66577336168667567, 0.66117350514729512, 0.65654865827629605, 0.65189899587871258, 0.64722469369752944, 0.6425259284070397, 0.63780287760616672, 0.63305571981175202, 0.62828463445180749, 0.62348980185873359, 0.61867140326250347, 0.61382962078381298, 0.60896463742719675, 0.60407663707411186, 0.59916580447598711, 0.59423232524724023, 0.58927638585826192, 0.58429817362836856, 0.57929787671872113, 0.57427568412521424, 0.56923178567133192, 0.56416637200097319, 0.55907963457124654, 0.55397176564523298, 0.5488429582847193, 0.5436934063429012, 0.53852330445705543, 0.53333284804118442, 0.52812223327862839, 0.52289165711465235, 0.51764131724900009, 0.51237141212842374, 0.50708214093918114, 0.50177370359950879, 0.49644630075206486, 0.49110013375634509, 0.48573540468107329, 0.48035231629656205, 0.47495107206705045, 0.46953187614301212, 0.46409493335344021, 0.45864044919810504, 0.45316862983978612, 0.44767968209648135, 0.44217381343358825, 0.43665123195606403, 0.43111214640055828, 0.42555676612752463, 0.41998530111330729, 0.41439796194220363, 0.40879495979850627, 0.40317650645851943, 0.39754281428255606, 0.3918940962069094, 0.38623056573580644, 0.38055243693333718, 0.3748599244153632, 0.36915324334140731, 0.36343260940651945, 0.35769823883312568, 0.35195034836285416, 0.34618915524834432, 0.34041487724503472, 0.33462773260293199, 0.32882794005836308, 0.32301571882570607, 0.31719128858910622, 0.31135486949417079, 0.30550668213964982, 0.29964694756909749, 0.29377588726251663, 0.28789372312798917, 0.28200067749328667, 0.27609697309746906, 0.27018283308246382, 0.26425848098463345, 0.25832414072632598, 0.25238003660741054, 0.24642639329680122, 0.24046343582396335, 0.23449138957040974, 0.22851048026118126, 0.22252093395631445, 0.21652297704229864, 0.21051683622351761, 0.20450273851368242, 0.19848091122724945, 0.19245158197082995, 0.18641497863458675, 0.1803713293836198, 0.17432086264934399, 0.16826380712085329, 0.16220039173627876, 0.15613084567413366, 0.1500553983446527, 0.14397427938112045, 0.13788771863119115, 0.13179594614820278, 0.12569919218247999, 0.11959768717263308, 0.11349166173684638, 0.10738134666416307, 0.10126697290576155, 0.095148771566225324, 0.089026973894809708, 0.082901811276699419, 0.076773515224264705, 0.070642317368309157, 0.064508449449316344, 0.058372143308689985, 0.052233630879990445, 0.046093144180169916, 0.039950915300801082, 0.033807176399306589, 0.027662159690182372, 0.021516097436222258, 0.01536922193973846, 0.0092217655337806046, 0.0030739605733557966, -0.0030739605733554522, -0.0092217655337804832, -0.015369221939738116, -0.021516097436222133, -0.027662159690182025, -0.033807176399306464, -0.039950915300800735, -0.046093144180169791, -0.052233630879990098, -0.05837214330868986, -0.064508449449316232, -0.07064231736830906, -0.076773515224264371, -0.082901811276699308, -0.089026973894809375, -0.095148771566225213, -0.10126697290576121, -0.10738134666416296, -0.11349166173684605, -0.11959768717263299, -0.12569919218247966, -0.13179594614820267, -0.13788771863119104, -0.14397427938112034, -0.15005539834465259, -0.15613084567413354, -0.16220039173627843, -0.16826380712085318, -0.17432086264934366, -0.18037132938361969, -0.18641497863458642, -0.19245158197082984, -0.19848091122724912, -0.20450273851368231, -0.21051683622351727, -0.21652297704229853, -0.22252093395631434, -0.22851048026118118, -0.23449138957040966, -0.24046343582396323, -0.24642639329680088, -0.25238003660741043, -0.25832414072632565, -0.26425848098463334, -0.27018283308246349, -0.27609697309746895, -0.28200067749328633, -0.28789372312798905, -0.2937758872625163, -0.29964694756909738, -0.30550668213964971, -0.31135486949417068, -0.31719128858910589, -0.32301571882570601, -0.32882794005836274, -0.33462773260293188, -0.34041487724503444, -0.3461891552483442, -0.35195034836285388, -0.35769823883312557, -0.36343260940651911, -0.3691532433414072, -0.37485992441536287, -0.38055243693333707, -0.38623056573580633, -0.39189409620690935, -0.39754281428255578, -0.40317650645851938, -0.408794959798506, -0.41439796194220352, -0.41998530111330723, -0.42555676612752458, -0.43111214640055795, -0.43665123195606392, -0.44217381343358819, -0.44767968209648107, -0.45316862983978584, -0.45864044919810493, -0.46409493335344015, -0.46953187614301223, -0.47495107206704995, -0.48035231629656183, -0.4857354046810729, -0.49110013375634509, -0.4964463007520647, -0.50177370359950857, -0.5070821409391808, -0.51237141212842352, -0.51764131724899998, -0.52289165711465191, -0.52812223327862795, -0.53333284804118419, -0.53852330445705532, -0.5436934063429012, -0.54884295828471885, -0.55397176564523276, -0.55907963457124621, -0.56416637200097308, -0.5692317856713317, -0.57427568412521401, -0.57929787671872079, -0.58429817362836844, -0.5892763858582617, -0.5942323252472399, -0.59916580447598666, -0.60407663707411174, -0.60896463742719653, -0.61382962078381298, -0.61867140326250303, -0.62348980185873337, -0.62828463445180716, -0.6330557198117519, -0.6378028776061665, -0.64252592840703937, -0.64722469369752911, -0.65189899587871247, -0.65654865827629583, -0.66117350514729478, -0.66577336168667522, -0.67034805403396169, -0.67489740927980679, -0.6794212554725293, -0.68391942162461028, -0.68839173771915996, -0.6928380347163392, -0.69725814455975266, -0.70165190018279777, -0.70601913551498163, -0.71035968548819683, -0.71467338604296105, -0.71896007413461638, -0.72321958773949468, -0.72745176586103955, -0.73165644853589207, -0.73583347683993661, -0.73998269289430874, -0.74410393987136036, -0.74819706200059111, -0.75226190457453113, -0.75629831395459302, -0.76030613757687548, -0.76428522395793208, -0.76823542270049594, -0.77215658449916424, -0.77604856114604126, -0.77991120553634119, -0.78374437167394717, -0.78754791467693031, -0.79132169078302472, -0.7950655573550629, -0.79877937288636469, -0.80246299700608903, -0.80611629048453581, -0.80973911523841147, -0.81333133433604599, -0.8168928120025698, -0.82042341362504512, -0.82392300575755417, -0.82739145612624221, -0.83082863363431825, -0.83423440836700946, -0.8376086515964718, -0.84095123578665465, -0.8442620345981231, -0.84754092289283089, -0.85078777673885309, -0.85400247341506696, -0.85718489141579368, -0.86033491045538824, -0.86345241147278773, -0.86653727663601066, -0.86958938934661101, -0.87260863424408419, -0.87559489721022921, -0.87854806537346053, -0.88146802711307481, -0.88435467206346929, -0.88720789111831455, -0.89002757643467667, -0.89281362143709475, -0.89556592082160857, -0.89828437055973898, -0.90096886790241903, -0.90361931138387908, -0.90623560082548038, -0.90881763733950294, -0.91136532333288134, -0.9138785625108955, -0.91635725988080885, -0.91880132175545981, -0.92121065575680139, -0.92358517081939495, -0.9259247771938498, -0.92822938645021758, -0.93049891148133312, -0.93273326650610799, -0.9349323670727715, -0.93709613006206383, -0.93922447369037709, -0.94131731751284708, -0.9433745824263926, -0.94539619067270697, -0.94738206584119544, -0.94933213287186502, -0.95124631805815973, -0.95312454904974775, -0.95496675485525517, -0.95677286584495025, -0.95854281375337413, -0.96027653168192206, -0.96197395410137099, -0.96363501685435693, -0.96525965715780004, -0.9668478136052775, -0.96839942616934394, -0.96991443620380113, -0.97139278644591398, -0.97283442101857565, -0.97423928543241844, -0.97560732658787452, -0.9769384927771817, -0.9782327336863389, -0.97949000039700751, -0.98071024538836005, -0.98189342253887657, -0.98303948712808775, -0.98414839583826574, -0.98522010675606064, -0.98625457937408501, -0.9872517745924454, -0.98821165472021921, -0.98913418347688054, -0.99001932599367015, -0.99086704881491472, -0.99167731989928998, -0.99245010862103311, -0.99318538577109949, -0.99388312355826691, -0.99454329561018584, -0.99516587697437653, -0.99575084411917214, -0.99629817493460782, -0.99680784873325645, -0.99727984625101107, -0.99771414964781235, -0.99811074250832332, -0.99846960984254973, -0.99879073808640628, -0.99907411510222999, -0.99931973017923825, -0.99952757403393411, -0.99969763881045715, -0.99982991808087995, -0.99992440684545181, -0.99998110153278685, -1.0, -1.0}; 
 
 typedef struct {
     pyo_audio_HEAD
@@ -4214,21 +4214,21 @@ typedef struct {
     Stream *feedback_stream;
     int stages;
     int modebuffer[6]; // need at least 2 slots for mul & add 
-    float halfSr;
-    float minusPiOnSr;
-    float twoPiOnSr;
-    float norm_arr_pos;
-    float tmp;
+    MYFLT halfSr;
+    MYFLT minusPiOnSr;
+    MYFLT twoPiOnSr;
+    MYFLT norm_arr_pos;
+    MYFLT tmp;
     // sample memories
-    float *y1;
-    float *y2;
+    MYFLT *y1;
+    MYFLT *y2;
     // coefficients
-    float *alpha;
-    float *beta;
+    MYFLT *alpha;
+    MYFLT *beta;
 } Phaser;
 
-static float
-Phaser_clip(float x) {
+static MYFLT
+Phaser_clip(MYFLT x) {
     if (x < -1.0)
         return -1.0;
     else if (x > 1.0)
@@ -4238,10 +4238,10 @@ Phaser_clip(float x) {
 }    
 
 static void
-Phaser_compute_variables(Phaser *self, float freq, float spread, float q)
+Phaser_compute_variables(Phaser *self, MYFLT freq, MYFLT spread, MYFLT q)
 {    
     int i, ipart;
-    float radius, angle, fr, qfactor, pos, fpart;
+    MYFLT radius, angle, fr, qfactor, pos, fpart;
 
     qfactor = 1.0 / q * self->minusPiOnSr;
     fr = freq;
@@ -4251,7 +4251,7 @@ Phaser_compute_variables(Phaser *self, float freq, float spread, float q)
         else if (fr >= self->halfSr)
             fr = self->halfSr;
     
-        radius = powf(E, fr * qfactor);
+        radius = MYPOW(E, fr * qfactor);
         angle = fr * self->twoPiOnSr;
     
         self->alpha[i] = radius * radius;
@@ -4266,12 +4266,12 @@ Phaser_compute_variables(Phaser *self, float freq, float spread, float q)
 
 static void
 Phaser_filters_iii(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             self->tmp = in[i] + self->tmp * feed;
             for (j=0; j<self->stages; j++) {
@@ -4284,7 +4284,7 @@ Phaser_filters_iii(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
             for (j=0; j<self->stages; j++) {
@@ -4300,15 +4300,15 @@ Phaser_filters_iii(Phaser *self) {
 
 static void
 Phaser_filters_aii(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *freq = Stream_getData((Stream *)self->freq_stream);
-    float spread = PyFloat_AS_DOUBLE(self->spread);
-    float q = PyFloat_AS_DOUBLE(self->q);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT spread = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT q = PyFloat_AS_DOUBLE(self->q);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q);
             self->tmp = in[i] + self->tmp * feed;
@@ -4322,7 +4322,7 @@ Phaser_filters_aii(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4339,15 +4339,15 @@ Phaser_filters_aii(Phaser *self) {
 
 static void
 Phaser_filters_iai(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float freq = PyFloat_AS_DOUBLE(self->freq);
-    float *spread = Stream_getData((Stream *)self->spread_stream);
-    float q = PyFloat_AS_DOUBLE(self->q);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *spread = Stream_getData((Stream *)self->spread_stream);
+    MYFLT q = PyFloat_AS_DOUBLE(self->q);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q);
             self->tmp = in[i] + self->tmp * feed;
@@ -4361,7 +4361,7 @@ Phaser_filters_iai(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4378,15 +4378,15 @@ Phaser_filters_iai(Phaser *self) {
 
 static void
 Phaser_filters_aai(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *freq = Stream_getData((Stream *)self->freq_stream);
-    float *spread = Stream_getData((Stream *)self->spread_stream);
-    float q = PyFloat_AS_DOUBLE(self->q);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *spread = Stream_getData((Stream *)self->spread_stream);
+    MYFLT q = PyFloat_AS_DOUBLE(self->q);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q);
             self->tmp = in[i] + self->tmp * feed;
@@ -4400,7 +4400,7 @@ Phaser_filters_aai(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4417,15 +4417,15 @@ Phaser_filters_aai(Phaser *self) {
 
 static void
 Phaser_filters_iia(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float freq = PyFloat_AS_DOUBLE(self->freq);
-    float spread = PyFloat_AS_DOUBLE(self->spread);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT spread = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread, q[i]);
             self->tmp = in[i] + self->tmp * feed;
@@ -4439,7 +4439,7 @@ Phaser_filters_iia(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread, q[i]);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4456,15 +4456,15 @@ Phaser_filters_iia(Phaser *self) {
 
 static void
 Phaser_filters_aia(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *freq = Stream_getData((Stream *)self->freq_stream);
-    float spread = PyFloat_AS_DOUBLE(self->spread);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT spread = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q[i]);
             self->tmp = in[i] + self->tmp * feed;
@@ -4478,7 +4478,7 @@ Phaser_filters_aia(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread, q[i]);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4495,15 +4495,15 @@ Phaser_filters_aia(Phaser *self) {
 
 static void
 Phaser_filters_iaa(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float freq = PyFloat_AS_DOUBLE(self->freq);
-    float *spread = Stream_getData((Stream *)self->spread_stream);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *spread = Stream_getData((Stream *)self->spread_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q[i]);
             self->tmp = in[i] + self->tmp * feed;
@@ -4517,7 +4517,7 @@ Phaser_filters_iaa(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq, spread[i], q[i]);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4534,15 +4534,15 @@ Phaser_filters_iaa(Phaser *self) {
 
 static void
 Phaser_filters_aaa(Phaser *self) {
-    float val;
+    MYFLT val;
     int i, j;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *freq = Stream_getData((Stream *)self->freq_stream);
-    float *spread = Stream_getData((Stream *)self->spread_stream);
-    float *q = Stream_getData((Stream *)self->q_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *spread = Stream_getData((Stream *)self->spread_stream);
+    MYFLT *q = Stream_getData((Stream *)self->q_stream);
     
     if (self->modebuffer[5] == 0) {
-        float feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
+        MYFLT feed = Phaser_clip(PyFloat_AS_DOUBLE(self->feedback));
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q[i]);
             self->tmp = in[i] + self->tmp * feed;
@@ -4556,7 +4556,7 @@ Phaser_filters_aaa(Phaser *self) {
         }
     }    
     else {
-        float *feed = Stream_getData((Stream *)self->feedback_stream);
+        MYFLT *feed = Stream_getData((Stream *)self->feedback_stream);
         for (i=0; i<self->bufsize; i++) {
             Phaser_compute_variables(self, freq[i], spread[i], q[i]);
             self->tmp = in[i] + self->tmp * Phaser_clip(feed[i]);
@@ -4747,10 +4747,10 @@ Phaser_init(Phaser *self, PyObject *args, PyObject *kwds)
     
     INIT_INPUT_STREAM
 
-    self->y1 = (float *)realloc(self->y1, self->stages * sizeof(float));
-    self->y2 = (float *)realloc(self->y2, self->stages * sizeof(float));
-    self->alpha = (float *)realloc(self->alpha, self->stages * sizeof(float));
-    self->beta = (float *)realloc(self->beta, self->stages * sizeof(float));
+    self->y1 = (MYFLT *)realloc(self->y1, self->stages * sizeof(MYFLT));
+    self->y2 = (MYFLT *)realloc(self->y2, self->stages * sizeof(MYFLT));
+    self->alpha = (MYFLT *)realloc(self->alpha, self->stages * sizeof(MYFLT));
+    self->beta = (MYFLT *)realloc(self->beta, self->stages * sizeof(MYFLT));
     
     
     if (freqtmp) {

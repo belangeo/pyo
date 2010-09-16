@@ -30,15 +30,15 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     long value;
-    float last_value;
+    MYFLT last_value;
 } Select;
 
 static void
 Select_selector(Select *self) {
-    float val, selval, inval;
+    MYFLT val, selval, inval;
     int i;
 
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     selval = (float)self->value;
     for (i=0; i<self->bufsize; i++) {
@@ -216,15 +216,15 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    float last_value;
+    MYFLT last_value;
 } Change;
 
 static void
 Change_selector(Change *self) {
-    float val, inval;
+    MYFLT val, inval;
     int i;
 
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];

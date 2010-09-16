@@ -77,7 +77,7 @@ static void
 Dummy_compute_next_data_frame(Dummy *self)
 {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
     }    
@@ -176,7 +176,6 @@ Dummy_setInput(Dummy *self, PyObject *arg)
     self->input_stream = (Stream *)streamtmp;
 
     (*self->mode_func_ptr)(self);
-    //Dummy_compute_next_data_frame((Dummy *)self);
 
     Py_INCREF(Py_None);
     return Py_None;

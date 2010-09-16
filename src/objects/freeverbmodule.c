@@ -30,7 +30,7 @@
 #define NUM_COMB         8
 #define NUM_ALLPASS      4
 
-static const float comb_delays[NUM_COMB] = {
+static const MYFLT comb_delays[NUM_COMB] = {
 1116.0 / DEFAULT_SRATE, 
 1188.0 / DEFAULT_SRATE, 
 1277.0 / DEFAULT_SRATE, 
@@ -41,18 +41,18 @@ static const float comb_delays[NUM_COMB] = {
 1617.0 / DEFAULT_SRATE
 };
 
-static const float allpass_delays[NUM_ALLPASS] = {
+static const MYFLT allpass_delays[NUM_ALLPASS] = {
 556.0 / DEFAULT_SRATE, 
 441.0 / DEFAULT_SRATE, 
 341.0 / DEFAULT_SRATE, 
 225.0 / DEFAULT_SRATE
 };
 
-static const float fixedGain   = 0.015;
-static const float scaleDamp   = 0.5;
-static const float scaleRoom   = 0.28;
-static const float offsetRoom  = 0.7;
-static const float allPassFeedBack = 0.5;
+static const MYFLT fixedGain   = 0.015;
+static const MYFLT scaleDamp   = 0.5;
+static const MYFLT scaleRoom   = 0.28;
+static const MYFLT offsetRoom  = 0.7;
+static const MYFLT allPassFeedBack = 0.5;
 
 typedef struct {
     pyo_audio_HEAD
@@ -66,17 +66,17 @@ typedef struct {
     Stream *mix_stream;
     int comb_nSamples[NUM_COMB];
     int comb_bufPos[NUM_COMB];
-    float comb_filterState[NUM_COMB];
-    float *comb_buf[NUM_COMB];
+    MYFLT comb_filterState[NUM_COMB];
+    MYFLT *comb_buf[NUM_COMB];
     int allpass_nSamples[NUM_ALLPASS];
     int allpass_bufPos[NUM_ALLPASS];
-    float *allpass_buf[NUM_ALLPASS];
+    MYFLT *allpass_buf[NUM_ALLPASS];
     int modebuffer[5];
-    float srFactor;
+    MYFLT srFactor;
 } Freeverb;
 
-static float
-_clip(float x)
+static MYFLT
+_clip(MYFLT x)
 {
     if (x < 0)
         return 0;
@@ -87,29 +87,29 @@ _clip(float x)
 }
 
 static int 
-Freeverb_calc_nsamples(Freeverb *self, float delTime)
+Freeverb_calc_nsamples(Freeverb *self, MYFLT delTime)
 {
     return (int)(delTime * self->sr + 0.5);
 }
 
 static void
 Freeverb_transform_iii(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
 
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float siz = _clip(PyFloat_AS_DOUBLE(self->size));
-    float dam = _clip(PyFloat_AS_DOUBLE(self->damp));
-    float mix = _clip(PyFloat_AS_DOUBLE(self->mix));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
+    MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
+    MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
 
     feedback = siz * scaleRoom + offsetRoom;
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
 
-    mix1 = sqrtf(mix);
-    mix2 = sqrtf(1.0 - mix);
+    mix1 = MYSQRT(mix);
+    mix2 = MYSQRT(1.0 - mix);
     
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -144,21 +144,21 @@ Freeverb_transform_iii(Freeverb *self) {
 
 static void
 Freeverb_transform_aii(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *siz = Stream_getData((Stream *)self->size_stream);
-    float dam = _clip(PyFloat_AS_DOUBLE(self->damp));
-    float mix = _clip(PyFloat_AS_DOUBLE(self->mix));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *siz = Stream_getData((Stream *)self->size_stream);
+    MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
+    MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
     
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
     
-    mix1 = sqrtf(mix);
-    mix2 = sqrtf(1.0 - mix);
+    mix1 = MYSQRT(mix);
+    mix2 = MYSQRT(1.0 - mix);
     
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -194,20 +194,20 @@ Freeverb_transform_aii(Freeverb *self) {
 
 static void
 Freeverb_transform_iai(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float siz = _clip(PyFloat_AS_DOUBLE(self->size));
-    float *dam = Stream_getData((Stream *)self->damp_stream);
-    float mix = _clip(PyFloat_AS_DOUBLE(self->mix));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
+    MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
+    MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
     
     feedback = siz * scaleRoom + offsetRoom;
     
-    mix1 = sqrtf(mix);
-    mix2 = sqrtf(1.0 - mix);
+    mix1 = MYSQRT(mix);
+    mix2 = MYSQRT(1.0 - mix);
     
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -244,18 +244,18 @@ Freeverb_transform_iai(Freeverb *self) {
 
 static void
 Freeverb_transform_aai(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *siz = Stream_getData((Stream *)self->size_stream);
-    float *dam = Stream_getData((Stream *)self->damp_stream);
-    float mix = _clip(PyFloat_AS_DOUBLE(self->mix));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *siz = Stream_getData((Stream *)self->size_stream);
+    MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
+    MYFLT mix = _clip(PyFloat_AS_DOUBLE(self->mix));
 
-    mix1 = sqrtf(mix);
-    mix2 = sqrtf(1.0 - mix);
+    mix1 = MYSQRT(mix);
+    mix2 = MYSQRT(1.0 - mix);
 
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -293,19 +293,19 @@ Freeverb_transform_aai(Freeverb *self) {
 
 static void
 Freeverb_transform_iia(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float siz = _clip(PyFloat_AS_DOUBLE(self->size));
-    float dam = _clip(PyFloat_AS_DOUBLE(self->damp));
-    float *mix = Stream_getData((Stream *)self->mix_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
+    MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
+    MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
     
     feedback = siz * scaleRoom + offsetRoom;
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
 
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -335,26 +335,26 @@ Freeverb_transform_iia(Freeverb *self) {
     
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
-        mix1 = sqrtf(mixtmp);
-        mix2 = sqrtf(1.0 - mixtmp);
+        mix1 = MYSQRT(mixtmp);
+        mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }    
 }
 
 static void
 Freeverb_transform_aia(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *siz = Stream_getData((Stream *)self->size_stream);
-    float dam = _clip(PyFloat_AS_DOUBLE(self->damp));
-    float *mix = Stream_getData((Stream *)self->mix_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *siz = Stream_getData((Stream *)self->size_stream);
+    MYFLT dam = _clip(PyFloat_AS_DOUBLE(self->damp));
+    MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
     
     damp1 = dam * scaleDamp;
     damp2 = 1.0 - damp1;
     
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -385,25 +385,25 @@ Freeverb_transform_aia(Freeverb *self) {
     
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
-        mix1 = sqrtf(mixtmp);
-        mix2 = sqrtf(1.0 - mixtmp);
+        mix1 = MYSQRT(mixtmp);
+        mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }    
 }
 
 static void
 Freeverb_transform_iaa(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float siz = _clip(PyFloat_AS_DOUBLE(self->size));
-    float *dam = Stream_getData((Stream *)self->damp_stream);
-    float *mix = Stream_getData((Stream *)self->mix_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT siz = _clip(PyFloat_AS_DOUBLE(self->size));
+    MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
+    MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
     
     feedback = siz * scaleRoom + offsetRoom;
     
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -435,23 +435,23 @@ Freeverb_transform_iaa(Freeverb *self) {
     
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
-        mix1 = sqrtf(mixtmp);
-        mix2 = sqrtf(1.0 - mixtmp);
+        mix1 = MYSQRT(mixtmp);
+        mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }    
 }
 
 static void
 Freeverb_transform_aaa(Freeverb *self) {
-    float x, feedback, damp1, damp2, mix1, mix2, mixtmp;
+    MYFLT x, feedback, damp1, damp2, mix1, mix2, mixtmp;
     int i, j;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *siz = Stream_getData((Stream *)self->size_stream);
-    float *dam = Stream_getData((Stream *)self->damp_stream);
-    float *mix = Stream_getData((Stream *)self->mix_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *siz = Stream_getData((Stream *)self->size_stream);
+    MYFLT *dam = Stream_getData((Stream *)self->damp_stream);
+    MYFLT *mix = Stream_getData((Stream *)self->mix_stream);
         
-    float tmp[self->bufsize];
+    MYFLT tmp[self->bufsize];
     memset(&tmp, 0, sizeof(tmp));
     
     for (j=0; j<self->bufsize; j++) {
@@ -484,8 +484,8 @@ Freeverb_transform_aaa(Freeverb *self) {
     
     for (i=0; i<self->bufsize; i++) {
         mixtmp = _clip(mix[i]);
-        mix1 = sqrtf(mixtmp);
-        mix2 = sqrtf(1.0 - mixtmp);
+        mix1 = MYSQRT(mixtmp);
+        mix2 = MYSQRT(1.0 - mixtmp);
         self->data[i] = (tmp[i] * fixedGain * mix1) + (in[i] * mix2);
     }    
 }
@@ -648,7 +648,7 @@ static int
 Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
 {
     int i, j, rndSamps;
-    float nsamps;
+    MYFLT nsamps;
     PyObject *inputtmp, *input_streamtmp, *sizetmp=NULL, *damptmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"input", "size", "damp", "mix", "mul", "add", NULL};
@@ -684,10 +684,10 @@ Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
     (*self->mode_func_ptr)(self);
 
     srand((unsigned)(time(0)));
-    rndSamps = (rand()/(float)(RAND_MAX) * 20 + 10) / DEFAULT_SRATE;
+    rndSamps = (rand()/(MYFLT)(RAND_MAX) * 20 + 10) / DEFAULT_SRATE;
     for(i=0; i<NUM_COMB; i++) {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);
-        self->comb_buf[i] = (float *)realloc(self->comb_buf[i], (nsamps+1) * sizeof(float));
+        self->comb_buf[i] = (MYFLT *)realloc(self->comb_buf[i], (nsamps+1) * sizeof(MYFLT));
         self->comb_nSamples[i] = nsamps;
         self->comb_bufPos[i] = 0;
         self->comb_filterState[i] = 0.0;
@@ -697,7 +697,7 @@ Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
     }    
         for(i=0; i<NUM_ALLPASS; i++) {
             nsamps = Freeverb_calc_nsamples((Freeverb *)self, allpass_delays[i] + rndSamps);
-            self->allpass_buf[i] = (float *)realloc(self->allpass_buf[i], (nsamps+1) * sizeof(float));
+            self->allpass_buf[i] = (MYFLT *)realloc(self->allpass_buf[i], (nsamps+1) * sizeof(MYFLT));
             self->allpass_nSamples[i] = nsamps;
             self->allpass_bufPos[i] = 0;
             for(j=0; j<nsamps; j++) {

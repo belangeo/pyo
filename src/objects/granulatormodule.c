@@ -38,28 +38,28 @@ typedef struct {
     PyObject *dur;
     Stream *dur_stream;
     int ngrains;
-    float basedur;
-    float pointerPos;
-    float *startPos;
-    float *gsize;
-    float *gphase;
+    MYFLT basedur;
+    MYFLT pointerPos;
+    MYFLT *startPos;
+    MYFLT *gsize;
+    MYFLT *gphase;
     int modebuffer[5];
 } Granulator;
 
 static void
 Granulator_transform_iii(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float pit = PyFloat_AS_DOUBLE(self->pitch);
-    float pos = PyFloat_AS_DOUBLE(self->pos);
-    float dur = PyFloat_AS_DOUBLE(self->dur);
+    MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
     
     inc = pit * (1.0 / self->basedur) / self->sr;
     
@@ -109,18 +109,18 @@ Granulator_transform_iii(Granulator *self) {
 
 static void
 Granulator_transform_aii(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float *pit = Stream_getData((Stream *)self->pitch_stream);
-    float pos = PyFloat_AS_DOUBLE(self->pos);
-    float dur = PyFloat_AS_DOUBLE(self->dur);
+    MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
     
     frtosamps = (1.0 / self->basedur) / self->sr;
     
@@ -171,22 +171,22 @@ Granulator_transform_aii(Granulator *self) {
 
 static void
 Granulator_transform_iai(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
 
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
 
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
 
-    float pit = PyFloat_AS_DOUBLE(self->pitch);
-    float *pos = Stream_getData((Stream *)self->pos_stream);
-    float dur = PyFloat_AS_DOUBLE(self->dur);
+    MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
 
     inc = pit * (1.0 / self->basedur) / self->sr;
     
-    float gsize = dur * self->sr;
+    MYFLT gsize = dur * self->sr;
     
     for (j=0; j<self->ngrains; j++) {
         self->gsize[j] = gsize;
@@ -236,18 +236,18 @@ Granulator_transform_iai(Granulator *self) {
 
 static void
 Granulator_transform_aai(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float *pit = Stream_getData((Stream *)self->pitch_stream);
-    float *pos = Stream_getData((Stream *)self->pos_stream);
-    float dur = PyFloat_AS_DOUBLE(self->dur);
+    MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
     
     frtosamps = (1.0 / self->basedur) / self->sr;
     
@@ -298,18 +298,18 @@ Granulator_transform_aai(Granulator *self) {
 
 static void
 Granulator_transform_iia(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float pit = PyFloat_AS_DOUBLE(self->pitch);
-    float pos = PyFloat_AS_DOUBLE(self->pos);
-    float *dur = Stream_getData((Stream *)self->dur_stream);
+    MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
+    MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
     
     inc = pit * (1.0 / self->basedur) / self->sr;
     
@@ -359,18 +359,18 @@ Granulator_transform_iia(Granulator *self) {
 
 static void
 Granulator_transform_aia(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float *pit = Stream_getData((Stream *)self->pitch_stream);
-    float pos = PyFloat_AS_DOUBLE(self->pos);
-    float *dur = Stream_getData((Stream *)self->dur_stream);
+    MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT pos = PyFloat_AS_DOUBLE(self->pos);
+    MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
     
     frtosamps = (1.0 / self->basedur) / self->sr;
     
@@ -421,18 +421,18 @@ Granulator_transform_aia(Granulator *self) {
 
 static void
 Granulator_transform_iaa(Granulator *self) {
-    float val, x, x1, inc, index, fpart, amp, ppos;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float pit = PyFloat_AS_DOUBLE(self->pitch);
-    float *pos = Stream_getData((Stream *)self->pos_stream);
-    float *dur = Stream_getData((Stream *)self->dur_stream);
+    MYFLT pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
+    MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
     
     inc = pit * (1.0 / self->basedur) / self->sr;
 
@@ -482,18 +482,18 @@ Granulator_transform_iaa(Granulator *self) {
 
 static void
 Granulator_transform_aaa(Granulator *self) { 
-    float val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
+    MYFLT val, x, x1, inc, index, fpart, amp, ppos, frtosamps;
     int i, j, ipart;
     
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
-    float *envlist = TableStream_getData(self->env);
+    MYFLT *envlist = TableStream_getData(self->env);
     int envsize = TableStream_getSize(self->env);
     
-    float *pit = Stream_getData((Stream *)self->pitch_stream);
-    float *pos = Stream_getData((Stream *)self->pos_stream);
-    float *dur = Stream_getData((Stream *)self->dur_stream);
+    MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT *pos = Stream_getData((Stream *)self->pos_stream);
+    MYFLT *dur = Stream_getData((Stream *)self->dur_stream);
     
     frtosamps = (1.0 / self->basedur) / self->sr;
     
@@ -695,12 +695,12 @@ static int
 Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    float phase;
+    MYFLT phase;
     PyObject *tabletmp, *envtmp, *pitchtmp=NULL, *postmp=NULL, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"table", "env", "pitch", "pos", "dur", "grains", "basedur", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOifOO", kwlist, &tabletmp, &envtmp, &pitchtmp, &postmp, &durtmp, &self->ngrains, &self->basedur, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_OOOIFOO, kwlist, &tabletmp, &envtmp, &pitchtmp, &postmp, &durtmp, &self->ngrains, &self->basedur, &multmp, &addtmp))
         return -1; 
 
     Py_XDECREF(self->table);
@@ -732,13 +732,13 @@ Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->startPos = (float *)realloc(self->startPos, self->ngrains * sizeof(float));
-    self->gsize = (float *)realloc(self->gsize, self->ngrains * sizeof(float));
-    self->gphase = (float *)realloc(self->gphase, self->ngrains * sizeof(float));
+    self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
+    self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
+    self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
 
     srand((unsigned)(time(0)));
     for (i=0; i<self->ngrains; i++) {
-        phase = ((float)i/self->ngrains) * (1.0 + ((rand()/((float)(RAND_MAX)+1)*2.0-1.0) * 0.015));
+        phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.015));
         if (phase < 0.0)
             phase = 0.0;
         self->gphase[i] = phase;
@@ -937,16 +937,16 @@ static PyObject *
 Granulator_setGrains(Granulator *self, PyObject *arg)
 {	
     int i;
-    float phase;
+    MYFLT phase;
 	if (PyLong_Check(arg) || PyInt_Check(arg)) {
         self->ngrains = PyLong_AsLong(arg);
-        self->startPos = (float *)realloc(self->startPos, self->ngrains * sizeof(float));
-        self->gsize = (float *)realloc(self->gsize, self->ngrains * sizeof(float));
-        self->gphase = (float *)realloc(self->gphase, self->ngrains * sizeof(float));
+        self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
+        self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
+        self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
         
         srand((unsigned)(time(0)));
         for (i=0; i<self->ngrains; i++) {
-            phase = ((float)i/self->ngrains) * (1.0 + ((rand()/((float)(RAND_MAX)+1)*2.0-1.0) * 0.015));
+            phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.015));
             if (phase < 0.0)
                 phase = 0.0;
             self->gphase[i] = phase;

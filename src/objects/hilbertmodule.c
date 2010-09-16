@@ -30,24 +30,24 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    float coefs[12];
+    MYFLT coefs[12];
     // sample memories
-    float x1[12];
-    float y1[12];
-    float *buffer_streams;
+    MYFLT x1[12];
+    MYFLT y1[12];
+    MYFLT *buffer_streams;
 } HilbertMain;
 
 /* 6th order allpass poles */
-const float poles[12] = {.3609, 2.7412, 11.1573, 44.7581, 179.6242, 798.4578, 
+const MYFLT poles[12] = {.3609, 2.7412, 11.1573, 44.7581, 179.6242, 798.4578, 
                     1.2524, 5.5671, 22.3423, 89.6271, 364.7914, 2770.1114};
 
 static void
 HilbertMain_compute_variables(HilbertMain *self)
 {    
     int i;
-    float polefreq[12];
-    float rc[12];
-    float alpha[12];
+    MYFLT polefreq[12];
+    MYFLT rc[12];
+    MYFLT alpha[12];
     
     for (i=0; i<12; i++) {
         polefreq[i] = poles[i] * 15.0;
@@ -59,9 +59,9 @@ HilbertMain_compute_variables(HilbertMain *self)
 
 static void
 HilbertMain_filters(HilbertMain *self) {
-    float xn1, xn2, yn1, yn2;
+    MYFLT xn1, xn2, yn1, yn2;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         xn1 = in[i];
@@ -85,10 +85,10 @@ HilbertMain_filters(HilbertMain *self) {
     }    
 }
 
-float *
+MYFLT *
 HilbertMain_getSamplesBuffer(HilbertMain *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
 static void
@@ -166,7 +166,7 @@ HilbertMain_init(HilbertMain *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (float *)realloc(self->buffer_streams, 2 * self->bufsize * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
 
     HilbertMain_compute_variables((HilbertMain *)self);
 
@@ -301,7 +301,7 @@ static void
 Hilbert_compute_next_data_frame(Hilbert *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = HilbertMain_getSamplesBuffer((HilbertMain *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {

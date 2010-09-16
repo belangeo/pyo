@@ -26,7 +26,8 @@ extern "C" {
 
 #include "portaudio.h"
 #include "portmidi.h"
-#include "sndfile.h"    
+#include "sndfile.h"
+#include "pyomodule.h"
 
 typedef struct {
     PyObject_HEAD
@@ -35,7 +36,7 @@ typedef struct {
     PmStream *in;
     PmEvent midiEvents[200];
     int midi_count;
-    float samplingRate;
+    MYFLT samplingRate;
     int nchnls;
     int bufferSize;
     int duplex;
@@ -49,15 +50,15 @@ typedef struct {
     int stream_count;
     int record;
     /* global amplitude */
-    float amp;
-    float resetAmp;
-    float lastAmp;
-    float currentAmp;
-    float stepVal;
+    MYFLT amp;
+    MYFLT resetAmp;
+    MYFLT lastAmp;
+    MYFLT currentAmp;
+    MYFLT stepVal;
     int timeStep;
     int timeCount;
     
-    float *input_buffer;
+    MYFLT *input_buffer;
     char *recpath;
     SNDFILE *recfile;
     SF_INFO recinfo;
@@ -71,7 +72,7 @@ typedef struct {
 
 PyObject * PyServer_get_server();
 extern PyObject * Server_removeStream(Server *self, int sid);
-extern float * Server_getInputBuffer(Server *self);    
+extern MYFLT * Server_getInputBuffer(Server *self);    
 extern PmEvent * Server_getMidiEventBuffer(Server *self);    
 extern int Server_getMidiEventCount(Server *self);    
 extern PyTypeObject ServerType;    

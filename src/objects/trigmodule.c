@@ -35,11 +35,11 @@ typedef struct {
     PyObject *max;
     Stream *min_stream;
     Stream *max_stream;
-    float value;
-    float currentValue;
-    float time;
+    MYFLT value;
+    MYFLT currentValue;
+    MYFLT time;
     int timeStep;
-    float stepVal;
+    MYFLT stepVal;
     int timeCount;
     int modebuffer[4]; // need at least 2 slots for mul & add 
 } TrigRand;
@@ -47,15 +47,15 @@ typedef struct {
 static void
 TrigRand_generate_ii(TrigRand *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float mi = PyFloat_AS_DOUBLE(self->min);
-    float ma = PyFloat_AS_DOUBLE(self->max);
-    float range = ma - mi;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
+    MYFLT range = ma - mi;
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
+            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -78,15 +78,15 @@ TrigRand_generate_ii(TrigRand *self) {
 static void
 TrigRand_generate_ai(TrigRand *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *mi = Stream_getData((Stream *)self->min_stream);
-    float ma = PyFloat_AS_DOUBLE(self->max);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mi = Stream_getData((Stream *)self->min_stream);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     
     for (i=0; i<self->bufsize; i++) {
-        float range = ma - mi[i];
+        MYFLT range = ma - mi[i];
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
+            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -109,15 +109,15 @@ TrigRand_generate_ai(TrigRand *self) {
 static void
 TrigRand_generate_ia(TrigRand *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float mi = PyFloat_AS_DOUBLE(self->min);
-    float *ma = Stream_getData((Stream *)self->max_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        float range = ma[i] - mi;
+        MYFLT range = ma[i] - mi;
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi;
+            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi;
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -140,15 +140,15 @@ TrigRand_generate_ia(TrigRand *self) {
 static void
 TrigRand_generate_aa(TrigRand *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *mi = Stream_getData((Stream *)self->min_stream);
-    float *ma = Stream_getData((Stream *)self->max_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mi = Stream_getData((Stream *)self->min_stream);
+    MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        float range = ma[i] - mi[i];
+        MYFLT range = ma[i] - mi[i];
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = range * (rand()/((float)(RAND_MAX)+1)) + mi[i];
+            self->value = range * (rand()/((MYFLT)(RAND_MAX)+1)) + mi[i];
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -301,12 +301,12 @@ TrigRand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TrigRand_init(TrigRand *self, PyObject *args, PyObject *kwds)
 {
-    float inittmp = 0.0;
+    MYFLT inittmp = 0.0;
     PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "min", "max", "port", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOffOO", kwlist, &inputtmp, &mintmp, &maxtmp, &self->time, &inittmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFFOO, kwlist, &inputtmp, &mintmp, &maxtmp, &self->time, &inittmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -571,12 +571,12 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     int chSize;
-    float *choice;
-    float value;
-    float currentValue;
-    float time;
+    MYFLT *choice;
+    MYFLT value;
+    MYFLT currentValue;
+    MYFLT time;
     int timeStep;
-    float stepVal;
+    MYFLT stepVal;
     int timeCount;
     int modebuffer[2]; // need at least 2 slots for mul & add 
 } TrigChoice;
@@ -584,12 +584,12 @@ typedef struct {
 static void
 TrigChoice_generate(TrigChoice *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             self->timeCount = 0;
-            self->value = self->choice[(int)((rand()/((float)(RAND_MAX))) * self->chSize)];
+            self->value = self->choice[(int)((rand()/((MYFLT)(RAND_MAX))) * self->chSize)];
             if (self->time <= 0.0)
                 self->currentValue = self->value;
             else
@@ -718,12 +718,12 @@ TrigChoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TrigChoice_init(TrigChoice *self, PyObject *args, PyObject *kwds)
 {
-    float inittmp = 0.0;
+    MYFLT inittmp = 0.0;
     PyObject *inputtmp, *input_streamtmp, *choicetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "choice", "port", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|ffOO", kwlist, &inputtmp, &choicetmp, &self->time, &inittmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FFOO, kwlist, &inputtmp, &choicetmp, &self->time, &inittmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -787,7 +787,7 @@ TrigChoice_setChoice(TrigChoice *self, PyObject *arg)
 
     tmp = arg;
     self->chSize = PyList_Size(tmp);
-    self->choice = (float *)realloc(self->choice, self->chSize * sizeof(float));
+    self->choice = (MYFLT *)realloc(self->choice, self->chSize * sizeof(MYFLT));
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
     }
@@ -943,7 +943,7 @@ typedef struct {
 static void
 TrigFunc_generate(TrigFunc *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
@@ -1117,28 +1117,28 @@ typedef struct {
     Stream *dur_stream;
     int modebuffer[3];
     int active;
-    float current_dur; // duration in samples
-    float inc; // table size / current_dur
+    MYFLT current_dur; // duration in samples
+    MYFLT inc; // table size / current_dur
     double pointerPos; // reading position in sample
-    float *trigsBuffer;
-    float *tempTrigsBuffer;
+    MYFLT *trigsBuffer;
+    MYFLT *tempTrigsBuffer;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    float (*interp_func_ptr)(float *, int, float, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } TrigEnv;
 
 static void
 TrigEnv_readframes_i(TrigEnv *self) {
-    float fpart;
+    MYFLT fpart;
     int i, ipart;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
-            float dur = PyFloat_AS_DOUBLE(self->dur);
+            MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
             self->current_dur = self->sr * dur;
-            self->inc = (float)size / self->current_dur;
+            self->inc = (MYFLT)size / self->current_dur;
             self->active = 1;
             self->pointerPos = 0.;
         }
@@ -1160,18 +1160,18 @@ TrigEnv_readframes_i(TrigEnv *self) {
 
 static void
 TrigEnv_readframes_a(TrigEnv *self) {
-    float fpart;
+    MYFLT fpart;
     int i, ipart;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *dur_st = Stream_getData((Stream *)self->dur_stream);
-    float *tablelist = TableStream_getData(self->table);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *dur_st = Stream_getData((Stream *)self->dur_stream);
+    MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
-            float dur = dur_st[i];
+            MYFLT dur = dur_st[i];
             self->current_dur = self->sr * dur;
-            self->inc = (float)size / self->current_dur;
+            self->inc = (MYFLT)size / self->current_dur;
             self->active = 1;
             self->pointerPos = 0.;
         }
@@ -1347,8 +1347,8 @@ TrigEnv_init(TrigEnv *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
-    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
@@ -1461,7 +1461,7 @@ TrigEnv_setInterp(TrigEnv *self, PyObject *arg)
     return Py_None;
 }
 
-float *
+MYFLT *
 TrigEnv_getTrigsBuffer(TrigEnv *self)
 {
     int i;
@@ -1469,7 +1469,7 @@ TrigEnv_getTrigsBuffer(TrigEnv *self)
         self->tempTrigsBuffer[i] = self->trigsBuffer[i];
         self->trigsBuffer[i] = 0.0;
     }    
-    return (float *)self->tempTrigsBuffer;
+    return (MYFLT *)self->tempTrigsBuffer;
 }    
 
 static PyMemberDef TrigEnv_members[] = {
@@ -1596,7 +1596,7 @@ static void
 TrigEnvTrig_compute_next_data_frame(TrigEnvTrig *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     tmp = TrigEnv_getTrigsBuffer((TrigEnv *)self->mainReader);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
@@ -1737,17 +1737,17 @@ typedef struct {
     Stream *input_stream;
     int modebuffer[2];
     double currentTime;
-    float currentValue;
-    float sampleToSec;
-    float increment;
-    float *targets;
-    float *times;
+    MYFLT currentValue;
+    MYFLT sampleToSec;
+    MYFLT increment;
+    MYFLT *targets;
+    MYFLT *times;
     int which;
     int flag;
     int newlist;
     int listsize;
-    float *trigsBuffer;
-    float *tempTrigsBuffer;
+    MYFLT *trigsBuffer;
+    MYFLT *tempTrigsBuffer;
 } TrigLinseg;
 
 static void
@@ -1756,8 +1756,8 @@ TrigLinseg_convert_pointslist(TrigLinseg *self) {
     PyObject *tup;
     
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
-    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
@@ -1780,7 +1780,7 @@ TrigLinseg_reinit(TrigLinseg *self) {
 static void
 TrigLinseg_generate(TrigLinseg *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
@@ -1941,8 +1941,8 @@ TrigLinseg_init(TrigLinseg *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
-    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
@@ -2001,7 +2001,7 @@ TrigLinseg_setList(TrigLinseg *self, PyObject *value)
     return Py_None;
 }
 
-float *
+MYFLT *
 TrigLinseg_getTrigsBuffer(TrigLinseg *self)
 {
     int i;
@@ -2009,7 +2009,7 @@ TrigLinseg_getTrigsBuffer(TrigLinseg *self)
         self->tempTrigsBuffer[i] = self->trigsBuffer[i];
         self->trigsBuffer[i] = 0.0;
     }    
-    return (float *)self->tempTrigsBuffer;
+    return (MYFLT *)self->tempTrigsBuffer;
 }    
 
 static PyMemberDef TrigLinseg_members[] = {
@@ -2131,7 +2131,7 @@ static void
 TrigLinsegTrig_compute_next_data_frame(TrigLinsegTrig *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     tmp = TrigLinseg_getTrigsBuffer((TrigLinseg *)self->mainReader);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
@@ -2272,24 +2272,24 @@ typedef struct {
     Stream *input_stream;
     int modebuffer[2];
     double currentTime;
-    float currentValue;
-    float sampleToSec;
-    float inc;
-    float pointer;
-    float range;
-    float steps;
-    float *targets;
-    float *times;
+    MYFLT currentValue;
+    MYFLT sampleToSec;
+    MYFLT inc;
+    MYFLT pointer;
+    MYFLT range;
+    MYFLT steps;
+    MYFLT *targets;
+    MYFLT *times;
     int which;
     int flag;
     int newlist;
     int listsize;
-    float exp;
-    float exp_tmp;
+    MYFLT exp;
+    MYFLT exp_tmp;
     int inverse;
     int inverse_tmp;    
-    float *trigsBuffer;
-    float *tempTrigsBuffer;
+    MYFLT *trigsBuffer;
+    MYFLT *tempTrigsBuffer;
 } TrigExpseg;
 
 static void
@@ -2298,8 +2298,8 @@ TrigExpseg_convert_pointslist(TrigExpseg *self) {
     PyObject *tup;
     
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
-    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
@@ -2324,8 +2324,8 @@ TrigExpseg_reinit(TrigExpseg *self) {
 static void
 TrigExpseg_generate(TrigExpseg *self) {
     int i;
-    float scl;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT scl;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1)
@@ -2483,7 +2483,7 @@ TrigExpseg_init(TrigExpseg *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "list", "exp", "inverse", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|fiOO", kwlist, &inputtmp, &pointslist, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FIOO, kwlist, &inputtmp, &pointslist, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -2504,8 +2504,8 @@ TrigExpseg_init(TrigExpseg *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
-    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
@@ -2592,7 +2592,7 @@ TrigExpseg_setInverse(TrigExpseg *self, PyObject *arg)
     return Py_None;
 }
 
-float *
+MYFLT *
 TrigExpseg_getTrigsBuffer(TrigExpseg *self)
 {
     int i;
@@ -2600,7 +2600,7 @@ TrigExpseg_getTrigsBuffer(TrigExpseg *self)
         self->tempTrigsBuffer[i] = self->trigsBuffer[i];
         self->trigsBuffer[i] = 0.0;
     }    
-    return (float *)self->tempTrigsBuffer;
+    return (MYFLT *)self->tempTrigsBuffer;
 }    
 
 static PyMemberDef TrigExpseg_members[] = {
@@ -2724,7 +2724,7 @@ static void
 TrigExpsegTrig_compute_next_data_frame(TrigExpsegTrig *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     tmp = TrigExpseg_getTrigsBuffer((TrigExpseg *)self->mainReader);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
@@ -2866,16 +2866,16 @@ typedef struct {
     PyObject *x2;
     Stream *x1_stream;
     Stream *x2_stream;
-    float (*type_func_ptr)();
-    float xx1;
-    float xx2;
+    MYFLT (*type_func_ptr)();
+    MYFLT xx1;
+    MYFLT xx2;
     int type;
-    float value;
-    float lastPoissonX1;
+    MYFLT value;
+    MYFLT lastPoissonX1;
     int poisson_tab;
-    float poisson_buffer[2000];
-    float walkerValue;
-    float loop_buffer[15];
+    MYFLT poisson_buffer[2000];
+    MYFLT walkerValue;
+    MYFLT loop_buffer[15];
     int loopChoice;
     int loopCountPlay;
     int loopTime;
@@ -2886,59 +2886,59 @@ typedef struct {
 } TrigXnoise;
 
 // no parameter
-static float
+static MYFLT
 TrigXnoise_uniform(TrigXnoise *self) {
     return RANDOM_UNIFORM;    
 }
 
-static float
+static MYFLT
 TrigXnoise_linear_min(TrigXnoise *self) {
-    float a = RANDOM_UNIFORM;    
-    float b = RANDOM_UNIFORM;
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
 }
 
-static float
+static MYFLT
 TrigXnoise_linear_max(TrigXnoise *self) {
-    float a = RANDOM_UNIFORM;    
-    float b = RANDOM_UNIFORM;
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
 }
 
-static float
+static MYFLT
 TrigXnoise_triangle(TrigXnoise *self) {
-    float a = RANDOM_UNIFORM;    
-    float b = RANDOM_UNIFORM;
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
 
 // x1 = slope
-static float
+static MYFLT
 TrigXnoise_expon_min(TrigXnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    float val = -logf(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -logf(RANDOM_UNIFORM) / self->xx1;    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
-static float
+static MYFLT
 TrigXnoise_expon_max(TrigXnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    float val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
 // x1 = bandwidth
-static float
+static MYFLT
 TrigXnoise_biexpon(TrigXnoise *self) {
-    float polar, val;
+    MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    float sum = RANDOM_UNIFORM * 2.0;
+    MYFLT sum = RANDOM_UNIFORM * 2.0;
     
     if (sum > 1.0) {
         polar = -1;
@@ -2954,9 +2954,9 @@ TrigXnoise_biexpon(TrigXnoise *self) {
     else return val;
 }
 
-static float
+static MYFLT
 TrigXnoise_cauchy(TrigXnoise *self) {
-    float rnd, val, dir;
+    MYFLT rnd, val, dir;
     do {
         rnd = RANDOM_UNIFORM;
     }
@@ -2975,9 +2975,9 @@ TrigXnoise_cauchy(TrigXnoise *self) {
 }
 
 // x1 = locator, x2 = shape
-static float
+static MYFLT
 TrigXnoise_weibull(TrigXnoise *self) {
-    float rnd, val;
+    MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
     
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
@@ -2989,9 +2989,9 @@ TrigXnoise_weibull(TrigXnoise *self) {
 }
 
 // x1 = locator, x2 = bandwidth
-static float
+static MYFLT
 TrigXnoise_gaussian(TrigXnoise *self) {
-    float rnd, val;
+    MYFLT rnd, val;
     
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
@@ -3002,11 +3002,11 @@ TrigXnoise_gaussian(TrigXnoise *self) {
 }
 
 // x1 = gravity center, x2 = compress/expand
-static float
+static MYFLT
 TrigXnoise_poisson(TrigXnoise *self) {
     int i, j, factorial;
     long tot;
-    float val;
+    MYFLT val;
     if (self->xx1 < 0.1) self->xx1 = 0.1;
     if (self->xx2 < 0.1) self->xx2 = 0.1;
     
@@ -3031,7 +3031,7 @@ TrigXnoise_poisson(TrigXnoise *self) {
 }
 
 // x1 = max value, x2 = max step
-static float
+static MYFLT
 TrigXnoise_walker(TrigXnoise *self) {
     int modulo, dir;
     
@@ -3054,7 +3054,7 @@ TrigXnoise_walker(TrigXnoise *self) {
 }
 
 // x1 = max value, x2 = max step
-static float
+static MYFLT
 TrigXnoise_loopseg(TrigXnoise *self) {
     int modulo, dir;
     
@@ -3110,7 +3110,7 @@ TrigXnoise_loopseg(TrigXnoise *self) {
 static void
 TrigXnoise_generate_ii(TrigXnoise *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     
@@ -3124,8 +3124,8 @@ TrigXnoise_generate_ii(TrigXnoise *self) {
 static void
 TrigXnoise_generate_ai(TrigXnoise *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *x1 = Stream_getData((Stream *)self->x1_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     
     for (i=0; i<self->bufsize; i++) {
@@ -3140,9 +3140,9 @@ TrigXnoise_generate_ai(TrigXnoise *self) {
 static void
 TrigXnoise_generate_ia(TrigXnoise *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
-    float *x2 = Stream_getData((Stream *)self->x2_stream);
+    MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
@@ -3156,9 +3156,9 @@ TrigXnoise_generate_ia(TrigXnoise *self) {
 static void
 TrigXnoise_generate_aa(TrigXnoise *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *x1 = Stream_getData((Stream *)self->x1_stream);
-    float *x2 = Stream_getData((Stream *)self->x2_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
+    MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
@@ -3627,20 +3627,20 @@ typedef struct {
     PyObject *x2;
     Stream *x1_stream;
     Stream *x2_stream;
-    float (*type_func_ptr)();
+    MYFLT (*type_func_ptr)();
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     int range_min;
     int range_max;
     int centralkey;
-    float xx1;
-    float xx2;
+    MYFLT xx1;
+    MYFLT xx2;
     int type;
-    float value;
-    float lastPoissonX1;
+    MYFLT value;
+    MYFLT lastPoissonX1;
     int poisson_tab;
-    float poisson_buffer[2000];
-    float walkerValue;
-    float loop_buffer[15];
+    MYFLT poisson_buffer[2000];
+    MYFLT walkerValue;
+    MYFLT loop_buffer[15];
     int loopChoice;
     int loopCountPlay;
     int loopTime;
@@ -3650,10 +3650,10 @@ typedef struct {
     int modebuffer[4]; // need at least 2 slots for mul & add 
 } TrigXnoiseMidi;
 
-static float
+static MYFLT
 TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
     int midival;
-    float val;
+    MYFLT val;
     
     midival = (int)((self->value * (self->range_max-self->range_min)) + self->range_min);
     
@@ -3663,11 +3663,11 @@ TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
         midival = 127;
     
     if (self->scale == 0)
-        val = (float)midival;
+        val = (MYFLT)midival;
     else if (self->scale == 1)
-        val = 8.175798 * powf(1.0594633, midival);
+        val = 8.1757989156437 * powf(1.0594630943593, midival);
     else if (self->scale == 2)
-        val = powf(1.0594633, midival - self->centralkey);
+        val = powf(1.0594630943593, midival - self->centralkey);
     else
         val = midival;
 
@@ -3676,59 +3676,59 @@ TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
 
 
 // no parameter
-static float
+static MYFLT
 TrigXnoiseMidi_uniform(TrigXnoiseMidi *self) {
     return RANDOM_UNIFORM;    
 }
 
-static float
+static MYFLT
 TrigXnoiseMidi_linear_min(TrigXnoiseMidi *self) {
-    float a = RANDOM_UNIFORM;    
-    float b = RANDOM_UNIFORM;
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
     if (a < b) return a;
     else return b;
 }
 
-static float
+static MYFLT
 TrigXnoiseMidi_linear_max(TrigXnoiseMidi *self) {
-    float a = RANDOM_UNIFORM;    
-    float b = RANDOM_UNIFORM;
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
     if (a > b) return a;
     else return b;
 }
 
-static float
+static MYFLT
 TrigXnoiseMidi_triangle(TrigXnoiseMidi *self) {
-    float a = RANDOM_UNIFORM;    
-    float b = RANDOM_UNIFORM;
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
     return ((a + b) * 0.5);
 }
 
 // x1 = slope
-static float
+static MYFLT
 TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    float val = -logf(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -logf(RANDOM_UNIFORM) / self->xx1;    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
-static float
+static MYFLT
 TrigXnoiseMidi_expon_max(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    float val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
 }
 
 // x1 = bandwidth
-static float
+static MYFLT
 TrigXnoiseMidi_biexpon(TrigXnoiseMidi *self) {
-    float polar, val;
+    MYFLT polar, val;
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    float sum = RANDOM_UNIFORM * 2.0;
+    MYFLT sum = RANDOM_UNIFORM * 2.0;
     
     if (sum > 1.0) {
         polar = -1;
@@ -3744,9 +3744,9 @@ TrigXnoiseMidi_biexpon(TrigXnoiseMidi *self) {
     else return val;
 }
 
-static float
+static MYFLT
 TrigXnoiseMidi_cauchy(TrigXnoiseMidi *self) {
-    float rnd, val, dir;
+    MYFLT rnd, val, dir;
     do {
         rnd = RANDOM_UNIFORM;
     }
@@ -3765,9 +3765,9 @@ TrigXnoiseMidi_cauchy(TrigXnoiseMidi *self) {
 }
 
 // x1 = locator, x2 = shape
-static float
+static MYFLT
 TrigXnoiseMidi_weibull(TrigXnoiseMidi *self) {
-    float rnd, val;
+    MYFLT rnd, val;
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
     
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
@@ -3779,9 +3779,9 @@ TrigXnoiseMidi_weibull(TrigXnoiseMidi *self) {
 }
 
 // x1 = locator, x2 = bandwidth
-static float
+static MYFLT
 TrigXnoiseMidi_gaussian(TrigXnoiseMidi *self) {
-    float rnd, val;
+    MYFLT rnd, val;
     
     rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
     val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
@@ -3792,11 +3792,11 @@ TrigXnoiseMidi_gaussian(TrigXnoiseMidi *self) {
 }
 
 // x1 = gravity center, x2 = compress/expand
-static float
+static MYFLT
 TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
     int i, j, factorial;
     long tot;
-    float val;
+    MYFLT val;
     if (self->xx1 < 0.1) self->xx1 = 0.1;
     if (self->xx2 < 0.1) self->xx2 = 0.1;
     
@@ -3821,7 +3821,7 @@ TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
 }
 
 // x1 = max value, x2 = max step
-static float
+static MYFLT
 TrigXnoiseMidi_walker(TrigXnoiseMidi *self) {
     int modulo, dir;
     
@@ -3844,7 +3844,7 @@ TrigXnoiseMidi_walker(TrigXnoiseMidi *self) {
 }
 
 // x1 = max value, x2 = max step
-static float
+static MYFLT
 TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
     int modulo, dir;
     
@@ -3900,7 +3900,7 @@ TrigXnoiseMidi_loopseg(TrigXnoiseMidi *self) {
 static void
 TrigXnoiseMidi_generate_ii(TrigXnoiseMidi *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     
@@ -3916,8 +3916,8 @@ TrigXnoiseMidi_generate_ii(TrigXnoiseMidi *self) {
 static void
 TrigXnoiseMidi_generate_ai(TrigXnoiseMidi *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *x1 = Stream_getData((Stream *)self->x1_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
     self->xx2 = PyFloat_AS_DOUBLE(self->x2);
     
     for (i=0; i<self->bufsize; i++) {
@@ -3933,9 +3933,9 @@ TrigXnoiseMidi_generate_ai(TrigXnoiseMidi *self) {
 static void
 TrigXnoiseMidi_generate_ia(TrigXnoiseMidi *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     self->xx1 = PyFloat_AS_DOUBLE(self->x1);
-    float *x2 = Stream_getData((Stream *)self->x2_stream);
+    MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
@@ -3950,9 +3950,9 @@ TrigXnoiseMidi_generate_ia(TrigXnoiseMidi *self) {
 static void
 TrigXnoiseMidi_generate_aa(TrigXnoiseMidi *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *x1 = Stream_getData((Stream *)self->x1_stream);
-    float *x2 = Stream_getData((Stream *)self->x2_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *x1 = Stream_getData((Stream *)self->x1_stream);
+    MYFLT *x2 = Stream_getData((Stream *)self->x2_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
@@ -4476,31 +4476,31 @@ typedef struct {
     long max;
     int dir;
     int direction;
-    float value;
+    MYFLT value;
     int modebuffer[2]; // need at least 2 slots for mul & add 
 } Counter;
 
 static void
 Counter_generates(Counter *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             if (self->dir == 0) {
-                self->value = (float)self->tmp;
+                self->value = (MYFLT)self->tmp;
                 self->tmp++;
                 if (self->tmp > self->max)
                     self->tmp = self->min;
             }    
             else if (self->dir == 1) {
-                self->value = (float)self->tmp;
+                self->value = (MYFLT)self->tmp;
                 self->tmp--;
                 if (self->tmp < self->min)
                     self->tmp = self->max;
             }    
             else if (self->dir == 2) {
-                self->value = (float)self->tmp;
+                self->value = (MYFLT)self->tmp;
                 self->tmp = self->tmp + self->direction;
                 if (self->tmp >= self->max) {
                     self->direction = -1;
@@ -4848,8 +4848,8 @@ typedef struct {
 static void
 Thresh_generates_i(Thresh *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float thresh = PyFloat_AS_DOUBLE(self->threshold);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT thresh = PyFloat_AS_DOUBLE(self->threshold);
 
     switch (self->dir) {
         case 0:
@@ -4893,8 +4893,8 @@ Thresh_generates_i(Thresh *self) {
 static void
 Thresh_generates_a(Thresh *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *thresh = Stream_getData((Stream *)self->threshold_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *thresh = Stream_getData((Stream *)self->threshold_stream);
     
     switch (self->dir) {
         case 0:
