@@ -24,7 +24,7 @@ TODO before releasing _pyo_ version 0.02.
 
 - Add a rate factor to !TableRec (rate=10 means record a value every 10 samples)
 
-- !TableRead2 controlled with a rate factor (same as TableRec)
+- !TableRead2 controlled with a rate factor (same as !TableRec)
 
 ----
 
