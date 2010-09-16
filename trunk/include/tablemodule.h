@@ -19,13 +19,14 @@
  *************************************************************************/
 
 #include "Python.h"
+#include "pyomodule.h"
 
 #ifdef __TABLE_MODULE
 
 typedef struct {
     PyObject_HEAD
     int size;
-    float *data;
+    MYFLT *data;
 } TableStream;
 
 
@@ -38,7 +39,7 @@ if ((self) == rt_error) { return rt_error; }	\
 #else
 
 int TableStream_getSize(PyObject *self);
-float * TableStream_getData(PyObject *self);
+MYFLT * TableStream_getData(PyObject *self);
 extern PyTypeObject TableStreamType;
 
 #endif

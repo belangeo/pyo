@@ -316,7 +316,7 @@ class Compress(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer('pyodemos/transparent.aif', loop=True)
+    >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True)
     >>> b = Compress(a, thresh=-30, ratio=4, risetime=.005, falltime=.1).out()
     
     """

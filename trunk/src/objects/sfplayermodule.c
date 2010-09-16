@@ -42,20 +42,20 @@ typedef struct {
     int sndSize; /* number of frames */
     int sndChnls;
     int sndSr;
-    float srScale;
-    float startPos;
+    MYFLT srScale;
+    MYFLT startPos;
     double pointerPos;
-    float *samplesBuffer;
-    float *trigsBuffer;
-    float *tempTrigsBuffer;
+    MYFLT *samplesBuffer;
+    MYFLT *trigsBuffer;
+    MYFLT *tempTrigsBuffer;
     int init;
-    float (*interp_func_ptr)(float *, int, float, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfPlayer;
 
-float max_arr(float *a,int n)
+MYFLT max_arr(MYFLT *a,int n)
 {
     int i;
-    float m;
+    MYFLT m;
     m=*a;
     for (i=1; i<n; i++) {
         if (m < *(a+i)) 
@@ -64,10 +64,10 @@ float max_arr(float *a,int n)
     return m;
 }
 
-float min_arr(float *a,int n)
+MYFLT min_arr(MYFLT *a,int n)
 {
     int i;
-    float m;
+    MYFLT m;
     m=*a;
     for (i=1; i<n; i++) {
         if (m > *(a+i)) 
@@ -78,18 +78,18 @@ float min_arr(float *a,int n)
 
 static void
 SfPlayer_readframes_i(SfPlayer *self) {
-    float sp, frac, bufpos, delta;
+    MYFLT sp, frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
 
     sp = PyFloat_AS_DOUBLE(self->speed);
 
-    delta = fabsf(sp) * self->srScale;
+    delta = MYFABS(sp) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
-    float buffer[totlen];
-    float buffer2[self->sndChnls][buflen];
+    MYFLT buffer[totlen];
+    MYFLT buffer2[self->sndChnls][buflen];
     
     if (sp > 0) {
         if (self->startPos >= self->sndSize)
@@ -101,7 +101,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->sndSize) {   
             shortbuflen = self->sndSize - index;
-            sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             if (self->loop == 0) { /* with zero padding if noloop */
                 int pad = (buflen-shortbuflen)*self->sndChnls;
                 for (i=0; i<pad; i++) {
@@ -111,16 +111,16 @@ SfPlayer_readframes_i(SfPlayer *self) {
             else { /* wrap around and read new samples if loop */
                 int pad = buflen - shortbuflen;
                 int padlen = pad*self->sndChnls;
-                float buftemp[padlen];
+                MYFLT buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos, SEEK_SET);
-                sf_read_float(self->sf, buftemp, padlen);
+                SF_READ(self->sf, buftemp, padlen);
                 for (i=0; i<(padlen); i++) {
                     buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
                 }
             }    
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
     
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -168,24 +168,24 @@ SfPlayer_readframes_i(SfPlayer *self) {
                 }
             }
             else { /* wrap around and read new samples if loop */
-                float buftemp[padlen];
+                MYFLT buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos-pad, SEEK_SET);
-                sf_read_float(self->sf, buftemp, padlen);
+                SF_READ(self->sf, buftemp, padlen);
                 for (i=0; i<padlen; i++) {
                     buffer[i] = buftemp[i];
                 }
             }
             
-            float buftemp2[shortbuflen*self->sndChnls];
+            MYFLT buftemp2[shortbuflen*self->sndChnls];
             sf_seek(self->sf, 0, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buftemp2, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
                 buffer[i+padlen] = buftemp2[i];
             }    
         }
         else /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -193,7 +193,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
         }
         
         /* reverse arrays */
-        float swap;
+        MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
             int b = buflen; 
@@ -235,22 +235,22 @@ SfPlayer_readframes_i(SfPlayer *self) {
 
 static void
 SfPlayer_readframes_a(SfPlayer *self) {
-    float frac, bufpos, delta;
+    MYFLT frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
     
-    float *spobj = Stream_getData((Stream *)self->speed_stream);
+    MYFLT *spobj = Stream_getData((Stream *)self->speed_stream);
 
-    float mini = min_arr(spobj, self->bufsize);
-    float maxi = max_arr(spobj, self->bufsize);
-    if (fabsf(mini) > fabsf(maxi))
+    MYFLT mini = min_arr(spobj, self->bufsize);
+    MYFLT maxi = max_arr(spobj, self->bufsize);
+    if (MYFABS(mini) > MYFABS(maxi))
         maxi = mini;
-    delta = fabsf(maxi) * self->srScale;
+    delta = MYFABS(maxi) * self->srScale;
 
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
-    float buffer[totlen];
-    float buffer2[self->sndChnls][buflen];
+    MYFLT buffer[totlen];
+    MYFLT buffer2[self->sndChnls][buflen];
 
     if (maxi > 0) {
         if (self->startPos >= self->sndSize)
@@ -262,7 +262,7 @@ SfPlayer_readframes_a(SfPlayer *self) {
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->sndSize) {
             shortbuflen = self->sndSize - index;
-            sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             if (self->loop == 0) { /* with zero padding if noloop */
                 int pad = (buflen-shortbuflen)*self->sndChnls;
                 for (i=0; i<pad; i++) {
@@ -272,16 +272,16 @@ SfPlayer_readframes_a(SfPlayer *self) {
             else { /* wrap around and read new samples if loop */
                 int pad = buflen - shortbuflen;
                 int padlen = pad*self->sndChnls;
-                float buftemp[padlen];
+                MYFLT buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos, SEEK_SET);
-                sf_read_float(self->sf, buftemp, padlen);
+                SF_READ(self->sf, buftemp, padlen);
                 for (i=0; i<padlen; i++) {
                     buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
                 }
             }
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
     
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -323,16 +323,16 @@ SfPlayer_readframes_a(SfPlayer *self) {
             shortbuflen = index;
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            //sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            //SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             if (self->loop == 0) { /* with zero padding if noloop */
                 for (i=0; i<padlen; i++) {
                     buffer[i] = 0.;
                 }
             }
             else { /* wrap around and read new samples if loop */
-                float buftemp[padlen];
+                MYFLT buftemp[padlen];
                 sf_seek(self->sf, (int)self->startPos-pad, SEEK_SET);
-                sf_read_float(self->sf, buftemp, padlen);
+                SF_READ(self->sf, buftemp, padlen);
                 for (i=0; i<padlen; i++) {
                     buffer[i] = buftemp[i];
                 }
@@ -340,7 +340,7 @@ SfPlayer_readframes_a(SfPlayer *self) {
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         }
         
         /* de-interleave samples */
@@ -349,7 +349,7 @@ SfPlayer_readframes_a(SfPlayer *self) {
         }
 
         /* reverse arrays */
-        float swap;
+        MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
             int b = buflen; 
@@ -468,7 +468,7 @@ static int
 SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    float offset = 0.;
+    MYFLT offset = 0.;
     PyObject *speedtmp=NULL;
     
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
@@ -499,9 +499,9 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     self->sndChnls = self->info.channels;
     self->srScale = self->sndSr / self->sr;
 
-    self->samplesBuffer = (float *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(float));
-    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * self->sndChnls * sizeof(float));
-    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     for (i=0; i<(self->bufsize*self->sndChnls); i++) {
         self->trigsBuffer[i] = 0.0;
@@ -579,7 +579,7 @@ SfPlayer_setSound(SfPlayer *self, PyObject *arg)
     //self->sndChnls = self->info.channels;
     self->srScale = self->sndSr / self->sr;
     
-    //self->samplesBuffer = (float *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    //self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
     
     self->startPos = 0.0;
     self->pointerPos = self->startPos;
@@ -640,13 +640,13 @@ SfPlayer_setInterp(SfPlayer *self, PyObject *arg)
     return Py_None;
 }
 
-float *
+MYFLT *
 SfPlayer_getSamplesBuffer(SfPlayer *self)
 {
-    return (float *)self->samplesBuffer;
+    return (MYFLT *)self->samplesBuffer;
 }    
 
-float *
+MYFLT *
 SfPlayer_getTrigsBuffer(SfPlayer *self)
 {
     int i;
@@ -654,7 +654,7 @@ SfPlayer_getTrigsBuffer(SfPlayer *self)
         self->tempTrigsBuffer[i] = self->trigsBuffer[i];
         self->trigsBuffer[i] = 0.0;
     }    
-    return (float *)self->tempTrigsBuffer;
+    return (MYFLT *)self->tempTrigsBuffer;
 }    
 
 static PyMemberDef SfPlayer_members[] = {
@@ -782,7 +782,7 @@ static void
 SfPlay_compute_next_data_frame(SfPlay *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = SfPlayer_getSamplesBuffer((SfPlayer *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -1006,7 +1006,7 @@ static void
 SfPlayTrig_compute_next_data_frame(SfPlayTrig *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = SfPlayer_getTrigsBuffer((SfPlayer *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -1156,16 +1156,16 @@ typedef struct {
     int sndSize; /* number of frames */
     int sndChnls;
     int sndSr;
-    float srScale;
-    float startPos;
-    float endPos;
-    float nextStartPos;
-    float nextEndPos;
+    MYFLT srScale;
+    MYFLT startPos;
+    MYFLT endPos;
+    MYFLT nextStartPos;
+    MYFLT nextEndPos;
     double pointerPos;
-    float *samplesBuffer;
-    float *markers;
+    MYFLT *samplesBuffer;
+    MYFLT *markers;
     int markers_size;
-    float (*interp_func_ptr)(float *, int, float, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfMarkerShuffler;
 
 /*** PROTOTYPES ***/
@@ -1174,18 +1174,18 @@ static void SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir);
 
 static void
 SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
-    float sp, frac, bufpos, delta;
+    MYFLT sp, frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
     
     sp = PyFloat_AS_DOUBLE(self->speed);
     
-    delta = fabsf(sp) * self->srScale;
+    delta = MYFABS(sp) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
-    float buffer[totlen];
-    float buffer2[self->sndChnls][buflen];
+    MYFLT buffer[totlen];
+    MYFLT buffer2[self->sndChnls][buflen];
 
     //printf("startPos: %f\nendPos: %f\npointerPos: %f\n", self->startPos, self->endPos, self->pointerPos);
     if (sp > 0) {
@@ -1200,20 +1200,20 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->endPos) {
             shortbuflen = self->endPos - index;
-            sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
 
             /* wrap around and read new samples if loop */
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<(padlen); i++) {
                 buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
             }
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -1231,7 +1231,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             self->pointerPos += delta;
         }
         if (self->pointerPos >= self->endPos) {
-            float off = self->pointerPos - self->endPos;
+            MYFLT off = self->pointerPos - self->endPos;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 1);
             self->pointerPos = self->startPos + off;
         }
@@ -1251,23 +1251,23 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             int padlen = pad*self->sndChnls;
 
             /* wrap around and read new samples if loop */
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<padlen; i++) {
                 buffer[i] = buftemp[i];
             }
             
-            float buftemp2[shortbuflen*self->sndChnls];
+            MYFLT buftemp2[shortbuflen*self->sndChnls];
             sf_seek(self->sf, self->endPos, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buftemp2, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
                 buffer[i+padlen] = buftemp2[i];
             }    
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         }
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -1275,7 +1275,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         }
         
         /* reverse arrays */
-        float swap;
+        MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
             int b = buflen; 
@@ -1297,7 +1297,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             self->pointerPos -= delta;
         }
         if (self->pointerPos <= self->endPos) {
-            float off = self->endPos - self->pointerPos;
+            MYFLT off = self->endPos - self->pointerPos;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
             self->pointerPos = self->startPos - off;
         }
@@ -1306,22 +1306,22 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
 
 static void
 SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
-    float frac, bufpos, delta;
+    MYFLT frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
     
-    float *spobj = Stream_getData((Stream *)self->speed_stream);
+    MYFLT *spobj = Stream_getData((Stream *)self->speed_stream);
     
-    float mini = min_arr(spobj, self->bufsize);
-    float maxi = max_arr(spobj, self->bufsize);
-    if (fabsf(mini) > fabsf(maxi))
+    MYFLT mini = min_arr(spobj, self->bufsize);
+    MYFLT maxi = max_arr(spobj, self->bufsize);
+    if (MYFABS(mini) > MYFABS(maxi))
         maxi = mini;
-    delta = fabsf(maxi) * self->srScale;
+    delta = MYFABS(maxi) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
-    float buffer[totlen];
-    float buffer2[self->sndChnls][buflen];
+    MYFLT buffer[totlen];
+    MYFLT buffer2[self->sndChnls][buflen];
     
     if (maxi > 0) {
         if (self->startPos == -1) {
@@ -1335,20 +1335,20 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->endPos) {
             shortbuflen = self->endPos - index;
-            sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             
             /* wrap around and read new samples if loop */
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<padlen; i++) {
                 buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
             }
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -1366,7 +1366,7 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
             self->pointerPos += spobj[i] * self->srScale;
         }
         if (self->pointerPos >= self->endPos) {
-            float off = self->pointerPos - self->endPos;
+            MYFLT off = self->pointerPos - self->endPos;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 1);
             self->pointerPos = self->startPos + off;
         } 
@@ -1384,19 +1384,19 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
             shortbuflen = index - self->endPos;
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            //sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            //SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
 
             /* wrap around and read new samples if loop */
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<padlen; i++) {
                 buffer[i] = buftemp[i];
             }
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         }
         
         /* de-interleave samples */
@@ -1405,7 +1405,7 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
         }
         
         /* reverse arrays */
-        float swap;
+        MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
             int b = buflen; 
@@ -1427,7 +1427,7 @@ SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
             self->pointerPos += spobj[i] * self->srScale;
         }
         if (self->pointerPos <= self->endPos) {
-            float off = self->endPos - self->pointerPos;
+            MYFLT off = self->endPos - self->pointerPos;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
             self->pointerPos = self->startPos - off;
         }
@@ -1462,7 +1462,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
     int mark;
     if (dir == 1) {
         if (self->startPos == -1) {
-            mark = (int)(self->markers_size * (rand()/((float)(RAND_MAX)+1)));
+            mark = (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
             self->startPos = self->markers[mark] * self->srScale;
             self->endPos = self->markers[mark+1] * self->srScale;
         }
@@ -1471,13 +1471,13 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->endPos = self->nextEndPos;
         }
         
-        mark = (int)(self->markers_size * (rand()/((float)(RAND_MAX)+1)));
+        mark = (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
         self->nextStartPos = self->markers[mark] * self->srScale;
         self->nextEndPos = self->markers[mark+1] * self->srScale;
     }
     else {
         if (self->startPos == -1) {
-            mark = self->markers_size - (int)(self->markers_size * (rand()/((float)(RAND_MAX)+1)));
+            mark = self->markers_size - (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
             self->startPos = self->markers[mark] * self->srScale;
             self->endPos = self->markers[mark-1] * self->srScale;
         }
@@ -1486,7 +1486,7 @@ SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir)
             self->endPos = self->nextEndPos;
         }
         
-        mark = self->markers_size - (int)(self->markers_size * (rand()/((float)(RAND_MAX)+1)));
+        mark = self->markers_size - (int)(self->markers_size * (rand()/((MYFLT)(RAND_MAX)+1)));
         self->nextStartPos = self->markers[mark] * self->srScale;
         self->nextEndPos = self->markers[mark-1] * self->srScale;
     }
@@ -1497,7 +1497,7 @@ SfMarkerShuffler_setMarkers(SfMarkerShuffler *self, PyObject *markerstmp)
 {
     Py_ssize_t i;
     Py_ssize_t len = PyList_Size(markerstmp);
-    self->markers = (float *)realloc(self->markers, (len + 2) * sizeof(float));
+    self->markers = (MYFLT *)realloc(self->markers, (len + 2) * sizeof(MYFLT));
     self->markers[0] = 0.;
     for (i=0; i<len; i++) {
         self->markers[i+1] = PyFloat_AsDouble(PyList_GetItem(markerstmp, i));
@@ -1604,7 +1604,7 @@ SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
     Py_INCREF(markerstmp);
     SfMarkerShuffler_setMarkers((SfMarkerShuffler *)self, markerstmp);
 
-    self->samplesBuffer = (float *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     srand((unsigned)(time(0)));
 
@@ -1682,10 +1682,10 @@ SfMarkerShuffler_setInterp(SfMarkerShuffler *self, PyObject *arg)
     return Py_None;
 }
 
-float *
+MYFLT *
 SfMarkerShuffler_getSamplesBuffer(SfMarkerShuffler *self)
 {
-    return (float *)self->samplesBuffer;
+    return (MYFLT *)self->samplesBuffer;
 }    
 
 static PyMemberDef SfMarkerShuffler_members[] = {
@@ -1810,7 +1810,7 @@ static void
 SfMarkerShuffle_compute_next_data_frame(SfMarkerShuffle *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = SfMarkerShuffler_getSamplesBuffer((SfMarkerShuffler *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -2038,17 +2038,17 @@ typedef struct {
     int sndSize; /* number of frames */
     int sndChnls;
     int sndSr;
-    float srScale;
-    float startPos;
-    float endPos;
-    float nextStartPos;
-    float nextEndPos;
+    MYFLT srScale;
+    MYFLT startPos;
+    MYFLT endPos;
+    MYFLT nextStartPos;
+    MYFLT nextEndPos;
     double pointerPos;
-    float *samplesBuffer;
-    float *markers;
+    MYFLT *samplesBuffer;
+    MYFLT *markers;
     int markers_size;
     int old_mark;
-    float (*interp_func_ptr)(float *, int, float, int);
+    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfMarkerLooper;
 
 /*** PROTOTYPES ***/
@@ -2057,18 +2057,18 @@ static void SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir);
 
 static void
 SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
-    float sp, frac, bufpos, delta;
+    MYFLT sp, frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
     
     sp = PyFloat_AS_DOUBLE(self->speed);
     
-    delta = fabsf(sp) * self->srScale;
+    delta = MYFABS(sp) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
-    float buffer[totlen];
-    float buffer2[self->sndChnls][buflen];
+    MYFLT buffer[totlen];
+    MYFLT buffer2[self->sndChnls][buflen];
     
     //printf("startPos: %f\nendPos: %f\npointerPos: %f\n", self->startPos, self->endPos, self->pointerPos);
     if (sp > 0) {
@@ -2083,20 +2083,20 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->endPos) {
             shortbuflen = self->endPos - index;
-            sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             
             /* wrap around and read new samples if loop */
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<(padlen); i++) {
                 buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
             }
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -2114,7 +2114,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             self->pointerPos += delta;
         }
         if (self->pointerPos >= self->endPos) {
-            float off = self->pointerPos - self->endPos;
+            MYFLT off = self->pointerPos - self->endPos;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 1);
             self->pointerPos = self->startPos + off;
         }
@@ -2134,23 +2134,23 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             int padlen = pad*self->sndChnls;
             
             /* wrap around and read new samples if loop */
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<padlen; i++) {
                 buffer[i] = buftemp[i];
             }
             
-            float buftemp2[shortbuflen*self->sndChnls];
+            MYFLT buftemp2[shortbuflen*self->sndChnls];
             sf_seek(self->sf, self->endPos, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buftemp2, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buftemp2, shortbuflen*self->sndChnls);
             for (i=0; i<(shortbuflen*self->sndChnls); i++) {
                 buffer[i+padlen] = buftemp2[i];
             }    
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         }
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -2158,7 +2158,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
         }
         
         /* reverse arrays */
-        float swap;
+        MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
             int b = buflen; 
@@ -2180,7 +2180,7 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             self->pointerPos -= delta;
         }
         if (self->pointerPos <= self->endPos) {
-            float off = self->endPos - self->pointerPos;
+            MYFLT off = self->endPos - self->pointerPos;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 0);
             self->pointerPos = self->startPos - off;
         }
@@ -2189,22 +2189,22 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
 
 static void
 SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
-    float frac, bufpos, delta;
+    MYFLT frac, bufpos, delta;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
     
-    float *spobj = Stream_getData((Stream *)self->speed_stream);
+    MYFLT *spobj = Stream_getData((Stream *)self->speed_stream);
     
-    float mini = min_arr(spobj, self->bufsize);
-    float maxi = max_arr(spobj, self->bufsize);
-    if (fabsf(mini) > fabsf(maxi))
+    MYFLT mini = min_arr(spobj, self->bufsize);
+    MYFLT maxi = max_arr(spobj, self->bufsize);
+    if (MYFABS(mini) > MYFABS(maxi))
         maxi = mini;
-    delta = fabsf(maxi) * self->srScale;
+    delta = MYFABS(maxi) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
     totlen = self->sndChnls*buflen;
-    float buffer[totlen];
-    float buffer2[self->sndChnls][buflen];
+    MYFLT buffer[totlen];
+    MYFLT buffer2[self->sndChnls][buflen];
     
     if (maxi > 0) {
         if (self->startPos == -1) {
@@ -2218,20 +2218,20 @@ SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
         /* if not enough samples to read in the file */
         if ((index+buflen) > self->endPos) {
             shortbuflen = self->endPos - index;
-            sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             
             /* wrap around and read new samples if loop */
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<padlen; i++) {
                 buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
             }
         }
         else /* without zero padding */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         
         /* de-interleave samples */
         for (i=0; i<totlen; i++) {
@@ -2249,7 +2249,7 @@ SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
             self->pointerPos += spobj[i] * self->srScale;
         }
         if (self->pointerPos >= self->endPos) {
-            float off = self->pointerPos - self->endPos;
+            MYFLT off = self->pointerPos - self->endPos;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 1);
             self->pointerPos = self->startPos + off;
         } 
@@ -2267,19 +2267,19 @@ SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
             shortbuflen = index - self->endPos;
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
-            //sf_read_float(self->sf, buffer, shortbuflen*self->sndChnls);
+            //SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
             
             /* wrap around and read new samples if loop */
-            float buftemp[padlen];
+            MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
-            sf_read_float(self->sf, buftemp, padlen);
+            SF_READ(self->sf, buftemp, padlen);
             for (i=0; i<padlen; i++) {
                 buffer[i] = buftemp[i];
             }
         }
         else { /* without zero padding */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            sf_read_float(self->sf, buffer, totlen);
+            SF_READ(self->sf, buffer, totlen);
         }
         
         /* de-interleave samples */
@@ -2288,7 +2288,7 @@ SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
         }
         
         /* reverse arrays */
-        float swap;
+        MYFLT swap;
         for (i=0; i<self->sndChnls; i++) {
             int a;
             int b = buflen; 
@@ -2310,7 +2310,7 @@ SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
             self->pointerPos += spobj[i] * self->srScale;
         }
         if (self->pointerPos <= self->endPos) {
-            float off = self->endPos - self->pointerPos;
+            MYFLT off = self->endPos - self->pointerPos;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 0);
             self->pointerPos = self->startPos - off;
         }
@@ -2389,7 +2389,7 @@ SfMarkerLooper_setMarkers(SfMarkerLooper *self, PyObject *markerstmp)
 {
     Py_ssize_t i;
     Py_ssize_t len = PyList_Size(markerstmp);
-    self->markers = (float *)realloc(self->markers, (len + 2) * sizeof(float));
+    self->markers = (MYFLT *)realloc(self->markers, (len + 2) * sizeof(MYFLT));
     self->markers[0] = 0.;
     for (i=0; i<len; i++) {
         self->markers[i+1] = PyFloat_AsDouble(PyList_GetItem(markerstmp, i));
@@ -2502,7 +2502,7 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
     Py_INCREF(markerstmp);
     SfMarkerLooper_setMarkers((SfMarkerLooper *)self, markerstmp);
     
-    self->samplesBuffer = (float *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(float));
+    self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
     
     srand((unsigned)(time(0)));
     
@@ -2612,10 +2612,10 @@ SfMarkerLooper_setInterp(SfMarkerLooper *self, PyObject *arg)
     return Py_None;
 }
 
-float *
+MYFLT *
 SfMarkerLooper_getSamplesBuffer(SfMarkerLooper *self)
 {
-    return (float *)self->samplesBuffer;
+    return (MYFLT *)self->samplesBuffer;
 }    
 
 static PyMemberDef SfMarkerLooper_members[] = {
@@ -2742,7 +2742,7 @@ static void
 SfMarkerLoop_compute_next_data_frame(SfMarkerLoop *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = SfMarkerLooper_getSamplesBuffer((SfMarkerLooper *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {

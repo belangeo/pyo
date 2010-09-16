@@ -20,7 +20,6 @@
 
 #include <Python.h>
 #include "structmember.h"
-#include <math.h>
 #include "pyomodule.h"
 #include "servermodule.h"
 #include "streammodule.h"
@@ -60,10 +59,10 @@ MatrixStream_getColSize(MatrixStream *self)
 }
 
 /* row and col position normalized between 0 and 1 */
-float
-MatrixStream_getInterpPointFromPos(MatrixStream *self, float row, float col)
+MYFLT
+MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT row, MYFLT col)
 {
-    float rowpos, colpos, rfpart, cfpart, x1, x2, x3, x4;
+    MYFLT rowpos, colpos, rfpart, cfpart, x1, x2, x3, x4;
     int ripart, cipart;
 
     rowpos = row * self->rowsize;
@@ -99,7 +98,7 @@ MatrixStream_getInterpPointFromPos(MatrixStream *self, float row, float col)
 }
 
 void
-MatrixStream_setData(MatrixStream *self, float **data)
+MatrixStream_setData(MatrixStream *self, MYFLT **data)
 {
     self->data = data;
 }    
@@ -167,15 +166,15 @@ typedef struct {
     int col_pointer;
 } NewMatrix;
 
-float 
-NewMatrix_clip(float val, float min, float max) {
+MYFLT 
+NewMatrix_clip(MYFLT val, MYFLT min, MYFLT max) {
     if (val < min) return min;
     else if (val > max) return max;
     else return val;
 }
 
 static PyObject *
-NewMatrix_recordChunkAllRow(NewMatrix *self, float *data, int datasize)
+NewMatrix_recordChunkAllRow(NewMatrix *self, MYFLT *data, int datasize)
 {
     int i;
 
@@ -246,10 +245,10 @@ NewMatrix_init(NewMatrix *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->rowsize, &self->colsize, &inittmp))
         return -1; 
 
-    self->data = (float **)realloc(self->data, (self->rowsize + 1) * sizeof(float));
+    self->data = (MYFLT **)realloc(self->data, (self->rowsize + 1) * sizeof(MYFLT));
 
     for (i=0; i<(self->rowsize+1); i++) {
-        self->data[i] = (float *)malloc((self->colsize + 1) * sizeof(float));
+        self->data[i] = (MYFLT *)malloc((self->colsize + 1) * sizeof(MYFLT));
     }
 
     for(i=0; i<(self->rowsize+1); i++) {
@@ -301,7 +300,7 @@ NewMatrix_getColSize(NewMatrix *self)
 static PyObject *
 NewMatrix_getRate(NewMatrix *self)
 {
-    float sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
     return PyFloat_FromDouble(sr / self->rowsize);
 };
 
@@ -448,17 +447,17 @@ typedef struct {
     NewMatrix *matrix;
     int pointer;
     int active;
-    float fadetime;
-    float fadeInSample;
-    float *trigsBuffer;
-    float *tempTrigsBuffer;
+    MYFLT fadetime;
+    MYFLT fadeInSample;
+    MYFLT *trigsBuffer;
+    MYFLT *tempTrigsBuffer;
 } MatrixRec;
 
 static void
 MatrixRec_compute_next_data_frame(MatrixRec *self)
 {
     int i, num, upBound;
-    float sclfade, val;
+    MYFLT sclfade, val;
     int rowsize = NewMatrix_getRowSize((NewMatrix *)self->matrix);
     int colsize = NewMatrix_getColSize((NewMatrix *)self->matrix);
     int size = rowsize * colsize;
@@ -480,9 +479,9 @@ MatrixRec_compute_next_data_frame(MatrixRec *self)
         sclfade = 1. / self->fadetime;
         upBound = size - self->fadeInSample;
         
-        float buffer[num];
+        MYFLT buffer[num];
         memset(&buffer, 0, sizeof(buffer));
-        float *in = Stream_getData((Stream *)self->input_stream);
+        MYFLT *in = Stream_getData((Stream *)self->input_stream);
         
         for (i=0; i<num; i++) {
             if (self->pointer < self->fadeInSample)
@@ -557,7 +556,7 @@ MatrixRec_init(MatrixRec *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "matrix", "fadetime", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|f", kwlist, &inputtmp, &matrixtmp, &self->fadetime))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &matrixtmp, &self->fadetime))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -573,8 +572,8 @@ MatrixRec_init(MatrixRec *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    self->trigsBuffer = (float *)realloc(self->trigsBuffer, self->bufsize * sizeof(float));
-    self->tempTrigsBuffer = (float *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(float));
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
@@ -622,7 +621,7 @@ MatrixRec_setMatrix(MatrixRec *self, PyObject *arg)
 	return Py_None;
 }	
 
-float *
+MYFLT *
 MatrixRec_getTrigsBuffer(MatrixRec *self)
 {
     int i;
@@ -630,7 +629,7 @@ MatrixRec_getTrigsBuffer(MatrixRec *self)
         self->tempTrigsBuffer[i] = self->trigsBuffer[i];
         self->trigsBuffer[i] = 0.0;
     }    
-    return (float *)self->tempTrigsBuffer;
+    return (MYFLT *)self->tempTrigsBuffer;
 }    
 
 
@@ -706,7 +705,7 @@ static void
 MatrixRecTrig_compute_next_data_frame(MatrixRecTrig *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     tmp = MatrixRec_getTrigsBuffer((MatrixRec *)self->mainReader);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];

@@ -31,14 +31,14 @@ typedef struct {
     PyObject *time;
     Stream *time_stream;
     int modebuffer[1];
-    float sampleToSec;
-    float currentTime;
+    MYFLT sampleToSec;
+    MYFLT currentTime;
     int init;
 } Pattern;
 
 static void
 Pattern_generate_i(Pattern *self) {
-    float tm;
+    MYFLT tm;
     int i, flag;
     
     flag = 0;
@@ -62,7 +62,7 @@ static void
 Pattern_generate_a(Pattern *self) {
     int i, flag;
     
-    float *tm = Stream_getData((Stream *)self->time_stream);
+    MYFLT *tm = Stream_getData((Stream *)self->time_stream);
     
     flag = 0;
     for (i=0; i<self->bufsize; i++) {
@@ -303,7 +303,7 @@ static void
 Score_selector(Score *self) {
     int i, inval, state, res;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = (int)in[i];
@@ -464,9 +464,9 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *callable;
     PyObject *arg;
-    float time;
-    float sampleToSec;
-    float currentTime;
+    MYFLT time;
+    MYFLT sampleToSec;
+    MYFLT currentTime;
 } CallAfter;
 
 static void

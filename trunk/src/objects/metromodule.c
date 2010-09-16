@@ -33,15 +33,15 @@ typedef struct {
     PyObject *time;
     Stream *time_stream;
     int modebuffer[1];
-    float sampleToSec;
-    float currentTime;
-    float offset;
+    MYFLT sampleToSec;
+    MYFLT currentTime;
+    MYFLT offset;
     int flag;
 } Metro;
 
 static void
 Metro_generate_i(Metro *self) {
-    float val, tm, off;
+    MYFLT val, tm, off;
     int i;
     
     tm = PyFloat_AS_DOUBLE(self->time);
@@ -67,10 +67,10 @@ Metro_generate_i(Metro *self) {
 
 static void
 Metro_generate_a(Metro *self) {
-    float val, off;
+    MYFLT val, off;
     int i;
     
-    float *tm = Stream_getData((Stream *)self->time_stream);
+    MYFLT *tm = Stream_getData((Stream *)self->time_stream);
     
     for (i=0; i<self->bufsize; i++) {
         off = tm[i] * self->offset;
@@ -172,7 +172,7 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"time", "offset", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Of", kwlist, &timetmp, &self->offset))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OF, kwlist, &timetmp, &self->offset))
         return -1; 
 
     if (timetmp) {
@@ -183,7 +183,7 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-        
+
     Py_INCREF(self);
     return 0;
 }
@@ -297,14 +297,14 @@ typedef struct {
     int modebuffer[1];
     int poly;
     int voiceCount;
-    float *buffer_streams;
+    MYFLT *buffer_streams;
 } Clouder;
 
 static void
 Clouder_generate_i(Clouder *self) {
     int i, rnd;
 
-    float dens = PyFloat_AS_DOUBLE(self->density);
+    MYFLT dens = PyFloat_AS_DOUBLE(self->density);
     if (dens <= 0.0)
         dens = 0.0;
     else if (dens > self->sr)
@@ -316,7 +316,7 @@ Clouder_generate_i(Clouder *self) {
     
     dens *= 0.5;
     for (i=0; i<self->bufsize; i++) {
-        rnd = (int)(rand() / (float)RAND_MAX * self->sr);
+        rnd = (int)(rand() / (MYFLT)RAND_MAX * self->sr);
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
@@ -327,10 +327,10 @@ Clouder_generate_i(Clouder *self) {
 
 static void
 Clouder_generate_a(Clouder *self) {
-    float dens;
+    MYFLT dens;
     int i, rnd;
     
-    float *density = Stream_getData((Stream *)self->density_stream);
+    MYFLT *density = Stream_getData((Stream *)self->density_stream);
 
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
@@ -344,7 +344,7 @@ Clouder_generate_a(Clouder *self) {
             dens = self->sr;
         
         dens *= 0.5;
-        rnd = (int)(rand() / (float)RAND_MAX * self->sr);
+        rnd = (int)(rand() / (MYFLT)RAND_MAX * self->sr);
         if (rnd < dens) {
             self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
             if (self->voiceCount == self->poly)
@@ -353,10 +353,10 @@ Clouder_generate_a(Clouder *self) {
     }
 }
 
-float *
+MYFLT *
 Clouder_getSamplesBuffer(Clouder *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
 static void
@@ -451,7 +451,7 @@ Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
 
     srand((unsigned)(time(0)));
 
-    self->buffer_streams = (float *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
        
     Py_INCREF(self);
     return 0;
@@ -572,7 +572,7 @@ static void
 Cloud_compute_next_data_frame(Cloud *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Clouder_getSamplesBuffer((Clouder *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -884,28 +884,28 @@ typedef struct {
 	int tapProb[64];
     int preset[32][65];
     int preCall;
-	float durations[64];
-	float tmp_durations[64];
-	float accentTable[64];
-	float tmp_accentTable[64];
-    float tapDur;
-    float sampleToSec;
-    float currentTime;
-    float *buffer_streams;
-    float *amp_buffer_streams;
-    float *dur_buffer_streams;
-    float *end_buffer_streams;
-    float *amplitudes;
+	MYFLT durations[64];
+	MYFLT tmp_durations[64];
+	MYFLT accentTable[64];
+	MYFLT tmp_accentTable[64];
+    MYFLT tapDur;
+    MYFLT sampleToSec;
+    MYFLT currentTime;
+    MYFLT *buffer_streams;
+    MYFLT *amp_buffer_streams;
+    MYFLT *dur_buffer_streams;
+    MYFLT *end_buffer_streams;
+    MYFLT *amplitudes;
 } Beater;
 
-static float
+static MYFLT
 Beater_defineAccent(int n) {
 	if (n == 1)
-		return (float)((rand() % 15) + 112) / 127.; // 112 -> 127
+		return (MYFLT)((rand() % 15) + 112) / 127.; // 112 -> 127
 	else if (n == 2)
-		return (float)((rand() % 20) + 80) / 127.; // 80 -> 100
+		return (MYFLT)((rand() % 20) + 80) / 127.; // 80 -> 100
 	else if (n == 3)
-		return (float)((rand() % 20) + 50) / 127.; // 50 -> 70
+		return (MYFLT)((rand() % 20) + 50) / 127.; // 50 -> 70
     else
         return 0.5;
 }
@@ -1095,7 +1095,7 @@ static void
 Beater_generate_i(Beater *self) {
     int i;
     
-    float tm = PyFloat_AS_DOUBLE(self->time);
+    MYFLT tm = PyFloat_AS_DOUBLE(self->time);
     
     self->tapDur = tm;
     Beater_calculateDurations(self);
@@ -1153,10 +1153,10 @@ Beater_generate_i(Beater *self) {
 
 static void
 Beater_generate_a(Beater *self) {
-    float tm;
+    MYFLT tm;
     int i;
     
-    float *time = Stream_getData((Stream *)self->time_stream);
+    MYFLT *time = Stream_getData((Stream *)self->time_stream);
 
     self->tapDur = time[0];
     Beater_calculateDurations(self);
@@ -1215,28 +1215,28 @@ Beater_generate_a(Beater *self) {
     }
 }
 
-float *
+MYFLT *
 Beater_getSamplesBuffer(Beater *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
-float *
+MYFLT *
 Beater_getAmpBuffer(Beater *self)
 {
-    return (float *)self->amp_buffer_streams;
+    return (MYFLT *)self->amp_buffer_streams;
 }    
 
-float *
+MYFLT *
 Beater_getDurBuffer(Beater *self)
 {
-    return (float *)self->dur_buffer_streams;
+    return (MYFLT *)self->dur_buffer_streams;
 }    
 
-float *
+MYFLT *
 Beater_getEndBuffer(Beater *self)
 {
-    return (float *)self->end_buffer_streams;
+    return (MYFLT *)self->end_buffer_streams;
 }    
 
 static void
@@ -1355,11 +1355,11 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     
     srand((unsigned)(time(0)));
     
-    self->buffer_streams = (float *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(float));
-    self->amp_buffer_streams = (float *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(float));
-    self->dur_buffer_streams = (float *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(float));
-    self->end_buffer_streams = (float *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(float));
-    self->amplitudes = (float *)realloc(self->amplitudes, self->poly * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->amplitudes = (MYFLT *)realloc(self->amplitudes, self->poly * sizeof(MYFLT));
     for (i=0; i<self->poly; i++) { 
         self->amplitudes[i] = 0.0;
     }
@@ -1404,7 +1404,7 @@ Beater_setTime(Beater *self, PyObject *arg)
         Py_XDECREF(self->time_stream);
         self->time_stream = (Stream *)streamtmp;
 		self->modebuffer[0] = 1;
-        float *time = Stream_getData((Stream *)self->time_stream);
+        MYFLT *time = Stream_getData((Stream *)self->time_stream);
         self->tapDur = time[0];
 	}
     
@@ -1625,7 +1625,7 @@ static void
 Beat_compute_next_data_frame(Beat *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getSamplesBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -1780,7 +1780,7 @@ static void
 BeatAmpStream_compute_next_data_frame(BeatAmpStream *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getAmpBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -1935,7 +1935,7 @@ static void
 BeatDurStream_compute_next_data_frame(BeatDurStream *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getDurBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {
@@ -2090,7 +2090,7 @@ static void
 BeatEndStream_compute_next_data_frame(BeatEndStream *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Beater_getEndBuffer((Beater *)self->mainPlayer);
     for (i=0; i<self->bufsize; i++) {

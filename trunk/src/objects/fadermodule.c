@@ -29,13 +29,13 @@ typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
     int fademode;
-    float topValue;
-    float attack;
-    float release;
-    float duration;
-    float currentTime;
-    float sampleToSec;
-    float bufsizeToSec;
+    MYFLT topValue;
+    MYFLT attack;
+    MYFLT release;
+    MYFLT duration;
+    MYFLT currentTime;
+    MYFLT sampleToSec;
+    MYFLT bufsizeToSec;
 } Fader;
 
 static void Fader_internal_stop(Fader *self) { 
@@ -50,7 +50,7 @@ static void Fader_internal_stop(Fader *self) {
 
 static void
 Fader_generate_auto(Fader *self) {
-    float val;
+    MYFLT val;
     int i;
 
     for (i=0; i<self->bufsize; i++) {
@@ -70,7 +70,7 @@ Fader_generate_auto(Fader *self) {
 
 static void
 Fader_generate_wait(Fader *self) {
-    float val;
+    MYFLT val;
     int i;
     
     for (i=0; i<self->bufsize; i++) {
@@ -215,7 +215,7 @@ Fader_init(Fader *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"fadein", "fadeout", "dur", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fffOO", kwlist, &self->attack, &self->release, &self->duration, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFOO, kwlist, &self->attack, &self->release, &self->duration, &multmp, &addtmp))
         return -1; 
  
     if (multmp) {
@@ -409,15 +409,15 @@ typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
     int fademode;
-    float topValue;
-    float attack;
-    float decay;
-    float sustain;
-    float release;
-    float duration;
-    float currentTime;
-    float sampleToSec;
-    float bufsizeToSec;
+    MYFLT topValue;
+    MYFLT attack;
+    MYFLT decay;
+    MYFLT sustain;
+    MYFLT release;
+    MYFLT duration;
+    MYFLT currentTime;
+    MYFLT sampleToSec;
+    MYFLT bufsizeToSec;
 } Adsr;
 
 static void Adsr_internal_stop(Adsr *self) { 
@@ -432,7 +432,7 @@ static void Adsr_internal_stop(Adsr *self) {
 
 static void
 Adsr_generate_auto(Adsr *self) {
-    float val;
+    MYFLT val;
     int i;
     
     for (i=0; i<self->bufsize; i++) {
@@ -454,7 +454,7 @@ Adsr_generate_auto(Adsr *self) {
 
 static void
 Adsr_generate_wait(Adsr *self) {
-    float val;
+    MYFLT val;
     int i;
     
     for (i=0; i<self->bufsize; i++) {
@@ -603,7 +603,7 @@ Adsr_init(Adsr *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"attack", "decay", "sustain", "release", "dur", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|fffffOO", kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFFOO, kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp))
         return -1; 
     
     if (multmp) {
@@ -816,11 +816,11 @@ typedef struct {
     PyObject *pointslist;
     int modebuffer[2];
     double currentTime;
-    float currentValue;
-    float sampleToSec;
-    float increment;
-    float *targets;
-    float *times;
+    MYFLT currentValue;
+    MYFLT sampleToSec;
+    MYFLT increment;
+    MYFLT *targets;
+    MYFLT *times;
     int which;
     int flag;
     int newlist;
@@ -834,8 +834,8 @@ Linseg_convert_pointslist(Linseg *self) {
     PyObject *tup;
 
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
-    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
@@ -1199,21 +1199,21 @@ typedef struct {
     PyObject *pointslist;
     int modebuffer[2];
     double currentTime;
-    float currentValue;
-    float sampleToSec;
-    float inc;
-    float pointer;
-    float range;
-    float steps;
-    float *targets;
-    float *times;
+    MYFLT currentValue;
+    MYFLT sampleToSec;
+    MYFLT inc;
+    MYFLT pointer;
+    MYFLT range;
+    MYFLT steps;
+    MYFLT *targets;
+    MYFLT *times;
     int which;
     int flag;
     int newlist;
     int loop;
     int listsize;
-    float exp;
-    float exp_tmp;
+    MYFLT exp;
+    MYFLT exp_tmp;
     int inverse;
     int inverse_tmp;
 } Expseg;
@@ -1224,8 +1224,8 @@ Expseg_convert_pointslist(Expseg *self) {
     PyObject *tup;
     
     self->listsize = PyList_Size(self->pointslist);
-    self->targets = (float *)realloc(self->targets, self->listsize * sizeof(float));
-    self->times = (float *)realloc(self->times, self->listsize * sizeof(float));
+    self->targets = (MYFLT *)realloc(self->targets, self->listsize * sizeof(MYFLT));
+    self->times = (MYFLT *)realloc(self->times, self->listsize * sizeof(MYFLT));
     for (i=0; i<self->listsize; i++) {
         tup = PyList_GET_ITEM(self->pointslist, i);
         self->times[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
@@ -1250,7 +1250,7 @@ Expseg_reinit(Expseg *self) {
 static void
 Expseg_generate(Expseg *self) {
     int i;
-    float scl;
+    MYFLT scl;
     
     for (i=0; i<self->bufsize; i++) {
         if (self->flag == 1) {
@@ -1408,7 +1408,7 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"list", "loop", "exp", "inverse", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|ifiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFIOO, kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
         return -1; 
     
     Py_INCREF(pointslist);

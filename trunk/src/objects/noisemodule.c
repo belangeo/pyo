@@ -32,11 +32,11 @@ typedef struct {
 
 static void
 Noise_generate(Noise *self) {
-    float val;
+    MYFLT val;
     int i;
 
     for (i=0; i<self->bufsize; i++) {
-        val = rand()/((float)(RAND_MAX)+1)*1.98-0.99;
+        val = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
         self->data[i] = val;
     }
 }

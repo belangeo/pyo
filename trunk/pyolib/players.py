@@ -104,14 +104,15 @@ class SfPlayer(PyoObject):
         self._mul = mul
         self._add = add
         path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(path, speed, loop, offset, interp, mul, add)
+        self._base_players = []
         self._base_objs = []
         self._trig_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path[0])
-        self._base_players = [SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)) for i in range(lmax)]
-        for i in range(lmax * self._snd_chnls):
-            j = i / self._snd_chnls
-            self._base_objs.append(SfPlay_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
-            self._trig_objs.append(SfPlayTrig_base(wrap(self._base_players,j), i % self._snd_chnls))
+        for i in range(lmax):
+            _snd_size, _dur, _snd_sr, _snd_chnls = sndinfo(path[0])
+            self._base_players.append(SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)))
+            for j in range(_snd_chnls):
+                self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul,i), wrap(add,i)))
+                self._trig_objs.append(SfPlayTrig_base(self._base_players[-1], j))
 
     def __dir__(self):
         return ['sound', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
@@ -496,7 +497,7 @@ class SfMarkerLooper(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfMarkerLooper(SNDS_PATH + '/transparent.aif').out()
-    >>> rnd = RandInt(len(a.getMarkers()), 100)
+    >>> rnd = RandInt(len(a.getMarkers()), 2)
     >>> a.mark = rnd
 
     """

@@ -36,11 +36,11 @@ typedef struct {
     Stream *slope_stream;
     int init;
     int modebuffer[4];
-    float y1; // sample memory
+    MYFLT y1; // sample memory
 } Disto;
 
-static float
-_clip(float x)
+static MYFLT
+_clip(MYFLT x)
 {
     if (x < 0)
         return 0;
@@ -52,12 +52,12 @@ _clip(float x)
 
 static void
 Disto_transform_ii(Disto *self) {
-    float val, coeff;
+    MYFLT val, coeff;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    float drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
-    float slp = _clip(PyFloat_AS_DOUBLE(self->slope));
+    MYFLT drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
+    MYFLT slp = _clip(PyFloat_AS_DOUBLE(self->slope));
     
     for (i=0; i<self->bufsize; i++) {
         val = atan2f(in[i], drv);
@@ -73,12 +73,12 @@ Disto_transform_ii(Disto *self) {
 
 static void
 Disto_transform_ai(Disto *self) {
-    float val, drv, coeff;
+    MYFLT val, drv, coeff;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    float *drive = Stream_getData((Stream *)self->drive_stream);
-    float slp = _clip(PyFloat_AS_DOUBLE(self->slope));
+    MYFLT *drive = Stream_getData((Stream *)self->drive_stream);
+    MYFLT slp = _clip(PyFloat_AS_DOUBLE(self->slope));
     
     for (i=0; i<self->bufsize; i++) {
         drv = .4 - _clip(drive[i]) * .3999;
@@ -96,12 +96,12 @@ Disto_transform_ai(Disto *self) {
 
 static void
 Disto_transform_ia(Disto *self) {
-    float val, coeff, slp;
+    MYFLT val, coeff, slp;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
-    float *slope = Stream_getData((Stream *)self->slope_stream);
+    MYFLT drv = .4 - _clip(PyFloat_AS_DOUBLE(self->drive)) * .3999;
+    MYFLT *slope = Stream_getData((Stream *)self->slope_stream);
     
     for (i=0; i<self->bufsize; i++) {
         val = atan2f(in[i], drv);
@@ -118,12 +118,12 @@ Disto_transform_ia(Disto *self) {
 
 static void
 Disto_transform_aa(Disto *self) {
-    float val, drv, coeff, slp;
+    MYFLT val, drv, coeff, slp;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float *drive = Stream_getData((Stream *)self->drive_stream);
-    float *slope = Stream_getData((Stream *)self->slope_stream);
+    MYFLT *drive = Stream_getData((Stream *)self->drive_stream);
+    MYFLT *slope = Stream_getData((Stream *)self->slope_stream);
     
     for (i=0; i<self->bufsize; i++) {
         drv = .4 - _clip(drive[i]) * .3999;
@@ -520,11 +520,11 @@ typedef struct {
 
 static void
 Clip_transform_ii(Clip *self) {
-    float val;
+    MYFLT val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float mi = PyFloat_AS_DOUBLE(self->min);
-    float ma = PyFloat_AS_DOUBLE(self->max);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
@@ -539,11 +539,11 @@ Clip_transform_ii(Clip *self) {
 
 static void
 Clip_transform_ai(Clip *self) {
-    float val, mini;
+    MYFLT val, mini;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *mi = Stream_getData((Stream *)self->min_stream);
-    float ma = PyFloat_AS_DOUBLE(self->max);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mi = Stream_getData((Stream *)self->min_stream);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
     
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
@@ -559,11 +559,11 @@ Clip_transform_ai(Clip *self) {
 
 static void
 Clip_transform_ia(Clip *self) {
-    float val, maxi;
+    MYFLT val, maxi;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float mi = PyFloat_AS_DOUBLE(self->min);
-    float *ma = Stream_getData((Stream *)self->max_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
@@ -579,11 +579,11 @@ Clip_transform_ia(Clip *self) {
     
 static void
 Clip_transform_aa(Clip *self) {
-    float val, mini, maxi;
+    MYFLT val, mini, maxi;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *mi = Stream_getData((Stream *)self->min_stream);
-    float *ma = Stream_getData((Stream *)self->max_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mi = Stream_getData((Stream *)self->min_stream);
+    MYFLT *ma = Stream_getData((Stream *)self->max_stream);
     
     for (i=0; i<self->bufsize; i++) {
         val = in[i];
@@ -973,13 +973,13 @@ typedef struct {
     Stream *bitdepth_stream;
     PyObject *srscale;
     Stream *srscale_stream;
-    float value;
+    MYFLT value;
     int sampsCount;
     int modebuffer[4];
 } Degrade;
 
-static float 
-_bit_clip(float x) {
+static MYFLT 
+_bit_clip(MYFLT x) {
     if (x < 1.0)
         return 1.0;
     else if (x > 32.0)
@@ -988,8 +988,8 @@ _bit_clip(float x) {
         return x;
 }
 
-static float 
-_sr_clip(float x) {
+static MYFLT 
+_sr_clip(MYFLT x) {
     // half sr ten times
     if (x <= 0.0009765625)
         return 0.0009765625;
@@ -1001,14 +1001,14 @@ _sr_clip(float x) {
 
 static void
 Degrade_transform_ii(Degrade *self) {
-    float bitscl, ibitscl, newsr;
+    MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
-    float srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
+    MYFLT srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
     
-    bitscl = powf(2.0, bitdepth-1);
+    bitscl = MYPOW(2.0, bitdepth-1);
     ibitscl = 1.0 / bitscl;
     
     newsr = self->sr * srscale;
@@ -1027,12 +1027,12 @@ Degrade_transform_ii(Degrade *self) {
 
 static void
 Degrade_transform_ai(Degrade *self) {
-    float bitscl, ibitscl, newsr;
+    MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
-    float srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
+    MYFLT srscale = _sr_clip(PyFloat_AS_DOUBLE(self->srscale));
 
     newsr = self->sr * srscale;
     nsamps = (int)(self->sr / newsr);
@@ -1041,7 +1041,7 @@ Degrade_transform_ai(Degrade *self) {
         self->sampsCount++;
         if (self->sampsCount >= nsamps) {
             self->sampsCount = 0;
-            bitscl = powf(2.0, _bit_clip(bitdepth[i])-1);
+            bitscl = MYPOW(2.0, _bit_clip(bitdepth[i])-1);
             ibitscl = 1.0 / bitscl;
             tmp = (int)(in[i] * bitscl + 0.5);
             self->value = tmp * ibitscl;    
@@ -1052,14 +1052,14 @@ Degrade_transform_ai(Degrade *self) {
 
 static void
 Degrade_transform_ia(Degrade *self) {
-    float bitscl, ibitscl, newsr;
+    MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
-    float *srscale = Stream_getData((Stream *)self->srscale_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT bitdepth = _bit_clip(PyFloat_AS_DOUBLE(self->bitdepth));
+    MYFLT *srscale = Stream_getData((Stream *)self->srscale_stream);
     
-    bitscl = powf(2.0, bitdepth-1);
+    bitscl = MYPOW(2.0, bitdepth-1);
     ibitscl = 1.0 / bitscl;
 
     for (i=0; i<self->bufsize; i++) {
@@ -1077,12 +1077,12 @@ Degrade_transform_ia(Degrade *self) {
 
 static void
 Degrade_transform_aa(Degrade *self) {
-    float bitscl, ibitscl, newsr;
+    MYFLT bitscl, ibitscl, newsr;
     int i, nsamps, tmp;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
-    float *srscale = Stream_getData((Stream *)self->srscale_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *bitdepth = Stream_getData((Stream *)self->bitdepth_stream);
+    MYFLT *srscale = Stream_getData((Stream *)self->srscale_stream);
 
     for (i=0; i<self->bufsize; i++) {
         newsr = self->sr * _sr_clip(srscale[i]);
@@ -1090,7 +1090,7 @@ Degrade_transform_aa(Degrade *self) {
         self->sampsCount++;
         if (self->sampsCount >= nsamps) {
             self->sampsCount = 0;
-            bitscl = powf(2.0, _bit_clip(bitdepth[i])-1);
+            bitscl = MYPOW(2.0, _bit_clip(bitdepth[i])-1);
             ibitscl = 1.0 / bitscl;
             tmp = (int)(in[i] * bitscl + 0.5);
             self->value = tmp * ibitscl;    

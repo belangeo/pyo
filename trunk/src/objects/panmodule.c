@@ -36,11 +36,11 @@ typedef struct {
     Stream *spread_stream;
     int chnls;
     int modebuffer[2];
-    float *buffer_streams;
+    MYFLT *buffer_streams;
 } Panner;
 
-static float
-P_clip(float p) {
+static MYFLT
+P_clip(MYFLT p) {
     if (p < 0.0)
         return 0.0;
     else if (p > 1.0)
@@ -51,59 +51,59 @@ P_clip(float p) {
 
 static void
 Panner_splitter_st_i(Panner *self) {
-    float val, inval;
+    MYFLT val, inval;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float pan = PyFloat_AS_DOUBLE(self->pan);
+    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
     pan = P_clip(pan);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * sqrtf(1.0 - pan);
+        val = inval * MYSQRT(1.0 - pan);
         self->buffer_streams[i] = val;
-        val = inval * sqrtf(pan);
+        val = inval * MYSQRT(pan);
         self->buffer_streams[i+self->bufsize] = val;
     }    
 }
 
 static void
 Panner_splitter_st_a(Panner *self) {
-    float val, inval, panval;
+    MYFLT val, inval, panval;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float *pan = Stream_getData((Stream *)self->pan_stream);
+    MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         panval = P_clip(pan[i]);
-        val = inval * sqrtf(1.0 - panval);
+        val = inval * MYSQRT(1.0 - panval);
         self->buffer_streams[i] = val;
-        val = inval * sqrtf(panval);
+        val = inval * MYSQRT(panval);
         self->buffer_streams[i+self->bufsize] = val;
     }    
 }
 
 static void
 Panner_splitter_ii(Panner *self) {
-    float val, inval, phase, sprd;
+    MYFLT val, inval, phase, sprd;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
-    float pan = PyFloat_AS_DOUBLE(self->pan);
-    float spd = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
+    MYFLT spd = PyFloat_AS_DOUBLE(self->spread);
     
     pan = P_clip(pan);
     spd = P_clip(spd);
     
-    sprd = 20.0 - (sqrtf(spd) * 20.0) + 0.1;
+    sprd = 20.0 - (MYSQRT(spd) * 20.0) + 0.1;
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         for (j=0; j<self->chnls; j++) {
-            phase = j / (float)self->chnls;
-            val = inval * powf(cosf((pan - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            phase = j / (MYFLT)self->chnls;
+            val = inval * MYPOW(MYCOS((pan - phase) * TWOPI) * 0.5 + 0.5, sprd);
             self->buffer_streams[i+j*self->bufsize] = val;
         }
     }    
@@ -111,22 +111,22 @@ Panner_splitter_ii(Panner *self) {
 
 static void
 Panner_splitter_ai(Panner *self) {
-    float val, inval, phase, sprd;
+    MYFLT val, inval, phase, sprd;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float *pan = Stream_getData((Stream *)self->pan_stream);
-    float spd = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
+    MYFLT spd = PyFloat_AS_DOUBLE(self->spread);
 
     spd = P_clip(spd);
     
-    sprd = 20.0 - (sqrtf(spd) * 20.0) + 0.1;
+    sprd = 20.0 - (MYSQRT(spd) * 20.0) + 0.1;
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         for (j=0; j<self->chnls; j++) {
-            phase = j / (float)self->chnls;
-            val = inval * powf(cosf((P_clip(pan[i]) - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            phase = j / (MYFLT)self->chnls;
+            val = inval * MYPOW(MYCOS((P_clip(pan[i]) - phase) * TWOPI) * 0.5 + 0.5, sprd);
             self->buffer_streams[i+j*self->bufsize] = val;
         }
     }    
@@ -134,22 +134,22 @@ Panner_splitter_ai(Panner *self) {
 
 static void
 Panner_splitter_ia(Panner *self) {
-    float val, inval, phase, spdval, sprd;
+    MYFLT val, inval, phase, spdval, sprd;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float pan = PyFloat_AS_DOUBLE(self->pan);
-    float *spd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
+    MYFLT *spd = Stream_getData((Stream *)self->spread_stream);
 
     pan = P_clip(pan);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         spdval = P_clip(spd[i]);
-        sprd = 20.0 - (sqrtf(spdval) * 20.0) + 0.1;
+        sprd = 20.0 - (MYSQRT(spdval) * 20.0) + 0.1;
         for (j=0; j<self->chnls; j++) {
-            phase = j / (float)self->chnls;
-            val = inval * powf(cosf((pan - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            phase = j / (MYFLT)self->chnls;
+            val = inval * MYPOW(MYCOS((pan - phase) * TWOPI) * 0.5 + 0.5, sprd);
             self->buffer_streams[i+j*self->bufsize] = val;
         }
     }    
@@ -157,30 +157,30 @@ Panner_splitter_ia(Panner *self) {
 
 static void
 Panner_splitter_aa(Panner *self) {
-    float val, inval, phase, spdval, sprd;
+    MYFLT val, inval, phase, spdval, sprd;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float *pan = Stream_getData((Stream *)self->pan_stream);
-    float *spd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
+    MYFLT *spd = Stream_getData((Stream *)self->spread_stream);
     
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         spdval = P_clip(spd[i]);
-        sprd = 20.0 - (sqrtf(spdval) * 20.0) + 0.1;
+        sprd = 20.0 - (MYSQRT(spdval) * 20.0) + 0.1;
         for (j=0; j<self->chnls; j++) {
-            phase = j / (float)self->chnls;
-            val = inval * powf(cosf((P_clip(pan[i]) - phase) * TWOPI) * 0.5 + 0.5, sprd);
+            phase = j / (MYFLT)self->chnls;
+            val = inval * MYPOW(MYCOS((P_clip(pan[i]) - phase) * TWOPI) * 0.5 + 0.5, sprd);
             self->buffer_streams[i+j*self->bufsize] = val;
         }
     }    
 }
 
-float *
+MYFLT *
 Panner_getSamplesBuffer(Panner *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
 static void
@@ -303,7 +303,7 @@ Panner_init(Panner *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (float *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
 
@@ -508,7 +508,7 @@ static void
 Pan_compute_next_data_frame(Pan *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Panner_getSamplesBuffer((Panner *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {
@@ -731,52 +731,52 @@ typedef struct {
     int k1;
     int k2;
     int modebuffer[1];
-    float *buffer_streams;
+    MYFLT *buffer_streams;
 } SPanner;
 
 static void
 SPanner_splitter_st_i(SPanner *self) {
-    float val, inval;
+    MYFLT val, inval;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float pan = PyFloat_AS_DOUBLE(self->pan);
+    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
     pan = P_clip(pan);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
-        val = inval * sqrtf(1.0 - pan);
+        val = inval * MYSQRT(1.0 - pan);
         self->buffer_streams[i] = val;
-        val = inval * sqrtf(pan);
+        val = inval * MYSQRT(pan);
         self->buffer_streams[i+self->bufsize] = val;
     }    
 }
 
 static void
 SPanner_splitter_st_a(SPanner *self) {
-    float val, inval, panval;
+    MYFLT val, inval, panval;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float *pan = Stream_getData((Stream *)self->pan_stream);
+    MYFLT *pan = Stream_getData((Stream *)self->pan_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         panval = P_clip(pan[i]);
-        val = inval * sqrtf(1.0 - panval);
+        val = inval * MYSQRT(1.0 - panval);
         self->buffer_streams[i] = val;
-        val = inval * sqrtf(panval);
+        val = inval * MYSQRT(panval);
         self->buffer_streams[i+self->bufsize] = val;
     }    
 }
 
 static void
 SPanner_splitter_i(SPanner *self) {
-    float val, inval, min, pan1, pan2;
+    MYFLT val, inval, min, pan1, pan2;
     int j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float pan = PyFloat_AS_DOUBLE(self->pan);
-    float fchnls = (float)self->chnls;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT pan = PyFloat_AS_DOUBLE(self->pan);
+    MYFLT fchnls = (MYFLT)self->chnls;
 
     for (i=0; i<self->bufsize; i++) {
         self->buffer_streams[i+self->k1] = 0.0;
@@ -801,8 +801,8 @@ SPanner_splitter_i(SPanner *self) {
     }    
 
     pan = P_clip((pan - min) * self->chnls);
-    pan1 = sqrtf(1.0 - pan);
-    pan2 = sqrtf(pan);
+    pan1 = MYSQRT(1.0 - pan);
+    pan2 = MYSQRT(pan);
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         val = inval * pan1;
@@ -814,11 +814,11 @@ SPanner_splitter_i(SPanner *self) {
 
 static void
 SPanner_splitter_a(SPanner *self) {
-    float val, inval, min, pan;
+    MYFLT val, inval, min, pan;
     int i, j, j1, len;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *apan = Stream_getData((Stream *)self->pan_stream);
-    float fchnls = (float)self->chnls;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *apan = Stream_getData((Stream *)self->pan_stream);
+    MYFLT fchnls = (MYFLT)self->chnls;
     
     len = self->chnls * self->bufsize;
     for (i=0; i<len; i++) {
@@ -846,17 +846,17 @@ SPanner_splitter_a(SPanner *self) {
         }    
         
         pan = P_clip((pan - min) * self->chnls);
-        val = inval * sqrtf(1.0 - pan);
+        val = inval * MYSQRT(1.0 - pan);
         self->buffer_streams[i+self->k1] = val;
-        val = inval * sqrtf(pan);
+        val = inval * MYSQRT(pan);
         self->buffer_streams[i+self->k2] = val;
     }    
 }
 
-float *
+MYFLT *
 SPanner_getSamplesBuffer(SPanner *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
 static void
@@ -966,7 +966,7 @@ SPanner_init(SPanner *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    self->buffer_streams = (float *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
     
     (*self->mode_func_ptr)(self);
 
@@ -1140,7 +1140,7 @@ static void
 SPan_compute_next_data_frame(SPan *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = SPanner_getSamplesBuffer((SPanner *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {
@@ -1363,11 +1363,11 @@ typedef struct {
     int k1;
     int k2;
     int modebuffer[1];
-    float *buffer_streams;
+    MYFLT *buffer_streams;
 } Switcher;
 
-static float
-Switcher_clip_voice(Switcher *self, float v) {
+static MYFLT
+Switcher_clip_voice(Switcher *self, MYFLT v) {
     int chnls = self->chnls - 1;
     if (v < 0.0)
         return 0.0;
@@ -1379,10 +1379,10 @@ Switcher_clip_voice(Switcher *self, float v) {
 
 static void
 Switcher_splitter_i(Switcher *self) {
-    float val, inval, voice1, voice2;
+    MYFLT val, inval, voice1, voice2;
     int j1, j, i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float voice = Switcher_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT voice = Switcher_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
     
     for (i=0; i<self->bufsize; i++) {
         self->buffer_streams[i+self->k1] = 0.0;
@@ -1399,8 +1399,8 @@ Switcher_splitter_i(Switcher *self) {
     self->k2 = j * self->bufsize;
 
     voice = P_clip(voice - j1);
-    voice1 = sqrtf(1.0 - voice);
-    voice2 = sqrtf(voice);
+    voice1 = MYSQRT(1.0 - voice);
+    voice2 = MYSQRT(voice);
 
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
@@ -1413,10 +1413,10 @@ Switcher_splitter_i(Switcher *self) {
 
 static void
 Switcher_splitter_a(Switcher *self) {
-    float inval, voice;
+    MYFLT inval, voice;
     int i, j, j1, len;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *avoice = Stream_getData((Stream *)self->voice_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *avoice = Stream_getData((Stream *)self->voice_stream);
     
     len = self->chnls * self->bufsize;
     for (i=0; i<len; i++) {
@@ -1438,15 +1438,15 @@ Switcher_splitter_a(Switcher *self) {
         
         voice = P_clip(voice - j1);
         
-        self->buffer_streams[i+self->k1] = inval * sqrtf(1.0 - voice);
-        self->buffer_streams[i+self->k2] = inval * sqrtf(voice);
+        self->buffer_streams[i+self->k1] = inval * MYSQRT(1.0 - voice);
+        self->buffer_streams[i+self->k2] = inval * MYSQRT(voice);
     }    
 }
 
-float *
+MYFLT *
 Switcher_getSamplesBuffer(Switcher *self)
 {
-    return (float *)self->buffer_streams;
+    return (MYFLT *)self->buffer_streams;
 }    
 
 static void
@@ -1541,7 +1541,7 @@ Switcher_init(Switcher *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    self->buffer_streams = (float *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(float));
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
     
     (*self->mode_func_ptr)(self);
     
@@ -1715,7 +1715,7 @@ static void
 Switch_compute_next_data_frame(Switch *self)
 {
     int i;
-    float *tmp;
+    MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Switcher_getSamplesBuffer((Switcher *)self->mainSplitter);
     for (i=0; i<self->bufsize; i++) {
@@ -1937,8 +1937,8 @@ typedef struct {
     int modebuffer[3]; // need at least 2 slots for mul & add 
 } Selector;
 
-static float
-Selector_clip_voice(Selector *self, float v) {
+static MYFLT
+Selector_clip_voice(Selector *self, MYFLT v) {
     int chSize = self->chSize - 1;
     if (v < 0.0)
         return 0.0;
@@ -1951,8 +1951,8 @@ Selector_clip_voice(Selector *self, float v) {
 static void
 Selector_generate_i(Selector *self) {
     int j1, j, i;
-    float  voice1, voice2;
-    float voice = Selector_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
+    MYFLT  voice1, voice2;
+    MYFLT voice = Selector_clip_voice(self, PyFloat_AS_DOUBLE(self->voice));
 
     j1 = (int)voice;
     j = j1 + 1;
@@ -1960,12 +1960,12 @@ Selector_generate_i(Selector *self) {
         j1--; j--;
     }
 
-    float *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
-    float *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
+    MYFLT *st1 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j1), "_getStream", NULL));
+    MYFLT *st2 = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->inputs, j), "_getStream", NULL));
 
     voice = P_clip(voice - j1);
-    voice1 = sqrtf(1.0 - voice);
-    voice2 = sqrtf(voice);
+    voice1 = MYSQRT(1.0 - voice);
+    voice2 = MYSQRT(voice);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = st1[i] * voice1 + st2[i] * voice2;
@@ -1975,9 +1975,9 @@ Selector_generate_i(Selector *self) {
 static void
 Selector_generate_a(Selector *self) {
     int old_j1, old_j, j1, j, i;
-    float  voice;
-    float *st1, *st2;
-    float *vc = Stream_getData((Stream *)self->voice_stream);
+    MYFLT  voice;
+    MYFLT *st1, *st2;
+    MYFLT *vc = Stream_getData((Stream *)self->voice_stream);
 
     old_j1 = 0; 
     old_j = 1;
@@ -2003,7 +2003,7 @@ Selector_generate_a(Selector *self) {
 
         voice = P_clip(voice - j1);
 
-        self->data[i] = st1[i] * sqrtf(1.0 - voice) + st2[i] * sqrtf(voice);
+        self->data[i] = st1[i] * MYSQRT(1.0 - voice) + st2[i] * MYSQRT(voice);
     }
 }
 

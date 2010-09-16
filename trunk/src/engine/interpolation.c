@@ -20,30 +20,31 @@
 
 #include <math.h>
 #include "interpolation.h"
+#include "pyomodule.h"
 
-float nointerp(float *buf, int index, float frac, int size) {
+MYFLT nointerp(MYFLT *buf, int index, MYFLT frac, int size) {
     return  buf[index];
 }
 
-float linear(float *buf, int index, float frac, int size) {
-    float x1 = buf[index];
-    float x2 = buf[index+1];
+MYFLT linear(MYFLT *buf, int index, MYFLT frac, int size) {
+    MYFLT x1 = buf[index];
+    MYFLT x2 = buf[index+1];
     return (x1 + (x2 - x1) * frac);
 }
 
-float cosine(float *buf, int index, float frac, int size) {
-    float frac2;
-    float x1 = buf[index];
-    float x2 = buf[index+1];
+MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size) {
+    MYFLT frac2;
+    MYFLT x1 = buf[index];
+    MYFLT x2 = buf[index+1];
     
-    frac2 = (1.0 - cosf(frac * M_PI)) * 0.5;
+    frac2 = (1.0 - MYCOS(frac * M_PI)) * 0.5;
     return (x1 * (1.0 - frac2) + x2 * frac2);
 }
 
-float cubic(float *buf, int index, float frac, int size) {
-    float x0, x3, a0, a1, a2, a3;
-    float x1 = buf[index];
-    float x2 = buf[index+1];
+MYFLT cubic(MYFLT *buf, int index, MYFLT frac, int size) {
+    MYFLT x0, x3, a0, a1, a2, a3;
+    MYFLT x1 = buf[index];
+    MYFLT x2 = buf[index+1];
     
     if (index == 0) {
         x0 = x1 + (x1 - x2);

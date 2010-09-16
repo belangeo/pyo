@@ -34,33 +34,33 @@ typedef struct {
     Stream *delay_stream;
     PyObject *feedback;
     Stream *feedback_stream;
-    float maxdelay;
+    MYFLT maxdelay;
     long size;
     int in_count;
     int modebuffer[4];
-    float *buffer; // samples memory
+    MYFLT *buffer; // samples memory
 } Delay;
 
 static void
 Delay_process_ii(Delay *self) {
-    float val, xind, frac;
+    MYFLT val, xind, frac;
     int i, ind;
 
-    float del = PyFloat_AS_DOUBLE(self->delay);
-    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    MYFLT del = PyFloat_AS_DOUBLE(self->delay);
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
     
     if (del < 0.)
         del = 0.;
     else if (del > self->maxdelay)
         del = self->maxdelay;
-    float sampdel = del * self->sr;
+    MYFLT sampdel = del * self->sr;
 
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
         feed = 1;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
@@ -80,18 +80,18 @@ Delay_process_ii(Delay *self) {
 
 static void
 Delay_process_ai(Delay *self) {
-    float val, xind, frac, sampdel, del;
+    MYFLT val, xind, frac, sampdel, del;
     int i, ind;
 
-    float *delobj = Stream_getData((Stream *)self->delay_stream);    
-    float feed = PyFloat_AS_DOUBLE(self->feedback);
+    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);    
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
 
     if (feed < 0)
         feed = 0;
     else if (feed > 1)
         feed = 1;
     
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
@@ -116,19 +116,19 @@ Delay_process_ai(Delay *self) {
 
 static void
 Delay_process_ia(Delay *self) {
-    float val, xind, frac, feed;
+    MYFLT val, xind, frac, feed;
     int i, ind;
     
-    float del = PyFloat_AS_DOUBLE(self->delay);
-    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    MYFLT del = PyFloat_AS_DOUBLE(self->delay);
+    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
     
     if (del < 0.)
         del = 0.;
     else if (del > self->maxdelay)
         del = self->maxdelay;
-    float sampdel = del * self->sr;
+    MYFLT sampdel = del * self->sr;
        
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
@@ -153,13 +153,13 @@ Delay_process_ia(Delay *self) {
 
 static void
 Delay_process_aa(Delay *self) {
-    float val, xind, frac, sampdel, feed, del;
+    MYFLT val, xind, frac, sampdel, feed, del;
     int i, ind;
     
-    float *delobj = Stream_getData((Stream *)self->delay_stream);    
-    float *fdb = Stream_getData((Stream *)self->feedback_stream);    
+    MYFLT *delobj = Stream_getData((Stream *)self->delay_stream);    
+    MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
   
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
@@ -352,7 +352,7 @@ Delay_init(Delay *self, PyObject *args, PyObject *kwds)
 
     self->size = self->maxdelay * self->sr + 0.5;
 
-    self->buffer = (float *)realloc(self->buffer, (self->size+1) * sizeof(float));
+    self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
     }    
@@ -573,30 +573,30 @@ typedef struct {
     Stream *freq_stream;
     PyObject *dur;
     Stream *dur_stream;
-    float minfreq;
-    float lastFreq;
-    float lastSampDel;
-    float lastDur;
-    float lastFeed;
+    MYFLT minfreq;
+    MYFLT lastFreq;
+    MYFLT lastSampDel;
+    MYFLT lastDur;
+    MYFLT lastFeed;
     long size;
     int in_count;
     int modebuffer[4];
-    float lpsamp; // lowpass sample memory
-    float coeffs[5]; // lagrange coefficients
-    float lagrange[4]; // lagrange samples memories
-    float xn1; // dc block input delay
-    float yn1; // dc block output delay
-    float *buffer; // samples memory
+    MYFLT lpsamp; // lowpass sample memory
+    MYFLT coeffs[5]; // lagrange coefficients
+    MYFLT lagrange[4]; // lagrange samples memories
+    MYFLT xn1; // dc block input delay
+    MYFLT yn1; // dc block output delay
+    MYFLT *buffer; // samples memory
 } Waveguide;
 
 static void
 Waveguide_process_ii(Waveguide *self) {
-    float val, x, y, sampdel, frac, feed;
+    MYFLT val, x, y, sampdel, frac, feed;
     int i, ind, isamp;
     
-    float fr = PyFloat_AS_DOUBLE(self->freq);
-    float dur = PyFloat_AS_DOUBLE(self->dur); 
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur); 
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
 
     /* Check boundaries */
     if (fr < self->minfreq)
@@ -621,12 +621,12 @@ Waveguide_process_ii(Waveguide *self) {
         self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
         
         self->lastDur = dur;
-        feed = powf(100, -(1.0/fr)/dur);
+        feed = MYPOW(100, -(1.0/fr)/dur);
         self->lastFeed = feed;
     } 
     else if (dur != self->lastDur) {
         self->lastDur = dur;
-        feed = powf(100, -(1.0/fr)/dur);
+        feed = MYPOW(100, -(1.0/fr)/dur);
         self->lastFeed = feed;
     }
     
@@ -671,12 +671,12 @@ Waveguide_process_ii(Waveguide *self) {
 
 static void
 Waveguide_process_ai(Waveguide *self) {
-    float val, x, y, sampdel, frac, feed, freq;
+    MYFLT val, x, y, sampdel, frac, feed, freq;
     int i, ind, isamp;
     
-    float *fr =Stream_getData((Stream *)self->freq_stream);
-    float dur = PyFloat_AS_DOUBLE(self->dur); 
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr =Stream_getData((Stream *)self->freq_stream);
+    MYFLT dur = PyFloat_AS_DOUBLE(self->dur); 
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     /* Check dur boundary */
     if (dur <= 0)
@@ -704,12 +704,12 @@ Waveguide_process_ai(Waveguide *self) {
             self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
             
             self->lastDur = dur;
-            feed = powf(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -(1.0/freq)/dur);
             self->lastFeed = feed;
         }
         else if (dur != self->lastDur) {
             self->lastDur = dur;
-            feed = powf(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -(1.0/freq)/dur);
             self->lastFeed = feed;
         }
 
@@ -755,12 +755,12 @@ Waveguide_process_ai(Waveguide *self) {
 
 static void
 Waveguide_process_ia(Waveguide *self) {
-    float val, x, y, sampdel, frac, feed, dur;
+    MYFLT val, x, y, sampdel, frac, feed, dur;
     int i, ind, isamp;
     
-    float fr = PyFloat_AS_DOUBLE(self->freq);
-    float *du = Stream_getData((Stream *)self->dur_stream);
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *du = Stream_getData((Stream *)self->dur_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     /* Check boundaries */
     if (fr < self->minfreq)
@@ -790,7 +790,7 @@ Waveguide_process_ia(Waveguide *self) {
             dur = 0.1;
         if (dur != self->lastDur) {
             self->lastDur = dur;
-            feed = powf(100, -(1.0/fr)/dur);
+            feed = MYPOW(100, -(1.0/fr)/dur);
             self->lastFeed = feed;
         }
         ind = self->in_count - isamp;
@@ -832,12 +832,12 @@ Waveguide_process_ia(Waveguide *self) {
 
 static void
 Waveguide_process_aa(Waveguide *self) {
-    float val, x, y, sampdel, frac, feed, freq, dur;
+    MYFLT val, x, y, sampdel, frac, feed, freq, dur;
     int i, ind, isamp;
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
-    float *du = Stream_getData((Stream *)self->dur_stream); 
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *du = Stream_getData((Stream *)self->dur_stream); 
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         freq = fr[i];
@@ -864,12 +864,12 @@ Waveguide_process_aa(Waveguide *self) {
             self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
             
             self->lastDur = dur;
-            feed = powf(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -(1.0/freq)/dur);
             self->lastFeed = feed;
         }
         else if (dur != self->lastDur) {
             self->lastDur = dur;
-            feed = powf(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -(1.0/freq)/dur);
             self->lastFeed = feed;
         }
         
@@ -1086,7 +1086,7 @@ Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
     
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
     
-    self->buffer = (float *)realloc(self->buffer, (self->size+1) * sizeof(float));
+    self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
     for (i=0; i<(self->size+1); i++) {
         self->buffer[i] = 0.;
     }    

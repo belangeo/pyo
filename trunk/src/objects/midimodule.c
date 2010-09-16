@@ -30,11 +30,11 @@
 typedef struct {
     pyo_audio_HEAD
     int ctlnumber;
-    float minscale;
-    float maxscale;
-    float value;
-    float oldValue;
-    float sampleToSec;
+    MYFLT minscale;
+    MYFLT maxscale;
+    MYFLT value;
+    MYFLT oldValue;
+    MYFLT sampleToSec;
     int modebuffer[2];
 } Midictl;
 
@@ -113,7 +113,7 @@ Midictl_compute_next_data_frame(Midictl *self)
 
     if (count > 0)
         translateMidi((Midictl *)self, tmp, count);
-    float step = (self->value - self->oldValue) / self->bufsize;
+    MYFLT step = (self->value - self->oldValue) / self->bufsize;
 
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = self->oldValue + step;
@@ -176,7 +176,7 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|ffOO", kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &multmp, &addtmp))
         return -1; 
  
     if (multmp) {
@@ -495,22 +495,22 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
-float MidiNote_getValue(MidiNote *self, int voice, int which)
+MYFLT MidiNote_getValue(MidiNote *self, int voice, int which)
 {
-    float val = -1.0;
+    MYFLT val = -1.0;
     int midival = self->notebuf[voice*2+which];
     if (which == 0 && midival != -1) {
         if (self->scale == 0)
             val = midival;
         else if (self->scale == 1)
-            val = 8.175798 * powf(1.0594633, midival);
+            val = 8.1757989156437 * MYPOW(1.0594630943593, midival);
         else if (self->scale == 2)
-            val = powf(1.0594633, midival - self->centralkey);
+            val = MYPOW(1.0594630943593, midival - self->centralkey);
     }
     else if (which == 0)
-        val = (float)midival;
+        val = (MYFLT)midival;
     else if (which == 1)
-        val = (float)midival / 127.;
+        val = (MYFLT)midival / 127.;
     return val;
 }
 
@@ -638,7 +638,7 @@ static void
 Notein_compute_next_data_frame(Notein *self)
 {
     int i;
-    float tmp = MidiNote_getValue(self->handler, self->voice, self->mode);
+    MYFLT tmp = MidiNote_getValue(self->handler, self->voice, self->mode);
     
     if (self->mode == 0 && tmp != -1) {
         for (i=0; i<self->bufsize; i++) {

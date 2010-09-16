@@ -39,10 +39,10 @@ typedef struct {
 static void
 M_Sin_process(M_Sin *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = sinf(in[i]);
+        self->data[i] = MYSIN(in[i]);
     }
 }
 
@@ -317,10 +317,10 @@ typedef struct {
 static void
 M_Cos_process(M_Cos *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = cosf(in[i]);
+        self->data[i] = MYCOS(in[i]);
     }
 }
 
@@ -595,10 +595,10 @@ typedef struct {
 static void
 M_Tan_process(M_Tan *self) {
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tanf(in[i]);
+        self->data[i] = MYTAN(in[i]);
     }
 }
 
@@ -873,8 +873,8 @@ typedef struct {
 static void
 M_Abs_process(M_Abs *self) {
     int i;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
@@ -1155,15 +1155,15 @@ typedef struct {
 static void
 M_Sqrt_process(M_Sqrt *self) {
     int i;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval < 0.0)
             self->data[i] = 0.0;
         else 
-            self->data[i] = sqrtf(inval);
+            self->data[i] = MYSQRT(inval);
     }
 }
 
@@ -1437,15 +1437,15 @@ typedef struct {
 static void
 M_Log_process(M_Log *self) {
     int i;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval <= 0.0)
             self->data[i] = 0.0;
         else 
-            self->data[i] = logf(inval);
+            self->data[i] = MYLOG(inval);
     }
 }
 
@@ -1719,15 +1719,15 @@ typedef struct {
 static void
 M_Log10_process(M_Log10 *self) {
     int i;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval <= 0.0)
             self->data[i] = 0.0;
         else 
-            self->data[i] = log10f(inval);
+            self->data[i] = MYLOG10(inval);
     }
 }
 
@@ -2001,15 +2001,15 @@ typedef struct {
 static void
 M_Log2_process(M_Log2 *self) {
     int i;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval <= 0.0)
             self->data[i] = 0.0;
         else 
-            self->data[i] = log2f(inval);
+            self->data[i] = MYLOG2(inval);
     }
 }
 
@@ -2286,11 +2286,11 @@ static void
 M_Pow_readframes_ii(M_Pow *self) {
     int i;
     
-    float base = PyFloat_AS_DOUBLE(self->base);
-    float exp = PyFloat_AS_DOUBLE(self->exponent);
+    MYFLT base = PyFloat_AS_DOUBLE(self->base);
+    MYFLT exp = PyFloat_AS_DOUBLE(self->exponent);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = powf(base, exp);
+        self->data[i] = MYPOW(base, exp);
     }
 }
 
@@ -2298,11 +2298,11 @@ static void
 M_Pow_readframes_ai(M_Pow *self) {
     int i;
     
-    float *base = Stream_getData((Stream *)self->base_stream);
-    float exp = PyFloat_AS_DOUBLE(self->exponent);
+    MYFLT *base = Stream_getData((Stream *)self->base_stream);
+    MYFLT exp = PyFloat_AS_DOUBLE(self->exponent);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = powf(base[i], exp);
+        self->data[i] = MYPOW(base[i], exp);
     }
 }
 
@@ -2310,11 +2310,11 @@ static void
 M_Pow_readframes_ia(M_Pow *self) {
     int i;
     
-    float base = PyFloat_AS_DOUBLE(self->base);
-    float *exp = Stream_getData((Stream *)self->exponent_stream);
+    MYFLT base = PyFloat_AS_DOUBLE(self->base);
+    MYFLT *exp = Stream_getData((Stream *)self->exponent_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = powf(base, exp[i]);
+        self->data[i] = MYPOW(base, exp[i]);
     }
 }
 
@@ -2322,11 +2322,11 @@ static void
 M_Pow_readframes_aa(M_Pow *self) {
     int i;
     
-    float *base = Stream_getData((Stream *)self->base_stream);
-    float *exp = Stream_getData((Stream *)self->exponent_stream);
+    MYFLT *base = Stream_getData((Stream *)self->base_stream);
+    MYFLT *exp = Stream_getData((Stream *)self->exponent_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = powf(base[i], exp[i]);
+        self->data[i] = MYPOW(base[i], exp[i]);
     }
 }
 

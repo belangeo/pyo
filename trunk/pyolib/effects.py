@@ -185,8 +185,8 @@ class Delay(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)()
+    >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out(1)
 
     """
     def __init__(self, input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0):
@@ -315,7 +315,7 @@ class Waveguide(PyoObject):
     >>> s.start()
     >>> t = LinTable([(0,0), (2,1), (5,0), (8191,0)])
     >>> met = Metro().play()
-    >>> pick = TrigEnv(met, table=t, 1)
+    >>> pick = TrigEnv(met, table=t, dur=1)
     >>> w = Waveguide(pick, freq=[200,400], dur=20, minfreq=20, mul=.5).out()
 
     """
@@ -600,7 +600,7 @@ class Convolve(PyoObject):
     >>> s.start()
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> sf = SfPlayer(snd, loop=True, mul=.5).out()
-    >>> a = Convolve(sf, '/Users/olipet/impulse3_512.aif').out()
+    >>> a = Convolve(sf, SndTable(SNDS_PATH+'/accord.aif'), size=512, mul=.3).out()
 
     """
     def __init__(self, input, table, size, mul=1, add=0):
@@ -612,8 +612,7 @@ class Convolve(PyoObject):
         self._add = add
         self._in_fader = InputFader(input)
         in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)                     
-        self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) \
-                               for i in range(lmax)]
+        self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['input', 'table', 'mul', 'add']

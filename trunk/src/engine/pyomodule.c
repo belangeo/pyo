@@ -296,14 +296,16 @@ format : int, optional\n        Format type of the new file. Possible formats ar
         4 : AIFF 24 bits int\n    \
         5 : WAV 24 bits int\n    \
         6 : AIFF 32 bits int\n    \
-        7 : WAV 32 bits int\n\n"
+        7 : WAV 32 bits int\n    \
+        8 : AIFF 64 bits float\n    \
+        9 : WAV 64 bits float\n\n"
 
 static PyObject *
 savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     int i, j, size;
     char *recpath;
     PyObject *samples;
-    float *sampsarray;
+    MYFLT *sampsarray;
     int sr = 44100;
     int channels = 1;
     int format = 0;
@@ -341,11 +343,17 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         case 7:    
             recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
             break;
+        case 8:
+            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_DOUBLE;
+            break;
+        case 9:    
+            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+            break;
     }
     
     if (channels == 1) {
         size = PyList_Size(samples);
-        sampsarray = (float *)malloc(size * sizeof(float));
+        sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
         for (i=0; i<size; i++) {
             sampsarray[i] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(samples, i));
         }
@@ -356,7 +364,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
             return PyInt_FromLong(-1);
         }
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
-        sampsarray = (float *)malloc(size * sizeof(float));
+        sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
         for (i=0; i<(size/channels); i++) {
             for (j=0; j<channels; j++) {
                 sampsarray[i*channels+j] = PyFloat_AS_DOUBLE(PyList_GET_ITEM(PyList_GET_ITEM(samples, j), i));
@@ -366,7 +374,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
         printf ("Not able to open output file %s.\n", recpath) ;
     }
-    sf_write_float(recfile, sampsarray, size);
+    SF_WRITE(recfile, sampsarray, size);
     sf_close(recfile);
     free(sampsarray);
     
@@ -412,11 +420,15 @@ static PyMethodDef pyo_functions[] = {
 };
 
 PyMODINIT_FUNC
+#ifndef USE_DOUBLE
 init_pyo(void)
+#else
+init_pyo64(void)
+#endif
 {
     PyObject *m;
     
-    m = Py_InitModule3("_pyo", pyo_functions, "Python digital signal processing module.");
+    m = Py_InitModule3(LIB_BASE_NAME, pyo_functions, "Python digital signal processing module.");
 
     if (PyType_Ready(&ServerType) < 0)
         return;

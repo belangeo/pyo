@@ -40,13 +40,13 @@ typedef struct {
     char *recpath;
     SNDFILE *recfile;
     SF_INFO recinfo;
-    float *buffer;
+    MYFLT *buffer;
 } Record;
 
 static void
 Record_process(Record *self) {
     int i, j, chnl, offset, totlen;
-    float *in;
+    MYFLT *in;
 
     totlen = self->chnls*self->bufsize*self->buffering;
     
@@ -69,7 +69,7 @@ Record_process(Record *self) {
     self->count++;
     
     if (self->count == self->buffering)
-        sf_write_float(self->recfile, self->buffer, totlen);
+        SF_WRITE(self->recfile, self->buffer, totlen);
 }
 
 static void
@@ -179,6 +179,12 @@ Record_init(Record *self, PyObject *args, PyObject *kwds)
         case 7:    
             self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
             break;
+        case 8:
+            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_DOUBLE;
+            break;
+        case 9:    
+            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+            break;
     }
     
     /* Open the output file. */
@@ -187,7 +193,7 @@ Record_init(Record *self, PyObject *args, PyObject *kwds)
     }	
 
     buflen = self->bufsize * self->chnls * self->buffering;
-    self->buffer = (float *)realloc(self->buffer, buflen * sizeof(float));
+    self->buffer = (MYFLT *)realloc(self->buffer, buflen * sizeof(MYFLT));
     for (i=0; i<buflen; i++) {
         self->buffer[i] = 0.;
     }    

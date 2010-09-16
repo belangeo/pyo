@@ -20,7 +20,6 @@
 
 #include <Python.h>
 #include "structmember.h"
-#include <math.h>
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
@@ -83,7 +82,7 @@ static void
 Input_compute_next_data_frame(Input *self)
 {   
     int i;
-    float *tmp;
+    MYFLT *tmp;
     tmp = Server_getInputBuffer((Server *)self->server);
     for (i=0; i<self->bufsize*self->nchnls; i++) {
         if ((i % self->nchnls) == self->chnl)

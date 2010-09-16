@@ -19,6 +19,7 @@
  *************************************************************************/
 
 #include "Python.h"
+#include "pyomodule.h"
 
 #ifdef __MATRIX_MODULE
 
@@ -26,7 +27,7 @@ typedef struct {
     PyObject_HEAD
     int rowsize;
     int colsize;
-    float **data;
+    MYFLT **data;
 } MatrixStream;
 
 
@@ -40,7 +41,7 @@ if ((self) == rt_error) { return rt_error; }	\
 
 int MatrixStream_getRowSize(PyObject *self);
 int MatrixStream_getColSize(PyObject *self);
-float MatrixStream_getInterpPointFromPos(PyObject *self, float row, float col);
+MYFLT MatrixStream_getInterpPointFromPos(PyObject *self, MYFLT row, MYFLT col);
 extern PyTypeObject MatrixStreamType;
 
 #endif

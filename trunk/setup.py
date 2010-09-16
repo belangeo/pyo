@@ -26,6 +26,12 @@ macros = []
 if '--use_double' in sys.argv: 
     sys.argv.remove('--use_double') 
     macros.append(('USE_DOUBLE',None))
+    extension_name = "_pyo64"
+    main_files = ['pyo.py', 'pyo64.py']
+else:
+    extension_name = "_pyo"
+    main_files = ['pyo.py']
+    
     
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
@@ -36,7 +42,7 @@ path = 'src/objects/'
 files = ['tablemodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c', 'sigmodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'oscmodule.c', 'delaymodule.c', 'sfplayermodule.c',
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
-        'selectmodule.c', 'freeverbmodule.c', 'granulatormodule.c', 'compressmodule.c', 'analysismodule.c', 
+        'selectmodule.c', 'freeverbmodule.c', 'granulatormodule.c', 'compressmodule.c', 'analysismodule.c',
         'convolvemodule.c', 'randommodule.c', 'wgverbmodule.c', 'utilsmodule.c', 'arithmeticmodule.c', 'matrixmodule.c',
         'matrixprocessmodule.c', 'harmonizermodule.c', 'recordmodule.c', 'chorusmodule.c']
 source_files = source_files + [path + f for f in files]
@@ -46,12 +52,12 @@ if sys.platform == "win32":
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include']
     library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo']
     libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo']
-    extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
+    extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
 else:
     include_dirs = ['include', '/usr/local/include']
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
-    extension = [Extension("_pyo", source_files, include_dirs=include_dirs, libraries=libraries, 
+    extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
        
 setup(  name = "pyo",
@@ -63,7 +69,7 @@ setup(  name = "pyo",
         url = "http://code.google.com/p/pyo/",
         license="GPLv3",
         packages=['pyolib', 'pyolib.snds'],
-        data_files=[(get_python_lib(), ['pyo.py']),
+        data_files=[(get_python_lib(), main_files),
         (os.path.join(get_python_lib(), 'pyolib', 'snds'), ['pyolib/snds/'+ f for f in os.listdir('pyolib/snds') if f.endswith('aif')])],
         ext_modules = extension )
       

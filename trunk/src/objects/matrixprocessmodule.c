@@ -20,7 +20,6 @@
 
 #include <Python.h>
 #include "structmember.h"
-#include <math.h>
 #include "pyomodule.h"
 #include "streammodule.h"
 #include "servermodule.h"
@@ -44,8 +43,8 @@ static void
 MatrixPointer_readframes(MatrixPointer *self) {
     int i;
     
-    float *row = Stream_getData((Stream *)self->indexrow_stream);
-    float *col = Stream_getData((Stream *)self->indexcol_stream);
+    MYFLT *row = Stream_getData((Stream *)self->indexrow_stream);
+    MYFLT *col = Stream_getData((Stream *)self->indexcol_stream);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MatrixStream_getInterpPointFromPos(self->matrix, row[i], col[i]);
@@ -181,7 +180,9 @@ MatrixPointer_init(MatrixPointer *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setIndexCol", "O", indexcoltmp);
     }
     
-    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
     
     if (addtmp) {
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);

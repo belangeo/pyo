@@ -41,14 +41,14 @@ typedef struct {
     Stream *ratio_stream;
     int modebuffer[6]; // need at least 2 slots for mul & add 
     void (*comp_func_ptr)();
-    float y1; // sample memory
-    float x1;
+    MYFLT y1; // sample memory
+    MYFLT x1;
     int dir;
-    float *follow;
+    MYFLT *follow;
 } Compress;
 
-static float
-C_clip(float x)
+static MYFLT
+C_clip(MYFLT x)
 {
     if (x <= 0.0)
         return 0.00000001;
@@ -59,7 +59,7 @@ C_clip(float x)
 }
 
 static void 
-direction(Compress *self, float val)
+direction(Compress *self, MYFLT val)
 {
     if (val == self->x1)
         return;
@@ -76,14 +76,14 @@ direction(Compress *self, float val)
 
 static void
 Compress_filters_ii(Compress *self) {
-    float absin, val;
+    MYFLT absin, val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float risetime = PyFloat_AS_DOUBLE(self->risetime);
-    float falltime = PyFloat_AS_DOUBLE(self->falltime);
-    float risefactor = 1. / (risetime * self->sr);
-    float fallfactor = 1. / (falltime * self->sr);
-    float factors[2] = {fallfactor, risefactor};
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
+    MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
+    MYFLT risefactor = 1. / (risetime * self->sr);
+    MYFLT fallfactor = 1. / (falltime * self->sr);
+    MYFLT factors[2] = {fallfactor, risefactor};
     
     for (i=0; i<self->bufsize; i++) {
         absin = in[i] * in[i];
@@ -95,12 +95,12 @@ Compress_filters_ii(Compress *self) {
 
 static void
 Compress_filters_ai(Compress *self) {
-    float absin, val, risefactor;
+    MYFLT absin, val, risefactor;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *risetime = Stream_getData((Stream *)self->risetime_stream);
-    float falltime = PyFloat_AS_DOUBLE(self->falltime);
-    float fallfactor = 1. / (falltime * self->sr);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
+    MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
+    MYFLT fallfactor = 1. / (falltime * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
         absin = in[i] * in[i];
@@ -116,12 +116,12 @@ Compress_filters_ai(Compress *self) {
 
 static void
 Compress_filters_ia(Compress *self) {
-    float absin, val, fallfactor;
+    MYFLT absin, val, fallfactor;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *falltime = Stream_getData((Stream *)self->falltime_stream);
-    float risetime = PyFloat_AS_DOUBLE(self->risetime);
-    float risefactor = 1. / (risetime * self->sr);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
+    MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
+    MYFLT risefactor = 1. / (risetime * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
         absin = in[i] * in[i];
@@ -137,11 +137,11 @@ Compress_filters_ia(Compress *self) {
 
 static void
 Compress_filters_aa(Compress *self) {
-    float absin, val, risefactor, fallfactor;
+    MYFLT absin, val, risefactor, fallfactor;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *risetime = Stream_getData((Stream *)self->risetime_stream);
-    float *falltime = Stream_getData((Stream *)self->falltime_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
+    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
     
     for (i=0; i<self->bufsize; i++) {
         absin = in[i] * in[i];
@@ -158,70 +158,70 @@ Compress_filters_aa(Compress *self) {
 
 static void
 Compress_compress_ii(Compress *self) {
-    float indb, diff, outdb, outa;
+    MYFLT indb, diff, outdb, outa;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float thresh = PyFloat_AS_DOUBLE(self->thresh);
-    float ratio = PyFloat_AS_DOUBLE(self->ratio);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT thresh = PyFloat_AS_DOUBLE(self->thresh);
+    MYFLT ratio = PyFloat_AS_DOUBLE(self->ratio);
     ratio = 1.0 / ratio;
     
     for (i=0; i<self->bufsize; i++) {
         indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh;
         outdb = diff - diff * ratio;
-        outa = powf(10.0, (0.0 - outdb) * 0.05);
+        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
         self->data[i] = in[i] * C_clip(outa);
     }
 }
 
 static void
 Compress_compress_ai(Compress *self) {
-    float indb, diff, outdb, outa;
+    MYFLT indb, diff, outdb, outa;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *thresh = Stream_getData((Stream *)self->thresh_stream);
-    float ratio = PyFloat_AS_DOUBLE(self->ratio);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *thresh = Stream_getData((Stream *)self->thresh_stream);
+    MYFLT ratio = PyFloat_AS_DOUBLE(self->ratio);
     ratio = 1.0 / ratio;
     
     for (i=0; i<self->bufsize; i++) {
         indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh[i];
         outdb = diff - diff * ratio;
-        outa = powf(10.0, (0.0 - outdb) * 0.05);
+        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
         self->data[i] = in[i] * C_clip(outa);
     }
 }
 
 static void
 Compress_compress_ia(Compress *self) {
-    float indb, diff, outdb, outa;
+    MYFLT indb, diff, outdb, outa;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float thresh = PyFloat_AS_DOUBLE(self->thresh);
-    float *ratio = Stream_getData((Stream *)self->ratio_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT thresh = PyFloat_AS_DOUBLE(self->thresh);
+    MYFLT *ratio = Stream_getData((Stream *)self->ratio_stream);
     
     for (i=0; i<self->bufsize; i++) {
         indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh;
         outdb = diff - diff / ratio[i];
-        outa = powf(10.0, (0.0 - outdb) * 0.05);
+        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
         self->data[i] = in[i] * C_clip(outa);
     }
 }
 
 static void
 Compress_compress_aa(Compress *self) {
-    float indb, diff, outdb, outa;
+    MYFLT indb, diff, outdb, outa;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
-    float *thresh = Stream_getData((Stream *)self->thresh_stream);
-    float *ratio = Stream_getData((Stream *)self->ratio_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *thresh = Stream_getData((Stream *)self->thresh_stream);
+    MYFLT *ratio = Stream_getData((Stream *)self->ratio_stream);
     
     for (i=0; i<self->bufsize; i++) {
         indb = 20.0 * log10f(C_clip(self->follow[i]));
         diff = indb - thresh[i];
         outdb = diff - diff / ratio[i];
-        outa = powf(10.0, (0.0 - outdb) * 0.05);
+        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
         self->data[i] = in[i] * C_clip(outa);
     }
 }
@@ -420,7 +420,7 @@ Compress_init(Compress *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
-    self->follow = (float *)realloc(self->follow, self->bufsize * sizeof(float));
+    self->follow = (MYFLT *)realloc(self->follow, self->bufsize * sizeof(MYFLT));
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

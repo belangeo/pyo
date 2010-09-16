@@ -32,10 +32,10 @@ typedef struct {
     PyObject *input2;
     Stream *input1_stream;
     Stream *input2_stream;
-    float fadetime;
+    MYFLT fadetime;
     int switcher;
-    float currentTime;
-    float sampleToSec;
+    MYFLT currentTime;
+    MYFLT sampleToSec;
 } InputFader;
 
 static void InputFader_setProcMode(InputFader *self) {};
@@ -43,7 +43,7 @@ static void InputFader_setProcMode(InputFader *self) {};
 static void InputFader_process_only_first(InputFader *self) 
 {
     int i;
-    float *in = Stream_getData((Stream *)self->input1_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input1_stream);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
@@ -53,7 +53,7 @@ static void InputFader_process_only_first(InputFader *self)
 static void InputFader_process_only_second(InputFader *self) 
 {
     int i;
-    float *in = Stream_getData((Stream *)self->input2_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input2_stream);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = in[i];
@@ -63,15 +63,15 @@ static void InputFader_process_only_second(InputFader *self)
 static void InputFader_process_one(InputFader *self) 
 {
     int i;
-    float sclfade, val;
-    float *in1 = Stream_getData((Stream *)self->input1_stream);
-    float *in2 = Stream_getData((Stream *)self->input2_stream);
+    MYFLT sclfade, val;
+    MYFLT *in1 = Stream_getData((Stream *)self->input1_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     val = 0.0;
     sclfade = 1. / self->fadetime;
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime < self->fadetime) {
-            val = sqrtf(self->currentTime * sclfade);
+            val = MYSQRT(self->currentTime * sclfade);
             self->currentTime += self->sampleToSec;
         }    
         else
@@ -87,15 +87,15 @@ static void InputFader_process_one(InputFader *self)
 static void InputFader_process_two(InputFader *self) 
 {
     int i;
-    float sclfade, val;
-    float *in1 = Stream_getData((Stream *)self->input1_stream);
-    float *in2 = Stream_getData((Stream *)self->input2_stream);
+    MYFLT sclfade, val;
+    MYFLT *in1 = Stream_getData((Stream *)self->input1_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
 
     val = 0.0;
     sclfade = 1. / self->fadetime;
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime < self->fadetime) {
-            val = sqrtf(self->currentTime * sclfade);
+            val = MYSQRT(self->currentTime * sclfade);
             self->currentTime += self->sampleToSec;
         }    
         else
@@ -200,7 +200,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"input", "fadetime", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|f", kwlist, &tmp, &self->fadetime))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &tmp, &self->fadetime))
         return PyInt_FromLong(-1);
     
     self->switcher = (self->switcher + 1) % 2;

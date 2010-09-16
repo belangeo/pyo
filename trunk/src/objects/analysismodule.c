@@ -36,21 +36,21 @@ typedef struct {
     Stream *freq_stream;
     int modebuffer[3]; // need at least 2 slots for mul & add 
     // sample memories
-    float x1;
-    float x2;
-    float y1;
-    float y2;
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
     // variables
-    float c;
-    float w0;
-    float alpha;
+    MYFLT c;
+    MYFLT w0;
+    MYFLT alpha;
     // coefficients
-    float b0;
-    float b1;
-    float b2;
-    float a0;
-    float a1;
-    float a2;
+    MYFLT b0;
+    MYFLT b1;
+    MYFLT b2;
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
 } Follower;
 
 static void 
@@ -65,9 +65,9 @@ Follower_compute_coeffs_lp(Follower *self)
 }
 
 static void
-Follower_compute_variables(Follower *self, float freq, float q)
+Follower_compute_variables(Follower *self, MYFLT freq, MYFLT q)
 {
-    //float w0, c, alpha;
+    //MYFLT w0, c, alpha;
     
     if (freq <= 1) 
         freq = 1;
@@ -75,16 +75,16 @@ Follower_compute_variables(Follower *self, float freq, float q)
         freq = self->sr;
     
     self->w0 = TWOPI * freq / self->sr;
-    self->c = cosf(self->w0);
-    self->alpha = sinf(self->w0) / (2 * q);
+    self->c = MYCOS(self->w0);
+    self->alpha = MYSIN(self->w0) / (2 * q);
     Follower_compute_coeffs_lp((Follower *)self);
 }
 
 static void
 Follower_filters_i(Follower *self) {
-    float absin, val;
+    MYFLT absin, val;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         absin = in[i] * in[i];
@@ -99,11 +99,11 @@ Follower_filters_i(Follower *self) {
 
 static void
 Follower_filters_a(Follower *self) {
-    float val, absin;
+    MYFLT val, absin;
     int i;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    float *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     
     for (i=0; i<self->bufsize; i++) {
         Follower_compute_variables(self, fr[i], 1.0);
@@ -434,9 +434,9 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    float thresh;
-    float lastValue;
-    float lastSample;
+    MYFLT thresh;
+    MYFLT lastValue;
+    MYFLT lastSample;
     int modebuffer[2]; // need at least 2 slots for mul & add
 } ZCross;
 
@@ -444,8 +444,8 @@ static void
 ZCross_process(ZCross *self) {
     int i;
     int count = 0;
-    float inval;
-    float *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT inval;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = self->lastValue;
@@ -460,7 +460,7 @@ ZCross_process(ZCross *self) {
         }
         self->lastSample = inval;
     }
-    self->lastValue = (float)count / self->bufsize;
+    self->lastValue = (MYFLT)count / self->bufsize;
 }
 
 static void ZCross_postprocessing_ii(ZCross *self) { POST_PROCESSING_II };
@@ -573,7 +573,7 @@ ZCross_init(ZCross *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "thresh", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|fOO", kwlist, &inputtmp, &self->thresh, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->thresh, &multmp, &addtmp))
         return -1; 
 
     INIT_INPUT_STREAM
