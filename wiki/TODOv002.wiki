@@ -4,9 +4,9 @@ TODO before releasing _pyo_ version 0.02.
 
 *Misc*
 
-- ~~Add "dur" and "delay" arguments to play and stop methods of !PyoObject.~~
+- ~~Add "dur" and "delay" arguments to play and stop methods of !PyoObject.~~ rev 413
 
-- float and double versions.
+- ~~float and double versions.~~ rev 417
 
 - Replace all printf statements with !PyErr_Warn.
 
