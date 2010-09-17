@@ -5,6 +5,9 @@
 Classic granulation stretching...
 
 """
+
+from distutils.sysconfig import get_python_lib
+print get_python_lib()
 from pyo import *
 s = Server(buffersize=512).boot()
 
