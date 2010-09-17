@@ -25,8 +25,8 @@ import os, sys, getopt
 import time
     
 macros = []
-if '--use_double' in sys.argv: 
-    sys.argv.remove('--use_double') 
+if '--use-double' in sys.argv: 
+    sys.argv.remove('--use-double') 
     macros.append(('USE_DOUBLE',None))
     extension_name = "_pyo64"
     main_files = ['pyo.py', 'pyo64.py']

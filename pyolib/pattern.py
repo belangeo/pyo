@@ -39,10 +39,12 @@ class Pattern(PyoObject):
         
     Methods:
 
+    setFunction(x) : Replace the `function` attribute.
     setTime(x) : Replace the `time` attribute.
 
     Attributes:
     
+    function : Python function. Function to be called.
     time : Time, in seconds, between each call.
     
     Notes:
@@ -72,7 +74,21 @@ class Pattern(PyoObject):
         self._base_objs = [Pattern_base(wrap(function,i), wrap(time,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['time']
+        return ['function', 'time']
+
+    def setFunction(self, x):
+        """
+        Replace the `function` attribute.
+
+        Parameters:
+
+        x : Python function
+            new `function` attribute.
+
+        """
+        self._function = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setTime(self, x):
         """
@@ -107,6 +123,10 @@ class Pattern(PyoObject):
         self._map_list = [SLMap(0.125, 4., 'lin', 'time', self._time)]
         PyoObject.ctrl(self, map_list, title)
          
+    @property
+    def function(self): return self._function
+    @function.setter
+    def function(self, x): self.setFunction(x)   
     @property
     def time(self):
         """float or PyoObject. Time, in seconds, between each call.""" 
