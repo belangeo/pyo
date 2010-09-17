@@ -29,9 +29,29 @@ extern "C" {
 #include "sndfile.h"
 #include "pyomodule.h"
 
+#ifdef USE_JACK
+#include <jack/jack.h>
+#endif
+
+typedef enum {
+    PyoPortaudio = 0,
+    PyoJack
+} PyoAudioBackendType;
+
+typedef struct {
+#ifdef USE_JACK
+    jack_client_t *jack_client;
+    jack_port_t **jack_in_ports;
+    jack_port_t **jack_out_ports;
+#endif
+} PyoJackBackendData;
+
 typedef struct {
     PyObject_HEAD
     PyObject *streams;
+    PyoAudioBackendType audio_be_type;
+    void *audio_be_data;
+    char *serverName; // Only used for jack client name
     PaStream *stream;
     PmStream *in;
     PmEvent midiEvents[200];

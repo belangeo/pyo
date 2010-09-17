@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Copyright 2010 Olivier Belanger
 
@@ -49,6 +50,11 @@ class Server(object):
     duplex : int {0, 1}, optional
         Input - output mode. 0 is output only and 1 is both ways. 
         Defaults to 1.
+    audio : string {'portaudio', 'pa', 'jack'}, optional
+        Audio backend to use. 'pa' is equivalent to 'portaudio'.
+        Default is 'portaudio'.
+    jackname : string, optional
+        Name of jack client. Defaults to 'pyo'
 
     Methods:
 
@@ -91,10 +97,10 @@ class Server(object):
     >>> s.start()
         
     """
-    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1):
+    def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
         self._nchnls = nchnls
         self._amp = 1.
-        self._server = Server_base(sr, nchnls, buffersize, duplex)
+        self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
 
     def gui(self, locals=None):
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
