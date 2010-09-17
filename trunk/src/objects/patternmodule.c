@@ -53,7 +53,7 @@ Pattern_generate_i(Pattern *self) {
         self->currentTime += self->sampleToSec;
     }
     if (flag == 1 || self->init == 1) {
-        PyObject_CallFunctionObjArgs(self->callable, NULL);
+        PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
         self->init = 0;
     }
 }
@@ -74,7 +74,7 @@ Pattern_generate_a(Pattern *self) {
         self->currentTime += self->sampleToSec;
     }
     if (flag == 1 || self->init == 1) {
-        PyObject_CallFunctionObjArgs(self->callable, NULL);
+        PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
         self->init = 0;
     }    
 }
@@ -162,12 +162,10 @@ Pattern_init(Pattern *self, PyObject *args, PyObject *kwds)
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &calltmp, &timetmp))
         return -1; 
- 
-    if (! PyFunction_Check(calltmp))
-        return -1;
-    
-    Py_XDECREF(self->callable);
-    self->callable = calltmp;
+   
+    if (calltmp) {
+        PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
+    }
     
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
@@ -193,6 +191,26 @@ Pattern_play(Pattern *self, PyObject *args, PyObject *kwds)
 };
 
 static PyObject * Pattern_stop(Pattern *self) { STOP };
+
+static PyObject *
+Pattern_setFunction(Pattern *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    Py_XDECREF(self->callable);
+    Py_INCREF(tmp);
+    self->callable = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
 
 static PyObject *
 Pattern_setTime(Pattern *self, PyObject *arg)
@@ -242,6 +260,7 @@ static PyMethodDef Pattern_methods[] = {
 {"play", (PyCFunction)Pattern_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Pattern_stop, METH_NOARGS, "Stops computing."},
 {"setTime", (PyCFunction)Pattern_setTime, METH_O, "Sets time factor."},
+{"setFunction", (PyCFunction)Pattern_setFunction, METH_O, "Sets the function to be called."},
 {NULL}  /* Sentinel */
 };
 
