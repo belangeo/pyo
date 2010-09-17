@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Copyright 2010 Olivier Belanger
 
@@ -21,6 +22,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_lib
 import os, sys, getopt
+import time
     
 macros = []
 if '--use_double' in sys.argv: 
@@ -32,6 +34,13 @@ else:
     extension_name = "_pyo"
     main_files = ['pyo.py']
     
+if '--use-jack' in sys.argv: 
+    sys.argv.remove('--use-jack') 
+    macros.append(('USE_JACK',None))
+
+tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.gmtime())
+
+macros.append(('TIMESTAMP', tsrt))
     
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
