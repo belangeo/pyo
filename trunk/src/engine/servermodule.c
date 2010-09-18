@@ -36,6 +36,7 @@ static PyObject *Server_shut_down(Server *self);
 static PyObject *Server_stop(Server *self);
 static void Server_process_gui(Server *server, float *out);
 static inline void Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuffer);
+
 void Server_debug(char * format, ...);
 void Server_message(char * format, ...);
 void Server_warning(char * format, ...);
@@ -94,7 +95,7 @@ pa_callback( const void *inputBuffer, void *outputBuffer,
     if (server->duplex == 1) {
         float *in = (float *)inputBuffer;
         for (i=0; i<server->bufferSize*server->nchnls; i++) {
-            my_server->input_buffer[i] = (MYFLT)in[i];
+            server->input_buffer[i] = (MYFLT)in[i];
         }
     }    
     else 
@@ -151,7 +152,6 @@ jack_callback (jack_nframes_t nframes, void *arg)
         }
     }
     MYFLT outputBuffer[server->nchnls*server->bufferSize];
-    memset(outputBuffer,0, sizeof(MYFLT)*server->nchnls*server->bufferSize);
     PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server, server->input_buffer, outputBuffer);
     if (server->withGUI == 1 && server->nchnls <= 8) {
@@ -160,14 +160,15 @@ jack_callback (jack_nframes_t nframes, void *arg)
     PyGILState_Release(s);
     for (i=0; i<server->bufferSize; i++) {
         for (j=0; j<server->nchnls; j++) {
-            out_buffers[j][i] = (jack_default_audio_sample_t) outputBuffer[(j*server->bufferSize) + i];
+            out_buffers[j][i] = (jack_default_audio_sample_t) outputBuffer[(i*server->nchnls)+j];
         }
     }
     server->midi_count = 0;
-//     if (server->server_started == 1) {
-//         if (server->server_stopped == 1 && server->currentAmp < 0.0001)
-//             server->server_started = 0;
-//     }  
+    if (server->server_started == 1) {
+        if (server->server_stopped == 1 && server->currentAmp < 0.0001)
+            server->server_started = 0;
+            Server_jack_stop(server);
+    }  
     return 0;    
 }
 
@@ -296,6 +297,11 @@ Server_pa_start(Server *self)
     return err;
 }
 
+int 
+Server_pa_stop(Server *self)
+{
+}
+
 #ifdef USE_JACK
 
 int
@@ -340,7 +346,7 @@ Server_jack_autoconnect (Server *self)
 int
 Server_jack_init (Server *self)
 {   
-    const char *client_name = NULL;
+    char client_name[32];
     const char *server_name = "server";
     jack_options_t options = JackNullOption;
     jack_status_t status;
@@ -351,8 +357,8 @@ Server_jack_init (Server *self)
     self->audio_be_data = (void *) be_data;
     be_data->jack_in_ports = (jack_port_t **) calloc(self->nchnls, sizeof(jack_port_t *));
     be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls, sizeof(jack_port_t *));
-    
-    be_data->jack_client = jack_client_open (self->serverName, options, &status, server_name);
+    strncpy(client_name,self->serverName, 32);
+    be_data->jack_client = jack_client_open (client_name, options, &status, server_name);
     if (be_data->jack_client == NULL) {
         Server_message("Jack error: jack_client_open() failed, "
         "status = 0x%2.0x\n", status);
@@ -364,10 +370,11 @@ Server_jack_init (Server *self)
     if (status & JackServerStarted) {
         Server_message("JACK server started\n");
     }
-    if (status & JackNameNotUnique) {
-        client_name = jack_get_client_name(be_data->jack_client);
-        Server_message("Jack unique name `%s' assigned\n", client_name);
+    if (strcmp(self->serverName, jack_get_client_name(be_data->jack_client)) ) {
+        strcpy(self->serverName, jack_get_client_name(be_data->jack_client));
+        Server_message("Jack name `%s' assigned\n", self->serverName);
     }
+    
     
     sampleRate = jack_get_sample_rate (be_data->jack_client);
     if (sampleRate != self->samplingRate) {
@@ -435,7 +442,6 @@ Server_jack_deinit (Server *self)
 int 
 Server_jack_start (Server *self)
 {
-#ifdef USE_JACK
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     jack_set_process_callback(be_data->jack_client, jack_callback, (void *) self);
     if (jack_activate (be_data->jack_client)) {
@@ -446,14 +452,14 @@ Server_jack_start (Server *self)
     }
     Server_jack_autoconnect(self);
     return 0;
-#else
-    printf ("Pyo compiled without Jack support.\n");
-    return -1;
-#endif
+}
+
+int 
+Server_jack_stop (Server *self)
+{
 }
 
 #endif
-
 
 /***************************************************/
 /*  Main Processing functions                      */
@@ -465,7 +471,7 @@ Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuff
     MYFLT buffer[server->nchnls][server->bufferSize];
     int i, j, chnl;
     int count = server->stream_count;
-    MYFLT amp = my_server->amp;
+    MYFLT amp = server->amp;
     Stream *stream_tmp;
     MYFLT *data;
     
@@ -966,7 +972,10 @@ Server_boot(Server *self)
             break;
         case PyoJack:
 #ifdef USE_JACK
-            audioerr = Server_jack_init(self); 
+            audioerr = Server_jack_init(self);
+            if (audioerr < 0) {
+                Server_jack_deinit(self);
+            }
 #else
             audioerr = -1;
             printf("Pyo built without Jack support\n");
@@ -982,6 +991,7 @@ Server_boot(Server *self)
         self->server_booted = 1;
     }
     else {
+        self->server_booted = 0;
         printf("Server not booted.\n");
     }    
     
