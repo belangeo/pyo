@@ -277,7 +277,6 @@ Sine_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Sine_init(Sine *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *freqtmp=NULL, *phasetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"freq", "phase", "mul", "add", NULL};

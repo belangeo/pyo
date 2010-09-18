@@ -327,7 +327,7 @@ Score_selector(Score *self) {
     for (i=0; i<self->bufsize; i++) {
         inval = (int)in[i];
         if (inval != self->last_value) {
-            res = sprintf(&self->curfname, "%s%i()\n", self->fname, inval);
+            res = sprintf(self->curfname, "%s%i()\n", self->fname, inval);
             state = PyRun_SimpleString(self->curfname);
             self->last_value = inval;
         }    
@@ -394,7 +394,6 @@ Score_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Score_init(Score *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp;
     
     static char *kwlist[] = {"input", "fname", NULL};

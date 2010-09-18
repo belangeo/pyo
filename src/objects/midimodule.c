@@ -702,7 +702,6 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Notein_init(Notein *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};

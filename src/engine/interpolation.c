@@ -18,9 +18,9 @@
  * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
  *************************************************************************/
 
-#include <math.h>
 #include "interpolation.h"
 #include "pyomodule.h"
+#include <math.h>
 
 MYFLT nointerp(MYFLT *buf, int index, MYFLT frac, int size) {
     return  buf[index];

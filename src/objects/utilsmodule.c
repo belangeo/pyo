@@ -143,7 +143,6 @@ Print_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Print_init(Print *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp;
     
     static char *kwlist[] = {"input", "method", "interval", NULL};

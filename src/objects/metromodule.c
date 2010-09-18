@@ -167,7 +167,6 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *timetmp=NULL;
     
     static char *kwlist[] = {"time", "offset", NULL};
@@ -773,8 +772,6 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Trig_init(Trig *self, PyObject *args, PyObject *kwds)
 {
-    int i;
-    
     static char *kwlist[] = {NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
@@ -1044,7 +1041,7 @@ Beater_makeTable(Beater *self, int fill) {
 
 static void 
 Beater_makeSequence(Beater *self) {
-	short i, j, k;
+	short i, j;
     
 	j = 0;
 	for (i=0; i < self->taps; i++) {
