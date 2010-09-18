@@ -211,7 +211,6 @@ static int
 Fader_init(Fader *self, PyObject *args, PyObject *kwds)
 {
     PyObject *multmp=NULL, *addtmp=NULL;
-    int i;
     
     static char *kwlist[] = {"fadein", "fadeout", "dur", "mul", "add", NULL};
     
@@ -599,8 +598,7 @@ static int
 Adsr_init(Adsr *self, PyObject *args, PyObject *kwds)
 {
     PyObject *multmp=NULL, *addtmp=NULL;
-    int i;
-    
+
     static char *kwlist[] = {"attack", "decay", "sustain", "release", "dur", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFFOO, kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp))
@@ -996,7 +994,6 @@ static int
 Linseg_init(Linseg *self, PyObject *args, PyObject *kwds)
 {
     PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
-    int i;
     
     static char *kwlist[] = {"list", "loop", "mul", "add", NULL};
     
@@ -1404,7 +1401,6 @@ static int
 Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
 {
     PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
-    int i;
     
     static char *kwlist[] = {"list", "loop", "exp", "inverse", "mul", "add", NULL};
     
