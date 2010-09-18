@@ -164,11 +164,6 @@ jack_callback (jack_nframes_t nframes, void *arg)
         }
     }
     server->midi_count = 0;
-    if (server->server_started == 1) {
-        if (server->server_stopped == 1 && server->currentAmp < 0.0001)
-            server->server_started = 0;
-            Server_jack_stop(server);
-    }  
     return 0;    
 }
 
@@ -300,6 +295,10 @@ Server_pa_start(Server *self)
 int 
 Server_pa_stop(Server *self)
 {
+    self->timeStep = (int)(0.1 * self->samplingRate);
+    self->amp = 0.;
+    self->server_stopped = 1;
+    return 0;
 }
 
 #ifdef USE_JACK
@@ -457,6 +456,10 @@ Server_jack_start (Server *self)
 int 
 Server_jack_stop (Server *self)
 {
+    PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
+    
+    self->server_started = 0;
+    return jack_deactivate(be_data->jack_client);
 }
 
 #endif
@@ -1046,16 +1049,29 @@ Server_start(Server *self)
 static PyObject *
 Server_stop(Server *self)
 {
+    int err = 0;
     if (self->server_started == 0) {
         PyErr_Warn(NULL, "The Server must be started!");
         Py_INCREF(Py_None);
         return Py_None;
     }
-    
-    self->timeStep = (int)(0.1 * self->samplingRate);
-    self->amp = 0.;
-    self->server_stopped = 1;
+    switch (self->audio_be_type) {
+        case PyoPortaudio:
+            err = Server_pa_stop(self);
+            break;
+#ifdef USE_JACK            
+        case PyoJack:
+            err = Server_jack_stop(self);
+            break;
+#endif            
+    }
 
+    if (err < 0) {
+        Server_warning("Error stopping Jack client.\n");
+    }
+    else {
+        self->server_stopped = 1;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1063,12 +1079,12 @@ Server_stop(Server *self)
 static PyObject *
 Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
 {    
-	char *filename=NULL;
-	
+    char *filename=NULL;
+    
     static char *kwlist[] = {"filename", NULL};
 
-	if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &filename))
-        return PyInt_FromLong(-1);
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &filename))
+    return PyInt_FromLong(-1);
 
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->samplingRate;
@@ -1076,15 +1092,15 @@ Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
     self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
     
     /* Open the output file. */
-	if (filename == NULL) {
-		if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
-			printf ("Not able to open output file %s.\n", self->recpath);
-		}	
+    if (filename == NULL) {
+        if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
+            printf ("Not able to open output file %s.\n", self->recpath);
+        }
     }
-	else {
-		if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {   
-			printf ("Not able to open output file %s.\n", filename);
-		}	
+    else {
+        if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {   
+            printf ("Not able to open output file %s.\n", filename);
+        }
     }
     
     self->record = 1;
