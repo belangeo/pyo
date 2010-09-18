@@ -631,9 +631,11 @@ Server_shut_down(Server *self)
         case PyoPortaudio:
             ret = Server_pa_deinit(self);
             break;
+#ifdef USE_JACK            
         case PyoJack:
             ret = Server_jack_deinit(self);
             break;
+#endif            
     }
     self->server_booted = 0;
     if (ret < 0) {
@@ -1022,9 +1024,11 @@ Server_start(Server *self)
         case PyoPortaudio:
             err = Server_pa_start(self);
             break;
+#ifdef USE_JACK            
         case PyoJack:
             err = Server_jack_start(self);
             break;
+#endif            
     }
     if (err) {
         printf("Error starting server.");
