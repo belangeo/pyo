@@ -33,8 +33,13 @@ extern "C" {
 #include <jack/jack.h>
 #endif
 
+#ifdef USE_COREAUDIO
+# include <CoreAudio/AudioHardware.h>
+#endif
+
 typedef enum {
     PyoPortaudio = 0,
+    PyoCoreaudio = 1,
     PyoJack
 } PyoAudioBackendType;
 
@@ -45,7 +50,7 @@ typedef struct {
     jack_port_t **jack_out_ports;
 #endif
 } PyoJackBackendData;
-
+    
 typedef struct {
     PyObject_HEAD
     PyObject *streams;
