@@ -1,11 +1,18 @@
+2010-09-21 belangeo	<belangeo@gmail.com>
+
+	* Added support for Coreaudio backend.
+	  Build with --use-coreaudio option.
+	- rev 431
+	
 2010-09-17 mantaraya36 <mantaraya36@gmail.com>
 
 	* Added support for Jack audio backend.
+	  Build with --use-jack option.
 	- rev 423
 
 2010-09-16 belangeo <belangeo@gmail.com>
 
-	* Added --use-double flag to compile pyo in double version.
+	* Added --use-double option to compile pyo in double version.
 	It creates a new library, called _pyo64.so, in the same directory
 	as _pyo.so. To use it, simply import pyo64 (from pyo64 import *).
 	- rev 417.

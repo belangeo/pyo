@@ -38,6 +38,10 @@ if '--use-jack' in sys.argv:
     sys.argv.remove('--use-jack') 
     macros.append(('USE_JACK',None))
 
+if '--use-coreaudio' in sys.argv: 
+    sys.argv.remove('--use-coreaudio') 
+    macros.append(('USE_COREAUDIO',None))
+
 tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.gmtime())
 
 macros.append(('TIMESTAMP', tsrt))
