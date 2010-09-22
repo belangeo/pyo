@@ -65,4 +65,4 @@ TODO before releasing _pyo_ version 0.02.
   * Looper (rewrite in C)
   * !SfMarkerTrigger
   * !AttackDetector, !PitchTrack
-  * Pourcent (let pass pourcent of incomming triggers)
+  * Percent (let pass percent of incomming triggers)
