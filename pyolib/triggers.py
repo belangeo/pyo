@@ -2480,3 +2480,103 @@ class Thresh(PyoObject):
     def dir(self): return self._dir
     @dir.setter
     def dir(self, x): self.setDir(x)
+
+class Percent(PyoObject):
+    """
+    Lets pass a certain percentage of the input triggers.
+
+    Percent looks at the triggers received in `input` and
+    lets them pass `percent` of the time.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    percent : float or PyoObject, optional
+        How much percentage of triggers to let pass, 
+        between 0 and 100. Defaults to 50.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setPercent(x) : Replace the `percent` attribute.
+
+    Attributes:
+
+    input : PyoObject. Audio signal.
+    percent : float or PyoObject. Percentage value.
+
+    Notes:
+
+    The out() method is bypassed. Percent's signal can not 
+    be sent to audio outs.
+
+    Percent has no `mul` and `add` attributes.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro(time=.125).play()
+    >>> trig = Percent(m, percent=50)
+    >>> t = TrigRand(trig, min=400, max=1000)
+    >>> a = Sine(freq=t, mul=.5).out()
+
+    """
+    def __init__(self, input, percent=50.):
+        PyoObject.__init__(self)
+        self._input = input
+        self._percent = percent
+        self._in_fader = InputFader(input)
+        in_fader, percent, lmax = convertArgsToLists(self._in_fader, percent)
+        self._base_objs = [Percent_base(wrap(in_fader,i), wrap(percent,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'percent']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setPercent(self, x):
+        """
+        Replace the `percent` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `percent` attribute.
+
+        """
+        self._percent = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPercent(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None):
+        self._map_list = [SLMap(0., 100., 'lin', 'percent', self._percent)]
+        PyoObject.ctrl(self, map_list, title)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def percent(self): return self._percent
+    @percent.setter
+    def percent(self, x): self.setPercent(x)

@@ -1010,6 +1010,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&ThreshType);
     PyModule_AddObject(m, "Thresh_base", (PyObject *)&ThreshType);
+
+    if (PyType_Ready(&PercentType) < 0)
+        return;
+    Py_INCREF(&PercentType);
+    PyModule_AddObject(m, "Percent_base", (PyObject *)&PercentType);
     
     if (PyType_Ready(&SelectType) < 0)
         return;

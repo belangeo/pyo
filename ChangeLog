@@ -1,3 +1,8 @@
+2010-09-23 belangeo <belangeo@gmail.com>
+
+	* Added new objet : Percent
+	- rev 434
+	
 2010-09-21 belangeo	<belangeo@gmail.com>
 
 	* Added support for Coreaudio backend.
