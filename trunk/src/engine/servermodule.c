@@ -36,11 +36,71 @@ static PyObject *Server_shut_down(Server *self);
 static PyObject *Server_stop(Server *self);
 static void Server_process_gui(Server *server, float *out);
 static inline void Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuffer);
-static int coreaudio_stop_callback(Server *self);
 
-void Server_debug(char * format, ...);
-void Server_message(char * format, ...);
-void Server_warning(char * format, ...);
+#ifdef USE_COREAUDIO
+static int coreaudio_stop_callback(Server *self);
+#endif
+
+void
+Server_error(Server *self, char * format, ...)
+{
+    // Errors should indicate failure to execute a request
+    if (self->verbosity & 1) {
+        char buffer[256];
+        va_list args;
+        va_start (args, format);
+        vsprintf (buffer,format, args);
+        va_end (args);
+
+        printf("%s",buffer);
+    }
+}
+
+void
+Server_message(Server *self, char * format, ...)
+{
+    // Messages should print useful or relevant information, or information requested by the user
+    if (self->verbosity & 2) {
+        char buffer[256];
+        va_list args;
+        va_start (args, format);
+        vsprintf (buffer,format, args);
+        va_end (args);
+
+        printf("%s",buffer);
+    }
+}
+
+void
+Server_warning(Server *self, char * format, ...)
+{
+    // Warnings should be used when an unexpected or unusual choice was made by pyo
+    if (self->verbosity & 4) {
+        char buffer[256];
+        va_list args;
+        va_start (args, format);
+        vsprintf (buffer,format, args);
+        va_end (args);
+        printf("%s",buffer);
+
+//         PyErr_Warn(NULL, buffer);
+    }
+}
+
+void
+Server_debug(Server *self, char * format, ...)
+{    
+    // Debug messages should print internal information which might be necessary for debugging internal conditions.
+    if (self->verbosity & 5) {
+        char buffer[256];
+        va_list args;
+        va_start (args, format);
+        vsprintf (buffer,format, args);
+        va_end (args);
+
+        printf("%s",buffer);
+    }
+}
 
 /* Portmidi get input events */
 static void portmidiGetEvents(Server *self) 
@@ -65,7 +125,7 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
         if (!eText) {
             eText = "???";
         }
-        fprintf(stderr, "portaudio error in %s: %s\n", cmdName, eText);
+        printf("portaudio error in %s: %s\n", cmdName, eText);
         Pa_Terminate();
     }
 }
@@ -173,7 +233,7 @@ jack_srate_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
     s->samplingRate = (float) nframes;
-    printf ("the sample rate is now %lu/sec\n", (unsigned long) nframes);
+    Server_debug(s, "the sample rate is now %lu/sec\n", (unsigned long) nframes);
     return 0;
 }
 
@@ -182,14 +242,14 @@ jack_bufsize_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
     s->bufferSize = (int) nframes;
-    printf ("the buffer size is now %lu/sec\n", (unsigned long) nframes);
+    Server_debug(s, "the buffer size is now %lu/sec\n", (unsigned long) nframes);
     return 0;
 }
 
 static void
 jack_error_cb (const char *desc)
 {
-    printf ( "JACK error: %s\n", desc);
+    printf("JACK error: %s\n", desc);
 }
 
 static void
@@ -197,7 +257,7 @@ jack_shutdown_cb (void *arg)
 {
     Server *s = (Server *) arg;
     Server_shut_down(s);
-    printf ( "JACK server shutdown. Pyo Server shut down.\n");
+    Server_warning(s, "JACK server shutdown. Pyo Server shut down.\n");
 }
 
 #endif
@@ -265,14 +325,14 @@ coreaudio_stop_callback(Server *self)
     if (self->duplex == 1) {
         err = AudioDeviceStop(self->input, coreaudio_input_callback);
         if (err != kAudioHardwareNoError) {
-            printf("Input AudioDeviceStop failed %d\n", (int)err);
+            Server_error(self, "Input AudioDeviceStop failed %d\n", (int)err);
             return -1;
         }        
     }
     
     err = AudioDeviceStop(self->output, coreaudio_output_callback);
     if (err != kAudioHardwareNoError) {
-        printf("Output AudioDeviceStop failed %d\n", (int)err);
+        Server_error(self, "Output AudioDeviceStop failed %d\n", (int)err);
         return -1;
     }
     self->server_started = 0;
@@ -329,7 +389,7 @@ Server_pa_init(Server *self)
         err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
-        printf("Portaudio error: %s", Pa_GetErrorText(err));
+        Server_error(self, "Portaudio error: %s", Pa_GetErrorText(err));
         return -1;
     }
     return 0;
@@ -387,13 +447,13 @@ Server_jack_autoconnect (Server *self)
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
         JackPortIsPhysical|JackPortIsOutput)) == NULL) {
-        printf("Jack error: Cannot find any physical capture ports\n");
+        Server_error(self, "Jack: Cannot find any physical capture ports\n");
         ret = -1;
     }
     int i=0;
     while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
         if (jack_connect (be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
-            printf ("Jack warning: cannot connect input ports\n");
+            Server_warning(self, "Jack: cannot connect input ports\n");
             ret = -1;
         }
         i++;
@@ -402,14 +462,14 @@ Server_jack_autoconnect (Server *self)
     
     if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
         JackPortIsPhysical|JackPortIsInput)) == NULL) {
-        printf("Jack error: Cannot find any physical playback ports\n");
+        Server_error(self, "Jack: Cannot find any physical playback ports\n");
         ret = -1;
     }
     
     i=0;
     while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
         if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
-            printf ("Jack warning: cannot connect output ports\n");
+            Server_warning(self, "Jack: cannot connect output ports\n");
             ret = -1;
         }
         i++;
@@ -435,42 +495,41 @@ Server_jack_init (Server *self)
     strncpy(client_name,self->serverName, 32);
     be_data->jack_client = jack_client_open (client_name, options, &status, server_name);
     if (be_data->jack_client == NULL) {
-        Server_message("Jack error: jack_client_open() failed, "
-        "status = 0x%2.0x\n", status);
+        Server_error(self, "Jack error: Unable to create JACK client\n");
         if (status & JackServerFailed) {
-            Server_message ("Jack error: Unable to connect to JACK server\n");
+            Server_debug(self, "Jack error: jack_client_open() failed, "
+            "status = 0x%2.0x\n", status);
         }
         return -1;
     }
     if (status & JackServerStarted) {
-        Server_message("JACK server started\n");
+        Server_message(self, "JACK server started.\n");
     }
     if (strcmp(self->serverName, jack_get_client_name(be_data->jack_client)) ) {
         strcpy(self->serverName, jack_get_client_name(be_data->jack_client));
-        Server_message("Jack name `%s' assigned\n", self->serverName);
+        Server_warning(self, "Jack name `%s' assigned\n", self->serverName);
     }
-    
     
     sampleRate = jack_get_sample_rate (be_data->jack_client);
     if (sampleRate != self->samplingRate) {
         self->samplingRate = sampleRate;
-        Server_message("Sample rate set to Jack engine sample rate: %" PRIu32 "\n", sampleRate);
+        Server_warning(self, "Sample rate set to Jack engine sample rate: %" PRIu32 "\n", sampleRate);
     }
     else {
-        Server_message("Jack engine sample rate: %" PRIu32 "\n", sampleRate);
+        Server_debug(self, "Jack engine sample rate: %" PRIu32 "\n", sampleRate);
     }
     if (sampleRate <= 0) {
-        Server_message("Invalid Jack engine sample rate.");
+        Server_error(self, "Invalid Jack engine sample rate.");
         jack_client_close (be_data->jack_client);
         return -1;
     }
     bufferSize = jack_get_buffer_size(be_data->jack_client);
     if (bufferSize != self->bufferSize) {
         self->bufferSize = bufferSize;
-        Server_message("Buffer size set to Jack engine buffer size: %" PRIu32 "\n", bufferSize);
+        Server_warning(self, "Buffer size set to Jack engine buffer size: %" PRIu32 "\n", bufferSize);
     }
     else {
-        Server_message("Jack engine buffer size: %" PRIu32 "\n", bufferSize);
+        Server_debug(self, "Jack engine buffer size: %" PRIu32 "\n", bufferSize);
     }
     int nchnls = self->nchnls;
     
@@ -491,7 +550,7 @@ Server_jack_init (Server *self)
                                   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
         }
         if ((be_data->jack_in_ports[index] == NULL) || (be_data->jack_out_ports[index] == NULL)) {
-            printf("Jack error: no more JACK ports available\n");
+            Server_error(self, "Jack: no more JACK ports available\n");
             return -1;
         }
     }
@@ -520,7 +579,7 @@ Server_jack_start (Server *self)
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     jack_set_process_callback(be_data->jack_client, jack_callback, (void *) self);
     if (jack_activate (be_data->jack_client)) {
-        printf ("Jack error: cannot activate jack client.\n");
+        Server_error(self, "Jack error: cannot activate jack client.\n");
         jack_client_close (be_data->jack_client);
         Server_shut_down(self);
         return -1;
@@ -547,38 +606,38 @@ Server_coreaudio_init(Server *self)
     OSStatus err = kAudioHardwareNoError;
     UInt32 count, namelen, propertySize;
     int i, numdevices;
-	AudioDeviceID mOutputDevice = kAudioDeviceUnknown;
-	AudioDeviceID mInputDevice = kAudioDeviceUnknown;
-	AudioTimeStamp	now;
-	Boolean writable;
+    AudioDeviceID mOutputDevice = kAudioDeviceUnknown;
+    AudioDeviceID mInputDevice = kAudioDeviceUnknown;
+    AudioTimeStamp	now;
+    Boolean writable;
     
     // List all coreaudio devices
     err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices, &count, 0);
     AudioDeviceID *devices = (AudioDeviceID*) malloc(count);    
     err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &count, devices);
     if (err != kAudioHardwareNoError) {
-        printf("get kAudioHardwarePropertyDevices error %s\n", (char*)&err);
+        Server_error(self, "get kAudioHardwarePropertyDevices error %s\n", (char*)&err);
         free(devices);
     }
 
     numdevices = count / sizeof(AudioDeviceID);
-    printf("Coreaudio : Number of devices: %i\n", numdevices);
+    Server_debug(self, "Coreaudio : Number of devices: %i\n", numdevices);
 
     for (i=0; i<numdevices; ++i) {
         err = AudioDeviceGetPropertyInfo(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, 0);
         if (err != kAudioHardwareNoError) {
-            printf("info kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
+            Server_error(self, "info kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
             break;
         }
         
         char *name = (char*)malloc(count);
         err = AudioDeviceGetProperty(devices[i], 0, false, kAudioDevicePropertyDeviceName, &count, name);
         if (err != kAudioHardwareNoError) {
-            printf("get kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
+            Server_error(self, "get kAudioDevicePropertyDeviceName error %s A %d %08X\n", (char*)&err, i, devices[i]);
             free(name);
             break;
         }
-        printf("   %d : \"%s\"\n", i, name);
+        Server_message(self, "   %d : \"%s\"\n", i, name);
         free(name);
     }    
     /////////////////////////////
@@ -602,21 +661,21 @@ Server_coreaudio_init(Server *self)
         //get the output device:
         err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice, &count, (void *) &mOutputDevice);
         if (err != kAudioHardwareNoError) {
-            printf("get kAudioHardwarePropertyDefaultOutputDevice error %s\n", (char*)&err);
+            Server_error(self, "get kAudioHardwarePropertyDefaultOutputDevice error %s\n", (char*)&err);
             return -1;
         }
     }
 
     err = AudioDeviceGetPropertyInfo(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, 0);
     if (err != kAudioHardwareNoError) {
-        printf("info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
+        Server_error(self, "info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }    
     char *name = (char*)malloc(namelen);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
     if (err != kAudioHardwareNoError) {
-        printf("get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
+        Server_error(self, "get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }
-    printf("Coreaudio : Uses output device : \"%s\"\n", name);
+    Server_message(self, "Coreaudio : Uses output device : \"%s\"\n", name);
     self->output = mOutputDevice;
     free(name);
 
@@ -629,54 +688,54 @@ Server_coreaudio_init(Server *self)
             err = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultInputDevice, &count, (void *) &mInputDevice);
             //get the input device:
             if (err != kAudioHardwareNoError) {
-                printf("get kAudioHardwarePropertyDefaultInputDevice error %s\n", (char*)&err);
+                Server_error(self, "get kAudioHardwarePropertyDefaultInputDevice error %s\n", (char*)&err);
                 return -1;
             }
         }     
 
         err = AudioDeviceGetPropertyInfo(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, 0);
         if (err != kAudioHardwareNoError) {
-            printf("info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
+            Server_error(self, "info kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }    
         name = (char*)malloc(namelen);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyDeviceName, &namelen, name);
         if (err != kAudioHardwareNoError) {
-            printf("get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
+            Server_error(self, "get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }
-        printf("Coreaudio : Uses input device : \"%s\"\n", name);
+        Server_message(self, "Coreaudio : Uses input device : \"%s\"\n", name);
         self->input = mInputDevice;
         free(name);
     }    
     //////////////////////////
     
-	now.mFlags = kAudioTimeStampHostTimeValid;
-	now.mHostTime = AudioGetCurrentHostTime();
+    now.mFlags = kAudioTimeStampHostTimeValid;
+    now.mHostTime = AudioGetCurrentHostTime();
     
     // set/get the buffersize for the devices
     count = sizeof(UInt32);
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
     if (err != kAudioHardwareNoError) {
-        printf("set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
+        Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
     }    
 
     if (self->duplex == 1) {
         err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
         if (err != kAudioHardwareNoError) {
-            printf("set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
+            Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
         }    
     }    
     
     err = AudioDeviceGetPropertyInfo(mOutputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, 0);
     if (err != kAudioHardwareNoError) {
-        printf("info kAudioDevicePropertyBufferFrameSize error %s A %08X\n", (char*)&err, mOutputDevice);
+        Server_error(self, "info kAudioDevicePropertyBufferFrameSize error %s A %08X\n", (char*)&err, mOutputDevice);
     }
     long bufferSize;
-	err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
-	if (err != kAudioHardwareNoError) {
-		printf("get kAudioDevicePropertyBufferFrameSize error %s\n", (char*)&err);
-		return -1;
-	}
-    printf("Coreaudio : Current buffer size = %ld\n", bufferSize);
+    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
+    if (err != kAudioHardwareNoError) {
+        Server_error(self, "get kAudioDevicePropertyBufferFrameSize error %s\n", (char*)&err);
+        return -1;
+    }
+    Server_message(self, "Coreaudio : Current buffer size = %ld\n", bufferSize);
 
     
     // set/get the sampling rate for the devices
@@ -684,24 +743,24 @@ Server_coreaudio_init(Server *self)
     double pyoSamplingRate = (double)self->samplingRate;
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
     if (err != kAudioHardwareNoError) {
-        printf("set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+        Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         err = AudioDeviceGetPropertyInfo(mOutputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, 0);
         if (err != kAudioHardwareNoError) {
-            printf("info kAudioDevicePropertyNominalSampleRate error %s A %08X\n", (char*)&err, mOutputDevice);
+            Server_debug(self, "info kAudioDevicePropertyNominalSampleRate error %s A %08X\n", (char*)&err, mOutputDevice);
         }
         double sampleRate;
         err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
         if (err != kAudioHardwareNoError) {
-            printf("get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+            Server_debug(self, "get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
             return -1;
         }
         self->samplingRate = (int)sampleRate;
-        printf("Coreaudio : Current sampling rate = %i\n", self->samplingRate);
+        Server_message(self, "Coreaudio : Current sampling rate = %i\n", self->samplingRate);
     }
     if (self->duplex ==1) {
         err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
         if (err != kAudioHardwareNoError) {
-            printf("set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+            Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         }
     }    
 
@@ -710,7 +769,7 @@ Server_coreaudio_init(Server *self)
     if (self->duplex == 1) {
         err = AudioDeviceAddIOProc(self->input, coreaudio_input_callback, (void *) self);	// setup our device with an IO proc
         if (err != kAudioHardwareNoError) {
-            printf("Input AudioDeviceAddIOProc failed %d\n", (int)err);
+            Server_error(self, "Input AudioDeviceAddIOProc failed %d\n", (int)err);
             return -1;
         }        
         err = AudioDeviceGetPropertyInfo(self->input, 0, true, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
@@ -725,7 +784,7 @@ Server_coreaudio_init(Server *self)
     
     err = AudioDeviceAddIOProc(self->output, coreaudio_output_callback, (void *) self);	// setup our device with an IO proc
     if (err != kAudioHardwareNoError) {
-        printf("Output AudioDeviceAddIOProc failed %d\n", (int)err);
+        Server_error(self, "Output AudioDeviceAddIOProc failed %d\n", (int)err);
         return -1;
     }
     err = AudioDeviceGetPropertyInfo(self->output, 0, false, kAudioDevicePropertyIOProcStreamUsage, &propertySize, &writable);
@@ -748,14 +807,14 @@ Server_coreaudio_deinit(Server *self)
     if (self->duplex == 1) {
         err = AudioDeviceRemoveIOProc(self->input, coreaudio_input_callback);
         if (err != kAudioHardwareNoError) {
-            printf("Input AudioDeviceRemoveIOProc failed %d\n", (int)err);
+            Server_error(self, "Input AudioDeviceRemoveIOProc failed %d\n", (int)err);
             return -1;
         }    
     }
     
     err = AudioDeviceRemoveIOProc(self->output, coreaudio_output_callback);
     if (err != kAudioHardwareNoError) {
-        printf("Output AudioDeviceRemoveIOProc failed %d\n", (int)err);
+        Server_error(self, "Output AudioDeviceRemoveIOProc failed %d\n", (int)err);
         return -1;
     }
     
@@ -770,14 +829,14 @@ Server_coreaudio_start(Server *self)
     if (self->duplex == 1) {
         err = AudioDeviceStart(self->input, coreaudio_input_callback);
         if (err != kAudioHardwareNoError) {
-            printf("Input AudioDeviceStart failed %d\n", (int)err);
+            Server_error(self, "Input AudioDeviceStart failed %d\n", (int)err);
             return -1;
         }        
     }
     
     err = AudioDeviceStart(self->output, coreaudio_output_callback);
     if (err != kAudioHardwareNoError) {
-        printf("Output AudioDeviceStart failed %d\n", (int)err);
+        Server_error(self, "Output AudioDeviceStart failed %d\n", (int)err);
         return -1;
     }
     return 0;
@@ -903,42 +962,6 @@ Server_process_gui(Server *server, float *out)
     }
 }
 
-void
-Server_debug(char * format, ...)
-{    
-    char buffer[256];
-    va_list args;
-    va_start (args, format);
-    vsprintf (buffer,format, args);
-    va_end (args);
-
-    printf("%s",buffer);
-}
-
-void
-Server_message(char * format, ...)
-{    
-    char buffer[256];
-    va_list args;
-    va_start (args, format);
-    vsprintf (buffer,format, args);
-    va_end (args);
-
-    printf("%s",buffer);
-}
-
-void
-Server_warning(char * format, ...)
-{    
-    char buffer[256];
-    va_list args;
-    va_start (args, format);
-    vsprintf (buffer,format, args);
-    va_end (args);
-
-    PyErr_Warn(NULL, buffer);
-}
-
 /***************************************************/
 
 /* Global function called by any new audio object to 
@@ -952,9 +975,9 @@ PyServer_get_server()
 static PyObject *
 Server_shut_down(Server *self)
 {
-    int ret = 0;
+    int ret = -1;
     if (self->server_booted == 0) {
-        PyErr_Warn(NULL, "The Server must be booted!");
+        Server_error(self, "The Server must be booted!");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -964,21 +987,21 @@ Server_shut_down(Server *self)
     switch (self->audio_be_type) {
         case PyoPortaudio:
             ret = Server_pa_deinit(self);
-            break;
-#ifdef USE_COREAUDIO            
+            break;     
         case PyoCoreaudio:
+#ifdef USE_COREAUDIO       
             ret = Server_coreaudio_deinit(self);
-            break;
-#endif            
-#ifdef USE_JACK            
-        case PyoJack:
+#endif      
+            break;          
+        case PyoJack:    
+#ifdef USE_JACK    
             ret = Server_jack_deinit(self);
-            break;
-#endif            
+#endif 
+            break;           
     }
     self->server_booted = 0;
     if (ret < 0) {
-        printf("Error closing audio backend.\n");
+        Server_error(self, "Error closing audio backend.\n");
     }
     
     if (self->withPortMidi == 1) {
@@ -1020,7 +1043,8 @@ static PyObject *
 Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     if (PyServer_get_server() != NULL) {
-        PyErr_Warn(NULL, "Warning: A Server is already created!\nIf you put this Server in a new variable, please delete it!");
+        Server_warning((Server *) PyServer_get_server(), "Warning: A Server is already created!"
+            "If you put this Server in a new variable, please delete it!");
         return PyServer_get_server();
     }    
     Server *self;
@@ -1039,6 +1063,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
+    self->verbosity = 7;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1053,7 +1078,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     char *audioType = "portaudio";
     char *serverName = "pyo";
 
-    Server_debug("Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
+    Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIISS, kwlist, 
             &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName))
@@ -1068,7 +1093,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
         self->audio_be_type = PyoCoreaudio;
     }    
     else {
-        printf("Unknown audio type. Using Portaudio\n");
+        Server_warning(self, "Unknown audio type. Using Portaudio\n");
         self->audio_be_type = PyoPortaudio;
     }
     strncpy(self->serverName, serverName, 32);
@@ -1131,7 +1156,7 @@ static PyObject *
 Server_setSamplingRate(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        printf("Can't change sampling rate for booted server.\n");
+        Server_warning(self, "Can't change sampling rate for booted server.\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1139,7 +1164,7 @@ Server_setSamplingRate(Server *self, PyObject *arg)
         self->samplingRate = PyInt_AsLong(arg);
     }
     else {
-        printf("Error setting sampling rate.\n");
+        Server_error(self, "Sampling rate must be an integer.\n");
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -1149,7 +1174,7 @@ static PyObject *
 Server_setNchnls(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        printf("Can't change number of channels for booted server.\n");
+        Server_warning(self, "Can't change number of channels for booted server.\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1157,7 +1182,7 @@ Server_setNchnls(Server *self, PyObject *arg)
         self->nchnls = PyInt_AsLong(arg);
     }
     else {
-        printf("Error setting number of channels.\n");
+        Server_error(self, "Number of channels must be an integer.\n");
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -1167,7 +1192,7 @@ static PyObject *
 Server_setBufferSize(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        printf("Can't change buffer size for booted server.\n");
+        Server_warning(self, "Can't change buffer size for booted server.\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1175,7 +1200,7 @@ Server_setBufferSize(Server *self, PyObject *arg)
         self->bufferSize = PyInt_AsLong(arg);
     }
     else {
-        printf("Error setting buffer size.\n");
+        Server_error(self, "Buffer size must be an integer.\n");
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -1185,7 +1210,7 @@ static PyObject *
 Server_setDuplex(Server *self, PyObject *arg)
 {
     if (self->server_booted) {
-        printf("Can't change duplex mode for booted server.\n");
+        Server_warning(self,"Can't change duplex mode for booted server.\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1200,7 +1225,7 @@ Server_setDuplex(Server *self, PyObject *arg)
 static PyObject *
 Server_setAmp(Server *self, PyObject *arg)
 {
-	if (arg != NULL) {
+    if (arg != NULL) {
         int check = PyNumber_Check(arg);
         
         if (check) {
@@ -1220,7 +1245,7 @@ Server_setAmpCallable(Server *self, PyObject *arg)
     PyObject *tmp;
     
     if (arg == NULL) {
-        PyErr_SetString(PyExc_TypeError, "The amplitude callable attribute must be a method.");
+        Server_error(self,"The amplitude callable attribute must be a method.\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1244,8 +1269,23 @@ Server_setAmpCallable(Server *self, PyObject *arg)
     self->gcount = 0;
     self->withGUI = 1;
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setVerbosity(Server *self, PyObject *arg)
+{
+    if (arg != NULL) {
+        int check = PyInt_Check(arg);
+        
+        if (check) {
+            self->verbosity = PyInt_AsLong(arg);
+        }
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 int
@@ -1255,12 +1295,12 @@ Server_pm_init(Server *self)
     PmError pmerr;
     pmerr = Pm_Initialize();
     if (pmerr) {
-        printf("PortMidi warning: could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
+        Server_warning(self, "PortMidi warning: could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
         self->withPortMidi = 0;
         return -1;
     }    
     else {
-        printf("PortMidi initialized.\n");
+        Server_debug(self, "PortMidi initialized.\n");
         self->withPortMidi = 1;
     }    
 
@@ -1273,21 +1313,23 @@ Server_pm_init(Server *self)
             if (info->input) {
                 pmerr = Pm_OpenInput(&self->in, self->midi_input, NULL, 100, NULL, NULL);
                 if (pmerr) {
-                    printf("PortMidi warning: could not open midi input %d (%s): %s\nPortmidi closed\n", 0, info->name, Pm_GetErrorText(pmerr));
+                    Server_error(self, 
+                                 "PortMidi warning: could not open midi input %d (%s): %s\nPortmidi closed\n",
+                                 0, info->name, Pm_GetErrorText(pmerr));
                     self->withPortMidi = 0;
                     Pm_Terminate();
                 }    
                 else
-                    printf("Midi Input (%s) opened.\n", info->name);
+                    Server_debug(self, "Midi Input (%s) opened.\n", info->name);
             }
             else {
-                printf("PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
+                Server_error(self, "PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
                 self->withPortMidi = 0;
                 Pm_Terminate();
             }    
         }    
         else {
-            printf("PortMidi warning: No midi device found!\nPortmidi closed\n");
+            Server_error(self, "PortMidi warning: No midi device found!\nPortmidi closed\n");
             self->withPortMidi = 0;
             Pm_Terminate();
         }    
@@ -1306,7 +1348,7 @@ Server_boot(Server *self)
     int audioerr = 0, midierr = 0;
     int i;
     if (self->server_booted == 1) {
-        PyErr_Warn(NULL, "Server already booted!");
+        Server_error(self, "Server already booted!\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1327,18 +1369,18 @@ Server_boot(Server *self)
             }
 #else
             audioerr = -1;
-            printf("Pyo built without Jack support\n");
+            Server_error(self, "Pyo built without Jack support\n");
 #endif
             break;
-#ifdef USE_COREAUDIO
         case PyoCoreaudio:
+#ifdef USE_COREAUDIO
             audioerr = Server_coreaudio_init(self);
             if (audioerr < 0) {
                 Server_coreaudio_deinit(self);
             }
 #else
             audioerr = -1;
-            printf("Pyo built without Coreaudio support\n");
+            Server_error(self, "Pyo built without Coreaudio support\n");
 #endif
             break;
     }
@@ -1352,7 +1394,7 @@ Server_boot(Server *self)
     }
     else {
         self->server_booted = 0;
-        printf("Server not booted.\n");
+        Server_error(self, "Server not booted.\n");
     }    
     
     Py_INCREF(Py_None);
@@ -1363,17 +1405,17 @@ static PyObject *
 Server_start(Server *self)
 {
     if (self->server_started == 1) {
-        PyErr_Warn(NULL, "Server already started!");
+        Server_warning(self, "Server already started!\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
 
     if (self->server_booted == 0) {
-        PyErr_Warn(NULL, "The Server must be booted!");
+        Server_warning(self, "The Server must be booted!\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
-    int err = 0;
+    int err = -1;
     
     /* Ensure Python is set up for threading */
     PyEval_InitThreads();
@@ -1381,20 +1423,20 @@ Server_start(Server *self)
     switch (self->audio_be_type) {
         case PyoPortaudio:
             err = Server_pa_start(self);
-            break;
-#ifdef USE_COREAUDIO            
+            break;          
         case PyoCoreaudio:
+#ifdef USE_COREAUDIO  
             err = Server_coreaudio_start(self);
-            break;
-#endif            
-#ifdef USE_JACK            
-        case PyoJack:
+#endif     
+            break;           
+        case PyoJack:  
+#ifdef USE_JACK      
             err = Server_jack_start(self);
-            break;
-#endif            
+#endif    
+            break;        
     }
     if (err) {
-        printf("Error starting server.");
+        Server_error(self, "Error starting server.");
     }
 
     self->amp = self->resetAmp;
@@ -1409,30 +1451,30 @@ Server_start(Server *self)
 static PyObject *
 Server_stop(Server *self)
 {
-    int err = 0;
+    int err = -1;
     if (self->server_started == 0) {
-        PyErr_Warn(NULL, "The Server must be started!");
+        Server_warning(self, "The Server must be started!\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
     switch (self->audio_be_type) {
         case PyoPortaudio:
             err = Server_pa_stop(self);
-            break;
-#ifdef USE_COREAUDIO            
+            break;          
         case PyoCoreaudio:
+#ifdef USE_COREAUDIO  
             err = Server_coreaudio_stop(self);
-            break;
 #endif            
-#ifdef USE_JACK            
+            break;        
         case PyoJack:
+#ifdef USE_JACK    
             err = Server_jack_stop(self);
-            break;
 #endif            
+            break;
     }
 
     if (err < 0) {
-        Server_warning("Error stopping server.\n");
+        Server_error(self, "Error stopping server.\n");
     }
     else {
         self->server_stopped = 1;
@@ -1459,12 +1501,12 @@ Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
     /* Open the output file. */
     if (filename == NULL) {
         if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
-            printf ("Not able to open output file %s.\n", self->recpath);
+            Server_error(self, "Not able to open output file %s.\n", self->recpath);
         }
     }
     else {
         if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {   
-            printf ("Not able to open output file %s.\n", filename);
+            Server_error(self, "Not able to open output file %s.\n", filename);
         }
     }
     
@@ -1493,7 +1535,7 @@ Server_addStream(Server *self, PyObject *args)
         return PyInt_FromLong(-1); 
         
     if (tmp == NULL) {
-        PyErr_SetString(PyExc_TypeError, "Need a pyo object as argument");
+        Server_error(self, "Need a pyo object as argument\n");
         return PyInt_FromLong(-1);
     }
 
@@ -1583,6 +1625,7 @@ static PyMethodDef Server_methods[] = {
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
+    {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
 	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},

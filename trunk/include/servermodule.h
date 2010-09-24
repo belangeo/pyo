@@ -93,6 +93,10 @@ typedef struct {
     int gcount;
     float *lastRms;
     PyObject *GUI;
+    
+    /* Properties */
+    int verbosity; //a sum of values to display different levels: 1 = error
+                   // 2 = message, 4 = warning , 8 = debug. Default 7.
 } Server;
 
 PyObject * PyServer_get_server();
