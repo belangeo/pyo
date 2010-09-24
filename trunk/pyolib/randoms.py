@@ -23,7 +23,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
-from types import StringType
+from types import StringType, ListType
 
 class Randi(PyoObject):
     """
@@ -265,7 +265,7 @@ class Choice(PyoObject):
 
     Parameters:
 
-    choice : list of floats
+    choice : list of floats or list of lists of floats
         Possible values for the random generation.
     freq : float or PyoObject, optional
         Polling frequency. Defaults to 1.
@@ -277,7 +277,7 @@ class Choice(PyoObject):
 
     Attributes:
     
-    choice : list of floats. Possible choices.
+    choice : list of floats or list of lists of floats. Possible choices.
     freq : float or PyoObject. Polling frequency.
 
     Examples:
@@ -295,8 +295,11 @@ class Choice(PyoObject):
         self._mul = mul
         self._add = add
         freq, mul, add, lmax = convertArgsToLists(freq, mul, add)
-        self._base_objs = [Choice_base(choice, wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
+        if type(choice[0]) != ListType:
+            self._base_objs = [Choice_base(choice, wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        else:
+            self._base_objs = [Choice_base(wrap(choice,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            
     def __dir__(self):
         return ['choice', 'freq', 'mul', 'add']
 
@@ -306,13 +309,16 @@ class Choice(PyoObject):
         
         Parameters:
 
-        x : list of floats
+        x : list of floats or list of lists of floats
             new `choice` attribute.
         
         """
         self._choice = x
-        [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
-
+        if type(x[0]) != ListType:
+            [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
+        else:
+            [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
+                
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
