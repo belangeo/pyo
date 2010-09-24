@@ -83,11 +83,16 @@ class Server(object):
     setBufferSize(x) : Set the buffer size used by the server.
     setNchnls(x) : Set the number of channels used by the server.
     setDuplex(x) : Set the duplex mode used by the server.
-
+    setVerbosity(x) : Set the server's verbosity.
+        
     Attributes:
     
     amp : Overall amplitude of the Server. This value is applied on any 
         stream sent to the soundcard.
+    verbosity : Control the messages printed by the server. It is a sum of 
+        values to display different levels: 1 = error, 2 = message, 
+        4 = warning , 8 = debug.
+        Default 7.
         
     Examples:
     
@@ -100,6 +105,7 @@ class Server(object):
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
         self._nchnls = nchnls
         self._amp = 1.
+        self._verbosity = 7
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
 
     def gui(self, locals=None):
@@ -167,7 +173,7 @@ class Server(object):
 
         """  
         self._server.setSamplingRate(x)
-
+        
     def setBufferSize(self, x):
         """
         Set the buffer size used by the server.
@@ -204,6 +210,19 @@ class Server(object):
 
         """        
         self._server.setDuplex(x)
+
+    def setVerbosity(self, x):
+        """
+        Set the server's verbosity.
+        
+        Parameters:
+
+        x : int
+            A sum of values to display different levels: 1 = error, 2 = message, 
+            4 = warning , 8 = debug.
+        """        
+        self._verbosity = x
+        self._server.setVerbosity(x)
 
     def setAmp(self, x):
         """
@@ -316,3 +335,14 @@ class Server(object):
         return self._amp
     @amp.setter
     def amp(self, x): self.setAmp(x) 
+
+    @property
+    def verbosity(self):
+        """int. Server verbosity.""" 
+        return self._verbosity
+    @verbosity.setter
+    def verbosity(self, x):
+        if (type(x) == int):
+            self.setVerbosity(x)
+        else:
+            raise Exception("verbosity must be an integer")
