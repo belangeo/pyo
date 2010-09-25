@@ -91,7 +91,7 @@ void
 Server_debug(Server *self, char * format, ...)
 {    
     // Debug messages should print internal information which might be necessary for debugging internal conditions.
-    if (self->verbosity & 5) {
+    if (self->verbosity & 8) {
         char buffer[256];
         va_list args;
         va_start (args, format);
@@ -1313,7 +1313,7 @@ Server_pm_init(Server *self)
             if (info->input) {
                 pmerr = Pm_OpenInput(&self->in, self->midi_input, NULL, 100, NULL, NULL);
                 if (pmerr) {
-                    Server_error(self, 
+                    Server_warning(self, 
                                  "PortMidi warning: could not open midi input %d (%s): %s\nPortmidi closed\n",
                                  0, info->name, Pm_GetErrorText(pmerr));
                     self->withPortMidi = 0;
@@ -1323,13 +1323,13 @@ Server_pm_init(Server *self)
                     Server_debug(self, "Midi Input (%s) opened.\n", info->name);
             }
             else {
-                Server_error(self, "PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
+                Server_warning(self, "PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
                 self->withPortMidi = 0;
                 Pm_Terminate();
             }    
         }    
         else {
-            Server_error(self, "PortMidi warning: No midi device found!\nPortmidi closed\n");
+            Server_warning(self, "PortMidi warning: No midi device found!\nPortmidi closed\n");
             self->withPortMidi = 0;
             Pm_Terminate();
         }    
