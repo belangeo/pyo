@@ -27,6 +27,7 @@ typedef struct {
     void (*funcptr)();
     int sid;
     int chnl;
+    int bufsize;
     int active;
     int todac;
     int duration;
@@ -55,7 +56,7 @@ extern PyTypeObject StreamType;
   (self) = (Stream *)(type)->tp_alloc((type), 0);	\
   if ((self) == rt_error) { return rt_error; }	\
 						\
-  (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = 0; \
+  (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = (self)->bufsize = 0; \
   (self)->active = 1;
 
 #ifdef __STREAM_MODULE
@@ -71,6 +72,7 @@ extern PyTypeObject StreamType;
 #define Stream_setStreamToDac(op, v) (((Stream *)(op))->todac = (v))
 #define Stream_setBufferCountWait(op, v) (((Stream *)(op))->bufferCountWait = (v))
 #define Stream_setDuration(op, v) (((Stream *)(op))->duration = (v))
+#define Stream_setBufferSize(op, v) (((Stream *)(op))->bufsize = (v))
  
 #endif
 /* __STREAMMODULE */
