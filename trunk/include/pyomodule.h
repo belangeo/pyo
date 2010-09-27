@@ -609,6 +609,7 @@ extern PyTypeObject M_PowType;
     MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
     Stream_setStreamObject(self->stream, (PyObject *)self); \
     Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
+    Stream_setBufferSize(self->stream, self->bufsize); \
     for (i=0; i<self->bufsize; i++) \
         self->data[i] = 0.0; \
     Stream_setData(self->stream, self->data);

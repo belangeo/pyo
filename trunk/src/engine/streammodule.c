@@ -162,7 +162,7 @@ void Stream_IncrementDurationCount(Stream *self)
 
 static PyObject *
 Stream_getValue(Stream *self) {
-    return Py_BuildValue(TYPE_F, self->data[0]);
+    return Py_BuildValue(TYPE_F, self->data[self->bufsize-1]);
 }
 
 static PyMethodDef Stream_methods[] = {
