@@ -2092,7 +2092,7 @@ Port_filters_ai(Port *self) {
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        risefactor = *risetime++ * self->sr;  
+        risefactor = (*risetime++ + 0.001) * self->sr;  
         if (self->dir == 1)
             val = self->y1 + (*in++ - self->y1) / risefactor;
         else
@@ -2113,7 +2113,7 @@ Port_filters_ia(Port *self) {
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        fallfactor = *falltime++ * self->sr;  
+        fallfactor = (*falltime++ + 0.001) * self->sr;  
         if (self->dir == 1)
             val = self->y1 + (*in++ - self->y1) * risefactor;
         else
@@ -2133,8 +2133,8 @@ Port_filters_aa(Port *self) {
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
-        risefactor = *risetime++ * self->sr;  
-        fallfactor = *falltime++ * self->sr;  
+        risefactor = (*risetime++ + 0.001) * self->sr;  
+        fallfactor = (*falltime++ + 0.001) * self->sr;  
         if (self->dir == 1)
             val = self->y1 + (*in++ - self->y1) / risefactor;
         else
@@ -2281,7 +2281,7 @@ Port_init(Port *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "risetime", "falltime", "init", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &inittmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &risetimetmp, &falltimetmp, &inittmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
