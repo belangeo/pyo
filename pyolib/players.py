@@ -238,9 +238,9 @@ class SfPlayer(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
           
     @property
     def sound(self): 
@@ -423,9 +423,9 @@ class SfMarkerShuffler(PyoObject):
         """
         return self._markers
         
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
                     
     @property
     def speed(self): 
@@ -608,11 +608,11 @@ class SfMarkerLooper(PyoObject):
         """
         return self._markers
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), 
                           SLMap(0, len(self._markers)-1, 'lin', 'mark', self._mark, 'int'),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def speed(self): 

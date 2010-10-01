@@ -28,7 +28,10 @@ from _maps import *
 class Pattern(PyoObject):
     """
     Periodically calls a Python function.
-        
+
+    The play() method starts the pattern timer and is not called 
+    at the object creation time.
+            
     Parent class: PyoObject
     
     Parameters:
@@ -119,9 +122,9 @@ class Pattern(PyoObject):
     def setDiv(self, x):
         pass
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.125, 4., 'lin', 'time', self._time)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
          
     @property
     def function(self): return self._function
@@ -222,9 +225,9 @@ class Score(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): return self._input
@@ -288,6 +291,6 @@ class CallAfter(PyoObject):
     def setDiv(self, x):
         pass
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)

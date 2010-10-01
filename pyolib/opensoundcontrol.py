@@ -111,9 +111,9 @@ class OscSend(PyoObject):
     def setAdd(self, x):
         pass    
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -223,7 +223,7 @@ class OscReceive(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
         

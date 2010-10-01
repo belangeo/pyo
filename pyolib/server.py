@@ -112,8 +112,12 @@ class Server(object):
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
                                  self.setAmp, self.getIsStarted(), locals, self.shutdown)
         self._server.setAmpCallable(f)
-        win.mainloop()
-
+        try:
+            win.mainloop()
+        except:
+            if win != None:
+                win.MainLoop()
+            
     def setInOutDevice(self, x):
         """
         Set both input and output audio devices. See `pa_list_devices()`.
