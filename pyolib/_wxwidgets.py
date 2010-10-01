@@ -634,11 +634,16 @@ class PyoObjectControl(wx.Frame):
                 setattr(self._obj, key, self._sigs[key])
         self.box.AddGrowableCol(1, 1) 
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
+
+        if sys.platform == "linux2":
+            Y_OFF = 5
+        else:
+            Y_OFF = 35
         panel.SetSizerAndFit(mainBox)
         x,y = panel.GetSize()
-        self.SetSize((-1, y+35))
-        self.SetMinSize((-1, y+35))
-        self.SetMaxSize((-1, y+35))
+        self.SetSize((-1, y+Y_OFF))
+        self.SetMinSize((-1, y+Y_OFF))
+        self.SetMaxSize((-1, y+Y_OFF))
         
     def _destroy(self, event):
         for m in self._map_list:
@@ -662,9 +667,13 @@ class ViewTable_withPIL(wx.Frame):
         self.width = 500
         self.height = 200
         self.half_height = self.height / 2
-        self.SetSize((self.width+10, self.height+30))
-        self.SetMinSize((self.width+10, self.height+30))
-        self.SetMaxSize((self.width+10, self.height+30))
+        if sys.platform == "linux2":
+            Y_OFF = 5
+        else:
+            Y_OFF = 30
+        self.SetSize((self.width+10, self.height+Y_OFF))
+        self.SetMinSize((self.width+10, self.height+Y_OFF))
+        self.SetMaxSize((self.width+10, self.height+Y_OFF))
         im = Image.new("L", (self.width, self.height), 255)
         draw = ImageDraw.Draw(im)
         draw.line(samples, fill=0, width=1)
@@ -686,9 +695,13 @@ class ViewTable_withoutPIL(wx.Frame):
         self.width = 500
         self.height = 200
         self.half_height = self.height / 2
-        self.SetSize((self.width+10, self.height+40))
-        self.SetMinSize((self.width+10, self.height+40))
-        self.SetMaxSize((self.width+10, self.height+40))
+        if sys.platform == "linux2":
+            Y_OFF = 15
+        else:
+            Y_OFF = 40
+        self.SetSize((self.width+10, self.height+Y_OFF))
+        self.SetMinSize((self.width+10, self.height+Y_OFF))
+        self.SetMaxSize((self.width+10, self.height+Y_OFF))
         self.tableclass = tableclass
         print tableclass
         if sys.platform == 'win32':
@@ -722,9 +735,13 @@ class ViewMatrix_withPIL(wx.Frame):
     def __init__(self, parent, samples=None, size=None):
         wx.Frame.__init__(self, parent)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.SetSize((size[0], size[1]+22))
-        self.SetMinSize((size[0], size[1]+22))
-        self.SetMaxSize((size[0], size[1]+22))
+        if sys.platform == "linux2":
+            Y_OFF = 0
+        else:
+            Y_OFF = 22
+        self.SetSize((size[0], size[1]+Y_OFF))
+        self.SetMinSize((size[0], size[1]+Y_OFF))
+        self.SetMaxSize((size[0], size[1]+Y_OFF))
         im = Image.new("L", size, None)
         im.putdata(samples)
         image = wx.EmptyImage(size[0], size[1])
@@ -739,9 +756,13 @@ class ViewMatrix_withoutPIL(wx.Frame):
     def __init__(self, parent, samples=None, size=None):
         wx.Frame.__init__(self, parent)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.SetSize((size[0], size[1]+22))
-        self.SetMinSize((size[0], size[1]+22))
-        self.SetMaxSize((size[0], size[1]+22))
+        if sys.platform == "linux2":
+            Y_OFF = 0
+        else:
+            Y_OFF = 22
+        self.SetSize((size[0], size[1]+Y_OFF))
+        self.SetMinSize((size[0], size[1]+Y_OFF))
+        self.SetMaxSize((size[0], size[1]+Y_OFF))
         self.rows = size[1]
         self.cols = size[0]
         self.samples = samples
@@ -816,10 +837,14 @@ class ServerGUI(wx.Frame):
         self.text.Bind(wx.EVT_CHAR, self.onChar)
         box.Add(self.text, 0, wx.LEFT, 28)
 
+        if sys.platform == "linux2":
+            Y_OFF = 10
+        else:
+            Y_OFF = 40
         panel.SetSizerAndFit(box)
         x, y = panel.GetSize()
-        panel.SetSize((x+3, y+40))
-        self.SetSize((x+3, y+40))
+        panel.SetSize((x+3, y+Y_OFF))
+        self.SetSize((x+3, y+Y_OFF))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
 
