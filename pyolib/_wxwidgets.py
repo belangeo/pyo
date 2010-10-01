@@ -637,8 +637,10 @@ class PyoObjectControl(wx.Frame):
 
         if sys.platform == "linux2":
             Y_OFF = 5
-        else:
+        elif sys.platform == "win32":
             Y_OFF = 35
+        else:
+            Y_OFF = 20    
         panel.SetSizerAndFit(mainBox)
         x,y = panel.GetSize()
         self.SetSize((-1, y+Y_OFF))
