@@ -41,10 +41,6 @@ if '--use-jack' in sys.argv:
 if '--use-coreaudio' in sys.argv: 
     sys.argv.remove('--use-coreaudio') 
     macros.append(('USE_COREAUDIO',None))
-
-tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.gmtime())
-
-macros.append(('TIMESTAMP', tsrt))
     
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
@@ -68,6 +64,8 @@ if sys.platform == "win32":
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
 else:
+    tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.gmtime())
+    macros.append(('TIMESTAMP', tsrt))
     include_dirs = ['include', '/usr/local/include']
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
