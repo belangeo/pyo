@@ -159,11 +159,11 @@ class Pan(PyoObject):
         [obj.stop() for obj in self._base_objs]
         return self
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapPan(self._pan),
                         SLMap(0., 1., 'lin', 'spread', self._spread),
                         SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -299,9 +299,9 @@ class SPan(PyoObject):
         [obj.stop() for obj in self._base_objs]
         return self
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapPan(self._pan), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): 
@@ -439,9 +439,9 @@ class Switch(PyoObject):
         [obj.stop() for obj in self._base_objs]
         return self
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, self._outs-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): 
@@ -558,9 +558,9 @@ class Selector(PyoObject):
         for i, obj in enumerate(self._base_objs):
             obj.setVoice(wrap(x, i/self._length))
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, len(self._inputs)-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def inputs(self): return self._inputs

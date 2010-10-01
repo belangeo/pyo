@@ -1,3 +1,9 @@
+2010-09-30 belangeo	<belangeo@gmail.com>
+
+	* Added support for wxPython toolkit. If wx is installed, pyo will
+	  use it instead of Tk.
+	- rev 442
+
 2010-09-23 belangeo <belangeo@gmail.com>
 
 	* Added new objet : Percent
@@ -24,7 +30,7 @@
 
 2010-09-13 belangeo	<belangeo@gmail.com>
 	
-	* Added "dur" and "delay" arguments to play and stop methods of PyoObject.
+	* Added "dur" and "delay" arguments to play and out methods of PyoObject.
 	- rev 413.
 	
 2010-09-06 belangeo <belangeo@gmail.com>

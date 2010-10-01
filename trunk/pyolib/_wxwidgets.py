@@ -1,0 +1,869 @@
+"""
+Copyright 2010 Olivier Belanger
+
+This file is part of pyo.
+
+pyo is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+pyo is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import wx, os, sys, math
+from types import ListType, FloatType, IntType
+from wx.lib.embeddedimage import PyEmbeddedImage
+
+try:
+    from PIL import Image, ImageDraw, ImageTk
+except:
+    pass
+    
+BACKGROUND_COLOUR = "#EBEBEB"
+
+vu_metre = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAFCAIAAACPTDSjAAAAAXNSR0IArs4c6QAAACF0RVh0"
+    "U29mdHdhcmUAR3JhcGhpY0NvbnZlcnRlciAoSW50ZWwpd4f6GQAAAMJJREFUeJxiYBgFo4BG"
+    "wHWbO1bEKc6JS4pXiddxtTNWKTFLMYspVlilpFyk9WsNsUopR6toF+lglVJP0wDKYpUCmiYX"
+    "II9VyqTTFOgSrFI28+0E9YSwSgE9hcfXLNwsZEgBDcQVVkBnAB2DKxi7qg13LHHERIEeMvWF"
+    "ulilYoIUM2JUsUoVp2vGKyjsdbDHRH0G+u4SElilZpkYW4uIYJXaaGNtwMDwHxsaTVijCWs0"
+    "YY0mrNGENZqwRhMWAAAA//8DAHGDnlocOW36AAAAAElFTkSuQmCC")
+
+vu_metre_dark = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAAMgAAAAFCAYAAAAALqP0AAAAAXNSR0IArs4c6QAAAAlwSFlz"
+    "AAALEgAACxIB0t1+/AAADst0RVh0Q29tbWVudABwclZXIGNodW5rbGVuIDMwMiBpZ25vcmVk"
+    "Og1BU0NJSTogeJzt0U1WwjAuwPHpLohUKS5tibG3yM4ude11ei4u4OtdvIE4ky76cOVz+/9l"
+    "LuYjaS68f759yKu8nMys6zTPc8rm9Exq1C6nLicuS7UwcS5ljHGMMopEyyQu0S5FJGUuLi4u"
+    "Li5Xdb2pd/cuu1pj899y+6ixrTV+lufcktvvLl7p1ut+8C7r9efnUut2Kb/PhOshu5vK9I5l"
+    "LtrQtiG0wdmmq3IuT7ffLp1vOt9rLnvfaVjprfSNdo69jvy+P5fPjZbDfunZuSYNSEVYOiA3"
+    "ODlDRUREMTRENTZDMjMwMTBDMEYxRTkwNzg4NTQyOTBENkQ4OUIxQjdDOENFMDM3NUVENzU3"
+    "QTE5MEZFMEVCNURCQzgxMzg5MzAyRkE3MEU1NzNGQkZGNjUxQUU2MjM2OTE3QkM3RkJFN0RD"
+    "OEFCQkM5Q0NDQUNFQjM0Q0Y3M0NBRTZGNDRDNkFENDE4QTcxODI3MTE0QkI1MzA3MTFDNjU4"
+    "QzcxOEMzMjhBNDRDQjI0MUFEMTE1NDUyNDY1MDAwMDAwMDAwMA1ta0JGIGNodW5rbGVuIDcy"
+    "IGlnbm9yZWQ6DUFTQ0lJOiD63sr+Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
+    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4NSEVYOiBGQURFQ0FGRTAwMDAw"
+    "MDA0MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDANbWtUUyBjaHVua2xlbiA4ODg2IGlnbm9yZWQ6DUFT"
+    "Q0lJOiB4nO1dWXPbSJLG9ozbLd/unph92C5FbGzsU2twLnwuRVHSWC6HpHy9OHjB1rSPLllW"
+    "t5fB/76ZWVUgUCiAOChSni6rW0WiUC6+zPwqqyouOnnWup51ensuM2ve+8cpJKHfLobj+cvj"
+    "vXBmzl+x5MVRO5zZtjk/PC6EM2/e2++Hs4Y97/XPLyC7dS4uhPRv3j0+vp61uvBrb3fweWZs"
+    "LiNjbLwxusbU+C6fLoz386PTLsi5LjkuIccyfobcLuN3uOP9vNc+LmGVuw1IRVg6IDc4OUNF"
+    "RDVENTk3M0RCNDg5MkM2RjY4Q0RCMkRERkVFOUU5ODdERDgxNzQ1NkM2Q0VDNTM2QjcwMTM3"
+    "QzE0NDU1MUQyNTgwNzg3QTQ3Q0JEMzg3OEMxRDZCNDhGMUU1OTU2Qjc5N0MxRkZCRTk5NTk1"
+    "NTIwNTAyODgwMzgyODUyOUUyRUFCNUI0NUEyNTAwN0JFQ0NGQzJBQUIyQTBCM0E3OUQ2QkE5"
+    "RTc1N0E3QjE3MzM2QkRFRkJDNzI5MjRBMURGMDg4NkUzDW1rQlMgY2h1bmtsZW4gMTkwIGln"
+    "bm9yZWQ6DUFTQ0lJOiB4nF1Oyy6CMC7szd/wLi6DwFHKq2GrLmoub2hswlWTJmaz/27Lw4Nz"
+    "mcnMzmZknS4sLj6iTy5wjS71M11FpjEu91QupdGPLmryVqPj9jLag7S0Lb2AoC6DcOgupnV5"
+    "t/GlLkdwlG9kLi5sYC72ZC+2ZT7Jdi452C7PXZPXzshBLi6y/C7dqZg2zfS38NzZ2Z5HlS7D"
+    "g1R7LjH2SC77UYlsxEgnOopp0YOOnqvexY9w1WEuJ0SZOi6kLl+6Ll+mDUhFWDogNzg5QzVE"
+    "NEVDQjBFODIzMDEwRUNDRERGRjAxMzAwODNDMDUxQ0FBQjYxQUIwNjZBMDQ2RjY4NkNDMjU1"
+    "OTMyNjY2QjNGRjZFQ0JDMzgzNzM5OUM5Q0NDRTY2NjQ5RDFBMkMxQTNFQTI0RjFENzA4RDFF"
+    "RjUzMzVENDVBNjMxMDhGNzU0MDlBNUQxOEYwMjZBRjI1NkEzRTNGNjMyREE4M0I0QjQyREJE"
+    "ODBBMDA3ODM3MEU4MERBNjc1NzlCN0YxQTUwMTQ3NzANbWtCVCBjaHVua2xlbiAxMTQ1IGln"
+    "bm9yZWQ6DUFTQ0lJOiD6zsr+Ln84xS4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
+    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4ueJztmolt6zAuLl1ILkkhKSSN"
+    "pJAukkZSiD82+GM8bEjZsWT4mi4udJDisctDIrXfK6WUUkoppZRSSv3X9/f3/uvra0qF34Oy"
+    "LpdM+y7pX1NVn91uN+Xz83P/+vr6c37LdacuVdYtVb5/eXk52GPr9K+t9P/7+/svSnWseg1I"
+    "RVg6IEZBQ0VDQUZFMDA3RjM4QzUwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwNzg5Q0VE"
+    "OUE4OTZERUIzMDEwMDU1RDQ4MUE0OTIxMjkyNDhEQTQ5MDE0OTI0NjUyDW1rQlQgY2h1bmts"
+    "ZW4gMzM5IGlnbm9yZWQ6DUFTQ0lJOiD6zsr+Ln9ViS4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
+    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4ueJzt1uFpg2Au"
+    "hlEucS4ucS4ucS4ucS4usbyBLremIf+KLueBQ5tP++tNbM5TkiRJkiRJkiRJkiRJkiRJkiRJ"
+    "LtFxLue+70/nOcu1d/e/uk/3b13Xcy7Hc5qmx8/sLv0s99S9dS7LsjxexzAuf76HdO+yY5V9"
+    "s2F2rc37PQ1IRVg6IEZBQ0VDQUZFMDA3RjU1ODkwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwNzg5Q0VERDZFMTY5ODM2MDE0ODY1MTA3NzExMTA3NzExMDE3NzExMDA3NzExMTA3DW1r"
+    "QlQgY2h1bmtsZW4gMzc5OSBpZ25vcmVkOg1BU0NJSTog+s7K/i5/n3guLi4uLi4uLi4uLi4u"
+    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
+    "Lnic7Z2NkS4pLoUuiC5xIC7EiTguLuJELshe6eo+17tnSUDPz/5Yr2pqZ7tpLi4u0IOel5fB"
+    "YDAuLi6DwWAwLi4ug8HgP/z69evl58+ff3ziOveq5+JzpawuZfj3wf9R6fmK/jN8//795dOn"
+    "T3984jr3Mnz58uXfzy6+ffsNSEVYOiBGQUNFQ0FGRTAwN0Y5Rjc4MDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDc4OUNFRDlEOEQ5MTFDMjkwQzg1MUQ4ODEzNzEyMDBFQzQ4OTM4MTAw"
+    "N0UyNDQxQw1ta0JUIGNodW5rbGVuIDI3NDEgaWdub3JlZDoNQVNDSUk6IPrOyv4uf69+Li4u"
+    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
+    "Li4uLi4uLi4uLi54nO2djZHbOC5GU0guSSEpJI2kkC6SRlJIbpCbd/PuLkjJWa8u23gzntXq"
+    "h6QuLqIukPr5cy6GYS6GYS6GYS6GYXhJvn///tvvx48u/y67J1WOe5fh2fnw4cNvv69fv/6q"
+    "99q+Z/1XOaouw/uBvM/i9vCW/rm7to7Vbyd/DUhFWDogRkFDRUNBRkUwMDdGQUY3RTAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDA3ODlDRUQ5RDhEOTFEQjM4MEM0NjUzNDgxQTQ5MjEy"
+    "OTI0OERBNDkwMTQ5MjQ2NTINbWtCVCBjaHVua2xlbiAxMDc3NSBpZ25vcmVkOg1BU0NJSTog"
+    "+s7K/i5/1PAuLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4u"
+    "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLnic7X0ruOwo1vaSSCwuicQikUgkLi6JxCIjkVgkLi6J"
+    "jYyMjI0smX9R+5zunp7p+dT/1Ihac+k+VXvXLrAu77suVObnfTaeLtqzkS3G10Zgh6PDLnBd"
+    "xS5rLt+FfsPzYi7ggS4uLrYuLtCeJMF33ZPZsYTB8c18c/zxQ28NSEVYOiBGQUNFQ0FGRTAw"
+    "N0ZENEYwMDAwMDAwMDEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAw"
+    "MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDc4OUNFRDdEMkJCOEVDMjhENkY2"
+    "OTI0ODJDMTI4OUM0MjI5MTQ4MjQxNjE5ODlDNIWzHPoAAAAhdEVYdFNvZnR3YXJlAEdyYXBo"
+    "aWNDb252ZXJ0ZXIgKEludGVsKXeH+hkAAADWSURBVHic7JO7CsJAEEVH95UHpFBEhBUTJIpB"
+    "I0GFFDYRBNHSxr/Zn/B/R9c+Ewvt5sLtDswwwwHgcDh06muAVE3Y62TipA+HM80MxgLKoyGZ"
+    "kRWw3GmSsbmEealIJi2Ue3Mk4+dMUukopqj1Z2+KqRqDybBPMv4239xRqt8wflbXP/zOfveu"
+    "n9VVgLcmam1mJew3hmQWmXJFrklmu9K41to94hjbegoCzKQEirmEIVohSOYeRWiVhud0hm1l"
+    "QVgQFoQFYUFYEBaEBWFB/iLICwAA//8DAHqeTXUOgGpTAAAAAElFTkSuQmCC")
+
+def interpFloat(t, v1, v2):
+    "interpolator for a single value; interprets t in [0-1] between v1 and v2"
+    return (v2-v1)*t + v1
+
+def tFromValue(value, v1, v2):
+    "returns a t (in range 0-1) given a value in the range v1 to v2"
+    return float(value-v1)/(v2-v1)
+
+def clamp(v, minv, maxv):
+    "clamps a value within a range"
+    if v<minv: v=minv
+    if v> maxv: v=maxv
+    return v
+
+def toLog(t, v1, v2):
+    return math.log10(t/v1) / math.log10(v2/v1)
+
+def toExp(t, v1, v2):
+    return math.pow(10, t * (math.log10(v2) - math.log10(v1)) + math.log10(v1))
+
+POWOFTWO = {2:1, 4:2, 8:3, 16:4, 32:5, 64:6, 128:7, 256:8, 512:9, 1024:10, 2048:11, 4096:12, 8192:13, 16384:14, 32768:15, 65536:16}
+def powOfTwo(x):
+    return 2**x
+
+def powOfTwoToInt(x):
+    return POWOFTWO[x]
+        
+def GetRoundBitmap( w, h, r ):
+    maskColor = wx.Color(0,0,0)
+    shownColor = wx.Color(5,5,5)
+    b = wx.EmptyBitmap(w,h)
+    dc = wx.MemoryDC(b)
+    dc.SetBrush(wx.Brush(maskColor))
+    dc.DrawRectangle(0,0,w,h)
+    dc.SetBrush(wx.Brush(shownColor))
+    dc.SetPen(wx.Pen(shownColor))
+    dc.DrawRoundedRectangle(0,0,w,h,r)
+    dc.SelectObject(wx.NullBitmap)
+    b.SetMaskColour(maskColor)
+    return b
+
+def GetRoundShape( w, h, r ):
+    return wx.RegionFromBitmap( GetRoundBitmap(w,h,r) )
+
+class ControlSlider(wx.Panel):
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, outFunction=None, integer=False, powoftwo=False, backColour=None):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND)
+        self.parent = parent
+        self.backgroundColour = BACKGROUND_COLOUR
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(self.backgroundColour)
+        self.SetMinSize(self.GetSize())
+        self.knobSize = 40
+        self.knobHalfSize = 20
+        self.sliderHeight = 11
+        self.outFunction = outFunction
+        self.integer = integer
+        self.log = log
+        self.powoftwo = powoftwo
+        if self.powoftwo:
+            self.integer = True
+            self.log = False
+        self.SetRange(minvalue, maxvalue)
+        self.borderWidth = 1
+        self.selected = False
+        self._enable = True
+        self.new = ''
+        if backColour: self.backColour = backColour
+        else: self.backColour = "#444444"
+        if init != None: 
+            self.SetValue(init)
+            self.init = init
+        else: 
+            self.SetValue(minvalue)
+            self.init = minvalue
+        self.clampPos()
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
+        self.Bind(wx.EVT_LEFT_DCLICK, self.DoubleClick)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SIZE, self.OnResize)
+        self.Bind(wx.EVT_KEY_DOWN, self.keyDown)
+        self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
+        self.createSliderBitmap()
+        self.createKnobBitmap()
+
+    def getMinValue(self):
+        return self.minvalue
+
+    def getMaxValue(self):
+        return self.maxvalue
+
+    def Enable(self):
+        self._enable = True
+        self.Refresh()
+
+    def Disable(self):
+        self._enable = False
+        self.Refresh()
+        
+    def setSliderHeight(self, height):
+        self.sliderHeight = height
+        self.createSliderBitmap()
+        self.createKnobBitmap()
+        self.Refresh()
+
+    def createSliderBitmap(self):
+        w, h = self.GetSize()
+        b = wx.EmptyBitmap(w,h)
+        dc = wx.MemoryDC(b)
+        dc.SetPen(wx.Pen(self.backgroundColour, width=1))
+        dc.SetBrush(wx.Brush(self.backgroundColour))
+        dc.DrawRectangle(0,0,w,h)
+        dc.SetBrush(wx.Brush("#999999"))
+        dc.SetPen(wx.Pen(self.backgroundColour, width=1))
+        h2 = self.sliderHeight / 4
+        dc.DrawRoundedRectangle(0,h2,w,self.sliderHeight,2)
+        dc.SelectObject(wx.NullBitmap)
+        b.SetMaskColour("#999999")
+        self.sliderMask = b
+
+    def createKnobBitmap(self):
+        w, h = self.knobSize, self.GetSize()[1]
+        b = wx.EmptyBitmap(w,h)
+        dc = wx.MemoryDC(b)
+        rec = wx.Rect(0, 0, w, h)
+        dc.SetPen(wx.Pen(self.backgroundColour, width=1))
+        dc.SetBrush(wx.Brush(self.backgroundColour))
+        dc.DrawRectangleRect(rec)
+        h2 = self.sliderHeight / 4
+        rec = wx.Rect(0, h2, w, self.sliderHeight)
+        dc.GradientFillLinear(rec, "#414753", "#99A7CC", wx.BOTTOM)
+        dc.SetBrush(wx.Brush("#999999"))
+        dc.DrawRoundedRectangle(0,0,w,h,2)
+        dc.SelectObject(wx.NullBitmap)
+        b.SetMaskColour("#999999")
+        self.knobMask = b
+
+    def getInit(self):
+        return self.init
+
+    def SetRange(self, minvalue, maxvalue):   
+        self.minvalue = minvalue
+        self.maxvalue = maxvalue
+
+    def getRange(self):
+        return [self.minvalue, self.maxvalue]
+
+    def scale(self):
+        inter = tFromValue(self.pos, self.knobHalfSize, self.GetSize()[0]-self.knobHalfSize)
+        if not self.integer:
+            return interpFloat(inter, self.minvalue, self.maxvalue)
+        elif self.powoftwo:
+            return powOfTwo(int(interpFloat(inter, self.minvalue, self.maxvalue)))    
+        else:
+            return int(interpFloat(inter, self.minvalue, self.maxvalue))
+
+    def SetValue(self, value):
+        if self.HasCapture():
+            self.ReleaseMouse()
+        if self.powoftwo:
+            value = powOfTwoToInt(value)  
+        value = clamp(value, self.minvalue, self.maxvalue)
+        if self.log:
+            t = toLog(value, self.minvalue, self.maxvalue)
+            self.value = interpFloat(t, self.minvalue, self.maxvalue)
+        else:
+            t = tFromValue(value, self.minvalue, self.maxvalue)
+            self.value = interpFloat(t, self.minvalue, self.maxvalue)
+        if self.integer:
+            self.value = int(self.value)
+        if self.powoftwo:
+            self.value = powOfTwo(self.value)    
+        self.clampPos()
+        self.selected = False
+        self.Refresh()
+
+    def GetValue(self):
+        if self.log:
+            t = tFromValue(self.value, self.minvalue, self.maxvalue)
+            val = toExp(t, self.minvalue, self.maxvalue)
+        else:
+            val = self.value
+        if self.integer:
+            val = int(val)
+        return val
+
+    def LooseFocus(self, event):
+        self.selected = False
+        self.Refresh()
+
+    def keyDown(self, event):
+        if self.selected:
+            char = ''
+            if event.GetKeyCode() in range(324, 334):
+                char = str(event.GetKeyCode() - 324)
+            elif event.GetKeyCode() == 390:
+                char = '-'
+            elif event.GetKeyCode() == 391:
+                char = '.'
+            elif event.GetKeyCode() == wx.WXK_BACK:
+                if self.new != '':
+                    self.new = self.new[0:-1]
+            elif event.GetKeyCode() < 256:
+                char = chr(event.GetKeyCode())
+            if char in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '-']:
+                self.new += char
+            elif event.GetKeyCode() in [wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER]:
+                self.SetValue(eval(self.new))
+                self.new = ''
+                self.selected = False
+            self.Refresh()
+ 
+    def MouseDown(self, evt):
+        if evt.ShiftDown():
+            self.DoubleClick(evt)
+            return
+        if self._enable:
+            size = self.GetSize()
+            self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
+            self.value = self.scale()
+            self.CaptureMouse()
+            self.selected = False
+            self.Refresh()
+        evt.Skip()
+
+    def MouseUp(self, evt):
+        if self.HasCapture():
+            self.ReleaseMouse()
+
+    def DoubleClick(self, event):
+        if self._enable:
+            w, h = self.GetSize()
+            pos = event.GetPosition()
+            if wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h).Contains(pos):
+                self.selected = True
+            self.Refresh()
+        event.Skip()
+            
+    def MouseMotion(self, evt):
+        if self._enable:
+            size = self.GetSize()
+            if evt.Dragging() and evt.LeftIsDown():
+                self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
+                self.value = self.scale()
+                self.selected = False
+                self.Refresh()
+
+    def OnResize(self, evt):
+        self.createSliderBitmap()
+        self.clampPos()    
+        self.Refresh()
+
+    def clampPos(self):
+        size = self.GetSize()
+        if self.powoftwo:
+            val = powOfTwoToInt(self.value)
+        else:
+            val = self.value    
+        self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobHalfSize) + self.knobHalfSize
+        self.pos = clamp(self.pos, self.knobHalfSize, size[0]-self.knobHalfSize)
+        
+    def setbackColour(self, colour):
+        self.backColour = colour
+
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+
+        dc.SetBrush(wx.Brush(self.backgroundColour, wx.SOLID))
+        dc.Clear()
+
+        # Draw background
+        dc.SetPen(wx.Pen(self.backgroundColour, width=self.borderWidth, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+
+        # Draw inner part
+        if self._enable: sliderColour =  "#99A7CC"
+        else: sliderColour = "#BBBBBB"
+        h2 = self.sliderHeight / 4
+        rec = wx.Rect(0, h2, w, self.sliderHeight)
+        dc.GradientFillLinear(rec, "#646986", sliderColour, wx.BOTTOM)
+        dc.DrawBitmap(self.sliderMask, 0, 0, True)
+
+        # Draw knob
+        if self._enable: knobColour = '#888888'
+        else: knobColour = "#DDDDDD"
+        rec = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h)  
+        dc.GradientFillLinear(rec, "#424864", knobColour, wx.RIGHT)
+        dc.DrawBitmap(self.knobMask, rec[0], rec[1], True)
+        
+        if self.selected:
+            rec2 = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h)  
+            dc.SetBrush(wx.Brush('#333333', wx.SOLID))
+            dc.SetPen(wx.Pen('#333333', width=self.borderWidth, style=wx.SOLID))  
+            dc.DrawRoundedRectangleRect(rec2, 3)
+
+        if sys.platform in ['win32', 'linux2']:
+            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+        else:    
+            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+
+        # Draw text
+        if self.selected and self.new:
+            val = self.new
+        else:
+            if self.integer:
+                val = '%d' % self.GetValue()
+            else:
+                val = '%.3f' % self.GetValue()
+        if sys.platform == 'linux2':
+            width = len(val) * (dc.GetCharWidth() - 3)
+        else:
+            width = len(val) * dc.GetCharWidth()
+        dc.SetTextForeground('#FFFFFF')
+        dc.DrawLabel(val, rec, wx.ALIGN_CENTER)
+
+        # Send value
+        if self.outFunction:
+            self.outFunction(self.GetValue())
+
+        evt.Skip()
+
+class MultiSlider(wx.Panel):
+    def __init__(self, parent, init, key, command, slmap): 
+        wx.Panel.__init__(self, parent, size=(250,250))
+        self.backgroundColour = BACKGROUND_COLOUR
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(self.backgroundColour)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self._slmap = slmap
+        self._values = [slmap.set(x) for x in init]
+        self._nchnls = len(init)
+        self._labels = init
+        self._key = key
+        self._command = command
+        self._height = 16
+        if sys.platform in ['win32', 'linux2']:
+            self._font = wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL)
+        else:    
+            self._font = wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL)
+            
+        self.SetSize((250, self._nchnls*16))
+        self.SetMinSize((250,self._nchnls*16))
+
+    def OnPaint(self, event):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+        dc.SetBrush(wx.Brush(self.backgroundColour))
+        dc.Clear()
+        dc.DrawRectangle(0,0,w,h)
+        dc.SetBrush(wx.Brush("#000000"))
+        dc.SetFont(self._font)
+        dc.SetTextForeground('#999999')
+        for i in range(self._nchnls):
+            x = int(self._values[i] * w)
+            y = self._height * i
+            dc.DrawRectangle(0, y+1, x, self._height-2)
+            rec = wx.Rect(w/2-15, y, 30, self._height)
+            dc.DrawLabel("%s" % self._labels[i], rec, wx.ALIGN_CENTER)
+
+    def MouseDown(self, evt):
+        w,h = self.GetSize()
+        pos = evt.GetPosition()
+        slide = pos[1] / self._height
+        if 0 <= slide < self._nchnls:
+            self._values[slide] = pos[0] / float(w)
+            self._labels = [self._slmap.get(x) for x in self._values]
+            self._command(self._key, self._labels)
+            self.CaptureMouse()
+        self.Refresh()
+        evt.Skip()
+
+    def MouseUp(self, evt):
+        if self.HasCapture():
+            self.ReleaseMouse()
+
+    def MouseMotion(self, evt):
+        w,h = self.GetSize()
+        pos = evt.GetPosition()
+        if evt.Dragging() and evt.LeftIsDown():
+            slide = pos[1] / self._height
+            if 0 <= slide < self._nchnls:
+                self._values[slide] = pos[0] / float(w)
+                self._labels = [self._slmap.get(x) for x in self._values]
+                self._command(self._key, self._labels)
+            self.Refresh()
+        
+class VuMeter(wx.Panel):
+    def __init__(self, parent, size=(200,11)):
+        wx.Panel.__init__(self, parent, -1, size=size)
+        self.parent = parent
+        self.SetMinSize((200,6))
+        self.SetBackgroundColour("#000000")
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.old_nchnls = 2
+        self.numSliders = 2
+        self.SetSize((200, 5*self.numSliders+1))
+        self.bitmap = vu_metre.GetBitmap()
+        self.backBitmap = vu_metre_dark.GetBitmap()
+        self.amplitude = [0] * self.numSliders
+
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_CLOSE, self.OnClose)   
+        self.Bind(wx.EVT_SIZE, self.OnResize)   
+
+    def OnResize(self, evt):
+        self.setNumSliders(self.numSliders)
+
+    def setNumSliders(self, numSliders):
+        oldChnls = self.old_nchnls
+        self.numSliders = numSliders
+        self.amplitude = [0] * self.numSliders
+        gap = (self.numSliders - oldChnls) * 5
+        parentSize = self.parent.GetSize()
+        if sys.platform == 'linux2':
+            self.SetSize((200, 5*self.numSliders+1))
+            self.SetMinSize((200, 5*self.numSliders+1))
+            self.parent.SetSize((parentSize[0], parentSize[1]+gap))
+            self.parent.SetMinSize((parentSize[0], parentSize[1]+gap))
+        else:
+            self.SetSize((200, 5*self.numSliders+1))
+            self.parent.SetSize((parentSize[0], parentSize[1]+gap))
+        self.Refresh()
+
+    def setRms(self, *args):
+        if args[0] < 0: 
+            return
+        if not args:
+            self.amplitude = [0 for i in range(self.numSliders)]                
+        else:
+            self.amplitude = args
+        wx.CallAfter(self.Refresh)   
+
+    def OnPaint(self, event):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+        dc.SetBrush(wx.Brush("#000000"))
+        dc.Clear()
+        dc.DrawRectangle(0,0,w,h)
+        for i in range(self.numSliders):
+            db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
+            width = int(db*w)
+            dc.DrawBitmap(self.backBitmap, 0, i*5)
+            dc.SetClippingRegion(0, i*5, width, 5)
+            dc.DrawBitmap(self.bitmap, 0, i*5)
+            dc.DestroyClippingRegion()
+        event.Skip()
+        
+    def OnClose(self, evt):
+        self.Destroy()
+
+
+######################################################################
+### Control window for PyoObject
+######################################################################
+class Command:
+    def __init__(self, func, key):
+        self.func = func
+        self.key = key
+
+    def __call__(self, value):
+        self.func(self.key, value)
+
+class PyoObjectControl(wx.Frame):
+    def __init__(self, parent=None, obj=None, map_list=None):
+        wx.Frame.__init__(self, parent)
+        from controls import SigTo
+        self.Bind(wx.EVT_CLOSE, self._destroy)
+        self._obj = obj
+        self._map_list = map_list
+        self._sliders = []
+        self._excluded = []
+        self._values = {}
+        self._displays = {}
+        self._maps = {}
+        self._sigs = {}
+        
+        mainBox = wx.BoxSizer(wx.VERTICAL)
+        self.box = wx.FlexGridSizer(10,2,5,5)
+        
+        for i, m in enumerate(self._map_list):
+            key, init, mini, maxi, scl, res = m.name, m.init, m.min, m.max, m.scale, m.res
+            # filters PyoObjects
+            if type(init) not in [ListType, FloatType, IntType]:
+                self._excluded.append(key)
+            else:    
+                self._maps[key] = m
+                # label (param name)
+                label = wx.StaticText(self, -1, key)
+                # create and pack slider
+                if type(init) != ListType:
+                    if scl == 'log': scl = True
+                    else: scl = False
+                    if res == 'int': res = True
+                    else: res = False
+                    self._sliders.append(ControlSlider(self, mini, maxi, init, log=scl, size=(225,16),
+                                        outFunction=Command(self.setval, key), integer=res))
+                    self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
+                else:
+                    self._sliders.append(MultiSlider(self, init, key, self.setval, m))
+                    self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
+                # set obj attribute to PyoObject SigTo  
+                self._values[key] = init   
+                self._sigs[key] = SigTo(init, .025, init)
+                setattr(self._obj, key, self._sigs[key])
+        self.box.AddGrowableCol(1, 1) 
+        mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
+        self.SetSizerAndFit(mainBox)
+        x,y = mainBox.GetSize()
+        self.SetMinSize((-1, y+20))
+        self.SetMaxSize((-1, y+20))
+        
+    def _destroy(self, event):
+        for m in self._map_list:
+            key = m.name
+            if key not in self._excluded:
+                setattr(self._obj, key, self._values[key])
+                del self._sigs[key]
+        self.Destroy()        
+
+    def setval(self, key, x):
+        self._values[key] = x
+        setattr(self._sigs[key], "value", x)
+
+######################################################################
+### View window for PyoTableObject
+######################################################################
+class ViewTable_withPIL(wx.Frame):
+    def __init__(self, parent, samples=None):
+        wx.Frame.__init__(self, parent)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.width = 500
+        self.height = 200
+        self.half_height = self.height / 2
+        self.SetSize((self.width+10, self.height+30))
+        self.SetMinSize((self.width+10, self.height+30))
+        self.SetMaxSize((self.width+10, self.height+30))
+        im = Image.new("L", (self.width, self.height), 255)
+        draw = ImageDraw.Draw(im)
+        draw.line(samples, fill=0, width=1)
+        image = wx.EmptyImage(self.width, self.height)
+        image.SetData(im.convert("RGB").tostring())
+        self.img = wx.BitmapFromImage(image)
+        
+    def OnPaint(self, evt):
+        dc = wx.PaintDC(self)
+        dc.DrawBitmap(self.img, 0, 0)
+        dc.SetPen(wx.Pen('#BBBBBB', width=1, style=wx.SOLID))  
+        dc.DrawLine(0, self.half_height, self.width, self.half_height)
+
+class ViewTable_withoutPIL(wx.Frame):
+    def __init__(self, parent, samples=None):
+        wx.Frame.__init__(self, parent)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.width = 500
+        self.height = 200
+        self.half_height = self.height / 2
+        self.SetSize((self.width+10, self.height+30))
+        self.SetMinSize((self.width+10, self.height+30))
+        self.SetMaxSize((self.width+10, self.height+30))
+        self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
+
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.PaintDC(self)
+        dc.SetBrush(wx.Brush("#FFFFFF"))
+        dc.Clear()
+        dc.DrawRectangle(0,0,w,h)
+        dc.DrawLineList(self.samples)
+        dc.SetPen(wx.Pen('#BBBBBB', width=1, style=wx.SOLID))  
+        dc.DrawLine(0, self.half_height, self.width, self.half_height)
+
+######################################################################
+## View window for PyoMatrixObject
+#####################################################################
+class ViewMatrix_withPIL(wx.Frame):
+    def __init__(self, parent, samples=None, size=None):
+        wx.Frame.__init__(self, parent)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.SetSize((size[0], size[1]+22))
+        self.SetMinSize((size[0], size[1]+22))
+        self.SetMaxSize((size[0], size[1]+22))
+        im = Image.new("L", size, None)
+        im.putdata(samples)
+        image = wx.EmptyImage(size[0], size[1])
+        image.SetData(im.convert("RGB").tostring())
+        self.img = wx.BitmapFromImage(image)
+
+    def OnPaint(self, evt):
+        dc = wx.PaintDC(self)
+        dc.DrawBitmap(self.img, 0, 0)
+
+class ViewMatrix_withoutPIL(wx.Frame):
+    def __init__(self, parent, samples=None, size=None):
+        wx.Frame.__init__(self, parent)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.SetSize((size[0], size[1]+22))
+        self.SetMinSize((size[0], size[1]+22))
+        self.SetMaxSize((size[0], size[1]+22))
+        self.rows = size[1]
+        self.cols = size[0]
+        self.samples = samples
+
+    def OnPaint(self, evt):
+        dc = wx.PaintDC(self)
+        for i in range(self.rows*self.cols):
+            x = i % self.cols
+            y = i / self.cols
+            amp = int(self.samples[i])
+            amp = hex(amp).replace('0x', '')
+            if len(amp) == 1:
+                amp = "0%s" % amp
+            amp = "#%s%s%s" % (amp, amp, amp)
+            dc.SetPen(wx.Pen(amp, width=1, style=wx.SOLID))  
+            dc.DrawPoint(x, y)
+
+class ServerGUI(wx.Frame):
+    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, 
+                 recstartf=None, recstopf=None, ampf=None, started=0, locals=None, shutdown=None):
+        wx.Frame.__init__(self, parent)
+
+        self.SetTitle("pyo server")
+        self.shutdown = shutdown
+        self.locals = locals
+        self.nchnls = nchnls
+        self.startf = startf
+        self.stopf = stopf
+        self.recstartf = recstartf
+        self.recstopf = recstopf
+        self.ampf = ampf
+        self._started = False
+        self._recstarted = False
+        self._history = []
+        self._histo_count = 0
+
+        panel = wx.Panel(self)
+        box = wx.BoxSizer(wx.VERTICAL)
+        box.AddSpacer(5)
+
+        buttonBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.startButton = wx.Button(panel, -1, 'Start', (20,20))
+        self.startButton.Bind(wx.EVT_BUTTON, self.start)
+        buttonBox.Add(self.startButton, 0, wx.RIGHT, 6)
+
+        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20))
+        self.recButton.Bind(wx.EVT_BUTTON, self.record)
+        buttonBox.Add(self.recButton, 0, wx.RIGHT, 5)
+
+        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20))
+        self.quitButton.Bind(wx.EVT_BUTTON, self.on_quit)
+        buttonBox.Add(self.quitButton, 0, wx.RIGHT, 0)
+
+        box.Add(buttonBox, 0, wx.TOP | wx.LEFT, 10)
+        box.AddSpacer(10)
+
+        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 25)
+        ampBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.ampScale = ControlSlider(panel, -60, 18, 0, size=(203, 16), outFunction=self.setAmp)
+        ampBox.Add(self.ampScale, 0, wx.LEFT, 18)
+        box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 5)
+        box.AddSpacer(10)
+        self.meter = VuMeter(panel, size=(200,11))
+        self.meter.setNumSliders(self.nchnls)
+        box.Add(self.meter, 0, wx.LEFT, 25)
+        box.AddSpacer(10)
+
+        box.Add(wx.StaticText(self, -1, "Interpreter"), 0, wx.LEFT, 25)
+        self.text = wx.TextCtrl(self, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
+        #self.text.Navigate()
+        self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
+        self.text.Bind(wx.EVT_CHAR, self.onChar)
+        box.Add(self.text, 0, wx.LEFT, 25)
+
+        panel.SetSizerAndFit(box)
+        x, y = panel.GetSize()
+        self.SetSize((x+10, y+40))
+        self.SetMinSize(self.GetSize())
+        self.SetMaxSize(self.GetSize())
+
+        if started == 1:
+            self.start(None, True)
+
+    def start(self, evt=None, justSet=False):
+        if self._started == False:
+            if not justSet:
+                self.startf()
+            self._started = True
+            self.startButton.SetLabel('Stop')
+            self.quitButton.Disable()
+        else:
+            self.stopf()
+            self._started = False
+            self.startButton.SetLabel('Start')
+            self.quitButton.Enable()
+
+    def record(self, evt):
+        if self._recstarted == False:
+            self.recstartf()
+            self._recstarted = True
+            self.recButton.SetLabel('Rec Stop')
+        else:
+            self.recstopf()
+            self._recstarted = False
+            self.recButton.SetLabel('Rec Start')
+
+    def on_quit(self, evt):
+        self.shutdown()
+        self.Destroy()
+        sys.exit()
+
+    def getPrev(self):
+        self.text.Clear()
+        self._histo_count -= 1
+        if self._histo_count < 0:
+            self._histo_count = 0
+        self.text.SetValue(self._history[self._histo_count])
+        wx.CallAfter(self.text.SetInsertionPointEnd)
+
+    def getNext(self):
+        self.text.Clear()
+        self._histo_count += 1
+        if self._histo_count >= len(self._history):
+            self._histo_count = len(self._history)
+        else:    
+            self.text.SetValue(self._history[self._histo_count])
+            self.text.SetInsertionPointEnd()
+
+    def getText(self, evt):
+        source = self.text.GetValue()
+        self.text.Clear()
+        exec source in self.locals
+        self._history.append(source)
+        self._histo_count = len(self._history)
+
+    def onChar(self, evt):
+        key = evt.GetKeyCode()
+        if key == 315:
+            self.getPrev()
+        elif key == 317:
+            self.getNext()  
+        evt.Skip()      
+
+    def setAmp(self, value):
+        self.ampf(math.pow(10.0, float(value) * 0.05))
+
+    def setRms(self, *args):
+        self.meter.setRms(*args)

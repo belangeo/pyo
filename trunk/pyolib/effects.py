@@ -122,11 +122,11 @@ class Disto(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'drive', self._drive),
                           SLMap(0., 0.999, 'lin', 'slope', self._slope),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -247,11 +247,11 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -376,11 +376,11 @@ class Waveguide(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(10, 500., 'log', 'freq',  self._freq),
                           SLMapDur(self._dur),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -523,12 +523,12 @@ class Freeverb(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'size',  self._size),
                           SLMap(0., 1., 'lin', 'damp',  self._damp),
                           SLMap(0., 1., 'lin', 'bal',  self._bal),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -646,9 +646,9 @@ class Convolve(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
       
     @property
     def input(self):
@@ -785,12 +785,12 @@ class WGVerb(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMap(500., 15000., 'log', 'cutoff', self._cutoff),
                           SLMap(0., 1., 'lin', 'mix', self._mix),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -934,12 +934,12 @@ class Chorus(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 5., 'lin', 'depth', self._depth),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMap(0., 1., 'lin', 'mix', self._mix),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1083,11 +1083,11 @@ class Harmonizer(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setWinsize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-24.0, 24.0, 'lin', 'transpo',  self._transpo),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMapMul(self._mul)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

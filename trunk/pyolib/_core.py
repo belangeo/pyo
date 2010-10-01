@@ -529,7 +529,7 @@ class PyoObject(object):
         self._signal_dict[attr].stop()
         del self._signal_dict[attr]
         
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         """
         Opens a sliders window to control the parameters of the object. 
         Only parameters that can be set to a PyoObject are allowed 
@@ -546,6 +546,11 @@ class PyoObject(object):
         title : string, optional
             Title of the window. If none is provided, the name of the 
             class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
 
         """
         if map_list == None:
@@ -554,7 +559,7 @@ class PyoObject(object):
             print("There is no controls for %s object." % self.__class__.__name__)
             return
     
-        createCtrlWindow(self, map_list, title)
+        createCtrlWindow(self, map_list, title, wxnoserver)
 
     @property
     def mul(self):
@@ -754,13 +759,21 @@ class PyoTableObject(object):
         [obj.normalize() for obj in self._base_objs]
         return self
 
-    def view(self):
+    def view(self, wxnoserver=False):
         """
         Opens a window showing the contents of the table.
         
+        Parameters:
+        
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the table window. 
+            Defaults to False.
+        
         """
         samples = self._base_objs[0].getViewTable()
-        createViewTableWindow(samples)
+        createViewTableWindow(samples, wxnoserver)
         
 ######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
@@ -946,13 +959,21 @@ class PyoMatrixObject(object):
         if len(values) == 1: return values[0]
         else: return values
 
-    def view(self):
+    def view(self, wxnoserver=False):
         """
         Opens a window showing the contents of the matrix.
         
+        Parameters:
+        
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the matrix window. 
+            Defaults to False.
+        
         """        
         samples = self._base_objs[0].getViewData()
-        createViewMatrixWindow(samples, self.getSize())
+        createViewMatrixWindow(samples, self.getSize(), wxnoserver)
         
 ######################################################################
 ### Internal classes -> Used by pyo
@@ -1206,9 +1227,9 @@ class Sig(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 1, "lin", "value", self._value)]
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
     
     @property
     def value(self):
@@ -1308,9 +1329,9 @@ class VarPort(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None):
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
-        PyoObject.ctrl(self, map_list, title)
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def value(self):
