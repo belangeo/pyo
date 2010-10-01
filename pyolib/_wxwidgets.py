@@ -445,6 +445,7 @@ class MultiSlider(wx.Panel):
         self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(self.backgroundColour)
+        self.Bind(wx.EVT_SIZE, self.OnResize)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
@@ -464,6 +465,10 @@ class MultiSlider(wx.Panel):
         self.SetSize((250, self._nchnls*16))
         self.SetMinSize((250,self._nchnls*16))
 
+    def OnResize(self, event):
+        self.Layout()
+        self.Refresh()
+        
     def OnPaint(self, event):
         w,h = self.GetSize()
         dc = wx.AutoBufferedPaintDC(self)
@@ -597,6 +602,8 @@ class PyoObjectControl(wx.Frame):
         self._maps = {}
         self._sigs = {}
         
+        panel = wx.Panel(self)
+        panel.SetBackgroundColour(BACKGROUND_COLOUR)
         mainBox = wx.BoxSizer(wx.VERTICAL)
         self.box = wx.FlexGridSizer(10,2,5,5)
         
@@ -608,18 +615,18 @@ class PyoObjectControl(wx.Frame):
             else:    
                 self._maps[key] = m
                 # label (param name)
-                label = wx.StaticText(self, -1, key)
+                label = wx.StaticText(panel, -1, key)
                 # create and pack slider
                 if type(init) != ListType:
                     if scl == 'log': scl = True
                     else: scl = False
                     if res == 'int': res = True
                     else: res = False
-                    self._sliders.append(ControlSlider(self, mini, maxi, init, log=scl, size=(225,16),
+                    self._sliders.append(ControlSlider(panel, mini, maxi, init, log=scl, size=(225,16),
                                         outFunction=Command(self.setval, key), integer=res))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
                 else:
-                    self._sliders.append(MultiSlider(self, init, key, self.setval, m))
+                    self._sliders.append(MultiSlider(panel, init, key, self.setval, m))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
                 # set obj attribute to PyoObject SigTo  
                 self._values[key] = init   
@@ -627,10 +634,11 @@ class PyoObjectControl(wx.Frame):
                 setattr(self._obj, key, self._sigs[key])
         self.box.AddGrowableCol(1, 1) 
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
-        self.SetSizerAndFit(mainBox)
-        x,y = mainBox.GetSize()
-        self.SetMinSize((-1, y+20))
-        self.SetMaxSize((-1, y+20))
+        panel.SetSizerAndFit(mainBox)
+        x,y = panel.GetSize()
+        self.SetSize((-1, y+35))
+        self.SetMinSize((-1, y+35))
+        self.SetMaxSize((-1, y+35))
         
     def _destroy(self, event):
         for m in self._map_list:
@@ -648,7 +656,7 @@ class PyoObjectControl(wx.Frame):
 ### View window for PyoTableObject
 ######################################################################
 class ViewTable_withPIL(wx.Frame):
-    def __init__(self, parent, samples=None):
+    def __init__(self, parent, samples=None, tableclass=None):
         wx.Frame.__init__(self, parent)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.width = 500
@@ -671,24 +679,39 @@ class ViewTable_withPIL(wx.Frame):
         dc.DrawLine(0, self.half_height, self.width, self.half_height)
 
 class ViewTable_withoutPIL(wx.Frame):
-    def __init__(self, parent, samples=None):
+    def __init__(self, parent, samples=None, tableclass=None):
         wx.Frame.__init__(self, parent)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.width = 500
         self.height = 200
         self.half_height = self.height / 2
-        self.SetSize((self.width+10, self.height+30))
-        self.SetMinSize((self.width+10, self.height+30))
-        self.SetMaxSize((self.width+10, self.height+30))
-        self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
+        self.SetSize((self.width+10, self.height+40))
+        self.SetMinSize((self.width+10, self.height+40))
+        self.SetMaxSize((self.width+10, self.height+40))
+        self.tableclass = tableclass
+        print tableclass
+        if sys.platform == 'win32':
+            if tableclass == 'SndTable':
+                self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
+            else:    
+                self.samples = [(samples[i], samples[i+1]) for i in range(0, len(samples), 2)]
+        else:        
+            self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
-        dc = wx.PaintDC(self)
+        dc = wx.AutoBufferedPaintDC(self)
         dc.SetBrush(wx.Brush("#FFFFFF"))
         dc.Clear()
         dc.DrawRectangle(0,0,w,h)
-        dc.DrawLineList(self.samples)
+        if sys.platform == 'win32':
+            if self.tableclass == 'SndTable':
+                dc.DrawLineList(self.samples)
+            else:
+                dc.DrawPointList(self.samples)
+        else:
+            dc.DrawLineList(self.samples)
         dc.SetPen(wx.Pen('#BBBBBB', width=1, style=wx.SOLID))  
         dc.DrawLine(0, self.half_height, self.width, self.half_height)
 
@@ -756,6 +779,7 @@ class ServerGUI(wx.Frame):
         self._histo_count = 0
 
         panel = wx.Panel(self)
+        panel.SetBackgroundColour(BACKGROUND_COLOUR)
         box = wx.BoxSizer(wx.VERTICAL)
         box.AddSpacer(5)
 
@@ -772,30 +796,30 @@ class ServerGUI(wx.Frame):
         self.quitButton.Bind(wx.EVT_BUTTON, self.on_quit)
         buttonBox.Add(self.quitButton, 0, wx.RIGHT, 0)
 
-        box.Add(buttonBox, 0, wx.TOP | wx.LEFT, 10)
+        box.Add(buttonBox, 0, wx.TOP | wx.LEFT | wx.RIGHT, 10)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 25)
+        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 28)
         ampBox = wx.BoxSizer(wx.HORIZONTAL)
         self.ampScale = ControlSlider(panel, -60, 18, 0, size=(203, 16), outFunction=self.setAmp)
         ampBox.Add(self.ampScale, 0, wx.LEFT, 18)
-        box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 5)
+        box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
         box.AddSpacer(10)
         self.meter = VuMeter(panel, size=(200,11))
         self.meter.setNumSliders(self.nchnls)
-        box.Add(self.meter, 0, wx.LEFT, 25)
+        box.Add(self.meter, 0, wx.LEFT, 28)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(self, -1, "Interpreter"), 0, wx.LEFT, 25)
-        self.text = wx.TextCtrl(self, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
-        #self.text.Navigate()
+        box.Add(wx.StaticText(panel, -1, "Interpreter"), 0, wx.LEFT, 28)
+        self.text = wx.TextCtrl(panel, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
         self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
         self.text.Bind(wx.EVT_CHAR, self.onChar)
-        box.Add(self.text, 0, wx.LEFT, 25)
+        box.Add(self.text, 0, wx.LEFT, 28)
 
         panel.SetSizerAndFit(box)
         x, y = panel.GetSize()
-        self.SetSize((x+10, y+40))
+        panel.SetSize((x+7, y+40))
+        self.SetSize((x+7, y+40))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
 

@@ -94,9 +94,9 @@ def wxCreateDelayedCtrlWindows():
         f.Show()
 
 def wxCreateDelayedTableWindows():
-    for samples in TABLEWINDOWS:
-        if WITH_PIL: f = ViewTable_withPIL(None, samples)
-        else: f = ViewTable_withoutPIL(None, samples)
+    for win in TABLEWINDOWS:
+        if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1])
+        else: f = ViewTable_withoutPIL(None, win[0], win[1])
         f.Show()
         f.SetTitle("Table waveform")
 
@@ -130,7 +130,7 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
         else:
             CTRLWINDOWS.append([obj, map_list, title])   
         
-def createViewTableWindow(samples, wxnoserver=False):
+def createViewTableWindow(samples, wxnoserver=False, tableclass=None):
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
@@ -144,12 +144,12 @@ def createViewTableWindow(samples, wxnoserver=False):
                 root = createRootWindow()
             else:
                 root = None    
-            if WITH_PIL: f = ViewTable_withPIL(None, samples)
-            else: f = ViewTable_withoutPIL(None, samples)
+            if WITH_PIL: f = ViewTable_withPIL(None, samples, tableclass)
+            else: f = ViewTable_withoutPIL(None, samples, tableclass)
             f.Show()
             f.SetTitle("Table waveform")
         else:
-            TABLEWINDOWS.append(samples)    
+            TABLEWINDOWS.append([samples, tableclass])    
         
 def createViewMatrixWindow(samples, size, wxnoserver=False):
     if not WITH_PIL: print """The Python Imaging Library is not installed. 
