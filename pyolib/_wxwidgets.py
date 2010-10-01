@@ -818,8 +818,8 @@ class ServerGUI(wx.Frame):
 
         panel.SetSizerAndFit(box)
         x, y = panel.GetSize()
-        panel.SetSize((x+7, y+40))
-        self.SetSize((x+7, y+40))
+        panel.SetSize((x+3, y+40))
+        self.SetSize((x+3, y+40))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
 
