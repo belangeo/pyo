@@ -62,6 +62,6 @@ TODO before releasing _pyo_ version 0.02.
   * !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
   * Looper (rewrite in C)
   * !SfMarkerTrigger
-  * ImageMatrix
+  * !ImageMatrix
   * !AttackDetector, !PitchTrack
   * ~~Percent (lets pass percent of incomming triggers)~~
