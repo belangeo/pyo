@@ -833,11 +833,15 @@ class ServerGUI(wx.Frame):
         box.Add(self.meter, 0, wx.LEFT, 28)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(panel, -1, "Interpreter"), 0, wx.LEFT, 28)
+        t = wx.StaticText(panel, -1, "Interpreter")
+        box.Add(t, 0, wx.LEFT, 28)
         self.text = wx.TextCtrl(panel, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
         self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
         self.text.Bind(wx.EVT_CHAR, self.onChar)
         box.Add(self.text, 0, wx.LEFT, 28)
+
+        if (self.locals == None):
+            self.text.SetEditable(false)
 
         if sys.platform == "linux2":
             Y_OFF = 10
@@ -849,6 +853,7 @@ class ServerGUI(wx.Frame):
         self.SetSize((x+3, y+Y_OFF))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
+        
 
         if started == 1:
             self.start(None, True)

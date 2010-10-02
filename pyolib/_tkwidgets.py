@@ -297,7 +297,6 @@ class ServerGUI(Frame):
             self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1, y, width=4, fill='yellow', dash=(9,1), dashoff=9))
             self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
         self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
-    
         self.interp_label = Label(self, text='Interpreter')
         self.interp_label.grid(ipadx=0, row=3, column=0, columnspan=3)
         self.text = Text(self, height=1, width=33, bd=1, relief=RIDGE, highlightthickness=0,
@@ -306,6 +305,9 @@ class ServerGUI(Frame):
         self.text.bind("<Return>", self.getText)
         self.text.bind("<Up>", self.getPrev)
         self.text.bind("<Down>", self.getNext)
+        if (self.locals == None):
+            self.interp_label.config(state=DISABLED)
+            
     
     def on_quit(self):
         self.shutdown()
