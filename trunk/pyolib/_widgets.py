@@ -28,12 +28,15 @@ except:
     WITH_PIL = False
 
 try:
+    import wxversion
+    if (wxversion.checkInstalled("2.8")):
+        wxversion.ensureMinimal("2.8")
     import wx
     from _wxwidgets import *
     PYO_USE_WX = True
 except:
     PYO_USE_WX = False
-    
+
 if not PYO_USE_WX:
     try:
         from Tkinter import *
