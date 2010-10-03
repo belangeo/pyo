@@ -40,8 +40,13 @@ extern "C" {
 typedef enum {
     PyoPortaudio = 0,
     PyoCoreaudio = 1,
-    PyoJack
+    PyoJack,
+    PyoOffline
 } PyoAudioBackendType;
+
+typedef struct {
+    PaStream *stream;
+} PyoPaBackendData;
 
 typedef struct {
 #ifdef USE_JACK
@@ -57,7 +62,6 @@ typedef struct {
     PyoAudioBackendType audio_be_type;
     void *audio_be_data;
     char *serverName; // Only used for jack client name
-    PaStream *stream;
     PmStream *in;
     PmEvent midiEvents[200];
     int midi_count;
@@ -84,6 +88,7 @@ typedef struct {
     int timeCount;
     
     MYFLT *input_buffer;
+    MYFLT *output_buffer;
     char *recpath;
     SNDFILE *recfile;
     SF_INFO recinfo;

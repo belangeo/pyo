@@ -62,7 +62,7 @@ class Server(object):
     boot() : Boot the server. Must be called before defining any signal 
         processing chain.
     shutdown() : Shut down and clear the server.
-    start() : Start the audio callback loop.
+    start(dur,filename) : Start the audio callback loop.
     stop() : Stop the audio callback loop.
     recstart(str) : Begins recording of the sound sent to output. 
         This method creates a file called `pyo_rec.aif` in the 
@@ -260,12 +260,12 @@ class Server(object):
         self._server.boot()
         return self
         
-    def start(self):
+    def start(self, dur=-1.0, filename="out.wav"):
         """
         Start the audio callback loop and begin processing.
         
         """
-        self._server.start()
+        self._server.start(dur, filename)
         return self
     
     def stop(self):
