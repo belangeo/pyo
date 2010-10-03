@@ -36,6 +36,7 @@ static PyObject *Server_shut_down(Server *self);
 static PyObject *Server_stop(Server *self);
 static void Server_process_gui(Server *server, float *out);
 static inline void Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuffer);
+static int Server_start_rec_internal(Server *self, char *filename);
 
 #ifdef USE_COREAUDIO
 static int coreaudio_stop_callback(Server *self);
@@ -212,16 +213,15 @@ jack_callback (jack_nframes_t nframes, void *arg)
             }
         }
     }
-    MYFLT outputBuffer[server->nchnls*server->bufferSize];
     PyGILState_STATE s = PyGILState_Ensure();
-    Server_process_buffers(server, server->input_buffer, outputBuffer);
+    Server_process_buffers(server, server->input_buffer, server->output_buffer);
     if (server->withGUI == 1 && server->nchnls <= 8) {
-        Server_process_gui(server, outputBuffer);
+        Server_process_gui(server, server->output_buffer);
     }
     PyGILState_Release(s);
     for (i=0; i<server->bufferSize; i++) {
         for (j=0; j<server->nchnls; j++) {
-            out_buffers[j][i] = (jack_default_audio_sample_t) outputBuffer[(i*server->nchnls)+j];
+            out_buffers[j][i] = (jack_default_audio_sample_t) server->output_buffer[(i*server->nchnls)+j];
         }
     }
     server->midi_count = 0;
@@ -341,6 +341,19 @@ coreaudio_stop_callback(Server *self)
 
 #endif
 
+static int
+offline_process_block (void *arg)
+{    
+    Server *server = (Server *) arg;
+    PyGILState_STATE s = PyGILState_Ensure();
+    Server_process_buffers(server, server->input_buffer, server->output_buffer);
+//     if (server->withGUI == 1 && server->nchnls <= 8) {
+//         Server_process_gui(server, outputBuffer);
+//     }
+    PyGILState_Release(s);
+    return 0;
+}
+
 /* Server audio backend init functions */
 
 int
@@ -358,6 +371,8 @@ Server_pa_init(Server *self)
 
     // -- setup input and output -- 
     PaStreamParameters inputParameters;
+    PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData *));
+    self->audio_be_data = (void *) be_data;
     memset(&inputParameters, 0, sizeof(inputParameters));
     if (self->input == -1)
         inputParameters.device = Pa_GetDefaultInputDevice(); // default input device
@@ -381,12 +396,12 @@ Server_pa_init(Server *self)
 
     if (self->input == -1 && self->output == -1) {
         if (self->duplex == 1)
-            err = Pa_OpenDefaultStream(&self->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
         else
-            err = Pa_OpenDefaultStream(&self->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
     }
     else
-        err = Pa_OpenStream(&self->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
+        err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
         Server_error(self, "Portaudio error: %s", Pa_GetErrorText(err));
@@ -399,18 +414,20 @@ int
 Server_pa_deinit(Server *self)
 {
     PaError err;
+    PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
-    if (Pa_IsStreamActive(self->stream) || ! Pa_IsStreamStopped(self->stream)) {
-        err = Pa_StopStream(self->stream);
+    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+        err = Pa_StopStream(be_data->stream);
         portaudio_assert(err, "Pa_StopStream");
     }
     
-    err = Pa_CloseStream(self->stream);
+    err = Pa_CloseStream(be_data->stream);
     portaudio_assert(err, "Pa_CloseStream");
     
     err = Pa_Terminate();
     portaudio_assert(err, "Pa_Terminate");
     
+    free(self->audio_be_data);
     return err;
 }
 
@@ -418,12 +435,13 @@ int
 Server_pa_start(Server *self)
 {
     PaError err;
+    PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
-    if (Pa_IsStreamActive(self->stream) || ! Pa_IsStreamStopped(self->stream)) {
-        err = Pa_StopStream(self->stream);
+    if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
+        err = Pa_StopStream(be_data->stream);
         portaudio_assert(err, "Pa_StopStream");
     }
-    err = Pa_StartStream(self->stream);
+    err = Pa_StartStream(be_data->stream);
     portaudio_assert(err, "Pa_StartStream");
     return err;
 }
@@ -592,9 +610,9 @@ int
 Server_jack_stop (Server *self)
 {
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
-    
+    int ret = jack_deactivate(be_data->jack_client);
     self->server_started = 0;
-    return jack_deactivate(be_data->jack_client);
+    return ret;
 }
 
 #endif
@@ -854,6 +872,48 @@ Server_coreaudio_stop(Server *self)
 
 #endif
 
+int
+Server_offline_init (Server *self)
+{
+    return 0;
+}
+
+int
+Server_offline_deinit (Server *self)
+{
+    return 0;
+}
+
+int
+Server_offline_start (Server *self, double dur, char * filename)
+{
+    if (dur < 0) {
+        Server_error(self,"Duration must be specified for Offline Server.");
+        return -1;
+    }
+    Server_message(self,"Offline Server rendering file %s dur=%f\n", filename, dur);
+    int numBlocks = ceil(dur * self->samplingRate/self->bufferSize);
+    Server_debug(self,"Number of blocks: %i\n", numBlocks);
+    Server_start_rec_internal(self, filename);
+    self->server_stopped = 0;
+    self->server_started = 1;
+    while (numBlocks-- > 0 && self->server_stopped == 0) {
+        offline_process_block((void *) self);   
+    }
+    self->server_started = 0;
+    self->record = 0;
+    sf_close(self->recfile);
+    Server_message(self,"Offline Server rendering finished.\n"); 
+    return 0;
+}
+
+int
+Server_offline_stop (Server *self)
+{
+    self->server_stopped = 1;
+    return 0;
+}
+
 /***************************************************/
 /*  Main Processing functions                      */
 
@@ -997,7 +1057,10 @@ Server_shut_down(Server *self)
 #ifdef USE_JACK    
             ret = Server_jack_deinit(self);
 #endif 
-            break;           
+            break;       
+        case PyoOffline:
+            ret = Server_offline_deinit(self);  
+            break;         
     }
     self->server_booted = 0;
     if (ret < 0) {
@@ -1016,7 +1079,7 @@ Server_shut_down(Server *self)
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->stream);
+//     Py_VISIT(self->stream);
     Py_VISIT(self->streams);
     return 0;
 }
@@ -1024,7 +1087,7 @@ Server_traverse(Server *self, visitproc visit, void *arg)
 static int 
 Server_clear(Server *self)
 {    
-    Py_CLEAR(self->stream);
+//     Py_CLEAR(self->stream);
     Py_CLEAR(self->streams);
     return 0;
 }
@@ -1079,7 +1142,6 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     char *serverName = "pyo";
 
     Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
-
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIISS, kwlist, 
             &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName))
         return -1;
@@ -1092,6 +1154,9 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     else if (strcmp(audioType, "coreaudio") == 0) {
         self->audio_be_type = PyoCoreaudio;
     }    
+    else if (strcmp(audioType, "offline") == 0) {
+        self->audio_be_type = PyoOffline;
+    } 
     else {
         Server_warning(self, "Unknown audio type. Using Portaudio\n");
         self->audio_be_type = PyoPortaudio;
@@ -1102,7 +1167,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     }
     self->recpath = getenv("HOME");
     if (self->recpath != NULL)
-        strncat(self->recpath, "/pyo_rec.aif", strlen("/pyo_rec.aif"));
+        strncat(self->recpath, "/pyo_rec.aif", strlen("/pyo_rec.aif")); 
     return 0;
 }
 
@@ -1383,11 +1448,25 @@ Server_boot(Server *self)
             Server_error(self, "Pyo built without Coreaudio support\n");
 #endif
             break;
+        case PyoOffline:
+            audioerr = Server_offline_init(self);
+            if (audioerr < 0) {
+                Server_offline_deinit(self);
+            }
+            break;
     }
     // Must allocate buffer after initializing the audio backend in case parameters change there
-    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->bufferSize * self->nchnls * sizeof(MYFLT));
+    if (self->input_buffer) {
+        free(self->input_buffer);
+    }
+    self->input_buffer = (MYFLT *)calloc(self->bufferSize * self->nchnls, sizeof(MYFLT));
+    if (self->output_buffer) {
+        free(self->output_buffer);
+    }
+    self->output_buffer = (MYFLT *)calloc(self->bufferSize * self->nchnls, sizeof(MYFLT));
     for (i=0; i<self->bufferSize*self->nchnls; i++) {
         self->input_buffer[i] = 0.0;
+        self->output_buffer[i] = 0.0;
     }
     if (audioerr == 0 && midierr == 0) {
         self->server_booted = 1;
@@ -1402,7 +1481,7 @@ Server_boot(Server *self)
 }
 
 static PyObject *
-Server_start(Server *self)
+Server_start(Server *self, PyObject *args, PyObject *kwds)
 {
     if (self->server_started == 1) {
         Server_warning(self, "Server already started!\n");
@@ -1416,9 +1495,19 @@ Server_start(Server *self)
         return Py_None;
     }
     int err = -1;
+    char *filename=NULL;
+    double dur=-1;
     
     /* Ensure Python is set up for threading */
     PyEval_InitThreads();
+    
+    static char *kwlist[] = {"dur", "filename", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ds", kwlist, &dur,&filename)) {
+        Server_error(self, "Server_start: Wrong arguments.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }  
     
     switch (self->audio_be_type) {
         case PyoPortaudio:
@@ -1433,7 +1522,10 @@ Server_start(Server *self)
 #ifdef USE_JACK      
             err = Server_jack_start(self);
 #endif    
-            break;        
+            break;
+        case PyoOffline:
+            err = Server_offline_start(self, dur, filename);
+            break;           
     }
     if (err) {
         Server_error(self, "Error starting server.");
@@ -1471,6 +1563,9 @@ Server_stop(Server *self)
             err = Server_jack_stop(self);
 #endif            
             break;
+        case PyoOffline:
+            err = Server_offline_stop(self);
+            break;    
     }
 
     if (err < 0) {
@@ -1490,9 +1585,18 @@ Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"filename", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &filename))
-    return PyInt_FromLong(-1);
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|s", kwlist, &filename)) {
+        return PyInt_FromLong(-1);
+    }
+    Server_start_rec_internal(self, filename);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 
+static int 
+Server_start_rec_internal(Server *self, char *filename)
+{
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->samplingRate;
     self->recinfo.channels = self->nchnls;
@@ -1502,18 +1606,18 @@ Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
     if (filename == NULL) {
         if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
             Server_error(self, "Not able to open output file %s.\n", self->recpath);
+            return -1;
         }
     }
     else {
         if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {   
             Server_error(self, "Not able to open output file %s.\n", filename);
+            return -1;
         }
     }
     
     self->record = 1;
-    
-    Py_INCREF(Py_None);
-    return Py_None;
+    return 0;
 }
 
 static PyObject *
@@ -1628,7 +1732,7 @@ static PyMethodDef Server_methods[] = {
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
-	{"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
+    {"start", (PyCFunction)Server_start, METH_VARARGS|METH_KEYWORDS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
     {"recstart", (PyCFunction)Server_start_rec, METH_VARARGS|METH_KEYWORDS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
