@@ -342,7 +342,7 @@ coreaudio_stop_callback(Server *self)
 #endif
 
 static int
-offline_process_block (void *arg)
+offline_process_block(Server *arg)
 {    
     Server *server = (Server *) arg;
     PyGILState_STATE s = PyGILState_Ensure();
@@ -898,7 +898,7 @@ Server_offline_start (Server *self, double dur, char * filename)
     self->server_stopped = 0;
     self->server_started = 1;
     while (numBlocks-- > 0 && self->server_stopped == 0) {
-        offline_process_block((void *) self);   
+        offline_process_block((Server *) self);   
     }
     self->server_started = 0;
     self->record = 0;
@@ -954,6 +954,7 @@ Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuff
         server->lastAmp = amp;
     }
     
+    Server_debug(server, "current amplitude: %f\n", server->currentAmp);
     for (i=0; i < server->bufferSize; i++){
         if (server->timeCount < server->timeStep) {
             server->currentAmp += server->stepVal;
@@ -1508,6 +1509,11 @@ Server_start(Server *self, PyObject *args, PyObject *kwds)
         Py_INCREF(Py_None);
         return Py_None;
     }  
+
+    self->amp = self->resetAmp;
+    self->server_stopped = 0;
+    self->server_started = 1;
+    self->timeStep = (int)(0.01 * self->samplingRate);
     
     switch (self->audio_be_type) {
         case PyoPortaudio:
@@ -1530,11 +1536,6 @@ Server_start(Server *self, PyObject *args, PyObject *kwds)
     if (err) {
         Server_error(self, "Error starting server.");
     }
-
-    self->amp = self->resetAmp;
-    self->server_stopped = 0;
-    self->server_started = 1;
-    self->timeStep = (int)(0.01 * self->samplingRate);
 
     Py_INCREF(Py_None);
     return Py_None;
