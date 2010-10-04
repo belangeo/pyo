@@ -83,8 +83,6 @@ Server_warning(Server *self, char * format, ...)
         vsprintf (buffer,format, args);
         va_end (args);
         printf("%s",buffer);
-
-//         PyErr_Warn(NULL, buffer);
     }
 }
 
@@ -295,17 +293,17 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
 
     (void) inInputData;
     
-    float outputBuffer[server->nchnls*server->bufferSize];
+    //float outputBuffer[server->nchnls*server->bufferSize];
     PyGILState_STATE s = PyGILState_Ensure();
-    Server_process_buffers(server, server->input_buffer, outputBuffer);
+    Server_process_buffers(server, server->input_buffer, server->output_buffer);
     if (server->withGUI == 1 && server->nchnls <= 8) {
-        Server_process_gui(server, outputBuffer);
+        Server_process_gui(server, server->output_buffer);
     }
     PyGILState_Release(s);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
     float *bufdata = (float*)outputBuf->mData;
     for (i=0; i<server->bufferSize*server->nchnls; i++) {
-        bufdata[i] = outputBuffer[i];
+        bufdata[i] = server->output_buffer[i];
     }
     server->midi_count = 0;
 
@@ -347,9 +345,6 @@ offline_process_block(Server *arg)
     Server *server = (Server *) arg;
     PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server, server->input_buffer, server->output_buffer);
-//     if (server->withGUI == 1 && server->nchnls <= 8) {
-//         Server_process_gui(server, outputBuffer);
-//     }
     PyGILState_Release(s);
     return 0;
 }
@@ -660,17 +655,7 @@ Server_coreaudio_init(Server *self)
     }    
     /////////////////////////////
 
-    // Acquire audio devices
-    /*
-    err = AudioHardwareGetPropertyInfo(kAudioHardwarePropertyDevices, &count, 0);
-    AudioDeviceID *devices = (AudioDeviceID*) malloc(count);
-    err = AudioHardwareGetProperty(kAudioHardwarePropertyDevices, &count, devices);
-    if (err != kAudioHardwareNoError) {
-        printf("get kAudioHardwarePropertyDevices error %s\n", (char*)&err);
-        return -1;
-    }
-    */
-    
+    // Acquire audio devices    
     if (self->output != -1)
         mOutputDevice = devices[self->output];
         
@@ -866,7 +851,6 @@ Server_coreaudio_stop(Server *self)
     self->timeStep = (int)(0.1 * self->samplingRate);
     self->amp = 0.;
     self->server_stopped = 1;
-    
     return 0;
 }
 
@@ -885,16 +869,16 @@ Server_offline_deinit (Server *self)
 }
 
 int
-Server_offline_start (Server *self, double dur, char * filename)
+Server_offline_start (Server *self)
 {
-    if (dur < 0) {
-        Server_error(self,"Duration must be specified for Offline Server.");
+    if (self->recdur < 0) {
+        Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
         return -1;
     }
-    Server_message(self,"Offline Server rendering file %s dur=%f\n", filename, dur);
-    int numBlocks = ceil(dur * self->samplingRate/self->bufferSize);
+    Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
+    int numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
     Server_debug(self,"Number of blocks: %i\n", numBlocks);
-    Server_start_rec_internal(self, filename);
+    Server_start_rec_internal(self, self->recpath);
     self->server_stopped = 0;
     self->server_started = 1;
     while (numBlocks-- > 0 && self->server_stopped == 0) {
@@ -954,7 +938,6 @@ Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuff
         server->lastAmp = amp;
     }
     
-    Server_debug(server, "current amplitude: %f\n", server->currentAmp);
     for (i=0; i < server->bufferSize; i++){
         if (server->timeCount < server->timeStep) {
             server->currentAmp += server->stepVal;
@@ -1080,7 +1063,6 @@ Server_shut_down(Server *self)
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
-//     Py_VISIT(self->stream);
     Py_VISIT(self->streams);
     return 0;
 }
@@ -1088,7 +1070,6 @@ Server_traverse(Server *self, visitproc visit, void *arg)
 static int 
 Server_clear(Server *self)
 {    
-//     Py_CLEAR(self->stream);
     Py_CLEAR(self->streams);
     return 0;
 }
@@ -1128,6 +1109,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
     self->verbosity = 7;
+    self->recdur = -1;
+    self->recformat = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1464,7 +1447,7 @@ Server_boot(Server *self)
     if (self->output_buffer) {
         free(self->output_buffer);
     }
-    self->output_buffer = (MYFLT *)calloc(self->bufferSize * self->nchnls, sizeof(MYFLT));
+    self->output_buffer = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
     for (i=0; i<self->bufferSize*self->nchnls; i++) {
         self->input_buffer[i] = 0.0;
         self->output_buffer[i] = 0.0;
@@ -1482,7 +1465,7 @@ Server_boot(Server *self)
 }
 
 static PyObject *
-Server_start(Server *self, PyObject *args, PyObject *kwds)
+Server_start(Server *self)
 {
     if (self->server_started == 1) {
         Server_warning(self, "Server already started!\n");
@@ -1496,19 +1479,9 @@ Server_start(Server *self, PyObject *args, PyObject *kwds)
         return Py_None;
     }
     int err = -1;
-    char *filename=NULL;
-    double dur=-1;
     
     /* Ensure Python is set up for threading */
     PyEval_InitThreads();
-    
-    static char *kwlist[] = {"dur", "filename", NULL};
-
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ds", kwlist, &dur,&filename)) {
-        Server_error(self, "Server_start: Wrong arguments.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
-    }  
 
     self->amp = self->resetAmp;
     self->server_stopped = 0;
@@ -1530,7 +1503,7 @@ Server_start(Server *self, PyObject *args, PyObject *kwds)
 #endif    
             break;
         case PyoOffline:
-            err = Server_offline_start(self, dur, filename);
+            err = Server_offline_start(self);
             break;           
     }
     if (err) {
@@ -1580,6 +1553,19 @@ Server_stop(Server *self)
 }
 
 static PyObject *
+Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"dur", "filename", "format", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|si", kwlist, &self->recdur, &self->recpath, &self->recformat)) {
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 Server_start_rec(Server *self, PyObject *args, PyObject *kwds)
 {    
     char *filename=NULL;
@@ -1601,8 +1587,40 @@ Server_start_rec_internal(Server *self, char *filename)
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->samplingRate;
     self->recinfo.channels = self->nchnls;
-    self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
-    
+
+    switch (self->recformat) {
+        case 0:
+            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
+            break;
+        case 1:    
+            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+            break;
+        case 2:
+            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_16;
+            break;
+        case 3:    
+            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+            break;
+        case 4:
+            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_24;
+            break;
+        case 5:    
+            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
+            break;
+        case 6:
+            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_32;
+            break;
+        case 7:    
+            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
+            break;
+        case 8:
+            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_DOUBLE;
+            break;
+        case 9:    
+            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+            break;
+    }
+
     /* Open the output file. */
     if (filename == NULL) {
         if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
@@ -1733,8 +1751,9 @@ static PyMethodDef Server_methods[] = {
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
-    {"start", (PyCFunction)Server_start, METH_VARARGS|METH_KEYWORDS, "Starts the server's callback loop."},
+    {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
+    {"recordOptions", (PyCFunction)Server_recordOptions, METH_VARARGS|METH_KEYWORDS, "Sets format settings for offline rendering and global recording."},
     {"recstart", (PyCFunction)Server_start_rec, METH_VARARGS|METH_KEYWORDS, "Start automatic output recording."},
     {"recstop", (PyCFunction)Server_stop_rec, METH_NOARGS, "Stop automatic output recording."},
     {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \

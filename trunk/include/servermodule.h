@@ -88,8 +88,11 @@ typedef struct {
     int timeCount;
     
     MYFLT *input_buffer;
-    MYFLT *output_buffer;
+    float *output_buffer;
+    /* rendering settings */
+    double recdur;
     char *recpath;
+    int recformat;
     SNDFILE *recfile;
     SF_INFO recinfo;
     /* GUI VUMETER */
