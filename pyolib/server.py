@@ -106,6 +106,7 @@ class Server(object):
         self._nchnls = nchnls
         self._amp = 1.
         self._verbosity = 7
+        self._filename = None
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
 
     def gui(self, locals=None):
@@ -260,12 +261,12 @@ class Server(object):
         self._server.boot()
         return self
         
-    def start(self, dur=-1.0, filename="out.wav"):
+    def start(self):
         """
         Start the audio callback loop and begin processing.
         
         """
-        self._server.start(dur, filename)
+        self._server.start()
         return self
     
     def stop(self):
@@ -274,12 +275,46 @@ class Server(object):
         
         """
         self._server.stop()
+
+    def recordOptions(self, dur=-1, filename=None, format=0):
+        """
+        Sets options for soundfile created by offline rendering or global recording.
+
+        Parameters:
+
+        dur : float
+            Duration, in seconds, of the recorded file. Only used by
+            offline rendering. Must be positive. Defaults to -1.
+        filename : string
+            Full path of the file to create. If None, a file called
+            `pyo_rec.aif` will be created in the user's home directory.
+            Defaults to None.
+        format : int, optional      
+            Format type of the audio file. Possible formats are:
+                0 : AIFF 32 bits float (Default)
+                1 : WAV 32 bits float
+                2 : AIFF 16 bit int
+                3 : WAV 16 bits int
+                4 : AIFF 24 bits int
+                5 : WAV 24 bits int
+                6 : AIFF 32 bits int
+                7 : WAV 32 bits int
+                8 : AIFF 64 bits float
+                9 : WAV 64 bits flaot
+
+        """
+        if filename == None:
+            filename = os.path.join(os.path.expanduser("~"), "pyo_rec.aif")
+        self._filename = filename
+        self._server.recordOptions(dur, filename, format)
         
     def recstart(self, filename=None):
         """
         Begins a default recording of the sound that is sent to the
         soundcard. This will create a file called `pyo_rec.aif` in 
-        the user's home directory if no path is supplied.
+        the user's home directory if no path is supplied or defined
+        with recordOptions method. Use file format defined with
+        recordOptions method. 
         
         Parameters:
         
@@ -288,7 +323,10 @@ class Server(object):
         
         """
         if filename == None:
-            filename = os.path.join(os.path.expanduser("~"), "pyo_rec.aif")
+            if self._filename != None:
+                filename = self._filename
+            else:
+                filename = os.path.join(os.path.expanduser("~"), "pyo_rec.aif")
         self._server.recstart(filename)    
         
     def recstop(self):
