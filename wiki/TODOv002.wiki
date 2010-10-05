@@ -32,6 +32,8 @@ TODO before releasing _pyo_ version 0.02.
 
 - Midiout, !MidiFileIn, !MidiFileOut
 
+- Coremidi support
+
 ----
 
 *OSC*
