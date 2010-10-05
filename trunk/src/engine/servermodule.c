@@ -34,8 +34,8 @@
 static Server *my_server = NULL;
 static PyObject *Server_shut_down(Server *self);
 static PyObject *Server_stop(Server *self);
-static void Server_process_gui(Server *server, float *out);
-static inline void Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuffer);
+static void Server_process_gui(Server *server);
+static inline void Server_process_buffers(Server *server);
 static int Server_start_rec_internal(Server *self, char *filename);
 
 #ifdef USE_COREAUDIO
@@ -157,18 +157,18 @@ pa_callback( const void *inputBuffer, void *outputBuffer,
         for (i=0; i<server->bufferSize*server->nchnls; i++) {
             server->input_buffer[i] = (MYFLT)in[i];
         }
-    }    
-    else 
-        (void) inputBuffer;
+    }
 
     PyGILState_STATE s = PyGILState_Ensure();
-    Server_process_buffers(server, inputBuffer, outputBuffer);
+    Server_process_buffers(server);
 
     if (server->withGUI == 1 && nchnls <= 8) {
-        Server_process_gui(server, out);
-    }    
-        
+        Server_process_gui(server);
+    }
     PyGILState_Release(s);
+    for (i=0; i<server->bufferSize*server->nchnls; i++) {
+        out[i] = (float) server->output_buffer[i];
+    }
     server->midi_count = 0;
     
     if (server->server_started == 1) {
@@ -212,9 +212,9 @@ jack_callback (jack_nframes_t nframes, void *arg)
         }
     }
     PyGILState_STATE s = PyGILState_Ensure();
-    Server_process_buffers(server, server->input_buffer, server->output_buffer);
+    Server_process_buffers(server);
     if (server->withGUI == 1 && server->nchnls <= 8) {
-        Server_process_gui(server, server->output_buffer);
+        Server_process_gui(server);
     }
     PyGILState_Release(s);
     for (i=0; i<server->bufferSize; i++) {
@@ -295,9 +295,9 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     
     //float outputBuffer[server->nchnls*server->bufferSize];
     PyGILState_STATE s = PyGILState_Ensure();
-    Server_process_buffers(server, server->input_buffer, server->output_buffer);
+    Server_process_buffers(server);
     if (server->withGUI == 1 && server->nchnls <= 8) {
-        Server_process_gui(server, server->output_buffer);
+        Server_process_gui(server);
     }
     PyGILState_Release(s);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
@@ -344,7 +344,7 @@ offline_process_block(Server *arg)
 {    
     Server *server = (Server *) arg;
     PyGILState_STATE s = PyGILState_Ensure();
-    Server_process_buffers(server, server->input_buffer, server->output_buffer);
+    Server_process_buffers(server);
     PyGILState_Release(s);
     return 0;
 }
@@ -902,9 +902,9 @@ Server_offline_stop (Server *self)
 /*  Main Processing functions                      */
 
 static inline void
-Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuffer)
+Server_process_buffers(Server *server)
 {
-    float *out = (float*)outputBuffer;    
+    float *out = server->output_buffer;    
     MYFLT buffer[server->nchnls][server->bufferSize];
     int i, j, chnl;
     int count = server->stream_count;
@@ -952,9 +952,10 @@ Server_process_buffers(Server *server, const void *inputBuffer, void *outputBuff
 }
 
 static void
-Server_process_gui(Server *server, float *out)
+Server_process_gui(Server *server)
 {
     float rms[server->nchnls];
+    float *out = server->output_buffer;
     float outAmp;
     int i,j;
     for (j=0; j<server->nchnls; j++) {

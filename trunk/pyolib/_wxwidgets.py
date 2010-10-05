@@ -841,7 +841,7 @@ class ServerGUI(wx.Frame):
         box.Add(self.text, 0, wx.LEFT, 28)
 
         if (self.locals == None):
-            self.text.SetEditable(false)
+            self.text.SetEditable(False)
 
         if sys.platform == "linux2":
             Y_OFF = 10
