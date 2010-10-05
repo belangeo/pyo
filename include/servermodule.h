@@ -61,7 +61,7 @@ typedef struct {
     PyObject *streams;
     PyoAudioBackendType audio_be_type;
     void *audio_be_data;
-    char *serverName; // Only used for jack client name
+    char *serverName; /* Only used for jack client name */
     PmStream *in;
     PmEvent midiEvents[200];
     int midi_count;
@@ -74,7 +74,7 @@ typedef struct {
     int midi_input;
     int withPortMidi;
     int server_started;
-    int server_stopped; // for fadeout
+    int server_stopped; /* for fadeout */
     int server_booted;
     int stream_count;
     int record;
@@ -88,7 +88,7 @@ typedef struct {
     int timeCount;
     
     MYFLT *input_buffer;
-    float *output_buffer;
+    float *output_buffer; /* Has to be float since audio callbacks must use floats */
     /* rendering settings */
     double recdur;
     char *recpath;
@@ -103,8 +103,8 @@ typedef struct {
     PyObject *GUI;
     
     /* Properties */
-    int verbosity; //a sum of values to display different levels: 1 = error
-                   // 2 = message, 4 = warning , 8 = debug. Default 7.
+    int verbosity; /* a sum of values to display different levels: 1 = error */
+                   /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
 } Server;
 
 PyObject * PyServer_get_server();
