@@ -207,7 +207,7 @@ jack_callback (jack_nframes_t nframes, void *arg)
     if (server->duplex == 1) {
         for (i=0; i<server->bufferSize; i++) {
             for (j=0; j<server->nchnls; j++) {
-                server->input_buffer[(j*server->bufferSize) + i] = (MYFLT) in_buffers[j][i];
+                server->input_buffer[(i*server->nchnls)+j] = (MYFLT) in_buffers[j][i];
             }
         }
     }
