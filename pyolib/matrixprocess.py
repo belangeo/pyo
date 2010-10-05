@@ -245,7 +245,6 @@ class MatrixPointer(PyoObject):
         self._mul = mul
         self._add = add
         matrix, indexrow, indexcol, mul, add, lmax = convertArgsToLists(matrix, indexrow, indexcol, mul, add)
-        print matrix
         self._base_objs = [MatrixPointer_base(wrap(matrix,i), wrap(indexrow,i), wrap(indexcol,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):

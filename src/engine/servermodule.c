@@ -1112,6 +1112,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->verbosity = 7;
     self->recdur = -1;
     self->recformat = 0;
+    self->rectype = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1152,7 +1153,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     }
     self->recpath = getenv("HOME");
     if (self->recpath != NULL)
-        strncat(self->recpath, "/pyo_rec.aif", strlen("/pyo_rec.aif")); 
+        strncat(self->recpath, "/pyo_rec.wav", strlen("/pyo_rec.wav")); 
     return 0;
 }
 
@@ -1556,9 +1557,9 @@ Server_stop(Server *self)
 static PyObject *
 Server_recordOptions(Server *self, PyObject *args, PyObject *kwds)
 {    
-    static char *kwlist[] = {"dur", "filename", "format", NULL};
+    static char *kwlist[] = {"dur", "filename", "fileformat", "sampletype", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|si", kwlist, &self->recdur, &self->recpath, &self->recformat)) {
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "d|sii", kwlist, &self->recdur, &self->recpath, &self->recformat, &self->rectype)) {
         return PyInt_FromLong(-1);
     }
     
@@ -1591,37 +1592,30 @@ Server_start_rec_internal(Server *self, char *filename)
 
     switch (self->recformat) {
         case 0:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
+            self->recinfo.format = SF_FORMAT_WAV;
             break;
-        case 1:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-            break;
-        case 2:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_16;
-            break;
-        case 3:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-            break;
-        case 4:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_24;
-            break;
-        case 5:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-            break;
-        case 6:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_32;
-            break;
-        case 7:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
-            break;
-        case 8:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_DOUBLE;
-            break;
-        case 9:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+        case 1:
+            self->recinfo.format = SF_FORMAT_AIFF;
             break;
     }
-
+    switch (self->rectype) {
+        case 0:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_16;
+            break;
+        case 1:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_24;
+            break;
+        case 2:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_32;
+            break;
+        case 3:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_FLOAT;
+            break;
+        case 4:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
+            break;
+    }
+    
     /* Open the output file. */
     if (filename == NULL) {
         if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   

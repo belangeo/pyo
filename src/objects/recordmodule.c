@@ -135,12 +135,13 @@ static int
 Record_init(Record *self, PyObject *args, PyObject *kwds)
 {
     int i, buflen;
-    int format = 0;
+    int fileformat = 0;
+    int sampletype = 0;
     PyObject *input_listtmp;
     
-    static char *kwlist[] = {"input", "filename", "chnls", "format", "buffering", NULL};
+    static char *kwlist[] = {"input", "filename", "chnls", "fileformat", "sampletype", "buffering", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iii", kwlist, &input_listtmp, &self->recpath, &self->chnls, &format, &self->buffering))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiii", kwlist, &input_listtmp, &self->recpath, &self->chnls, &fileformat, &sampletype, &self->buffering))
         return -1; 
     
     Py_XDECREF(self->input_list);
@@ -154,36 +155,30 @@ Record_init(Record *self, PyObject *args, PyObject *kwds)
     /* Prepare sfinfo */
     self->recinfo.samplerate = (int)self->sr;
     self->recinfo.channels = self->chnls;
-    switch (format) {
+    
+    switch (fileformat) {
         case 0:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
+            self->recinfo.format = SF_FORMAT_WAV;
             break;
-        case 1:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+        case 1:
+            self->recinfo.format = SF_FORMAT_AIFF;
+            break;
+    }
+    switch (sampletype) {
+        case 0:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_16;
+            break;
+        case 1:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_24;
             break;
         case 2:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_16;
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_32;
             break;
-        case 3:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+        case 3:
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_FLOAT;
             break;
         case 4:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_24;
-            break;
-        case 5:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-            break;
-        case 6:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_32;
-            break;
-        case 7:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
-            break;
-        case 8:
-            self->recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_DOUBLE;
-            break;
-        case 9:    
-            self->recinfo.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+            self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
             break;
     }
     
