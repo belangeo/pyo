@@ -63,5 +63,6 @@ TODO before releasing _pyo_ version 0.02.
   * Looper (rewrite in C)
   * !SfMarkerTrigger
   * !ImageMatrix
+  * !MatrixMorph
   * !AttackDetector, !PitchTrack
   * ~~Percent (lets pass percent of incomming triggers)~~
