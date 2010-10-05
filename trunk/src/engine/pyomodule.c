@@ -283,22 +283,20 @@ sndinfo(PyObject *self, PyObject *args) {
 }    
 
 #define savefile_info \
-"\nCreates an audio file from a list of floats.\n\nsavefile(samples, path, sr=44100, channels=1, format=0)\n\nParameters:\n\n    \
+"\nCreates an audio file from a list of floats.\n\nsavefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0)\n\nParameters:\n\n    \
 samples : list of floats\n        list of samples data, or list of list of samples data if more than 1 channels.\n    \
 path : string\n        Full path (including extension) of the new file.\n    \
 sr : int, optional\n        Sampling rate of the new file. Defaults to 44100.\n    \
 channels : int, optional\n        number of channels of the new file. Defaults to 1.\n    \
-format : int, optional\n        Format type of the new file. Possible formats are:\n    \
-        0 : AIFF 32 bits float (Default)\n    \
-        1 : WAV 32 bits float\n    \
-        2 : AIFF 16 bit int\n    \
-        3 : WAV 16 bits int\n    \
-        4 : AIFF 24 bits int\n    \
-        5 : WAV 24 bits int\n    \
-        6 : AIFF 32 bits int\n    \
-        7 : WAV 32 bits int\n    \
-        8 : AIFF 64 bits float\n    \
-        9 : WAV 64 bits float\n\n"
+fileformat : int, optional\n        Format type of the new file. Defaults to 0. Supported formats are:\n    \
+        0 : WAVE - Microsoft WAV format (little endian) {.wav, .wave}\n    \
+        1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n    \
+sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0. Supported types are:\n    \
+        0 : 16 bit int\n    \
+        1 : 24 bits int\n    \
+        2 : 32 bits int\n    \
+        3 : 32 bits float\n    \
+        4 : 64 bits float\n\n"
 
 static PyObject *
 savefile(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -308,46 +306,40 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     MYFLT *sampsarray;
     int sr = 44100;
     int channels = 1;
-    int format = 0;
+    int fileformat = 0;
+    int sampletype = 0;
     SNDFILE *recfile;
     SF_INFO recinfo;
-    static char *kwlist[] = {"samples", "path", "sr", "channels", "format", NULL};
+    static char *kwlist[] = {"samples", "path", "sr", "channels", "fileformat", "sampletype", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iii", kwlist, &samples, &recpath, &sr, &channels, &format))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|iiii", kwlist, &samples, &recpath, &sr, &channels, &fileformat, &sampletype))
         return PyInt_FromLong(-1);
     
     recinfo.samplerate = sr;
     recinfo.channels = channels;
-    switch (format) {
+    switch (fileformat) {
         case 0:
-            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_FLOAT;
+            recinfo.format = SF_FORMAT_WAV;
             break;
-        case 1:    
-            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+        case 1:
+            recinfo.format = SF_FORMAT_AIFF;
+            break;
+    }
+    switch (sampletype) {
+        case 0:
+            recinfo.format = recinfo.format | SF_FORMAT_PCM_16;
+            break;
+        case 1:
+            recinfo.format = recinfo.format | SF_FORMAT_PCM_24;
             break;
         case 2:
-            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_16;
+            recinfo.format = recinfo.format | SF_FORMAT_PCM_32;
             break;
-        case 3:    
-            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+        case 3:
+            recinfo.format = recinfo.format | SF_FORMAT_FLOAT;
             break;
         case 4:
-            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_24;
-            break;
-        case 5:    
-            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_24;
-            break;
-        case 6:
-            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_PCM_32;
-            break;
-        case 7:    
-            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_PCM_32;
-            break;
-        case 8:
-            recinfo.format = SF_FORMAT_AIFF | SF_FORMAT_DOUBLE;
-            break;
-        case 9:    
-            recinfo.format = SF_FORMAT_WAV | SF_FORMAT_DOUBLE;
+            recinfo.format = recinfo.format | SF_FORMAT_DOUBLE;
             break;
     }
     

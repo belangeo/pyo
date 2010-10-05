@@ -93,6 +93,7 @@ typedef struct {
     double recdur;
     char *recpath;
     int recformat;
+    int rectype;
     SNDFILE *recfile;
     SF_INFO recinfo;
     /* GUI VUMETER */

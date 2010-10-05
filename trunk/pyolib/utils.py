@@ -720,18 +720,21 @@ class Record(PyoObject):
         Full path of the file to create.
     chnls : int, optional
         Number of channels in the audio file. Defaults to 2.
-    format : int, optional      
-        Format type of the audio file. Possible formats are:
-            0 : AIFF 32 bits float (Default)
-            1 : WAV 32 bits float
-            2 : AIFF 16 bit int
-            3 : WAV 16 bits int
-            4 : AIFF 24 bits int
-            5 : WAV 24 bits int
-            6 : AIFF 32 bits int
-            7 : WAV 32 bits int
-            8 : AIFF 64 bits float
-            9 : WAV 64 bits flaot
+    fileformat : int, optional
+        Format type of the audio file. Record will first try to
+        set the format from the filename extension. If it's not possible,
+        it uses the fileformat parameter. Defaults to 0. 
+        Supported formats are:
+            0 : WAV - Microsoft WAV format (little endian) {.wav, .wave}
+            1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+    sampletype : int, optional
+        Bit depth encoding of the audio file. Defaults to 0.
+        Supported types are:
+            0 : 16 bits int
+            1 : 24 bits int
+            2 : 32 bits int
+            3 : 32 bits float
+            4 : 64 bits float
     buffering : int, optional
         Number of bufferSize to wait before writing samples to disk.
         High buffering uses more memory but improves performance.
@@ -759,15 +762,25 @@ class Record(PyoObject):
     >>> amp = Fader(fadein=.05, fadeout=2, dur=4, mul=.05).play()
     >>> osc = Osc(t, freq=[uniform(350,360) for i in range(10)], mul=amp).out()
     >>> home = os.path.expanduser('~')
-    >>> rec = Record(osc, filename=home+"/example_synth.aif", format=2)
+    >>> rec = Record(osc, filename=home+"/example_synth.aif", fileformat=1, sampletype=1)
     >>> clean = Clean_objects(4.5, rec)
     >>> clean.start()
 
     """
-    def __init__(self, input, filename, chnls=2, format=0, buffering=4):
+    def __init__(self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4):
         PyoObject.__init__(self)
         self._input = input
-        self._base_objs = [Record_base(self._input.getBaseObjects(), filename, chnls, format, buffering)]
+        FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1}
+        ext = filename.rsplit('.')
+        if len(ext) >= 2:
+            ext = ext[-1].lower()
+            if FORMATS.has_key(ext):
+                fileformat = FORMATS[ext]
+            else:
+                print 'Warning: Unknown file extension. Using fileformat value.'
+        else:
+            print 'Warning: Filename has no extension. Using fileformat value.'
+        self._base_objs = [Record_base(self._input.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self

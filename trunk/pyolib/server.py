@@ -106,7 +106,10 @@ class Server(object):
         self._nchnls = nchnls
         self._amp = 1.
         self._verbosity = 7
+        self._dur = -1
         self._filename = None
+        self._fileformat = 0
+        self._sampletype = 0
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
 
     def gui(self, locals=None):
@@ -276,7 +279,7 @@ class Server(object):
         """
         self._server.stop()
 
-    def recordOptions(self, dur=-1, filename=None, format=0):
+    def recordOptions(self, dur=-1, filename=None, fileformat=0, sampletype=0):
         """
         Sets options for soundfile created by offline rendering or global recording.
 
@@ -287,34 +290,51 @@ class Server(object):
             offline rendering. Must be positive. Defaults to -1.
         filename : string
             Full path of the file to create. If None, a file called
-            `pyo_rec.aif` will be created in the user's home directory.
+            `pyo_rec.wav` will be created in the user's home directory.
             Defaults to None.
-        format : int, optional      
-            Format type of the audio file. Possible formats are:
-                0 : AIFF 32 bits float (Default)
-                1 : WAV 32 bits float
-                2 : AIFF 16 bit int
-                3 : WAV 16 bits int
-                4 : AIFF 24 bits int
-                5 : WAV 24 bits int
-                6 : AIFF 32 bits int
-                7 : WAV 32 bits int
-                8 : AIFF 64 bits float
-                9 : WAV 64 bits flaot
+        fileformat : int, optional
+            Format type of the audio file. This function will first try to
+            set the format from the filename extension. If it's not possible,
+            it uses the fileformat parameter. Defaults to 0. 
+            Supported formats are:
+                0 : WAV - Microsoft WAV format (little endian) {.wav, .wave}
+                1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+        sampletype : int, optional
+            Bit depth encoding of the audio file. Defaults to 0.
+            Supported types are:
+                0 : 16 bits int
+                1 : 24 bits int
+                2 : 32 bits int
+                3 : 32 bits float
+                4 : 64 bits float
 
         """
+        
+        FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1}
+        self._dur = dur
         if filename == None:
-            filename = os.path.join(os.path.expanduser("~"), "pyo_rec.aif")
+            filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")
         self._filename = filename
-        self._server.recordOptions(dur, filename, format)
+        ext = filename.rsplit('.')
+        if len(ext) >= 2:
+            ext = ext[-1].lower()
+            if FORMATS.has_key(ext):
+                fileformat = FORMATS[ext]
+            else:
+                print 'Warning: Unknown file extension. Using fileformat value.'
+        else:
+            print 'Warning: Filename has no extension. Using fileformat value.'
+        self._fileformat = fileformat
+        self._sampletype = sampletype
+        self._server.recordOptions(dur, filename, fileformat, sampletype)
         
     def recstart(self, filename=None):
         """
         Begins a default recording of the sound that is sent to the
-        soundcard. This will create a file called `pyo_rec.aif` in 
+        soundcard. This will create a file called `pyo_rec.wav` in 
         the user's home directory if no path is supplied or defined
-        with recordOptions method. Use file format defined with
-        recordOptions method. 
+        with recordOptions method. Uses file format and sample type 
+        defined with recordOptions method. 
         
         Parameters:
         
@@ -326,7 +346,16 @@ class Server(object):
             if self._filename != None:
                 filename = self._filename
             else:
-                filename = os.path.join(os.path.expanduser("~"), "pyo_rec.aif")
+                filename = os.path.join(os.path.expanduser("~"), "pyo_rec.wav")
+        ext = filename.rsplit('.')
+        if len(ext) >= 2:
+            ext = ext[-1].lower()
+            if FORMATS.has_key(ext):
+                fileformat = FORMATS[ext]
+                if fileformat != self._fileformat:
+                    self._fileformat = fileformat
+                    self._server.recordOptions(self._dur, filename, self._fileformat, self._sampletype)
+
         self._server.recstart(filename)    
         
     def recstop(self):

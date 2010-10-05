@@ -1,3 +1,9 @@
+2010-10-04 mantaraya36 <mantaraya36@gmail.com>
+		   belangeo	<belangeo@gmail.com>
+	
+	* Added offline rendering.
+	- rev 452	
+
 2010-09-30 belangeo	<belangeo@gmail.com>
 
 	* Added support for wxPython toolkit. If wx is installed, pyo will
