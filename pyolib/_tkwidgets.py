@@ -208,7 +208,7 @@ class ViewTable_withoutPIL(Frame):
 class ViewMatrix_withPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.canvas = Canvas(self, height=size[1], width=size[0], relief=SUNKEN, bd=1, bg="#EFEFEF")
+        self.canvas = Canvas(self, width=size[0], height=size[1], relief=SUNKEN, bd=1, bg="#EFEFEF")
         im = Image.new("L", size, None)
         im.putdata(samples)
         self.img = ImageTk.PhotoImage(im)
@@ -219,12 +219,12 @@ class ViewMatrix_withPIL(Frame):
 class ViewMatrix_withoutPIL(Frame):
     def __init__(self, master=None, samples=None, size=None):
         Frame.__init__(self, master, bd=1, relief=GROOVE)
-        self.rows = size[1]
-        self.cols = size[0]
-        self.canvas = Canvas(self, height=self.cols, width=self.rows, relief=SUNKEN, bd=1, bg="#EFEFEF")
-        for i in range(self.rows*self.cols):
-            x = i % self.cols
-            y = i / self.cols
+        self.width = size[0]
+        self.height = size[1]
+        self.canvas = Canvas(self, width=self.width, height=self.height, relief=SUNKEN, bd=1, bg="#EFEFEF")
+        for i in range(self.width*self.height):
+            x = i % self.width
+            y = i / self.width
             x1 = x+Y_OFFSET
             y1 = y+Y_OFFSET
             x2 = x+Y_OFFSET+1

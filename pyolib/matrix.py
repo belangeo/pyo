@@ -36,10 +36,10 @@ class NewMatrix(PyoMatrixObject):
     
     Parameters:
     
-    rows : ints
-        Number of rows in the matrix.
-    cols : int
-        Number of columns in the matrix.
+    width : int
+        Desired matrix width in samples.
+    height : int
+        Desired matrix height in samples.
     init : list of list of floats, optional
         Initial matrix. Defaults to None.
         
@@ -61,19 +61,19 @@ class NewMatrix(PyoMatrixObject):
     >>> fmrat = Sine(.33, 0, .05, .5)
     >>> aa = FM(carrier=250, ratio=fmrat, index=fmind)
     >>> rec = MatrixRec(aa, mm, 0).play()
-    >>> lfrow = Sine([.1,.11], 0, .124, .25)
-    >>> lfcol = Sine([.15,.16], 0, .124, .25)
-    >>> row = Sine(10, 0, lfrow, .5)
-    >>> col = Sine(1.5, 0, lfcol, .5)
-    >>> c = MatrixPointer(mm, row, col, mul=.3).out()
+    >>> lfw = Sine([.1,.11], 0, .124, .25)
+    >>> lfh = Sine([.15,.16], 0, .124, .25)
+    >>> w = Sine(10, 0, lfw, .5)
+    >>> h = Sine(1.5, 0, lfh, .5)
+    >>> c = MatrixPointer(mm, w, h, mul=.3).out()
 
     """
-    def __init__(self, rows, cols, init=None):
-        self._size = (rows, cols)
+    def __init__(self, width, height, init=None):
+        self._size = (width, height)
         if init == None:
-            self._base_objs = [NewMatrix_base(rows, cols)]
+            self._base_objs = [NewMatrix_base(width, height)]
         else:
-            self._base_objs = [NewMatrix_base(rows, cols, init)]
+            self._base_objs = [NewMatrix_base(width, height, init)]
             
     def __dir__(self):
         return []

@@ -25,8 +25,8 @@
 
 typedef struct {
     PyObject_HEAD
-    int rowsize;
-    int colsize;
+    int width;
+    int height;
     MYFLT **data;
 } MatrixStream;
 
@@ -35,13 +35,13 @@ typedef struct {
 (self) = (MatrixStream *)(type)->tp_alloc((type), 0);	\
 if ((self) == rt_error) { return rt_error; }	\
 \
-(self)->rowsize = (self)->colsize = 0
+(self)->width = (self)->height = 0
 
 #else
 
-int MatrixStream_getRowSize(PyObject *self);
-int MatrixStream_getColSize(PyObject *self);
-MYFLT MatrixStream_getInterpPointFromPos(PyObject *self, MYFLT row, MYFLT col);
+int MatrixStream_getWidth(PyObject *self);
+int MatrixStream_getHeight(PyObject *self);
+MYFLT MatrixStream_getInterpPointFromPos(PyObject *self, MYFLT x, MYFLT y);
 extern PyTypeObject MatrixStreamType;
 
 #endif

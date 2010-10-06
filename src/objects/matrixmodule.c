@@ -47,54 +47,54 @@ MatrixStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 int
-MatrixStream_getRowSize(MatrixStream *self)
+MatrixStream_getWidth(MatrixStream *self)
 {
-    return self->rowsize;
+    return self->width;
 }
 
 int
-MatrixStream_getColSize(MatrixStream *self)
+MatrixStream_getHeight(MatrixStream *self)
 {
-    return self->colsize;
+    return self->height;
 }
 
-/* row and col position normalized between 0 and 1 */
+/* width and height position normalized between 0 and 1 */
 MYFLT
-MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT row, MYFLT col)
+MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT x, MYFLT y)
 {
-    MYFLT rowpos, colpos, rfpart, cfpart, x1, x2, x3, x4;
-    int ripart, cipart;
+    MYFLT xpos, ypos, xfpart, yfpart, x1, x2, x3, x4;
+    int xipart, yipart;
 
-    rowpos = row * self->rowsize;
-    if (rowpos < 0)
-        rowpos += self->rowsize;
-    else if (rowpos >= self->rowsize) {
-        while (rowpos >= self->rowsize) {
-            rowpos -= self->rowsize;
+    xpos = x * self->width;
+    if (xpos < 0)
+        xpos += self->width;
+    else if (xpos >= self->width) {
+        while (xpos >= self->width) {
+            xpos -= self->width;
         }
     }    
 
-    colpos = col * self->colsize;
-    if (colpos < 0)
-        colpos += self->colsize;
-    else if (colpos >= self->colsize) {
-        while (colpos >= self->colsize) {
-            colpos -= self->colsize;
+    ypos = y * self->height;
+    if (ypos < 0)
+        ypos += self->height;
+    else if (ypos >= self->height) {
+        while (ypos >= self->height) {
+            ypos -= self->height;
         }
     }    
 
-    ripart = (int)rowpos;
-    rfpart = rowpos - ripart;
+    xipart = (int)xpos;
+    xfpart = xpos - xipart;
         
-    cipart = (int)colpos;
-    cfpart = colpos - cipart;
+    yipart = (int)ypos;
+    yfpart = ypos - yipart;
 
-    x1 = self->data[ripart][cipart]; // (0, 0)
-    x2 = self->data[ripart+1][cipart]; // (1, 0)
-    x3 = self->data[ripart][cipart+1]; // (0, 1)
-    x4 = self->data[ripart+1][cipart+1]; // (1, 1)
+    x1 = self->data[yipart][xipart]; // (0, 0)
+    x2 = self->data[yipart+1][xipart]; // (0, 1)
+    x3 = self->data[yipart][xipart+1]; // (1, 0)
+    x4 = self->data[yipart+1][xipart+1]; // (1, 1)
         
-    return (x1*(1-rfpart)*(1-cfpart) + x2*rfpart*(1-cfpart) + x3*(1-rfpart)*cfpart + x4*rfpart*cfpart);
+    return (x1*(1-yfpart)*(1-xfpart) + x2*yfpart*(1-xfpart) + x3*(1-yfpart)*xfpart + x4*yfpart*xfpart);
 }
 
 void
@@ -104,15 +104,15 @@ MatrixStream_setData(MatrixStream *self, MYFLT **data)
 }    
 
 void
-MatrixStream_setRowSize(MatrixStream *self, int size)
+MatrixStream_setWidth(MatrixStream *self, int size)
 {
-    self->rowsize = size;
+    self->width = size;
 }    
 
 void
-MatrixStream_setColSize(MatrixStream *self, int size)
+MatrixStream_setHeight(MatrixStream *self, int size)
 {
-    self->colsize = size;
+    self->height = size;
 }    
 
 PyTypeObject MatrixStreamType = {
@@ -162,8 +162,8 @@ MatrixStream_new, /* tp_new */
 /***********************/
 typedef struct {
     pyo_matrix_HEAD
-    int row_pointer;
-    int col_pointer;
+    int x_pointer;
+    int y_pointer;
 } NewMatrix;
 
 MYFLT 
@@ -179,12 +179,12 @@ NewMatrix_recordChunkAllRow(NewMatrix *self, MYFLT *data, int datasize)
     int i;
 
     for (i=0; i<datasize; i++) {
-        self->data[self->row_pointer][self->col_pointer++] = data[i];
-        if (self->col_pointer >= self->colsize) {
-            self->col_pointer = 0;
-            self->row_pointer++;
-            if (self->row_pointer >= self->rowsize)
-                self->row_pointer = 0;
+        self->data[self->y_pointer][self->x_pointer++] = data[i];
+        if (self->x_pointer >= self->width) {
+            self->x_pointer = 0;
+            self->y_pointer++;
+            if (self->y_pointer >= self->height)
+                self->y_pointer = 0;
         }    
     }
     Py_INCREF(Py_None);
@@ -211,7 +211,7 @@ static void
 NewMatrix_dealloc(NewMatrix* self)
 {
     int i;
-    for (i=0; i<self->rowsize; i++) {
+    for (i=0; i<self->height; i++) {
         free(self->data[i]);
     }    
     free(self->data);
@@ -228,7 +228,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->server = PyServer_get_server();
     
-    self->row_pointer = self->col_pointer = 0;
+    self->x_pointer = self->y_pointer = 0;
     
     MAKE_NEW_MATRIXSTREAM(self->matrixstream, &MatrixStreamType, NULL);
     
@@ -240,25 +240,25 @@ NewMatrix_init(NewMatrix *self, PyObject *args, PyObject *kwds)
 {    
     int i, j;
     PyObject *inittmp=NULL;
-    static char *kwlist[] = {"rows", "cols", "init", NULL};
+    static char *kwlist[] = {"width", "height", "init", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->rowsize, &self->colsize, &inittmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp))
         return -1; 
 
-    self->data = (MYFLT **)realloc(self->data, (self->rowsize + 1) * sizeof(MYFLT));
+    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT));
 
-    for (i=0; i<(self->rowsize+1); i++) {
-        self->data[i] = (MYFLT *)malloc((self->colsize + 1) * sizeof(MYFLT));
+    for (i=0; i<(self->height+1); i++) {
+        self->data[i] = (MYFLT *)malloc((self->width + 1) * sizeof(MYFLT));
     }
 
-    for(i=0; i<(self->rowsize+1); i++) {
-        for (j=0; j<(self->colsize+1); j++) {
+    for(i=0; i<(self->height+1); i++) {
+        for (j=0; j<(self->width+1); j++) {
             self->data[i][j] = 0.0;
         }    
     }
 
-    MatrixStream_setRowSize(self->matrixstream, self->rowsize);
-    MatrixStream_setColSize(self->matrixstream, self->colsize);
+    MatrixStream_setWidth(self->matrixstream, self->width);
+    MatrixStream_setHeight(self->matrixstream, self->height);
 
     if (inittmp) {
         PyObject_CallMethod((PyObject *)self, "setMatrix", "O", inittmp);
@@ -282,26 +282,26 @@ static PyObject * NewMatrix_get(NewMatrix *self, PyObject *args, PyObject *kwds)
 static PyObject *
 NewMatrix_getSize(NewMatrix *self)
 {
-    return Py_BuildValue("(ii)", self->rowsize, self->colsize);
+    return Py_BuildValue("(ii)", self->width, self->height);
 };
 
 static int
-NewMatrix_getRowSize(NewMatrix *self)
+NewMatrix_getWidth(NewMatrix *self)
 {
-    return self->rowsize;
+    return self->width;
 };
 
 static int
-NewMatrix_getColSize(NewMatrix *self)
+NewMatrix_getHeight(NewMatrix *self)
 {
-    return self->colsize;
+    return self->height;
 };
 
 static PyObject *
 NewMatrix_getRate(NewMatrix *self)
 {
     MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
-    return PyFloat_FromDouble(sr / self->rowsize);
+    return PyFloat_FromDouble(sr / self->width);
 };
 
 static PyObject *
@@ -310,10 +310,10 @@ NewMatrix_getData(NewMatrix *self)
     int i, j;
     PyObject *matrix, *samples;
     
-    matrix = PyList_New(self->rowsize);
-    for(i=0; i<self->rowsize; i++) {
-        samples = PyList_New(self->colsize);
-        for (j=0; j<self->colsize; j++) {
+    matrix = PyList_New(self->height);
+    for(i=0; i<self->height; i++) {
+        samples = PyList_New(self->width);
+        for (j=0; j<self->width; j++) {
             PyList_SetItem(samples, j, PyFloat_FromDouble(self->data[i][j]));
         }    
         PyList_SetItem(matrix, i, samples);
@@ -328,10 +328,10 @@ NewMatrix_getViewData(NewMatrix *self)
     int i, j;
     PyObject *matrix;
     
-    matrix = PyList_New(self->rowsize*self->colsize);
-    for(i=0; i<self->rowsize; i++) {
-        for (j=0; j<self->colsize; j++) {
-            PyList_SET_ITEM(matrix, i*self->colsize+j, PyFloat_FromDouble(self->data[i][j]*128+128));
+    matrix = PyList_New(self->width*self->height);
+    for(i=0; i<self->height; i++) {
+        for (j=0; j<self->width; j++) {
+            PyList_SET_ITEM(matrix, i*self->width+j, PyFloat_FromDouble(self->data[i][j]*128+128));
         }    
     }
     
@@ -354,16 +354,16 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
         return PyInt_FromLong(-1);
     }
 
-    int rowsize = PyList_Size(value);
-    int colsize = PyList_Size(PyList_GetItem(value, 0));
-    if (rowsize != self->rowsize || colsize != self->colsize) {
+    int height = PyList_Size(value);
+    int width = PyList_Size(PyList_GetItem(value, 0));
+    if (height != self->height || width != self->width) {
         PyErr_SetString(PyExc_TypeError, "New matrix must be of the same size as actual matrix.");
         return PyInt_FromLong(-1);
     }
     
-    for(i=0; i<self->rowsize; i++) {
+    for(i=0; i<self->height; i++) {
         innerlist = PyList_GetItem(value, i);
-        for (j=0; j<self->colsize; j++) {
+        for (j=0; j<self->width; j++) {
             self->data[i][j] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(innerlist, j)));
         }    
     }
@@ -458,9 +458,9 @@ MatrixRec_compute_next_data_frame(MatrixRec *self)
 {
     int i, num, upBound;
     MYFLT sclfade, val;
-    int rowsize = NewMatrix_getRowSize((NewMatrix *)self->matrix);
-    int colsize = NewMatrix_getColSize((NewMatrix *)self->matrix);
-    int size = rowsize * colsize;
+    int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
+    int height = NewMatrix_getHeight((NewMatrix *)self->matrix);
+    int size = width * height;
     
     if ((size - self->pointer) >= self->bufsize)
         num = self->bufsize;
@@ -579,9 +579,9 @@ MatrixRec_init(MatrixRec *self, PyObject *args, PyObject *kwds)
         self->trigsBuffer[i] = 0.0;
     }    
     
-    int rowsize = NewMatrix_getRowSize((NewMatrix *)self->matrix);
-    int colsize = NewMatrix_getColSize((NewMatrix *)self->matrix);
-    int size = rowsize * colsize;
+    int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
+    int height = NewMatrix_getHeight((NewMatrix *)self->matrix);
+    int size = width * height;
     if ((self->fadetime * self->sr) > (size * 0.5))
         self->fadetime = size * 0.5 / self->sr;
     self->fadeInSample = roundf(self->fadetime * self->sr + 0.5);

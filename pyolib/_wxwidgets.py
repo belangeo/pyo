@@ -765,15 +765,15 @@ class ViewMatrix_withoutPIL(wx.Frame):
         self.SetSize((size[0], size[1]+Y_OFF))
         self.SetMinSize((size[0], size[1]+Y_OFF))
         self.SetMaxSize((size[0], size[1]+Y_OFF))
-        self.rows = size[1]
-        self.cols = size[0]
+        self.width = size[0]
+        self.height = size[1]
         self.samples = samples
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
-        for i in range(self.rows*self.cols):
-            x = i % self.cols
-            y = i / self.cols
+        for i in range(self.width*self.height):
+            x = i % self.width
+            y = i / self.width
             amp = int(self.samples[i])
             amp = hex(amp).replace('0x', '')
             if len(amp) == 1:
