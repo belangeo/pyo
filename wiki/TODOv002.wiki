@@ -10,6 +10,12 @@ TODO before releasing _pyo_ version 0.02.
 
 ----
 
+*Server*
+
+- Add a method to retrieve a graph of the internal state of the server (active objects, connections, attribute states, ...)
+
+----
+
 *Envelope generators*
 
 - Add a pause() method. Keep the internal phase of the envelope.
