@@ -10,6 +10,12 @@ TODO before releasing _pyo_ version 0.02.
 
 ----
 
+*Envelope generators*
+
+- Add a pause() method. Keep the internal phase of the envelope.
+
+----
+
 *GUI*
 
 - !MixerGui (matrix for setting dsp graph)
