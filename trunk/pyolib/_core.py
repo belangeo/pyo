@@ -798,8 +798,8 @@ class PyoMatrixObject(object):
     normalize() : Normalize matrix samples between -1 and 1.
     blur() : Apply a simple gaussian blur on the matrix.
     boost(min, max, boost) : Boost the contrast of values in the matrix.
-    put(value, row, col) : Puts a value at specified position in the matrix.
-    get(row, col) : Returns the value at specified position in the matrix.
+    put(value, x, y) : Puts a value at specified position in the matrix.
+    get(x, y) : Returns the value at specified position in the matrix.
     
     Notes:
     
@@ -920,7 +920,7 @@ class PyoMatrixObject(object):
         """
         [obj.boost(min, max, boost) for obj in self._base_objs]
 
-    def put(self, value, row=0, col=0):
+    def put(self, value, x=0, y=0):
         """
         Puts a value at specified position in the matrix.
         
@@ -932,15 +932,15 @@ class PyoMatrixObject(object):
         
         value : float
             Value, as floating-point, to record in the matrix.
-        row : int, optional
-            Row position where to record value. Defaults to 0.
-        col : int, optional
-            Column position where to record value. Defaults to 0.
+        x : int, optional
+            X position where to record value. Defaults to 0.
+        y : int, optional
+            Y position where to record value. Defaults to 0.
         
         """
-        [obj.put(value, row, col) for obj in self._base_objs]
+        [obj.put(value, x, y) for obj in self._base_objs]
 
-    def get(self, row, col):
+    def get(self, x, y):
         """
         Returns the value, as float, at specified position in the matrix.
         
@@ -950,13 +950,13 @@ class PyoMatrixObject(object):
         
         Parameters:
         
-        row : int, optional
-            Row position where to get value. Defaults to 0.
-        col : int, optional
-            Column position where to get value. Defaults to 0.
+        x : int, optional
+            X position where to get value. Defaults to 0.
+        y : int, optional
+            Y position where to get value. Defaults to 0.
         
         """
-        values = [obj.get(row, col) for obj in self._base_objs]
+        values = [obj.get(x, y) for obj in self._base_objs]
         if len(values) == 1: return values[0]
         else: return values
 

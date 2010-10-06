@@ -32,10 +32,10 @@
 typedef struct {
     pyo_audio_HEAD
     PyObject *matrix;
-    PyObject *indexrow;
-    Stream *indexrow_stream;
-    PyObject *indexcol;
-    Stream *indexcol_stream;
+    PyObject *x;
+    Stream *x_stream;
+    PyObject *y;
+    Stream *y_stream;
     int modebuffer[2];
 } MatrixPointer;
 
@@ -43,11 +43,11 @@ static void
 MatrixPointer_readframes(MatrixPointer *self) {
     int i;
     
-    MYFLT *row = Stream_getData((Stream *)self->indexrow_stream);
-    MYFLT *col = Stream_getData((Stream *)self->indexcol_stream);
+    MYFLT *x = Stream_getData((Stream *)self->x_stream);
+    MYFLT *y = Stream_getData((Stream *)self->y_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        self->data[i] = MatrixStream_getInterpPointFromPos(self->matrix, row[i], col[i]);
+        self->data[i] = MatrixStream_getInterpPointFromPos(self->matrix, x[i], y[i]);
     }
 }
 
@@ -113,10 +113,10 @@ MatrixPointer_traverse(MatrixPointer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->matrix);
-    Py_VISIT(self->indexrow);    
-    Py_VISIT(self->indexrow_stream);    
-    Py_VISIT(self->indexcol);    
-    Py_VISIT(self->indexcol_stream);    
+    Py_VISIT(self->x);    
+    Py_VISIT(self->x_stream);    
+    Py_VISIT(self->y);    
+    Py_VISIT(self->y_stream);    
     return 0;
 }
 
@@ -125,10 +125,10 @@ MatrixPointer_clear(MatrixPointer *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->matrix);
-    Py_CLEAR(self->indexrow);    
-    Py_CLEAR(self->indexrow_stream);    
-    Py_CLEAR(self->indexcol);    
-    Py_CLEAR(self->indexcol_stream);    
+    Py_CLEAR(self->x);    
+    Py_CLEAR(self->x_stream);    
+    Py_CLEAR(self->y);    
+    Py_CLEAR(self->y_stream);    
     return 0;
 }
 
@@ -162,22 +162,22 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 MatrixPointer_init(MatrixPointer *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *matrixtmp, *indexrowtmp, *indexcoltmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *matrixtmp, *xtmp, *ytmp, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"matrix", "indexrow", "indexcol", "mul", "add", NULL};
+    static char *kwlist[] = {"matrix", "x", "y", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &indexrowtmp, &indexcoltmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &xtmp, &ytmp, &multmp, &addtmp))
         return -1; 
     
     Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
     
-    if (indexrowtmp) {
-        PyObject_CallMethod((PyObject *)self, "setIndexRow", "O", indexrowtmp);
+    if (xtmp) {
+        PyObject_CallMethod((PyObject *)self, "setX", "O", xtmp);
     }
 
-    if (indexcoltmp) {
-        PyObject_CallMethod((PyObject *)self, "setIndexCol", "O", indexcoltmp);
+    if (ytmp) {
+        PyObject_CallMethod((PyObject *)self, "setY", "O", ytmp);
     }
     
     if (multmp) {
@@ -243,7 +243,7 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 }	
 
 static PyObject *
-MatrixPointer_setIndexRow(MatrixPointer *self, PyObject *arg)
+MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 	
@@ -254,27 +254,27 @@ MatrixPointer_setIndexRow(MatrixPointer *self, PyObject *arg)
     
 	int isNumber = PyNumber_Check(arg);
 	if (isNumber == 1) {
-		printf("MatrixPointer indexrow attributes must be a PyoObject.\n");
+		printf("MatrixPointer x attributes must be a PyoObject.\n");
         Py_INCREF(Py_None);
         return Py_None;
 	}
 	
 	tmp = arg;
 	Py_INCREF(tmp);
-	Py_XDECREF(self->indexrow);
+	Py_XDECREF(self->x);
 
-    self->indexrow = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->indexrow, "_getStream", NULL);
+    self->x = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->x, "_getStream", NULL);
     Py_INCREF(streamtmp);
-    Py_XDECREF(self->indexrow_stream);
-    self->indexrow_stream = (Stream *)streamtmp;
+    Py_XDECREF(self->x_stream);
+    self->x_stream = (Stream *)streamtmp;
     
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
 
 static PyObject *
-MatrixPointer_setIndexCol(MatrixPointer *self, PyObject *arg)
+MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 {
 	PyObject *tmp, *streamtmp;
 	
@@ -285,20 +285,20 @@ MatrixPointer_setIndexCol(MatrixPointer *self, PyObject *arg)
     
 	int isNumber = PyNumber_Check(arg);
 	if (isNumber == 1) {
-		printf("MatrixPointer indexcol attributes must be a PyoObject.\n");
+		printf("MatrixPointer y attributes must be a PyoObject.\n");
         Py_INCREF(Py_None);
         return Py_None;
 	}
 	
 	tmp = arg;
 	Py_INCREF(tmp);
-	Py_XDECREF(self->indexcol);
+	Py_XDECREF(self->y);
     
-    self->indexcol = tmp;
-    streamtmp = PyObject_CallMethod((PyObject *)self->indexcol, "_getStream", NULL);
+    self->y = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->y, "_getStream", NULL);
     Py_INCREF(streamtmp);
-    Py_XDECREF(self->indexcol_stream);
-    self->indexcol_stream = (Stream *)streamtmp;
+    Py_XDECREF(self->y_stream);
+    self->y_stream = (Stream *)streamtmp;
     
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -308,8 +308,8 @@ static PyMemberDef MatrixPointer_members[] = {
 {"server", T_OBJECT_EX, offsetof(MatrixPointer, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(MatrixPointer, stream), 0, "Stream object."},
 {"matrix", T_OBJECT_EX, offsetof(MatrixPointer, matrix), 0, "Waveform matrix."},
-{"indexrow", T_OBJECT_EX, offsetof(MatrixPointer, indexrow), 0, "Reader indexrow."},
-{"indexcol", T_OBJECT_EX, offsetof(MatrixPointer, indexcol), 0, "Reader indexcol."},
+{"x", T_OBJECT_EX, offsetof(MatrixPointer, x), 0, "Reader x."},
+{"y", T_OBJECT_EX, offsetof(MatrixPointer, y), 0, "Reader y."},
 {"mul", T_OBJECT_EX, offsetof(MatrixPointer, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(MatrixPointer, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
@@ -324,8 +324,8 @@ static PyMethodDef MatrixPointer_methods[] = {
 {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)MatrixPointer_stop, METH_NOARGS, "Stops computing."},
 {"setMatrix", (PyCFunction)MatrixPointer_setMatrix, METH_O, "Sets oscillator matrix."},
-{"setIndexRow", (PyCFunction)MatrixPointer_setIndexRow, METH_O, "Sets reader indexrow."},
-{"setIndexCol", (PyCFunction)MatrixPointer_setIndexCol, METH_O, "Sets reader indexcol."},
+{"setX", (PyCFunction)MatrixPointer_setX, METH_O, "Sets reader x."},
+{"setY", (PyCFunction)MatrixPointer_setY, METH_O, "Sets reader y."},
 {"setMul", (PyCFunction)MatrixPointer_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)MatrixPointer_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)MatrixPointer_setSub, METH_O, "Sets oscillator inverse add factor."},
@@ -372,7 +372,7 @@ static PyNumberMethods MatrixPointer_as_number = {
 0,              /*nb_true_divide*/
 0,     /*nb_inplace_floor_divide*/
 0,      /*nb_inplace_true_divide*/
-0,                     /* nb_indexrow */
+0,                     /* nb_x */
 };
 
 PyTypeObject MatrixPointerType = {
@@ -397,7 +397,7 @@ sizeof(MatrixPointer),         /*tp_basicsize*/
 0,                         /*tp_setattro*/
 0,                         /*tp_as_buffer*/
 Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"MatrixPointer objects. Read a waveform matrix with a pointer indexrow.",           /* tp_doc */
+"MatrixPointer objects. Read a waveform matrix with a pointer x.",           /* tp_doc */
 (traverseproc)MatrixPointer_traverse,   /* tp_traverse */
 (inquiry)MatrixPointer_clear,           /* tp_clear */
 0,		               /* tp_richcompare */

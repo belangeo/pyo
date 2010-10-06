@@ -88,11 +88,11 @@ class MatrixRec(PyoObject):
     >>> fmrat = Sine(.33, 0, .05, .5)
     >>> aa = FM(carrier=10, ratio=fmrat, index=fmind)
     >>> rec = MatrixRec(aa, mm, 0).play()
-    >>> lfrow = Sine(.1, 0, .24, .25)
-    >>> lfcol = Sine(.15, 0, .124, .25)
-    >>> row = Sine(1000, 0, lfrow, .5)
-    >>> col = Sine(1.5, 0, lfcol, .5)
-    >>> c = MatrixPointer(mm, row, col, .5).out()
+    >>> lfx = Sine(.1, 0, .24, .25)
+    >>> lfy = Sine(.15, 0, .124, .25)
+    >>> x = Sine(1000, 0, lfx, .5)
+    >>> y = Sine(1.5, 0, lfy, .5)
+    >>> c = MatrixPointer(mm, x, y, .5).out()
     
     """
     def __init__(self, input, matrix, fadetime=0):
@@ -203,22 +203,22 @@ class MatrixPointer(PyoObject):
     
     matrix : PyoMatrixObject
         Matrix containing the waveform samples.
-    indexrow : PyoObject
+    x : PyoObject
         Normalized X position in the matrix between 0 and 1.
-    indexcol : PyoObject
+    y : PyoObject
         Normalized Y position in the matrix between 0 and 1.
         
     Methods:
 
     setMatrix(x) : Replace the `matrix` attribute.
-    setIndexRow(x) : Replace the `indexrow` attribute.
-    setIndexCol(x) : Replace the `indexcol` attribute
+    setX(x) : Replace the `x` attribute.
+    setY(x) : Replace the `y` attribute
 
     Attributes:
     
     matrix : PyoMatrixObject. Matrix containing the waveform samples.
-    indexrow : PyoObject. X pointer position in the matrix.
-    indexcol : PyoObject. Y pointer position in the matrix.
+    x : PyoObject. X pointer position in the matrix.
+    y : PyoObject. Y pointer position in the matrix.
     
     Examples:
     
@@ -230,25 +230,25 @@ class MatrixPointer(PyoObject):
     >>> fmrat = Sine(.33, 0, .05, .5)
     >>> aa = FM(carrier=10, ratio=fmrat, index=fmind)
     >>> rec = MatrixRec(aa, mm, 0).play()
-    >>> lfrow = Sine(.1, 0, .24, .25)
-    >>> lfcol = Sine(.15, 0, .124, .25)
-    >>> row = Sine(1000, 0, lfrow, .5)
-    >>> col = Sine(1.5, 0, lfcol, .5)
-    >>> c = MatrixPointer(mm, row, col, .5).out()
+    >>> lfx = Sine(.1, 0, .24, .25)
+    >>> lfy = Sine(.15, 0, .124, .25)
+    >>> x = Sine(1000, 0, lfx, .5)
+    >>> y = Sine(1.5, 0, lfy, .5)
+    >>> c = MatrixPointer(mm, x, y, .5).out()
 
     """
-    def __init__(self, matrix, indexrow, indexcol, mul=1, add=0):
+    def __init__(self, matrix, x, y, mul=1, add=0):
         PyoObject.__init__(self)
         self._matrix = matrix
-        self._indexrow = indexrow
-        self._indexcol = indexcol
+        self._x = x
+        self._y = y
         self._mul = mul
         self._add = add
-        matrix, indexrow, indexcol, mul, add, lmax = convertArgsToLists(matrix, indexrow, indexcol, mul, add)
-        self._base_objs = [MatrixPointer_base(wrap(matrix,i), wrap(indexrow,i), wrap(indexcol,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        matrix, x, y, mul, add, lmax = convertArgsToLists(matrix, x, y, mul, add)
+        self._base_objs = [MatrixPointer_base(wrap(matrix,i), wrap(x,i), wrap(y,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['matrix', 'indexrow', 'indexcol', 'mul', 'add']
+        return ['matrix', 'x', 'y', 'mul', 'add']
 
     def setMatrix(self, x):
         """
@@ -264,33 +264,33 @@ class MatrixPointer(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def setIndexRow(self, x):
+    def setX(self, x):
         """
-        Replace the `indexrow` attribute.
+        Replace the `x` attribute.
         
         Parameters:
 
         x : PyoObject
-            new `indexrow` attribute.
+            new `x` attribute.
         
         """
-        self._indexrow = x
+        self._x = x
         x, lmax = convertArgsToLists(x)
-        [obj.setIndexRow(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setX(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def setIndexCol(self, x):
+    def setY(self, x):
         """
-        Replace the `indexcol` attribute.
+        Replace the `y` attribute.
         
         Parameters:
 
-        x : PyoObject
-            new `indexcol` attribute.
+        y : PyoObject
+            new `y` attribute.
         
         """
-        self._indexcol = x
+        self._y = x
         x, lmax = convertArgsToLists(x)
-        [obj.setIndexCol(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setY(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -304,15 +304,15 @@ class MatrixPointer(PyoObject):
     def matrix(self, x): self.setMatrix(x)
 
     @property
-    def indexrow(self):
-        """PyoObject. Row index pointer position in the matrix.""" 
-        return self._indexrow
-    @indexrow.setter
-    def indexrow(self, x): self.setIndexRow(x)
+    def x(self):
+        """PyoObject. Normalized X position in the matrix.""" 
+        return self._x
+    @x.setter
+    def x(self, x): self.setX(x)
 
     @property
-    def indexcol(self):
-        """PyoObject. Column index pointer position in the matrix.""" 
-        return self._indexcol
-    @indexcol.setter
-    def indexcol(self, x): self.setIndexCol(x)
+    def y(self):
+        """PyoObject. Normalized Y position in the matrix.""" 
+        return self._y
+    @y.setter
+    def y(self, x): self.setY(x)

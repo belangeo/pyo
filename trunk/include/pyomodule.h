@@ -302,8 +302,8 @@ extern PyTypeObject M_PowType;
     PyObject_HEAD \
     PyObject *server; \
     MatrixStream *matrixstream; \
-    int rowsize; \
-    int colsize; \
+    int width; \
+    int height; \
     MYFLT **data;
 
 /* VISIT & CLEAR */
@@ -365,18 +365,18 @@ extern PyTypeObject M_PowType;
         PyErr_SetString(PyExc_TypeError, "The data must be a list of list of floats."); \
         return PyInt_FromLong(-1); \
     } \
-    self->rowsize = PyList_Size(arg); \
-    self->colsize = PyList_Size(PyList_GetItem(arg, 0)); \
-    self->data = (MYFLT **)realloc(self->data, (self->rowsize + 1) * sizeof(MYFLT)); \
-    for (i=0; i<(self->rowsize+1); i++) { \
-        self->data[i] = (MYFLT *)realloc(self->data[i], (self->colsize + 1) * sizeof(MYFLT)); \
+    self->height = PyList_Size(arg); \
+    self->width = PyList_Size(PyList_GetItem(arg, 0)); \
+    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT)); \
+    for (i=0; i<(self->height+1); i++) { \
+        self->data[i] = (MYFLT *)realloc(self->data[i], (self->width + 1) * sizeof(MYFLT)); \
     } \
-    MatrixStream_setRowSize(self->matrixstream, self->rowsize); \
-    MatrixStream_setColSize(self->matrixstream, self->colsize); \
+    MatrixStream_setWidth(self->matrixstream, self->width); \
+    MatrixStream_setHeight(self->matrixstream, self->height); \
  \
-    for(i=0; i<self->rowsize; i++) { \
+    for(i=0; i<self->height; i++) { \
         innerlist = PyList_GetItem(arg, i); \
-        for (j=0; j<self->colsize; j++) { \
+        for (j=0; j<self->width; j++) { \
             self->data[i][j] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(innerlist, j))); \
         } \
     } \
@@ -446,8 +446,8 @@ extern PyTypeObject M_PowType;
     int i, j; \
     MYFLT mi, ma, max, ratio; \
     mi = ma = self->data[0][0]; \
-    for (i=1; i<self->rowsize; i++) { \
-        for (j=1; j<self->colsize; j++) { \
+    for (i=1; i<self->height; i++) { \
+        for (j=1; j<self->width; j++) { \
             if (mi > self->data[i][j]) \
                 mi = self->data[i][j]; \
             if (ma < self->data[i][j]) \
@@ -461,8 +461,8 @@ extern PyTypeObject M_PowType;
  \
     if (max > 0.0) { \
         ratio = 0.99 / max; \
-        for (i=0; i<self->rowsize+1; i++) { \
-            for (j=0; j<self->colsize+1; j++) { \
+        for (i=0; i<self->height+1; i++) { \
+            for (j=0; j<self->width+1; j++) { \
                 self->data[i][j] *= ratio; \
             } \
         } \
@@ -505,26 +505,26 @@ extern PyTypeObject M_PowType;
 /* Matrix macros */
 #define MATRIX_BLUR \
     int i,j; \
-    MYFLT tmp[self->rowsize][self->colsize]; \
+    MYFLT tmp[self->height][self->width]; \
  \
-    int lc = self->colsize - 1; \
-    int lr = self->rowsize - 1; \
-    for (i=1; i<lc; i++) { \
+    int lw = self->width - 1; \
+    int lh = self->height - 1; \
+    for (i=1; i<lw; i++) { \
         tmp[0][i] = (self->data[0][i-1] + self->data[0][i] + self->data[1][i] + self->data[0][i+1]) * 0.25; \
-        tmp[lr][i] = (self->data[lr][i-1] + self->data[lr][i] + self->data[lr-1][i] + self->data[lr][i+1]) * 0.25; \
+        tmp[lh][i] = (self->data[lh][i-1] + self->data[lh][i] + self->data[lh-1][i] + self->data[lh][i+1]) * 0.25; \
     } \
-    for (i=1; i<lr; i++) { \
+    for (i=1; i<lh; i++) { \
         tmp[i][0] = (self->data[i-1][0] + self->data[i][0] + self->data[i][1] + self->data[i+1][0]) * 0.25; \
-        tmp[i][lc] = (self->data[i-1][lc] + self->data[i][lc] + self->data[i][lc-1] + self->data[i+1][lc]) * 0.25; \
+        tmp[i][lw] = (self->data[i-1][lw] + self->data[i][lw] + self->data[i][lw-1] + self->data[i+1][lw]) * 0.25; \
     } \
  \
-    for (i=1; i<lr; i++) { \
-        for (j=1; j<lc; j++) { \
+    for (i=1; i<lh; i++) { \
+        for (j=1; j<lw; j++) { \
             tmp[i][j] = (self->data[i][j-1] + self->data[i][j] + self->data[i][j+1]) * 0.3333333; \
         } \
     } \
-    for (j=1; j<lc; j++) { \
-        for (i=1; i<lr; i++) { \
+    for (j=1; j<lw; j++) { \
+        for (i=1; i<lh; i++) { \
             self->data[i][j] = (tmp[i-1][j] + tmp[i][j] + tmp[i+1][j]) * 0.3333333; \
         } \
     } \
@@ -544,8 +544,8 @@ extern PyTypeObject M_PowType;
  \
     float mid = (min + max) * 0.5; \
  \
-    for (i=0; i<self->rowsize; i++) { \
-        for (j=0; j<self->colsize; j++) { \
+    for (i=0; i<self->height; i++) { \
+        for (j=0; j<self->width; j++) { \
             val = self->data[i][j]; \
             self->data[i][j] = NewMatrix_clip(val + (val-mid) * boost, min, max); \
         } \
@@ -555,46 +555,46 @@ extern PyTypeObject M_PowType;
 
 #define MATRIX_PUT \
     MYFLT val; \
-    int row, col; \
-    row = col = 0; \
-    static char *kwlist[] = {"value", "row", "col", NULL}; \
+    int x, y; \
+    x = y = 0; \
+    static char *kwlist[] = {"value", "x", "y", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_II, kwlist, &val, &row, &col)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_II, kwlist, &val, &x, &y)) \
         return PyInt_FromLong(-1); \
  \
-    if (row >= self->rowsize) { \
-        PyErr_SetString(PyExc_TypeError, "row position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
-    } \
- \
-    if (col >= self->colsize) { \
-        PyErr_SetString(PyExc_TypeError, "column position outside of matrix boundaries!."); \
+    if (x >= self->width) { \
+        PyErr_SetString(PyExc_TypeError, "X position outside of matrix boundaries!."); \
         return PyInt_FromLong(-1); \
     } \
  \
-    self->data[row][col] = val; \
+    if (y >= self->height) { \
+        PyErr_SetString(PyExc_TypeError, "Y position outside of matrix boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    self->data[y][x] = val; \
  \
     Py_INCREF(Py_None); \
     return Py_None; \
 
 #define MATRIX_GET \
-    int row, col; \
-    static char *kwlist[] = {"row", "col", NULL}; \
+    int x, y; \
+    static char *kwlist[] = {"x", "y", NULL}; \
  \
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &row, &col)) \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &x, &y)) \
         return PyInt_FromLong(-1); \
  \
-    if (row >= self->rowsize) { \
-        PyErr_SetString(PyExc_TypeError, "row position outside of matrix boundaries!."); \
-        return PyInt_FromLong(-1); \
-    } \
- \
-    if (col >= self->colsize) { \
-        PyErr_SetString(PyExc_TypeError, "column position outside of matrix boundaries!."); \
+    if (x >= self->width) { \
+        PyErr_SetString(PyExc_TypeError, "X position outside of matrix boundaries!."); \
         return PyInt_FromLong(-1); \
     } \
  \
-    return PyFloat_FromDouble(self->data[row][col]); \
+    if (y >= self->height) { \
+        PyErr_SetString(PyExc_TypeError, "Y position outside of matrix boundaries!."); \
+        return PyInt_FromLong(-1); \
+    } \
+ \
+    return PyFloat_FromDouble(self->data[y][x]); \
 
 
 /* Init Server & Stream */
