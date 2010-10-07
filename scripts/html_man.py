@@ -208,7 +208,7 @@ for file in os.listdir(man_file):
         f.write(text)
 os.remove('%s.tex' % man_file)
 os.chdir('../')
-shutil.copy('manual-dev.css', 'doc/manual-dev')
+shutil.copy('scripts/manual-dev.css', 'doc/manual-dev')
 print "Upload documentation (y/n)?"
 ans = raw_input()
 if (ans == 'y'):

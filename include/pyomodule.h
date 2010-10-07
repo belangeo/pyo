@@ -214,6 +214,7 @@ extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;
 extern PyTypeObject MatrixRecType;
 extern PyTypeObject MatrixRecTrigType;
+extern PyTypeObject MatrixMorphType;
 
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;

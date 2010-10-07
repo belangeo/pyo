@@ -97,6 +97,12 @@ MatrixStream_getInterpPointFromPos(MatrixStream *self, MYFLT x, MYFLT y)
     return (x1*(1-yfpart)*(1-xfpart) + x2*yfpart*(1-xfpart) + x3*(1-yfpart)*xfpart + x4*yfpart*xfpart);
 }
 
+MYFLT 
+MatrixStream_getPointFromPos(MatrixStream *self, long x, long y)
+{
+    return self->data[y][x];
+}    
+
 void
 MatrixStream_setData(MatrixStream *self, MYFLT **data)
 {
@@ -174,9 +180,9 @@ NewMatrix_clip(MYFLT val, MYFLT min, MYFLT max) {
 }
 
 static PyObject *
-NewMatrix_recordChunkAllRow(NewMatrix *self, MYFLT *data, int datasize)
+NewMatrix_recordChunkAllRow(NewMatrix *self, MYFLT *data, long datasize)
 {
-    int i;
+    long i;
 
     for (i=0; i<datasize; i++) {
         self->data[self->y_pointer][self->x_pointer++] = data[i];
@@ -834,5 +840,253 @@ PyTypeObject MatrixRecTrigType = {
     (initproc)MatrixRecTrig_init,      /* tp_init */
     0,                         /* tp_alloc */
     MatrixRecTrig_new,                 /* tp_new */
+};
+
+/******************************/
+/* MatrixMorph object definition */
+/******************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *matrix;
+    PyObject *sources;
+    MYFLT *buffer;
+} MatrixMorph;
+
+static MYFLT
+MatrixMorph_clip(MYFLT x) {
+    if (x < 0.0)
+        return 0.0;
+    else if (x >= 0.999999)
+        return 0.999999;
+    else
+        return x;
+}
+
+static void
+MatrixMorph_compute_next_data_frame(MatrixMorph *self)
+{
+    int x, y;
+    long i, j, width, height, numsamps, index;
+    MYFLT input, interp, interp1;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    width = NewMatrix_getWidth((NewMatrix *)self->matrix);
+    height = NewMatrix_getHeight((NewMatrix *)self->matrix);
+    numsamps = width * height;
+    int len = PyList_Size(self->sources);
+    
+    input = MatrixMorph_clip(in[0]);
+    
+    interp = input * (len - 1);
+    x = (int)(interp);   
+    y = x + 1;
+    
+    MatrixStream *tab1 = (MatrixStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, x), "getMatrixStream", "");
+    MatrixStream *tab2 = (MatrixStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getMatrixStream", "");
+    
+    interp = MYFMOD(interp, 1.0);
+    interp1 = 1. - interp;
+    
+    for (i=0; i<height; i++) {
+        for (j=0; j<width; j++) {
+            index = i*width+j;
+            self->buffer[index] = MatrixStream_getPointFromPos(tab1, j, i) * interp1 + MatrixStream_getPointFromPos(tab2, j, i) * interp;
+        }    
+    }    
+    
+    NewMatrix_recordChunkAllRow((NewMatrix *)self->matrix, self->buffer, numsamps);
+}
+
+static int
+MatrixMorph_traverse(MatrixMorph *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->matrix);
+    Py_VISIT(self->sources);
+    return 0;
+}
+
+static int 
+MatrixMorph_clear(MatrixMorph *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->matrix);
+    Py_CLEAR(self->sources);
+    return 0;
+}
+
+static void
+MatrixMorph_dealloc(MatrixMorph* self)
+{
+    free(self->data);
+    free(self->buffer);
+    MatrixMorph_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * MatrixMorph_deleteStream(MatrixMorph *self) { DELETE_STREAM };
+
+static PyObject *
+MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MatrixMorph *self;
+    self = (MatrixMorph *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+    
+    Stream_setFunctionPtr(self->stream, MatrixMorph_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+MatrixMorph_init(MatrixMorph *self, PyObject *args, PyObject *kwds)
+{
+    long width, height, numsamps;
+    PyObject *inputtmp, *input_streamtmp, *matrixtmp, *sourcestmp;
+    
+    static char *kwlist[] = {"input", "matrix", "sources", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|", kwlist, &inputtmp, &matrixtmp, &sourcestmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    Py_XDECREF(self->matrix);
+    self->matrix = (PyObject *)matrixtmp;
+
+    width = NewMatrix_getWidth((NewMatrix *)self->matrix);
+    height = NewMatrix_getHeight((NewMatrix *)self->matrix);
+    numsamps = width * height;
+    self->buffer = (MYFLT *)realloc(self->buffer, (numsamps) * sizeof(MYFLT));
+
+    Py_XDECREF(self->sources);
+    self->sources = (PyObject *)sourcestmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * MatrixMorph_getServer(MatrixMorph* self) { GET_SERVER };
+static PyObject * MatrixMorph_getStream(MatrixMorph* self) { GET_STREAM };
+
+static PyObject * MatrixMorph_play(MatrixMorph *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MatrixMorph_stop(MatrixMorph *self) { STOP };
+
+static PyObject *
+MatrixMorph_setMatrix(MatrixMorph *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+    Py_INCREF(tmp);
+	Py_DECREF(self->matrix);
+    self->matrix = (PyObject *)tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+MatrixMorph_setSources(MatrixMorph *self, PyObject *arg)
+{	
+    if (arg == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(arg);
+    Py_DECREF(self->sources);
+    self->sources = arg;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef MatrixMorph_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MatrixMorph, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MatrixMorph, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MatrixMorph, input), 0, "Input sound object."},
+    {"matrix", T_OBJECT_EX, offsetof(MatrixMorph, matrix), 0, "Matrix to record in."},
+    {"sources", T_OBJECT_EX, offsetof(MatrixMorph, sources), 0, "list of matrixes to interpolate from."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MatrixMorph_methods[] = {
+    {"getServer", (PyCFunction)MatrixMorph_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MatrixMorph_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)MatrixMorph_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"setMatrix", (PyCFunction)MatrixMorph_setMatrix, METH_O, "Sets a new matrix."},
+    {"setSources", (PyCFunction)MatrixMorph_setSources, METH_O, "Changes the sources matrixs."},
+    {"play", (PyCFunction)MatrixMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MatrixMorph_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject MatrixMorphType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.MatrixMorph_base",         /*tp_name*/
+    sizeof(MatrixMorph),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MatrixMorph_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MatrixMorph objects. Interpolation contents of different matrix objects.",           /* tp_doc */
+    (traverseproc)MatrixMorph_traverse,   /* tp_traverse */
+    (inquiry)MatrixMorph_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MatrixMorph_methods,             /* tp_methods */
+    MatrixMorph_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)MatrixMorph_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    MatrixMorph_new,                 /* tp_new */
 };
 

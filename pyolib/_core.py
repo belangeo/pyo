@@ -759,12 +759,14 @@ class PyoTableObject(object):
         [obj.normalize() for obj in self._base_objs]
         return self
 
-    def view(self, wxnoserver=False):
+    def view(self, title="Table waveform", wxnoserver=False):
         """
         Opens a window showing the contents of the table.
         
         Parameters:
         
+        title : string, optional
+            Window title. Defaults to "Table waveform". 
         wxnoserver : boolean, optional
             With wxPython graphical toolkit, if True, tells the 
             interpreter that there will be no server window and not 
@@ -774,7 +776,7 @@ class PyoTableObject(object):
         """
         samples = self._base_objs[0].getViewTable()
         print self.__class__.__name__
-        createViewTableWindow(samples, wxnoserver, self.__class__.__name__)
+        createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__)
         
 ######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
@@ -960,12 +962,14 @@ class PyoMatrixObject(object):
         if len(values) == 1: return values[0]
         else: return values
 
-    def view(self, wxnoserver=False):
+    def view(self, title="Matrix viewer", wxnoserver=False):
         """
         Opens a window showing the contents of the matrix.
         
         Parameters:
         
+        title : string, optional
+            Window title. Defaults to "Matrix viewer". 
         wxnoserver : boolean, optional
             With wxPython graphical toolkit, if True, tells the 
             interpreter that there will be no server window and not 
@@ -974,7 +978,7 @@ class PyoMatrixObject(object):
         
         """        
         samples = self._base_objs[0].getViewData()
-        createViewMatrixWindow(samples, self.getSize(), wxnoserver)
+        createViewMatrixWindow(samples, self.getSize(), title, wxnoserver)
         
 ######################################################################
 ### Internal classes -> Used by pyo

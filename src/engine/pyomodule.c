@@ -577,6 +577,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&MatrixRecTrigType);
     PyModule_AddObject(m, "MatrixRecTrig_base", (PyObject *)&MatrixRecTrigType);
+
+    if (PyType_Ready(&MatrixMorphType) < 0)
+        return;
+    Py_INCREF(&MatrixMorphType);
+    PyModule_AddObject(m, "MatrixMorph_base", (PyObject *)&MatrixMorphType);
     
     if (PyType_Ready(&InputType) < 0)
         return;

@@ -814,9 +814,9 @@ typedef struct {
     PyObject *pointslist;
     int modebuffer[2];
     double currentTime;
-    MYFLT currentValue;
+    double currentValue;
     MYFLT sampleToSec;
-    MYFLT increment;
+    double increment;
     MYFLT *targets;
     MYFLT *times;
     int which;
@@ -874,11 +874,11 @@ Linseg_generate(Linseg *self) {
             }
             if (self->currentTime <= self->times[self->listsize-1])
                 self->currentValue += self->increment;            
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
             self->currentTime += self->sampleToSec;    
         }
         else
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
     }
 }
 
@@ -1196,12 +1196,12 @@ typedef struct {
     PyObject *pointslist;
     int modebuffer[2];
     double currentTime;
-    MYFLT currentValue;
+    double currentValue;
     MYFLT sampleToSec;
-    MYFLT inc;
-    MYFLT pointer;
+    double inc;
+    double pointer;
     MYFLT range;
-    MYFLT steps;
+    double steps;
     MYFLT *targets;
     MYFLT *times;
     int which;
@@ -1209,8 +1209,8 @@ typedef struct {
     int newlist;
     int loop;
     int listsize;
-    MYFLT exp;
-    MYFLT exp_tmp;
+    double exp;
+    double exp_tmp;
     int inverse;
     int inverse_tmp;
 } Expseg;
@@ -1247,7 +1247,7 @@ Expseg_reinit(Expseg *self) {
 static void
 Expseg_generate(Expseg *self) {
     int i;
-    MYFLT scl;
+    double scl;
     
     for (i=0; i<self->bufsize; i++) {
         if (self->flag == 1) {
@@ -1272,18 +1272,18 @@ Expseg_generate(Expseg *self) {
                 if (self->pointer > 1.0)
                     self->pointer = 1.0;
                 if (self->inverse == 1 && self->range < 0.0)
-                    scl = 1.0 - powf(1.0 - self->pointer, self->exp);
+                    scl = 1.0 - pow(1.0 - self->pointer, self->exp);
                 else
-                    scl = powf(self->pointer, self->exp);
+                    scl = pow(self->pointer, self->exp);
 
                 self->currentValue = scl * self->range + self->targets[self->which-1];
                 self->pointer += self->inc;
             }    
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
             self->currentTime += self->sampleToSec;    
         }
         else
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
     }
 }
 
