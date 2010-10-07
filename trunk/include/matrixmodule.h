@@ -41,6 +41,7 @@ if ((self) == rt_error) { return rt_error; }	\
 
 int MatrixStream_getWidth(PyObject *self);
 int MatrixStream_getHeight(PyObject *self);
+MYFLT MatrixStream_getPointFromPos(PyObject *self, long x, long y);
 MYFLT MatrixStream_getInterpPointFromPos(PyObject *self, MYFLT x, MYFLT y);
 extern PyTypeObject MatrixStreamType;
 

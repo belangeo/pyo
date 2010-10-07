@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public Licensehack for OSX di
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
-import math, sys, os
+import math, sys, os, random
 
 try:
     from PIL import Image, ImageDraw, ImageTk
@@ -94,21 +94,24 @@ def wxCreateDelayedCtrlWindows():
         if win[2] == None: title = win[0].__class__.__name__
         else: title = win[2]
         f.SetTitle(title)
+        f.SetPosition((random.randint(250,500), random.randint(200,400)))
         f.Show()
 
 def wxCreateDelayedTableWindows():
     for win in TABLEWINDOWS:
         if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1])
         else: f = ViewTable_withoutPIL(None, win[0], win[1])
+        f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        f.SetTitle(win[2])
         f.Show()
-        f.SetTitle("Table waveform")
 
 def wxCreateDelayedMatrixWindows():
     for win in MATRIXWINDOWS:
         if WITH_PIL: f = ViewMatrix_withPIL(None, win[0], win[1])
         else: f = ViewMatrix_withoutPIL(None, win[0], win[1])
+        f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        f.SetTitle(win[2])
         f.Show()
-        f.SetTitle("Matrix viewer")
     
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
     if not PYO_USE_WX:
@@ -133,14 +136,14 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
         else:
             CTRLWINDOWS.append([obj, map_list, title])   
         
-def createViewTableWindow(samples, wxnoserver=False, tableclass=None):
+def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None):
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
         if WITH_PIL: f = ViewTable_withPIL(win, samples)
         else: f = ViewTable_withoutPIL(win, samples)
         win.resizable(False, False)
-        win.title("Table waveform")
+        win.title(title)
     else:
         if wxnoserver or wx.GetApp() != None:
             if wx.GetApp() == None:
@@ -150,11 +153,11 @@ def createViewTableWindow(samples, wxnoserver=False, tableclass=None):
             if WITH_PIL: f = ViewTable_withPIL(None, samples, tableclass)
             else: f = ViewTable_withoutPIL(None, samples, tableclass)
             f.Show()
-            f.SetTitle("Table waveform")
+            f.SetTitle(title)
         else:
-            TABLEWINDOWS.append([samples, tableclass])    
+            TABLEWINDOWS.append([samples, tableclass, title])    
         
-def createViewMatrixWindow(samples, size, wxnoserver=False):
+def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False):
     if not WITH_PIL: print """The Python Imaging Library is not installed. 
 It helps a lot to speed up matrix drawing!"""
     if not PYO_USE_WX:
@@ -163,7 +166,7 @@ It helps a lot to speed up matrix drawing!"""
         if WITH_PIL: f = ViewMatrix_withPIL(win, samples, size)
         else: f = ViewMatrix_withoutPIL(win, samples, size)
         win.resizable(False, False)
-        win.title("Matrix viewer")
+        win.title(title)
     else:
         if wxnoserver or wx.GetApp() != None:
             if wx.GetApp() == None:
@@ -173,9 +176,9 @@ It helps a lot to speed up matrix drawing!"""
             if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size)
             else: f = ViewMatrix_withoutPIL(None, samples, size)
             f.Show()
-            f.SetTitle("Matrix viewer")
+            f.SetTitle(title)
         else:
-            MATRIXWINDOWS.append([samples,size])    
+            MATRIXWINDOWS.append([samples,size,title])    
         
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown):
     if not PYO_USE_WX:
@@ -192,5 +195,6 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         wx.CallAfter(wxCreateDelayedCtrlWindows)
         wx.CallAfter(wxCreateDelayedTableWindows)
         wx.CallAfter(wxCreateDelayedMatrixWindows)
+        wx.CallAfter(f.Raise)
     return f, win
         

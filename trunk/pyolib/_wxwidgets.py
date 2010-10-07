@@ -358,7 +358,8 @@ class ControlSlider(wx.Panel):
     def MouseMotion(self, evt):
         if self._enable:
             size = self.GetSize()
-            if evt.Dragging() and evt.LeftIsDown():
+            #if evt.Dragging() and evt.LeftIsDown():
+            if self.HasCapture():
                 self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
                 self.value = self.scale()
                 self.selected = False

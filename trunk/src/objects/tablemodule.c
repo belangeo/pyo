@@ -2932,8 +2932,8 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT *tab2 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
         
     interp = MYFMOD(interp, 1.0);
-    interp1 = sqrtf(1. - interp);
-    interp2 = sqrtf(interp);
+    interp1 = MYSQRT(1. - interp);
+    interp2 = MYSQRT(interp);
     
     MYFLT buffer[size];
     for (i=0; i<size; i++) {
