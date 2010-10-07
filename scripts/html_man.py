@@ -17,12 +17,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os, inspect 
+import os, inspect, shutil
 from types import StringType, TupleType, ListType, DictType
 from pyo import *
  
 # 'manuel-dev' for development, 'manual' for production  
 man_file = 'manual-dev'
+
+try:
+    os.mkdir(os.getcwd() + '/doc')
+except OSError:
+    pass
 
 f = open(os.getcwd() + '/doc/%s.tex' % man_file, 'w')
 
@@ -203,4 +208,8 @@ for file in os.listdir(man_file):
         f.write(text)
 os.remove('%s.tex' % man_file)
 os.chdir('../')
-os.system('scp -r doc/%s sysop@132.204.178.49:/Library/WebServer/Documents/pyo/' % man_file)
+shutil.copy('manual-dev.css', 'doc/manual-dev')
+print "Upload documentation (y/n)?"
+ans = raw_input()
+if (ans == 'y'):
+    os.system('scp -r doc/%s sysop@132.204.178.49:/Library/WebServer/Documents/pyo/' % man_file)
