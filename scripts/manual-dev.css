@@ -16,11 +16,11 @@ BIG.HUGE		{ font-size : larger   }
 BIG.XHUGE		{ font-size : xx-large }
 
 /* heading styles */
-H1		{text-indent:50px; text-decoration:underline;  font-family: sans;  }
-H2		{text-indent:50px; text-decoration:underline;  font-family: sans;  }
-H3		{text-indent:50px; text-decoration:underline;  font-family: sans;  }
-H4		{text-indent:50px; text-decoration:underline;  font-family: sans;  }
-H5		{text-indent:50px; text-decoration:underline;  font-family: sans;  }
+H1		{font-family: sans;  }
+H2		{font-family: sans;  }
+H3		{font-family: sans;  }
+H4		{font-family: sans;  }
+H5		{font-family: sans;  }
 
 P       {font-family: sans; }
 UL       {font-family: sans; }

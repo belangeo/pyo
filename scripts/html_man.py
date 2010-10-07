@@ -169,7 +169,7 @@ def getDocFirstLine(obj):
         f = text
     return f    
                     
-f.write('\\begin{LARGE}pyo documentation\\end{LARGE}\n\n') 
+f.write('\\begin{Huge}pyo documentation\\end{Huge}\n\n') 
 f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')     
 f.write("""
 pyo is a Python module containing classes for a wide variety of audio signal processing types. With pyo, user will be
