@@ -345,9 +345,9 @@ typedef struct {
     MYFLT time;
     MYFLT lastValue;
     MYFLT currentValue;
-    int timeStep;
+    long timeStep;
     MYFLT stepVal;
-    int timeCount;
+    long timeCount;
     int modebuffer[2];
 } SigTo;
 
@@ -463,7 +463,7 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SigTo *)type->tp_alloc(type, 0);
 
     self->time = 0.025;
-    self->timeStep = (int)(self->time * self->sr);
+    self->timeStep = (long)(self->time * self->sr);
     self->timeCount = 0;
     self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
@@ -558,7 +558,7 @@ SigTo_setTime(SigTo *self, PyObject *arg)
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
-        self->timeStep = (int)(self->time * self->sr);
+        self->timeStep = (long)(self->time * self->sr);
 	}
     
 	Py_INCREF(Py_None);
@@ -702,10 +702,10 @@ typedef struct {
     MYFLT time;
     MYFLT lastValue;
     MYFLT currentValue;
-    int timeStep;
-    int timeout;
+    long timeStep;
+    long timeout;
     MYFLT stepVal;
-    int timeCount;
+    long timeCount;
     int modebuffer[2];
     MYFLT y1;
     MYFLT factor;
@@ -843,8 +843,8 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (VarPort *)type->tp_alloc(type, 0);
     
     self->time = 0.025;
-    self->timeStep = (int)(self->time * self->sr);
-    self->timeout = (int)((self->time + 0.1) * self->sr);
+    self->timeStep = (long)(self->time * self->sr);
+    self->timeout = (long)((self->time + 0.1) * self->sr);
     self->timeCount = 0;
     self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
@@ -956,8 +956,8 @@ VarPort_setTime(VarPort *self, PyObject *arg)
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
-        self->timeStep = (int)(self->time * self->sr);
-        self->timeout = (int)((self->time + 0.1) * self->sr);
+        self->timeStep = (long)(self->time * self->sr);
+        self->timeout = (long)((self->time + 0.1) * self->sr);
 	}
     
 	Py_INCREF(Py_None);
