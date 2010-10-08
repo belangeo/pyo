@@ -1,3 +1,9 @@
+2010-10-08 belangeo	<belangeo@gmail.com>
+
+	* Added a clock of the current time in the server window and allow
+	  server's customization with parameters in the .gui() method.
+	- rev 468
+
 2010-10-07 belangeo <belangeo@gmail.com>
 
 	* Added new object : MatrixMorph
