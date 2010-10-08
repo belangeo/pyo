@@ -166,6 +166,9 @@ pa_callback( const void *inputBuffer, void *outputBuffer,
     if (server->withGUI == 1 && nchnls <= 8) {
         Server_process_gui(server);
     }
+    if (server->withTIME == 1) {
+        Server_process_time(server);
+    }    
     PyGILState_Release(s);
     for (i=0; i<server->bufferSize*server->nchnls; i++) {
         out[i] = (float) server->output_buffer[i];
@@ -217,6 +220,9 @@ jack_callback (jack_nframes_t nframes, void *arg)
     if (server->withGUI == 1 && server->nchnls <= 8) {
         Server_process_gui(server);
     }
+    if (server->withTIME == 1) {
+        Server_process_time(server);
+    }    
     PyGILState_Release(s);
     for (i=0; i<server->bufferSize; i++) {
         for (j=0; j<server->nchnls; j++) {
