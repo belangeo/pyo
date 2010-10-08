@@ -784,8 +784,8 @@ class ViewMatrix_withoutPIL(wx.Frame):
             dc.DrawPoint(x, y)
 
 class ServerGUI(wx.Frame):
-    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, 
-                 recstartf=None, recstopf=None, ampf=None, started=0, locals=None, shutdown=None):
+    def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
+                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True):
         wx.Frame.__init__(self, parent)
 
         self.SetTitle("pyo server")
@@ -828,21 +828,30 @@ class ServerGUI(wx.Frame):
         self.ampScale = ControlSlider(panel, -60, 18, 0, size=(203, 16), outFunction=self.setAmp)
         ampBox.Add(self.ampScale, 0, wx.LEFT, 18)
         box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
-        box.AddSpacer(10)
-        self.meter = VuMeter(panel, size=(200,11))
-        self.meter.setNumSliders(self.nchnls)
-        box.Add(self.meter, 0, wx.LEFT, 28)
-        box.AddSpacer(10)
+        
+        if meter:
+            box.AddSpacer(10)
+            self.meter = VuMeter(panel, size=(200,11))
+            self.meter.setNumSliders(self.nchnls)
+            box.Add(self.meter, 0, wx.LEFT, 28)
+            box.AddSpacer(5)
 
-        t = wx.StaticText(panel, -1, "Interpreter")
-        box.Add(t, 0, wx.LEFT, 28)
-        self.text = wx.TextCtrl(panel, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
-        self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
-        self.text.Bind(wx.EVT_CHAR, self.onChar)
-        box.Add(self.text, 0, wx.LEFT, 28)
+        if timer:
+            box.AddSpacer(10)
+            tt = wx.StaticText(panel, -1, "Elapsed time (h:m:s:ms)")
+            box.Add(tt, 0, wx.LEFT, 28)
+            self.timetext = wx.TextCtrl(panel, -1, " 00 : 00 : 00 : 000", size=(200, -1), style=wx.TE_PROCESS_ENTER)
+            self.timetext.SetEditable(False)
+            box.Add(self.timetext, 0, wx.LEFT, 28)
 
-        if (self.locals == None):
-            self.text.SetEditable(False)
+        if self.locals != None:
+            box.AddSpacer(10)
+            t = wx.StaticText(panel, -1, "Interpreter")
+            box.Add(t, 0, wx.LEFT, 28)
+            self.text = wx.TextCtrl(panel, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
+            self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
+            self.text.Bind(wx.EVT_CHAR, self.onChar)
+            box.Add(self.text, 0, wx.LEFT, 28)
 
         if sys.platform == "linux2":
             Y_OFF = 10
@@ -859,6 +868,9 @@ class ServerGUI(wx.Frame):
         if started == 1:
             self.start(None, True)
 
+    def setTime(self, *args):
+        wx.CallAfter(self.timetext.SetValue, " %02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
+        
     def start(self, evt=None, justSet=False):
         if self._started == False:
             if not justSet:

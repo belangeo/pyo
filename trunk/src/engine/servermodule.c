@@ -35,6 +35,7 @@ static Server *my_server = NULL;
 static PyObject *Server_shut_down(Server *self);
 static PyObject *Server_stop(Server *self);
 static void Server_process_gui(Server *server);
+static void Server_process_time(Server *server);
 static inline void Server_process_buffers(Server *server);
 static int Server_start_rec_internal(Server *self, char *filename);
 
@@ -293,12 +294,14 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
 
     (void) inInputData;
     
-    //float outputBuffer[server->nchnls*server->bufferSize];
     PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server);
     if (server->withGUI == 1 && server->nchnls <= 8) {
         Server_process_gui(server);
     }
+    if (server->withTIME == 1) {
+        Server_process_time(server);
+    }    
     PyGILState_Release(s);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
     float *bufdata = (float*)outputBuf->mData;
@@ -1007,6 +1010,29 @@ Server_process_gui(Server *server)
     }
 }
 
+static void
+Server_process_time(Server *server)
+{
+    int hours, minutes, seconds, milliseconds;
+    int bufsize = server->bufferSize;
+    float sr = server->samplingRate;
+    
+    if (server->tcount <= server->timePass) {
+        server->tcount++;
+    }
+    else {
+        seconds = (int)server->seconds;
+        milliseconds = (int)((server->seconds - seconds) * 1000);
+        minutes = seconds / 60;
+        hours = minutes / 60;
+        minutes = minutes % 60;
+        seconds = seconds % 60;
+        PyObject_CallMethod((PyObject *)server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);   
+        server->tcount = 0;
+    }    
+    server->seconds += 1.0 / sr * bufsize;
+}
+
 /***************************************************/
 
 /* Global function called by any new audio object to 
@@ -1109,6 +1135,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
+    self->withTIME = 0;
     self->verbosity = 7;
     self->recdur = -1;
     self->recformat = 0;
@@ -1325,6 +1352,36 @@ Server_setAmpCallable(Server *self, PyObject *arg)
 }
 
 static PyObject *
+Server_setTimeCallable(Server *self, PyObject *arg)
+{
+    int i;
+    PyObject *tmp;
+    
+    if (arg == NULL) {
+        Server_error(self,"The time callable attribute must be a method.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    tmp = arg;
+    Py_XDECREF(self->TIME);
+    Py_INCREF(tmp);
+    self->TIME = tmp;
+
+    for (i=1; i<100; i++) {
+        if ((self->bufferSize * i / self->samplingRate) > 0.06) {
+            self->timePass = i;
+            break;
+        }
+    } 
+    self->tcount = 0;
+    self->withTIME = 1;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 Server_setVerbosity(Server *self, PyObject *arg)
 {
     if (arg != NULL) {
@@ -1405,6 +1462,8 @@ Server_boot(Server *self)
     }
     self->server_started = 0;
     self->stream_count = 0;
+    self->seconds = 0.0;
+    
     midierr = Server_pm_init(self);
 
     self->streams = PyList_New(0);
@@ -1743,6 +1802,7 @@ static PyMethodDef Server_methods[] = {
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
+    {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},

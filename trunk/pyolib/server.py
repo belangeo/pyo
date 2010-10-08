@@ -64,6 +64,7 @@ class Server(object):
     shutdown() : Shut down and clear the server.
     start(dur,filename) : Start the audio callback loop.
     stop() : Stop the audio callback loop.
+    gui(locals, meter, timer) : Show the server's user interface.
     recstart(str) : Begins recording of the sound sent to output. 
         This method creates a file called `pyo_rec.aif` in the 
         user's home directory if a path is not supplied.
@@ -112,16 +113,39 @@ class Server(object):
         self._sampletype = 0
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
 
-    def gui(self, locals=None):
+    def gui(self, locals=None, meter=True, timer=True):
+        """
+        Show the server's user interface.
+        
+        Parameters:
+        
+        locals : locals namespace {locals(), None}, optional
+            If locals() is given, the interface will show an interpreter extension,
+            giving a way to interact with the running script. Defaults to None.
+        meter : boolean, optinal
+            If True, the interface will show a vumeter of the global output signal. 
+            Defaults to True.
+        timer : boolean, optional
+            If True, the interface will show a clock of the current time.
+            Defaults to True.
+            
+        """
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
-                                 self.setAmp, self.getIsStarted(), locals, self.shutdown)
-        self._server.setAmpCallable(f)
+                                 self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer)
+        if meter:
+            self._server.setAmpCallable(f)
+        if timer:
+            self._server.setTimeCallable(f)
         try:
             win.mainloop()
         except:
             if win != None:
                 win.MainLoop()
-            
+
+    def setTimeCallable(self, func):
+        self.setTime = func
+        self._server.setTimeCallable(self)
+        
     def setInOutDevice(self, x):
         """
         Set both input and output audio devices. See `pa_list_devices()`.

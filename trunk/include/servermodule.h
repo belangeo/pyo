@@ -102,6 +102,12 @@ typedef struct {
     int gcount;
     float *lastRms;
     PyObject *GUI;
+
+    double seconds; /* time since the server was started */
+    int withTIME;
+    int timePass;
+    int tcount;
+    PyObject *TIME;
     
     /* Properties */
     int verbosity; /* a sum of values to display different levels: 1 = error */
