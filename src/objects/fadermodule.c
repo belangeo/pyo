@@ -33,9 +33,8 @@ typedef struct {
     MYFLT attack;
     MYFLT release;
     MYFLT duration;
-    MYFLT currentTime;
+    double currentTime;
     MYFLT sampleToSec;
-    MYFLT bufsizeToSec;
 } Fader;
 
 static void Fader_internal_stop(Fader *self) { 
@@ -202,7 +201,6 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
-    self->bufsizeToSec = self->sampleToSec * self->bufsize;
     
     return (PyObject *)self;
 }
@@ -414,9 +412,8 @@ typedef struct {
     MYFLT sustain;
     MYFLT release;
     MYFLT duration;
-    MYFLT currentTime;
+    double currentTime;
     MYFLT sampleToSec;
-    MYFLT bufsizeToSec;
 } Adsr;
 
 static void Adsr_internal_stop(Adsr *self) { 
@@ -589,7 +586,6 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
-    self->bufsizeToSec = self->sampleToSec * self->bufsize;
     
     return (PyObject *)self;
 }

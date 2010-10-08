@@ -1737,9 +1737,9 @@ typedef struct {
     Stream *input_stream;
     int modebuffer[2];
     double currentTime;
-    MYFLT currentValue;
+    double currentValue;
     MYFLT sampleToSec;
-    MYFLT increment;
+    double increment;
     MYFLT *targets;
     MYFLT *times;
     int which;
@@ -1799,11 +1799,11 @@ TrigLinseg_generate(TrigLinseg *self) {
             }
             if (self->currentTime <= self->times[self->listsize-1])
                 self->currentValue += self->increment;            
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
             self->currentTime += self->sampleToSec;    
         }
         else
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
     }
 }
 
@@ -2272,20 +2272,20 @@ typedef struct {
     Stream *input_stream;
     int modebuffer[2];
     double currentTime;
-    MYFLT currentValue;
+    double currentValue;
     MYFLT sampleToSec;
-    MYFLT inc;
-    MYFLT pointer;
+    double inc;
+    double pointer;
     MYFLT range;
-    MYFLT steps;
+    double steps;
     MYFLT *targets;
     MYFLT *times;
     int which;
     int flag;
     int newlist;
     int listsize;
-    MYFLT exp;
-    MYFLT exp_tmp;
+    double exp;
+    double exp_tmp;
     int inverse;
     int inverse_tmp;    
     MYFLT *trigsBuffer;
@@ -2357,11 +2357,11 @@ TrigExpseg_generate(TrigExpseg *self) {
                 self->currentValue = scl * self->range + self->targets[self->which-1];
                 self->pointer += self->inc;
             } 
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
             self->currentTime += self->sampleToSec;    
         }
         else
-            self->data[i] = self->currentValue;
+            self->data[i] = (MYFLT)self->currentValue;
     }
 }
 
