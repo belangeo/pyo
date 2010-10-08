@@ -180,16 +180,16 @@ It helps a lot to speed up matrix drawing!"""
         else:
             MATRIXWINDOWS.append([samples,size,title])    
         
-def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown):
+def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer):
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
-        f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown)
+        f = ServerGUI(win, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer)
         f.master.title("pyo server")
         f.focus_set()
     else:
         win = createRootWindow()
-        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown) 
+        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer) 
         f.SetTitle("pyo server") 
         f.Show()
         wx.CallAfter(wxCreateDelayedCtrlWindows)

@@ -242,11 +242,13 @@ class ViewMatrix_withoutPIL(Frame):
 ### Server Object User Interface (Tk)
 ######################################################################
 class ServerGUI(Frame):
-    def __init__(self, master=None, nchnls=2, startf=None, stopf=None, 
-                 recstartf=None, recstopf=None, ampf=None, started=0, locals=None, shutdown=None):
+    def __init__(self, master=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
+                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
         self.shutdown = shutdown
         self.locals = locals
+        self.meter = meter
+        self.timer = timer
         self.nchnls = nchnls
         self.startf = startf
         self.stopf = stopf
@@ -268,6 +270,7 @@ class ServerGUI(Frame):
         
 
     def createWidgets(self):
+        row = 0
         self.startStringVar = StringVar(self)
         self.startStringVar.set('Start')
         self.startButton = Button(self, textvariable=self.startStringVar, command=self.start)
@@ -276,37 +279,51 @@ class ServerGUI(Frame):
         self.recStringVar = StringVar(self)
         self.recStringVar.set('Rec Start')
         self.recButton = Button(self, textvariable=self.recStringVar, command=self.record)
-        self.recButton.grid(ipadx=5, row=0, column=1)
+        self.recButton.grid(ipadx=5, row=row, column=1)
 
         self.quitButton = Button(self, text='Quit', command=self.on_quit)
-        self.quitButton.grid(ipadx=5, row=0, column=2)
-
+        self.quitButton.grid(ipadx=5, row=row, column=2)
+        row += 1
+        
         self.ampScale = Scale(self, command=self.setAmp, digits=4, label='Amplitude (dB)',
                               orient=HORIZONTAL, relief=GROOVE, from_=-60.0, to=18.0, 
                               resolution=.01, bd=1, length=250, troughcolor="#BCBCAA", width=10)
         self.ampScale.set(0.0)
-        self.ampScale.grid(ipadx=5, ipady=5, row=1, column=0, columnspan=3)
+        self.ampScale.grid(ipadx=5, ipady=5, row=row, column=0, columnspan=3)
+        row += 1
+        
+        if self.meter:
+            self.vumeter = Canvas(self, height=5*self.nchnls+1, width=250, relief=FLAT, bd=0, bg="#323232")
+            self.green = []
+            self.yellow = []
+            self.red = []
+            for i in range(self.nchnls):
+                y = 5 * (i + 1) + 1 - VM_OFFSET
+                self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=6+VM_OFFSET))
+                self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1, y, width=4, fill='yellow', dash=(9,1), dashoff=9))
+                self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
+            self.vumeter.grid(ipadx=5, row=row, column=0, columnspan=3)
+            row += 1
 
-        self.vumeter = Canvas(self, height=5*self.nchnls+1, width=250, relief=FLAT, bd=0, bg="#323232")
-        self.green = []
-        self.yellow = []
-        self.red = []
-        for i in range(self.nchnls):
-            y = 5 * (i + 1) + 1 - VM_OFFSET
-            self.green.append(self.vumeter.create_line(0, y, 1, y, width=4, fill='green', dash=(9,1), dashoff=6+VM_OFFSET))
-            self.yellow.append(self.vumeter.create_line(self.B1, y, self.B1, y, width=4, fill='yellow', dash=(9,1), dashoff=9))
-            self.red.append(self.vumeter.create_line(self.B2, y, self.B2, y, width=4, fill='red', dash=(9,1), dashoff=0))
-        self.vumeter.grid(ipadx=5, row=2, column=0, columnspan=3)
-        self.interp_label = Label(self, text='Interpreter')
-        self.interp_label.grid(ipadx=0, row=3, column=0, columnspan=3)
-        self.text = Text(self, height=1, width=33, bd=1, relief=RIDGE, highlightthickness=0,
-                        spacing1=2, spacing3=2)
-        self.text.grid(ipadx=5, row=4, column=0, columnspan=3)
-        self.text.bind("<Return>", self.getText)
-        self.text.bind("<Up>", self.getPrev)
-        self.text.bind("<Down>", self.getNext)
-        if (self.locals == None):
-            self.interp_label.config(state=DISABLED)
+        if self.timer:
+            self.timer_label = Label(self, text='Elapsed time (h:m:s:ms)')
+            self.timer_label.grid(ipadx=0, row=row, column=0, columnspan=3)
+            row += 1
+            self.timer_strvar = StringVar(self, " 00 : 00 : 00 : 000")
+            self.timetext = Label(self, textvariable=self.timer_strvar)
+            self.timetext.grid(ipadx=5, row=row, column=0, columnspan=3)
+            row += 1
+
+        if self.locals != None:
+            self.interp_label = Label(self, text='Interpreter')
+            self.interp_label.grid(ipadx=0, row=row, column=0, columnspan=3)
+            row += 1
+            self.text = Text(self, height=1, width=33, bd=1, relief=RIDGE, highlightthickness=0,
+                            spacing1=2, spacing3=2)
+            self.text.grid(ipadx=5, row=row, column=0, columnspan=3)
+            self.text.bind("<Return>", self.getText)
+            self.text.bind("<Up>", self.getPrev)
+            self.text.bind("<Down>", self.getNext)
             
     
     def on_quit(self):
@@ -320,7 +337,10 @@ class ServerGUI(Frame):
             self._histo_count = 0
         self.text.insert("1.0", self._history[self._histo_count])
         return "break"
-    
+
+    def setTime(self, *args):
+        self.timer_strvar.set(" %02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
+        
     def getNext(self, event):
         self.text.delete("1.0", END)
         self._histo_count += 1
