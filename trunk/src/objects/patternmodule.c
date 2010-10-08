@@ -32,7 +32,7 @@ typedef struct {
     Stream *time_stream;
     int modebuffer[1];
     MYFLT sampleToSec;
-    MYFLT currentTime;
+    double currentTime;
     int init;
 } Pattern;
 
@@ -484,7 +484,7 @@ typedef struct {
     PyObject *arg;
     MYFLT time;
     MYFLT sampleToSec;
-    MYFLT currentTime;
+    double currentTime;
 } CallAfter;
 
 static void
