@@ -1022,13 +1022,15 @@ Server_process_time(Server *server)
     int hours, minutes, seconds, milliseconds;
     int bufsize = server->bufferSize;
     float sr = server->samplingRate;
+    double sampsToSecs;
     
     if (server->tcount <= server->timePass) {
         server->tcount++;
     }
     else {
-        seconds = (int)server->seconds;
-        milliseconds = (int)((server->seconds - seconds) * 1000);
+        sampsToSecs = (double)(server->elapsedSamples / sr);
+        seconds = (int)sampsToSecs;
+        milliseconds = (int)((sampsToSecs - seconds) * 1000);
         minutes = seconds / 60;
         hours = minutes / 60;
         minutes = minutes % 60;
@@ -1036,7 +1038,7 @@ Server_process_time(Server *server)
         PyObject_CallMethod((PyObject *)server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);   
         server->tcount = 0;
     }    
-    server->seconds += 1.0 / sr * bufsize;
+    server->elapsedSamples += bufsize;
 }
 
 /***************************************************/
@@ -1468,7 +1470,7 @@ Server_boot(Server *self)
     }
     self->server_started = 0;
     self->stream_count = 0;
-    self->seconds = 0.0;
+    self->elapsedSamples = 0;
     
     midierr = Server_pm_init(self);
 
