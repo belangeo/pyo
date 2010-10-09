@@ -30,6 +30,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
+from types import ListType
 
 ######################################################################
 ### Controls
@@ -416,7 +417,12 @@ class Linseg(PyoObject):
         self._mul = mul
         self._add = add
         loop, mul, add, lmax = convertArgsToLists(loop, mul, add)
-        self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        if type(list[0]) != ListType:
+            self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        else:
+            listlen = len(list)
+            lmax = max(listlen, lmax)
+            self._base_objs = [Linseg_base(wrap(list,i), wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['list', 'loop', 'mul', 'add']
@@ -435,8 +441,11 @@ class Linseg(PyoObject):
         
         """
         self._list = x
-        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
-
+        if type(x) != ListType:
+            [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+        else:
+            [obj.setList(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+            
     def setLoop(self, x):
         """
         Replace the `loop` attribute.
@@ -531,6 +540,12 @@ class Expseg(PyoObject):
         self._add = add
         loop, exp, inverse, mul, add, lmax = convertArgsToLists(loop, exp, inverse, mul, add)
         self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        if type(list[0]) != ListType:
+            self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        else:
+            listlen = len(list)
+            lmax = max(listlen, lmax)
+            self._base_objs = [Expseg_base(wrap(list,i), wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['list', 'loop', 'exp', 'inverse', 'mul', 'add']
@@ -549,7 +564,10 @@ class Expseg(PyoObject):
 
         """
         self._list = x
-        [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+        if type(x) != ListType:
+            [obj.setList(x) for i, obj in enumerate(self._base_objs)]
+        else:
+            [obj.setList(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setLoop(self, x):
         """
