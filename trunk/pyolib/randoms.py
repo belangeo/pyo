@@ -298,6 +298,8 @@ class Choice(PyoObject):
         if type(choice[0]) != ListType:
             self._base_objs = [Choice_base(choice, wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
+            choicelen = len(choice)
+            lmax = max(choicelen, lmax)
             self._base_objs = [Choice_base(wrap(choice,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
             
     def __dir__(self):
