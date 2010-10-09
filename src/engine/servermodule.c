@@ -143,7 +143,6 @@ pa_callback( const void *inputBuffer, void *outputBuffer,
 
     assert(framesPerBuffer == server->bufferSize);
     int i;
-    int nchnls = server->nchnls;
     
     /* avoid unused variable warnings */
     (void) timeInfo;
@@ -160,16 +159,7 @@ pa_callback( const void *inputBuffer, void *outputBuffer,
         }
     }
 
-    PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server);
-
-    if (server->withGUI == 1 && nchnls <= 8) {
-        Server_process_gui(server);
-    }
-    if (server->withTIME == 1) {
-        Server_process_time(server);
-    }    
-    PyGILState_Release(s);
     for (i=0; i<server->bufferSize*server->nchnls; i++) {
         out[i] = (float) server->output_buffer[i];
     }
@@ -215,15 +205,7 @@ jack_callback (jack_nframes_t nframes, void *arg)
             }
         }
     }
-    PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server);
-    if (server->withGUI == 1 && server->nchnls <= 8) {
-        Server_process_gui(server);
-    }
-    if (server->withTIME == 1) {
-        Server_process_time(server);
-    }    
-    PyGILState_Release(s);
     for (i=0; i<server->bufferSize; i++) {
         for (j=0; j<server->nchnls; j++) {
             out_buffers[j][i] = (jack_default_audio_sample_t) server->output_buffer[(i*server->nchnls)+j];
@@ -300,15 +282,7 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
 
     (void) inInputData;
     
-    PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server);
-    if (server->withGUI == 1 && server->nchnls <= 8) {
-        Server_process_gui(server);
-    }
-    if (server->withTIME == 1) {
-        Server_process_time(server);
-    }    
-    PyGILState_Release(s);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
     float *bufdata = (float*)outputBuf->mData;
     for (i=0; i<server->bufferSize*server->nchnls; i++) {
@@ -917,11 +891,13 @@ Server_process_buffers(Server *server)
     MYFLT buffer[server->nchnls][server->bufferSize];
     int i, j, chnl;
     int count = server->stream_count;
+    int nchnls = server->nchnls;
     MYFLT amp = server->amp;
     Stream *stream_tmp;
     MYFLT *data;
     
     memset(&buffer, 0, sizeof(buffer));
+    PyGILState_STATE s = PyGILState_Ensure();
     for (i=0; i<count; i++) {
         stream_tmp = (Stream *)PyList_GET_ITEM(server->streams, i);
         if (Stream_getStreamActive(stream_tmp) == 1) {
@@ -939,8 +915,15 @@ Server_process_buffers(Server *server)
         }
         else if (Stream_getBufferCountWait(stream_tmp) != 0)
             Stream_IncrementBufferCount(stream_tmp);
+        server->elapsedSamples += server->bufferSize;
     }
-    
+    if (server->withGUI == 1 && nchnls <= 8) {
+        Server_process_gui(server);
+    }
+    if (server->withTIME == 1) {
+        Server_process_time(server);
+    }
+    PyGILState_Release(s);
     if (amp != server->lastAmp) {
         server->timeCount = 0;
         server->stepVal = (amp - server->currentAmp) / server->timeStep;
@@ -958,6 +941,7 @@ Server_process_buffers(Server *server)
     }
     if (server->record == 1)
         sf_write_float(server->recfile, out, server->bufferSize * server->nchnls);
+
 }
 
 static void
@@ -1020,7 +1004,6 @@ static void
 Server_process_time(Server *server)
 {
     int hours, minutes, seconds, milliseconds;
-    int bufsize = server->bufferSize;
     float sr = server->samplingRate;
     double sampsToSecs;
     
@@ -1037,8 +1020,7 @@ Server_process_time(Server *server)
         seconds = seconds % 60;
         PyObject_CallMethod((PyObject *)server->TIME, "setTime", "iiii", hours, minutes, seconds, milliseconds);   
         server->tcount = 0;
-    }    
-    server->elapsedSamples += bufsize;
+    }
 }
 
 /***************************************************/
