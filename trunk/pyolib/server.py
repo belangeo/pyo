@@ -65,6 +65,7 @@ class Server(object):
     start(dur,filename) : Start the audio callback loop.
     stop() : Stop the audio callback loop.
     gui(locals, meter, timer) : Show the server's user interface.
+    recordOptions(dur, filename, fileformat, sampletype) : Rendering settings.
     recstart(str) : Begins recording of the sound sent to output. 
         This method creates a file called `pyo_rec.aif` in the 
         user's home directory if a path is not supplied.

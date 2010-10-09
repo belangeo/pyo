@@ -103,7 +103,7 @@ typedef struct {
     float *lastRms;
     PyObject *GUI;
 
-    double seconds; /* time since the server was started */
+    unsigned long elapsedSamples; /* time since the server was started */
     int withTIME;
     int timePass;
     int tcount;
