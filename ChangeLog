@@ -1,3 +1,9 @@
+2010-10-09 belangeo <belangeo@gmail.com>
+
+	* Added `starttime` attribute to the server, allowing faster rendering
+	  of a first part of a piece.
+	- rev 473
+
 2010-10-08 belangeo	<belangeo@gmail.com>
 
 	* Added a clock of the current time in the server window and allow
