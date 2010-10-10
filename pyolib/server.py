@@ -62,7 +62,8 @@ class Server(object):
     boot() : Boot the server. Must be called before defining any signal 
         processing chain.
     shutdown() : Shut down and clear the server.
-    start(dur,filename) : Start the audio callback loop.
+    setStartOffset(x) : Set the starting time of the real-time processing.
+    start() : Start the audio callback loop.
     stop() : Stop the audio callback loop.
     gui(locals, meter, timer) : Show the server's user interface.
     recordOptions(dur, filename, fileformat, sampletype) : Rendering settings.
@@ -85,7 +86,6 @@ class Server(object):
     setBufferSize(x) : Set the buffer size used by the server.
     setNchnls(x) : Set the number of channels used by the server.
     setDuplex(x) : Set the duplex mode used by the server.
-    setStarttime(x) : Set the starting time of the real-time processing.
     setVerbosity(x) : Set the server's verbosity.
         
     Attributes:
@@ -95,7 +95,7 @@ class Server(object):
     verbosity : Control the messages printed by the server. It is a sum of 
         values to display different levels: 1 = error, 2 = message, 
         4 = warning , 8 = debug.
-        Default 7.
+    startoffset : Starting time of the real-time processing.    
         
     Examples:
     
@@ -109,7 +109,7 @@ class Server(object):
         self._nchnls = nchnls
         self._amp = 1.
         self._verbosity = 7
-        self._starttime = 0
+        self._startoffset = 0
         self._dur = -1
         self._filename = None
         self._fileformat = 0
@@ -259,7 +259,7 @@ class Server(object):
         self._verbosity = x
         self._server.setVerbosity(x)
 
-    def setStarttime(self, x):
+    def setStartOffset(self, x):
         """
         Set the server's starting time offset. First `x` seconds will be rendered
         offline as fast as possible.
@@ -270,8 +270,8 @@ class Server(object):
             Starting time of the real-time processing.
             
         """        
-        self._starttime = x
-        self._server.setStarttime(x)
+        self._startoffset = x
+        self._server.setStartOffset(x)
 
     def setAmp(self, x):
         """
@@ -449,11 +449,11 @@ class Server(object):
     def amp(self, x): self.setAmp(x) 
 
     @property
-    def starttime(self):
+    def startoffset(self):
         """float. Starting time of the real-time processing.""" 
-        return self._starttime
-    @starttime.setter
-    def starttime(self, x): self.setStarttime(x) 
+        return self._startoffset
+    @startoffset.setter
+    def startoffset(self, x): self.setStartOffset(x) 
 
     @property
     def verbosity(self):
