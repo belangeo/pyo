@@ -82,3 +82,6 @@ TODO before releasing _pyo_ version 0.02.
   * !MatrixMorph
   * !AttackDetector, !PitchTrack
   * ~~Percent (lets pass percent of incomming triggers)~~
+  * !DataTable (length in samples and init argument)
+  * !MetroSeq (same as Metro with a duration's sequence)
+  * !Index (reads in a table with an integer index without interpolation)
