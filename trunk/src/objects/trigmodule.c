@@ -4490,25 +4490,24 @@ Counter_generates(Counter *self) {
             if (self->dir == 0) {
                 self->value = (MYFLT)self->tmp;
                 self->tmp++;
-                if (self->tmp > self->max)
+                if (self->tmp >= self->max)
                     self->tmp = self->min;
             }    
             else if (self->dir == 1) {
                 self->value = (MYFLT)self->tmp;
                 self->tmp--;
                 if (self->tmp < self->min)
-                    self->tmp = self->max;
+                    self->tmp = self->max - 1;
             }    
             else if (self->dir == 2) {
                 self->value = (MYFLT)self->tmp;
                 self->tmp = self->tmp + self->direction;
                 if (self->tmp >= self->max) {
                     self->direction = -1;
-                    self->tmp--;
+                    self->tmp -= 2;
                 }    
                 else if (self->tmp <= self->min) {
                     self->direction = 1;
-                    self->tmp++;
                 }    
             }
         }

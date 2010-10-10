@@ -91,8 +91,8 @@ typedef struct {
     MYFLT *input_buffer;
     float *output_buffer; /* Has to be float since audio callbacks must use floats */
     
-    /* rendering offline of the first "starttime" seconds */
-    double starttime;
+    /* rendering offline of the first "startoffset" seconds */
+    double startoffset;
     
     /* rendering settings */
     double recdur;

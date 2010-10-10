@@ -1126,7 +1126,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recdur = -1;
     self->recformat = 0;
     self->rectype = 0;
-    self->starttime = 0.0;
+    self->startoffset = 0.0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1384,13 +1384,13 @@ Server_setVerbosity(Server *self, PyObject *arg)
 }
 
 static PyObject *
-Server_setStarttime(Server *self, PyObject *arg)
+Server_setStartOffset(Server *self, PyObject *arg)
 {
     if (arg != NULL) {
         int check = PyNumber_Check(arg);
         
         if (check) {
-            self->starttime = PyFloat_AsDouble(PyNumber_Float(arg));
+            self->startoffset = PyFloat_AsDouble(PyNumber_Float(arg));
         }
     }
     
@@ -1550,15 +1550,15 @@ Server_start(Server *self)
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);
     
-    if (self->starttime > 0.0) {
-        Server_message(self,"Rendering %.2f seconds offline...\n", self->starttime);
-        int numBlocks = ceil(self->starttime * self->samplingRate/self->bufferSize);
+    if (self->startoffset > 0.0) {
+        Server_message(self,"Rendering %.2f seconds offline...\n", self->startoffset);
+        int numBlocks = ceil(self->startoffset * self->samplingRate/self->bufferSize);
         self->lastAmp = 1.0; self->amp = 0.0;
         while (numBlocks-- > 0) {
             offline_process_block((Server *) self); 
         }
         Server_message(self,"Offline rendering completed. Start realtime processing.\n");
-        self->starttime = 0.0;
+        self->startoffset = 0.0;
     }    
 
     self->amp = self->resetAmp;
@@ -1818,7 +1818,7 @@ static PyMethodDef Server_methods[] = {
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
     {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
-    {"setStarttime", (PyCFunction)Server_setStarttime, METH_O, "Sets alternate starting time."},
+    {"setStartOffset", (PyCFunction)Server_setStartOffset, METH_O, "Sets starting time offset."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
     {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
