@@ -85,6 +85,7 @@ class Server(object):
     setBufferSize(x) : Set the buffer size used by the server.
     setNchnls(x) : Set the number of channels used by the server.
     setDuplex(x) : Set the duplex mode used by the server.
+    setStarttime(x) : Set the starting time of the real-time processing.
     setVerbosity(x) : Set the server's verbosity.
         
     Attributes:
@@ -108,6 +109,7 @@ class Server(object):
         self._nchnls = nchnls
         self._amp = 1.
         self._verbosity = 7
+        self._starttime = 0
         self._dur = -1
         self._filename = None
         self._fileformat = 0
@@ -256,6 +258,20 @@ class Server(object):
         """        
         self._verbosity = x
         self._server.setVerbosity(x)
+
+    def setStarttime(self, x):
+        """
+        Set the server's starting time offset. First `x` seconds will be rendered
+        offline as fast as possible.
+
+        Parameters:
+
+        x : float
+            Starting time of the real-time processing.
+            
+        """        
+        self._starttime = x
+        self._server.setStarttime(x)
 
     def setAmp(self, x):
         """
@@ -431,6 +447,13 @@ class Server(object):
         return self._amp
     @amp.setter
     def amp(self, x): self.setAmp(x) 
+
+    @property
+    def starttime(self):
+        """float. Starting time of the real-time processing.""" 
+        return self._starttime
+    @starttime.setter
+    def starttime(self, x): self.setStarttime(x) 
 
     @property
     def verbosity(self):

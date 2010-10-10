@@ -78,6 +78,7 @@ typedef struct {
     int server_booted;
     int stream_count;
     int record;
+    
     /* global amplitude */
     MYFLT amp;
     MYFLT resetAmp;
@@ -89,6 +90,10 @@ typedef struct {
     
     MYFLT *input_buffer;
     float *output_buffer; /* Has to be float since audio callbacks must use floats */
+    
+    /* rendering offline of the first "starttime" seconds */
+    double starttime;
+    
     /* rendering settings */
     double recdur;
     char *recpath;
@@ -96,6 +101,7 @@ typedef struct {
     int rectype;
     SNDFILE *recfile;
     SF_INFO recinfo;
+    
     /* GUI VUMETER */
     int withGUI;
     int numPass;
@@ -103,6 +109,7 @@ typedef struct {
     float *lastRms;
     PyObject *GUI;
 
+    /* Current time */
     unsigned long elapsedSamples; /* time since the server was started */
     int withTIME;
     int timePass;

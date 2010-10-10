@@ -326,9 +326,7 @@ static int
 offline_process_block(Server *arg)
 {    
     Server *server = (Server *) arg;
-    PyGILState_STATE s = PyGILState_Ensure();
     Server_process_buffers(server);
-    PyGILState_Release(s);
     return 0;
 }
 
@@ -862,8 +860,6 @@ Server_offline_start (Server *self)
     int numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
     Server_debug(self,"Number of blocks: %i\n", numBlocks);
     Server_start_rec_internal(self, self->recpath);
-    self->server_stopped = 0;
-    self->server_started = 1;
     while (numBlocks-- > 0 && self->server_stopped == 0) {
         offline_process_block((Server *) self);   
     }
@@ -915,7 +911,6 @@ Server_process_buffers(Server *server)
         }
         else if (Stream_getBufferCountWait(stream_tmp) != 0)
             Stream_IncrementBufferCount(stream_tmp);
-        server->elapsedSamples += server->bufferSize;
     }
     if (server->withGUI == 1 && nchnls <= 8) {
         Server_process_gui(server);
@@ -923,6 +918,7 @@ Server_process_buffers(Server *server)
     if (server->withTIME == 1) {
         Server_process_time(server);
     }
+    server->elapsedSamples += server->bufferSize;
     PyGILState_Release(s);
     if (amp != server->lastAmp) {
         server->timeCount = 0;
@@ -1130,6 +1126,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recdur = -1;
     self->recformat = 0;
     self->rectype = 0;
+    self->starttime = 0.0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1386,6 +1383,21 @@ Server_setVerbosity(Server *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject *
+Server_setStarttime(Server *self, PyObject *arg)
+{
+    if (arg != NULL) {
+        int check = PyNumber_Check(arg);
+        
+        if (check) {
+            self->starttime = PyFloat_AsDouble(PyNumber_Float(arg));
+        }
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 int
 Server_pm_init(Server *self)
 {
@@ -1534,11 +1546,23 @@ Server_start(Server *self)
     /* Ensure Python is set up for threading */
     PyEval_InitThreads();
 
-    self->amp = self->resetAmp;
     self->server_stopped = 0;
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);
     
+    if (self->starttime > 0.0) {
+        Server_message(self,"Rendering %.2f seconds offline...\n", self->starttime);
+        int numBlocks = ceil(self->starttime * self->samplingRate/self->bufferSize);
+        self->lastAmp = 1.0; self->amp = 0.0;
+        while (numBlocks-- > 0) {
+            offline_process_block((Server *) self); 
+        }
+        Server_message(self,"Offline rendering completed. Start realtime processing.\n");
+        self->starttime = 0.0;
+    }    
+
+    self->amp = self->resetAmp;
+
     switch (self->audio_be_type) {
         case PyoPortaudio:
             err = Server_pa_start(self);
@@ -1794,6 +1818,7 @@ static PyMethodDef Server_methods[] = {
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
     {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
+    {"setStarttime", (PyCFunction)Server_setStarttime, METH_O, "Sets alternate starting time."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
     {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
