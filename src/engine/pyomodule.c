@@ -753,6 +753,11 @@ init_pyo64(void)
     Py_INCREF(&PointerType);
     PyModule_AddObject(m, "Pointer_base", (PyObject *)&PointerType);
 
+    if (PyType_Ready(&IndexType) < 0)
+        return;
+    Py_INCREF(&IndexType);
+    PyModule_AddObject(m, "Index_base", (PyObject *)&IndexType);
+    
     if (PyType_Ready(&LookupType) < 0)
         return;
     Py_INCREF(&LookupType);

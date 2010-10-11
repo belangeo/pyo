@@ -2830,6 +2830,359 @@ Pointer_new,                 /* tp_new */
 };
 
 /**************/
+/* Index object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *index;
+    Stream *index_stream;
+    int modebuffer[2];
+} Index;
+
+static void
+Index_readframes_a(Index *self) {
+    int i, ind;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *phase = Stream_getData((Stream *)self->index_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        ind = (int)phase[i];
+        if (ind < 0)
+            ind = 0;
+        else if (ind >= size)
+            ind = size - 1;
+        
+        self->data[i] = tablelist[ind];
+    }
+}
+
+static void Index_postprocessing_ii(Index *self) { POST_PROCESSING_II };
+static void Index_postprocessing_ai(Index *self) { POST_PROCESSING_AI };
+static void Index_postprocessing_ia(Index *self) { POST_PROCESSING_IA };
+static void Index_postprocessing_aa(Index *self) { POST_PROCESSING_AA };
+static void Index_postprocessing_ireva(Index *self) { POST_PROCESSING_IREVA };
+static void Index_postprocessing_areva(Index *self) { POST_PROCESSING_AREVA };
+static void Index_postprocessing_revai(Index *self) { POST_PROCESSING_REVAI };
+static void Index_postprocessing_revaa(Index *self) { POST_PROCESSING_REVAA };
+static void Index_postprocessing_revareva(Index *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Index_setProcMode(Index *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Index_readframes_a;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Index_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Index_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Index_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Index_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Index_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Index_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Index_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Index_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Index_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Index_compute_next_data_frame(Index *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Index_traverse(Index *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->index);    
+    Py_VISIT(self->index_stream);    
+    return 0;
+}
+
+static int 
+Index_clear(Index *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->index);    
+    Py_CLEAR(self->index_stream);    
+    return 0;
+}
+
+static void
+Index_dealloc(Index* self)
+{
+    free(self->data);
+    Index_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Index_deleteStream(Index *self) { DELETE_STREAM };
+
+static PyObject *
+Index_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Index *self;
+    self = (Index *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Index_compute_next_data_frame);
+    self->mode_func_ptr = Index_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Index_init(Index *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *tabletmp, *indextmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"table", "index", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &indextmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    
+    if (indextmp) {
+        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+    }
+    
+    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Index_getServer(Index* self) { GET_SERVER };
+static PyObject * Index_getStream(Index* self) { GET_STREAM };
+static PyObject * Index_setMul(Index *self, PyObject *arg) { SET_MUL };	
+static PyObject * Index_setAdd(Index *self, PyObject *arg) { SET_ADD };	
+static PyObject * Index_setSub(Index *self, PyObject *arg) { SET_SUB };	
+static PyObject * Index_setDiv(Index *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Index_play(Index *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Index_out(Index *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Index_stop(Index *self) { STOP };
+
+static PyObject * Index_multiply(Index *self, PyObject *arg) { MULTIPLY };
+static PyObject * Index_inplace_multiply(Index *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Index_add(Index *self, PyObject *arg) { ADD };
+static PyObject * Index_inplace_add(Index *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Index_sub(Index *self, PyObject *arg) { SUB };
+static PyObject * Index_inplace_sub(Index *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Index_div(Index *self, PyObject *arg) { DIV };
+static PyObject * Index_inplace_div(Index *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Index_getTable(Index* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Index_setTable(Index *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Index_setIndex(Index *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	if (isNumber == 1) {
+		printf("Index index attributes must be a PyoObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+	}
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_XDECREF(self->index);
+    
+    self->index = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->index_stream);
+    self->index_stream = (Stream *)streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Index_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Index, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Index, stream), 0, "Stream object."},
+    {"table", T_OBJECT_EX, offsetof(Index, table), 0, "Waveform table."},
+    {"index", T_OBJECT_EX, offsetof(Index, index), 0, "Reader index."},
+    {"mul", T_OBJECT_EX, offsetof(Index, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Index, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Index_methods[] = {
+    {"getTable", (PyCFunction)Index_getTable, METH_NOARGS, "Returns waveform table object."},
+    {"getServer", (PyCFunction)Index_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Index_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Index_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Index_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Index_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Index_stop, METH_NOARGS, "Stops computing."},
+    {"setTable", (PyCFunction)Index_setTable, METH_O, "Sets oscillator table."},
+    {"setIndex", (PyCFunction)Index_setIndex, METH_O, "Sets reader index."},
+    {"setMul", (PyCFunction)Index_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Index_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Index_setSub, METH_O, "Sets oscillator inverse add factor."},
+    {"setDiv", (PyCFunction)Index_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Index_as_number = {
+    (binaryfunc)Index_add,                      /*nb_add*/
+    (binaryfunc)Index_sub,                 /*nb_subtract*/
+    (binaryfunc)Index_multiply,                 /*nb_multiply*/
+    (binaryfunc)Index_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Index_inplace_add,              /*inplace_add*/
+    (binaryfunc)Index_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Index_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Index_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject IndexType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Index_base",         /*tp_name*/
+    sizeof(Index),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Index_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Index_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Index objects. Read a table by indexing without interpolation.",           /* tp_doc */
+    (traverseproc)Index_traverse,   /* tp_traverse */
+    (inquiry)Index_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Index_methods,             /* tp_methods */
+    Index_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Index_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Index_new,                 /* tp_new */
+};
+
+/**************/
 /* Lookup object */
 /**************/
 typedef struct {

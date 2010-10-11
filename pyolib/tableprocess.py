@@ -810,6 +810,100 @@ class Pointer(PyoObject):
     @index.setter
     def index(self, x): self.setIndex(x)
 
+class Index(PyoObject):
+    """
+    Table reader by sample position without interpolation.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    table : PyoTableObject
+        Table containing the samples.
+    index : PyoObject
+        Position in the table, as integer audio stream, 
+        between 0 and table's size - 1.
+
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setIndex(x) : Replace the `index` attribute.
+
+    Attributes:
+
+    table : PyoTableObject. Table containing the waveform samples.
+    index : PyoObject. Position in the table.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> import random
+    >>> notes = [midiToHz(random.randint(60,84)) for i in range(10)]
+    >>> tab = NewTable(length=10/s.getSamplingRate(), init=notes)
+    >>> ind = RandInt(10, 8)
+    >>> pit = Index(tab, ind)
+    >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.5).out()
+
+    """
+    def __init__(self, table, index, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._table = table
+        self._index = index
+        self._mul = mul
+        self._add = add
+        table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
+        self._base_objs = [Index_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'index', 'mul', 'add']
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            new `index` attribute.
+
+        """
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def index(self):
+        """PyoObject. Position in the table.""" 
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)
+
 class Lookup(PyoObject):
     """
     Uses table to do waveshaping on an audio signal.
