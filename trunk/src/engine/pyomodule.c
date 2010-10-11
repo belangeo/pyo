@@ -532,6 +532,11 @@ init_pyo64(void)
     Py_INCREF(&SndTableType);
     PyModule_AddObject(m, "SndTable_base", (PyObject *)&SndTableType);
 
+    if (PyType_Ready(&DataTableType) < 0)
+        return;
+    Py_INCREF(&DataTableType);
+    PyModule_AddObject(m, "DataTable_base", (PyObject *)&DataTableType);
+    
     if (PyType_Ready(&NewTableType) < 0)
         return;
     Py_INCREF(&NewTableType);

@@ -2496,6 +2496,210 @@ NewTable_members,             /* tp_members */
 NewTable_new,                 /* tp_new */
 };
 
+/***********************/
+/* DataTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    int pointer;
+} DataTable;
+
+static PyObject *
+DataTable_recordChunk(DataTable *self, MYFLT *data, int datasize)
+{
+    int i;
+    
+    for (i=0; i<datasize; i++) {
+        self->data[self->pointer++] = data[i];
+        if (self->pointer == self->size)
+            self->pointer = 0;
+    }    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static int
+DataTable_traverse(DataTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+DataTable_clear(DataTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+DataTable_dealloc(DataTable* self)
+{
+    free(self->data);
+    DataTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    DataTable *self;
+    
+    self = (DataTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->pointer = 0;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+DataTable_init(DataTable *self, PyObject *args, PyObject *kwds)
+{    
+    int i;
+    PyObject *inittmp=NULL;
+    static char *kwlist[] = {"size", "init", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|O", kwlist, &self->size, &inittmp))
+        return -1; 
+    
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    
+    for (i=0; i<(self->size+1); i++) {
+        self->data[i] = 0.;
+    }
+    
+    TableStream_setSize(self->tablestream, self->size);
+    
+    if (inittmp) {
+        PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
+    }
+    
+    TableStream_setData(self->tablestream, self->data);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * DataTable_getServer(DataTable* self) { GET_SERVER };
+static PyObject * DataTable_getTableStream(DataTable* self) { GET_TABLE_STREAM };
+static PyObject * DataTable_setData(DataTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * DataTable_normalize(DataTable *self) { NORMALIZE };
+static PyObject * DataTable_getTable(DataTable *self) { GET_TABLE };
+static PyObject * DataTable_getViewTable(DataTable *self) { GET_VIEW_TABLE };
+static PyObject * DataTable_put(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * DataTable_get(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+DataTable_getSize(DataTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+DataTable_getRate(DataTable *self)
+{
+    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    return PyFloat_FromDouble(sr / self->size);
+};
+
+static PyObject *
+DataTable_setTable(DataTable *self, PyObject *value)
+{
+    int i;
+    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "Arg must be a list.");
+        return PyInt_FromLong(-1);
+    }
+    
+    int size = PyList_Size(value);
+    if (size != self->size) {
+        PyErr_SetString(PyExc_TypeError, "New table must be of the same size as actual table.");
+        return PyInt_FromLong(-1);
+    }
+    
+    for(i=0; i<self->size; i++) {
+        self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(value, i)));
+    }
+    
+    Py_RETURN_NONE;    
+}
+
+static PyMemberDef DataTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(DataTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(DataTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef DataTable_methods[] = {
+    {"getServer", (PyCFunction)DataTable_getServer, METH_NOARGS, "Returns server object."},
+    {"getTable", (PyCFunction)DataTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"setTable", (PyCFunction)DataTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)DataTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)DataTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)DataTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"put", (PyCFunction)DataTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)DataTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getSize", (PyCFunction)DataTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
+    {"getRate", (PyCFunction)DataTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject DataTableType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.DataTable_base",         /*tp_name*/
+    sizeof(DataTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)DataTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "DataTable objects. Generates an empty table.",  /* tp_doc */
+    (traverseproc)DataTable_traverse,   /* tp_traverse */
+    (inquiry)DataTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    DataTable_methods,             /* tp_methods */
+    DataTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)DataTable_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    DataTable_new,                 /* tp_new */
+};
+
 /******************************/
 /* TableRec object definition */
 /******************************/

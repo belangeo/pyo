@@ -206,6 +206,7 @@ extern PyTypeObject CosTableType;
 extern PyTypeObject CurveTableType;
 extern PyTypeObject ExpTableType;
 extern PyTypeObject SndTableType;
+extern PyTypeObject DataTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
 extern PyTypeObject TableRecTrigType;
