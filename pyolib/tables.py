@@ -1086,7 +1086,7 @@ class NewTable(PyoTableObject):
         to an oscillator to read the sound at its original pitch.
     replace() : Replaces the actual table.
 
-    See also: TableRec
+    See also: DataTable, TableRec
 
     Examples:
     
@@ -1156,6 +1156,92 @@ class NewTable(PyoTableObject):
         Returns the frequency (cycle per second) to give to an 
         oscillator to read the sound at its original pitch.
         
+        """
+        return self._base_objs[0].getRate()
+
+class DataTable(PyoTableObject):
+    """
+    Create an empty table ready for data recording. 
+
+    See `TableRec` to write samples in the table.
+
+    Parent class: PyoTableObject
+
+    Parameters:
+
+    size : int
+        Size of the table in samples.
+    chnls : int, optional
+        Number of channels that will be handled by the table. 
+        Defaults to 1.
+    init : list of floats, optional
+        Initial table. List of list can match the number of channels,
+        otherwise, the list will be loaded in all tablestreams. 
+        Defaults to None.
+
+    Methods:    
+
+    getSize() : Returns the length of the table in samples.
+    getRate() : Returns the frequency (cycle per second) to give 
+        to an oscillator to read the sound at its original pitch.
+    replace() : Replaces the actual table.
+
+    See also: NewTable, TableRec
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> import random
+    >>> notes = [midiToHz(random.randint(60,84)) for i in range(10)]
+    >>> tab = DataTable(size=10, init=notes)
+    >>> ind = RandInt(10, 8)
+    >>> pit = Index(tab, ind)
+    >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.5).out()
+
+    """
+    def __init__(self, size, chnls=1, init=None):
+        self._size = size
+        self._chnls = chnls
+        if init == None:
+            self._base_objs = [DataTable_base(size) for i in range(chnls)]
+        else:
+            if type(init[0]) != ListType: 
+                init = [init]
+            self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
+
+
+    def __dir__(self):
+        return []
+
+    def replace(self, x):
+        """
+        Replaces the actual table.
+
+        Parameters:
+
+        x : list of floats
+            New table. Must be of the same size as the actual table.
+            List of list can match the number of channels, otherwise, 
+            the list will be loaded in all tablestreams.
+
+        """
+        if type(x[0]) != ListType: 
+            x = [x]
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def getSize(self):
+        """
+        Returns the length of the table in samples.
+
+        """
+        return self._base_objs[0].getSize()
+
+    def getRate(self):
+        """
+        Returns the frequency (cycle per second) to give to an 
+        oscillator to read the sound at its original pitch.
+
         """
         return self._base_objs[0].getRate()
 
