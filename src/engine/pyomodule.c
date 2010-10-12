@@ -603,6 +603,16 @@ init_pyo64(void)
     Py_INCREF(&MetroType);
     PyModule_AddObject(m, "Metro_base", (PyObject *)&MetroType);
 
+    if (PyType_Ready(&SeqerType) < 0)
+        return;
+    Py_INCREF(&SeqerType);
+    PyModule_AddObject(m, "Seqer_base", (PyObject *)&SeqerType);
+
+    if (PyType_Ready(&SeqType) < 0)
+        return;
+    Py_INCREF(&SeqType);
+    PyModule_AddObject(m, "Seq_base", (PyObject *)&SeqType);
+    
     if (PyType_Ready(&ClouderType) < 0)
         return;
     Py_INCREF(&ClouderType);

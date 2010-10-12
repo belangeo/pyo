@@ -287,6 +287,496 @@ Metro_new,                 /* tp_new */
 };
 
 /****************/
+/**** Seqer *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *time;
+    Stream *time_stream;
+    int modebuffer[1];
+    MYFLT sampleToSec;
+    MYFLT currentTime;
+    MYFLT duration;
+    MYFLT *seq;
+    MYFLT *buffer_streams;
+    int seqsize;
+    int poly;
+    int flag;
+    int tap;
+    int voiceCount;
+} Seqer;
+
+static void
+Seqer_generate_i(Seqer *self) {
+    MYFLT tm;
+    int i;
+    
+    tm = PyFloat_AS_DOUBLE(self->time);
+    if (self->duration == -1.0) {
+        self->duration = tm * self->seq[0];
+    }    
+
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->currentTime >= self->duration) {
+            self->currentTime = 0.;
+            self->tap++;
+            if (self->tap >= self->seqsize)
+                self->tap = 0;
+            self->duration = tm * self->seq[self->tap];
+            self->flag = 1;
+        }    
+        
+        if (self->flag == 1) {
+            self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+            self->voiceCount++;
+            if (self->voiceCount >= self->poly)
+                self->voiceCount = 0;
+            self->flag = 0;
+        }    
+        
+        self->currentTime += self->sampleToSec;
+    }
+}
+
+static void
+Seqer_generate_a(Seqer *self) {
+    MYFLT tm;
+    int i;
+    
+    MYFLT *time = Stream_getData((Stream *)self->time_stream);
+    
+    if (self->duration == -1.0) {
+        self->duration = time[0] * self->seq[0];
+    }    
+
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        tm = time[i];
+        if (self->currentTime >= self->duration) {
+            self->currentTime = 0.;
+            self->tap++;
+            if (self->tap >= self->seqsize)
+                self->tap = 0;
+            self->duration = tm * self->seq[self->tap];
+            self->flag = 1;
+        }    
+        
+        if (self->flag == 1) {
+            self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+            self->voiceCount++;
+            if (self->voiceCount >= self->poly)
+                self->voiceCount = 0;
+            self->flag = 0;
+        }    
+        
+        self->currentTime += self->sampleToSec;
+    }
+}
+
+MYFLT *
+Seqer_getSamplesBuffer(Seqer *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+static void
+Seqer_setProcMode(Seqer *self)
+{
+    int procmode = self->modebuffer[0];
+    switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Seqer_generate_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Seqer_generate_a;
+            break;
+    }
+}
+
+static void
+Seqer_compute_next_data_frame(Seqer *self)
+{
+    (*self->proc_func_ptr)(self);    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Seqer_traverse(Seqer *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->time);    
+    Py_VISIT(self->time_stream);    
+    return 0;
+}
+
+static int 
+Seqer_clear(Seqer *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->time);    
+    Py_CLEAR(self->time_stream);
+    return 0;
+}
+
+static void
+Seqer_dealloc(Seqer* self)
+{
+    free(self->data);
+    free(self->buffer_streams);
+    Seqer_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Seqer_deleteStream(Seqer *self) { DELETE_STREAM };
+
+static PyObject *
+Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Seqer *self;
+    self = (Seqer *)type->tp_alloc(type, 0);
+    
+    self->time = PyFloat_FromDouble(1.);
+    self->flag = 1;
+    self->poly = 1;
+    self->seqsize = 1;
+    self->seq = (MYFLT *)realloc(self->seq, self->seqsize * sizeof(MYFLT));
+    self->seq[1] = 1.0;
+    self->duration = -1.0;
+    self->tap = 0;
+    self->voiceCount = 0;
+	self->modebuffer[0] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Seqer_compute_next_data_frame);
+    self->mode_func_ptr = Seqer_setProcMode;
+    
+    Stream_setStreamActive(self->stream, 0);
+    
+    self->sampleToSec = 1. / self->sr;
+    self->currentTime = 0.;
+    
+    return (PyObject *)self;
+}
+
+static int
+Seqer_init(Seqer *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *timetmp=NULL, *seqtmp;
+    
+    static char *kwlist[] = {"time", "seq", "poly", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOi", kwlist, &timetmp, &seqtmp, &self->poly))
+        return -1; 
+    
+    if (timetmp) {
+        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+    }
+
+    if (seqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setSeq", "O", seqtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Seqer_getServer(Seqer* self) { GET_SERVER };
+static PyObject * Seqer_getStream(Seqer* self) { GET_STREAM };
+
+static PyObject * Seqer_play(Seqer *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Seqer_stop(Seqer *self) { STOP };
+
+static PyObject *
+Seqer_setTime(Seqer *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->time);
+	if (isNumber == 1) {
+		self->time = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->time = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->time, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->time_stream);
+        self->time_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Seqer_setSeq(Seqer *self, PyObject *arg)
+{
+    int i;
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyList_Check(arg);
+	
+	tmp = arg;
+	if (isNumber == 1) {
+		self->seqsize = PyList_Size(tmp);
+        self->seq = (MYFLT *)realloc(self->seq, self->seqsize * sizeof(MYFLT));
+        for (i=0; i<self->seqsize; i++) {
+            self->seq[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
+        }    
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Seqer_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Seqer, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Seqer, stream), 0, "Stream object."},
+    {"time", T_OBJECT_EX, offsetof(Seqer, time), 0, "Seqer time factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Seqer_methods[] = {
+    {"getServer", (PyCFunction)Seqer_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Seqer_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Seqer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Seqer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Seqer_stop, METH_NOARGS, "Stops computing."},
+    {"setTime", (PyCFunction)Seqer_setTime, METH_O, "Sets time factor."},
+    {"setSeq", (PyCFunction)Seqer_setSeq, METH_O, "Sets duration sequence."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject SeqerType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Seqer_base",         /*tp_name*/
+    sizeof(Seqer),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Seqer_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Seqer objects. Creates a metronome with a duration sequence.",           /* tp_doc */
+    (traverseproc)Seqer_traverse,   /* tp_traverse */
+    (inquiry)Seqer_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Seqer_methods,             /* tp_methods */
+    Seqer_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Seqer_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Seqer_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* Seq streamer object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    Seqer *mainPlayer;
+    int chnl; 
+} Seq;
+
+static void
+Seq_setProcMode(Seq *self) {}
+
+static void
+Seq_compute_next_data_frame(Seq *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = Seqer_getSamplesBuffer((Seqer *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Seq_traverse(Seq *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+Seq_clear(Seq *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+Seq_dealloc(Seq* self)
+{
+    free(self->data);
+    Seq_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Seq_deleteStream(Seq *self) { DELETE_STREAM };
+
+static PyObject *
+Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Seq *self;
+    self = (Seq *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Seq_compute_next_data_frame);
+    self->mode_func_ptr = Seq_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Seq_init(Seq *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL;
+    
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        return -1; 
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (Seqer *)maintmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Seq_getServer(Seq* self) { GET_SERVER };
+static PyObject * Seq_getStream(Seq* self) { GET_STREAM };
+
+static PyObject * Seq_play(Seq *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Seq_out(Seq *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Seq_stop(Seq *self) { STOP };
+
+static PyMemberDef Seq_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Seq, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Seq, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Seq_methods[] = {
+    {"getServer", (PyCFunction)Seq_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Seq_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Seq_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Seq_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Seq_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Seq_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject SeqType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Seq_base",         /*tp_name*/
+    sizeof(Seq),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Seq_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Seq objects. Reads a channel from a Seqer.",           /* tp_doc */
+    (traverseproc)Seq_traverse,   /* tp_traverse */
+    (inquiry)Seq_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Seq_methods,             /* tp_methods */
+    Seq_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Seq_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Seq_new,                 /* tp_new */
+};
+
+/****************/
 /**** Clouder *****/
 /****************/
 typedef struct {
