@@ -135,6 +135,8 @@ extern PyTypeObject SfMarkerLoopType;
 
 extern PyTypeObject TrigType;
 extern PyTypeObject MetroType;
+extern PyTypeObject SeqerType;
+extern PyTypeObject SeqType;
 extern PyTypeObject ClouderType;
 extern PyTypeObject CloudType;
 extern PyTypeObject BeaterType;
