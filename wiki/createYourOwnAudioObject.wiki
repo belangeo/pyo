@@ -30,14 +30,10 @@ class SimpleVocoder:
         self._q = q
         self._freqs = Sig([self._base * math.pow(i+1, self._spread) for i in range(self._num)])
         self._clipped_freqs = Clip(self._freqs, 20, 20000)
-        
-        self._x1 = Biquad(self._in1, freq=self._clipped_freqs, q=self._q, type=2)
-        self._x2 = Biquad(self._x1, freq=self._clipped_freqs, q=self._q, type=2)
-
-        self._envelope = Follower(self._x2, freq=5, mul=self._q*30)
-        
-        self._y1 = Biquad(self._in2, freq=self._clipped_freqs, q=self._q, type=2)
-        self._y2 = Biquad(self._y1, freq=self._clipped_freqs, q=self._q, type=2, mul=self._envelope).out()
+    
+        self._src = Biquadx(self._in1, freq=self._clipped_freqs, q=self._q, type=2, stages=4)
+        self._envelope = Follower(self._src, freq=5, mul=self._q*30)
+        self._exc = Biquadx(self._in2, freq=self._clipped_freqs, q=self._q, type=2, stages=4, mul=self._envelope).out()
 }}}
 
 As you can see, it's a very simple class, but ready to be used! 
@@ -63,16 +59,17 @@ Let's add some methods to control the Vocoder:
 {{{
     def setBase(self, x):
         self._base = x
-        self.freqs.value = [self._base * math.pow(i+1, self._spread) for i in range(self._num)]
-        
+        self._freqs.value = [self._base * math.pow(i+1, self._spread) for i in range(self._num)]
+
     def setSpread(self, x):
         self._spread = x
-        self.freqs.value = [self._base * math.pow(i+1, self._spread) for i in range(self._num)]
+        self._freqs.value = [self._base * math.pow(i+1, self._spread) for i in range(self._num)]
 
     def setQ(self, x):
         self._q = x
         self._envelope.mul = self._q * 30
-        self._x1.q = self._x2.q = self._y1.q = self._y2.q = self._q
+        self._src.q = self._exc.q = self._q
+
 }}}
 
 Now, while it's playing, we can give calls like this to the interpreter:
