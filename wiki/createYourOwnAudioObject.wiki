@@ -393,6 +393,8 @@ The ctrl() method of a !PyoObject is used to popup a GUI to control the paramete
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 }}} 
 
+== Overriding the .play(), .stop() and .out() methods ==
+
 Finally, we might want to override .play(), .stop() and .out() methods to be sure all our internal !PyoObjects are consequently managed instead of only objects in `self._base_obj`, as it is in current objects. See the definition of these methods in the !PyoObject man page to understand the meaning of arguments.
 
 {{{
