@@ -1,0 +1,139 @@
+#summary This is a little tutorial on how to create your own object doing a particular processing on sound.
+
+= Introduction =
+
+For this purpose, we will create a Vocoder effect. Beginning with a very simple class, we'll gradually add features and finally, we will create a more sophisticated class acting more like a real pyo object.
+
+First of all, create a file called "vocoder_lib.py" where to put the classes to import in a main script.
+
+= Simple Vocoder =
+
+There is one thing to remember to avoid weird behaviour from our classes. All pyo objects must live over time in order to be able to compute audio samples. It's a good habit to always create pyo objects with the prefix "self" to be sure they are not destroyed at the end of the __init__ method.
+
+First, import all modules you will need in your class (at least pyo):
+
+{{{
+import math
+from pyo import *
+}}}
+
+And here is the class SimpleVocoder:
+
+{{{
+class SimpleVocoder:
+    def __init__(self, in1, in2, num=32, base=50, spread=1.5, q=5):
+        self._in1 = in1
+        self._in2 = in2
+        self._num = num
+        self._base = base
+        self._spread = spread
+        self._q = q
+        self._freqs = Sig([self._base * math.pow(i+1, self._spread) for i in range(self._num)])
+        self._clipped_freqs = Clip(self._freqs, 20, 20000)
+        
+        self._x1 = Biquad(self._in1, freq=self._clipped_freqs, q=self._q, type=2)
+        self._x2 = Biquad(self._x1, freq=self._clipped_freqs, q=self._q, type=2)
+
+        self._envelope = Follower(self._x2, freq=5, mul=self._q*30)
+        
+        self._y1 = Biquad(self._in2, freq=self._clipped_freqs, q=self._q, type=2)
+        self._y2 = Biquad(self._y1, freq=self._clipped_freqs, q=self._q, type=2, mul=self._envelope).out()
+}}}
+
+As you can see, it's a very simple class, but just ready to be used! 
+
+Let's do a little overview of what happen here. First, we keep references of pyo objects given in input for later use. Then, we compute the filter's frequencies and give the list to a simple Sig object. We use a Sig object to convert floats to audio signals just to be able to Clip the filter's frequencies (Filters are unstable beyond Nyquist frequency). After that, we create the vocoder effect by applying an envelope follower on each band of the first signal and using these envelopes as the amplitudes of the filters on the second signal. 
+
+Now, we can use it our main script (place it in the same folder as the vocoder_lib.py file):
+
+{{{
+from pyo import *
+from vocoder_lib import SimpleVocoder                 
+s = Server(sr=44100, nchnls=2, buffersize=1024, duplex=0).boot()
+a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=3).play()
+b = Noise()
+voc = SimpleVocoder(in1=a, in2=b, num=32, base=50, spread=1.2, q=5)   
+s.gui(locals())
+}}}
+
+It works, but it's useless because it's very hard to change anything in the processing...
+
+Let's add some methods to control the Vocoder:
+
+{{{
+    def setBase(self, x):
+        self._base = x
+        self.freqs.value = [self._base * math.pow(i+1, self._spread) for i in range(self._num)]
+        
+    def setSpread(self, x):
+        self._spread = x
+        self.freqs.value = [self._base * math.pow(i+1, self._spread) for i in range(self._num)]
+
+    def setQ(self, x):
+        self._q = x
+        self._envelope.mul = self._q * 30
+        self._x1.q = self._x2.q = self._y1.q = self._y2.q = self._q
+}}}
+
+Now, while it's playing, we can give calls like this to the interpreter:
+
+{{{
+voc.setBase(60)
+voc.setSpread(1.5)
+voc.setQ(10)
+}}}
+
+We can use attributes to reduce the live typing by adding these lines to our class:
+
+{{{
+    @property
+    def base(self): return self._base
+    @base.setter
+    def base(self, x): self.setBase(x)
+
+    @property
+    def spread(self): return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def q(self): return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+}}}
+
+Don't forget to give "object" as the parent class to SimpleVocoder:
+
+{{{
+class SimpleVocoder(object):
+}}} 
+
+Then, we can replace our calls with these ones:
+
+{{{
+voc.base = 60
+voc.spread = 1.5
+voc.q = 10
+}}}
+
+That's it, we now have a vocoder ready to be used in our programs...
+
+= Vocoder (with more pyo functionality) = 
+
+The SimpleVocoder is useful if it is the last element in a processing chain. But we can't use it like a normal pyo object. For example, if we want to pass his sound through a reverb, we need to modify the class itself to add a reverb unit. It should be very useful to be able to pass it to other objects like any objects in the library. There is a few steps to do to create a class with all pyo functionality. That's what we will do now.
+
+*Things to consider*:
+
+  * The parent class must be PyoObject
+  * When a PyoObject receives another PyoObject, it looks for a list of objects called "_base_objs"
+  * Adding "mul" and "add" arguments (they act on _base_objs)
+  * All PyoObject support "list expansion"
+  * All PyoObject with sound in input support crossfade between old and new sources
+  * We will probably want to overide the .play(), .out() and .stop() methods.
+  * There is an attribute for every function modifying a parameter
+  * The __dir__ method should return a list of the available attributes as strings
+  * We can define a .ctrl() method to popup a sliders window to control paramters
+
+
+Example coming soon...
+
