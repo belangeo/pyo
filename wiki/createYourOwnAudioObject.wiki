@@ -136,7 +136,7 @@ The !SimpleVocoder is useful if it's the last element in a processing chain. We 
 
 == Declaring the class ==
 
-We will create a new class called !Vocoder with !PyoObject as it's parent class. Another good habit is to put a `__doc__` string at the beginning of our classes. Doing so will allow other user to retrieve documentation for the object with the standard python help() function.
+We will create a new class called Vocoder with !PyoObject as it's parent class. Another good habit is to put a `__doc__` string at the beginning of our classes. Doing so will allow other user to retrieve documentation for the object with the standard python help() function.
 
 {{{
 class Vocoder(PyoObject):
@@ -207,58 +207,188 @@ We also need to add two arguments to the definition of the object: "mul" and "ad
 
 Finally, we have to consider the "list expansion" feature, allowing lists in argument to make an instance of our object able to manage multiple audio streams. Two functions help us to accomplish this:
 
-  * convertArgsToLists(*args) : Returns arguments converted to lists and the maximum list size.
+  * convertArgsToLists(`*`args) : Returns arguments converted to lists and the maximum list size.
   * wrap(list,i) : Returns value at position "i" in "list" with wrap around len(list).
   
 Here is the code:
 
 {{{
-def __init__(self, in1, in2, base=50, spread=1.5, q=5, num=20, mul=1, add=0):
-    # keep references of all raw arguments
-    self._in1 = in1
-    self._in2 = in2
-    self._base = base
-    self._spread = spread
-    self._q = q
-    self._num = num
-    self._mul = mul
-    self._add = add
+    def __init__(self, in1, in2, base=50, spread=1.5, q=5, num=20, mul=1, add=0):
+        # keep references of all raw arguments
+        self._in1 = in1
+        self._in2 = in2
+        self._base = base
+        self._spread = spread
+        self._q = q
+        self._num = num
+        self._mul = mul
+        self._add = add
 
-    # list of filter's notch frequencies
-    self._partials = [i+1 for i in range(self._num)]
+        # list of filter's notch frequencies
+        self._partials = [i+1 for i in range(self._num)]
 
-    # Using InputFader for sound input allows crossfades when changing sources
-    self._in1_fader = InputFader(in1)
-    self._in2_fader = InputFader(in2)
+        # Using InputFader for sound input allows crossfades when changing sources
+        self._in1_fader = InputFader(in1)
+        self._in2_fader = InputFader(in2)
 
-    # Convert all arguments to lists for "list expansion"
-    # convertArgsToLists function returns variables in argument as lists + maximum list size
-    in1_fader, in2_fader, base, spread, q, mul, add, lmax = convertArgsToLists(self._in1_fader, self._in2_fader, base, spread, q, mul, add)
+        # Convert all arguments to lists for "list expansion"
+        # convertArgsToLists function returns variables in argument as lists + maximum list size
+        in1_fader, in2_fader, base, spread, q, mul, add, lmax = convertArgsToLists(self._in1_fader, self._in2_fader, base, spread, q, mul, add)
     
-    # Init some lists to keep track of created objects
-    self._pows = []
-    self._bases = []
-    self._freqs = []
-    self._srcs = []
-    self._amps = []
-    self._excs = []
-    self._outs = []
+        # Init some lists to keep track of created objects
+        self._pows = []
+        self._bases = []
+        self._freqs = []
+        self._srcs = []
+        self._amps = []
+        self._excs = []
+        self._outs = []
     
-    # self._base_objs is the audio output seen by the outside world!
-    # .play(), .out(), .stop() and .mix() methods act on this list
-    # "mul" and "add" attributes are also applied on this list's objects 
-    self._base_objs = []
+        # self._base_objs is the audio output seen by the outside world!
+        # .play(), .out(), .stop() and .mix() methods act on this list
+        # "mul" and "add" attributes are also applied on this list's objects 
+        self._base_objs = []
     
-    # Each cycle of the loop creates a mono stream of sound
-    for i in range(lmax):
-        self._pows.append(Pow(self._partials, wrap(spread,i)))
-        self._bases.append(Sig(wrap(base,i)))
-        self._freqs.append(Clip(self._pows[-1] * self._bases[-1], 20, 20000))
-        self._srcs.append(Biquadx(wrap(in1_fader,i), freq=self._freqs[-1], q=wrap(q,i), type=2, stages=2))
-        self._amps.append(Follower(self._srcs[-1], freq=5, mul=wrap(q,i)*30))
-        self._excs.append(Biquadx(wrap(in2_fader,i), freq=self._freqs[-1], q=wrap(q,i), type=2, stages=2, mul=self._amps[-1]))
-        # Here we mix in mono all sub streams created by "num" bands of vocoder
-        self._outs.append(Mix(input=self._excs[-1], voices=1, mul=wrap(mul,i), add=wrap(add,i)))
-        # getBaseObjects() method returns the list of Object_Base, needed in the self._base_objs list
-        self._base_objs.extend(self._outs[-1].getBaseObjects())
+        # Each cycle of the loop creates a mono stream of sound
+        for i in range(lmax):
+            self._pows.append(Pow(self._partials, wrap(spread,i)))
+            self._bases.append(Sig(wrap(base,i)))
+            self._freqs.append(Clip(self._pows[-1] * self._bases[-1], 20, 20000))
+            self._srcs.append(Biquadx(wrap(in1_fader,i), freq=self._freqs[-1], q=wrap(q,i), type=2, stages=2))
+            self._amps.append(Follower(self._srcs[-1], freq=5, mul=wrap(q,i)*30))
+            self._excs.append(Biquadx(wrap(in2_fader,i), freq=self._freqs[-1], q=wrap(q,i), type=2, stages=2, mul=self._amps[-1]))
+            # Here we mix in mono all sub streams created by "num" bands of vocoder
+            self._outs.append(Mix(input=self._excs[-1], voices=1, mul=wrap(mul,i), add=wrap(add,i)))
+            # getBaseObjects() method returns the list of Object_Base, needed in the self._base_objs list
+            self._base_objs.extend(self._outs[-1].getBaseObjects())
 }}}  
+
+== set methods and attributes ==
+
+Now, we will add methods and attributes for all controllable parameters. This should be noted that we use the setInput() method of the InputFader object to change an input source (setIn1() and setIn2()). This object implements the crossfade between the old and the new sources with a crossfade duration argument:
+
+{{{
+    def setIn1(self, x, fadetime=0.05):
+        """
+        Replace the `in1` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._in1 = x
+        self._in1_fader.setInput(x, fadetime)
+
+    def setIn2(self, x, fadetime=0.05):
+        """
+        Replace the `in2` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._in2 = x
+        self._in2_fader.setInput(x, fadetime)
+    
+    def setBase(self, x):
+        """
+        Replace the `base` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `base` attribute.
+
+        """
+        self._base = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._bases)]
+
+    def setSpread(self, x):
+        """
+        Replace the `spread` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `spread` attribute.
+
+        """
+        self._spread = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExponent(wrap(x,i)) for i, obj in enumerate(self._pows)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMul(wrap(x,i)*30) for i, obj in enumerate(self._amps)]
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._srcs)]
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._excs)]
+
+    @property
+    def in1(self): return self._in1
+    @in1.setter
+    def in1(self, x): self.setIn1(x)
+
+    @property
+    def in2(self): return self._in2
+    @in2.setter
+    def in2(self, x): self.setIn2(x)
+
+    @property
+    def base(self): return self._base
+    @base.setter
+    def base(self, x): self.setBase(x)
+
+    @property
+    def spread(self): return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def q(self): return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+}}}
+
+== The `__dir__` method ==
+
+We will override the `__dir__` to return a list of all controllable attributes for our object. User can retrieve this value by calling dir(obj).
+
+{{{
+    def __dir__(self):
+        return ["in1", "in2", "base", "spread", "q", "mul", "add"]
+}}}
+
+== The ctrl method ==
+
+The ctrl() method of a !PyoObject is used to popup a GUI to control the parameters of the object. The initialization of sliders is done with a list of !SLMap objects where we can set the range of the slider, the type of scaling, the name of the attribute affected to the slider and the init value. We will define a default "map_list" that will be used if the user doesn't provide one.
+
+{{{
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        # Define the object's default map_list used if None is passed to PyoObject
+        # map_list is a list of SLMap objects defined for each available attribute
+        # in the controller window
+        self._map_list = [SLMap(20., 250., "lin", "base", self._base),
+                          SLMap(0.5, 2., "lin", "spread", self._spread),
+                          SLMap(1., 50., "log", "q", self._q),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+}}} 
