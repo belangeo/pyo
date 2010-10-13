@@ -265,7 +265,7 @@ Here is the code:
 
 == set methods and attributes ==
 
-Now, we will add methods and attributes for all controllable parameters. This should be noted that we use the setInput() method of the InputFader object to change an input source (setIn1() and setIn2()). This object implements the crossfade between the old and the new sources with a crossfade duration argument:
+Now, we will add methods and attributes for all controllable parameters. This should be noted that we use the setInput() method of the !InputFader object to change an input source (setIn1() and setIn2()). This object implements the crossfade between the old and the new sources with a crossfade duration argument:
 
 {{{
     def setIn1(self, x, fadetime=0.05):
