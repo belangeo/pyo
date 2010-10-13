@@ -6,6 +6,8 @@ For this example, we will be creating a Vocoder effect. Beginning with a very si
 
 First of all, let's create a file called "vocoder_lib.py" where we will put the classes to import in the main script.
 
+Files "vocoder_lib.py" and "vocoder_main.py" can be found in the examples folder from the pyo's sources.
+
 = Simple Vocoder =
 
 There is one thing to remember to avoid weird behaviour from our class: *All pyo objects must live over time in order to be able to compute audio samples*. It's a good habit to always create pyo objects with the prefix "self" to avoid them being destroyed at the end of the __init__ method.
