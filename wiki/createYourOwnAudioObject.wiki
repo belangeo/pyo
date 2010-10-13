@@ -125,15 +125,14 @@ The !SimpleVocoder is useful if it is the last element in a processing chain. Bu
 *Things to consider*:
 
   * The parent class must be !PyoObject
-  * When a !PyoObject receives another !PyoObject, it looks for a list of objects called "self._base_objs"
-  * Adding "mul" and "add" arguments (they act on self._base_objs)
+  * When a !PyoObject receives another !PyoObject, it looks for a list of objects called "`self._base_objs`"
+  * Adding "mul" and "add" arguments (they act on `self._base_objs`)
   * All !PyoObject support "list expansion"
   * All !PyoObject with sound in input support crossfade between old and new sources
-  * We will probably want to overide the .play(), .out() and .stop() methods.
+  * We will probably want to override the .play(), .out() and .stop() methods.
   * There is an attribute for every function modifying a parameter
-  * The __dir__ method should return a list of the available attributes as strings
-  * We can define a .ctrl() method to popup a sliders window to control paramters
-
+  * The `__dir__` method should return a list of the available attributes as strings
+  * We can define a .ctrl() method to popup a sliders window to control parameters
 
 Example coming soon...
 
