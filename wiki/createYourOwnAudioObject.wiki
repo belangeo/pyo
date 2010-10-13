@@ -1,16 +1,16 @@
-#summary This is a little tutorial on how to create your own object doing a particular processing on sound.
+#summary This is a little tutorial on how to create your own object for sound processing.
 
 = Introduction =
 
-For this purpose, we will create a Vocoder effect. Beginning with a very simple class, we'll gradually add features and finally, we will create a more sophisticated class acting more like a real pyo object.
+For this example, we will be creating a Vocoder effect. Beginning with a very simple class, we will gradually add features to create a more sophisticated class. The resulting class will act almost like a real pyo object.
 
-First of all, create a file called "vocoder_lib.py" where to put the classes to import in a main script.
+First of all, let's create a file called "vocoder_lib.py" where we will put the classes to import in the main script.
 
 = Simple Vocoder =
 
-There is one thing to remember to avoid weird behaviour from our classes. All pyo objects must live over time in order to be able to compute audio samples. It's a good habit to always create pyo objects with the prefix "self" to be sure they are not destroyed at the end of the __init__ method.
+There is one thing to remember to avoid weird behaviour from our class: *All pyo objects must live over time in order to be able to compute audio samples*. It's a good habit to always create pyo objects with the prefix "self" to avoid them being destroyed at the end of the __init__ method.
 
-First, import all modules you will need in your class (at least pyo):
+Start by importing all modules you will need in your class (at least pyo):
 
 {{{
 import math
@@ -40,11 +40,11 @@ class SimpleVocoder:
         self._y2 = Biquad(self._y1, freq=self._clipped_freqs, q=self._q, type=2, mul=self._envelope).out()
 }}}
 
-As you can see, it's a very simple class, but just ready to be used! 
+As you can see, it's a very simple class, but ready to be used! 
 
-Let's do a little overview of what happen here. First, we keep references of pyo objects given in input for later use. Then, we compute the filter's frequencies and give the list to a simple Sig object. We use a Sig object to convert floats to audio signals just to be able to Clip the filter's frequencies (Filters are unstable beyond Nyquist frequency). After that, we create the vocoder effect by applying an envelope follower on each band of the first signal and using these envelopes as the amplitudes of the filters on the second signal. 
+Let's review what happened here. First, we keep references to pyo objects given at input for later use. Then, we compute the filter's frequencies and pass the list to a simple Sig() object. We then use that Sig() object to convert floats to audio signals to be able to Clip() the filter's frequencies (filters are unstable beyond Nyquist's frequency). Once this is done, we can create the vocoder effect by applying an envelope follower on each band of the first signal, and using these envelopes as the amplitudes of the filters on the second signal. 
 
-Now, we can use it our main script (place it in the same folder as the vocoder_lib.py file):
+Now, we can use this class in our main script (remember to place the main script in the same folder as the vocoder_lib.py file):
 
 {{{
 from pyo import *
@@ -56,7 +56,7 @@ voc = SimpleVocoder(in1=a, in2=b, num=32, base=50, spread=1.2, q=5)
 s.gui(locals())
 }}}
 
-It works, but it's useless because it's very hard to change anything in the processing...
+It works, but it's useless because it's very hard to change anything in the processing.
 
 Let's add some methods to control the Vocoder:
 
@@ -83,7 +83,7 @@ voc.setSpread(1.5)
 voc.setQ(10)
 }}}
 
-We can use attributes to reduce the live typing by adding these lines to our class:
+We can also use attributes to reduce the live typing by adding these lines to our class:
 
 {{{
     @property
@@ -108,7 +108,7 @@ Don't forget to give "object" as the parent class to !SimpleVocoder:
 class SimpleVocoder(object):
 }}} 
 
-Then, we can replace our calls with these ones:
+Using attributes, we can then replace our calls to the interpreter with these ones:
 
 {{{
 voc.base = 60
@@ -116,11 +116,11 @@ voc.spread = 1.5
 voc.q = 10
 }}}
 
-That's it, we now have a vocoder ready to be used in our programs...
+That's it! We now have a vocoder ready to be used in our programs.
 
 = Vocoder (with more pyo functionality) = 
 
-The !SimpleVocoder is useful if it is the last element in a processing chain. But we can't use it like a normal pyo object. For example, if we want to pass his sound through a reverb, we need to modify the class itself to add a reverb unit. It should be very useful to be able to pass it to other objects like any objects in the library. There is a few steps to do to create a class with all pyo functionality. That's what we will do now.
+The !SimpleVocoder is useful if it's the last element in a processing chain. We can't use it like a normal pyo object. For example, if we want to pass it's resulting sound to a reverb object, we need to modify the class itself to add a reverb unit. It would be very useful to be able to pass it to other objects like any objects in the library. There is a few steps we need to take in order to create a class with all of pyo's functionality. That's what we shall do now.
 
 *Things to consider*:
 
@@ -128,11 +128,10 @@ The !SimpleVocoder is useful if it is the last element in a processing chain. Bu
   * When a !PyoObject receives another !PyoObject, it looks for a list of objects called "`self._base_objs`"
   * Adding "mul" and "add" arguments (they act on `self._base_objs`)
   * All !PyoObject support "list expansion"
-  * All !PyoObject with sound in input support crossfade between old and new sources
+  * All !PyoObject with sound in input support crossfading between old and new sources
   * We will probably want to override the .play(), .out() and .stop() methods.
   * There is an attribute for every function modifying a parameter
   * The `__dir__` method should return a list of the available attributes as strings
-  * We can define a .ctrl() method to popup a sliders window to control parameters
+  * We can define a .ctrl() method to popup a GUI to control parameters
 
 Example coming soon...
-
