@@ -17,7 +17,7 @@ import math
 from pyo import *
 }}}
 
-And here is the class SimpleVocoder:
+And here is the class !SimpleVocoder:
 
 {{{
 class SimpleVocoder:
@@ -102,7 +102,7 @@ We can use attributes to reduce the live typing by adding these lines to our cla
     def q(self, x): self.setQ(x)
 }}}
 
-Don't forget to give "object" as the parent class to SimpleVocoder:
+Don't forget to give "object" as the parent class to !SimpleVocoder:
 
 {{{
 class SimpleVocoder(object):
@@ -120,15 +120,15 @@ That's it, we now have a vocoder ready to be used in our programs...
 
 = Vocoder (with more pyo functionality) = 
 
-The SimpleVocoder is useful if it is the last element in a processing chain. But we can't use it like a normal pyo object. For example, if we want to pass his sound through a reverb, we need to modify the class itself to add a reverb unit. It should be very useful to be able to pass it to other objects like any objects in the library. There is a few steps to do to create a class with all pyo functionality. That's what we will do now.
+The !SimpleVocoder is useful if it is the last element in a processing chain. But we can't use it like a normal pyo object. For example, if we want to pass his sound through a reverb, we need to modify the class itself to add a reverb unit. It should be very useful to be able to pass it to other objects like any objects in the library. There is a few steps to do to create a class with all pyo functionality. That's what we will do now.
 
 *Things to consider*:
 
-  * The parent class must be PyoObject
-  * When a PyoObject receives another PyoObject, it looks for a list of objects called "_base_objs"
-  * Adding "mul" and "add" arguments (they act on _base_objs)
-  * All PyoObject support "list expansion"
-  * All PyoObject with sound in input support crossfade between old and new sources
+  * The parent class must be !PyoObject
+  * When a !PyoObject receives another !PyoObject, it looks for a list of objects called "self._base_objs"
+  * Adding "mul" and "add" arguments (they act on self._base_objs)
+  * All !PyoObject support "list expansion"
+  * All !PyoObject with sound in input support crossfade between old and new sources
   * We will probably want to overide the .play(), .out() and .stop() methods.
   * There is an attribute for every function modifying a parameter
   * The __dir__ method should return a list of the available attributes as strings
