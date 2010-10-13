@@ -392,3 +392,50 @@ The ctrl() method of a !PyoObject is used to popup a GUI to control the paramete
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 }}} 
+
+Finally, we might want to override .play(), .stop() and .out() methods to be sure all our internal !PyoObjects are consequently managed instead of only objects in `self._base_obj`, as it is in current objects. See the definition of these methods in the !PyoObject man page to understand the meaning of arguments.
+
+{{{
+def play(self, dur=0, delay=0):
+    dur, delay, lmax = convertArgsToLists(dur, delay)
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._pows)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._bases)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._freqs)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._srcs)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amps)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._excs)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._outs)]
+    self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+    return self
+
+def stop(self):
+    [obj.stop() for obj in self._pows]
+    [obj.stop() for obj in self._bases]
+    [obj.stop() for obj in self._freqs]
+    [obj.stop() for obj in self._srcs]
+    [obj.stop() for obj in self._amps]
+    [obj.stop() for obj in self._excs]
+    [obj.stop() for obj in self._outs]
+    [obj.stop() for obj in self._base_objs]
+    return self
+
+def out(self, chnl=0, inc=1, dur=0, delay=0):
+    dur, delay, lmax = convertArgsToLists(dur, delay)
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._pows)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._bases)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._freqs)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._srcs)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amps)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._excs)]
+    [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._outs)]
+    if type(chnl) == ListType:
+        self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+    else:
+        if chnl < 0:    
+            self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+        else:
+            self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+    return self
+}}}
+
+Here we are, we've been created a truly object for sound processing! Of course, there is a little overhead in CPU with object written in pure python, the next step is to write it directly in C. A tutorial on how to write a pyo object in C will follow.
