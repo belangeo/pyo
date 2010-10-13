@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import wx, os, sys, math
+import wx, os, sys, math, time
 from types import ListType, FloatType, IntType
 from wx.lib.embeddedimage import PyEmbeddedImage
 
@@ -630,8 +630,9 @@ class PyoObjectControl(wx.Frame):
                     self._sliders.append(MultiSlider(panel, init, key, self.setval, m))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
                 # set obj attribute to PyoObject SigTo  
-                self._values[key] = init   
+                self._values[key] = init
                 self._sigs[key] = SigTo(init, .025, init)
+                time.sleep(.05)
                 setattr(self._obj, key, self._sigs[key])
         self.box.AddGrowableCol(1, 1) 
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
