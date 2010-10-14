@@ -36,6 +36,25 @@ You then need to build the extension:
 sudo python setup.py install
 }}}
 
+==Compilation flags==
+Under Mac OS X, if you want to be able to use coreaudio:
+
+{{{
+sudo python setup.py install --use-coreaudio
+}}}
+
+Under Linux, you probably want JACK support:
+
+{{{
+sudo python setup.py install --use-jack
+}}}
+
+If you want to be able to use a 64-bit pyo:
+
+{{{
+sudo python setup.py install --use-double
+}}}
+
 =Ubuntu 10.04=
 
 Under Ubuntu 10.04 you can type the following commands to get pyo up and running:
