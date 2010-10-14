@@ -135,7 +135,7 @@ The !SimpleVocoder is useful if it's the last element in a processing chain. We 
 
 == Declaring the class ==
 
-We will create a new class called Vocoder with !PyoObject as it's parent class. Another good habit is to put a `__doc__` string at the beginning of our classes. Doing so will allow other user to retrieve documentation for the object with the standard python help() function.
+We will create a new class called Vocoder with !PyoObject as it's parent class. Another good habit is to put a `__doc__` string at the beginning of our classes. Doing so will allow other users to retrieve the object's documentation with the standard python help() function.
 
 {{{
 class Vocoder(PyoObject):
@@ -200,11 +200,11 @@ class Vocoder(PyoObject):
 
 == The `__init__` method ==
 
-This is the place where we have to take care of some pyo's generic behaviours. The most important thing to remember is when a !PyoObject receives another !PyoObject in input, it looks for an attributes called `self._base_objs`, which is a list of object's base classes (The Sine object uses internally an object called Sine_base) considered as the audio output signal of the object. The getBaseObjects() method returns the list of base classes from a !PyoObject. We will called this method on the object generating the output signal of our process. 
+This is the place where we have to take care of some of pyo's generic behaviours. The most important thing to remember is that when a !PyoObject receives another !PyoObject in input, it looks for an attribute called `self._base_objs`. That attribute is a list of the object's base classes and is considered as the audio output signal of the object (the Sine() object uses internally an object called Sine_base). The getBaseObjects() method returns the list of base classes for a given !PyoObject. We will call the getBaseObjects() method on the object generating the output signal of our process. 
 
-We also need to add two arguments to the definition of the object: "mul" and "add". The attributes "`self._mul`" and "`self._add`" are handled by the parent class and automatically applied on the objects in "`self._base_objs`".`
+We also need to add two arguments to the definition of the object: "mul" and "add". The attributes "`self._mul`" and "`self._add`" are handled by the parent class and are automatically applied on the object in "`self._base_objs`".
 
-Finally, we have to consider the "list expansion" feature, allowing lists in argument to make an instance of our object able to manage multiple audio streams. Two functions help us to accomplish this:
+Finally, we have to consider the "list expansion" feature, allowing lists given as arguments to create multiple instances of our object and managing multiple audio streams. Two functions help us to accomplish this:
 
   * convertArgsToLists(`*`args) : Returns arguments converted to lists and the maximum list size.
   * wrap(list,i) : Returns value at position "i" in "list" with wrap around len(list).
@@ -264,7 +264,7 @@ Here is the code:
 
 == set methods and attributes ==
 
-Now, we will add methods and attributes for all controllable parameters. This should be noted that we use the setInput() method of the !InputFader object to change an input source (setIn1() and setIn2()). This object implements the crossfade between the old and the new sources with a crossfade duration argument:
+Now, we will add methods and attributes for all controllable parameters. It should be noted that we use the setInput() method of the !InputFader object to change an input source (setIn1() and setIn2()). This object implements a crossfade between the old source and the new one with a crossfade duration argument:
 
 {{{
     def setIn1(self, x, fadetime=0.05):
@@ -376,9 +376,9 @@ We will override the `__dir__` to return a list of all controllable attributes f
         return ["in1", "in2", "base", "spread", "q", "mul", "add"]
 }}}
 
-== The ctrl method ==
+== The ctrl() method ==
 
-The ctrl() method of a !PyoObject is used to popup a GUI to control the parameters of the object. The initialization of sliders is done with a list of !SLMap objects where we can set the range of the slider, the type of scaling, the name of the attribute affected to the slider and the init value. We will define a default "map_list" that will be used if the user doesn't provide one.
+The ctrl() method of a !PyoObject is used to popup a GUI to control the parameters of the object. The initialization of sliders is done with a list of !SLMap objects where we can set the range of the slider, the type of scaling, the name of the attribute linked to the slider and the init value. We will define a default "map_list" that will be used if the user doesn't provide one.
 
 {{{
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
@@ -439,4 +439,4 @@ def out(self, chnl=0, inc=1, dur=0, delay=0):
     return self
 }}}
 
-Here we are, we've been created a truly object for sound processing! Of course, there is a little overhead in CPU with object written in pure python, the next step is to write it directly in C. A tutorial on how to write a pyo object in C will follow.
+Here we are, we have created a true object for sound processing! Of course, there is a little spike in CPU usage when using objects written in pure python, so the next step is to write it completely in C. A tutorial on how to write a pyo object in C will follow shortly.
