@@ -632,7 +632,11 @@ class PyoObjectControl(wx.Frame):
                 # set obj attribute to PyoObject SigTo  
                 self._values[key] = init
                 self._sigs[key] = SigTo(init, .025, init)
-                time.sleep(.05)
+                refStream = self._obj.getBaseObjects()[0]._getStream()
+                server = self._obj.getBaseObjects()[0].getServer()
+                for k in range(len(self._sigs[key].getBaseObjects())):
+                    curStream = self._sigs[key].getBaseObjects()[k]._getStream()
+                    server.changeStreamPosition(refStream, curStream)
                 setattr(self._obj, key, self._sigs[key])
         self.box.AddGrowableCol(1, 1) 
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)

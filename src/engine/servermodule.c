@@ -891,7 +891,7 @@ Server_process_buffers(Server *server)
     MYFLT amp = server->amp;
     Stream *stream_tmp;
     MYFLT *data;
-    
+
     memset(&buffer, 0, sizeof(buffer));
     PyGILState_STATE s = PyGILState_Ensure();
     for (i=0; i<count; i++) {
@@ -1758,6 +1758,44 @@ Server_removeStream(Server *self, int id)
     return Py_None;    
 }
 
+PyObject *
+Server_changeStreamPosition(Server *self, PyObject *args)
+{
+    int err, i, rsid, csid, sid;
+    Stream *ref_stream_tmp, *cur_stream_tmp, *stream_tmp;
+
+    if (! PyArg_ParseTuple(args, "OO", &ref_stream_tmp, &cur_stream_tmp))
+        return PyInt_FromLong(-1); 
+
+    rsid = Stream_getStreamId(ref_stream_tmp);
+    csid = Stream_getStreamId(cur_stream_tmp);
+    
+    for (i=0; i<self->stream_count; i++) {
+        stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
+        sid = Stream_getStreamId(stream_tmp);
+        if (sid == csid) {
+            PySequence_DelItem(self->streams, i);
+            self->stream_count--;
+            break;
+        }
+    }
+
+    for (i=0; i<self->stream_count; i++) {
+        stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
+        sid = Stream_getStreamId(stream_tmp);
+        if (sid == rsid) {
+            break;
+        }
+    }
+
+    Py_INCREF(cur_stream_tmp);
+    err = PyList_Insert(self->streams, i, (PyObject *)cur_stream_tmp);
+    self->stream_count++;
+
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
 MYFLT *
 Server_getInputBuffer(Server *self) {
     return (MYFLT *)self->input_buffer;
@@ -1829,6 +1867,8 @@ static PyMethodDef Server_methods[] = {
     {"addStream", (PyCFunction)Server_addStream, METH_VARARGS, "Adds an audio stream to the server. \
                                                                 This is for internal use and must never be called by the user."},
     {"removeStream", (PyCFunction)Server_removeStream, METH_VARARGS, "Adds an audio stream to the server. \
+                                                                This is for internal use and must never be called by the user."},
+    {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another in the stack. \
                                                                 This is for internal use and must never be called by the user."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
