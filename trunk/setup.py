@@ -24,6 +24,8 @@ from distutils.sysconfig import get_python_lib
 import os, sys, getopt
 import time
     
+build_osx_with_jack_support = False
+
 macros = []
 if '--use-double' in sys.argv: 
     sys.argv.remove('--use-double') 
@@ -36,6 +38,8 @@ else:
     
 if '--use-jack' in sys.argv: 
     sys.argv.remove('--use-jack') 
+    if sys.platform == "darwin":
+        build_osx_with_jack_support = True
     macros.append(('USE_JACK',None))
 
 if '--use-coreaudio' in sys.argv: 
@@ -68,6 +72,8 @@ else:
     macros.append(('TIMESTAMP', tsrt))
     include_dirs = ['include', '/usr/local/include']
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
+    if build_osx_with_jack_support:
+        libraries.append('jack')
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
        
