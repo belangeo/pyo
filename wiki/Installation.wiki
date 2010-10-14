@@ -37,22 +37,22 @@ sudo python setup.py install
 }}}
 
 ==Compilation flags==
-Under Mac OS X, if you want to be able to use coreaudio:
+If you want to be able to use coreaudio (Mac OS X):
 
 {{{
-sudo python setup.py install --use-coreaudio
+--use-coreaudio
 }}}
 
-Under Linux, you probably want JACK support:
+If you want JACK support (Linux, Mac OS X):
 
 {{{
-sudo python setup.py install --use-jack
+--use-jack
 }}}
 
-If you want to be able to use a 64-bit pyo:
+If you want to be able to use a 64-bit pyo (All platforms):
 
 {{{
-sudo python setup.py install --use-double
+--use-double
 }}}
 
 =Ubuntu 10.04=
