@@ -514,14 +514,14 @@ class MultiSlider(wx.Panel):
             self.Refresh()
         
 class VuMeter(wx.Panel):
-    def __init__(self, parent, size=(200,11)):
+    def __init__(self, parent, size=(200,11), numSliders=2):
         wx.Panel.__init__(self, parent, -1, size=size)
         self.parent = parent
-        self.SetMinSize((200,6))
         self.SetBackgroundColour("#000000")
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.old_nchnls = 2
-        self.numSliders = 2
+        self.old_nchnls = numSliders
+        self.numSliders = numSliders
+        self.SetMinSize((200,5*self.numSliders+1))
         self.SetSize((200, 5*self.numSliders+1))
         self.bitmap = vu_metre.GetBitmap()
         self.backBitmap = vu_metre_dark.GetBitmap()
@@ -836,8 +836,7 @@ class ServerGUI(wx.Frame):
         
         if meter:
             box.AddSpacer(10)
-            self.meter = VuMeter(panel, size=(200,11))
-            self.meter.setNumSliders(self.nchnls)
+            self.meter = VuMeter(panel, size=(200,5*self.nchnls+1), numSliders=self.nchnls)
             box.Add(self.meter, 0, wx.LEFT, 28)
             box.AddSpacer(5)
 
