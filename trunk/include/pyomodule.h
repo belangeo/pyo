@@ -116,7 +116,7 @@ extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject PointerType;
-extern PyTypeObject IndexType;
+extern PyTypeObject TableIndexType;
 extern PyTypeObject LookupType;
 extern PyTypeObject TableReadType;
 extern PyTypeObject TableReadTrigType;
