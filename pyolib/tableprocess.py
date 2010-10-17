@@ -810,7 +810,7 @@ class Pointer(PyoObject):
     @index.setter
     def index(self, x): self.setIndex(x)
 
-class Index(PyoObject):
+class TableIndex(PyoObject):
     """
     Table reader by sample position without interpolation.
 
@@ -842,7 +842,7 @@ class Index(PyoObject):
     >>> notes = [midiToHz(random.randint(60,84)) for i in range(10)]
     >>> tab = NewTable(length=10/s.getSamplingRate(), init=notes)
     >>> ind = RandInt(10, 8)
-    >>> pit = Index(tab, ind)
+    >>> pit = TableIndex(tab, ind)
     >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.5).out()
 
     """
@@ -853,7 +853,7 @@ class Index(PyoObject):
         self._mul = mul
         self._add = add
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
-        self._base_objs = [Index_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        self._base_objs = [TableIndex_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['table', 'index', 'mul', 'add']
