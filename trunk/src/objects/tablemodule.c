@@ -1749,14 +1749,14 @@ ExpTable_generate(ExpTable *self) {
         if (self->inverse == 1) {
             if (range >= 0) {
                 for(j=0; j<steps; j++) {
-                    scl = powf(pointer, self->exp);
+                    scl = MYPOW(pointer, self->exp);
                     self->data[x1+j] = scl * range + y1;
                     pointer += inc;
                 }
             }
             else {
                 for(j=0; j<steps; j++) {
-                    scl = 1.0 - powf(1.0 - pointer, self->exp);
+                    scl = 1.0 - MYPOW(1.0 - pointer, self->exp);
                     self->data[x1+j] = scl * range + y1;
                     pointer += inc;
                 }
@@ -1764,7 +1764,7 @@ ExpTable_generate(ExpTable *self) {
         }    
         else {
             for(j=0; j<steps; j++) {
-                scl = powf(pointer, self->exp);
+                scl = MYPOW(pointer, self->exp);
                 self->data[x1+j] = scl * range + y1;
                 pointer += inc;
             }
@@ -1826,7 +1826,7 @@ ExpTable_init(ExpTable *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"list", "exp", "inverse", "size", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFII, kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
         return -1; 
     
     if (pointslist) {
@@ -3136,8 +3136,8 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT *tab2 = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->sources, y), "getTableStream", ""));
         
     interp = MYFMOD(interp, 1.0);
-    interp1 = MYSQRT(1. - interp);
-    interp2 = MYSQRT(interp);
+    interp1 = 1. - interp;
+    interp2 = interp;
     
     MYFLT buffer[size];
     for (i=0; i<size; i++) {

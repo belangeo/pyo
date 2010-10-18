@@ -775,7 +775,6 @@ class PyoTableObject(object):
         
         """
         samples = self._base_objs[0].getViewTable()
-        print self.__class__.__name__
         createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__)
         
 ######################################################################

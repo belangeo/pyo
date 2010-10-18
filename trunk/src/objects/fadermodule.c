@@ -1261,8 +1261,8 @@ Expseg_generate(Expseg *self) {
                     self->range = self->targets[self->which] - self->targets[self->which-1];
                     self->steps = (self->times[self->which] - self->times[self->which-1]) * self->sr;
                     self->inc = 1.0 / self->steps;
-                    self->pointer = 0.0;   
                 }    
+                self->pointer = 0.0;   
             }
             if (self->currentTime <= self->times[self->listsize-1]) {
                 if (self->pointer > 1.0)
