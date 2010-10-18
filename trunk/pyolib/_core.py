@@ -1026,6 +1026,7 @@ class Mix(PyoObject):
         self._input = input
         self._mul = mul
         self._add = add
+        mul, add, lmax = convertArgsToLists(mul, add)
         if type(input) == ListType:
             input_objs = []
             input_objs = [obj for pyoObj in input for obj in pyoObj.getBaseObjects()]
@@ -1035,8 +1036,10 @@ class Mix(PyoObject):
         if voices < 1: 
             voices = 1
             num = 1
-        elif voices > input_len: 
+        elif voices > input_len and voices > lmax: 
             num = voices
+        elif lmax > input_len:
+            num = lmax    
         else:
             num = input_len   
         sub_lists = []
@@ -1045,7 +1048,7 @@ class Mix(PyoObject):
         for i in range(num):
             obj = input_objs[i % input_len]
             sub_lists[i % voices].append(obj)
-        self._base_objs = [Mix_base(l) for l in sub_lists]
+        self._base_objs = [Mix_base(l, wrap(mul,i), wrap(add,i)) for i, l in enumerate(sub_lists)]
 
     def __dir__(self):
         return ['mul', 'add']
