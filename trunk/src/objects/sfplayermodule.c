@@ -473,7 +473,7 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|Oifi", kwlist, &self->path, &speedtmp, &self->loop, &offset, &self->interp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S__OIFI, kwlist, &self->path, &speedtmp, &self->loop, &offset, &self->interp))
         return -1; 
     
     if (speedtmp) {
