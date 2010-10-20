@@ -2504,20 +2504,6 @@ typedef struct {
     int pointer;
 } DataTable;
 
-static PyObject *
-DataTable_recordChunk(DataTable *self, MYFLT *data, int datasize)
-{
-    int i;
-    
-    for (i=0; i<datasize; i++) {
-        self->data[self->pointer++] = data[i];
-        if (self->pointer == self->size)
-            self->pointer = 0;
-    }    
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static int
 DataTable_traverse(DataTable *self, visitproc visit, void *arg)
 {
@@ -2568,7 +2554,6 @@ DataTable_init(DataTable *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|O", kwlist, &self->size, &inittmp))
         return -1; 
     
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     
     for (i=0; i<(self->size+1); i++) {
