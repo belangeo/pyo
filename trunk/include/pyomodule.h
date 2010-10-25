@@ -31,7 +31,6 @@
 #define TYPE_F "f"
 #define TYPE_F_I "f|i"
 #define TYPE_F_II "f|ii"
-#define TYPE__FIIISS "|fiiiss"
 #define TYPE__FFF "|fff"
 #define TYPE_O_F "O|f"
 #define TYPE__OF "|Of"
@@ -75,7 +74,6 @@
 #define TYPE_F "d"
 #define TYPE_F_I "d|i"
 #define TYPE_F_II "d|ii"
-#define TYPE__FIIISS "|diiiss"
 #define TYPE__FFF "|ddd"
 #define TYPE_O_F "O|d"
 #define TYPE__OF "|Od"
@@ -297,7 +295,7 @@ extern PyTypeObject M_PowType;
     Stream *add_stream; \
     int bufsize; \
     int nchnls; \
-    MYFLT sr; \
+    double sr; \
     MYFLT *data; 
 
 #define pyo_table_HEAD \
