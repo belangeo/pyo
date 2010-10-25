@@ -817,6 +817,106 @@ class Beat(PyoObject):
     @w3.setter
     def w3(self, x): self.setW3(x)
 
+class TrigRandInt(PyoObject):
+    """
+    Pseudo-random integer generator.
+
+    TrigRandInt generates a pseudo-random number integer number between 
+    0 and `max` values each time it receives a trigger in its `input` 
+    parameter. The value is kept until the next trigger.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    max : float or PyoObject, optional
+        Maximum value for the random generation. Defaults to 100.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+
+    input : PyoObject. Audio trigger signal.
+    max : float or PyoObject. Maximum value.
+
+    Notes:
+    
+    The out() method is bypassed. TrigRandInt's signal can not be sent 
+    to audio outs.
+    
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> m = Metro(.125).play()
+    >>> tr = TrigRandInt(m, max=10, mul=100, add=200)
+    >>> a = Sine(tr, mul=.5).out()
+
+    """
+    def __init__(self, input, max=100., mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._max = max
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, max, mul, add, lmax = convertArgsToLists(self._in_fader, max, mul, add)
+        self._base_objs = [TrigRandInt_base(wrap(in_fader,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'max', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(1., 200., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def max(self): return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
+
 class TrigRand(PyoObject):
     """
     Pseudo-random number generator.
