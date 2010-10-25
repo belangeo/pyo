@@ -34,8 +34,8 @@ typedef struct {
     Stream *input2_stream;
     MYFLT fadetime;
     int switcher;
-    MYFLT currentTime;
-    MYFLT sampleToSec;
+    double currentTime;
+    double sampleToSec;
 } InputFader;
 
 static void InputFader_setProcMode(InputFader *self) {};

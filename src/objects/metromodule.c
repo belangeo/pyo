@@ -33,15 +33,16 @@ typedef struct {
     PyObject *time;
     Stream *time_stream;
     int modebuffer[1];
-    MYFLT sampleToSec;
-    MYFLT currentTime;
-    MYFLT offset;
+    double sampleToSec;
+    double currentTime;
+    double offset;
     int flag;
 } Metro;
 
 static void
 Metro_generate_i(Metro *self) {
-    MYFLT val, tm, off;
+    MYFLT val;
+    double tm, off;
     int i;
     
     tm = PyFloat_AS_DOUBLE(self->time);
@@ -50,7 +51,7 @@ Metro_generate_i(Metro *self) {
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= tm) {
             val = 0;
-            self->currentTime = 0.;
+            self->currentTime -= tm;
             self->flag = 1;
         }    
         else if (self->currentTime >= off && self->flag == 1) {
@@ -67,16 +68,18 @@ Metro_generate_i(Metro *self) {
 
 static void
 Metro_generate_a(Metro *self) {
-    MYFLT val, off;
+    MYFLT val;
+    double off, tmd;
     int i;
     
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        off = tm[i] * self->offset;
-        if (self->currentTime >= tm[i]) {
+        tmd = (double)tm[i];
+        off = tmd * self->offset;
+        if (self->currentTime >= tmd) {
             val = 0;
-            self->currentTime = 0.;
+            self->currentTime -= tmd;
             self->flag = 1;
         }
         else if (self->currentTime >= off && self->flag == 1) {
@@ -158,7 +161,7 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setStreamActive(self->stream, 0);
 
-    self->sampleToSec = 1. / self->sr;
+    self->sampleToSec = 1.0 / self->sr;
     self->currentTime = 0.;
     
     return (PyObject *)self;
@@ -171,7 +174,7 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"time", "offset", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OF, kwlist, &timetmp, &self->offset))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Od", kwlist, &timetmp, &self->offset))
         return -1; 
 
     if (timetmp) {
@@ -293,90 +296,107 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *time;
     Stream *time_stream;
+    PyObject *tmp;
     int modebuffer[1];
-    MYFLT sampleToSec;
-    MYFLT currentTime;
-    MYFLT duration;
-    MYFLT *seq;
+    double sampleToSec;
+    double currentTime;
+    double duration;
+    int *seq;
+    int count;
     MYFLT *buffer_streams;
     int seqsize;
     int poly;
     int flag;
     int tap;
     int voiceCount;
+    int newseq;
 } Seqer;
 
 static void
+Seqer_reset(Seqer *self)
+{
+    int i;
+    
+    self->seqsize = PyList_Size(self->tmp);
+    self->seq = (int *)realloc(self->seq, self->seqsize * sizeof(int));
+    for (i=0; i<self->seqsize; i++) {
+        self->seq[i] = PyInt_AS_LONG(PyNumber_Int(PyList_GET_ITEM(self->tmp, i)));
+    }
+    self->newseq = 0;
+}
+
+static void
 Seqer_generate_i(Seqer *self) {
-    MYFLT tm;
+    double tm;
     int i;
     
     tm = PyFloat_AS_DOUBLE(self->time);
-    if (self->duration == -1.0) {
-        self->duration = tm * self->seq[0];
-    }    
 
+    if (self->currentTime == -1.0) {
+        self->currentTime = tm;
+    }    
+    
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
-    
-    for (i=0; i<self->bufsize; i++) {
-        if (self->currentTime >= self->duration) {
-            self->currentTime = 0.;
-            self->tap++;
-            if (self->tap >= self->seqsize)
-                self->tap = 0;
-            self->duration = tm * self->seq[self->tap];
-            self->flag = 1;
-        }    
         
-        if (self->flag == 1) {
-            self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
-            self->voiceCount++;
-            if (self->voiceCount >= self->poly)
-                self->voiceCount = 0;
-            self->flag = 0;
-        }    
-        
+    for (i=0; i<self->bufsize; i++) {   
         self->currentTime += self->sampleToSec;
+        if (self->currentTime >= tm) {
+            self->currentTime -= tm;
+            self->count++;
+            if (self->count >= self->seq[self->tap]) {
+                self->count = 0;
+                self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+                self->voiceCount++;
+                if (self->voiceCount >= self->poly)
+                    self->voiceCount = 0;
+                self->tap++;
+                if (self->tap >= self->seqsize) {
+                    self->tap = 0;
+                    if (self->newseq == 1)
+                        Seqer_reset(self);
+                }    
+            } 
+        }    
     }
 }
 
 static void
 Seqer_generate_a(Seqer *self) {
-    MYFLT tm;
+    double tm;
     int i;
     
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
     
-    if (self->duration == -1.0) {
-        self->duration = time[0] * self->seq[0];
+    if (self->currentTime == -1.0) {
+        self->currentTime = tm;
     }    
-
+    
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = 0.0;
     }
     
-    for (i=0; i<self->bufsize; i++) {
-        tm = time[i];
-        if (self->currentTime >= self->duration) {
-            self->currentTime = 0.;
-            self->tap++;
-            if (self->tap >= self->seqsize)
-                self->tap = 0;
-            self->duration = tm * self->seq[self->tap];
-            self->flag = 1;
-        }    
-        
-        if (self->flag == 1) {
-            self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
-            self->voiceCount++;
-            if (self->voiceCount >= self->poly)
-                self->voiceCount = 0;
-            self->flag = 0;
-        }    
-        
+    for (i=0; i<self->bufsize; i++) {   
+        tm = (double)time[i];
         self->currentTime += self->sampleToSec;
+        if (self->currentTime >= tm) {
+            self->currentTime -= tm;
+            self->count++;
+            if (self->count >= self->seq[self->tap]) {
+                self->count = 0;
+                self->buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
+                self->voiceCount++;
+                if (self->voiceCount >= self->poly)
+                    self->voiceCount = 0;
+                self->tap++;
+                if (self->tap >= self->seqsize) {
+                    self->tap = 0;
+                    if (self->newseq == 1)
+                        Seqer_reset(self);
+                }    
+            } 
+        }    
     }
 }
 
@@ -412,7 +432,8 @@ Seqer_traverse(Seqer *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->time);    
-    Py_VISIT(self->time_stream);    
+    Py_VISIT(self->time_stream);  
+    Py_VISIT(self->tmp);
     return 0;
 }
 
@@ -422,6 +443,7 @@ Seqer_clear(Seqer *self)
     pyo_CLEAR
     Py_CLEAR(self->time);    
     Py_CLEAR(self->time_stream);
+    Py_CLEAR(self->tmp);
     return 0;
 }
 
@@ -447,10 +469,12 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->flag = 1;
     self->poly = 1;
     self->seqsize = 1;
-    self->seq = (MYFLT *)realloc(self->seq, self->seqsize * sizeof(MYFLT));
-    self->seq[1] = 1.0;
+    self->seq = (int *)realloc(self->seq, self->seqsize * sizeof(int));
+    self->seq[0] = 1;
+    self->newseq = 0;
     self->duration = -1.0;
     self->tap = 0;
+    self->count = 0;
     self->voiceCount = 0;
 	self->modebuffer[0] = 0;
     
@@ -460,8 +484,8 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     Stream_setStreamActive(self->stream, 0);
     
-    self->sampleToSec = 1. / self->sr;
-    self->currentTime = 0.;
+    self->sampleToSec = 1.0 / self->sr;
+    self->currentTime = -1.0;
     
     return (PyObject *)self;
 }
@@ -469,7 +493,7 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Seqer_init(Seqer *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *timetmp=NULL, *seqtmp;
+    PyObject *timetmp=NULL, *seqtmp=NULL;
     
     static char *kwlist[] = {"time", "seq", "poly", NULL};
     
@@ -538,7 +562,6 @@ Seqer_setTime(Seqer *self, PyObject *arg)
 static PyObject *
 Seqer_setSeq(Seqer *self, PyObject *arg)
 {
-    int i;
 	PyObject *tmp;
 	
 	if (arg == NULL) {
@@ -546,16 +569,15 @@ Seqer_setSeq(Seqer *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyList_Check(arg);
+	int isList = PyList_Check(arg);
 	
-	tmp = arg;
-	if (isNumber == 1) {
-		self->seqsize = PyList_Size(tmp);
-        self->seq = (MYFLT *)realloc(self->seq, self->seqsize * sizeof(MYFLT));
-        for (i=0; i<self->seqsize; i++) {
-            self->seq[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
-        }    
-	}
+	if (isList == 1) {
+        tmp = arg;
+        Py_INCREF(tmp);
+        Py_XDECREF(self->tmp);
+        self->tmp = tmp;
+        self->newseq = 1;
+    }
     
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -1376,8 +1398,8 @@ typedef struct {
 	MYFLT accentTable[64];
 	MYFLT tmp_accentTable[64];
     MYFLT tapDur;
-    MYFLT sampleToSec;
-    MYFLT currentTime;
+    double sampleToSec;
+    double currentTime;
     MYFLT *buffer_streams;
     MYFLT *amp_buffer_streams;
     MYFLT *dur_buffer_streams;
@@ -1390,9 +1412,9 @@ Beater_defineAccent(int n) {
 	if (n == 1)
 		return (MYFLT)((rand() % 15) + 112) / 127.; // 112 -> 127
 	else if (n == 2)
-		return (MYFLT)((rand() % 20) + 80) / 127.; // 80 -> 100
+		return (MYFLT)((rand() % 20) + 70) / 127.; // 70 -> 90
 	else if (n == 3)
-		return (MYFLT)((rand() % 20) + 50) / 127.; // 50 -> 70
+		return (MYFLT)((rand() % 20) + 40) / 127.; // 40 -> 60
     else
         return 0.5;
 }
@@ -1581,11 +1603,16 @@ Beater_makePresetActive(Beater *self, int n)
 static void
 Beater_generate_i(Beater *self) {
     int i;
+    double tm;
     
-    MYFLT tm = PyFloat_AS_DOUBLE(self->time);
+    tm = PyFloat_AS_DOUBLE(self->time);
     
-    self->tapDur = tm;
+    self->tapDur = (MYFLT)tm;
     Beater_calculateDurations(self);
+
+    if (self->currentTime == -1.0) {
+        self->currentTime = tm;
+    }    
     
     for (i=0; i<(self->poly*self->bufsize); i++) {
         self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
@@ -1596,7 +1623,7 @@ Beater_generate_i(Beater *self) {
         self->amp_buffer_streams[i + self->voiceCount * self->bufsize] = self->amplitudes[self->voiceCount];
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
-            self->currentTime = 0.;
+            self->currentTime -= tm;
             if (self->tapCount == (self->taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
@@ -1640,7 +1667,7 @@ Beater_generate_i(Beater *self) {
 
 static void
 Beater_generate_a(Beater *self) {
-    MYFLT tm;
+    double tm;
     int i;
     
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
@@ -1648,18 +1675,21 @@ Beater_generate_a(Beater *self) {
     self->tapDur = time[0];
     Beater_calculateDurations(self);
 
+    if (self->currentTime == -1.0) {
+        self->currentTime = (double)time[0];
+    }    
+    
     for (i=0; i<(self->poly*self->bufsize); i++) {
-        self->buffer_streams[i] = 0.0;
-        self->end_buffer_streams[i] = 0.0;
+        self->buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
     }
     
     for (i=0; i<self->bufsize; i++) {
-        tm = time[i];
+        tm = (double)time[i];
         self->currentTime += self->sampleToSec;
         self->amp_buffer_streams[i + self->voiceCount * self->bufsize] = self->amplitudes[self->voiceCount];
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
-            self->currentTime = 0.;
+            self->currentTime -= tm;
             if (self->tapCount == (self->taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
@@ -1693,7 +1723,7 @@ Beater_generate_a(Beater *self) {
                 else if (self->last_taps != self->taps || self->last_weight1 != self->weight1 ||
                     self->last_weight2 != self->weight2 || self->last_weight3 != self->weight3 ||
                     self->newFlag == 1) {
-                    self->tapDur = time[0];
+                    self->tapDur = time[i];
                     Beater_makeTable(self, 0);
                     Beater_makeSequence(self);
                 }    
@@ -1813,7 +1843,7 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Beater_setProcMode;
     
     self->sampleToSec = 1. / self->sr;
-    self->currentTime = 99999999.;
+    self->currentTime = -1.0;
 
     Stream_setStreamActive(self->stream, 0);
     

@@ -219,7 +219,7 @@ static int
 jack_srate_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
-    s->samplingRate = (float) nframes;
+    s->samplingRate = (double) nframes;
     Server_debug(s, "the sample rate is now %lu/sec\n", (unsigned long) nframes);
     return 0;
 }
@@ -518,7 +518,7 @@ Server_jack_init (Server *self)
     
     sampleRate = jack_get_sample_rate (be_data->jack_client);
     if (sampleRate != self->samplingRate) {
-        self->samplingRate = sampleRate;
+        self->samplingRate = (double)sampleRate;
         Server_warning(self, "Sample rate set to Jack engine sample rate: %" PRIu32 "\n", sampleRate);
     }
     else {
@@ -787,11 +787,11 @@ Server_coreaudio_init(Server *self)
 
     // set/get the sampling rate for the devices
     count = sizeof(double);
-    double pyoSamplingRate = (double)self->samplingRate;
+    double pyoSamplingRate = self->samplingRate;
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
     if (err != kAudioHardwareNoError) {
         Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
-        self->samplingRate = (MYFLT)sampleRate;        
+        self->samplingRate = (double)sampleRate;        
         err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &sampleRate);
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
@@ -802,7 +802,7 @@ Server_coreaudio_init(Server *self)
         Server_message(self, "Coreaudio : Changed output device sampling rate successfully: %.2f\n", self->samplingRate);
     
     if (self->duplex ==1) {
-        pyoSamplingRate = (double)self->samplingRate;
+        pyoSamplingRate = self->samplingRate;
         err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
         if (err != kAudioHardwareNoError) {
             Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
@@ -1254,7 +1254,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     char *serverName = "pyo";
 
     Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIISS, kwlist, 
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
             &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName))
         return -1;
     if (strcmp(audioType, "jack") == 0) {
@@ -1337,11 +1337,11 @@ Server_setSamplingRate(Server *self, PyObject *arg)
         Py_INCREF(Py_None);
         return Py_None;
     }
-    if (arg != NULL && PyInt_Check(arg)) {
-        self->samplingRate = PyInt_AsLong(arg);
+    if (arg != NULL && PyNumber_Check(arg)) {
+        self->samplingRate = PyFloat_AsDouble(PyNumber_Float(arg));
     }
     else {
-        Server_error(self, "Sampling rate must be an integer.\n");
+        Server_error(self, "Sampling rate must be a number.\n");
     }
     Py_INCREF(Py_None);
     return Py_None;

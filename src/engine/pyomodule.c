@@ -375,20 +375,20 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
 
 static PyObject *
 midiToHz(PyObject *self, PyObject *arg) {
-    return Py_BuildValue("f", 8.1757989156437 * powf(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))));
+    return Py_BuildValue("d", 8.1757989156437 * pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))));
 }    
 
 static PyObject *
 sampsToSec(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
-    float sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
-    return Py_BuildValue("f", PyFloat_AsDouble(PyNumber_Float(arg)) / sr);
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
+    return Py_BuildValue("d", PyFloat_AsDouble(PyNumber_Float(arg)) / sr);
 }                         
 
 static PyObject *
 secToSamps(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
-    float sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
     return Py_BuildValue("i", (int)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
 }                         
 

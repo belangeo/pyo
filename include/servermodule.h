@@ -65,7 +65,7 @@ typedef struct {
     PmStream *in;
     PmEvent midiEvents[200];
     int midi_count;
-    MYFLT samplingRate;
+    double samplingRate;
     int nchnls;
     int bufferSize;
     int duplex;

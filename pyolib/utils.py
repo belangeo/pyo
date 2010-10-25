@@ -212,7 +212,7 @@ class Snap(PyoObject):
     Parameters:
 
     input : PyoObject
-        Audio signal sending triggers.
+        Incoming Midi notes as an audio stream.
     choice : list of floats
         Possible values, as midi notes, for output.
     scale : int {0, 1, 2}, optional
