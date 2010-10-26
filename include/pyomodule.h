@@ -180,6 +180,7 @@ extern PyTypeObject ClipType;
 extern PyTypeObject DegradeType;
 extern PyTypeObject CompressType;
 extern PyTypeObject DelayType;
+extern PyTypeObject SDelayType;
 extern PyTypeObject WaveguideType;
 extern PyTypeObject FreeverbType;
 extern PyTypeObject WGVerbType;

@@ -853,6 +853,11 @@ init_pyo64(void)
     Py_INCREF(&DelayType);
     PyModule_AddObject(m, "Delay_base", (PyObject *)&DelayType);
 
+    if (PyType_Ready(&SDelayType) < 0)
+        return;
+    Py_INCREF(&SDelayType);
+    PyModule_AddObject(m, "SDelay_base", (PyObject *)&SDelayType);
+    
     if (PyType_Ready(&WaveguideType) < 0)
         return;
     Py_INCREF(&WaveguideType);
