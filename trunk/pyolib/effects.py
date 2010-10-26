@@ -274,6 +274,102 @@ class Delay(PyoObject):
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
+class SDelay(PyoObject):
+    """
+    Simple delay without interpolation.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to be delayed.
+    delay : float or PyoObject, optional
+        Delay time in seconds. Defaults to 0.25.
+    maxdelay : float, optional
+        Maximum delay length in seconds. Available only at initialization. 
+        Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setDelay(x) : Replace the `delay` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to delayed.
+    delay : float or PyoObject. Delay time in seconds.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)()
+    >>> d = SDelay(a, delay=.25, mul=.5).out(1)
+
+    """
+    def __init__(self, input, delay=0.25, maxdelay=1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._delay = delay
+        self._maxdelay = maxdelay
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, delay, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, maxdelay, mul, add)
+        self._base_objs = [SDelay_base(wrap(in_fader,i), wrap(delay,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'delay', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDelay(self, x):
+        """
+        Replace the `delay` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `delay` attribute.
+
+        """
+        self._delay = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to delayed.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def delay(self):
+        """float or PyoObject. Delay time in seconds.""" 
+        return self._delay
+    @delay.setter
+    def delay(self, x): self.setDelay(x)
+
 class Waveguide(PyoObject):
     """
     Basic waveguide model.
