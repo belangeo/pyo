@@ -134,7 +134,7 @@ class Server(object):
             
         """
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
-                                 self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer)
+                                 self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer, self._amp)
         if meter:
             self._server.setAmpCallable(f)
         if timer:
