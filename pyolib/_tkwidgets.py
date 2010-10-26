@@ -248,7 +248,7 @@ class ViewMatrix_withoutPIL(Frame):
 ######################################################################
 class ServerGUI(Frame):
     def __init__(self, master=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
-                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True):
+                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
         Frame.__init__(self, master, padx=10, pady=10, bd=2, relief=GROOVE)
         self.shutdown = shutdown
         self.locals = locals
@@ -293,7 +293,7 @@ class ServerGUI(Frame):
         self.ampScale = Scale(self, command=self.setAmp, digits=4, label='Amplitude (dB)',
                               orient=HORIZONTAL, relief=GROOVE, from_=-60.0, to=18.0, 
                               resolution=.01, bd=1, length=250, troughcolor="#BCBCAA", width=10)
-        self.ampScale.set(0.0)
+        self.ampScale.set(20.0 * math.log10(amp))
         self.ampScale.grid(ipadx=5, ipady=5, row=row, column=0, columnspan=3)
         row += 1
         

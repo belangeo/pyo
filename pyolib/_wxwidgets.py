@@ -790,7 +790,7 @@ class ViewMatrix_withoutPIL(wx.Frame):
 
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
-                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True):
+                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
         wx.Frame.__init__(self, parent)
 
         self.SetTitle("pyo server")
@@ -830,7 +830,7 @@ class ServerGUI(wx.Frame):
 
         box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 28)
         ampBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.ampScale = ControlSlider(panel, -60, 18, 0, size=(203, 16), outFunction=self.setAmp)
+        self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(203, 16), outFunction=self.setAmp)
         ampBox.Add(self.ampScale, 0, wx.LEFT, 18)
         box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
         
