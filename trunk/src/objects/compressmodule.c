@@ -166,7 +166,7 @@ Compress_compress_ii(Compress *self) {
     ratio = 1.0 / ratio;
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(C_clip(self->follow[i]));
+        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
         diff = indb - thresh;
         outdb = diff - diff * ratio;
         outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
@@ -184,7 +184,7 @@ Compress_compress_ai(Compress *self) {
     ratio = 1.0 / ratio;
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(C_clip(self->follow[i]));
+        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
         diff = indb - thresh[i];
         outdb = diff - diff * ratio;
         outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
@@ -201,7 +201,7 @@ Compress_compress_ia(Compress *self) {
     MYFLT *ratio = Stream_getData((Stream *)self->ratio_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(C_clip(self->follow[i]));
+        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
         diff = indb - thresh;
         outdb = diff - diff / ratio[i];
         outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
@@ -218,7 +218,7 @@ Compress_compress_aa(Compress *self) {
     MYFLT *ratio = Stream_getData((Stream *)self->ratio_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * log10f(C_clip(self->follow[i]));
+        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
         diff = indb - thresh[i];
         outdb = diff - diff / ratio[i];
         outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
@@ -611,8 +611,8 @@ static PyMethodDef Compress_methods[] = {
 {"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},
 {"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
 {"setFallTime", (PyCFunction)Compress_setFallTime, METH_O, "Sets falling portamento time in seconds."},
-{"setMul", (PyCFunction)Compress_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)Compress_setAdd, METH_O, "Sets oscillator add factor."},
+{"setMul", (PyCFunction)Compress_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Compress_setAdd, METH_O, "Sets add factor."},
 {"setSub", (PyCFunction)Compress_setSub, METH_O, "Sets inverse add factor."},
 {"setDiv", (PyCFunction)Compress_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */

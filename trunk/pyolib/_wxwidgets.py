@@ -844,8 +844,8 @@ class ServerGUI(wx.Frame):
             box.AddSpacer(10)
             tt = wx.StaticText(panel, -1, "Elapsed time (h:m:s:ms)")
             box.Add(tt, 0, wx.LEFT, 28)
-            self.timetext = wx.TextCtrl(panel, -1, " 00 : 00 : 00 : 000", size=(200, -1), style=wx.TE_PROCESS_ENTER)
-            self.timetext.SetEditable(False)
+            box.AddSpacer(3)
+            self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
             box.Add(self.timetext, 0, wx.LEFT, 28)
 
         if self.locals != None:
@@ -873,7 +873,7 @@ class ServerGUI(wx.Frame):
             self.start(None, True)
 
     def setTime(self, *args):
-        wx.CallAfter(self.timetext.SetValue, " %02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
+        wx.CallAfter(self.timetext.SetLabel, "%02d : %02d : %02d : %03d" % (args[0], args[1], args[2], args[3]))
         
     def start(self, evt=None, justSet=False):
         if self._started == False:
