@@ -12,6 +12,10 @@ Add C:\Python25 to the list of paths in:
 
 system -> Advanced -> Environment Variables -> PATH
 
+To use the WxPython toolkit for widgets, you need to install wxPython2.8-win32-unicode-py25:
+
+http://www.wxpython.org/download.php#stable
+
 This installer will leave a folder called pyo_examples on the Desktop, 
 it's a good starting point to explore the library!
 
