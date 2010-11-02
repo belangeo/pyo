@@ -2233,7 +2233,7 @@ Xnoise_cauchy(Xnoise *self) {
     else
         dir = 1;
     
-    val = 0.5 * (tanf(rnd) * self->xx1 * dir) + 0.5;
+    val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -3188,7 +3188,7 @@ XnoiseMidi_cauchy(XnoiseMidi *self) {
     else
         dir = 1;
     
-    val = 0.5 * (tanf(rnd) * self->xx1 * dir) + 0.5;
+    val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;

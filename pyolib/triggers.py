@@ -2434,8 +2434,6 @@ class Select(PyoObject):
     The out() method is bypassed. Select's signal can not be sent 
     to audio outs.
 
-    Select has no `mul` and `add` attributes.
-
     See also: Counter
     
     Examples:
@@ -2451,25 +2449,21 @@ class Select(PyoObject):
     >>> a = Sine(freq=tr, mul=te).out()
     
     """
-    def __init__(self, input, value=0):
+    def __init__(self, input, value=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._value = value
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
-        in_fader, value, lmax = convertArgsToLists(self._in_fader, value)
-        self._base_objs = [Select_base(wrap(in_fader,i), wrap(value,i)) for i in range(lmax)]
+        in_fader, value, mul, add, lmax = convertArgsToLists(self._in_fader, value, mul, add)
+        self._base_objs = [Select_base(wrap(in_fader,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'value']
+        return ['input', 'value', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
-
-    def setMul(self, x):
-        pass
-        
-    def setAdd(self, x):
-        pass    
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2536,8 +2530,6 @@ class Change(PyoObject):
 
     The out() method is bypassed. Change's signal can not be sent 
     to audio outs.
-
-    Change has no `mul` and `add` attributes.
     
     Examples:
     
@@ -2551,24 +2543,20 @@ class Change(PyoObject):
     >>> c = TrigFunc(b, pp)
 
     """
-    def __init__(self, input):
+    def __init__(self, input, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
-        in_fader, lmax = convertArgsToLists(self._in_fader)
-        self._base_objs = [Change_base(wrap(in_fader,i)) for i in range(lmax)]
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [Change_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input']
+        return ['input', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
-
-    def setMul(self, x):
-        pass
-        
-    def setAdd(self, x):
-        pass    
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2641,8 +2629,6 @@ class Thresh(PyoObject):
     The out() method is bypassed. Thresh's signal can not be sent 
     to audio outs.
 
-    Thresh has no `mul` and `add` attributes.
-
     Examples:
     
     >>> s = Server().boot()
@@ -2654,17 +2640,19 @@ class Thresh(PyoObject):
     >>> sine = Sine(freq=[500,600,700], mul=env).out()
     
     """
-    def __init__(self, input, threshold=0., dir=0):
+    def __init__(self, input, threshold=0., dir=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
+        self._mul = mul
+        self._add = add
         self._threshold = threshold
         self._dir = dir
         self._in_fader = InputFader(input)
-        in_fader, threshold, dir, lmax = convertArgsToLists(self._in_fader, threshold, dir)
-        self._base_objs = [Thresh_base(wrap(in_fader,i), wrap(threshold,i), wrap(dir,i)) for i in range(lmax)]
+        in_fader, threshold, dir, mul, add, lmax = convertArgsToLists(self._in_fader, threshold, dir, mul, add)
+        self._base_objs = [Thresh_base(wrap(in_fader,i), wrap(threshold,i), wrap(dir,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'threshold', 'dir']
+        return ['input', 'threshold', 'dir', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
@@ -2761,8 +2749,6 @@ class Percent(PyoObject):
     The out() method is bypassed. Percent's signal can not 
     be sent to audio outs.
 
-    Percent has no `mul` and `add` attributes.
-
     Examples:
 
     >>> s = Server().boot()
@@ -2773,16 +2759,18 @@ class Percent(PyoObject):
     >>> a = Sine(freq=t, mul=.5).out()
 
     """
-    def __init__(self, input, percent=50.):
+    def __init__(self, input, percent=50., mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._percent = percent
+        self._mul = mul
+        self._add = add
         self._in_fader = InputFader(input)
-        in_fader, percent, lmax = convertArgsToLists(self._in_fader, percent)
-        self._base_objs = [Percent_base(wrap(in_fader,i), wrap(percent,i)) for i in range(lmax)]
+        in_fader, percent, mul, add, lmax = convertArgsToLists(self._in_fader, percent, mul, add)
+        self._base_objs = [Percent_base(wrap(in_fader,i), wrap(percent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'percent']
+        return ['input', 'percent', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self

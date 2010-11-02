@@ -2707,9 +2707,9 @@ TrigExpseg_generate(TrigExpseg *self) {
                 if (self->pointer > 1.0)
                     self->pointer = 1.0;
                 if (self->inverse == 1 && self->range < 0.0)
-                    scl = 1.0 - powf(1.0 - self->pointer, self->exp);
+                    scl = 1.0 - MYPOW(1.0 - self->pointer, self->exp);
                 else
-                    scl = powf(self->pointer, self->exp);
+                    scl = MYPOW(self->pointer, self->exp);
                 
                 self->currentValue = scl * self->range + self->targets[self->which-1];
                 self->pointer += self->inc;
@@ -3275,7 +3275,7 @@ TrigXnoise_triangle(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_expon_min(TrigXnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -logf(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3284,7 +3284,7 @@ TrigXnoise_expon_min(TrigXnoise *self) {
 static MYFLT
 TrigXnoise_expon_max(TrigXnoise *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3304,7 +3304,7 @@ TrigXnoise_biexpon(TrigXnoise *self) {
     else
         polar = 1;
     
-    val = 0.5 * (polar * logf(sum) / self->xx1) + 0.5;
+    val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -3324,7 +3324,7 @@ TrigXnoise_cauchy(TrigXnoise *self) {
     else
         dir = 1;
     
-    val = 0.5 * (tanf(rnd) * self->xx1 * dir) + 0.5;
+    val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -3338,7 +3338,7 @@ TrigXnoise_weibull(TrigXnoise *self) {
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
     
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
-    val = self->xx1 * powf(logf(rnd), (1.0 / self->xx2));
+    val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -3373,7 +3373,7 @@ TrigXnoise_poisson(TrigXnoise *self) {
         factorial = 1;
         for (i=1; i<12; i++) {
             factorial *= i;
-            tot = (long)(1000.0 * (powf(2.7182818, -self->xx1) * powf(self->xx1, i) / factorial));
+            tot = (long)(1000.0 * (MYPOW(2.7182818, -self->xx1) * MYPOW(self->xx1, i) / factorial));
             for (j=0; j<tot; j++) {
                 self->poisson_buffer[self->poisson_tab] = i;
                 self->poisson_tab++;
@@ -4022,9 +4022,9 @@ TrigXnoiseMidi_convert(TrigXnoiseMidi *self) {
     if (self->scale == 0)
         val = (MYFLT)midival;
     else if (self->scale == 1)
-        val = 8.1757989156437 * powf(1.0594630943593, midival);
+        val = 8.1757989156437 * MYPOW(1.0594630943593, midival);
     else if (self->scale == 2)
-        val = powf(1.0594630943593, midival - self->centralkey);
+        val = MYPOW(1.0594630943593, midival - self->centralkey);
     else
         val = midival;
 
@@ -4065,7 +4065,7 @@ TrigXnoiseMidi_triangle(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -logf(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4074,7 +4074,7 @@ TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_expon_max(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-logf(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -4094,7 +4094,7 @@ TrigXnoiseMidi_biexpon(TrigXnoiseMidi *self) {
     else
         polar = 1;
     
-    val = 0.5 * (polar * logf(sum) / self->xx1) + 0.5;
+    val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -4114,7 +4114,7 @@ TrigXnoiseMidi_cauchy(TrigXnoiseMidi *self) {
     else
         dir = 1;
     
-    val = 0.5 * (tanf(rnd) * self->xx1 * dir) + 0.5;
+    val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -4128,7 +4128,7 @@ TrigXnoiseMidi_weibull(TrigXnoiseMidi *self) {
     if (self->xx2 <= 0.0) self->xx2 = 0.00001;
     
     rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
-    val = self->xx1 * powf(logf(rnd), (1.0 / self->xx2));
+    val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
@@ -4163,7 +4163,7 @@ TrigXnoiseMidi_poisson(TrigXnoiseMidi *self) {
         factorial = 1;
         for (i=1; i<12; i++) {
             factorial *= i;
-            tot = (long)(1000.0 * (powf(2.7182818, -self->xx1) * powf(self->xx1, i) / factorial));
+            tot = (long)(1000.0 * (MYPOW(2.7182818, -self->xx1) * MYPOW(self->xx1, i) / factorial));
             for (j=0; j<tot; j++) {
                 self->poisson_buffer[self->poisson_tab] = i;
                 self->poisson_tab++;
@@ -5198,7 +5198,7 @@ typedef struct {
     Stream *threshold_stream;
     int dir;
     int ready;
-    int modebuffer[1];
+    int modebuffer[3];
 } Thresh;
 
 static void
@@ -5290,10 +5290,22 @@ Thresh_generates_a(Thresh *self) {
     }
 }
 
+static void Thresh_postprocessing_ii(Thresh *self) { POST_PROCESSING_II };
+static void Thresh_postprocessing_ai(Thresh *self) { POST_PROCESSING_AI };
+static void Thresh_postprocessing_ia(Thresh *self) { POST_PROCESSING_IA };
+static void Thresh_postprocessing_aa(Thresh *self) { POST_PROCESSING_AA };
+static void Thresh_postprocessing_ireva(Thresh *self) { POST_PROCESSING_IREVA };
+static void Thresh_postprocessing_areva(Thresh *self) { POST_PROCESSING_AREVA };
+static void Thresh_postprocessing_revai(Thresh *self) { POST_PROCESSING_REVAI };
+static void Thresh_postprocessing_revaa(Thresh *self) { POST_PROCESSING_REVAA };
+static void Thresh_postprocessing_revareva(Thresh *self) { POST_PROCESSING_REVAREVA };
+
 static void
 Thresh_setProcMode(Thresh *self)
 {    
-    int procmode = self->modebuffer[0];
+    int procmode = self->modebuffer[2];
+    int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
     switch (procmode) {
         case 0:        
             self->proc_func_ptr = Thresh_generates_i;
@@ -5302,12 +5314,42 @@ Thresh_setProcMode(Thresh *self)
             self->proc_func_ptr = Thresh_generates_a;
             break;
     }
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Thresh_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Thresh_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Thresh_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Thresh_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Thresh_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Thresh_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Thresh_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Thresh_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Thresh_postprocessing_revareva;
+            break;
+    }  
 }
 
 static void
 Thresh_compute_next_data_frame(Thresh *self)
 {
     (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -5353,7 +5395,9 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->threshold = PyFloat_FromDouble(0.);
     self->dir = 0;
     self->ready = 0;
-    self->modebuffer[0] = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Thresh_compute_next_data_frame);
@@ -5364,11 +5408,11 @@ Thresh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Thresh_init(Thresh *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *thresholdtmp;
+    PyObject *inputtmp, *input_streamtmp, *thresholdtmp, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "threshold", "dir", NULL};
+    static char *kwlist[] = {"input", "threshold", "dir", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|Oi", kwlist, &inputtmp, &thresholdtmp, &self->dir))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiOO", kwlist, &inputtmp, &thresholdtmp, &self->dir, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -5376,7 +5420,14 @@ Thresh_init(Thresh *self, PyObject *args, PyObject *kwds)
     if (thresholdtmp) {
         PyObject_CallMethod((PyObject *)self, "setThreshold", "O", thresholdtmp);
     }
-   
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
@@ -5388,9 +5439,22 @@ Thresh_init(Thresh *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Thresh_getServer(Thresh* self) { GET_SERVER };
 static PyObject * Thresh_getStream(Thresh* self) { GET_STREAM };
+static PyObject * Thresh_setMul(Thresh *self, PyObject *arg) { SET_MUL };	
+static PyObject * Thresh_setAdd(Thresh *self, PyObject *arg) { SET_ADD };	
+static PyObject * Thresh_setSub(Thresh *self, PyObject *arg) { SET_SUB };	
+static PyObject * Thresh_setDiv(Thresh *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Thresh_play(Thresh *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Thresh_stop(Thresh *self) { STOP };
+
+static PyObject * Thresh_multiply(Thresh *self, PyObject *arg) { MULTIPLY };
+static PyObject * Thresh_inplace_multiply(Thresh *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Thresh_add(Thresh *self, PyObject *arg) { ADD };
+static PyObject * Thresh_inplace_add(Thresh *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Thresh_sub(Thresh *self, PyObject *arg) { SUB };
+static PyObject * Thresh_inplace_sub(Thresh *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Thresh_div(Thresh *self, PyObject *arg) { DIV };
+static PyObject * Thresh_inplace_div(Thresh *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Thresh_setThreshold(Thresh *self, PyObject *arg)
@@ -5447,6 +5511,8 @@ static PyMemberDef Thresh_members[] = {
 {"stream", T_OBJECT_EX, offsetof(Thresh, stream), 0, "Stream object."},
 {"input", T_OBJECT_EX, offsetof(Thresh, input), 0, "Input sound object."},
 {"threshold", T_OBJECT_EX, offsetof(Thresh, threshold), 0, "Threshold object."},
+{"mul", T_OBJECT_EX, offsetof(Thresh, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Thresh, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -5458,7 +5524,53 @@ static PyMethodDef Thresh_methods[] = {
 {"stop", (PyCFunction)Thresh_stop, METH_NOARGS, "Stops computing."},
 {"setThreshold", (PyCFunction)Thresh_setThreshold, METH_O, "Sets threshold value."},
 {"setDir", (PyCFunction)Thresh_setDir, METH_O, "Sets direction. 0 = upward, 1 = downward, 2 = up and down"},
+{"setMul", (PyCFunction)Thresh_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Thresh_setAdd, METH_O, "Sets add factor."},
+{"setSub", (PyCFunction)Thresh_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Thresh_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Thresh_as_number = {
+    (binaryfunc)Thresh_add,                         /*nb_add*/
+    (binaryfunc)Thresh_sub,                         /*nb_subtract*/
+    (binaryfunc)Thresh_multiply,                    /*nb_multiply*/
+    (binaryfunc)Thresh_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Thresh_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Thresh_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Thresh_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Thresh_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject ThreshType = {
@@ -5473,7 +5585,7 @@ sizeof(Thresh),                                 /*tp_basicsize*/
 0,                                              /*tp_setattr*/
 0,                                              /*tp_compare*/
 0,                                              /*tp_repr*/
-0,                              /*tp_as_number*/
+&Thresh_as_number,                              /*tp_as_number*/
 0,                                              /*tp_as_sequence*/
 0,                                              /*tp_as_mapping*/
 0,                                              /*tp_hash */
@@ -5512,7 +5624,7 @@ typedef struct {
     Stream *input_stream;
     PyObject *percent;
     Stream *percent_stream;
-    int modebuffer[1];
+    int modebuffer[3];
 } Percent;
 
 static void
@@ -5548,10 +5660,23 @@ Percent_generates_a(Percent *self) {
     }
 }
 
+static void Percent_postprocessing_ii(Percent *self) { POST_PROCESSING_II };
+static void Percent_postprocessing_ai(Percent *self) { POST_PROCESSING_AI };
+static void Percent_postprocessing_ia(Percent *self) { POST_PROCESSING_IA };
+static void Percent_postprocessing_aa(Percent *self) { POST_PROCESSING_AA };
+static void Percent_postprocessing_ireva(Percent *self) { POST_PROCESSING_IREVA };
+static void Percent_postprocessing_areva(Percent *self) { POST_PROCESSING_AREVA };
+static void Percent_postprocessing_revai(Percent *self) { POST_PROCESSING_REVAI };
+static void Percent_postprocessing_revaa(Percent *self) { POST_PROCESSING_REVAA };
+static void Percent_postprocessing_revareva(Percent *self) { POST_PROCESSING_REVAREVA };
+
 static void
 Percent_setProcMode(Percent *self)
 {    
-    int procmode = self->modebuffer[0];
+    int muladdmode, procmode
+    ;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     switch (procmode) {
         case 0:        
             self->proc_func_ptr = Percent_generates_i;
@@ -5560,12 +5685,42 @@ Percent_setProcMode(Percent *self)
             self->proc_func_ptr = Percent_generates_a;
             break;
     }
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Percent_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Percent_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Percent_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Percent_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Percent_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Percent_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Percent_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Percent_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Percent_postprocessing_revareva;
+            break;
+    }  
 }
 
 static void
 Percent_compute_next_data_frame(Percent *self)
 {
     (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -5609,7 +5764,9 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Percent *)type->tp_alloc(type, 0);
     
     self->percent = PyFloat_FromDouble(50.);
-    self->modebuffer[0] = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Percent_compute_next_data_frame);
@@ -5620,17 +5777,24 @@ Percent_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Percent_init(Percent *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *percenttmp;
+    PyObject *inputtmp, *input_streamtmp, *percenttmp, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "percent", NULL};
+    static char *kwlist[] = {"input", "percent", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &inputtmp, &percenttmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &percenttmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
     
     if (percenttmp) {
         PyObject_CallMethod((PyObject *)self, "setPercent", "O", percenttmp);
+    }
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
     Py_INCREF(self->stream);
@@ -5646,9 +5810,22 @@ Percent_init(Percent *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Percent_getServer(Percent* self) { GET_SERVER };
 static PyObject * Percent_getStream(Percent* self) { GET_STREAM };
+static PyObject * Percent_setMul(Percent *self, PyObject *arg) { SET_MUL };	
+static PyObject * Percent_setAdd(Percent *self, PyObject *arg) { SET_ADD };	
+static PyObject * Percent_setSub(Percent *self, PyObject *arg) { SET_SUB };	
+static PyObject * Percent_setDiv(Percent *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Percent_play(Percent *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Percent_stop(Percent *self) { STOP };
+
+static PyObject * Percent_multiply(Percent *self, PyObject *arg) { MULTIPLY };
+static PyObject * Percent_inplace_multiply(Percent *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Percent_add(Percent *self, PyObject *arg) { ADD };
+static PyObject * Percent_inplace_add(Percent *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Percent_sub(Percent *self, PyObject *arg) { SUB };
+static PyObject * Percent_inplace_sub(Percent *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Percent_div(Percent *self, PyObject *arg) { DIV };
+static PyObject * Percent_inplace_div(Percent *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Percent_setPercent(Percent *self, PyObject *arg)
@@ -5689,6 +5866,8 @@ static PyMemberDef Percent_members[] = {
     {"stream", T_OBJECT_EX, offsetof(Percent, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(Percent, input), 0, "Input sound object."},
     {"percent", T_OBJECT_EX, offsetof(Percent, percent), 0, "percent attribute."},
+    {"mul", T_OBJECT_EX, offsetof(Percent, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Percent, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -5699,7 +5878,53 @@ static PyMethodDef Percent_methods[] = {
     {"play", (PyCFunction)Percent_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Percent_stop, METH_NOARGS, "Stops computing."},
     {"setPercent", (PyCFunction)Percent_setPercent, METH_O, "Sets percentange value."},
+    {"setMul", (PyCFunction)Percent_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Percent_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Percent_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Percent_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Percent_as_number = {
+    (binaryfunc)Percent_add,                         /*nb_add*/
+    (binaryfunc)Percent_sub,                         /*nb_subtract*/
+    (binaryfunc)Percent_multiply,                    /*nb_multiply*/
+    (binaryfunc)Percent_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Percent_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Percent_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Percent_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Percent_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject PercentType = {
@@ -5714,7 +5939,7 @@ PyTypeObject PercentType = {
     0,                                              /*tp_setattr*/
     0,                                              /*tp_compare*/
     0,                                              /*tp_repr*/
-    0,                              /*tp_as_number*/
+    &Percent_as_number,                              /*tp_as_number*/
     0,                                              /*tp_as_sequence*/
     0,                                              /*tp_as_mapping*/
     0,                                              /*tp_hash */

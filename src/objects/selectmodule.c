@@ -31,6 +31,7 @@ typedef struct {
     Stream *input_stream;
     long value;
     MYFLT last_value;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
 } Select;
 
 static void
@@ -53,16 +54,62 @@ Select_selector(Select *self) {
     }
 }
 
+static void Select_postprocessing_ii(Select *self) { POST_PROCESSING_II };
+static void Select_postprocessing_ai(Select *self) { POST_PROCESSING_AI };
+static void Select_postprocessing_ia(Select *self) { POST_PROCESSING_IA };
+static void Select_postprocessing_aa(Select *self) { POST_PROCESSING_AA };
+static void Select_postprocessing_ireva(Select *self) { POST_PROCESSING_IREVA };
+static void Select_postprocessing_areva(Select *self) { POST_PROCESSING_AREVA };
+static void Select_postprocessing_revai(Select *self) { POST_PROCESSING_REVAI };
+static void Select_postprocessing_revaa(Select *self) { POST_PROCESSING_REVAA };
+static void Select_postprocessing_revareva(Select *self) { POST_PROCESSING_REVAREVA };
+
 static void
 Select_setProcMode(Select *self)
 {
+    int muladdmode;
+    
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
     self->proc_func_ptr = Select_selector;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Select_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Select_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Select_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Select_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Select_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Select_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Select_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Select_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Select_postprocessing_revareva;
+            break;
+    }  
+    
 }
 
 static void
 Select_compute_next_data_frame(Select *self)
 {
     (*self->proc_func_ptr)(self);    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -103,6 +150,8 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->value = 0;
     self->last_value = -99.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Select_compute_next_data_frame);
@@ -114,14 +163,22 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Select_init(Select *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "value", NULL};
+    static char *kwlist[] = {"input", "value", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &inputtmp, &self->value))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
         return -1; 
 
     INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -134,9 +191,22 @@ Select_init(Select *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Select_getServer(Select* self) { GET_SERVER };
 static PyObject * Select_getStream(Select* self) { GET_STREAM };
+static PyObject * Select_setMul(Select *self, PyObject *arg) { SET_MUL };	
+static PyObject * Select_setAdd(Select *self, PyObject *arg) { SET_ADD };	
+static PyObject * Select_setSub(Select *self, PyObject *arg) { SET_SUB };	
+static PyObject * Select_setDiv(Select *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Select_play(Select *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Select_stop(Select *self) { STOP };
+
+static PyObject * Select_multiply(Select *self, PyObject *arg) { MULTIPLY };
+static PyObject * Select_inplace_multiply(Select *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Select_add(Select *self, PyObject *arg) { ADD };
+static PyObject * Select_inplace_add(Select *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Select_sub(Select *self, PyObject *arg) { SUB };
+static PyObject * Select_inplace_sub(Select *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Select_div(Select *self, PyObject *arg) { DIV };
+static PyObject * Select_inplace_div(Select *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Select_setValue(Select *self, PyObject *arg)
@@ -157,6 +227,8 @@ Select_setValue(Select *self, PyObject *arg)
 static PyMemberDef Select_members[] = {
 {"server", T_OBJECT_EX, offsetof(Select, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Select, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Select, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Select, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -167,7 +239,53 @@ static PyMethodDef Select_methods[] = {
 {"play", (PyCFunction)Select_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Select_stop, METH_NOARGS, "Stops computing."},
 {"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
+{"setMul", (PyCFunction)Select_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Select_setAdd, METH_O, "Sets add factor."},
+{"setSub", (PyCFunction)Select_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Select_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Select_as_number = {
+    (binaryfunc)Select_add,                         /*nb_add*/
+    (binaryfunc)Select_sub,                         /*nb_subtract*/
+    (binaryfunc)Select_multiply,                    /*nb_multiply*/
+    (binaryfunc)Select_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Select_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Select_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Select_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Select_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject SelectType = {
@@ -182,7 +300,7 @@ sizeof(Select),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&Select_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
@@ -217,6 +335,7 @@ typedef struct {
     PyObject *input;
     Stream *input_stream;
     MYFLT last_value;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
 } Change;
 
 static void
@@ -239,16 +358,60 @@ Change_selector(Change *self) {
     }
 }
 
+static void Change_postprocessing_ii(Change *self) { POST_PROCESSING_II };
+static void Change_postprocessing_ai(Change *self) { POST_PROCESSING_AI };
+static void Change_postprocessing_ia(Change *self) { POST_PROCESSING_IA };
+static void Change_postprocessing_aa(Change *self) { POST_PROCESSING_AA };
+static void Change_postprocessing_ireva(Change *self) { POST_PROCESSING_IREVA };
+static void Change_postprocessing_areva(Change *self) { POST_PROCESSING_AREVA };
+static void Change_postprocessing_revai(Change *self) { POST_PROCESSING_REVAI };
+static void Change_postprocessing_revaa(Change *self) { POST_PROCESSING_REVAA };
+static void Change_postprocessing_revareva(Change *self) { POST_PROCESSING_REVAREVA };
+
 static void
 Change_setProcMode(Change *self)
 {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
     self->proc_func_ptr = Change_selector;
+
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Change_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Change_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Change_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Change_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Change_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Change_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Change_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Change_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Change_postprocessing_revareva;
+            break;
+    }      
 }
 
 static void
 Change_compute_next_data_frame(Change *self)
 {
     (*self->proc_func_ptr)(self);    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -288,6 +451,8 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Change *)type->tp_alloc(type, 0);
 
     self->last_value = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Change_compute_next_data_frame);
@@ -299,14 +464,22 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Change_init(Change *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", NULL};
+    static char *kwlist[] = {"input", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp))
         return -1; 
 
     INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -319,13 +492,28 @@ Change_init(Change *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Change_getServer(Change* self) { GET_SERVER };
 static PyObject * Change_getStream(Change* self) { GET_STREAM };
+static PyObject * Change_setMul(Change *self, PyObject *arg) { SET_MUL };	
+static PyObject * Change_setAdd(Change *self, PyObject *arg) { SET_ADD };	
+static PyObject * Change_setSub(Change *self, PyObject *arg) { SET_SUB };	
+static PyObject * Change_setDiv(Change *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Change_play(Change *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Change_stop(Change *self) { STOP };
 
+static PyObject * Change_multiply(Change *self, PyObject *arg) { MULTIPLY };
+static PyObject * Change_inplace_multiply(Change *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Change_add(Change *self, PyObject *arg) { ADD };
+static PyObject * Change_inplace_add(Change *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Change_sub(Change *self, PyObject *arg) { SUB };
+static PyObject * Change_inplace_sub(Change *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Change_div(Change *self, PyObject *arg) { DIV };
+static PyObject * Change_inplace_div(Change *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef Change_members[] = {
 {"server", T_OBJECT_EX, offsetof(Change, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Change, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Change, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Change, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -335,7 +523,53 @@ static PyMethodDef Change_methods[] = {
 {"deleteStream", (PyCFunction)Change_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Change_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Change_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
+{"setAdd", (PyCFunction)Change_setAdd, METH_O, "Sets add factor."},
+{"setSub", (PyCFunction)Change_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Change_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Change_as_number = {
+    (binaryfunc)Change_add,                         /*nb_add*/
+    (binaryfunc)Change_sub,                         /*nb_subtract*/
+    (binaryfunc)Change_multiply,                    /*nb_multiply*/
+    (binaryfunc)Change_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Change_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Change_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Change_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Change_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject ChangeType = {
@@ -350,7 +584,7 @@ sizeof(Change),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&Change_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
