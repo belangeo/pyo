@@ -80,7 +80,7 @@ else:
 setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
-        version = "0.01",
+        version = "0.02",
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
