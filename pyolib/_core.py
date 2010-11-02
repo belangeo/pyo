@@ -70,13 +70,13 @@ def wrap(arg, i):
     """
     Return value at position `i` from `arg` with wrap around `arg` length.
     
-    """
+    """    
     x = arg[i % len(arg)]
     if isinstance(x, PyoObject):
         return x[0]
-    elif isinstance(i, PyoTableObject):
+    elif isinstance(x, PyoTableObject):
         return x[0]
-    elif isinstance(i, PyoMatrixObject):
+    elif isinstance(x, PyoMatrixObject):
         return x[0]
     else:
         return x
@@ -240,13 +240,22 @@ class PyoObject(object):
     def __add__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        else:
+            if isinstance(x, PyoObject):
+                self._add_dummy = x + self 
+            else:
+                self._add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])  
         return self._add_dummy
         
     def __radd__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        else:
+            self._add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])                
         return self._add_dummy
             
     def __iadd__(self, x):
@@ -256,13 +265,24 @@ class PyoObject(object):
     def __sub__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        else:
+            if isinstance(x, PyoObject):
+                print 'Substraction Warning: %s - %s' % (self.__repr__(), x.__repr__()),
+                print 'Right operator trunctaded to match left operator number of streams.'
+                self._add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            else:
+                self._add_dummy = Dummy([wrap(self._base_objs,i) - obj for i, obj in enumerate(x)])
         return self._add_dummy
 
     def __rsub__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._add_dummy = Dummy([Sig(wrap(x,i)) - obj for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._add_dummy = Dummy([Sig(wrap(x,i)) - obj for i, obj in enumerate(self._base_objs)])
+        else:
+            self._add_dummy = Dummy([Sig(obj) - wrap(self._base_objs,i) for i, obj in enumerate(x)])
         return self._add_dummy
 
     def __isub__(self, x):
@@ -272,13 +292,22 @@ class PyoObject(object):
     def __mul__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        else:
+            if isinstance(x, PyoObject):
+                self._mul_dummy = x * self 
+            else:
+                self._mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])  
         return self._mul_dummy
         
     def __rmul__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        else:
+            self._mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])                
         return self._mul_dummy
             
     def __imul__(self, x):
@@ -288,13 +317,24 @@ class PyoObject(object):
     def __div__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
+        else:
+            if isinstance(x, PyoObject):
+                print 'Division Warning: %s / %s' % (self.__repr__(), x.__repr__()),
+                print 'Right operator trunctaded to match left operator number of streams.'
+                self._mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            else:
+                self._mul_dummy = Dummy([wrap(self._base_objs,i) / obj for i, obj in enumerate(x)])
         return self._mul_dummy
 
     def __rdiv__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
-        self._mul_dummy = Dummy([Sig(wrap(x,i)) / obj for i, obj in enumerate(self._base_objs)])
+        if self.__len__() >= lmax:
+            self._mul_dummy = Dummy([Sig(wrap(x,i)) / obj for i, obj in enumerate(self._base_objs)])
+        else:
+            self._mul_dummy = Dummy([Sig(obj) / wrap(self._base_objs,i) for i, obj in enumerate(x)])
         return self._mul_dummy
 
     def __idiv__(self, x):

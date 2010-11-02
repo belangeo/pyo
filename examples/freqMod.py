@@ -51,8 +51,8 @@ class FreqMod:
 
 
 s = Server().boot()
-a = FreqMod(carrier=150, ratio=.249, index=6, amplitude=0.5).play()
+a = FreqMod(carrier=150, ratio=.249, index=6, amplitude=0.25).play()
 lf = Sine(.1, 0, 50, 300)
-b = FreqMod(carrier=lf, ratio=.5, index=5, amplitude=0.5).play()
+b = FreqMod(carrier=lf, ratio=.5, index=5, amplitude=0.25).play()
 
 s.gui(locals())
