@@ -1,3 +1,14 @@
+2010-11-02 belangeo <belangeo@gmail.com>
+
+	* rev 515 - pyo 0.02 release.
+
+
+2010-10-24 belangeo <belangeo@gmail.com>
+
+	* Fixed timming issue.
+	- rev 507
+
+
 2010-10-09 belangeo <belangeo@gmail.com>
 
 	* Added `starttime` attribute to the server, allowing faster rendering
