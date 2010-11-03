@@ -50,7 +50,7 @@ class Server(object):
     duplex : int {0, 1}, optional
         Input - output mode. 0 is output only and 1 is both ways. 
         Defaults to 1.
-    audio : string {'portaudio', 'pa', 'jack', 'coreaudio'}, optional
+    audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline'}, optional
         Audio backend to use. 'pa' is equivalent to 'portaudio'.
         Default is 'portaudio'.
     jackname : string, optional
