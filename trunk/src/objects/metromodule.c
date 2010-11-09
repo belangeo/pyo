@@ -1377,6 +1377,7 @@ typedef struct {
     int taps;
     int last_taps;
     int tapCount;
+    int currentTap;
     int weight1;
     int last_weight1;
     int weight2;
@@ -1401,6 +1402,7 @@ typedef struct {
     double sampleToSec;
     double currentTime;
     MYFLT *buffer_streams;
+    MYFLT *tap_buffer_streams;
     MYFLT *amp_buffer_streams;
     MYFLT *dur_buffer_streams;
     MYFLT *end_buffer_streams;
@@ -1620,6 +1622,7 @@ Beater_generate_i(Beater *self) {
     
     for (i=0; i<self->bufsize; i++) {
         self->currentTime += self->sampleToSec;
+        self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
         self->amp_buffer_streams[i + self->voiceCount * self->bufsize] = self->amplitudes[self->voiceCount];
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
@@ -1627,6 +1630,7 @@ Beater_generate_i(Beater *self) {
             if (self->tapCount == (self->taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
+                self->currentTap = self->tapCount;
                 self->amplitudes[self->voiceCount] = self->accentTable[self->tapCount];
                 self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
                 if (self->voiceCount == self->poly)
@@ -1686,6 +1690,7 @@ Beater_generate_a(Beater *self) {
     for (i=0; i<self->bufsize; i++) {
         tm = (double)time[i];
         self->currentTime += self->sampleToSec;
+        self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
         self->amp_buffer_streams[i + self->voiceCount * self->bufsize] = self->amplitudes[self->voiceCount];
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
@@ -1693,6 +1698,7 @@ Beater_generate_a(Beater *self) {
             if (self->tapCount == (self->taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
+                self->currentTap = self->tapCount;
                 self->amplitudes[self->voiceCount] = self->accentTable[self->tapCount];
                 self->buffer_streams[i + self->voiceCount++ * self->bufsize] = 1.0;
                 if (self->voiceCount == self->poly)
@@ -1736,6 +1742,12 @@ MYFLT *
 Beater_getSamplesBuffer(Beater *self)
 {
     return (MYFLT *)self->buffer_streams;
+}    
+
+MYFLT *
+Beater_getTapBuffer(Beater *self)
+{
+    return (MYFLT *)self->tap_buffer_streams;
 }    
 
 MYFLT *
@@ -1800,6 +1812,7 @@ Beater_dealloc(Beater* self)
 {
     free(self->data);
     free(self->buffer_streams);
+    free(self->tap_buffer_streams);
     free(self->amp_buffer_streams);
     free(self->dur_buffer_streams);
     free(self->end_buffer_streams);
@@ -1831,6 +1844,7 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->taps = 16;
     self->tapCount = 0;
+    self->currentTap = 0;
     self->weight1 = 80;
     self->weight2 = 50;
     self->weight3 = 30;
@@ -1873,6 +1887,7 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     srand((unsigned)(time(0)));
     
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
@@ -2279,6 +2294,161 @@ PyTypeObject BeatType = {
     (initproc)Beat_init,      /* tp_init */
     0,                         /* tp_alloc */
     Beat_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* BeatTapStream object per channel */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    Beater *mainPlayer;
+    int chnl; 
+} BeatTapStream;
+
+static void
+BeatTapStream_setProcMode(BeatTapStream *self) {}
+
+static void
+BeatTapStream_compute_next_data_frame(BeatTapStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = Beater_getTapBuffer((Beater *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+BeatTapStream_traverse(BeatTapStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+BeatTapStream_clear(BeatTapStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+BeatTapStream_dealloc(BeatTapStream* self)
+{
+    free(self->data);
+    BeatTapStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * BeatTapStream_deleteStream(BeatTapStream *self) { DELETE_STREAM };
+
+static PyObject *
+BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    BeatTapStream *self;
+    self = (BeatTapStream *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, BeatTapStream_compute_next_data_frame);
+    self->mode_func_ptr = BeatTapStream_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+BeatTapStream_init(BeatTapStream *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL;
+    
+    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
+        return -1; 
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (Beater *)maintmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * BeatTapStream_getServer(BeatTapStream* self) { GET_SERVER };
+static PyObject * BeatTapStream_getStream(BeatTapStream* self) { GET_STREAM };
+
+static PyObject * BeatTapStream_play(BeatTapStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * BeatTapStream_out(BeatTapStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * BeatTapStream_stop(BeatTapStream *self) { STOP };
+
+static PyMemberDef BeatTapStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(BeatTapStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(BeatTapStream, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef BeatTapStream_methods[] = {
+    {"getServer", (PyCFunction)BeatTapStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)BeatTapStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)BeatTapStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)BeatTapStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)BeatTapStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)BeatTapStream_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject BeatTapStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.BeatTapStream_base",         /*tp_name*/
+    sizeof(BeatTapStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)BeatTapStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "BeatTapStream objects. Reads the current tap from a Beater object.",           /* tp_doc */
+    (traverseproc)BeatTapStream_traverse,   /* tp_traverse */
+    (inquiry)BeatTapStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    BeatTapStream_methods,             /* tp_methods */
+    BeatTapStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)BeatTapStream_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    BeatTapStream_new,                 /* tp_new */
 };
 
 /************************************************************************************************/

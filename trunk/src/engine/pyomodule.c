@@ -633,6 +633,11 @@ init_pyo64(void)
     Py_INCREF(&BeatType);
     PyModule_AddObject(m, "Beat_base", (PyObject *)&BeatType);
 
+    if (PyType_Ready(&BeatTapStreamType) < 0)
+        return;
+    Py_INCREF(&BeatTapStreamType);
+    PyModule_AddObject(m, "BeatTapStream_base", (PyObject *)&BeatTapStreamType);
+    
     if (PyType_Ready(&BeatAmpStreamType) < 0)
         return;
     Py_INCREF(&BeatAmpStreamType);

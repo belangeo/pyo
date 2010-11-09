@@ -500,6 +500,7 @@ class Beat(PyoObject):
 
     Beat outputs many signals identified with a string between brackets:
     
+    obj['tap'] returns audio stream of the current tap of the measure.
     obj['amp'] returns audio stream of the current beat amplitude.
     obj['dur'] returns audio stream of the current beat duration in seconds.
     obj['end'] returns audio stream with a trigger just before the end of the measure.
@@ -533,6 +534,7 @@ class Beat(PyoObject):
         time, taps, w1, w2, w3, lmax = convertArgsToLists(time, taps, w1, w2, w3)
         self._base_players = [Beater_base(wrap(time,i), wrap(taps,i), wrap(w1,i), wrap(w2,i), wrap(w3,i), poly) for i in range(lmax)]
         self._base_objs = [Beat_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
+        self._tap_objs = [BeatTapStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
         self._amp_objs = [BeatAmpStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
         self._dur_objs = [BeatDurStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
         self._end_objs = [BeatEndStream_base(wrap(self._base_players,j), i) for i in range(poly) for j in range(lmax)]
@@ -542,6 +544,9 @@ class Beat(PyoObject):
 
     def __del__(self):
         for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._tap_objs:
             obj.deleteStream()
             del obj
         for obj in self._amp_objs:
@@ -558,6 +563,8 @@ class Beat(PyoObject):
             del obj
 
     def __getitem__(self, i):
+        if i == 'tap':
+            return self._tap_objs
         if i == 'amp':
             return self._amp_objs
         if i == 'dur':
@@ -582,7 +589,7 @@ class Beat(PyoObject):
 
         Parameters:
 
-            identifier : string {"amp", "dur"}
+            identifier : string {"tap", "amp", "dur"}
                 Address string parameter identifying audio stream.
                 Defaults to "amp".
             all : boolean, optional
@@ -750,6 +757,7 @@ class Beat(PyoObject):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._tap_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._tap_objs)]
         self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
         self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
         self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
@@ -758,6 +766,7 @@ class Beat(PyoObject):
     def stop(self):
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._tap_objs]
         [obj.stop() for obj in self._amp_objs]
         [obj.stop() for obj in self._dur_objs]
         [obj.stop() for obj in self._end_objs]
