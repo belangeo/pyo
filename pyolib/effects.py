@@ -304,7 +304,7 @@ class SDelay(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
     >>> d = SDelay(a, delay=.25, mul=.5).out(1)
 
     """

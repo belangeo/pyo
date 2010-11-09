@@ -143,6 +143,7 @@ extern PyTypeObject ClouderType;
 extern PyTypeObject CloudType;
 extern PyTypeObject BeaterType;
 extern PyTypeObject BeatType;
+extern PyTypeObject BeatTapStreamType;
 extern PyTypeObject BeatAmpStreamType;
 extern PyTypeObject BeatDurStreamType;
 extern PyTypeObject BeatEndStreamType;
