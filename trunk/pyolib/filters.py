@@ -1002,6 +1002,8 @@ class Hilbert(PyoObject):
     
     Examples:
     
+    >>> s = Server().boot()
+    >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True).out(0)
     >>> b = Hilbert(a)
     >>> quad = Sine([250, 500], [0, .25])
