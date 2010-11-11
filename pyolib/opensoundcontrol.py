@@ -72,7 +72,10 @@ class OscSend(PyoObject):
     
     OscSend has no `mul` and `add` attributes.
 
+    Examples:
 
+    >>> s = Server().boot()
+    >>> s.start()
     >>> a = Sine(freq=[1,1.5], mul=100, add=[600, 1000])
     >>> b = OscSend(a, port=10000, address=['/pit1','/pit2'])
     
