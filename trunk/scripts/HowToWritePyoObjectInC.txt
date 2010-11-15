@@ -1,0 +1,73 @@
+How to write a pyo C object:
+
+In mousemodule.c:
+
+1-  Copy a similar object C source code (I think MidiNote-Notein in midimodule.c is a good starting point). 
+        - For the Mouse module, you will need two base objects:
+            Mouser -> Scan for mouse position and keep values in memory
+            Mouse -> The real audio objects looking in Mouser for X or Y position and filling self->data.
+        
+2-  Find-Replace object's names.
+        - MidiNote -> Mouser
+        - Notein -> Mouse
+    
+3-  Name_compute_next_data_frame is the function called by the server's callback every buffer size.
+    Here you put all your calls...
+    I'm not sure "Stream_setData(self->stream, self->data);" is needed here (ref.: Notein), I removed it in other objects.
+   
+4-  In Mouse object "struct", you need an array "modebuffer" with at least two slots for the "mul" and "add" mode (audio or init).
+    This is called at the end of Name_comput_next_data_frame with:
+        (*self->muladd_func_ptr)(self);
+    This pointer is set with Name_setProcMode function. All postprocessing functions are MACROS in pyomodule.h.
+
+5-  The Mouse object must defines a static Mouse_as_number element to allow basic arithmetic operations on the object.
+
+MACROS (in pyomodule.h):
+
+pyo_audio_HEAD -> Create all common variables. self->data is the samples buffer.
+POST_PROCESSING_* -> Handle arithmetic operations.
+pyo_VISIT and pyo_CLEAR -> Free common variables.
+INIT_OBJECT_COMMON -> Initialize all common variables (server, mul, add, data, stream, etc.).
+GET_SERVER, GET_STREAM -> Return references...
+PLAY, STOP, OUT (if needed) -> Handle starttime, duration, output channel, etc.
+MULTIPLY, ADD, SUB, DIV, INPLACE_* -> Initialize arithmetic operations and set the function's pointer.
+
+In pyomodule.c:
+
+-   Add a reference to the new object's types in the module:
+
+    if (PyType_Ready(&MouserType) < 0)
+        return;
+    Py_INCREF(&MouserType);
+    PyModule_AddObject(m, "Mouser_base", (PyObject *)&MouserType);
+
+    if (PyType_Ready(&MouseType) < 0)
+        return;
+    Py_INCREF(&MouseType);
+    PyModule_AddObject(m, "Mouse_base", (PyObject *)&MouseType);
+    
+    *_base are the objects called by the Python classes.
+    
+In pyomodule.h:
+
+    - Declares the PyTypeObject:
+    
+    extern PyTypeObject MouserType;
+    extern PyTypeObject MouseType;
+    
+In pyo.py
+
+    - Add the object (only the object to call in a script) in the OBJECTS_TREE dictionary:
+    
+    'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr', 'Linseg', 'Expseg', 'Mouse']),
+    
+In pyolib/controls.py:
+
+-   Copy the Notein class from midi.py and modify it for your object's needs.
+
+    "x" and "y" can be used as identifier to retrieve the streams.
+    obj["x"] and obj["y"]
+    
+
+    
+
