@@ -168,7 +168,8 @@ def getDocFirstLine(obj):
     else:
         f = text
     return f    
-                    
+
+# Generates the LaTeX file                    
 f.write('\\begin{Huge}pyo documentation\\end{Huge}\n\n') 
 f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')     
 f.write("""
@@ -198,17 +199,48 @@ for key in sorted(OBJECTS_TREE.keys()):
 f.write('\end{document}\n')
 f.close()
 
+# LaTeX -> html
 os.chdir('doc/')
 os.system('latex2html %s.tex' % man_file)
+
+# Post-processing on html files
 for file in os.listdir(man_file):
     with open("%s/%s" % (man_file, file), 'r') as f:
         text = f.read()
     text = text.replace("&lt;/A&gt;", "</A>")
+    if text.find('href="prettify.css"') == -1:
+            st = '<LINK REL="STYLESHEET" HREF="%s.css">' % man_file
+            stnew = """
+<LINK REL="STYLESHEET" HREF="%s.css">
+<link href="prettify.css" type="text/css" rel="stylesheet" />
+<script type="text/javascript" src="prettify.js"></script>
+
+""" % man_file
+            text = text.replace(st, stnew)
+
+            st = '<BODY'
+            stnew = '<BODY onload="prettyPrint()"'
+            text = text.replace(st, stnew)
+
+            ex_pos = text.find('<BIG CLASS="XLARGE"><B>Examples:')
+            if ex_pos != -1:
+                st = '<PRE>'
+                stnew = '<PRE class="prettyprint">'
+                text_first = text[:ex_pos]
+                text_second = text[ex_pos:]
+                text_second = text_second.replace(st, stnew, 1)
+                text = text_first + text_second
+
     with open("%s/%s" % (man_file, file), 'w') as f:
         f.write(text)
+        
+# Clean-up        
 os.remove('%s.tex' % man_file)
 os.chdir('../')
-shutil.copy('scripts/manual-dev.css', 'doc/manual-dev')
+shutil.copy('scripts/prettify.css', 'doc/%s' % man_file)
+shutil.copy('scripts/prettify.js', 'doc/%s' % man_file)
+
+# Upload on iACT server
 print "Upload documentation (y/n)?"
 ans = raw_input()
 if (ans == 'y'):
