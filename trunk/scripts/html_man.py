@@ -108,6 +108,7 @@ def getMethodsDoc(text, obj):
 def getFormattedDoc(text, obj):
     lines = text.splitlines(True)
     text = ''
+    title = ''
     skip_empty_line = False
     verbatim = False
     for line in lines:
@@ -121,6 +122,8 @@ def getFormattedDoc(text, obj):
                 else:
                     flag = True
                     skip_empty_line = True
+                    last_title = title
+                    title = key
                     break
         if flag:
             if verbatim:
@@ -128,6 +131,8 @@ def getFormattedDoc(text, obj):
                 verbatim = False
             text += '\n\\begin{Large}' + '{\\bf ' + line + '}\\end{Large}'
             text += '\n\\begin{verbatim}\n'
+            if title == 'Examples':
+                text += "from pyo import *\n"
             verbatim = True
         elif see_also:
             if verbatim:
@@ -145,7 +150,18 @@ def getFormattedDoc(text, obj):
             if skip_empty_line:
                 skip_empty_line = False
             else:     
+                if title == 'Examples':
+                    if line.strip() == '':
+                        text += 's.gui(locals())\n'
+                        skip_empty_line = True
+                    if ">>>" in line: 
+                        line.lstrip("    ")
+                        line = line.lstrip(">>> ")
+                    if "..." in line: 
+                        line.lstrip("    ")
+                        line = "    " +  line.lstrip("... ")
                 text += line
+                    
     if verbatim:            
         text += '\\end{verbatim}\n'
         verbatim = False
