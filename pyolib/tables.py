@@ -1036,7 +1036,7 @@ class SndTable(PyoTableObject):
                 obj.setSound(p, 0)
         else:    
             _size, _dur, _snd_sr, _snd_chnls = sndinfo(path)
-            self._size = size
+            self._size = _size
             self._dur = _dur
             self._path = path
             [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
