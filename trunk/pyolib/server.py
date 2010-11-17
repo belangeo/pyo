@@ -383,6 +383,7 @@ class Server(object):
             Name of the file to be created. Defaults to None.
         
         """
+        FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1}
         if filename == None:
             if self._filename != None:
                 filename = self._filename
