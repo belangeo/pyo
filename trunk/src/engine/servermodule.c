@@ -1213,8 +1213,8 @@ static PyObject *
 Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     if (PyServer_get_server() != NULL) {
-        Server_warning((Server *) PyServer_get_server(), "Warning: A Server is already created!"
-            "If you put this Server in a new variable, please delete it!");
+        Server_warning((Server *) PyServer_get_server(), "Warning: A Server is already created!\n"
+            "If you put this Server in a new variable, please delete it!\n");
         return PyServer_get_server();
     }    
     Server *self;

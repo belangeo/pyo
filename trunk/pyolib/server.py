@@ -87,6 +87,7 @@ class Server(object):
     setNchnls(x) : Set the number of channels used by the server.
     setDuplex(x) : Set the duplex mode used by the server.
     setVerbosity(x) : Set the server's verbosity.
+    reinit(sr, nchnls, buffersize, duplex, audio, jackname) : Reinit the server's settings.
         
     Attributes:
     
@@ -115,6 +116,25 @@ class Server(object):
         self._fileformat = 0
         self._sampletype = 0
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
+
+    def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
+        """
+        Reinit the server'settings. Useful to alternate between real-time and offline server.
+        
+        Parameters:
+        
+        Same as in the __init__ method.
+        
+        """
+        self._nchnls = nchnls
+        self._amp = 1.
+        self._verbosity = 7
+        self._startoffset = 0
+        self._dur = -1
+        self._filename = None
+        self._fileformat = 0
+        self._sampletype = 0
+        self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname)
 
     def gui(self, locals=None, meter=True, timer=True):
         """
