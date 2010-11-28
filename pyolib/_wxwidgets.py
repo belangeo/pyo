@@ -163,7 +163,10 @@ class ControlSlider(wx.Panel):
     def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,16), log=False, outFunction=None, integer=False, powoftwo=False, backColour=None):
         wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER | wx.WANTS_CHARS | wx.EXPAND)
         self.parent = parent
-        self.backgroundColour = BACKGROUND_COLOUR
+        if backColour: 
+            self.backgroundColour = backColour
+        else: 
+            self.backgroundColour = BACKGROUND_COLOUR
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
         self.SetBackgroundColour(self.backgroundColour)
         self.SetMinSize(self.GetSize())
@@ -182,8 +185,6 @@ class ControlSlider(wx.Panel):
         self.selected = False
         self._enable = True
         self.new = ''
-        if backColour: self.backColour = backColour
-        else: self.backColour = "#444444"
         if init != None: 
             self.SetValue(init)
             self.init = init
@@ -358,7 +359,6 @@ class ControlSlider(wx.Panel):
     def MouseMotion(self, evt):
         if self._enable:
             size = self.GetSize()
-            #if evt.Dragging() and evt.LeftIsDown():
             if self.HasCapture():
                 self.pos = clamp(evt.GetPosition()[0], self.knobHalfSize, size[0]-self.knobHalfSize)
                 self.value = self.scale()
@@ -376,11 +376,15 @@ class ControlSlider(wx.Panel):
             val = powOfTwoToInt(self.value)
         else:
             val = self.value    
-        self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobHalfSize) + self.knobHalfSize
+        self.pos = tFromValue(val, self.minvalue, self.maxvalue) * (size[0] - self.knobSize) + self.knobHalfSize
         self.pos = clamp(self.pos, self.knobHalfSize, size[0]-self.knobHalfSize)
         
-    def setbackColour(self, colour):
-        self.backColour = colour
+    def setBackgroundColour(self, colour):
+        self.backgroundColour = colour
+        self.SetBackgroundColour(self.backgroundColour)
+        self.createSliderBitmap()
+        self.createKnobBitmap()
+        self.Refresh()
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -408,6 +412,7 @@ class ControlSlider(wx.Panel):
         dc.GradientFillLinear(rec, "#424864", knobColour, wx.RIGHT)
         dc.DrawBitmap(self.knobMask, rec[0], rec[1], True)
         
+        print "pos", self.pos
         if self.selected:
             rec2 = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h)  
             dc.SetBrush(wx.Brush('#333333', wx.SOLID))
