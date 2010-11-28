@@ -412,7 +412,6 @@ class ControlSlider(wx.Panel):
         dc.GradientFillLinear(rec, "#424864", knobColour, wx.RIGHT)
         dc.DrawBitmap(self.knobMask, rec[0], rec[1], True)
         
-        print "pos", self.pos
         if self.selected:
             rec2 = wx.Rect(self.pos-self.knobHalfSize, 0, self.knobSize, h)  
             dc.SetBrush(wx.Brush('#333333', wx.SOLID))
