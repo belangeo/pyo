@@ -184,6 +184,7 @@ class ControlSlider(wx.Panel):
         self.borderWidth = 1
         self.selected = False
         self._enable = True
+        self.propagate = True
         self.new = ''
         if init != None: 
             self.SetValue(init)
@@ -274,7 +275,8 @@ class ControlSlider(wx.Panel):
         else:
             return int(interpFloat(inter, self.minvalue, self.maxvalue))
 
-    def SetValue(self, value):
+    def SetValue(self, value, propagate=True):
+        self.propagate = propagate
         if self.HasCapture():
             self.ReleaseMouse()
         if self.powoftwo:
@@ -443,8 +445,9 @@ class ControlSlider(wx.Panel):
         dc.DrawLabel(val, rec, wx.ALIGN_CENTER)
 
         # Send value
-        if self.outFunction:
+        if self.outFunction and self.propagate:
             self.outFunction(self.GetValue())
+        self.propagate = True
 
         evt.Skip()
 
@@ -537,10 +540,6 @@ class VuMeter(wx.Panel):
 
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_CLOSE, self.OnClose)   
-        self.Bind(wx.EVT_SIZE, self.OnResize)   
-
-    def OnResize(self, evt):
-        self.setNumSliders(self.numSliders)
 
     def setNumSliders(self, numSliders):
         oldChnls = self.old_nchnls
@@ -555,8 +554,11 @@ class VuMeter(wx.Panel):
             self.parent.SetMinSize((parentSize[0], parentSize[1]+gap))
         else:
             self.SetSize((200, 5*self.numSliders+1))
+            self.SetMinSize((200, 5*self.numSliders+1))
             self.parent.SetSize((parentSize[0], parentSize[1]+gap))
+            self.parent.SetMinSize((parentSize[0], parentSize[1]+gap))
         self.Refresh()
+        self.parent.Layout()
 
     def setRms(self, *args):
         if args[0] < 0: 
@@ -584,7 +586,6 @@ class VuMeter(wx.Panel):
         
     def OnClose(self, evt):
         self.Destroy()
-
 
 ######################################################################
 ### Control window for PyoObject
