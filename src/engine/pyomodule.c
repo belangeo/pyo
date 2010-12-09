@@ -238,6 +238,7 @@ portaudio_get_default_output(){
     return PyInt_FromLong(i);
 }
 
+/* Portmidi stuff */
 static PyObject *
 portmidi_count_devices(){
     int numDevices;
@@ -248,7 +249,6 @@ portmidi_count_devices(){
 static PyObject *
 portmidi_list_devices(){
     int i;
-    /* list device information */
     printf("MIDI input devices:\n");
     for (i = 0; i < Pm_CountDevices(); i++) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
@@ -256,6 +256,44 @@ portmidi_list_devices(){
     }
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static PyObject*
+portmidi_get_input_devices(){
+    
+	int n, i;
+    
+    PyObject *list, *list_index;
+    list = PyList_New(0);
+    list_index = PyList_New(0);
+
+    n = Pm_CountDevices();
+    if (n < 0){
+        printf("Portmidi warning: No Midi interface found\n");
+    }
+    else {
+        for (i=0; i < n; i++){
+            const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+        
+            if (info->input){
+                printf("%d: %s, %s\n", i, info->interf, info->name);
+                PyList_Append(list, PyString_FromString(info->name));
+                PyList_Append(list_index, PyInt_FromLong(i));
+            }
+        }
+    }
+    return Py_BuildValue("OO", list, list_index);
+}
+
+static PyObject *
+portmidi_get_default_input(){
+    PmDeviceID i;
+    
+    i = Pm_GetDefaultInputDeviceID();
+    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+    if (info->input) printf("%d: %s, %s\n", i, info->interf, info->name);
+
+    return PyInt_FromLong(i);
 }
 
 /* Libsndfile stuff */
@@ -393,16 +431,18 @@ secToSamps(PyObject *self, PyObject *arg) {
 }                         
 
 static PyMethodDef pyo_functions[] = {
-{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices founded by Portaudio."},
-{"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis founded by Portaudio."},
-{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices founded by Portaudio."},
-{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices (device names, device indexes) founded by Portaudio."},
+{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
+{"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
+{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices found by Portaudio."},
+{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices (device names, device indexes) found by Portaudio."},
 {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Lists all host apis found by Portaudio."},
 {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
 {"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
 {"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, "Returns Portaudio default output device."},
 {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Lists all devices found by Portmidi."},
+{"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, "Returns Midi input devices (device names, device indexes) found by Portmidi."},
+{"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "Returns Portmidi default input device."},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns Hertz value for a midi input."},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Converts and returns a number of samples in seconds."},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, "Converts and returns a seconds value in number of samples."},
