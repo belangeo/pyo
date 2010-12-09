@@ -186,11 +186,11 @@ class PyoObject(object):
 
     Methods:
 
-    play() : Start processing without sending samples to output. 
+    play(dur, delay) : Start processing without sending samples to output. 
         This method is called automatically at the object creation.
     stop() : Stop processing.
-    out(chnl, inc) : Start processing and send samples to audio output 
-        beginning at `chnl`.
+    out(chnl, inc, dur, delay) : Start processing and send samples to audio 
+        output beginning at `chnl`.
     mix(voices) : Mix object's audio streams into `voices` streams and 
         return the Mix object.
     setMul(x) : Replace the `mul` attribute.
