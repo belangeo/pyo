@@ -417,6 +417,11 @@ midiToHz(PyObject *self, PyObject *arg) {
 }    
 
 static PyObject *
+midiToTranspo(PyObject *self, PyObject *arg) {
+    return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))-60.0));
+}    
+
+static PyObject *
 sampsToSec(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
@@ -444,6 +449,7 @@ static PyMethodDef pyo_functions[] = {
 {"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, "Returns Midi input devices (device names, device indexes) found by Portmidi."},
 {"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "Returns Portmidi default input device."},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns Hertz value for a midi input."},
+{"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, "Returns transposition value for a midi input (central key = 60)."},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Converts and returns a number of samples in seconds."},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, "Converts and returns a seconds value in number of samples."},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, "Returns number of frames, duration in seconds, sampling rate and number of channels of the given sound file."},

@@ -1861,9 +1861,9 @@ Server_removeStream(Server *self, int id)
         stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
         sid = Stream_getStreamId(stream_tmp);
         if (sid == id) {
+            Server_debug(self, "Removed stream id %d\n", id);
             PySequence_DelItem(self->streams, i);
             self->stream_count--;
-            break;
         }
     }
     Py_INCREF(Py_None);
