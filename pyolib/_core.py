@@ -236,6 +236,10 @@ class PyoObject(object):
         self._target_dict = {}
         self._signal_dict = {}
         self._keep_trace = []
+        self._mul = 1.0
+        self._add = 0.0
+        self._add_dummy = None
+        self._mul_dummy = None
 
     def __add__(self, x):
         self._keep_trace.append(x)
@@ -354,7 +358,33 @@ class PyoObject(object):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-            
+
+        if hasattr(self, "_input"):
+            if type(self._input) == ListType:
+                for pyoObj in self._input:
+                    for obj in pyoObj.getBaseObjects():
+                        obj.deleteStream()
+                        del obj
+            else:
+                for obj in self._input.getBaseObjects():
+                    obj.deleteStream()
+                    del obj
+            del self._input
+
+        for key in self.__dict__.keys():
+            if isinstance(self.__dict__[key], PyoObject):
+                del self.__dict__[key]
+            elif type(self.__dict__[key]) == ListType:
+                for ele in self.__dict__[key]:
+                    try:
+                        ele.deleteStreams()
+                        del ele
+                    except:
+                        del ele
+
+        if hasattr(self, "_in_fader"):
+            del self._in_fader
+
     def __repr__(self):
         return '< Instance of %s class >' % self.__class__.__name__
         
@@ -483,8 +513,8 @@ class PyoObject(object):
             Mix object's streams. Defaults to 1.
             
         """
-        self._mix = Mix(self, voices)
-        return self._mix
+        return Mix(self, voices)
+        #return self._mix
         
     def setMul(self, x):
         """
@@ -1092,7 +1122,23 @@ class Mix(PyoObject):
 
     def __dir__(self):
         return ['mul', 'add']
-        
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        del self._base_objs
+        if type(self._input) == ListType:
+            for pyoObj in self._input:
+                for obj in pyoObj.getBaseObjects():
+                    obj.deleteStream()
+                    del obj
+        else:
+            for obj in self._input.getBaseObjects():
+                obj.deleteStream()
+                del obj
+        del self._input
+
 class Dummy(PyoObject):
     """
     Dummy object used to perform arithmetics on PyoObject.
