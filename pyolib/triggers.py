@@ -2438,6 +2438,7 @@ class Counter(PyoObject):
     setMin(x) : Replace the `min` attribute.
     setMax(x) : Replace the `max` attribute.
     setDir(x) : Replace the `dir` attribute.
+    reset(value) : Reset the current count.
 
     Attributes:
     
@@ -2536,6 +2537,20 @@ class Counter(PyoObject):
         self._dir = x
         x, lmax = convertArgsToLists(x)
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self, value=None):
+        """
+        Reset the current count of the counter. If `value` is None, the counter
+        resets to the beginning of the count.
+
+        Parameters:
+
+        value : int, optional
+            Value where to reset the count. Defaults to None.
+
+        """
+        value, lmax = convertArgsToLists(value)
+        [obj.reset(wrap(value,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
