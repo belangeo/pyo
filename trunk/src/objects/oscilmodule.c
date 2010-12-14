@@ -4423,6 +4423,7 @@ typedef struct {
     PyObject *freq;
     Stream *freq_stream;
     int loop;
+    int go;
     int modebuffer[3];
     double pointerPos;
     MYFLT *trigsBuffer;
@@ -4436,15 +4437,16 @@ static void
 TableRead_readframes_i(TableRead *self) {
     MYFLT fr, inc, fpart;
     int i, ipart;
-    int go = 1;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
     fr = PyFloat_AS_DOUBLE(self->freq);
     inc = fr * size / self->sr;
     
+    if (self->go == 0)
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+
     for (i=0; i<self->bufsize; i++) {
-        self->pointerPos += inc;
         if (self->pointerPos < 0) {
             if (self->init == 0)
                 self->trigsBuffer[i] = 1.0;
@@ -4457,35 +4459,35 @@ TableRead_readframes_i(TableRead *self) {
             if (self->loop == 1)
                 self->pointerPos -= size;
             else
-                go = 0;
+                self->go = 0;
         }
-        if (go == 1) {
+        if (self->go == 1) {
             ipart = (int)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }
         else
             self->data[i] = 0.0;
+        
+        self->pointerPos += inc;
     }
-    if (go == 0) {
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
-    }    
 }
 
 static void
 TableRead_readframes_a(TableRead *self) {
     MYFLT inc, fpart, sizeOnSr;
     int i, ipart;
-    int go = 1;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     
     sizeOnSr = size / self->sr;
+
+    if (self->go == 0)
+        PyObject_CallMethod((PyObject *)self, "stop", NULL);
+
     for (i=0; i<self->bufsize; i++) {
-        inc = fr[i] * sizeOnSr;
-        self->pointerPos += inc;
         if (self->pointerPos < 0) {
             if (self->init == 0)
                 self->trigsBuffer[i] = 1.0;
@@ -4498,18 +4500,19 @@ TableRead_readframes_a(TableRead *self) {
             if (self->loop == 1)
                 self->pointerPos -= size;
             else
-                go = 0;
+                self->go = 0;
         }
-        if (go == 1) {
+        if (self->go == 1) {
             ipart = (int)self->pointerPos;
             fpart = self->pointerPos - ipart;
             self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
         }    
         else
             self->data[i] = 0.0;
+        
+        inc = fr[i] * sizeOnSr;
+        self->pointerPos += inc;
     }
-    if (go == 0)
-        PyObject_CallMethod((PyObject *)self, "stop", NULL);
 }
 
 static void TableRead_postprocessing_ii(TableRead *self) { POST_PROCESSING_II };
@@ -4688,12 +4691,14 @@ static PyObject * TableRead_play(TableRead *self, PyObject *args, PyObject *kwds
 { 
     self->pointerPos = 0.0;
     self->init = 1;
+    self->go = 1;
     PLAY 
 };
 
 static PyObject * TableRead_out(TableRead *self, PyObject *args, PyObject *kwds) 
 { 
     self->pointerPos = 0.0;
+    self->go = 0;
     OUT 
 };
 static PyObject * TableRead_stop(TableRead *self) { STOP };
