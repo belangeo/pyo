@@ -361,6 +361,19 @@ int firstEmpty(int *buf, int len) {
     return voice;
 }
 
+int nextEmptyVoice(int *buf, int voice, int len) {
+    int i, tmp;
+    int next = -1;
+    for (i=0; i<len; i++) {
+        tmp = (i + voice) % len;
+        if (buf[tmp*2+1] == 0) {
+            next = tmp;
+            break;
+        }
+    }    
+    return next;    
+}
+
 int whichVoice(int *buf, int pitch, int len) {
     int i;
     int voice = 0;
@@ -387,12 +400,16 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
             if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
                 //voice = firstEmpty(self->notebuf, self->voices);
-                voice = self->vcount;
-                self->vcount++;
-                if (self->vcount == self->voices) 
-                    self->vcount = 0;
-                self->notebuf[voice*2] = pitch;
-                self->notebuf[voice*2+1] = velocity;
+                //voice = self->vcount;
+                //self->vcount++;
+                //if (self->vcount == self->voices) 
+                //    self->vcount = 0;
+                voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
+                if (voice != -1) {
+                    self->vcount = voice;
+                    self->notebuf[voice*2] = pitch;
+                    self->notebuf[voice*2+1] = velocity;
+                }    
             }    
             else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
@@ -651,7 +668,6 @@ Notein_compute_next_data_frame(Notein *self)
         }         
         (*self->muladd_func_ptr)(self);
     }    
-    Stream_setData(self->stream, self->data);
 }
 
 static int
