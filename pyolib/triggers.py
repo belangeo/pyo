@@ -29,6 +29,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
+from _widgets import createGraphWindow
 from types import SliceType
 
 class Trig(PyoObject):
@@ -1517,6 +1518,9 @@ class TrigLinseg(PyoObject):
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setList(x) : Replace the `list` attribute.
+    replace(x) : Alias for `setList` method.
+    graph(xlen, yrange, title, wxnoserver) : Opens a grapher window 
+        to control the shape of the envelope.
 
     Attributes:
     
@@ -1616,9 +1620,67 @@ class TrigLinseg(PyoObject):
         self._list = x
         [obj.setList(x) for i, obj in enumerate(self._base_objs)]
 
+    def replace(self, x):
+        """
+        Alias for `setList` method.
+
+        Parameters:
+
+        x : list of tuples
+            new `list` attribute.
+
+        """
+        self.setList(x)
+
+    def getPoints(self):
+        return self._list
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
+
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        xlen : float, optional
+            Set the maximum value of the X axis of the graph. If None, the
+            maximum value is retrieve from the current list of points.
+            Defaults to None.
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph. If
+            None, min and max are retrieve from the current list of points.
+            Defaults to None.
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        if xlen == None:
+            xlen = float(self._list[-1][0])
+        else:
+            xlen = float(xlen)
+        if yrange == None:
+            ymin = float(min([x[1] for x in self._list]))
+            ymax = float(max([x[1] for x in self._list]))
+            if ymin == ymax:
+                yrange = (0, ymax)
+            else:
+                yrange = (ymin, ymax)
+        createGraphWindow(self, 0, xlen, yrange, title, wxnoserver)
 
     @property
     def input(self): return self._input
@@ -1657,8 +1719,11 @@ class TrigExpseg(PyoObject):
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setList(x) : Replace the `list` attribute.
+    replace(x) : Alias for `setList` method.
     setExp(x) : Replace the `exp` attribute.
     setInverse(x) : Replace the `inverse` attribute.
+    graph(xlen, yrange, title, wxnoserver) : Opens a grapher window 
+        to control the shape of the envelope.
 
     Attributes:
     
@@ -1790,9 +1855,67 @@ class TrigExpseg(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInverse(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def replace(self, x):
+        """
+        Alias for `setList` method.
+
+        Parameters:
+
+        x : list of tuples
+            new `list` attribute.
+
+        """
+        self.setList(x)
+
+    def getPoints(self):
+        return self._list
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    def graph(self, xlen=None, yrange=None, title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
+
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        xlen : float, optional
+            Set the maximum value of the X axis of the graph. If None, the
+            maximum value is retrieve from the current list of points.
+            Defaults to None.
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph. If
+            None, min and max are retrieve from the current list of points.
+            Defaults to None.
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        if xlen == None:
+            xlen = float(self._list[-1][0])
+        else:
+            xlen = float(xlen)
+        if yrange == None:
+            ymin = float(min([x[1] for x in self._list]))
+            ymax = float(max([x[1] for x in self._list]))
+            if ymin == ymax:
+                yrange = (0, ymax)
+            else:
+                yrange = (ymin, ymax)
+        createGraphWindow(self, 2, xlen, yrange, title, wxnoserver)
 
     @property
     def input(self): return self._input

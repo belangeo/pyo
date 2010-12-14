@@ -19,6 +19,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
+from _widgets import createGraphWindow
 from types import ListType
 
 ######################################################################
@@ -473,6 +474,8 @@ class LinTable(PyoTableObject):
     
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
+        the shape of the envelope.
 
     Notes:
     
@@ -532,7 +535,34 @@ class LinTable(PyoTableObject):
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
+
+    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
         
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph.
+            Defaults to (0.0, 1.0).
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        createGraphWindow(self, 0, self._size, yrange, title, wxnoserver)
+
     @property
     def size(self):
         """int. Table size in samples.""" 
@@ -567,6 +597,8 @@ class CosTable(PyoTableObject):
     
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
+        the shape of the envelope.
 
     Notes:
     
@@ -626,6 +658,33 @@ class CosTable(PyoTableObject):
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
+
+    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
+
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph.
+            Defaults to (0.0, 1.0).
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        createGraphWindow(self, 1, self._size, yrange, title, wxnoserver)
         
     @property
     def size(self):
@@ -676,6 +735,8 @@ class CurveTable(PyoTableObject):
     setTension(x) : Replace the `tension` attribute.
     setTension(x) : Replace the `bias` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
+        the shape of the envelope.
     
     Notes:
     
@@ -775,6 +836,33 @@ class CurveTable(PyoTableObject):
         
     def getPoints(self):
         return self._base_objs[0].getPoints()
+
+    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
+
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph.
+            Defaults to (0.0, 1.0).
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        createGraphWindow(self, 3, self._size, yrange, title, wxnoserver)
         
     @property
     def size(self):
@@ -832,7 +920,9 @@ class ExpTable(PyoTableObject):
     setExp(x) : Replace the `exp` attribute.
     setInverse(x) : Replace the `inverse` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
-    
+    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
+        the shape of the envelope.
+
     Notes:
     
     Locations in the list must be in increasing order. If the last value 
@@ -922,7 +1012,34 @@ class ExpTable(PyoTableObject):
         
     def getPoints(self):
         return self._base_objs[0].getPoints()
-        
+
+    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
+
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph.
+            Defaults to (0.0, 1.0).
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        createGraphWindow(self, 2, self._size, yrange, title, wxnoserver)
+
     @property
     def size(self):
         """int. Table size in samples.""" 

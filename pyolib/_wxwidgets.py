@@ -602,6 +602,12 @@ class PyoObjectControl(wx.Frame):
     def __init__(self, parent=None, obj=None, map_list=None):
         wx.Frame.__init__(self, parent)
         from controls import SigTo
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self._obj = obj
         self._map_list = map_list
@@ -680,6 +686,12 @@ class PyoObjectControl(wx.Frame):
 class ViewTable_withPIL(wx.Frame):
     def __init__(self, parent, samples=None, tableclass=None):
         wx.Frame.__init__(self, parent)
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.width = 500
         self.height = 200
@@ -697,7 +709,10 @@ class ViewTable_withPIL(wx.Frame):
         image = wx.EmptyImage(self.width, self.height)
         image.SetData(im.convert("RGB").tostring())
         self.img = wx.BitmapFromImage(image)
-        
+
+    def _destroy(self, evt):
+        self.Destroy()
+
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
         dc.DrawBitmap(self.img, 0, 0)
@@ -708,6 +723,12 @@ class ViewTable_withoutPIL(wx.Frame):
     def __init__(self, parent, samples=None, tableclass=None):
         wx.Frame.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.width = 500
         self.height = 200
@@ -728,6 +749,9 @@ class ViewTable_withoutPIL(wx.Frame):
                 self.samples = [(samples[i], samples[i+1]) for i in range(0, len(samples), 2)]
         else:        
             self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
+
+    def _destroy(self, evt):
+        self.Destroy()
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -751,6 +775,12 @@ class ViewTable_withoutPIL(wx.Frame):
 class ViewMatrix_withPIL(wx.Frame):
     def __init__(self, parent, samples=None, size=None):
         wx.Frame.__init__(self, parent)
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         if sys.platform == "linux2":
             Y_OFF = 0
@@ -765,6 +795,9 @@ class ViewMatrix_withPIL(wx.Frame):
         image.SetData(im.convert("RGB").tostring())
         self.img = wx.BitmapFromImage(image)
 
+    def _destroy(self, evt):
+        self.Destroy()
+
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
         dc.DrawBitmap(self.img, 0, 0)
@@ -772,6 +805,12 @@ class ViewMatrix_withPIL(wx.Frame):
 class ViewMatrix_withoutPIL(wx.Frame):
     def __init__(self, parent, samples=None, size=None):
         wx.Frame.__init__(self, parent)
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         if sys.platform == "linux2":
             Y_OFF = 0
@@ -783,6 +822,9 @@ class ViewMatrix_withoutPIL(wx.Frame):
         self.width = size[0]
         self.height = size[1]
         self.samples = samples
+
+    def _destroy(self, evt):
+        self.Destroy()
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
@@ -797,12 +839,422 @@ class ViewMatrix_withoutPIL(wx.Frame):
             dc.SetPen(wx.Pen(amp, width=1, style=wx.SOLID))  
             dc.DrawPoint(x, y)
 
+######################################################################
+## Grapher window for PyoTableObject control
+######################################################################
+OFF = 15
+OFF2 = OFF*2
+RAD = 3
+RAD2 = RAD*2
+AREA = RAD+2
+AREA2 = AREA*2
+class Grapher(wx.Panel):
+    def __init__(self, parent, xlen=8192, yrange=(0.0, 1.0), init=[(0.0,0.0),(1.0,1.0)], mode=0, 
+                 exp=10.0, inverse=True, tension=0.0, bias=0.0, outFunction=None): 
+        wx.Panel.__init__(self, parent, size=(500,250), style=wx.SUNKEN_BORDER)
+        self.backgroundColour = BACKGROUND_COLOUR
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(self.backgroundColour)
+        self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeave)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        
+        self.mode = mode
+        self.exp = exp
+        self.inverse = inverse
+        self.tension = tension
+        self.bias = bias
+        self.pos = (OFF+RAD,OFF+RAD)
+        self.selected = None
+        self.xlen = xlen
+        self.yrange = yrange
+        self.init = [tup for tup in init]
+        self.points = init
+        self.outFunction = outFunction
+
+    def pointToPixels(self, pt):
+        w,h = self.GetSize()
+        w,h = w-OFF2-RAD2, h-OFF2-RAD2
+        x = int(round(pt[0] * w)) + OFF + RAD
+        y = int(round(pt[1] * h)) + OFF + RAD
+        return x, y
+
+    def pixelsToPoint(self, pos):
+        w,h = self.GetSize()
+        w,h = w-OFF2-RAD2, h-OFF2-RAD2
+        x = (pos[0] - OFF - RAD) / float(w)
+        y = (pos[1] - OFF - RAD) / float(h)
+        return x, y
+
+    def pointToValues(self, pt):
+        x = pt[0] * self.xlen
+        if type(self.xlen) == IntType:
+            x = int(x)
+        y = pt[1] * (self.yrange[1]-self.yrange[0]) + self.yrange[0]
+        return x, y
+
+    def borderClip(self, pos):
+        w,h = self.GetSize()
+        if pos[0] < (OFF+RAD): pos[0] = (OFF+RAD)
+        elif pos[0] > (w-OFF-RAD): pos[0] = w-OFF-RAD
+        if pos[1] < (OFF+RAD): pos[1] = (OFF+RAD)
+        elif pos[1] > (h-OFF-RAD): pos[1] = h-OFF-RAD
+        return pos
+
+    def pointClip(self, pos):
+        w,h = self.GetSize()
+        if self.selected == 0:
+            leftclip = OFF+RAD
+        else:
+            x,y = self.pointToPixels(self.points[self.selected-1])
+            leftclip = x
+        if self.selected == (len(self.points) - 1):
+            rightclip = w-OFF-RAD
+        else:    
+            x,y = self.pointToPixels(self.points[self.selected+1])
+            rightclip = x
+
+        if pos[0] < leftclip: pos[0] = leftclip
+        elif pos[0] > rightclip: pos[0] = rightclip
+        if pos[1] < (OFF+RAD): pos[1] = (OFF+RAD)
+        elif pos[1] > (h-OFF-RAD): pos[1] = h-OFF-RAD
+        return pos
+
+    def reset(self):
+        self.points = self.init
+        self.Refresh()
+
+    def getValues(self):
+        values = []
+        for pt in self.points:
+            x,y = self.pointToValues(pt)
+            values.append((x,y))
+        return values
+
+    def sendValues(self):
+        if self.outFunction != None:
+            values = self.getValues()
+            self.outFunction(values)
+
+    def OnLeave(self, evt):
+        self.pos = (OFF+RAD,OFF+RAD)
+        self.Refresh()
+
+    def OnKeyDown(self, evt):
+        if self.selected != None and evt.GetKeyCode() in [wx.WXK_BACK, wx.WXK_DELETE, wx.WXK_NUMPAD_DELETE]:
+            del self.points[self.selected]
+            self.sendValues()
+            self.selected = None
+            self.Refresh()
+        elif evt.GetKeyCode() in [wx.WXK_UP, wx.WXK_NUMPAD_UP]:
+            self.points = [(pt[0], pt[1]+0.002) for pt in self.points]
+            self.sendValues()
+            self.Refresh()
+        elif evt.GetKeyCode() in [wx.WXK_DOWN, wx.WXK_NUMPAD_DOWN]:
+            self.points = [(pt[0], pt[1]-0.002) for pt in self.points]
+            self.sendValues()
+            self.Refresh()
+
+    def MouseDown(self, evt):
+        self.CaptureMouse()
+        w,h = self.GetSize()
+        self.pos = self.borderClip(evt.GetPosition())
+        self.pos[1] = h - self.pos[1]
+        for i, p in enumerate(self.points):
+            x, y = self.pointToPixels(p)
+            if wx.Rect(x-AREA, y-AREA, AREA2, AREA2).Contains(self.pos):
+                # Grab a point
+                self.selected = i
+                self.Refresh()
+                return
+        # Add a point
+        pt = self.pixelsToPoint(self.pos)
+        for i, p in enumerate(self.points):
+            if p >= pt:
+                self.points.insert(i, pt)
+                break
+        self.selected = self.points.index(pt)
+        self.Refresh()
+
+    def MouseUp(self, evt):
+        if self.HasCapture(): 
+            self.ReleaseMouse()
+            self.sendValues()
+
+    def MouseMotion(self, evt):
+        w,h = self.GetSize()
+        self.pos = self.borderClip(evt.GetPosition())
+        self.pos[1] = h - self.pos[1]
+        if self.HasCapture():
+            if self.selected != None:
+                self.pos = self.pointClip(self.pos)
+                x, y = self.pixelsToPoint(self.pos)
+                self.points[self.selected] = (x, y)
+        self.Refresh()
+
+    def getCosPoints(self, pt1, pt2):
+        tmp = []
+        steps = pt2[0] - pt1[0]
+        for i in range(steps):
+            mu = float(i) / steps
+            mu2 = (1. - math.cos(mu*math.pi)) * 0.5
+            tmp.append((pt1[0]+i, pt1[1] * (1. - mu2) + pt2[1] * mu2))
+        return tmp    
+
+    def getExpPoints(self, pt1, pt2):
+        tmp = []
+        ambitus = pt2[1] - pt1[1]
+        steps = pt2[0] - pt1[0]
+        if steps == 0:
+            inc = 1.0 / 0.0001
+        else:
+            inc = 1.0 / steps
+        pointer = 0.0
+        if self.inverse:
+            if ambitus >= 0:
+                for i in range(steps):
+                    scl = 1.0 - pow(1.0 - pointer, self.exp)
+                    tmp.append((pt1[0]+i, scl * ambitus + pt1[1]))
+                    pointer += inc
+            else:
+                for i in range(steps):
+                    scl = pow(pointer, self.exp)
+                    tmp.append((pt1[0]+i, scl * ambitus + pt1[1]))
+                    pointer += inc
+        else:
+            for i in range(steps):
+                scl = pow(pointer, self.exp)
+                tmp.append((pt1[0]+i, scl * ambitus + pt1[1]))
+                pointer += inc
+        return tmp
+
+    def addImaginaryPoints(self, tmp):
+        lst = []
+        x = tmp[1][0] - tmp[0][0]
+        if tmp[0][1] < tmp[1][1]:
+            y = tmp[0][1] - tmp[1][1]
+        else:
+            y = tmp[0][1] + tmp[1][1]
+        lst.append((x,y))
+        lst.extend(tmp)
+        x = tmp[-2][0] - tmp[-1][0]
+        if tmp[-2][1] < tmp[-1][1]:
+            y = tmp[-1][1] + tmp[-2][1]
+        else:
+            y = tmp[-1][1] - tmp[-2][1]
+        lst.append((x,y))
+        return lst
+
+    def getCurvePoints(self, pt0, pt1, pt2, pt3):
+        tmp = []
+        y0, y1, y2, y3 = pt0[1], pt1[1], pt2[1], pt3[1]
+        steps = pt2[0] - pt1[0]
+        for i in range(steps):
+            mu = float(i) / steps
+            mu2 = mu * mu
+            mu3 = mu2 * mu
+            m0 = (y1 - y0) * (1.0 + self.bias) * (1.0 - self.tension) * 0.5
+            m0 += (y2 - y1) * (1.0 - self.bias) * (1.0 - self.tension) * 0.5
+            m1 = (y2 - y1) * (1.0 + self.bias) * (1.0 - self.tension) * 0.5
+            m1 += (y3 - y2) * (1.0 - self.bias) * (1.0 - self.tension) * 0.5
+            a0 = 2.0 * mu3 - 3.0 * mu2 + 1.0
+            a1 = mu3 - 2.0 * mu2 + mu
+            a2 = mu3 - mu2
+            a3 = -2.0 * mu3 + 3.0 * mu2
+            tmp.append((pt1[0]+i, a0*y1 + a1*m0 + a2*m1 + a3*y2))
+        return tmp    
+        
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        corners = [(OFF,OFF),(w-OFF,OFF),(w-OFF,h-OFF),(OFF,h-OFF)]
+        dc = wx.PaintDC(self)
+        font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+        font.SetPointSize(ptsize-4)
+        dc.SetFont(font)
+        dc.SetTextForeground("#888888")
+        dc.Clear()
+
+        # Draw grid
+        dc.SetPen(wx.Pen("#CCCCCC", 1))
+        xstep = int(round((w-OFF2) / float(10)))
+        ystep = int(round((h-OFF2) / float(10)))
+        for i in range(10):
+            xpos = i * xstep + OFF
+            dc.DrawLine(xpos, OFF, xpos, h-OFF)
+            ypos = i * ystep + OFF
+            dc.DrawLine(OFF, ypos, w-OFF, ypos)
+            if i > 0:
+                if type(self.xlen) == IntType:
+                    t = "%d" % int(self.xlen * i * 0.1)
+                else:
+                    t = "%.2f" % (self.xlen * i * 0.1)
+                dc.DrawText(t, xpos+2, h-OFF-10)
+            if i < 9:
+                t = "%.2f" % ((9-i) * 0.1 * (self.yrange[1]-self.yrange[0]) + self.yrange[0])    
+                dc.DrawText(t, OFF+1, ypos+ystep-10)
+            else:
+                t = "%.2f" % ((9-i) * 0.1 * (self.yrange[1]-self.yrange[0]) + self.yrange[0])    
+                dc.DrawText(t, OFF+1, h-OFF-10)
+
+        dc.SetPen(wx.Pen("#000000", 1))
+        dc.SetBrush(wx.Brush("#000000"))
+        # Draw bounding box        
+        for i in range(4):
+            dc.DrawLinePoint(corners[i], corners[(i+1)%4])
+
+        # Convert points in pixels
+        w,h = w-OFF2-RAD2, h-OFF2-RAD2
+        tmp = []
+        for p in self.points:
+            x = int(round(p[0] * w)) + OFF + RAD
+            y = int(round((1.0-p[1]) * h)) + OFF + RAD
+            tmp.append((x,y))
+
+        # Draw lines
+        dc.SetPen(wx.Pen("#000000", 1))
+        last_p = None
+        if len(tmp) > 1:
+            if self.mode == 0:
+                for i in range(len(tmp)-1):
+                    dc.DrawLinePoint(tmp[i], tmp[i+1])
+            elif self.mode == 1:
+                for i in range(len(tmp)-1):
+                    tmp2 = self.getCosPoints(tmp[i], tmp[i+1])
+                    if i == 0 and len(tmp2) < 2:
+                        dc.DrawLinePoint(tmp[i], tmp[i+1])
+                    if last_p != None:
+                        dc.DrawLinePoint(last_p, tmp[i])
+                    for j in range(len(tmp2)-1):
+                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        last_p = tmp2[j+1]
+                if last_p != None:
+                    dc.DrawLinePoint(last_p, tmp[-1])
+            elif self.mode == 2:
+                for i in range(len(tmp)-1):
+                    tmp2 = self.getExpPoints(tmp[i], tmp[i+1])
+                    if i == 0 and len(tmp2) < 2:
+                        dc.DrawLinePoint(tmp[i], tmp[i+1])
+                    if last_p != None:
+                        dc.DrawLinePoint(last_p, tmp[i])
+                    for j in range(len(tmp2)-1):
+                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        last_p = tmp2[j+1]
+                if last_p != None:
+                    dc.DrawLinePoint(last_p, tmp[-1])
+            elif self.mode == 3:
+                curvetmp = self.addImaginaryPoints(tmp)
+                for i in range(1, len(curvetmp)-2):
+                    tmp2 = self.getCurvePoints(curvetmp[i-1], curvetmp[i], curvetmp[i+1], curvetmp[i+2])
+                    if i == 1 and len(tmp2) < 2:
+                        dc.DrawLinePoint(curvetmp[i], curvetmp[i+1])
+                    if last_p != None:
+                        dc.DrawLinePoint(last_p, curvetmp[i])
+                    for j in range(len(tmp2)-1):
+                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        last_p = tmp2[j+1]
+                if last_p != None:
+                    dc.DrawLinePoint(last_p, tmp[-1])
+
+        # Draw points
+        for i,p in enumerate(tmp):
+            if i == self.selected:
+                dc.SetBrush(wx.Brush("#FFFFFF"))
+            else:
+                dc.SetBrush(wx.Brush("#000000"))
+            dc.DrawCircle(p[0],p[1],RAD)
+        
+        # Draw position values
+        font.SetPointSize(ptsize-3)
+        dc.SetFont(font)
+        dc.SetTextForeground("#222222")
+        posptx, pospty = self.pixelsToPoint(self.pos)
+        xval, yval = self.pointToValues((posptx, pospty))
+        if type(self.xlen) == IntType:
+            dc.DrawText("%d, %.3f" % (xval, yval), w-75, OFF)
+        else:
+            dc.DrawText("%.3f, %.3f" % (xval, yval), w-75, OFF)
+
+class TableGrapher(wx.Frame):
+        def __init__(self, parent=None, obj=None, mode=0, xlen=8192, yrange=(0.0, 1.0)):
+            wx.Frame.__init__(self, parent)
+            pts = obj.getPoints()
+            self.yrange = yrange
+            for i in range(len(pts)):
+                x = pts[i][0] / float(xlen)
+                y = (pts[i][1] - float(yrange[0])) / (yrange[1]-yrange[0])
+                pts[i] = (x,y)
+            if mode == 2:
+                self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, exp=obj.exp, inverse=obj.inverse, outFunction=obj.replace)
+            elif mode == 3:
+                self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, tension=obj.tension, bias=obj.bias, outFunction=obj.replace)
+            else:
+                self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, outFunction=obj.replace)
+
+            self.menubar = wx.MenuBar()        
+            self.fileMenu = wx.Menu()
+            self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+            self.Bind(wx.EVT_MENU, self.close, id=9999)
+            self.fileMenu.AppendSeparator()
+            self.fileMenu.Append(10000, 'Copy all points to the clipboard (4 digits of precision)\tCtrl+C', kind=wx.ITEM_NORMAL)
+            self.Bind(wx.EVT_MENU, self.copy, id=10000)
+            self.fileMenu.Append(10001, 'Copy all points to the clipboard (full precision)\tShift+Ctrl+C', kind=wx.ITEM_NORMAL)
+            self.Bind(wx.EVT_MENU, self.copy, id=10001)
+            self.fileMenu.AppendSeparator()
+            self.fileMenu.Append(10002, 'Reset\tCtrl+R', kind=wx.ITEM_NORMAL)
+            self.Bind(wx.EVT_MENU, self.reset, id=10002)
+            self.menubar.Append(self.fileMenu, "&File")
+            self.SetMenuBar(self.menubar)
+
+            self.clipboard = wx.Clipboard()
+
+        def close(self, evt):
+            self.Destroy()
+
+        def copy(self, evt):
+            pts = self.graph.getValues()
+            if evt.GetId() == 10000:
+                pstr = "["
+                for i, pt in enumerate(pts):
+                    pstr += "("
+                    if type(pt[0]) == IntType:
+                        pstr += "%d," % pt[0]
+                    else:
+                        pstr += "%.4f," % pt[0]
+                    pstr += "%.4f)" % pt[1]
+                    if i < (len(pts)-1):
+                        pstr += ","
+                pstr += "]" 
+            else:
+                pstr = str(pts)           
+            data = wx.TextDataObject(pstr)
+            ret = self.clipboard.Open()
+            if ret:
+                self.clipboard.SetData(data)
+                self.clipboard.Close()
+        
+        def reset(self, evt):
+            self.graph.reset()
+
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
                 recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
         wx.Frame.__init__(self, parent)
 
         self.SetTitle("pyo server")
+        
+        self.menubar = wx.MenuBar()
+        self.menu = wx.Menu()
+        quit_item = self.menu.Append(23000, "Quit\tCtrl+Q")  
+        self.Bind(wx.EVT_MENU, self.on_quit, id=23000)
+        if wx.Platform=="__WXMAC__":
+            wx.App.SetMacExitMenuItemId(quit_item.GetId())
+        else:
+            self.menubar.Append(self.menu, "&File")
+        self.SetMenuBar(self.menubar)
+
         self.shutdown = shutdown
         self.locals = locals
         self.nchnls = nchnls
@@ -949,3 +1401,13 @@ class ServerGUI(wx.Frame):
 
     def setRms(self, *args):
         self.meter.setRms(*args)
+
+if __name__ == "__main__":
+    def pprint(values):
+        print values
+
+    app = wx.PySimpleApp()
+    f = wx.Frame(None, title="test frame", size=(525,275))
+    graph = Grapher(f, xlen=8192, yrange=(0.0, 1.0), init=[(0,0),(.5,1),(1,0)], outFunction=pprint)
+    f.Show()
+    app.MainLoop()
