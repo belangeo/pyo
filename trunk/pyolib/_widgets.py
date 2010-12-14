@@ -53,6 +53,7 @@ Do you want to install it? (yes/no): """)
 
 WINDOWS = []
 CTRLWINDOWS = []
+GRAPHWINDOWS = []
 TABLEWINDOWS = []
 MATRIXWINDOWS = []
 
@@ -97,6 +98,15 @@ def wxCreateDelayedCtrlWindows():
         f.SetPosition((random.randint(250,500), random.randint(200,400)))
         f.Show()
 
+def wxCreateDelayedGraphWindows():
+    for win in GRAPHWINDOWS:
+        f = TableGrapher(None, win[0], win[1], win[2], win[3])
+        if win[4] == None: title = win[0].__class__.__name__
+        else: title = win[4]
+        f.SetTitle(title)
+        f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        f.Show()
+
 def wxCreateDelayedTableWindows():
     for win in TABLEWINDOWS:
         if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1])
@@ -135,6 +145,31 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
                 root.MainLoop()
         else:
             CTRLWINDOWS.append([obj, map_list, title])   
+
+def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
+    if not PYO_USE_WX:
+        print "WxPython must be installed to use the 'graph' method."
+        if 0:
+            createRootWindow()
+            win = tkCreateToplevelWindow()
+            f = PyoObjectControl(win, obj, map_list)
+            win.resizable(True, False)
+            if title == None: title = obj.__class__.__name__
+            win.title(title)
+    else:
+        if wxnoserver or wx.GetApp() != None:
+            if wx.GetApp() == None:
+                root = createRootWindow()
+            else:
+                root = None    
+            f = TableGrapher(None, obj, mode, xlen, yrange)
+            if title == None: title = obj.__class__.__name__
+            f.SetTitle(title)
+            f.Show()
+            if root != None:
+                root.MainLoop()
+        else:
+            GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])   
         
 def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None):
     if not PYO_USE_WX:
@@ -193,6 +228,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         f.SetTitle("pyo server") 
         f.Show()
         wx.CallAfter(wxCreateDelayedCtrlWindows)
+        wx.CallAfter(wxCreateDelayedGraphWindows)
         wx.CallAfter(wxCreateDelayedTableWindows)
         wx.CallAfter(wxCreateDelayedMatrixWindows)
         wx.CallAfter(f.Raise)

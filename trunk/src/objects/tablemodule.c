@@ -1398,9 +1398,9 @@ CurveTable_generate(CurveTable *self) {
     int endP = listsize+1;
     times[endP] = times[endP-2] - times[endP-1];
     if (values[endP-2] < values[endP-1])
-        values[0] = values[endP-1] + values[endP-2];
+        values[endP] = values[endP-1] + values[endP-2];
     else
-        values[0] = values[endP-1] - values[endP-2];
+        values[endP] = values[endP-1] - values[endP-2];
     
     for(i=1; i<listsize; i++) {
         x1 = times[i];

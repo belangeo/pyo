@@ -1,3 +1,10 @@
+2010-12-13 belangeo <belangeo@gmail.com>
+
+	* Added graph() method to some PyoTableObjects, allowing the
+	  control of the envelope's shape with a grapher window.
+	- rev 532
+
+
 2010-11-02 belangeo <belangeo@gmail.com>
 
 	* rev 515 - pyo 0.02 release.
