@@ -5038,7 +5038,7 @@ Counter_init(Counter *self, PyObject *args, PyObject *kwds)
     if (self->dir == 0 || self->dir == 2)
         self->tmp = self->min;
     else
-        self->tmp = self->max;
+        self->tmp = self->max - 1;
     
     (*self->mode_func_ptr)(self);
         
@@ -5113,6 +5113,28 @@ Counter_setDir(Counter *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Counter_reset(Counter *self, PyObject *arg)
+{
+    int val;
+    
+    if (arg == Py_None) {
+        if (self->dir == 0 || self->dir == 2)
+            val = self->min;
+        else
+            val = self->max - 1;
+        self->tmp = val;
+    }
+    
+    else if (PyInt_Check(arg)) {
+        val = PyInt_AsLong(arg);
+        self->tmp = val;
+    }
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Counter_members[] = {
 {"server", T_OBJECT_EX, offsetof(Counter, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Counter, stream), 0, "Stream object."},
@@ -5131,6 +5153,7 @@ static PyMethodDef Counter_methods[] = {
 {"setMin", (PyCFunction)Counter_setMin, METH_O, "Sets minimum value."},
 {"setMax", (PyCFunction)Counter_setMax, METH_O, "Sets maximum value."},
 {"setDir", (PyCFunction)Counter_setDir, METH_O, "Sets direction. 0 = forward, 1 = backward, 2 = back and forth"},
+{"reset", (PyCFunction)Counter_reset, METH_O, "Resets the current count of the counter."},
 {"setMul", (PyCFunction)Counter_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Counter_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Counter_setSub, METH_O, "Sets inverse add factor."},
