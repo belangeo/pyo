@@ -1293,6 +1293,7 @@ TrigChoice_new,                                     /* tp_new */
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
+    PyObject *arg;
     Stream *input_stream;
     PyObject *func;
 } TrigFunc;
@@ -1300,11 +1301,20 @@ typedef struct {
 static void
 TrigFunc_generate(TrigFunc *self) {
     int i;
+    PyObject *tuple;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        if (in[i] == 1)
-            PyObject_Call((PyObject *)self->func, PyTuple_New(0), NULL);
+        if (in[i] == 1) {
+            if (self->arg == Py_None)
+                PyObject_Call(self->func, PyTuple_New(0), NULL);
+            else {
+                tuple = PyTuple_New(1);
+                PyTuple_SET_ITEM(tuple, 0, self->arg);
+                PyObject_Call(self->func, tuple, NULL);                
+            }
+
+        }    
     }
 }
 
@@ -1320,6 +1330,8 @@ TrigFunc_traverse(TrigFunc *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    Py_VISIT(self->func);
+    Py_VISIT(self->arg);
     return 0;
 }
 
@@ -1329,6 +1341,8 @@ TrigFunc_clear(TrigFunc *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->func);
+    Py_CLEAR(self->arg);
     return 0;
 }
 
@@ -1348,7 +1362,9 @@ TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     TrigFunc *self;
     self = (TrigFunc *)type->tp_alloc(type, 0);
-    
+
+    self->arg = Py_None;
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigFunc_compute_next_data_frame);
     return (PyObject *)self;
@@ -1357,11 +1373,11 @@ TrigFunc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 TrigFunc_init(TrigFunc *self, PyObject *args, PyObject *kwds)
 {
-    PyObject *inputtmp, *input_streamtmp, *functmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *functmp=NULL, *argtmp=NULL;
     
-    static char *kwlist[] = {"input", "function", NULL};
+    static char *kwlist[] = {"input", "function", "arg", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &functmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &functmp, &argtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -1370,6 +1386,10 @@ TrigFunc_init(TrigFunc *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", functmp);
     }
 
+    if (argtmp) {
+        PyObject_CallMethod((PyObject *)self, "setArg", "O", argtmp);
+    }
+    
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
@@ -1403,6 +1423,20 @@ TrigFunc_setFunction(TrigFunc *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+TrigFunc_setArg(TrigFunc *self, PyObject *arg)
+{
+	PyObject *tmp;
+
+    tmp = arg;
+    Py_DECREF(self->arg);
+    Py_INCREF(tmp);
+    self->arg = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef TrigFunc_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigFunc, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TrigFunc, stream), 0, "Stream object."},
@@ -1417,6 +1451,7 @@ static PyMethodDef TrigFunc_methods[] = {
 {"play", (PyCFunction)TrigFunc_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigFunc_stop, METH_NOARGS, "Stops computing."},
 {"setFunction", (PyCFunction)TrigFunc_setFunction, METH_O, "Sets function to be called."},
+{"setArg", (PyCFunction)TrigFunc_setArg, METH_O, "Sets function's argument."},
 {NULL}  /* Sentinel */
 };
 

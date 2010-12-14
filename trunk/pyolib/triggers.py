@@ -1208,16 +1208,21 @@ class TrigFunc(PyoObject):
         Audio signal sending triggers.
     function : Python function
         Function to be called.
+    arg : anything, optional
+        Argument sent to the function's call. If None, the function
+        will be called without argument. Defaults to None.
     
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setFunction(x) : Replace the `function` attribute.
+    setArg(x) : Replace the `arg` attribute.
 
     Attributes:
     
     input : PyoObject. Audio trigger signal.
     function : Python function. Function to be called.
+    arg : Anything. Function's argument.
 
     Notes:
 
@@ -1241,16 +1246,17 @@ class TrigFunc(PyoObject):
     >>> a = Sine(tr, mul=.5).out()
 
     """
-    def __init__(self, input, function):
+    def __init__(self, input, function, arg=None):
         PyoObject.__init__(self)
         self._input = input
         self._function = function
+        self._arg = arg
         self._in_fader = InputFader(input)
-        in_fader, function, lmax = convertArgsToLists(self._in_fader, function)
-        self._base_objs = [TrigFunc_base(wrap(in_fader,i), wrap(function,i)) for i in range(lmax)]
+        in_fader, function, arg, lmax = convertArgsToLists(self._in_fader, function, arg)
+        self._base_objs = [TrigFunc_base(wrap(in_fader,i), wrap(function,i), wrap(arg,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'function']
+        return ['input', 'function', 'arg']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
@@ -1290,6 +1296,20 @@ class TrigFunc(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setArg(self, x):
+        """
+        Replace the `arg` attribute.
+
+        Parameters:
+
+        x : Anything
+            new `arg` attribute.
+
+        """
+        self._arg = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -1302,6 +1322,10 @@ class TrigFunc(PyoObject):
     def function(self): return self._function
     @function.setter
     def function(self, x): self.setFunction(x)   
+    @property
+    def arg(self): return self._arg
+    @arg.setter
+    def arg(self, x): self.setArg(x)   
      
 class TrigEnv(PyoObject):
     """
