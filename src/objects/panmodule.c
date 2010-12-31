@@ -2338,3 +2338,637 @@ Selector_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Selector_new,                                     /* tp_new */
 };
+
+/****************/
+/**** Mixer *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *inputs;
+    PyObject *gains;
+    PyObject *lastGains;
+    PyObject *currentGains;
+    PyObject *stepVals;
+    PyObject *timeCounts;
+    int num_outs;
+    MYFLT time;
+    long timeStep;
+    MYFLT *buffer_streams;
+} Mixer;
+
+static void
+Mixer_generate(Mixer *self) {
+    int num, k, j, i, tmpCount;
+    MYFLT amp, lastAmp, currentAmp, tmpStepVal;
+    PyObject *keys;
+    PyObject *key;
+    PyObject *list_of_gains, *list_of_last_gains, *list_of_current_gains, *list_of_step_vals, *list_of_time_counts;
+
+    for (i=0; i<(self->num_outs * self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    keys = PyDict_Keys(self->inputs);
+    num = PyList_Size(keys);
+
+    if (num == 0)
+        return;
+
+    for (j=0; j<num; j++) {
+        key = PyList_GET_ITEM(keys, j);
+        MYFLT *st = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyDict_GetItem(self->inputs, key), "_getStream", NULL));
+        list_of_gains = PyDict_GetItem(self->gains, key);
+        list_of_last_gains = PyDict_GetItem(self->lastGains, key);
+        list_of_current_gains = PyDict_GetItem(self->currentGains, key);
+        list_of_step_vals = PyDict_GetItem(self->stepVals, key);
+        list_of_time_counts = PyDict_GetItem(self->timeCounts, key);
+        for (k=0; k<self->num_outs; k++) {
+            amp = (MYFLT)PyFloat_AS_DOUBLE(PyList_GET_ITEM(list_of_gains, k));
+            lastAmp = (MYFLT)PyFloat_AS_DOUBLE(PyList_GET_ITEM(list_of_last_gains, k));
+            currentAmp = (MYFLT)PyFloat_AS_DOUBLE(PyList_GET_ITEM(list_of_current_gains, k));
+            tmpStepVal = (MYFLT)PyFloat_AS_DOUBLE(PyList_GET_ITEM(list_of_step_vals, k));
+            tmpCount = (int)PyLong_AsLong(PyList_GET_ITEM(list_of_time_counts, k));
+            if (amp != lastAmp) {
+                tmpCount = 0;
+                tmpStepVal = (amp - currentAmp) / self->timeStep;
+                PyList_SET_ITEM(list_of_last_gains, k, PyFloat_FromDouble(amp));
+            }    
+            for (i=0; i<self->bufsize; i++) {
+                if (tmpCount == (self->timeStep - 1)) {
+                    currentAmp = amp;
+                    tmpCount++;
+                }
+                else if (tmpCount < self->timeStep) {
+                    currentAmp += tmpStepVal;
+                    tmpCount++;
+                }    
+                self->buffer_streams[self->bufsize * k + i] += st[i] * currentAmp;
+            }
+            PyList_SET_ITEM(list_of_current_gains, k, PyFloat_FromDouble(currentAmp));
+            PyList_SET_ITEM(list_of_step_vals, k, PyFloat_FromDouble(tmpStepVal));
+            PyList_SET_ITEM(list_of_time_counts, k, PyLong_FromLong(tmpCount));
+        }    
+    }
+}
+
+MYFLT *
+Mixer_getSamplesBuffer(Mixer *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+static void
+Mixer_setProcMode(Mixer *self)
+{
+    self->proc_func_ptr = Mixer_generate;
+}
+
+static void
+Mixer_compute_next_data_frame(Mixer *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+Mixer_traverse(Mixer *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->inputs);
+    Py_VISIT(self->gains);
+    return 0;
+}
+
+static int 
+Mixer_clear(Mixer *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->inputs);
+    Py_CLEAR(self->gains);
+    return 0;
+}
+
+static void
+Mixer_dealloc(Mixer* self)
+{
+    free(self->data);
+    free(self->buffer_streams);
+    Mixer_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Mixer_deleteStream(Mixer *self) { DELETE_STREAM };
+
+static PyObject *
+Mixer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Mixer *self;
+    self = (Mixer *)type->tp_alloc(type, 0);
+    
+    self->inputs = PyDict_New();
+    self->gains = PyDict_New();
+    self->lastGains = PyDict_New();
+    self->currentGains = PyDict_New();
+    self->stepVals = PyDict_New();
+    self->timeCounts = PyDict_New();
+    self->num_outs = 2;
+    self->time = 0.025;
+    self->timeStep = (long)(self->time * self->sr);
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Mixer_compute_next_data_frame);
+    self->mode_func_ptr = Mixer_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Mixer_init(Mixer *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"outs", "time", NULL};
+    
+    PyObject *timetmp=NULL;
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iO", kwlist, &self->num_outs, &timetmp))
+        return -1; 
+
+    if (timetmp) {
+        PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->num_outs * self->bufsize * sizeof(MYFLT));
+
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Mixer_getServer(Mixer* self) { GET_SERVER };
+static PyObject * Mixer_getStream(Mixer* self) { GET_STREAM };
+
+static PyObject * Mixer_play(Mixer *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Mixer_stop(Mixer *self) { STOP };
+
+static PyObject *
+Mixer_setTime(Mixer *self, PyObject *arg)
+{
+    int i, j, num;
+	PyObject *tmp, *keys, *key, *list_of_time_counts;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	if (isNumber == 1) {
+		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
+        self->timeStep = (long)(self->time * self->sr);
+        
+        keys = PyDict_Keys(self->inputs);
+        num = PyList_Size(keys);
+        if (num != 0) {
+            for (j=0; j<num; j++) {
+                key = PyList_GET_ITEM(keys, j);
+                list_of_time_counts = PyDict_GetItem(self->timeCounts, key);
+                for (i=0; i<self->num_outs; i++) {
+                    PyList_SET_ITEM(list_of_time_counts, i, PyLong_FromLong(self->timeStep-1));
+                }    
+            }
+        }    
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Mixer_addInput(Mixer *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+	PyObject *tmp;
+    PyObject *initGains;
+    PyObject *initLastGains;
+    PyObject *initCurrentGains;
+    PyObject *initStepVals;
+    PyObject *initTimeCounts;
+    PyObject *voice;
+
+    static char *kwlist[] = {"voice", "input", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &voice, &tmp)) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    PyDict_SetItem(self->inputs, voice, tmp);
+    initGains = PyList_New(self->num_outs);
+    initLastGains = PyList_New(self->num_outs);
+    initCurrentGains = PyList_New(self->num_outs);
+    initStepVals = PyList_New(self->num_outs);
+    initTimeCounts = PyList_New(self->num_outs);
+    for (i=0; i<self->num_outs; i++) {
+        PyList_SET_ITEM(initGains, i, PyFloat_FromDouble(0.0));
+        PyList_SET_ITEM(initLastGains, i, PyFloat_FromDouble(0.0));
+        PyList_SET_ITEM(initCurrentGains, i, PyFloat_FromDouble(0.0));
+        PyList_SET_ITEM(initStepVals, i, PyFloat_FromDouble(0.0));
+        PyList_SET_ITEM(initTimeCounts, i, PyInt_FromLong(0));
+    }
+    PyDict_SetItem(self->gains, voice, initGains);
+    PyDict_SetItem(self->lastGains, voice, initLastGains);
+    PyDict_SetItem(self->currentGains, voice, initCurrentGains);
+    PyDict_SetItem(self->stepVals, voice, initStepVals);
+    PyDict_SetItem(self->timeCounts, voice, initTimeCounts);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Mixer_delInput(Mixer *self, PyObject *arg)
+{
+    int ret;
+    
+    PyObject *key = arg;
+    ret = PyDict_DelItem(self->inputs, key);
+    if (ret == 0) {
+        PyDict_DelItem(self->gains, key);
+        PyDict_DelItem(self->lastGains, key);
+        PyDict_DelItem(self->currentGains, key);
+        PyDict_DelItem(self->stepVals, key);
+        PyDict_DelItem(self->timeCounts, key);
+    }    
+    else {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+	Py_INCREF(Py_None);
+	return Py_None;        
+}
+
+static PyObject *
+Mixer_setAmp(Mixer *self, PyObject *args, PyObject *kwds)
+{
+    int tmpout;
+    PyObject *tmpin, *amp;
+    static char *kwlist[] = {"vin", "vout", "amp", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OiO", kwlist, &tmpin, &tmpout, &amp)) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    if (! PyNumber_Check(amp)) {
+        printf("Amplitude must be a number!n");
+        Py_INCREF(Py_None);
+        return Py_None;        
+    }
+    
+    Py_INCREF(amp);
+    PyList_SET_ITEM(PyDict_GetItem(self->gains, tmpin), tmpout, PyNumber_Float(amp));
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef Mixer_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Mixer, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Mixer, stream), 0, "Stream object."},
+    {"inputs", T_OBJECT_EX, offsetof(Mixer, inputs), 0, "Dictionary of input streams."},
+    {"gains", T_OBJECT_EX, offsetof(Mixer, gains), 0, "Dictionary of list of amplitudes."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Mixer_methods[] = {
+    {"getServer", (PyCFunction)Mixer_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Mixer_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Mixer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Mixer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Mixer_stop, METH_NOARGS, "Stops computing."},
+    {"setTime", (PyCFunction)Mixer_setTime, METH_O, "Sets ramp time in seconds."},
+    {"addInput", (PyCFunction)Mixer_addInput, METH_VARARGS|METH_KEYWORDS, "Adds an input to the mixer."},
+    {"delInput", (PyCFunction)Mixer_delInput, METH_O, "Removes an input from the mixer."},
+    {"setAmp", (PyCFunction)Mixer_setAmp, METH_VARARGS|METH_KEYWORDS, "Sets the amplitude of a specific input toward a specific output."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject MixerType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Mixer_base",                                   /*tp_name*/
+    sizeof(Mixer),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Mixer_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    0,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Mixer objects. Mixes multiple inputs toward multiple outputs.",           /* tp_doc */
+    (traverseproc)Mixer_traverse,                  /* tp_traverse */
+    (inquiry)Mixer_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Mixer_methods,                                 /* tp_methods */
+    Mixer_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Mixer_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Mixer_new,                                     /* tp_new */
+};
+
+/************************************************************************************************/
+/* MixerVoice streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    Mixer *mainMixer;
+    int modebuffer[2];
+    int chnl; // voice order
+} MixerVoice;
+
+static void MixerVoice_postprocessing_ii(MixerVoice *self) { POST_PROCESSING_II };
+static void MixerVoice_postprocessing_ai(MixerVoice *self) { POST_PROCESSING_AI };
+static void MixerVoice_postprocessing_ia(MixerVoice *self) { POST_PROCESSING_IA };
+static void MixerVoice_postprocessing_aa(MixerVoice *self) { POST_PROCESSING_AA };
+static void MixerVoice_postprocessing_ireva(MixerVoice *self) { POST_PROCESSING_IREVA };
+static void MixerVoice_postprocessing_areva(MixerVoice *self) { POST_PROCESSING_AREVA };
+static void MixerVoice_postprocessing_revai(MixerVoice *self) { POST_PROCESSING_REVAI };
+static void MixerVoice_postprocessing_revaa(MixerVoice *self) { POST_PROCESSING_REVAA };
+static void MixerVoice_postprocessing_revareva(MixerVoice *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MixerVoice_setProcMode(MixerVoice *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = MixerVoice_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = MixerVoice_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = MixerVoice_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = MixerVoice_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = MixerVoice_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = MixerVoice_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = MixerVoice_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = MixerVoice_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = MixerVoice_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+MixerVoice_compute_next_data_frame(MixerVoice *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = Mixer_getSamplesBuffer((Mixer *)self->mainMixer);
+    //printf("sample value : %f\n", tmp[offset]);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+MixerVoice_traverse(MixerVoice *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainMixer);
+    return 0;
+}
+
+static int 
+MixerVoice_clear(MixerVoice *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainMixer);    
+    return 0;
+}
+
+static void
+MixerVoice_dealloc(MixerVoice* self)
+{
+    free(self->data);
+    MixerVoice_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * MixerVoice_deleteStream(MixerVoice *self) { DELETE_STREAM };
+
+static PyObject *
+MixerVoice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MixerVoice *self;
+    self = (MixerVoice *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MixerVoice_compute_next_data_frame);
+    self->mode_func_ptr = MixerVoice_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+MixerVoice_init(MixerVoice *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainMixer", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainMixer);
+    Py_INCREF(maintmp);
+    self->mainMixer = (Mixer *)maintmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * MixerVoice_getServer(MixerVoice* self) { GET_SERVER };
+static PyObject * MixerVoice_getStream(MixerVoice* self) { GET_STREAM };
+static PyObject * MixerVoice_setMul(MixerVoice *self, PyObject *arg) { SET_MUL };	
+static PyObject * MixerVoice_setAdd(MixerVoice *self, PyObject *arg) { SET_ADD };	
+static PyObject * MixerVoice_setSub(MixerVoice *self, PyObject *arg) { SET_SUB };	
+static PyObject * MixerVoice_setDiv(MixerVoice *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * MixerVoice_play(MixerVoice *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MixerVoice_out(MixerVoice *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * MixerVoice_stop(MixerVoice *self) { STOP };
+
+static PyObject * MixerVoice_multiply(MixerVoice *self, PyObject *arg) { MULTIPLY };
+static PyObject * MixerVoice_inplace_multiply(MixerVoice *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MixerVoice_add(MixerVoice *self, PyObject *arg) { ADD };
+static PyObject * MixerVoice_inplace_add(MixerVoice *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MixerVoice_sub(MixerVoice *self, PyObject *arg) { SUB };
+static PyObject * MixerVoice_inplace_sub(MixerVoice *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MixerVoice_div(MixerVoice *self, PyObject *arg) { DIV };
+static PyObject * MixerVoice_inplace_div(MixerVoice *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef MixerVoice_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MixerVoice, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MixerVoice, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(MixerVoice, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MixerVoice, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MixerVoice_methods[] = {
+    {"getServer", (PyCFunction)MixerVoice_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MixerVoice_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)MixerVoice_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)MixerVoice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)MixerVoice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)MixerVoice_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)MixerVoice_setMul, METH_O, "Sets MixerVoice mul factor."},
+    {"setAdd", (PyCFunction)MixerVoice_setAdd, METH_O, "Sets MixerVoice add factor."},
+    {"setSub", (PyCFunction)MixerVoice_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)MixerVoice_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MixerVoice_as_number = {
+    (binaryfunc)MixerVoice_add,                      /*nb_add*/
+    (binaryfunc)MixerVoice_sub,                 /*nb_subtract*/
+    (binaryfunc)MixerVoice_multiply,                 /*nb_multiply*/
+    (binaryfunc)MixerVoice_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)MixerVoice_inplace_add,              /*inplace_add*/
+    (binaryfunc)MixerVoice_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)MixerVoice_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)MixerVoice_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject MixerVoiceType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.MixerVoice_base",         /*tp_name*/
+    sizeof(MixerVoice),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MixerVoice_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &MixerVoice_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "MixerVoice objects. Reads one band from a Mixer.",           /* tp_doc */
+    (traverseproc)MixerVoice_traverse,   /* tp_traverse */
+    (inquiry)MixerVoice_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MixerVoice_methods,             /* tp_methods */
+    MixerVoice_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)MixerVoice_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    MixerVoice_new,                 /* tp_new */
+};

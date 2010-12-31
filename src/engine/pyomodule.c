@@ -1078,6 +1078,16 @@ init_pyo64(void)
         return;
     Py_INCREF(&SelectorType);
     PyModule_AddObject(m, "Selector_base", (PyObject *)&SelectorType);
+
+    if (PyType_Ready(&MixerType) < 0)
+        return;
+    Py_INCREF(&MixerType);
+    PyModule_AddObject(m, "Mixer_base", (PyObject *)&MixerType);
+    
+    if (PyType_Ready(&MixerVoiceType) < 0)
+        return;
+    Py_INCREF(&MixerVoiceType);
+    PyModule_AddObject(m, "MixerVoice_base", (PyObject *)&MixerVoiceType);
     
     if (PyType_Ready(&CounterType) < 0)
         return;

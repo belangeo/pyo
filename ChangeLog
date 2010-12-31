@@ -1,3 +1,8 @@
+2010-12-30 belangeo <belangeo@gmail.com>
+
+	* Added new object : Mixer
+	- rev 537
+
 2010-12-13 belangeo <belangeo@gmail.com>
 
 	* Added graph() method to some PyoTableObjects, allowing the

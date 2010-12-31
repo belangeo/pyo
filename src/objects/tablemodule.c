@@ -2178,10 +2178,15 @@ SndTable_getViewTable(SndTable *self) {
     samples = PyList_New(w*4);
     for(i=0; i<w; i++) {
         absin = 0.0;
-        for (j=0; j<step; j++) {
+        /*for (j=0; j<step; j++) {
             absin += self->data[count++];
         }
-        y = (int)(MYFABS(absin / step) * amp);
+        y = (int)(MYFABS(absin / step) * amp); */
+        for (j=0; j<step; j++) {
+            if (MYFABS(self->data[count++]) > absin)
+                absin = self->data[count];
+        }
+        y = (int)(absin * amp);
         PyList_SetItem(samples, i*4, PyInt_FromLong(i));
         PyList_SetItem(samples, i*4+1, PyInt_FromLong(h2-y));
         PyList_SetItem(samples, i*4+2, PyInt_FromLong(i));

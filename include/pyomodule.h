@@ -30,6 +30,7 @@
 #define FLOAT_VALUE f
 #define TYPE_F "f"
 #define TYPE_F_I "f|i"
+#define TYPE__IF "|if"
 #define TYPE_F_II "f|ii"
 #define TYPE__FFF "|fff"
 #define TYPE_O_F "O|f"
@@ -73,6 +74,7 @@
 #define FLOAT_VALUE d
 #define TYPE_F "d"
 #define TYPE_F_I "d|i"
+#define TYPE__IF "|id"
 #define TYPE_F_II "d|ii"
 #define TYPE__FFF "|ddd"
 #define TYPE_O_F "O|d"
@@ -260,6 +262,8 @@ extern PyTypeObject PanType;
 extern PyTypeObject SwitcherType;
 extern PyTypeObject SwitchType;
 extern PyTypeObject SelectorType;
+extern PyTypeObject MixerType;
+extern PyTypeObject MixerVoiceType;
 
 extern PyTypeObject PrintType;
 extern PyTypeObject SnapType;

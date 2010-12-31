@@ -431,12 +431,14 @@ class ControlSlider(wx.Panel):
         else:
             if self.integer:
                 val = '%d' % self.GetValue()
-            elif self.GetValue() >= 10000:
+            elif abs(self.GetValue()) >= 10000:
                 val = '%.1f' % self.GetValue()
-            elif self.GetValue() >= 1000:
+            elif abs(self.GetValue()) >= 1000:
                 val = '%.2f' % self.GetValue()
-            elif self.GetValue() < 1000:
+            elif abs(self.GetValue()) >= 100:
                 val = '%.3f' % self.GetValue()
+            elif abs(self.GetValue()) < 100:
+                val = '%.4f' % self.GetValue()
         if sys.platform == 'linux2':
             width = len(val) * (dc.GetCharWidth() - 3)
         else:
@@ -875,6 +877,12 @@ class Grapher(wx.Panel):
         self.points = init
         self.outFunction = outFunction
 
+    def setInitPoints(self, pts):
+        self.init = [(p[0],p[1]) for p in pts]
+        self.points = [(p[0],p[1]) for p in pts]
+        self.selected = None
+        self.Refresh()
+
     def pointToPixels(self, pt):
         w,h = self.GetSize()
         w,h = w-OFF2-RAD2, h-OFF2-RAD2
@@ -926,6 +934,9 @@ class Grapher(wx.Panel):
     def reset(self):
         self.points = self.init
         self.Refresh()
+
+    def getPoints(self):
+        return [tup for tup in self.points]
 
     def getValues(self):
         values = []

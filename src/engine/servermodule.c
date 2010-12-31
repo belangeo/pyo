@@ -115,7 +115,7 @@ static void portmidiGetEvents(Server *self)
                 continue;
             self->midiEvents[self->midi_count++] = buffer;
         }    
-    } while (result);  
+    } while (result);
 }
 
 /* Portaudio stuff */
@@ -287,6 +287,10 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     Server *server = (Server *) defptr;
 
     (void) inInputData;
+
+    if (server->withPortMidi == 1) {
+        portmidiGetEvents(server);
+    }
     
     Server_process_buffers(server);
     AudioBuffer* outputBuf = outOutputData->mBuffers;
@@ -1579,6 +1583,7 @@ Server_boot(Server *self)
     self->elapsedSamples = 0;
     
     midierr = Server_pm_init(self);
+    Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
 
     self->streams = PyList_New(0);
     switch (self->audio_be_type) {
