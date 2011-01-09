@@ -5,7 +5,7 @@ Created by Olivier Bélanger on 2010-12-21.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0, audio="coreaudio").boot()
+s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 
 a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.2)
 b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=.2)
