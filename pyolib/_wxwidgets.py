@@ -1081,8 +1081,11 @@ class Grapher(wx.Panel):
     def OnPaint(self, evt):
         w,h = self.GetSize()
         corners = [(OFF,OFF),(w-OFF,OFF),(w-OFF,h-OFF),(OFF,h-OFF)]
-        dc = wx.PaintDC(self)
-        font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+        dc = wx.AutoBufferedPaintDC(self)
+        if sys.platform != "win32":
+            font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+        else:
+            font, ptsize = dc.GetFont(), 10
         font.SetPointSize(ptsize-4)
         dc.SetFont(font)
         dc.SetTextForeground("#888888")
