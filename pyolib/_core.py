@@ -362,13 +362,15 @@ class PyoObject(object):
         if hasattr(self, "_input"):
             if type(self._input) == ListType:
                 for pyoObj in self._input:
-                    for obj in pyoObj.getBaseObjects():
+                    if hasattr(pyoObj, "getBaseObjects"):
+                        for obj in pyoObj.getBaseObjects():
+                            obj.deleteStream()
+                            del obj
+            else:
+                if hasattr(self._input, "getBaseObjects"):
+                    for obj in self._input.getBaseObjects():
                         obj.deleteStream()
                         del obj
-            else:
-                for obj in self._input.getBaseObjects():
-                    obj.deleteStream()
-                    del obj
             del self._input
 
         for key in self.__dict__.keys():
