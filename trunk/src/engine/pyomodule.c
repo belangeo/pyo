@@ -145,6 +145,40 @@ portaudio_get_output_devices(){
 }
 
 static PyObject*
+portaudio_get_input_devices(){
+    
+	int err, n, i;
+    
+    PyObject *list, *list_index;
+    list = PyList_New(0);
+    list_index = PyList_New(0);
+    
+	err = Pa_Initialize();
+    if (err < 0) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    n = Pa_GetDeviceCount();
+    if (n < 0){
+        portaudio_assert(n, "Pa_GetDeviceCount");
+    }
+    
+    for (i=0; i < n; ++i){
+        const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+        assert(info);
+        
+        if (info->maxInputChannels > 0){
+            fprintf(stdout, "%i: IN %s, host api index: %i default: %i Hz, %f s latency\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
+            PyList_Append(list, PyString_FromString(info->name));
+            PyList_Append(list_index, PyInt_FromLong(i));
+        }
+    }
+    
+    return Py_BuildValue("OO", list, list_index);
+}
+
+static PyObject*
 portaudio_list_host_apis(){
 
     int err, n, i;
@@ -440,6 +474,7 @@ static PyMethodDef pyo_functions[] = {
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Lists all devices found by Portaudio."},
 {"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices (device names, device indexes) found by Portaudio."},
+{"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, "Returns input devices (device names, device indexes) found by Portaudio."},
 {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Lists all host apis found by Portaudio."},
 {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
 {"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
