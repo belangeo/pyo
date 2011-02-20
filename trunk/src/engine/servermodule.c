@@ -1257,7 +1257,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     char *audioType = "portaudio";
     char *serverName = "pyo";
 
-    Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
+    //Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
             &self->samplingRate, &self->nchnls, &self->bufferSize, &self->duplex, &audioType, &serverName))
         return -1;

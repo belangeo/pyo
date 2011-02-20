@@ -661,7 +661,7 @@ class PyoObjectControl(wx.Frame):
         if sys.platform == "linux2":
             Y_OFF = 5
         elif sys.platform == "win32":
-            Y_OFF = 35
+            Y_OFF = 55
         else:
             Y_OFF = 20    
         panel.SetSizerAndFit(mainBox)
@@ -700,6 +700,8 @@ class ViewTable_withPIL(wx.Frame):
         self.half_height = self.height / 2
         if sys.platform == "linux2":
             Y_OFF = 5
+        elif sys.platform == "win32":
+            Y_OFF = 55
         else:
             Y_OFF = 30
         self.SetSize((self.width+10, self.height+Y_OFF))
@@ -786,6 +788,8 @@ class ViewMatrix_withPIL(wx.Frame):
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         if sys.platform == "linux2":
             Y_OFF = 0
+        elif sys.platform == "win32":
+            Y_OFF = 45
         else:
             Y_OFF = 22
         self.SetSize((size[0], size[1]+Y_OFF))
@@ -1334,6 +1338,8 @@ class ServerGUI(wx.Frame):
 
         if sys.platform == "linux2":
             Y_OFF = 10
+        elif sys.platform == "win32":
+            Y_OFF = 60
         else:
             Y_OFF = 40
         panel.SetSizerAndFit(box)
@@ -1342,7 +1348,6 @@ class ServerGUI(wx.Frame):
         self.SetSize((x+3, y+Y_OFF))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
-        
 
         if started == 1:
             self.start(None, True)
