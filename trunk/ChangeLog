@@ -1,7 +1,7 @@
 2011-02-21 belangeo <belangeo@gmail.com>
 
     * All trig signals can be treated as number, allowing arithmetic operations.
-    - rev 545
+    - rev 547
 
 2010-12-30 belangeo <belangeo@gmail.com>
 

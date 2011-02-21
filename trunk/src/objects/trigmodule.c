@@ -2000,7 +2000,7 @@ TrigEnvTrig_setProcMode(TrigEnvTrig *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = TrigEnvTrig_postprocessing_ii;
             break;
@@ -2078,10 +2078,11 @@ TrigEnvTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TrigEnvTrig *)type->tp_alloc(type, 0);
 
     self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigEnvTrig_compute_next_data_frame);
+    self->mode_func_ptr = TrigEnvTrig_setProcMode;
     
     return (PyObject *)self;
 }
@@ -2102,7 +2103,9 @@ TrigEnvTrig_init(TrigEnvTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
+
+    (*self->mode_func_ptr)(self);
+    
     Py_INCREF(self);
     return 0;
 }
@@ -2646,7 +2649,7 @@ TrigLinsegTrig_setProcMode(TrigLinsegTrig *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = TrigLinsegTrig_postprocessing_ii;
             break;
@@ -2724,10 +2727,11 @@ TrigLinsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TrigLinsegTrig *)type->tp_alloc(type, 0);
 
     self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigLinsegTrig_compute_next_data_frame);
+    self->mode_func_ptr = TrigLinsegTrig_setProcMode;
     
     return (PyObject *)self;
 }
@@ -2748,6 +2752,8 @@ TrigLinsegTrig_init(TrigLinsegTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
         
     Py_INCREF(self);
     return 0;
@@ -3351,7 +3357,7 @@ TrigExpsegTrig_setProcMode(TrigExpsegTrig *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = TrigExpsegTrig_postprocessing_ii;
             break;
@@ -3429,10 +3435,11 @@ TrigExpsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TrigExpsegTrig *)type->tp_alloc(type, 0);
     
     self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigExpsegTrig_compute_next_data_frame);
+    self->mode_func_ptr = TrigExpsegTrig_setProcMode;
     
     return (PyObject *)self;
 }
@@ -3453,6 +3460,8 @@ TrigExpsegTrig_init(TrigExpsegTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
         
     Py_INCREF(self);
     return 0;

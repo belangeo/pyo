@@ -119,7 +119,7 @@ Metro_setProcMode(Metro *self)
             self->proc_func_ptr = Metro_generate_a;
             break;
     }
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = Metro_postprocessing_ii;
             break;
@@ -1384,8 +1384,8 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Cloud *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
@@ -1644,11 +1644,12 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Trig *)type->tp_alloc(type, 0);
     
     self->flag = 1;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Trig_compute_next_data_frame);
+    self->mode_func_ptr = Trig_setProcMode;
     
     return (PyObject *)self;
 }
@@ -1663,7 +1664,9 @@ Trig_init(Trig *self, PyObject *args, PyObject *kwds)
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
+
+    (*self->mode_func_ptr)(self);
+
     Py_INCREF(self);
     return 0;
 }
@@ -2599,7 +2602,7 @@ Beat_setProcMode(Beat *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = Beat_postprocessing_ii;
             break;
@@ -2678,8 +2681,8 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Beat *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beat_compute_next_data_frame);
@@ -2862,7 +2865,7 @@ BeatTapStream_setProcMode(BeatTapStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = BeatTapStream_postprocessing_ii;
             break;
@@ -2941,8 +2944,8 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatTapStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatTapStream_compute_next_data_frame);
@@ -3125,7 +3128,7 @@ BeatAmpStream_setProcMode(BeatAmpStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = BeatAmpStream_postprocessing_ii;
             break;
@@ -3204,8 +3207,8 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatAmpStream_compute_next_data_frame);
@@ -3388,7 +3391,7 @@ BeatDurStream_setProcMode(BeatDurStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = BeatDurStream_postprocessing_ii;
             break;
@@ -3467,8 +3470,8 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatDurStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatDurStream_compute_next_data_frame);
@@ -3651,7 +3654,7 @@ BeatEndStream_setProcMode(BeatEndStream *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = BeatEndStream_postprocessing_ii;
             break;
@@ -3730,8 +3733,8 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatEndStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatEndStream_compute_next_data_frame);
