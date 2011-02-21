@@ -422,7 +422,7 @@ class Cloud(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0, 1., 'lin', 'density', self._density)]
+        self._map_list = [SLMap(0, 100., 'lin', 'density', self._density)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
          
     @property

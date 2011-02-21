@@ -1000,7 +1000,54 @@ typedef struct {
     pyo_audio_HEAD
     SfPlayer *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } SfPlayTrig;
+
+static void SfPlayTrig_postprocessing_ii(SfPlayTrig *self) { POST_PROCESSING_II };
+static void SfPlayTrig_postprocessing_ai(SfPlayTrig *self) { POST_PROCESSING_AI };
+static void SfPlayTrig_postprocessing_ia(SfPlayTrig *self) { POST_PROCESSING_IA };
+static void SfPlayTrig_postprocessing_aa(SfPlayTrig *self) { POST_PROCESSING_AA };
+static void SfPlayTrig_postprocessing_ireva(SfPlayTrig *self) { POST_PROCESSING_IREVA };
+static void SfPlayTrig_postprocessing_areva(SfPlayTrig *self) { POST_PROCESSING_AREVA };
+static void SfPlayTrig_postprocessing_revai(SfPlayTrig *self) { POST_PROCESSING_REVAI };
+static void SfPlayTrig_postprocessing_revaa(SfPlayTrig *self) { POST_PROCESSING_REVAA };
+static void SfPlayTrig_postprocessing_revareva(SfPlayTrig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+SfPlayTrig_setProcMode(SfPlayTrig *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = SfPlayTrig_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 SfPlayTrig_compute_next_data_frame(SfPlayTrig *self)
@@ -1012,6 +1059,7 @@ SfPlayTrig_compute_next_data_frame(SfPlayTrig *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -1049,6 +1097,8 @@ SfPlayTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SfPlayTrig *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlayTrig_compute_next_data_frame);
@@ -1079,13 +1129,28 @@ SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
 
 static PyObject * SfPlayTrig_getServer(SfPlayTrig* self) { GET_SERVER };
 static PyObject * SfPlayTrig_getStream(SfPlayTrig* self) { GET_STREAM };
+static PyObject * SfPlayTrig_setMul(SfPlayTrig *self, PyObject *arg) { SET_MUL };	
+static PyObject * SfPlayTrig_setAdd(SfPlayTrig *self, PyObject *arg) { SET_ADD };	
+static PyObject * SfPlayTrig_setSub(SfPlayTrig *self, PyObject *arg) { SET_SUB };	
+static PyObject * SfPlayTrig_setDiv(SfPlayTrig *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * SfPlayTrig_play(SfPlayTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * SfPlayTrig_stop(SfPlayTrig *self) { STOP };
 
+static PyObject * SfPlayTrig_multiply(SfPlayTrig *self, PyObject *arg) { MULTIPLY };
+static PyObject * SfPlayTrig_inplace_multiply(SfPlayTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * SfPlayTrig_add(SfPlayTrig *self, PyObject *arg) { ADD };
+static PyObject * SfPlayTrig_inplace_add(SfPlayTrig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * SfPlayTrig_sub(SfPlayTrig *self, PyObject *arg) { SUB };
+static PyObject * SfPlayTrig_inplace_sub(SfPlayTrig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * SfPlayTrig_div(SfPlayTrig *self, PyObject *arg) { DIV };
+static PyObject * SfPlayTrig_inplace_div(SfPlayTrig *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef SfPlayTrig_members[] = {
 {"server", T_OBJECT_EX, offsetof(SfPlayTrig, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(SfPlayTrig, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(SfPlayTrig, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(SfPlayTrig, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -1095,7 +1160,53 @@ static PyMethodDef SfPlayTrig_methods[] = {
 {"deleteStream", (PyCFunction)SfPlayTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SfPlayTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)SfPlayTrig_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)SfPlayTrig_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)SfPlayTrig_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)SfPlayTrig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)SfPlayTrig_setDiv, METH_O, "Sets inverse mul factor."},        
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods SfPlayTrig_as_number = {
+    (binaryfunc)SfPlayTrig_add,                         /*nb_add*/
+    (binaryfunc)SfPlayTrig_sub,                         /*nb_subtract*/
+    (binaryfunc)SfPlayTrig_multiply,                    /*nb_multiply*/
+    (binaryfunc)SfPlayTrig_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)SfPlayTrig_inplace_add,                 /*inplace_add*/
+    (binaryfunc)SfPlayTrig_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)SfPlayTrig_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)SfPlayTrig_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject SfPlayTrigType = {
@@ -1110,7 +1221,7 @@ sizeof(SfPlayTrig),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&SfPlayTrig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */

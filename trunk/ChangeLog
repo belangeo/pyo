@@ -1,86 +1,91 @@
+2011-02-21 belangeo <belangeo@gmail.com>
+
+    * All trig signals can be treated as number, allowing arithmetic operations.
+    - rev 545
+
 2010-12-30 belangeo <belangeo@gmail.com>
 
-	* Added new object : Mixer
-	- rev 537
+    * Added new object : Mixer
+    - rev 537
 
 2010-12-13 belangeo <belangeo@gmail.com>
 
-	* Added graph() method to some PyoTableObjects, allowing the
-	  control of the envelope's shape with a grapher window.
-	- rev 532
+    * Added graph() method to some PyoTableObjects, allowing the
+      control of the envelope's shape with a grapher window.
+    - rev 532
 
 
 2010-11-02 belangeo <belangeo@gmail.com>
 
-	* rev 515 - pyo 0.02 release.
+    * rev 515 - pyo 0.02 release.
 
 
 2010-10-24 belangeo <belangeo@gmail.com>
 
-	* Fixed timming issue.
-	- rev 507
+    * Fixed timming issue.
+    - rev 507
 
 
 2010-10-09 belangeo <belangeo@gmail.com>
 
-	* Added `starttime` attribute to the server, allowing faster rendering
-	  of a first part of a piece.
-	- rev 473
+    * Added `starttime` attribute to the server, allowing faster rendering
+      of a first part of a piece.
+    - rev 473
 
-2010-10-08 belangeo	<belangeo@gmail.com>
+2010-10-08 belangeo <belangeo@gmail.com>
 
-	* Added a clock of the current time in the server window and allow
-	  server's customization with parameters in the .gui() method.
-	- rev 468
+    * Added a clock of the current time in the server window and allow
+      server's customization with parameters in the .gui() method.
+    - rev 468
 
 2010-10-07 belangeo <belangeo@gmail.com>
 
-	* Added new object : MatrixMorph
-	- rev 463
+    * Added new object : MatrixMorph
+    - rev 463
 
 2010-10-04 mantaraya36 <mantaraya36@gmail.com>
-		   belangeo	<belangeo@gmail.com>
-	
-	* Added offline rendering.
-	- rev 452	
+           belangeo <belangeo@gmail.com>
+    
+    * Added offline rendering.
+    - rev 452   
 
-2010-09-30 belangeo	<belangeo@gmail.com>
+2010-09-30 belangeo <belangeo@gmail.com>
 
-	* Added support for wxPython toolkit. If wx is installed, pyo will
-	  use it instead of Tk.
-	- rev 442
+    * Added support for wxPython toolkit. If wx is installed, pyo will
+      use it instead of Tk.
+    - rev 442
 
 2010-09-23 belangeo <belangeo@gmail.com>
 
-	* Added new objet : Percent
-	- rev 434
-	
-2010-09-21 belangeo	<belangeo@gmail.com>
+    * Added new objet : Percent
+    - rev 434
+    
+2010-09-21 belangeo <belangeo@gmail.com>
 
-	* Added support for Coreaudio backend.
-	  Build with --use-coreaudio option.
-	- rev 431
-	
+    * Added support for Coreaudio backend.
+      Build with --use-coreaudio option.
+    - rev 431
+    
 2010-09-17 mantaraya36 <mantaraya36@gmail.com>
 
-	* Added support for Jack audio backend.
-	  Build with --use-jack option.
-	- rev 423
+    * Added support for Jack audio backend.
+      Build with --use-jack option.
+    - rev 423
 
 2010-09-16 belangeo <belangeo@gmail.com>
 
-	* Added --use-double option to compile pyo in double version.
-	It creates a new library, called _pyo64.so, in the same directory
-	as _pyo.so. To use it, simply import pyo64 (from pyo64 import *).
-	- rev 417.
+    * Added --use-double option to compile pyo in double version.
+    It creates a new library, called _pyo64.so, in the same directory
+    as _pyo.so. To use it, simply import pyo64 (from pyo64 import *).
+    - rev 417.
 
-2010-09-13 belangeo	<belangeo@gmail.com>
-	
-	* Added "dur" and "delay" arguments to play and out methods of PyoObject.
-	- rev 413.
-	
+2010-09-13 belangeo <belangeo@gmail.com>
+    
+    * Added "dur" and "delay" arguments to play and out methods of PyoObject.
+    - rev 413.
+    
 2010-09-06 belangeo <belangeo@gmail.com>
 
-	* rev 390 - pyo 0.01 release.
-	
-	
+    * rev 390 - pyo 0.01 release.
+    
+    

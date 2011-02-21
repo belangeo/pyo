@@ -23,15 +23,15 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
 
-VERSION = 0.03
+PYO_VERSION = 0.03
 
 import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
     from _pyo64 import *
-    print "pyo version %.2f (uses double precision)" % VERSION
+    print "pyo version %.2f (uses double precision)" % PYO_VERSION
 else:    
     from _pyo import *
-    print "pyo version %.2f (uses single precision)" % VERSION
+    print "pyo version %.2f (uses single precision)" % PYO_VERSION
     
 from _maps import *
 from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow
