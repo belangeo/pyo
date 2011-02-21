@@ -60,7 +60,6 @@ TODO before releasing _pyo_ version 1.0.
 
 *New objects*
 
-  * Mixer: many streams with amplitude control
   * Granulator2(multi-streams)
   * !TrigGrains(one-stream and multi-stream)
   * Vocoder
