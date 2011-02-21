@@ -1018,7 +1018,7 @@ SfPlayTrig_setProcMode(SfPlayTrig *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = SfPlayTrig_postprocessing_ii;
             break;
@@ -1097,11 +1097,12 @@ SfPlayTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SfPlayTrig *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlayTrig_compute_next_data_frame);
+    self->mode_func_ptr = SfPlayTrig_setProcMode;
     
     return (PyObject *)self;
 }
@@ -1122,7 +1123,9 @@ SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
+
+    (*self->mode_func_ptr)(self);
+
     Py_INCREF(self);
     return 0;
 }

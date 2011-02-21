@@ -4953,7 +4953,7 @@ TableReadTrig_setProcMode(TableReadTrig *self) {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = TableReadTrig_postprocessing_ii;
             break;
@@ -5031,10 +5031,11 @@ TableReadTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (TableReadTrig *)type->tp_alloc(type, 0);
 
     self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TableReadTrig_compute_next_data_frame);
+    self->mode_func_ptr = TableReadTrig_setProcMode;
     
     return (PyObject *)self;
 }
@@ -5055,7 +5056,9 @@ TableReadTrig_init(TableReadTrig *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
+
+    (*self->mode_func_ptr)(self);
+
     Py_INCREF(self);
     return 0;
 }
