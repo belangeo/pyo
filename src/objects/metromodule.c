@@ -32,7 +32,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *time;
     Stream *time_stream;
-    int modebuffer[1];
+    int modebuffer[3];
     double sampleToSec;
     double currentTime;
     double offset;
@@ -94,11 +94,23 @@ Metro_generate_a(Metro *self) {
     }
 }
 
+static void Metro_postprocessing_ii(Metro *self) { POST_PROCESSING_II };
+static void Metro_postprocessing_ai(Metro *self) { POST_PROCESSING_AI };
+static void Metro_postprocessing_ia(Metro *self) { POST_PROCESSING_IA };
+static void Metro_postprocessing_aa(Metro *self) { POST_PROCESSING_AA };
+static void Metro_postprocessing_ireva(Metro *self) { POST_PROCESSING_IREVA };
+static void Metro_postprocessing_areva(Metro *self) { POST_PROCESSING_AREVA };
+static void Metro_postprocessing_revai(Metro *self) { POST_PROCESSING_REVAI };
+static void Metro_postprocessing_revaa(Metro *self) { POST_PROCESSING_REVAA };
+static void Metro_postprocessing_revareva(Metro *self) { POST_PROCESSING_REVAREVA };
 
 static void
 Metro_setProcMode(Metro *self)
 {
-    int procmode = self->modebuffer[0];
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
     switch (procmode) {
         case 0:        
             self->proc_func_ptr = Metro_generate_i;
@@ -107,12 +119,42 @@ Metro_setProcMode(Metro *self)
             self->proc_func_ptr = Metro_generate_a;
             break;
     }
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Metro_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Metro_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Metro_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Metro_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Metro_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Metro_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Metro_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Metro_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Metro_postprocessing_revareva;
+            break;
+    } 
 }
 
 static void
 Metro_compute_next_data_frame(Metro *self)
 {
     (*self->proc_func_ptr)(self);    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -153,6 +195,8 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->time = PyFloat_FromDouble(1.);
 	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
     self->flag = 1;
 
     INIT_OBJECT_COMMON
@@ -192,9 +236,22 @@ Metro_init(Metro *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Metro_getServer(Metro* self) { GET_SERVER };
 static PyObject * Metro_getStream(Metro* self) { GET_STREAM };
+static PyObject * Metro_setMul(Metro *self, PyObject *arg) { SET_MUL };	
+static PyObject * Metro_setAdd(Metro *self, PyObject *arg) { SET_ADD };	
+static PyObject * Metro_setSub(Metro *self, PyObject *arg) { SET_SUB };	
+static PyObject * Metro_setDiv(Metro *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Metro_play(Metro *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Metro_stop(Metro *self) { STOP };
+
+static PyObject * Metro_multiply(Metro *self, PyObject *arg) { MULTIPLY };
+static PyObject * Metro_inplace_multiply(Metro *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Metro_add(Metro *self, PyObject *arg) { ADD };
+static PyObject * Metro_inplace_add(Metro *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Metro_sub(Metro *self, PyObject *arg) { SUB };
+static PyObject * Metro_inplace_sub(Metro *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Metro_div(Metro *self, PyObject *arg) { DIV };
+static PyObject * Metro_inplace_div(Metro *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Metro_setTime(Metro *self, PyObject *arg)
@@ -213,7 +270,7 @@ Metro_setTime(Metro *self, PyObject *arg)
 	Py_DECREF(self->time);
 	if (isNumber == 1) {
 		self->time = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
+        self->modebuffer[2] = 0;
 	}
 	else {
 		self->time = tmp;
@@ -221,7 +278,7 @@ Metro_setTime(Metro *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->time_stream);
         self->time_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
+		self->modebuffer[2] = 1;
 	}
     
     (*self->mode_func_ptr)(self);
@@ -234,6 +291,8 @@ static PyMemberDef Metro_members[] = {
 {"server", T_OBJECT_EX, offsetof(Metro, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Metro, stream), 0, "Stream object."},
 {"time", T_OBJECT_EX, offsetof(Metro, time), 0, "Metro time factor."},
+{"mul", T_OBJECT_EX, offsetof(Metro, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Metro, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -244,7 +303,53 @@ static PyMethodDef Metro_methods[] = {
 {"play", (PyCFunction)Metro_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Metro_stop, METH_NOARGS, "Stops computing."},
 {"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
+{"setMul", (PyCFunction)Metro_setMul, METH_O, "Sets oscillator mul factor."}, 
+{"setAdd", (PyCFunction)Metro_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Metro_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Metro_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Metro_as_number = {
+    (binaryfunc)Metro_add,                         /*nb_add*/
+    (binaryfunc)Metro_sub,                         /*nb_subtract*/
+    (binaryfunc)Metro_multiply,                    /*nb_multiply*/
+    (binaryfunc)Metro_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Metro_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Metro_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Metro_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Metro_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject MetroType = {
@@ -259,7 +364,7 @@ sizeof(Metro),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&Metro_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
@@ -650,10 +755,54 @@ typedef struct {
     pyo_audio_HEAD
     Seqer *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } Seq;
 
+static void Seq_postprocessing_ii(Seq *self) { POST_PROCESSING_II };
+static void Seq_postprocessing_ai(Seq *self) { POST_PROCESSING_AI };
+static void Seq_postprocessing_ia(Seq *self) { POST_PROCESSING_IA };
+static void Seq_postprocessing_aa(Seq *self) { POST_PROCESSING_AA };
+static void Seq_postprocessing_ireva(Seq *self) { POST_PROCESSING_IREVA };
+static void Seq_postprocessing_areva(Seq *self) { POST_PROCESSING_AREVA };
+static void Seq_postprocessing_revai(Seq *self) { POST_PROCESSING_REVAI };
+static void Seq_postprocessing_revaa(Seq *self) { POST_PROCESSING_REVAA };
+static void Seq_postprocessing_revareva(Seq *self) { POST_PROCESSING_REVAREVA };
+
 static void
-Seq_setProcMode(Seq *self) {}
+Seq_setProcMode(Seq *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Seq_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Seq_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Seq_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Seq_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Seq_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Seq_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Seq_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Seq_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Seq_postprocessing_revareva;
+            break;
+    }      
+}
 
 static void
 Seq_compute_next_data_frame(Seq *self)
@@ -665,6 +814,7 @@ Seq_compute_next_data_frame(Seq *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -702,6 +852,8 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Seq *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seq_compute_next_data_frame);
@@ -735,14 +887,29 @@ Seq_init(Seq *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Seq_getServer(Seq* self) { GET_SERVER };
 static PyObject * Seq_getStream(Seq* self) { GET_STREAM };
+static PyObject * Seq_setMul(Seq *self, PyObject *arg) { SET_MUL };	
+static PyObject * Seq_setAdd(Seq *self, PyObject *arg) { SET_ADD };	
+static PyObject * Seq_setSub(Seq *self, PyObject *arg) { SET_SUB };	
+static PyObject * Seq_setDiv(Seq *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Seq_play(Seq *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Seq_out(Seq *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Seq_stop(Seq *self) { STOP };
 
+static PyObject * Seq_multiply(Seq *self, PyObject *arg) { MULTIPLY };
+static PyObject * Seq_inplace_multiply(Seq *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Seq_add(Seq *self, PyObject *arg) { ADD };
+static PyObject * Seq_inplace_add(Seq *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Seq_sub(Seq *self, PyObject *arg) { SUB };
+static PyObject * Seq_inplace_sub(Seq *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Seq_div(Seq *self, PyObject *arg) { DIV };
+static PyObject * Seq_inplace_div(Seq *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef Seq_members[] = {
     {"server", T_OBJECT_EX, offsetof(Seq, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Seq, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Seq, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Seq, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -753,7 +920,53 @@ static PyMethodDef Seq_methods[] = {
     {"play", (PyCFunction)Seq_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Seq_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Seq_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)Seq_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Seq_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Seq_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Seq_setDiv, METH_O, "Sets inverse mul factor."},    
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Seq_as_number = {
+    (binaryfunc)Seq_add,                         /*nb_add*/
+    (binaryfunc)Seq_sub,                         /*nb_subtract*/
+    (binaryfunc)Seq_multiply,                    /*nb_multiply*/
+    (binaryfunc)Seq_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Seq_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Seq_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Seq_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Seq_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject SeqType = {
@@ -768,7 +981,7 @@ PyTypeObject SeqType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
+    &Seq_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
@@ -1074,10 +1287,54 @@ typedef struct {
     pyo_audio_HEAD
     Clouder *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } Cloud;
 
+static void Cloud_postprocessing_ii(Cloud *self) { POST_PROCESSING_II };
+static void Cloud_postprocessing_ai(Cloud *self) { POST_PROCESSING_AI };
+static void Cloud_postprocessing_ia(Cloud *self) { POST_PROCESSING_IA };
+static void Cloud_postprocessing_aa(Cloud *self) { POST_PROCESSING_AA };
+static void Cloud_postprocessing_ireva(Cloud *self) { POST_PROCESSING_IREVA };
+static void Cloud_postprocessing_areva(Cloud *self) { POST_PROCESSING_AREVA };
+static void Cloud_postprocessing_revai(Cloud *self) { POST_PROCESSING_REVAI };
+static void Cloud_postprocessing_revaa(Cloud *self) { POST_PROCESSING_REVAA };
+static void Cloud_postprocessing_revareva(Cloud *self) { POST_PROCESSING_REVAREVA };
+
 static void
-Cloud_setProcMode(Cloud *self) {}
+Cloud_setProcMode(Cloud *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Cloud_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Cloud_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Cloud_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Cloud_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Cloud_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Cloud_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Cloud_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Cloud_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Cloud_postprocessing_revareva;
+            break;
+    }      
+}
 
 static void
 Cloud_compute_next_data_frame(Cloud *self)
@@ -1089,6 +1346,7 @@ Cloud_compute_next_data_frame(Cloud *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -1126,6 +1384,8 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Cloud *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
@@ -1159,14 +1419,29 @@ Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Cloud_getServer(Cloud* self) { GET_SERVER };
 static PyObject * Cloud_getStream(Cloud* self) { GET_STREAM };
+static PyObject * Cloud_setMul(Cloud *self, PyObject *arg) { SET_MUL };	
+static PyObject * Cloud_setAdd(Cloud *self, PyObject *arg) { SET_ADD };	
+static PyObject * Cloud_setSub(Cloud *self, PyObject *arg) { SET_SUB };	
+static PyObject * Cloud_setDiv(Cloud *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Cloud_play(Cloud *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Cloud_out(Cloud *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Cloud_stop(Cloud *self) { STOP };
 
+static PyObject * Cloud_multiply(Cloud *self, PyObject *arg) { MULTIPLY };
+static PyObject * Cloud_inplace_multiply(Cloud *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Cloud_add(Cloud *self, PyObject *arg) { ADD };
+static PyObject * Cloud_inplace_add(Cloud *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Cloud_sub(Cloud *self, PyObject *arg) { SUB };
+static PyObject * Cloud_inplace_sub(Cloud *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Cloud_div(Cloud *self, PyObject *arg) { DIV };
+static PyObject * Cloud_inplace_div(Cloud *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef Cloud_members[] = {
 {"server", T_OBJECT_EX, offsetof(Cloud, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Cloud, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Cloud, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Cloud, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -1177,7 +1452,53 @@ static PyMethodDef Cloud_methods[] = {
 {"play", (PyCFunction)Cloud_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Cloud_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Cloud_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)Cloud_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Cloud_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Cloud_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Cloud_setDiv, METH_O, "Sets inverse mul factor."},    
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Cloud_as_number = {
+    (binaryfunc)Cloud_add,                         /*nb_add*/
+    (binaryfunc)Cloud_sub,                         /*nb_subtract*/
+    (binaryfunc)Cloud_multiply,                    /*nb_multiply*/
+    (binaryfunc)Cloud_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Cloud_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Cloud_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Cloud_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Cloud_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject CloudType = {
@@ -1192,7 +1513,7 @@ sizeof(Cloud),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&Cloud_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
@@ -1228,7 +1549,55 @@ Cloud_new,                 /* tp_new */
 typedef struct {
     pyo_audio_HEAD
     int flag;
+    int modebuffer[2];
 } Trig;
+
+static void Trig_postprocessing_ii(Trig *self) { POST_PROCESSING_II };
+static void Trig_postprocessing_ai(Trig *self) { POST_PROCESSING_AI };
+static void Trig_postprocessing_ia(Trig *self) { POST_PROCESSING_IA };
+static void Trig_postprocessing_aa(Trig *self) { POST_PROCESSING_AA };
+static void Trig_postprocessing_ireva(Trig *self) { POST_PROCESSING_IREVA };
+static void Trig_postprocessing_areva(Trig *self) { POST_PROCESSING_AREVA };
+static void Trig_postprocessing_revai(Trig *self) { POST_PROCESSING_REVAI };
+static void Trig_postprocessing_revaa(Trig *self) { POST_PROCESSING_REVAA };
+static void Trig_postprocessing_revareva(Trig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Trig_setProcMode(Trig *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Trig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Trig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Trig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Trig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Trig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Trig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Trig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Trig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Trig_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 Trig_compute_next_data_frame(Trig *self)
@@ -1239,6 +1608,7 @@ Trig_compute_next_data_frame(Trig *self)
     }    
     else
         self->data[0] = 0.0;
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -1274,6 +1644,8 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Trig *)type->tp_alloc(type, 0);
     
     self->flag = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Trig_compute_next_data_frame);
@@ -1298,6 +1670,10 @@ Trig_init(Trig *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Trig_getServer(Trig* self) { GET_SERVER };
 static PyObject * Trig_getStream(Trig* self) { GET_STREAM };
+static PyObject * Trig_setMul(Trig *self, PyObject *arg) { SET_MUL };	
+static PyObject * Trig_setAdd(Trig *self, PyObject *arg) { SET_ADD };	
+static PyObject * Trig_setSub(Trig *self, PyObject *arg) { SET_SUB };	
+static PyObject * Trig_setDiv(Trig *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Trig_play(Trig *self, PyObject *args, PyObject *kwds) 
 { 
@@ -1307,9 +1683,20 @@ static PyObject * Trig_play(Trig *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Trig_stop(Trig *self) { STOP };
 
+static PyObject * Trig_multiply(Trig *self, PyObject *arg) { MULTIPLY };
+static PyObject * Trig_inplace_multiply(Trig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Trig_add(Trig *self, PyObject *arg) { ADD };
+static PyObject * Trig_inplace_add(Trig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Trig_sub(Trig *self, PyObject *arg) { SUB };
+static PyObject * Trig_inplace_sub(Trig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Trig_div(Trig *self, PyObject *arg) { DIV };
+static PyObject * Trig_inplace_div(Trig *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef Trig_members[] = {
 {"server", T_OBJECT_EX, offsetof(Trig, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Trig, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Trig, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Trig, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -1319,7 +1706,53 @@ static PyMethodDef Trig_methods[] = {
 {"deleteStream", (PyCFunction)Trig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Trig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Trig_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)Trig_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Trig_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Trig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Trig_setDiv, METH_O, "Sets inverse mul factor."},
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Trig_as_number = {
+    (binaryfunc)Trig_add,                         /*nb_add*/
+    (binaryfunc)Trig_sub,                         /*nb_subtract*/
+    (binaryfunc)Trig_multiply,                    /*nb_multiply*/
+    (binaryfunc)Trig_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Trig_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Trig_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Trig_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Trig_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject TrigType = {
@@ -1334,7 +1767,7 @@ sizeof(Trig),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&Trig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
@@ -1344,7 +1777,7 @@ sizeof(Trig),         /*tp_basicsize*/
 0,                         /*tp_setattro*/
 0,                         /*tp_as_buffer*/
 Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
-"Trig objects. Sneds one trig.",           /* tp_doc */
+"Trig objects. Sends one trig.",           /* tp_doc */
 (traverseproc)Trig_traverse,   /* tp_traverse */
 (inquiry)Trig_clear,           /* tp_clear */
 0,		               /* tp_richcompare */
@@ -2148,10 +2581,54 @@ typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } Beat;
 
+static void Beat_postprocessing_ii(Beat *self) { POST_PROCESSING_II };
+static void Beat_postprocessing_ai(Beat *self) { POST_PROCESSING_AI };
+static void Beat_postprocessing_ia(Beat *self) { POST_PROCESSING_IA };
+static void Beat_postprocessing_aa(Beat *self) { POST_PROCESSING_AA };
+static void Beat_postprocessing_ireva(Beat *self) { POST_PROCESSING_IREVA };
+static void Beat_postprocessing_areva(Beat *self) { POST_PROCESSING_AREVA };
+static void Beat_postprocessing_revai(Beat *self) { POST_PROCESSING_REVAI };
+static void Beat_postprocessing_revaa(Beat *self) { POST_PROCESSING_REVAA };
+static void Beat_postprocessing_revareva(Beat *self) { POST_PROCESSING_REVAREVA };
+
 static void
-Beat_setProcMode(Beat *self) {}
+Beat_setProcMode(Beat *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Beat_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Beat_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Beat_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Beat_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Beat_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Beat_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Beat_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Beat_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Beat_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 Beat_compute_next_data_frame(Beat *self)
@@ -2163,6 +2640,7 @@ Beat_compute_next_data_frame(Beat *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2200,6 +2678,8 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (Beat *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beat_compute_next_data_frame);
@@ -2233,14 +2713,29 @@ Beat_init(Beat *self, PyObject *args, PyObject *kwds)
 
 static PyObject * Beat_getServer(Beat* self) { GET_SERVER };
 static PyObject * Beat_getStream(Beat* self) { GET_STREAM };
+static PyObject * Beat_setMul(Beat *self, PyObject *arg) { SET_MUL };	
+static PyObject * Beat_setAdd(Beat *self, PyObject *arg) { SET_ADD };	
+static PyObject * Beat_setSub(Beat *self, PyObject *arg) { SET_SUB };	
+static PyObject * Beat_setDiv(Beat *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * Beat_play(Beat *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Beat_out(Beat *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * Beat_stop(Beat *self) { STOP };
 
+static PyObject * Beat_multiply(Beat *self, PyObject *arg) { MULTIPLY };
+static PyObject * Beat_inplace_multiply(Beat *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Beat_add(Beat *self, PyObject *arg) { ADD };
+static PyObject * Beat_inplace_add(Beat *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Beat_sub(Beat *self, PyObject *arg) { SUB };
+static PyObject * Beat_inplace_sub(Beat *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Beat_div(Beat *self, PyObject *arg) { DIV };
+static PyObject * Beat_inplace_div(Beat *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef Beat_members[] = {
     {"server", T_OBJECT_EX, offsetof(Beat, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Beat, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Beat, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Beat, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -2251,7 +2746,53 @@ static PyMethodDef Beat_methods[] = {
     {"play", (PyCFunction)Beat_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Beat_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Beat_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)Beat_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Beat_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Beat_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Beat_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Beat_as_number = {
+    (binaryfunc)Beat_add,                         /*nb_add*/
+    (binaryfunc)Beat_sub,                         /*nb_subtract*/
+    (binaryfunc)Beat_multiply,                    /*nb_multiply*/
+    (binaryfunc)Beat_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Beat_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Beat_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Beat_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Beat_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject BeatType = {
@@ -2266,7 +2807,7 @@ PyTypeObject BeatType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
+    &Beat_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
@@ -2303,10 +2844,54 @@ typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } BeatTapStream;
 
+static void BeatTapStream_postprocessing_ii(BeatTapStream *self) { POST_PROCESSING_II };
+static void BeatTapStream_postprocessing_ai(BeatTapStream *self) { POST_PROCESSING_AI };
+static void BeatTapStream_postprocessing_ia(BeatTapStream *self) { POST_PROCESSING_IA };
+static void BeatTapStream_postprocessing_aa(BeatTapStream *self) { POST_PROCESSING_AA };
+static void BeatTapStream_postprocessing_ireva(BeatTapStream *self) { POST_PROCESSING_IREVA };
+static void BeatTapStream_postprocessing_areva(BeatTapStream *self) { POST_PROCESSING_AREVA };
+static void BeatTapStream_postprocessing_revai(BeatTapStream *self) { POST_PROCESSING_REVAI };
+static void BeatTapStream_postprocessing_revaa(BeatTapStream *self) { POST_PROCESSING_REVAA };
+static void BeatTapStream_postprocessing_revareva(BeatTapStream *self) { POST_PROCESSING_REVAREVA };
+
 static void
-BeatTapStream_setProcMode(BeatTapStream *self) {}
+BeatTapStream_setProcMode(BeatTapStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = BeatTapStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = BeatTapStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = BeatTapStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = BeatTapStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = BeatTapStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = BeatTapStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = BeatTapStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = BeatTapStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = BeatTapStream_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 BeatTapStream_compute_next_data_frame(BeatTapStream *self)
@@ -2318,6 +2903,7 @@ BeatTapStream_compute_next_data_frame(BeatTapStream *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2355,6 +2941,8 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatTapStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatTapStream_compute_next_data_frame);
@@ -2388,14 +2976,29 @@ BeatTapStream_init(BeatTapStream *self, PyObject *args, PyObject *kwds)
 
 static PyObject * BeatTapStream_getServer(BeatTapStream* self) { GET_SERVER };
 static PyObject * BeatTapStream_getStream(BeatTapStream* self) { GET_STREAM };
+static PyObject * BeatTapStream_setMul(BeatTapStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * BeatTapStream_setAdd(BeatTapStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * BeatTapStream_setSub(BeatTapStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * BeatTapStream_setDiv(BeatTapStream *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * BeatTapStream_play(BeatTapStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatTapStream_out(BeatTapStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatTapStream_stop(BeatTapStream *self) { STOP };
 
+static PyObject * BeatTapStream_multiply(BeatTapStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * BeatTapStream_inplace_multiply(BeatTapStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * BeatTapStream_add(BeatTapStream *self, PyObject *arg) { ADD };
+static PyObject * BeatTapStream_inplace_add(BeatTapStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * BeatTapStream_sub(BeatTapStream *self, PyObject *arg) { SUB };
+static PyObject * BeatTapStream_inplace_sub(BeatTapStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * BeatTapStream_div(BeatTapStream *self, PyObject *arg) { DIV };
+static PyObject * BeatTapStream_inplace_div(BeatTapStream *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef BeatTapStream_members[] = {
     {"server", T_OBJECT_EX, offsetof(BeatTapStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatTapStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(BeatTapStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(BeatTapStream, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -2406,7 +3009,53 @@ static PyMethodDef BeatTapStream_methods[] = {
     {"play", (PyCFunction)BeatTapStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatTapStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatTapStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)BeatTapStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)BeatTapStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)BeatTapStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)BeatTapStream_setDiv, METH_O, "Sets inverse mul factor."},    
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods BeatTapStream_as_number = {
+    (binaryfunc)BeatTapStream_add,                         /*nb_add*/
+    (binaryfunc)BeatTapStream_sub,                         /*nb_subtract*/
+    (binaryfunc)BeatTapStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)BeatTapStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)BeatTapStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)BeatTapStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)BeatTapStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)BeatTapStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject BeatTapStreamType = {
@@ -2421,7 +3070,7 @@ PyTypeObject BeatTapStreamType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
+    &BeatTapStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
@@ -2458,10 +3107,54 @@ typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } BeatAmpStream;
 
+static void BeatAmpStream_postprocessing_ii(BeatAmpStream *self) { POST_PROCESSING_II };
+static void BeatAmpStream_postprocessing_ai(BeatAmpStream *self) { POST_PROCESSING_AI };
+static void BeatAmpStream_postprocessing_ia(BeatAmpStream *self) { POST_PROCESSING_IA };
+static void BeatAmpStream_postprocessing_aa(BeatAmpStream *self) { POST_PROCESSING_AA };
+static void BeatAmpStream_postprocessing_ireva(BeatAmpStream *self) { POST_PROCESSING_IREVA };
+static void BeatAmpStream_postprocessing_areva(BeatAmpStream *self) { POST_PROCESSING_AREVA };
+static void BeatAmpStream_postprocessing_revai(BeatAmpStream *self) { POST_PROCESSING_REVAI };
+static void BeatAmpStream_postprocessing_revaa(BeatAmpStream *self) { POST_PROCESSING_REVAA };
+static void BeatAmpStream_postprocessing_revareva(BeatAmpStream *self) { POST_PROCESSING_REVAREVA };
+
 static void
-BeatAmpStream_setProcMode(BeatAmpStream *self) {}
+BeatAmpStream_setProcMode(BeatAmpStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = BeatAmpStream_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 BeatAmpStream_compute_next_data_frame(BeatAmpStream *self)
@@ -2473,6 +3166,7 @@ BeatAmpStream_compute_next_data_frame(BeatAmpStream *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2510,6 +3204,8 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatAmpStream_compute_next_data_frame);
@@ -2543,14 +3239,29 @@ BeatAmpStream_init(BeatAmpStream *self, PyObject *args, PyObject *kwds)
 
 static PyObject * BeatAmpStream_getServer(BeatAmpStream* self) { GET_SERVER };
 static PyObject * BeatAmpStream_getStream(BeatAmpStream* self) { GET_STREAM };
+static PyObject * BeatAmpStream_setMul(BeatAmpStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * BeatAmpStream_setAdd(BeatAmpStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * BeatAmpStream_setSub(BeatAmpStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * BeatAmpStream_setDiv(BeatAmpStream *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * BeatAmpStream_play(BeatAmpStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatAmpStream_out(BeatAmpStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatAmpStream_stop(BeatAmpStream *self) { STOP };
 
+static PyObject * BeatAmpStream_multiply(BeatAmpStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * BeatAmpStream_inplace_multiply(BeatAmpStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * BeatAmpStream_add(BeatAmpStream *self, PyObject *arg) { ADD };
+static PyObject * BeatAmpStream_inplace_add(BeatAmpStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * BeatAmpStream_sub(BeatAmpStream *self, PyObject *arg) { SUB };
+static PyObject * BeatAmpStream_inplace_sub(BeatAmpStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * BeatAmpStream_div(BeatAmpStream *self, PyObject *arg) { DIV };
+static PyObject * BeatAmpStream_inplace_div(BeatAmpStream *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef BeatAmpStream_members[] = {
     {"server", T_OBJECT_EX, offsetof(BeatAmpStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatAmpStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(BeatAmpStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(BeatAmpStream, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -2561,7 +3272,53 @@ static PyMethodDef BeatAmpStream_methods[] = {
     {"play", (PyCFunction)BeatAmpStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatAmpStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatAmpStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)BeatAmpStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)BeatAmpStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)BeatAmpStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)BeatAmpStream_setDiv, METH_O, "Sets inverse mul factor."},    
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods BeatAmpStream_as_number = {
+    (binaryfunc)BeatAmpStream_add,                         /*nb_add*/
+    (binaryfunc)BeatAmpStream_sub,                         /*nb_subtract*/
+    (binaryfunc)BeatAmpStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)BeatAmpStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)BeatAmpStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)BeatAmpStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)BeatAmpStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)BeatAmpStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject BeatAmpStreamType = {
@@ -2576,7 +3333,7 @@ PyTypeObject BeatAmpStreamType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
+    &BeatAmpStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
@@ -2613,10 +3370,54 @@ typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } BeatDurStream;
 
+static void BeatDurStream_postprocessing_ii(BeatDurStream *self) { POST_PROCESSING_II };
+static void BeatDurStream_postprocessing_ai(BeatDurStream *self) { POST_PROCESSING_AI };
+static void BeatDurStream_postprocessing_ia(BeatDurStream *self) { POST_PROCESSING_IA };
+static void BeatDurStream_postprocessing_aa(BeatDurStream *self) { POST_PROCESSING_AA };
+static void BeatDurStream_postprocessing_ireva(BeatDurStream *self) { POST_PROCESSING_IREVA };
+static void BeatDurStream_postprocessing_areva(BeatDurStream *self) { POST_PROCESSING_AREVA };
+static void BeatDurStream_postprocessing_revai(BeatDurStream *self) { POST_PROCESSING_REVAI };
+static void BeatDurStream_postprocessing_revaa(BeatDurStream *self) { POST_PROCESSING_REVAA };
+static void BeatDurStream_postprocessing_revareva(BeatDurStream *self) { POST_PROCESSING_REVAREVA };
+
 static void
-BeatDurStream_setProcMode(BeatDurStream *self) {}
+BeatDurStream_setProcMode(BeatDurStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = BeatDurStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = BeatDurStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = BeatDurStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = BeatDurStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = BeatDurStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = BeatDurStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = BeatDurStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = BeatDurStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = BeatDurStream_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 BeatDurStream_compute_next_data_frame(BeatDurStream *self)
@@ -2628,6 +3429,7 @@ BeatDurStream_compute_next_data_frame(BeatDurStream *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2665,6 +3467,8 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatDurStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatDurStream_compute_next_data_frame);
@@ -2698,14 +3502,29 @@ BeatDurStream_init(BeatDurStream *self, PyObject *args, PyObject *kwds)
 
 static PyObject * BeatDurStream_getServer(BeatDurStream* self) { GET_SERVER };
 static PyObject * BeatDurStream_getStream(BeatDurStream* self) { GET_STREAM };
+static PyObject * BeatDurStream_setMul(BeatDurStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * BeatDurStream_setAdd(BeatDurStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * BeatDurStream_setSub(BeatDurStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * BeatDurStream_setDiv(BeatDurStream *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * BeatDurStream_play(BeatDurStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatDurStream_out(BeatDurStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatDurStream_stop(BeatDurStream *self) { STOP };
 
+static PyObject * BeatDurStream_multiply(BeatDurStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * BeatDurStream_inplace_multiply(BeatDurStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * BeatDurStream_add(BeatDurStream *self, PyObject *arg) { ADD };
+static PyObject * BeatDurStream_inplace_add(BeatDurStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * BeatDurStream_sub(BeatDurStream *self, PyObject *arg) { SUB };
+static PyObject * BeatDurStream_inplace_sub(BeatDurStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * BeatDurStream_div(BeatDurStream *self, PyObject *arg) { DIV };
+static PyObject * BeatDurStream_inplace_div(BeatDurStream *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef BeatDurStream_members[] = {
     {"server", T_OBJECT_EX, offsetof(BeatDurStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatDurStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(BeatDurStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(BeatDurStream, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -2716,7 +3535,53 @@ static PyMethodDef BeatDurStream_methods[] = {
     {"play", (PyCFunction)BeatDurStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatDurStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatDurStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)BeatDurStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)BeatDurStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)BeatDurStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)BeatDurStream_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods BeatDurStream_as_number = {
+    (binaryfunc)BeatDurStream_add,                         /*nb_add*/
+    (binaryfunc)BeatDurStream_sub,                         /*nb_subtract*/
+    (binaryfunc)BeatDurStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)BeatDurStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)BeatDurStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)BeatDurStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)BeatDurStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)BeatDurStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject BeatDurStreamType = {
@@ -2731,7 +3596,7 @@ PyTypeObject BeatDurStreamType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
+    &BeatDurStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
@@ -2768,10 +3633,54 @@ typedef struct {
     pyo_audio_HEAD
     Beater *mainPlayer;
     int chnl; 
+    int modebuffer[2];
 } BeatEndStream;
 
+static void BeatEndStream_postprocessing_ii(BeatEndStream *self) { POST_PROCESSING_II };
+static void BeatEndStream_postprocessing_ai(BeatEndStream *self) { POST_PROCESSING_AI };
+static void BeatEndStream_postprocessing_ia(BeatEndStream *self) { POST_PROCESSING_IA };
+static void BeatEndStream_postprocessing_aa(BeatEndStream *self) { POST_PROCESSING_AA };
+static void BeatEndStream_postprocessing_ireva(BeatEndStream *self) { POST_PROCESSING_IREVA };
+static void BeatEndStream_postprocessing_areva(BeatEndStream *self) { POST_PROCESSING_AREVA };
+static void BeatEndStream_postprocessing_revai(BeatEndStream *self) { POST_PROCESSING_REVAI };
+static void BeatEndStream_postprocessing_revaa(BeatEndStream *self) { POST_PROCESSING_REVAA };
+static void BeatEndStream_postprocessing_revareva(BeatEndStream *self) { POST_PROCESSING_REVAREVA };
+
 static void
-BeatEndStream_setProcMode(BeatEndStream *self) {}
+BeatEndStream_setProcMode(BeatEndStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = BeatEndStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = BeatEndStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = BeatEndStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = BeatEndStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = BeatEndStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = BeatEndStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = BeatEndStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = BeatEndStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = BeatEndStream_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 BeatEndStream_compute_next_data_frame(BeatEndStream *self)
@@ -2783,6 +3692,7 @@ BeatEndStream_compute_next_data_frame(BeatEndStream *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2820,6 +3730,8 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (BeatEndStream *)type->tp_alloc(type, 0);
     
     self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatEndStream_compute_next_data_frame);
@@ -2853,14 +3765,29 @@ BeatEndStream_init(BeatEndStream *self, PyObject *args, PyObject *kwds)
 
 static PyObject * BeatEndStream_getServer(BeatEndStream* self) { GET_SERVER };
 static PyObject * BeatEndStream_getStream(BeatEndStream* self) { GET_STREAM };
+static PyObject * BeatEndStream_setMul(BeatEndStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * BeatEndStream_setAdd(BeatEndStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * BeatEndStream_setSub(BeatEndStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * BeatEndStream_setDiv(BeatEndStream *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * BeatEndStream_play(BeatEndStream *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * BeatEndStream_out(BeatEndStream *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * BeatEndStream_stop(BeatEndStream *self) { STOP };
 
+static PyObject * BeatEndStream_multiply(BeatEndStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * BeatEndStream_inplace_multiply(BeatEndStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * BeatEndStream_add(BeatEndStream *self, PyObject *arg) { ADD };
+static PyObject * BeatEndStream_inplace_add(BeatEndStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * BeatEndStream_sub(BeatEndStream *self, PyObject *arg) { SUB };
+static PyObject * BeatEndStream_inplace_sub(BeatEndStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * BeatEndStream_div(BeatEndStream *self, PyObject *arg) { DIV };
+static PyObject * BeatEndStream_inplace_div(BeatEndStream *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef BeatEndStream_members[] = {
     {"server", T_OBJECT_EX, offsetof(BeatEndStream, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(BeatEndStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(BeatEndStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(BeatEndStream, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -2871,7 +3798,53 @@ static PyMethodDef BeatEndStream_methods[] = {
     {"play", (PyCFunction)BeatEndStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatEndStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatEndStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)BeatEndStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)BeatEndStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)BeatEndStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)BeatEndStream_setDiv, METH_O, "Sets inverse mul factor."},    
     {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods BeatEndStream_as_number = {
+    (binaryfunc)BeatEndStream_add,                         /*nb_add*/
+    (binaryfunc)BeatEndStream_sub,                         /*nb_subtract*/
+    (binaryfunc)BeatEndStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)BeatEndStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)BeatEndStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)BeatEndStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)BeatEndStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)BeatEndStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject BeatEndStreamType = {
@@ -2886,7 +3859,7 @@ PyTypeObject BeatEndStreamType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
+    &BeatEndStream_as_number,             /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */

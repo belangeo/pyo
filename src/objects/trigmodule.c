@@ -1982,7 +1982,54 @@ TrigEnv_new,                 /* tp_new */
 typedef struct {
     pyo_audio_HEAD
     TrigEnv *mainReader;
+    int modebuffer[2];
 } TrigEnvTrig;
+
+static void TrigEnvTrig_postprocessing_ii(TrigEnvTrig *self) { POST_PROCESSING_II };
+static void TrigEnvTrig_postprocessing_ai(TrigEnvTrig *self) { POST_PROCESSING_AI };
+static void TrigEnvTrig_postprocessing_ia(TrigEnvTrig *self) { POST_PROCESSING_IA };
+static void TrigEnvTrig_postprocessing_aa(TrigEnvTrig *self) { POST_PROCESSING_AA };
+static void TrigEnvTrig_postprocessing_ireva(TrigEnvTrig *self) { POST_PROCESSING_IREVA };
+static void TrigEnvTrig_postprocessing_areva(TrigEnvTrig *self) { POST_PROCESSING_AREVA };
+static void TrigEnvTrig_postprocessing_revai(TrigEnvTrig *self) { POST_PROCESSING_REVAI };
+static void TrigEnvTrig_postprocessing_revaa(TrigEnvTrig *self) { POST_PROCESSING_REVAA };
+static void TrigEnvTrig_postprocessing_revareva(TrigEnvTrig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigEnvTrig_setProcMode(TrigEnvTrig *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigEnvTrig_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 TrigEnvTrig_compute_next_data_frame(TrigEnvTrig *self)
@@ -1993,6 +2040,7 @@ TrigEnvTrig_compute_next_data_frame(TrigEnvTrig *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2028,7 +2076,10 @@ TrigEnvTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     TrigEnvTrig *self;
     self = (TrigEnvTrig *)type->tp_alloc(type, 0);
-    
+
+    self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigEnvTrig_compute_next_data_frame);
     
@@ -2058,13 +2109,28 @@ TrigEnvTrig_init(TrigEnvTrig *self, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigEnvTrig_getServer(TrigEnvTrig* self) { GET_SERVER };
 static PyObject * TrigEnvTrig_getStream(TrigEnvTrig* self) { GET_STREAM };
+static PyObject * TrigEnvTrig_setMul(TrigEnvTrig *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigEnvTrig_setAdd(TrigEnvTrig *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigEnvTrig_setSub(TrigEnvTrig *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigEnvTrig_setDiv(TrigEnvTrig *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * TrigEnvTrig_play(TrigEnvTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigEnvTrig_stop(TrigEnvTrig *self) { STOP };
 
+static PyObject * TrigEnvTrig_multiply(TrigEnvTrig *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigEnvTrig_inplace_multiply(TrigEnvTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigEnvTrig_add(TrigEnvTrig *self, PyObject *arg) { ADD };
+static PyObject * TrigEnvTrig_inplace_add(TrigEnvTrig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigEnvTrig_sub(TrigEnvTrig *self, PyObject *arg) { SUB };
+static PyObject * TrigEnvTrig_inplace_sub(TrigEnvTrig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigEnvTrig_div(TrigEnvTrig *self, PyObject *arg) { DIV };
+static PyObject * TrigEnvTrig_inplace_div(TrigEnvTrig *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef TrigEnvTrig_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigEnvTrig, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TrigEnvTrig, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(TrigEnvTrig, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TrigEnvTrig, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -2074,7 +2140,52 @@ static PyMethodDef TrigEnvTrig_methods[] = {
 {"deleteStream", (PyCFunction)TrigEnvTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)TrigEnvTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigEnvTrig_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)TrigEnvTrig_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)TrigEnvTrig_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)TrigEnvTrig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)TrigEnvTrig_setDiv, METH_O, "Sets inverse mul factor."},        
 {NULL}  /* Sentinel */
+};
+static PyNumberMethods TrigEnvTrig_as_number = {
+    (binaryfunc)TrigEnvTrig_add,                         /*nb_add*/
+    (binaryfunc)TrigEnvTrig_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigEnvTrig_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigEnvTrig_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigEnvTrig_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigEnvTrig_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigEnvTrig_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigEnvTrig_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject TrigEnvTrigType = {
@@ -2089,7 +2200,7 @@ sizeof(TrigEnvTrig),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&TrigEnvTrig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
@@ -2517,7 +2628,54 @@ TrigLinseg_new,                 /* tp_new */
 typedef struct {
     pyo_audio_HEAD
     TrigLinseg *mainReader;
+    int modebuffer[2];
 } TrigLinsegTrig;
+
+static void TrigLinsegTrig_postprocessing_ii(TrigLinsegTrig *self) { POST_PROCESSING_II };
+static void TrigLinsegTrig_postprocessing_ai(TrigLinsegTrig *self) { POST_PROCESSING_AI };
+static void TrigLinsegTrig_postprocessing_ia(TrigLinsegTrig *self) { POST_PROCESSING_IA };
+static void TrigLinsegTrig_postprocessing_aa(TrigLinsegTrig *self) { POST_PROCESSING_AA };
+static void TrigLinsegTrig_postprocessing_ireva(TrigLinsegTrig *self) { POST_PROCESSING_IREVA };
+static void TrigLinsegTrig_postprocessing_areva(TrigLinsegTrig *self) { POST_PROCESSING_AREVA };
+static void TrigLinsegTrig_postprocessing_revai(TrigLinsegTrig *self) { POST_PROCESSING_REVAI };
+static void TrigLinsegTrig_postprocessing_revaa(TrigLinsegTrig *self) { POST_PROCESSING_REVAA };
+static void TrigLinsegTrig_postprocessing_revareva(TrigLinsegTrig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigLinsegTrig_setProcMode(TrigLinsegTrig *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigLinsegTrig_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 TrigLinsegTrig_compute_next_data_frame(TrigLinsegTrig *self)
@@ -2528,6 +2686,7 @@ TrigLinsegTrig_compute_next_data_frame(TrigLinsegTrig *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -2563,7 +2722,10 @@ TrigLinsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     TrigLinsegTrig *self;
     self = (TrigLinsegTrig *)type->tp_alloc(type, 0);
-    
+
+    self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigLinsegTrig_compute_next_data_frame);
     
@@ -2593,13 +2755,28 @@ TrigLinsegTrig_init(TrigLinsegTrig *self, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigLinsegTrig_getServer(TrigLinsegTrig* self) { GET_SERVER };
 static PyObject * TrigLinsegTrig_getStream(TrigLinsegTrig* self) { GET_STREAM };
+static PyObject * TrigLinsegTrig_setMul(TrigLinsegTrig *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigLinsegTrig_setAdd(TrigLinsegTrig *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigLinsegTrig_setSub(TrigLinsegTrig *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigLinsegTrig_setDiv(TrigLinsegTrig *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * TrigLinsegTrig_play(TrigLinsegTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigLinsegTrig_stop(TrigLinsegTrig *self) { STOP };
 
+static PyObject * TrigLinsegTrig_multiply(TrigLinsegTrig *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigLinsegTrig_inplace_multiply(TrigLinsegTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigLinsegTrig_add(TrigLinsegTrig *self, PyObject *arg) { ADD };
+static PyObject * TrigLinsegTrig_inplace_add(TrigLinsegTrig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigLinsegTrig_sub(TrigLinsegTrig *self, PyObject *arg) { SUB };
+static PyObject * TrigLinsegTrig_inplace_sub(TrigLinsegTrig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigLinsegTrig_div(TrigLinsegTrig *self, PyObject *arg) { DIV };
+static PyObject * TrigLinsegTrig_inplace_div(TrigLinsegTrig *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef TrigLinsegTrig_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigLinsegTrig, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TrigLinsegTrig, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(TrigLinsegTrig, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TrigLinsegTrig, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -2609,7 +2786,53 @@ static PyMethodDef TrigLinsegTrig_methods[] = {
 {"deleteStream", (PyCFunction)TrigLinsegTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)TrigLinsegTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigLinsegTrig_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)TrigLinsegTrig_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)TrigLinsegTrig_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)TrigLinsegTrig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)TrigLinsegTrig_setDiv, METH_O, "Sets inverse mul factor."},        
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigLinsegTrig_as_number = {
+    (binaryfunc)TrigLinsegTrig_add,                         /*nb_add*/
+    (binaryfunc)TrigLinsegTrig_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigLinsegTrig_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigLinsegTrig_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigLinsegTrig_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigLinsegTrig_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigLinsegTrig_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigLinsegTrig_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject TrigLinsegTrigType = {
@@ -2624,7 +2847,7 @@ sizeof(TrigLinsegTrig),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&TrigLinsegTrig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
@@ -3110,7 +3333,54 @@ TrigExpseg_new,                 /* tp_new */
 typedef struct {
     pyo_audio_HEAD
     TrigExpseg *mainReader;
+    int modebuffer[2];
 } TrigExpsegTrig;
+
+static void TrigExpsegTrig_postprocessing_ii(TrigExpsegTrig *self) { POST_PROCESSING_II };
+static void TrigExpsegTrig_postprocessing_ai(TrigExpsegTrig *self) { POST_PROCESSING_AI };
+static void TrigExpsegTrig_postprocessing_ia(TrigExpsegTrig *self) { POST_PROCESSING_IA };
+static void TrigExpsegTrig_postprocessing_aa(TrigExpsegTrig *self) { POST_PROCESSING_AA };
+static void TrigExpsegTrig_postprocessing_ireva(TrigExpsegTrig *self) { POST_PROCESSING_IREVA };
+static void TrigExpsegTrig_postprocessing_areva(TrigExpsegTrig *self) { POST_PROCESSING_AREVA };
+static void TrigExpsegTrig_postprocessing_revai(TrigExpsegTrig *self) { POST_PROCESSING_REVAI };
+static void TrigExpsegTrig_postprocessing_revaa(TrigExpsegTrig *self) { POST_PROCESSING_REVAA };
+static void TrigExpsegTrig_postprocessing_revareva(TrigExpsegTrig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigExpsegTrig_setProcMode(TrigExpsegTrig *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigExpsegTrig_postprocessing_revareva;
+            break;
+    }  
+}
 
 static void
 TrigExpsegTrig_compute_next_data_frame(TrigExpsegTrig *self)
@@ -3121,6 +3391,7 @@ TrigExpsegTrig_compute_next_data_frame(TrigExpsegTrig *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
     }    
+    (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
 
@@ -3157,6 +3428,9 @@ TrigExpsegTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TrigExpsegTrig *self;
     self = (TrigExpsegTrig *)type->tp_alloc(type, 0);
     
+    self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigExpsegTrig_compute_next_data_frame);
     
@@ -3186,13 +3460,28 @@ TrigExpsegTrig_init(TrigExpsegTrig *self, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigExpsegTrig_getServer(TrigExpsegTrig* self) { GET_SERVER };
 static PyObject * TrigExpsegTrig_getStream(TrigExpsegTrig* self) { GET_STREAM };
+static PyObject * TrigExpsegTrig_setMul(TrigExpsegTrig *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigExpsegTrig_setAdd(TrigExpsegTrig *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigExpsegTrig_setSub(TrigExpsegTrig *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigExpsegTrig_setDiv(TrigExpsegTrig *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * TrigExpsegTrig_play(TrigExpsegTrig *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigExpsegTrig_stop(TrigExpsegTrig *self) { STOP };
 
+static PyObject * TrigExpsegTrig_multiply(TrigExpsegTrig *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigExpsegTrig_inplace_multiply(TrigExpsegTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigExpsegTrig_add(TrigExpsegTrig *self, PyObject *arg) { ADD };
+static PyObject * TrigExpsegTrig_inplace_add(TrigExpsegTrig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigExpsegTrig_sub(TrigExpsegTrig *self, PyObject *arg) { SUB };
+static PyObject * TrigExpsegTrig_inplace_sub(TrigExpsegTrig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigExpsegTrig_div(TrigExpsegTrig *self, PyObject *arg) { DIV };
+static PyObject * TrigExpsegTrig_inplace_div(TrigExpsegTrig *self, PyObject *arg) { INPLACE_DIV };
+
 static PyMemberDef TrigExpsegTrig_members[] = {
 {"server", T_OBJECT_EX, offsetof(TrigExpsegTrig, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TrigExpsegTrig, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(TrigExpsegTrig, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TrigExpsegTrig, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
 };
 
@@ -3202,7 +3491,53 @@ static PyMethodDef TrigExpsegTrig_methods[] = {
 {"deleteStream", (PyCFunction)TrigExpsegTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)TrigExpsegTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TrigExpsegTrig_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)TrigExpsegTrig_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)TrigExpsegTrig_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)TrigExpsegTrig_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)TrigExpsegTrig_setDiv, METH_O, "Sets inverse mul factor."},        
 {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigExpsegTrig_as_number = {
+    (binaryfunc)TrigExpsegTrig_add,                         /*nb_add*/
+    (binaryfunc)TrigExpsegTrig_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigExpsegTrig_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigExpsegTrig_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigExpsegTrig_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigExpsegTrig_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigExpsegTrig_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigExpsegTrig_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
 };
 
 PyTypeObject TrigExpsegTrigType = {
@@ -3217,7 +3552,7 @@ sizeof(TrigExpsegTrig),         /*tp_basicsize*/
 0,                         /*tp_setattr*/
 0,                         /*tp_compare*/
 0,                         /*tp_repr*/
-0,             /*tp_as_number*/
+&TrigExpsegTrig_as_number,             /*tp_as_number*/
 0,                         /*tp_as_sequence*/
 0,                         /*tp_as_mapping*/
 0,                         /*tp_hash */
