@@ -948,6 +948,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&WaveguideType);
     PyModule_AddObject(m, "Waveguide_base", (PyObject *)&WaveguideType);
+
+    if (PyType_Ready(&AllpassWGType) < 0)
+        return;
+    Py_INCREF(&AllpassWGType);
+    PyModule_AddObject(m, "AllpassWG_base", (PyObject *)&AllpassWGType);
     
     if (PyType_Ready(&MidictlType) < 0)
         return;

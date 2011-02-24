@@ -185,6 +185,7 @@ extern PyTypeObject CompressType;
 extern PyTypeObject DelayType;
 extern PyTypeObject SDelayType;
 extern PyTypeObject WaveguideType;
+extern PyTypeObject AllpassWGType;
 extern PyTypeObject FreeverbType;
 extern PyTypeObject WGVerbType;
 extern PyTypeObject ChorusType;
