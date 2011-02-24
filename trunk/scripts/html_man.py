@@ -23,6 +23,10 @@ from pyo import *
  
 # 'manuel-dev' for development, 'manual' for production  
 man_file = 'manual-dev'
+if man_file == 'manual-dev':
+    man_version = 'latest sources'
+else:
+    man_version = 'version %.2f' % PYO_VERSION
 
 try:
     os.mkdir(os.getcwd() + '/doc')
@@ -186,7 +190,7 @@ def getDocFirstLine(obj):
     return f    
 
 # Generates the LaTeX file                    
-f.write('\\begin{Huge}pyo documentation\\end{Huge}\n\n') 
+f.write('\\begin{Huge}pyo documentation ( %s )\\end{Huge}\n\n' % man_version) 
 f.write('pyo is a Python module written in C to help digital signal processing script creation.\n\n')     
 f.write("""
 pyo is a Python module containing classes for a wide variety of audio signal processing types. With pyo, user will be
