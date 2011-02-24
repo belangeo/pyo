@@ -1042,12 +1042,6 @@ Waveguide_process_ii(Waveguide *self) {
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
         self->lagrange[0] = val;
-        
-        /* cliping, needed? */
-        if (x < -1.0)
-            x = -1.0;
-        else if (x > 1.0)
-            x = 1.0;
 
         /* DC filtering */
         y = x - self->xn1 + 0.995 * self->yn1;
@@ -1125,13 +1119,7 @@ Waveguide_process_ai(Waveguide *self) {
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
         self->lagrange[0] = val;
-        
-        /* cliping, needed? */
-        if (x < -1.0)
-            x = -1.0;
-        else if (x > 1.0)
-            x = 1.0;
-        
+
         /* DC filtering */
         y = x - self->xn1 + 0.995 * self->yn1;
         self->xn1 = x;
@@ -1202,13 +1190,7 @@ Waveguide_process_ia(Waveguide *self) {
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
         self->lagrange[0] = val;
-        
-        /* cliping, needed? */
-        if (x < -1.0)
-            x = -1.0;
-        else if (x > 1.0)
-            x = 1.0;
-        
+
         /* DC filtering */
         y = x - self->xn1 + 0.995 * self->yn1;
         self->xn1 = x;
@@ -1285,13 +1267,7 @@ Waveguide_process_aa(Waveguide *self) {
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
         self->lagrange[0] = val;
-        
-        /* cliping, needed? */
-        if (x < -1.0)
-            x = -1.0;
-        else if (x > 1.0)
-            x = 1.0;
-        
+  
         /* DC filtering */
         y = x - self->xn1 + 0.995 * self->yn1;
         self->xn1 = x;
@@ -1688,4 +1664,1007 @@ Waveguide_members,             /* tp_members */
 (initproc)Waveguide_init,      /* tp_init */
 0,                         /* tp_alloc */
 Waveguide_new,                 /* tp_new */
+};
+
+/*********************/
+/***** AllpassWG *****/
+/*********************/
+static const MYFLT alp_chorus_factor[3] = {1.0, 0.9981, 0.9957};
+static const MYFLT alp_feedback = 0.3;
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *feed;
+    Stream *feed_stream;
+    PyObject *detune;
+    Stream *detune_stream;
+    MYFLT minfreq;
+    long size;
+    int alpsize;
+    int in_count;
+    int alp_in_count[3];
+    int modebuffer[5];
+    MYFLT *alpbuffer[3]; // allpass samples memories
+    MYFLT xn1; // dc block input delay
+    MYFLT yn1; // dc block output delay
+    MYFLT *buffer; // samples memory
+} AllpassWG;
+
+static void
+AllpassWG_process_iii(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
+    
+    /* Check boundaries */
+    if (fr < self->minfreq)
+        fr = self->minfreq;
+    feed *= 0.4525;
+    if (feed > 0.4525)
+        feed = 0.4525;
+    else if (feed < 0)
+        feed = 0;
+    freqshift = detune * 0.5 + 1.;
+    detune = detune * 0.95 + 0.05;
+    if (detune < 0.05)
+        detune = 0.05;
+    else if (detune > 1.0)
+        detune = 1.0;
+    
+    sampdel = 1.0 / (fr * freqshift) * self->sr;
+    alpdetune = detune * self->alpsize;
+
+    for (i=0; i<self->bufsize; i++) {
+        /* pick a new value in the delay line */
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_aii(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, fr, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
+    
+    feed *= 0.4525;
+    if (feed > 0.4525)
+        feed = 0.4525;
+    else if (feed < 0)
+        feed = 0;
+    freqshift = detune * 0.5 + 1.;
+    detune = detune * 0.95 + 0.05;
+    if (detune < 0.05)
+        detune = 0.05;
+    else if (detune > 1.0)
+        detune = 1.0;
+    
+    alpdetune = detune * self->alpsize;
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr < self->minfreq)
+            fr = self->minfreq;
+        
+        /* pick a new value in the delay line */
+        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_iai(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, feed, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
+    
+    /* Check boundaries */
+    if (fr < self->minfreq)
+        fr = self->minfreq;
+    freqshift = detune * 0.5 + 1.;
+    detune = detune * 0.95 + 0.05;
+    if (detune < 0.05)
+        detune = 0.05;
+    else if (detune > 1.0)
+        detune = 1.0;
+    
+    sampdel = 1.0 / (fr * freqshift) * self->sr;
+    alpdetune = detune * self->alpsize;
+    
+    for (i=0; i<self->bufsize; i++) {
+        feed = fdb[i] * 0.4525;
+        if (feed > 0.4525)
+            feed = 0.4525;
+        else if (feed < 0)
+            feed = 0;
+        /* pick a new value in the delay line */
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_aai(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, fr, feed, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT detune = PyFloat_AS_DOUBLE(self->detune);
+    
+    freqshift = detune * 0.5 + 1.;
+    detune = detune * 0.95 + 0.05;
+    if (detune < 0.05)
+        detune = 0.05;
+    else if (detune > 1.0)
+        detune = 1.0;
+    
+    alpdetune = detune * self->alpsize;
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr < self->minfreq)
+            fr = self->minfreq;
+        feed = fdb[i] * 0.4525;
+        if (feed > 0.4525)
+            feed = 0.4525;
+        else if (feed < 0)
+            feed = 0;
+        
+        /* pick a new value in the delay line */
+        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_iia(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT *det = Stream_getData((Stream *)self->detune_stream);
+    
+    /* Check boundaries */
+    if (fr < self->minfreq)
+        fr = self->minfreq;
+    feed *= 0.4525;
+    if (feed > 0.4525)
+        feed = 0.4525;
+    else if (feed < 0)
+        feed = 0;
+    
+    for (i=0; i<self->bufsize; i++) {
+        detune = det[i];
+        freqshift = detune * 0.5 + 1.;
+        detune = detune * 0.95 + 0.05;
+        if (detune < 0.05)
+            detune = 0.05;
+        else if (detune > 1.0)
+            detune = 1.0;
+        
+        /* pick a new value in the delay line */
+        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        alpdetune = detune * self->alpsize;
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_aia(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, fr, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT feed = PyFloat_AS_DOUBLE(self->feed); 
+    MYFLT *det = Stream_getData((Stream *)self->detune_stream);
+    
+    feed *= 0.4525;
+    if (feed > 0.4525)
+        feed = 0.4525;
+    else if (feed < 0)
+        feed = 0;
+    
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr < self->minfreq)
+            fr = self->minfreq;
+        detune = det[i];
+        freqshift = detune * 0.5 + 1.;
+        detune = detune * 0.95 + 0.05;
+        if (detune < 0.05)
+            detune = 0.05;
+        else if (detune > 1.0)
+            detune = 1.0;
+        
+        /* pick a new value in the delay line */
+        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        alpdetune = detune * self->alpsize;
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_iaa(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, feed, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT *det = Stream_getData((Stream *)self->detune_stream);
+    
+    /* Check boundaries */
+    if (fr < self->minfreq)
+        fr = self->minfreq;
+    
+    for (i=0; i<self->bufsize; i++) {
+        feed = fdb[i] * 0.4525;
+        if (feed > 0.4525)
+            feed = 0.4525;
+        else if (feed < 0)
+            feed = 0;
+        detune = det[i];
+        freqshift = detune * 0.5 + 1.;
+        detune = detune * 0.95 + 0.05;
+        if (detune < 0.05)
+            detune = 0.05;
+        else if (detune > 1.0)
+            detune = 1.0;
+        
+        /* pick a new value in the delay line */
+        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        alpdetune = detune * self->alpsize;
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void
+AllpassWG_process_aaa(AllpassWG *self) {
+    int i, j;
+    long ind;
+    MYFLT val, y, xind, sampdel, frac, fr, feed, detune, freqshift, alpsampdel, alpsampdelin, alpdetune;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *fdb = Stream_getData((Stream *)self->feed_stream); 
+    MYFLT *det = Stream_getData((Stream *)self->detune_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr < self->minfreq)
+            fr = self->minfreq;
+        feed = fdb[i] * 0.4525;
+        if (feed > 0.4525)
+            feed = 0.4525;
+        else if (feed < 0)
+            feed = 0;
+        detune = det[i];
+        freqshift = detune * 0.5 + 1.;
+        detune = detune * 0.95 + 0.05;
+        if (detune < 0.05)
+            detune = 0.05;
+        else if (detune > 1.0)
+            detune = 1.0;
+        
+        /* pick a new value in the delay line */
+        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        xind = self->in_count - sampdel;
+        if (xind < 0)
+            xind += (self->size-1);
+        ind = (long)xind;
+        frac = xind - ind;
+        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        
+        /* all-pass filter */
+        alpdetune = detune * self->alpsize;
+        for (j=0; j<3; j++) {
+            xind = self->alp_in_count[j] - (alpdetune * alp_chorus_factor[j]);
+            if (xind < 0)
+                xind += (self->alpsize-1);
+            ind = (long)xind;
+            frac = xind - ind;
+            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
+            val = alpsampdelin * alp_feedback + alpsampdel;
+            /* write current allpass value in the allpass delay line */
+            self->alpbuffer[j][self->alp_in_count[j]++] = alpsampdelin;
+            if (self->alp_in_count[j] == self->alpsize)
+                self->alp_in_count[j] = 0;
+        }
+        
+        /* DC filtering and output */
+        y = val - self->xn1 + 0.995 * self->yn1;
+        self->xn1 = val;
+        self->data[i] = self->yn1 = y;
+        
+        /* write current value in the delay line */
+        self->buffer[self->in_count++] = in[i] + (0.0 - (val * feed));
+        if (self->in_count == self->size)
+            self->in_count = 0;        
+    }
+}
+
+static void AllpassWG_postprocessing_ii(AllpassWG *self) { POST_PROCESSING_II };
+static void AllpassWG_postprocessing_ai(AllpassWG *self) { POST_PROCESSING_AI };
+static void AllpassWG_postprocessing_ia(AllpassWG *self) { POST_PROCESSING_IA };
+static void AllpassWG_postprocessing_aa(AllpassWG *self) { POST_PROCESSING_AA };
+static void AllpassWG_postprocessing_ireva(AllpassWG *self) { POST_PROCESSING_IREVA };
+static void AllpassWG_postprocessing_areva(AllpassWG *self) { POST_PROCESSING_AREVA };
+static void AllpassWG_postprocessing_revai(AllpassWG *self) { POST_PROCESSING_REVAI };
+static void AllpassWG_postprocessing_revaa(AllpassWG *self) { POST_PROCESSING_REVAA };
+static void AllpassWG_postprocessing_revareva(AllpassWG *self) { POST_PROCESSING_REVAREVA };
+
+static void
+AllpassWG_setProcMode(AllpassWG *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = AllpassWG_process_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = AllpassWG_process_aii;
+            break;
+        case 10:    
+            self->proc_func_ptr = AllpassWG_process_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = AllpassWG_process_aai;
+            break;
+        case 100:    
+            self->proc_func_ptr = AllpassWG_process_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = AllpassWG_process_aia;
+            break;
+        case 110:    
+            self->proc_func_ptr = AllpassWG_process_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = AllpassWG_process_aaa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = AllpassWG_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = AllpassWG_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = AllpassWG_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = AllpassWG_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = AllpassWG_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = AllpassWG_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = AllpassWG_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = AllpassWG_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = AllpassWG_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+AllpassWG_compute_next_data_frame(AllpassWG *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+AllpassWG_traverse(AllpassWG *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->feed);    
+    Py_VISIT(self->feed_stream);    
+    Py_VISIT(self->detune);    
+    Py_VISIT(self->detune_stream);    
+    return 0;
+}
+
+static int 
+AllpassWG_clear(AllpassWG *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);    
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->feed);    
+    Py_CLEAR(self->feed_stream);    
+    Py_CLEAR(self->detune);    
+    Py_CLEAR(self->detune_stream);    
+    return 0;
+}
+
+static void
+AllpassWG_dealloc(AllpassWG* self)
+{
+    int i;
+    free(self->data);
+    free(self->buffer);
+    for(i=0; i<3; i++) {
+        free(self->alpbuffer[i]);
+    }
+    AllpassWG_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * AllpassWG_deleteStream(AllpassWG *self) { DELETE_STREAM };
+
+static PyObject *
+AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    AllpassWG *self;
+    self = (AllpassWG *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(100);
+    self->feed = PyFloat_FromDouble(0.);
+    self->detune = PyFloat_FromDouble(0.5);
+    self->minfreq = 20;
+    self->in_count = self->alp_in_count[0] = self->alp_in_count[1] = self->alp_in_count[2] = 0;
+    self->xn1 = 0.0;
+    self->yn1 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, AllpassWG_compute_next_data_frame);
+    self->mode_func_ptr = AllpassWG_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+AllpassWG_init(AllpassWG *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *feedtmp=NULL, *detunetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    int i, j, alpsize;
+    
+    static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOfOO", kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (feedtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFeed", "O", feedtmp);
+    }
+    if (detunetmp) {
+        PyObject_CallMethod((PyObject *)self, "setDetune", "O", detunetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);    
+    self->buffer = (MYFLT *)realloc(self->buffer, (self->size+1) * sizeof(MYFLT));
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }    
+
+    self->alpsize = (int)(self->sr * 0.0025);
+    for (i=0; i<3; i++) {
+        self->alpbuffer[i] = (MYFLT *)realloc(self->alpbuffer[i], (self->alpsize+1) * sizeof(MYFLT));
+        for (j=0; j<(self->alpsize+1); j++) {
+            self->alpbuffer[i][j] = 0.;
+        }
+    }    
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * AllpassWG_getServer(AllpassWG* self) { GET_SERVER };
+static PyObject * AllpassWG_getStream(AllpassWG* self) { GET_STREAM };
+static PyObject * AllpassWG_setMul(AllpassWG *self, PyObject *arg) { SET_MUL };	
+static PyObject * AllpassWG_setAdd(AllpassWG *self, PyObject *arg) { SET_ADD };	
+static PyObject * AllpassWG_setSub(AllpassWG *self, PyObject *arg) { SET_SUB };	
+static PyObject * AllpassWG_setDiv(AllpassWG *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * AllpassWG_play(AllpassWG *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * AllpassWG_out(AllpassWG *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * AllpassWG_stop(AllpassWG *self) { STOP };
+
+static PyObject * AllpassWG_multiply(AllpassWG *self, PyObject *arg) { MULTIPLY };
+static PyObject * AllpassWG_inplace_multiply(AllpassWG *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * AllpassWG_add(AllpassWG *self, PyObject *arg) { ADD };
+static PyObject * AllpassWG_inplace_add(AllpassWG *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * AllpassWG_sub(AllpassWG *self, PyObject *arg) { SUB };
+static PyObject * AllpassWG_inplace_sub(AllpassWG *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * AllpassWG_div(AllpassWG *self, PyObject *arg) { DIV };
+static PyObject * AllpassWG_inplace_div(AllpassWG *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+AllpassWG_setFreq(AllpassWG *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+AllpassWG_setFeed(AllpassWG *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->feed);
+	if (isNumber == 1) {
+		self->feed = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->feed = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->feed, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->feed_stream);
+        self->feed_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+AllpassWG_setDetune(AllpassWG *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+    
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->detune);
+	if (isNumber == 1) {
+		self->detune = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->detune = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->detune, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->detune_stream);
+        self->detune_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef AllpassWG_members[] = {
+    {"server", T_OBJECT_EX, offsetof(AllpassWG, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(AllpassWG, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(AllpassWG, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(AllpassWG, freq), 0, "AllpassWG time in seconds."},
+    {"feed", T_OBJECT_EX, offsetof(AllpassWG, feed), 0, "Feedback value."},
+    {"detune", T_OBJECT_EX, offsetof(AllpassWG, detune), 0, "Detune value between 0 and 1."},
+    {"mul", T_OBJECT_EX, offsetof(AllpassWG, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(AllpassWG, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef AllpassWG_methods[] = {
+    {"getServer", (PyCFunction)AllpassWG_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)AllpassWG_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)AllpassWG_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)AllpassWG_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)AllpassWG_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)AllpassWG_stop, METH_NOARGS, "Stops computing."},
+    {"setFreq", (PyCFunction)AllpassWG_setFreq, METH_O, "Sets freq time in seconds."},
+    {"setFeed", (PyCFunction)AllpassWG_setFeed, METH_O, "Sets feed value between 0 -> 1."},
+    {"setDetune", (PyCFunction)AllpassWG_setDetune, METH_O, "Sets detune value between 0 -> 1."},
+    {"setMul", (PyCFunction)AllpassWG_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)AllpassWG_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)AllpassWG_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)AllpassWG_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods AllpassWG_as_number = {
+    (binaryfunc)AllpassWG_add,                      /*nb_add*/
+    (binaryfunc)AllpassWG_sub,                 /*nb_subtract*/
+    (binaryfunc)AllpassWG_multiply,                 /*nb_multiply*/
+    (binaryfunc)AllpassWG_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)AllpassWG_inplace_add,              /*inplace_add*/
+    (binaryfunc)AllpassWG_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)AllpassWG_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)AllpassWG_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject AllpassWGType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.AllpassWG_base",         /*tp_name*/
+    sizeof(AllpassWG),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)AllpassWG_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &AllpassWG_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "AllpassWG objects. Waveguide model with builtin allpass circuit to detune resonance frequencies.", /* tp_doc */
+    (traverseproc)AllpassWG_traverse,   /* tp_traverse */
+    (inquiry)AllpassWG_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    AllpassWG_methods,             /* tp_methods */
+    AllpassWG_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)AllpassWG_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    AllpassWG_new,                 /* tp_new */
 };

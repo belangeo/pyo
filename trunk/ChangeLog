@@ -1,7 +1,16 @@
+2010-12-30 belangeo <belangeo@gmail.com>
+
+    * Added new object : AllpassWG
+    - rev 548
+
 2011-02-21 belangeo <belangeo@gmail.com>
 
     * All trig signals can be treated as number, allowing arithmetic operations.
     - rev 547
+
+2010-02-20 belangeo <belangeo@gmail.com>
+
+    * rev 544 - pyo 0.03 release.
 
 2010-12-30 belangeo <belangeo@gmail.com>
 
