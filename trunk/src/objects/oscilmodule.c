@@ -5854,3 +5854,486 @@ Fm_members,             /* tp_members */
 0,                         /* tp_alloc */
 Fm_new,                 /* tp_new */
 };
+
+/*************/
+/* Blit object */
+/*************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *harms;
+    Stream *harms_stream;
+    int modebuffer[4];
+    MYFLT phase;
+    
+} Blit;
+
+static void
+Blit_readframes_ii(Blit *self) {
+    MYFLT p, m, rate, val;
+    int i, nHarms;
+    
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT hrms = PyFloat_AS_DOUBLE(self->harms);
+
+    nHarms = (int)hrms;
+    m = 2.0 * nHarms + 1.0;
+    p = self->sr / freq;
+    rate = PI / p;
+
+    for (i=0; i<self->bufsize; i++) {
+        if (self->phase <= 0.0)
+            val = 1.0;
+        else {
+            val = MYSIN(m * self->phase);
+            val /= m * MYSIN(self->phase);
+        }
+        self->phase += rate;
+        if (self->phase >= PI)
+            self->phase -= PI;
+
+        self->data[i] = val;
+    }
+}
+
+static void
+Blit_readframes_ai(Blit *self) {
+    MYFLT p, m, rate, val;
+    int i, nHarms;
+    
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT hrms = PyFloat_AS_DOUBLE(self->harms);
+
+    nHarms = (int)hrms;
+    m = 2.0 * nHarms + 1.0;
+    
+    for (i=0; i<self->bufsize; i++) {
+        p = self->sr / freq[i];
+        rate = PI / p;
+        if (self->phase <= 0.0)
+            val = 1.0;
+        else {
+            val = MYSIN(m * self->phase);
+            val /= m * MYSIN(self->phase);
+        }
+        self->phase += rate;
+        if (self->phase >= PI)
+            self->phase -= PI;
+        
+        self->data[i] = val;
+    }
+}
+
+static void
+Blit_readframes_ia(Blit *self) {
+    MYFLT p, m, rate, val;
+    int i, nHarms;
+    
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *hrms = Stream_getData((Stream *)self->harms_stream);
+
+    p = self->sr / freq;
+    rate = PI / p;
+    
+    for (i=0; i<self->bufsize; i++) {
+        nHarms = (int)hrms[i];
+        m = 2.0 * nHarms + 1.0;
+        if (self->phase <= 0.0)
+            val = 1.0;
+        else {
+            val = MYSIN(m * self->phase);
+            val /= m * MYSIN(self->phase);
+        }
+        self->phase += rate;
+        if (self->phase >= PI)
+            self->phase -= PI;
+        
+        self->data[i] = val;
+    }
+}
+
+static void
+Blit_readframes_aa(Blit *self) {
+    MYFLT p, m, rate, val;
+    int i, nHarms;
+    
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *hrms = Stream_getData((Stream *)self->harms_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        nHarms = (int)hrms[i];
+        m = 2.0 * nHarms + 1.0;
+        p = self->sr / freq[i];
+        rate = PI / p;
+        if (self->phase <= 0.0)
+            val = 1.0;
+        else {
+            val = MYSIN(m * self->phase);
+            val /= m * MYSIN(self->phase);
+        }
+        self->phase += rate;
+        if (self->phase >= PI)
+            self->phase -= PI;
+        
+        self->data[i] = val;
+    }
+}
+
+static void Blit_postprocessing_ii(Blit *self) { POST_PROCESSING_II };
+static void Blit_postprocessing_ai(Blit *self) { POST_PROCESSING_AI };
+static void Blit_postprocessing_ia(Blit *self) { POST_PROCESSING_IA };
+static void Blit_postprocessing_aa(Blit *self) { POST_PROCESSING_AA };
+static void Blit_postprocessing_ireva(Blit *self) { POST_PROCESSING_IREVA };
+static void Blit_postprocessing_areva(Blit *self) { POST_PROCESSING_AREVA };
+static void Blit_postprocessing_revai(Blit *self) { POST_PROCESSING_REVAI };
+static void Blit_postprocessing_revaa(Blit *self) { POST_PROCESSING_REVAA };
+static void Blit_postprocessing_revareva(Blit *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Blit_setProcMode(Blit *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Blit_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Blit_readframes_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = Blit_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Blit_readframes_aa;
+            break;
+    } 
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Blit_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Blit_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Blit_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Blit_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Blit_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Blit_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Blit_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Blit_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Blit_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Blit_compute_next_data_frame(Blit *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Blit_traverse(Blit *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->harms);    
+    Py_VISIT(self->harms_stream);    
+    return 0;
+}
+
+static int 
+Blit_clear(Blit *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->harms);    
+    Py_CLEAR(self->harms_stream);    
+    return 0;
+}
+
+static void
+Blit_dealloc(Blit* self)
+{
+    free(self->data);
+    Blit_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Blit_deleteStream(Blit *self) { DELETE_STREAM };
+
+static PyObject *
+Blit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Blit *self;
+    self = (Blit *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(100);
+    self->harms = PyFloat_FromDouble(40);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    self->phase = 0.0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Blit_compute_next_data_frame);
+    self->mode_func_ptr = Blit_setProcMode;
+
+    return (PyObject *)self;
+}
+
+static int
+Blit_init(Blit *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *freqtmp=NULL, *harmstmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"freq", "harms", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &harmstmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (harmstmp) {
+        PyObject_CallMethod((PyObject *)self, "setHarms", "O", harmstmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Blit_getServer(Blit* self) { GET_SERVER };
+static PyObject * Blit_getStream(Blit* self) { GET_STREAM };
+static PyObject * Blit_setMul(Blit *self, PyObject *arg) { SET_MUL };	
+static PyObject * Blit_setAdd(Blit *self, PyObject *arg) { SET_ADD };	
+static PyObject * Blit_setSub(Blit *self, PyObject *arg) { SET_SUB };	
+static PyObject * Blit_setDiv(Blit *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Blit_play(Blit *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Blit_out(Blit *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Blit_stop(Blit *self) { STOP };
+
+static PyObject * Blit_multiply(Blit *self, PyObject *arg) { MULTIPLY };
+static PyObject * Blit_inplace_multiply(Blit *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Blit_add(Blit *self, PyObject *arg) { ADD };
+static PyObject * Blit_inplace_add(Blit *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Blit_sub(Blit *self, PyObject *arg) { SUB };
+static PyObject * Blit_inplace_sub(Blit *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Blit_div(Blit *self, PyObject *arg) { DIV };
+static PyObject * Blit_inplace_div(Blit *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Blit_setFreq(Blit *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Blit_setHarms(Blit *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->harms);
+	if (isNumber == 1) {
+		self->harms = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->harms = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->harms, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->harms_stream);
+        self->harms_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Blit_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Blit, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Blit, stream), 0, "Stream object."},
+    {"freq", T_OBJECT_EX, offsetof(Blit, freq), 0, "Frequency in cycle per second."},
+    {"harms", T_OBJECT_EX, offsetof(Blit, harms), 0, "Number of harmonics."},
+    {"mul", T_OBJECT_EX, offsetof(Blit, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Blit, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Blit_methods[] = {
+    {"getServer", (PyCFunction)Blit_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Blit_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Blit_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Blit_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundfreqd."},
+    {"out", (PyCFunction)Blit_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundfreqd channel speficied by argument."},
+    {"stop", (PyCFunction)Blit_stop, METH_NOARGS, "Stops computing."},
+    {"setFreq", (PyCFunction)Blit_setFreq, METH_O, "Sets frequency in cycle per second."},
+    {"setHarms", (PyCFunction)Blit_setHarms, METH_O, "Sets the number of harmonics."},
+    {"setMul", (PyCFunction)Blit_setMul, METH_O, "Sets Blit mul factor."},
+    {"setAdd", (PyCFunction)Blit_setAdd, METH_O, "Sets Blit add factor."},
+    {"setSub", (PyCFunction)Blit_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Blit_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Blit_as_number = {
+    (binaryfunc)Blit_add,                      /*nb_add*/
+    (binaryfunc)Blit_sub,                 /*nb_subtract*/
+    (binaryfunc)Blit_multiply,                 /*nb_multiply*/
+    (binaryfunc)Blit_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Blit_inplace_add,              /*inplace_add*/
+    (binaryfunc)Blit_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Blit_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Blit_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_cutoff */
+};
+
+PyTypeObject BlitType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Blit_base",         /*tp_name*/
+    sizeof(Blit),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Blit_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Blit_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Blit objects. Generates a band limited impulse train.",           /* tp_doc */
+    (traverseproc)Blit_traverse,   /* tp_traverse */
+    (inquiry)Blit_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Blit_methods,             /* tp_methods */
+    Blit_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Blit_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Blit_new,                 /* tp_new */
+};

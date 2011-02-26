@@ -500,3 +500,98 @@ class FM(PyoObject):
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
+
+class Blit(PyoObject):
+    """
+    Band limited impulse train synthesis.
+
+    Impulse train generator with control over the number of harmonics 
+    in the spectrum, which gives oscillators with very low aliasing.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 100.
+    harms : float or PyoObject, optional
+        Number of harmonics in the generated spectrum. Defaults to 40.
+
+    Methods:
+
+    setFreq(x) : Replace the `freq` attribute.
+    setHarms(x) : Replace the `harms` attribute.
+
+    Attributes:
+
+    freq : float or PyoObject, Frequency in cycles per second.
+    harms : float or PyoObject, Number of harmonics.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfo = Sine(freq=4, mul=.02, add=1)
+    >>> a = Blit(freq=[100, 99]*lfo, harms=45, mul=.3)
+    >>> lp = Tone(a, 1000).out()
+
+    """
+    def __init__(self, freq=100, harms=40, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._freq = freq
+        self._harms = harms
+        self._mul = mul
+        self._add = add
+        freq, harms, mul, add, lmax = convertArgsToLists(freq, harms, mul, add)
+        self._base_objs = [Blit_base(wrap(freq,i), wrap(harms,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['freq', 'harms', 'mul', 'add']
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setHarms(self, x):
+        """
+        Replace the `harms` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `harms` attribute.
+
+        """
+        self._harms = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setHarms(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(1, 5000, "log", "freq", self._freq),
+                          SLMap(2, 100, "lin", "harms", self._harms),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def harms(self):
+        """float or PyoObject. Number of harmonics.""" 
+        return self._harms
+    @harms.setter
+    def harms(self, x): self.setHarms(x)
