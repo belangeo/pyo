@@ -843,6 +843,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&FmType);
     PyModule_AddObject(m, "Fm_base", (PyObject *)&FmType);
+
+    if (PyType_Ready(&BlitType) < 0)
+        return;
+    Py_INCREF(&BlitType);
+    PyModule_AddObject(m, "Blit_base", (PyObject *)&BlitType);
     
     if (PyType_Ready(&PhasorType) < 0)
         return;

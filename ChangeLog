@@ -1,4 +1,9 @@
-2010-12-30 belangeo <belangeo@gmail.com>
+2011-02-26 belangeo <belangeo@gmail.com>
+
+    * Added new object : Blit (Band Limited Impulse Train)
+    - rev 550
+
+2011-02-23 belangeo <belangeo@gmail.com>
 
     * Added new object : AllpassWG
     - rev 548

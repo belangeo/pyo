@@ -67,6 +67,7 @@
 #define MYPOW powf
 #define MYFABS fabsf
 #define MYFMOD fmodf
+#define MYFLOOR floorf
 
 #else
 #define LIB_BASE_NAME "_pyo64"
@@ -111,6 +112,7 @@
 #define MYPOW pow
 #define MYFABS fabs
 #define MYFMOD fmod
+#define MYFLOOR floor
 
 #endif
 #endif
@@ -118,6 +120,7 @@
 extern PyTypeObject SineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
+extern PyTypeObject BlitType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject PointerType;
 extern PyTypeObject TableIndexType;
