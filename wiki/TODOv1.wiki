@@ -63,7 +63,7 @@ TODO before releasing _pyo_ version 1.0.
   * Granulator2(multi-streams)
   * !TrigGrains(one-stream and multi-stream)
   * Vocoder
-  * CrossFM, CrossPM, CrossFMPM
+  * CrossPM, CrossFMPM
   * !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
   * Looper (rewrite in C)
   * !SfMarkerTrigger
