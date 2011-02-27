@@ -5856,6 +5856,548 @@ Fm_new,                 /* tp_new */
 };
 
 /*************/
+/* CrossFm object */
+/*************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *car;
+    Stream *car_stream;
+    PyObject *ratio;
+    Stream *ratio_stream;
+    PyObject *ind1;
+    Stream *ind1_stream;
+    PyObject *ind2;
+    Stream *ind2_stream;
+    int modebuffer[6];
+    MYFLT pointerPos_car;
+    MYFLT pointerPos_mod;
+    MYFLT scaleFactor;
+    MYFLT car_val;
+} CrossFm;
+
+static void
+CrossFm_readframes(CrossFm *self) {
+    MYFLT mod_freq, mod_amp, mod_delta, mod_val, car_freq, car_amp, car_delta, fpart;
+    int i, ipart;
+    MYFLT car[self->bufsize];
+    MYFLT rat[self->bufsize];
+    MYFLT ind1[self->bufsize];
+    MYFLT ind2[self->bufsize];
+    
+    if (self->modebuffer[2] == 0) {
+        MYFLT tmpcar = PyFloat_AS_DOUBLE(self->car);
+        for (i=0; i<self->bufsize; i++) {
+            car[i] = tmpcar;
+        }
+    }
+    else {
+        MYFLT *tmpcar = Stream_getData((Stream *)self->car_stream);
+        for (i=0; i<self->bufsize; i++) {
+            car[i] = tmpcar[i];
+        }
+    }
+    
+    if (self->modebuffer[3] == 0) {
+        MYFLT tmprat = PyFloat_AS_DOUBLE(self->ratio);
+        for (i=0; i<self->bufsize; i++) {
+            rat[i] = tmprat;
+        }
+    }
+    else {
+        MYFLT *tmprat = Stream_getData((Stream *)self->ratio_stream);
+        for (i=0; i<self->bufsize; i++) {
+            rat[i] = tmprat[i];
+        }
+    }
+    
+    if (self->modebuffer[4] == 0) {
+        MYFLT tmpind1 = PyFloat_AS_DOUBLE(self->ind1);
+        for (i=0; i<self->bufsize; i++) {
+            ind1[i] = tmpind1;
+        }
+    }   
+    else {
+        MYFLT *tmpind1 = Stream_getData((Stream *)self->ind1_stream);
+        for (i=0; i<self->bufsize; i++) {
+            ind1[i] = tmpind1[i];
+        }
+    }
+    
+    if (self->modebuffer[5] == 0) {
+        MYFLT tmpind2 = PyFloat_AS_DOUBLE(self->ind2);
+        for (i=0; i<self->bufsize; i++) {
+            ind2[i] = tmpind2;
+        }
+    }   
+    else {
+        MYFLT *tmpind2 = Stream_getData((Stream *)self->ind2_stream);
+        for (i=0; i<self->bufsize; i++) {
+            ind2[i] = tmpind2[i];
+        }
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        car_amp = car[i] * ind1[i];
+        mod_freq = car[i] * rat[i];
+        mod_amp = mod_freq * ind2[i];
+        mod_delta = (mod_freq + self->car_val * car_amp) * self->scaleFactor;
+        self->pointerPos_mod = Sine_clip(self->pointerPos_mod);
+        ipart = (int)self->pointerPos_mod;
+        fpart = self->pointerPos_mod - ipart;
+        mod_val = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos_mod += mod_delta;
+        
+        car_freq = car[i] + (mod_val * mod_amp);
+        car_delta = car_freq * self->scaleFactor;
+        self->pointerPos_car = Sine_clip(self->pointerPos_car);
+        ipart = (int)self->pointerPos_car;
+        fpart = self->pointerPos_car - ipart;
+        self->car_val = SINE_ARRAY[ipart] * (1.0 - fpart) + SINE_ARRAY[ipart+1] * fpart;
+        self->pointerPos_car += car_delta;
+        self->data[i] = (self->car_val + mod_val) * 0.5;
+    }
+}
+
+static void CrossFm_postprocessing_ii(CrossFm *self) { POST_PROCESSING_II };
+static void CrossFm_postprocessing_ai(CrossFm *self) { POST_PROCESSING_AI };
+static void CrossFm_postprocessing_ia(CrossFm *self) { POST_PROCESSING_IA };
+static void CrossFm_postprocessing_aa(CrossFm *self) { POST_PROCESSING_AA };
+static void CrossFm_postprocessing_ireva(CrossFm *self) { POST_PROCESSING_IREVA };
+static void CrossFm_postprocessing_areva(CrossFm *self) { POST_PROCESSING_AREVA };
+static void CrossFm_postprocessing_revai(CrossFm *self) { POST_PROCESSING_REVAI };
+static void CrossFm_postprocessing_revaa(CrossFm *self) { POST_PROCESSING_REVAA };
+static void CrossFm_postprocessing_revareva(CrossFm *self) { POST_PROCESSING_REVAREVA };
+
+static void
+CrossFm_setProcMode(CrossFm *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = CrossFm_readframes;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = CrossFm_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = CrossFm_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = CrossFm_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = CrossFm_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = CrossFm_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = CrossFm_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = CrossFm_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = CrossFm_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = CrossFm_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+CrossFm_compute_next_data_frame(CrossFm *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+CrossFm_traverse(CrossFm *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->car);    
+    Py_VISIT(self->car_stream);    
+    Py_VISIT(self->ratio);    
+    Py_VISIT(self->ratio_stream);    
+    Py_VISIT(self->ind1);    
+    Py_VISIT(self->ind1_stream);    
+    Py_VISIT(self->ind2);    
+    Py_VISIT(self->ind2_stream);    
+    return 0;
+}
+
+static int 
+CrossFm_clear(CrossFm *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->car);    
+    Py_CLEAR(self->car_stream);    
+    Py_CLEAR(self->ratio);    
+    Py_CLEAR(self->ratio_stream);    
+    Py_CLEAR(self->ind1);    
+    Py_CLEAR(self->ind1_stream);    
+    Py_CLEAR(self->ind2);    
+    Py_CLEAR(self->ind2_stream);    
+    return 0;
+}
+
+static void
+CrossFm_dealloc(CrossFm* self)
+{
+    free(self->data);
+    CrossFm_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * CrossFm_deleteStream(CrossFm *self) { DELETE_STREAM };
+
+static PyObject *
+CrossFm_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    CrossFm *self;
+    self = (CrossFm *)type->tp_alloc(type, 0);
+    
+    self->car = PyFloat_FromDouble(100);
+    self->ratio = PyFloat_FromDouble(0.5);
+    self->ind1 = PyFloat_FromDouble(2);
+    self->ind2 = PyFloat_FromDouble(2);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+    self->pointerPos_car = self->pointerPos_mod = 0.;
+    self->car_val = 0.;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, CrossFm_compute_next_data_frame);
+    self->mode_func_ptr = CrossFm_setProcMode;
+    
+    self->scaleFactor = 512.0 / self->sr;
+    
+    return (PyObject *)self;
+}
+
+static int
+CrossFm_init(CrossFm *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *cartmp=NULL, *ratiotmp=NULL, *ind1tmp=NULL, *ind2tmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"carrier", "ratio", "ind1", "ind2", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOOO", kwlist, &cartmp, &ratiotmp, &ind1tmp, &ind2tmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (cartmp) {
+        PyObject_CallMethod((PyObject *)self, "setCarrier", "O", cartmp);
+    }
+    
+    if (ratiotmp) {
+        PyObject_CallMethod((PyObject *)self, "setRatio", "O", ratiotmp);
+    }
+    
+    if (ind1tmp) {
+        PyObject_CallMethod((PyObject *)self, "setInd1", "O", ind1tmp);
+    }
+
+    if (ind2tmp) {
+        PyObject_CallMethod((PyObject *)self, "setInd2", "O", ind2tmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * CrossFm_getServer(CrossFm* self) { GET_SERVER };
+static PyObject * CrossFm_getStream(CrossFm* self) { GET_STREAM };
+static PyObject * CrossFm_setMul(CrossFm *self, PyObject *arg) { SET_MUL };	
+static PyObject * CrossFm_setAdd(CrossFm *self, PyObject *arg) { SET_ADD };	
+static PyObject * CrossFm_setSub(CrossFm *self, PyObject *arg) { SET_SUB };	
+static PyObject * CrossFm_setDiv(CrossFm *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * CrossFm_play(CrossFm *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CrossFm_out(CrossFm *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * CrossFm_stop(CrossFm *self) { STOP };
+
+static PyObject * CrossFm_multiply(CrossFm *self, PyObject *arg) { MULTIPLY };
+static PyObject * CrossFm_inplace_multiply(CrossFm *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * CrossFm_add(CrossFm *self, PyObject *arg) { ADD };
+static PyObject * CrossFm_inplace_add(CrossFm *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * CrossFm_sub(CrossFm *self, PyObject *arg) { SUB };
+static PyObject * CrossFm_inplace_sub(CrossFm *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * CrossFm_div(CrossFm *self, PyObject *arg) { DIV };
+static PyObject * CrossFm_inplace_div(CrossFm *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+CrossFm_setCarrier(CrossFm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->car);
+	if (isNumber == 1) {
+		self->car = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->car = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->car, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->car_stream);
+        self->car_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+CrossFm_setRatio(CrossFm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->ratio);
+	if (isNumber == 1) {
+		self->ratio = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->ratio = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->ratio, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->ratio_stream);
+        self->ratio_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+CrossFm_setInd1(CrossFm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->ind1);
+	if (isNumber == 1) {
+		self->ind1 = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->ind1 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->ind1, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->ind1_stream);
+        self->ind1_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+CrossFm_setInd2(CrossFm *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->ind2);
+	if (isNumber == 1) {
+		self->ind2 = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->ind2 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->ind2, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->ind2_stream);
+        self->ind2_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef CrossFm_members[] = {
+    {"server", T_OBJECT_EX, offsetof(CrossFm, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CrossFm, stream), 0, "Stream object."},
+    {"carrier", T_OBJECT_EX, offsetof(CrossFm, car), 0, "Frequency in cycle per second."},
+    {"ratio", T_OBJECT_EX, offsetof(CrossFm, ratio), 0, "Ratio carrier:modulator (mod freq = car*mod)."},
+    {"ind1", T_OBJECT_EX, offsetof(CrossFm, ind1), 0, "Modulation ind1 (car amp = car freq*ind1)."},
+    {"ind2", T_OBJECT_EX, offsetof(CrossFm, ind2), 0, "Modulation ind2 (mod amp = mod freq*ind2)."},
+    {"mul", T_OBJECT_EX, offsetof(CrossFm, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(CrossFm, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CrossFm_methods[] = {
+    {"getServer", (PyCFunction)CrossFm_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CrossFm_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)CrossFm_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)CrossFm_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)CrossFm_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)CrossFm_stop, METH_NOARGS, "Stops computing."},
+    {"setCarrier", (PyCFunction)CrossFm_setCarrier, METH_O, "Sets carrier frequency in cycle per second."},
+    {"setRatio", (PyCFunction)CrossFm_setRatio, METH_O, "Sets car:mod ratio."},
+    {"setInd1", (PyCFunction)CrossFm_setInd1, METH_O, "Sets carrier index."},
+    {"setInd2", (PyCFunction)CrossFm_setInd2, METH_O, "Sets modulation index."},
+    {"setMul", (PyCFunction)CrossFm_setMul, METH_O, "Sets CrossFm mul factor."},
+    {"setAdd", (PyCFunction)CrossFm_setAdd, METH_O, "Sets CrossFm add factor."},
+    {"setSub", (PyCFunction)CrossFm_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)CrossFm_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods CrossFm_as_number = {
+    (binaryfunc)CrossFm_add,                      /*nb_add*/
+    (binaryfunc)CrossFm_sub,                 /*nb_subtract*/
+    (binaryfunc)CrossFm_multiply,                 /*nb_multiply*/
+    (binaryfunc)CrossFm_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)CrossFm_inplace_add,              /*inplace_add*/
+    (binaryfunc)CrossFm_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)CrossFm_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)CrossFm_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_ind1 */
+};
+
+PyTypeObject CrossFmType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.CrossFm_base",         /*tp_name*/
+    sizeof(CrossFm),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CrossFm_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &CrossFm_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "CrossFm objects. Generates a cross frequency modulation synthesis.",           /* tp_doc */
+    (traverseproc)CrossFm_traverse,   /* tp_traverse */
+    (inquiry)CrossFm_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    CrossFm_methods,             /* tp_methods */
+    CrossFm_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)CrossFm_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    CrossFm_new,                 /* tp_new */
+};
+
+/*************/
 /* Blit object */
 /*************/
 typedef struct {
