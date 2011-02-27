@@ -377,6 +377,40 @@ class Noise(PyoObject):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
+class PinkNoise(PyoObject):
+    """
+    A pink noise generator.
+
+    Paul Kellet's implementation of pink noise generator.
+
+    This is an approximation to a -10dB/decade filter using a weighted sum
+    of first order filters. It is accurate to within +/-0.05dB above 9.2Hz
+    (44100Hz sampling rate).
+    
+    Parent class: PyoObject
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = PinkNoise()
+    >>> b = Biquad(a, freq=1000, q=5, type=0).out()    
+
+    """
+    def __init__(self, mul=1, add=0):                
+        PyoObject.__init__(self)
+        self._mul = mul
+        self._add = add
+        mul, add, lmax = convertArgsToLists(mul, add)
+        self._base_objs = [PinkNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['mul', 'add']
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
 class FM(PyoObject):
     """
     A simple frequency modulation generator.

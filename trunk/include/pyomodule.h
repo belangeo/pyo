@@ -131,6 +131,7 @@ extern PyTypeObject OscType;
 extern PyTypeObject OscLoopType;
 extern PyTypeObject PulsarType;
 extern PyTypeObject NoiseType;
+extern PyTypeObject PinkNoiseType;
 extern PyTypeObject InputType;
 extern PyTypeObject SfPlayerType;
 extern PyTypeObject SfPlayType;

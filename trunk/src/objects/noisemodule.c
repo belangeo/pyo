@@ -292,3 +292,286 @@ Noise_members,             /* tp_members */
 Noise_new,                 /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    int modebuffer[2];
+    MYFLT c0;
+    MYFLT c1;
+    MYFLT c2;
+    MYFLT c3;
+    MYFLT c4;
+    MYFLT c5;
+    MYFLT c6;
+} PinkNoise;
+
+static void
+PinkNoise_generate(PinkNoise *self) {
+    MYFLT in, val;
+    int i;
+    
+    for (i=0; i<self->bufsize; i++) {
+        in = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
+        self->c0 = self->c0 * 0.99886 + in * 0.0555179;
+        self->c1 = self->c1 * 0.99332 + in * 0.0750759;
+        self->c2 = self->c2 * 0.96900 + in * 0.1538520;
+        self->c3 = self->c3 * 0.86650 + in * 0.3104856;
+        self->c4 = self->c4 * 0.55000 + in * 0.5329522;
+        self->c5 = self->c5 * -0.7616 - in * 0.0168980;
+        val = self->c0 + self->c1 + self->c2 + self->c3 + self->c4 + self->c5 + self->c6 + in * 0.5362;
+        self->data[i] = val * 0.2;
+        self->c6 = in * 0.115926;
+    }
+}
+
+static void PinkNoise_postprocessing_ii(PinkNoise *self) { POST_PROCESSING_II };
+static void PinkNoise_postprocessing_ai(PinkNoise *self) { POST_PROCESSING_AI };
+static void PinkNoise_postprocessing_ia(PinkNoise *self) { POST_PROCESSING_IA };
+static void PinkNoise_postprocessing_aa(PinkNoise *self) { POST_PROCESSING_AA };
+static void PinkNoise_postprocessing_ireva(PinkNoise *self) { POST_PROCESSING_IREVA };
+static void PinkNoise_postprocessing_areva(PinkNoise *self) { POST_PROCESSING_AREVA };
+static void PinkNoise_postprocessing_revai(PinkNoise *self) { POST_PROCESSING_REVAI };
+static void PinkNoise_postprocessing_revaa(PinkNoise *self) { POST_PROCESSING_REVAA };
+static void PinkNoise_postprocessing_revareva(PinkNoise *self) { POST_PROCESSING_REVAREVA };
+
+static void
+PinkNoise_setProcMode(PinkNoise *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = PinkNoise_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = PinkNoise_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = PinkNoise_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = PinkNoise_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = PinkNoise_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = PinkNoise_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = PinkNoise_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = PinkNoise_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = PinkNoise_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+PinkNoise_compute_next_data_frame(PinkNoise *self)
+{
+    PinkNoise_generate(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+PinkNoise_traverse(PinkNoise *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    return 0;
+}
+
+static int 
+PinkNoise_clear(PinkNoise *self)
+{
+    pyo_CLEAR
+    return 0;
+}
+
+static void
+PinkNoise_dealloc(PinkNoise* self)
+{
+    free(self->data);
+    PinkNoise_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * PinkNoise_deleteStream(PinkNoise *self) { DELETE_STREAM };
+
+static PyObject *
+PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PinkNoise *self;
+    self = (PinkNoise *)type->tp_alloc(type, 0);
+    
+    self->c0 = self->c1 = self->c2 = self->c3 = self->c4 = self->c5 = self->c6 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PinkNoise_compute_next_data_frame);
+    self->mode_func_ptr = PinkNoise_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+PinkNoise_init(PinkNoise *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
+        return -1; 
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    srand((unsigned)(time(0)));
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * PinkNoise_getServer(PinkNoise* self) { GET_SERVER };
+static PyObject * PinkNoise_getStream(PinkNoise* self) { GET_STREAM };
+static PyObject * PinkNoise_setMul(PinkNoise *self, PyObject *arg) { SET_MUL };	
+static PyObject * PinkNoise_setAdd(PinkNoise *self, PyObject *arg) { SET_ADD };	
+static PyObject * PinkNoise_setSub(PinkNoise *self, PyObject *arg) { SET_SUB };	
+static PyObject * PinkNoise_setDiv(PinkNoise *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * PinkNoise_play(PinkNoise *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PinkNoise_out(PinkNoise *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * PinkNoise_stop(PinkNoise *self) { STOP };
+
+static PyObject * PinkNoise_multiply(PinkNoise *self, PyObject *arg) { MULTIPLY };
+static PyObject * PinkNoise_inplace_multiply(PinkNoise *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * PinkNoise_add(PinkNoise *self, PyObject *arg) { ADD };
+static PyObject * PinkNoise_inplace_add(PinkNoise *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * PinkNoise_sub(PinkNoise *self, PyObject *arg) { SUB };
+static PyObject * PinkNoise_inplace_sub(PinkNoise *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * PinkNoise_div(PinkNoise *self, PyObject *arg) { DIV };
+static PyObject * PinkNoise_inplace_div(PinkNoise *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef PinkNoise_members[] = {
+    {"server", T_OBJECT_EX, offsetof(PinkNoise, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(PinkNoise, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(PinkNoise, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(PinkNoise, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef PinkNoise_methods[] = {
+    {"getServer", (PyCFunction)PinkNoise_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)PinkNoise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)PinkNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)PinkNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)PinkNoise_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)PinkNoise_setMul, METH_O, "Sets PinkNoise mul factor."},
+    {"setAdd", (PyCFunction)PinkNoise_setAdd, METH_O, "Sets PinkNoise add factor."},
+    {"setSub", (PyCFunction)PinkNoise_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)PinkNoise_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods PinkNoise_as_number = {
+    (binaryfunc)PinkNoise_add,                      /*nb_add*/
+    (binaryfunc)PinkNoise_sub,                 /*nb_subtract*/
+    (binaryfunc)PinkNoise_multiply,                 /*nb_multiply*/
+    (binaryfunc)PinkNoise_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)PinkNoise_inplace_add,              /*inplace_add*/
+    (binaryfunc)PinkNoise_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)PinkNoise_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)PinkNoise_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject PinkNoiseType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.PinkNoise_base",         /*tp_name*/
+    sizeof(PinkNoise),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)PinkNoise_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &PinkNoise_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "PinkNoise objects. Pink noise generator.",           /* tp_doc */
+    (traverseproc)PinkNoise_traverse,   /* tp_traverse */
+    (inquiry)PinkNoise_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    PinkNoise_methods,             /* tp_methods */
+    PinkNoise_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)PinkNoise_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    PinkNoise_new,                 /* tp_new */
+};
+

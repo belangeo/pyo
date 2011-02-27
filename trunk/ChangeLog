@@ -1,5 +1,10 @@
 2011-02-26 belangeo <belangeo@gmail.com>
 
+    * Added new object : PinkNoise
+    - rev 551
+
+2011-02-26 belangeo <belangeo@gmail.com>
+
     * Added new object : Blit (Band Limited Impulse Train)
     - rev 550
 
