@@ -120,6 +120,7 @@
 extern PyTypeObject SineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
+extern PyTypeObject CrossFmType;
 extern PyTypeObject BlitType;
 extern PyTypeObject PhasorType;
 extern PyTypeObject PointerType;
