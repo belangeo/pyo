@@ -80,3 +80,4 @@ TODO before releasing _pyo_ version 1.0.
   * !MatrixSetCol (make sure that there is only one value in a column, others are 0)
   * !TrigProb (uses a matrix as a probability distribution (work with !MatrixSetCol))
   * !AttackDetector, !PitchTrack
+  * Mirror and Wrap (alternatives to Clip)
