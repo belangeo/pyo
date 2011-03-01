@@ -61,8 +61,8 @@ TODO before releasing _pyo_ version 1.0.
 - FFT (return 3 streams)
 
   * obj`['real']`
-  * obj['imag']
-  * obj['bin'] -> integer from 0 to fftsize/2
+  * obj`['imag']`
+  * obj`['bin']` -> integer from 0 to fftsize/2
 
 - IFFT -> 2 streams (real, imag) in input
 
