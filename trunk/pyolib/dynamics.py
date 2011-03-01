@@ -141,7 +141,7 @@ class Clip(PyoObject):
 
     @property
     def max(self):
-        """float or PyoObject. Minimum possible value.""" 
+        """float or PyoObject. Maximum possible value.""" 
         return self._max
     @max.setter
     def max(self, x): self.setMax(x)

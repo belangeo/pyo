@@ -1815,3 +1815,450 @@ Compare_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 Compare_new,                                     /* tp_new */
 };
+
+/*****************/
+/** Between object **/
+/*****************/
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *min;
+    Stream *min_stream;
+    PyObject *max;
+    Stream *max_stream;
+    int modebuffer[4];
+} Between;
+
+static void
+Between_transform_ii(Between *self) {
+    MYFLT val;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        if(val >= mi && val < ma)
+            self->data[i] = 1.0;
+        else
+            self->data[i] = 0.0;
+    }
+}
+
+static void
+Between_transform_ai(Between *self) {
+    MYFLT val;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mi = Stream_getData((Stream *)self->min_stream);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        if(val >= mi[i] && val < ma)
+            self->data[i] = 1.0;
+        else
+            self->data[i] = 0.0;
+    }
+}
+
+static void
+Between_transform_ia(Between *self) {
+    MYFLT val;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT *ma = Stream_getData((Stream *)self->max_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        if(val >= mi && val < ma[i])
+            self->data[i] = 1.0;
+        else
+            self->data[i] = 0.0;
+    }
+}
+
+static void
+Between_transform_aa(Between *self) {
+    MYFLT val;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mi = Stream_getData((Stream *)self->min_stream);
+    MYFLT *ma = Stream_getData((Stream *)self->max_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        if(val >= mi[i] && val < ma[i])
+            self->data[i] = 1.0;
+        else
+            self->data[i] = 0.0;
+    }
+}
+
+static void Between_postprocessing_ii(Between *self) { POST_PROCESSING_II };
+static void Between_postprocessing_ai(Between *self) { POST_PROCESSING_AI };
+static void Between_postprocessing_ia(Between *self) { POST_PROCESSING_IA };
+static void Between_postprocessing_aa(Between *self) { POST_PROCESSING_AA };
+static void Between_postprocessing_ireva(Between *self) { POST_PROCESSING_IREVA };
+static void Between_postprocessing_areva(Between *self) { POST_PROCESSING_AREVA };
+static void Between_postprocessing_revai(Between *self) { POST_PROCESSING_REVAI };
+static void Between_postprocessing_revaa(Between *self) { POST_PROCESSING_REVAA };
+static void Between_postprocessing_revareva(Between *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Between_setProcMode(Between *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Between_transform_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Between_transform_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Between_transform_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Between_transform_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Between_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Between_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Between_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Between_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Between_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Between_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Between_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Between_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Between_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Between_compute_next_data_frame(Between *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Between_traverse(Between *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->min);    
+    Py_VISIT(self->min_stream);    
+    Py_VISIT(self->max);    
+    Py_VISIT(self->max_stream);    
+    return 0;
+}
+
+static int 
+Between_clear(Between *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->min);    
+    Py_CLEAR(self->min_stream);    
+    Py_CLEAR(self->max);    
+    Py_CLEAR(self->max_stream);    
+    return 0;
+}
+
+static void
+Between_dealloc(Between* self)
+{
+    free(self->data);
+    Between_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Between_deleteStream(Between *self) { DELETE_STREAM };
+
+static PyObject *
+Between_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Between *self;
+    self = (Between *)type->tp_alloc(type, 0);
+    
+    self->min = PyFloat_FromDouble(0.0);
+    self->max = PyFloat_FromDouble(1.0);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Between_compute_next_data_frame);
+    self->mode_func_ptr = Between_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Between_init(Between *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (mintmp) {
+        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+    }
+    
+    if (maxtmp) {
+        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Between_getServer(Between* self) { GET_SERVER };
+static PyObject * Between_getStream(Between* self) { GET_STREAM };
+static PyObject * Between_setMul(Between *self, PyObject *arg) { SET_MUL };	
+static PyObject * Between_setAdd(Between *self, PyObject *arg) { SET_ADD };	
+static PyObject * Between_setSub(Between *self, PyObject *arg) { SET_SUB };	
+static PyObject * Between_setDiv(Between *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Between_play(Between *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Between_out(Between *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Between_stop(Between *self) { STOP };
+
+static PyObject * Between_multiply(Between *self, PyObject *arg) { MULTIPLY };
+static PyObject * Between_inplace_multiply(Between *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Between_add(Between *self, PyObject *arg) { ADD };
+static PyObject * Between_inplace_add(Between *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Between_sub(Between *self, PyObject *arg) { SUB };
+static PyObject * Between_inplace_sub(Between *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Between_div(Between *self, PyObject *arg) { DIV };
+static PyObject * Between_inplace_div(Between *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Between_setMin(Between *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->min);
+	if (isNumber == 1) {
+		self->min = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->min = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->min_stream);
+        self->min_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Between_setMax(Between *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->max);
+	if (isNumber == 1) {
+		self->max = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->max = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->max_stream);
+        self->max_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Between_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Between, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Between, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Between, input), 0, "Input sound object."},
+    {"min", T_OBJECT_EX, offsetof(Between, min), 0, "Minimum possible value."},
+    {"max", T_OBJECT_EX, offsetof(Between, max), 0, "Maximum possible value."},
+    {"mul", T_OBJECT_EX, offsetof(Between, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Between, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Between_methods[] = {
+    {"getServer", (PyCFunction)Between_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Between_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Between_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Between_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Between_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Between_stop, METH_NOARGS, "Stops computing."},
+    {"setMin", (PyCFunction)Between_setMin, METH_O, "Sets the minimum value."},
+    {"setMax", (PyCFunction)Between_setMax, METH_O, "Sets the maximum value."},
+    {"setMul", (PyCFunction)Between_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Between_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Between_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Between_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Between_as_number = {
+    (binaryfunc)Between_add,                      /*nb_add*/
+    (binaryfunc)Between_sub,                 /*nb_subtract*/
+    (binaryfunc)Between_multiply,                 /*nb_multiply*/
+    (binaryfunc)Between_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Between_inplace_add,              /*inplace_add*/
+    (binaryfunc)Between_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Between_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Between_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject BetweenType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Between_base",         /*tp_name*/
+    sizeof(Between),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Between_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Between_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Between objects. Outputs a trig if signal is between min and max values.",           /* tp_doc */
+    (traverseproc)Between_traverse,   /* tp_traverse */
+    (inquiry)Between_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Between_methods,             /* tp_methods */
+    Between_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Between_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Between_new,                 /* tp_new */
+};
+
