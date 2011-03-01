@@ -1,3 +1,8 @@
+2011-03-01 belangeo <belangeo@gmail.com>
+
+    * Added new object : Between (Output a trig if input is between `min` and `max`)
+    - rev 558
+
 2011-02-27 belangeo <belangeo@gmail.com>
 
     * Added new object : CrossFM
