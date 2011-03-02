@@ -962,7 +962,7 @@ Clip_new,                 /* tp_new */
 };
 
 /*****************/
-/** Mirror object **/
+/* Mirror object */
 /*****************/
 
 typedef struct {
@@ -1447,6 +1447,510 @@ PyTypeObject MirrorType = {
     (initproc)Mirror_init,      /* tp_init */
     0,                         /* tp_alloc */
     Mirror_new,                 /* tp_new */
+};
+
+/*****************/
+/** Wrap object **/
+/*****************/
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *min;
+    Stream *min_stream;
+    PyObject *max;
+    Stream *max_stream;
+    int modebuffer[4];
+} Wrap;
+
+static void
+Wrap_transform_ii(Wrap *self) {
+    MYFLT val, avg, rng, tmp;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
+    
+    if (mi >= ma) {
+        avg = (mi + ma) * 0.5;
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = avg;
+        }
+    }
+    else {
+        rng = ma - mi;
+        for (i=0; i<self->bufsize; i++) {
+            val = in[i];
+            tmp = (val - mi) / rng;
+            if (tmp >= 1.0) {
+                tmp -= (int)tmp;
+                val = tmp * rng + mi;
+            }
+            else if (tmp < 0) {
+                tmp += (int)(-tmp) + 1;
+                val = tmp * rng + mi;
+            }    
+            self->data[i] = val;
+        }
+    }
+}
+
+static void
+Wrap_transform_ai(Wrap *self) {
+    MYFLT val, avg, rng, tmp, mi;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mini = Stream_getData((Stream *)self->min_stream);
+    MYFLT ma = PyFloat_AS_DOUBLE(self->max);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        mi = mini[i];
+        if (mi >= ma) {
+            avg = (mi + ma) * 0.5;
+            self->data[i] = avg;
+        }
+        else {
+            rng = ma - mi;
+            tmp = (val - mi) / rng;
+            if (tmp >= 1.0) {
+                tmp -= (int)tmp;
+                val = tmp * rng + mi;
+            }
+            else if (tmp < 0) {
+                tmp += (int)(-tmp) + 1;
+                val = tmp * rng + mi;
+            }    
+            self->data[i] = val;            
+        }
+    }
+}
+
+static void
+Wrap_transform_ia(Wrap *self) {
+    MYFLT val, avg, rng, tmp, ma;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT mi = PyFloat_AS_DOUBLE(self->min);
+    MYFLT *maxi = Stream_getData((Stream *)self->max_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        ma = maxi[i];
+        if (mi >= ma) {
+            avg = (mi + ma) * 0.5;
+            self->data[i] = avg;
+        }
+        else {
+            rng = ma - mi;
+            tmp = (val - mi) / rng;
+            if (tmp >= 1.0) {
+                tmp -= (int)tmp;
+                val = tmp * rng + mi;
+            }
+            else if (tmp < 0) {
+                tmp += (int)(-tmp) + 1;
+                val = tmp * rng + mi;
+            }    
+            self->data[i] = val;            
+        }
+    }
+}
+
+static void
+Wrap_transform_aa(Wrap *self) {
+    MYFLT val, avg, rng, tmp, mi, ma;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *mini = Stream_getData((Stream *)self->min_stream);
+    MYFLT *maxi = Stream_getData((Stream *)self->max_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = in[i];
+        mi = mini[i];
+        ma = maxi[i];
+        if (mi >= ma) {
+            avg = (mi + ma) * 0.5;
+            self->data[i] = avg;
+        }
+        else {
+            rng = ma - mi;
+            tmp = (val - mi) / rng;
+            if (tmp >= 1.0) {
+                tmp -= (int)tmp;
+                val = tmp * rng + mi;
+            }
+            else if (tmp < 0) {
+                tmp += (int)(-tmp) + 1;
+                val = tmp * rng + mi;
+            }    
+            self->data[i] = val;            
+        }
+    }
+}
+
+static void Wrap_postprocessing_ii(Wrap *self) { POST_PROCESSING_II };
+static void Wrap_postprocessing_ai(Wrap *self) { POST_PROCESSING_AI };
+static void Wrap_postprocessing_ia(Wrap *self) { POST_PROCESSING_IA };
+static void Wrap_postprocessing_aa(Wrap *self) { POST_PROCESSING_AA };
+static void Wrap_postprocessing_ireva(Wrap *self) { POST_PROCESSING_IREVA };
+static void Wrap_postprocessing_areva(Wrap *self) { POST_PROCESSING_AREVA };
+static void Wrap_postprocessing_revai(Wrap *self) { POST_PROCESSING_REVAI };
+static void Wrap_postprocessing_revaa(Wrap *self) { POST_PROCESSING_REVAA };
+static void Wrap_postprocessing_revareva(Wrap *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Wrap_setProcMode(Wrap *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Wrap_transform_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Wrap_transform_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Wrap_transform_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Wrap_transform_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Wrap_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Wrap_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Wrap_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Wrap_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Wrap_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Wrap_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Wrap_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Wrap_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Wrap_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Wrap_compute_next_data_frame(Wrap *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Wrap_traverse(Wrap *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);    
+    Py_VISIT(self->min);    
+    Py_VISIT(self->min_stream);    
+    Py_VISIT(self->max);    
+    Py_VISIT(self->max_stream);    
+    return 0;
+}
+
+static int 
+Wrap_clear(Wrap *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->min);    
+    Py_CLEAR(self->min_stream);    
+    Py_CLEAR(self->max);    
+    Py_CLEAR(self->max_stream);    
+    return 0;
+}
+
+static void
+Wrap_dealloc(Wrap* self)
+{
+    free(self->data);
+    Wrap_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Wrap_deleteStream(Wrap *self) { DELETE_STREAM };
+
+static PyObject *
+Wrap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Wrap *self;
+    self = (Wrap *)type->tp_alloc(type, 0);
+    
+    self->min = PyFloat_FromDouble(0.0);
+    self->max = PyFloat_FromDouble(1.0);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Wrap_compute_next_data_frame);
+    self->mode_func_ptr = Wrap_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Wrap_init(Wrap *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &mintmp, &maxtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (mintmp) {
+        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+    }
+    
+    if (maxtmp) {
+        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Wrap_getServer(Wrap* self) { GET_SERVER };
+static PyObject * Wrap_getStream(Wrap* self) { GET_STREAM };
+static PyObject * Wrap_setMul(Wrap *self, PyObject *arg) { SET_MUL };	
+static PyObject * Wrap_setAdd(Wrap *self, PyObject *arg) { SET_ADD };	
+static PyObject * Wrap_setSub(Wrap *self, PyObject *arg) { SET_SUB };	
+static PyObject * Wrap_setDiv(Wrap *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Wrap_play(Wrap *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Wrap_out(Wrap *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Wrap_stop(Wrap *self) { STOP };
+
+static PyObject * Wrap_multiply(Wrap *self, PyObject *arg) { MULTIPLY };
+static PyObject * Wrap_inplace_multiply(Wrap *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Wrap_add(Wrap *self, PyObject *arg) { ADD };
+static PyObject * Wrap_inplace_add(Wrap *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Wrap_sub(Wrap *self, PyObject *arg) { SUB };
+static PyObject * Wrap_inplace_sub(Wrap *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Wrap_div(Wrap *self, PyObject *arg) { DIV };
+static PyObject * Wrap_inplace_div(Wrap *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Wrap_setMin(Wrap *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->min);
+	if (isNumber == 1) {
+		self->min = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->min = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->min_stream);
+        self->min_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Wrap_setMax(Wrap *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->max);
+	if (isNumber == 1) {
+		self->max = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->max = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->max_stream);
+        self->max_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Wrap_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Wrap, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Wrap, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Wrap, input), 0, "Input sound object."},
+    {"min", T_OBJECT_EX, offsetof(Wrap, min), 0, "Minimum possible value."},
+    {"max", T_OBJECT_EX, offsetof(Wrap, max), 0, "Maximum possible value."},
+    {"mul", T_OBJECT_EX, offsetof(Wrap, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Wrap, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Wrap_methods[] = {
+    {"getServer", (PyCFunction)Wrap_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Wrap_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Wrap_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Wrap_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Wrap_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Wrap_stop, METH_NOARGS, "Stops computing."},
+    {"setMin", (PyCFunction)Wrap_setMin, METH_O, "Sets the minimum value."},
+    {"setMax", (PyCFunction)Wrap_setMax, METH_O, "Sets the maximum value."},
+    {"setMul", (PyCFunction)Wrap_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Wrap_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Wrap_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Wrap_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Wrap_as_number = {
+    (binaryfunc)Wrap_add,                      /*nb_add*/
+    (binaryfunc)Wrap_sub,                 /*nb_subtract*/
+    (binaryfunc)Wrap_multiply,                 /*nb_multiply*/
+    (binaryfunc)Wrap_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Wrap_inplace_add,              /*inplace_add*/
+    (binaryfunc)Wrap_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Wrap_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Wrap_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject WrapType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Wrap_base",         /*tp_name*/
+    sizeof(Wrap),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Wrap_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Wrap_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Wrap objects. Wraps-around the signal that exceeds the min and max thresholds.",           /* tp_doc */
+    (traverseproc)Wrap_traverse,   /* tp_traverse */
+    (inquiry)Wrap_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Wrap_methods,             /* tp_methods */
+    Wrap_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Wrap_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Wrap_new,                 /* tp_new */
 };
 
 /*****************/

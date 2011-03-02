@@ -943,6 +943,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&MirrorType);
     PyModule_AddObject(m, "Mirror_base", (PyObject *)&MirrorType);
+
+    if (PyType_Ready(&WrapType) < 0)
+        return;
+    Py_INCREF(&WrapType);
+    PyModule_AddObject(m, "Wrap_base", (PyObject *)&WrapType);
     
     if (PyType_Ready(&BetweenType) < 0)
         return;
