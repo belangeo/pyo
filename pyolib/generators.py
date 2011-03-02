@@ -411,6 +411,36 @@ class PinkNoise(PyoObject):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
+class BrownNoise(PyoObject):
+    """
+    A brown noise generator.
+
+    The spectrum of a brown noise has a power density which decreases 6 dB 
+    per octave with increasing frequency (density proportional to 1/f^2).
+    
+    Parent class: PyoObject
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = BrownNoise(.3).out()
+
+    """
+    def __init__(self, mul=1, add=0):                
+        PyoObject.__init__(self)
+        self._mul = mul
+        self._add = add
+        mul, add, lmax = convertArgsToLists(mul, add)
+        self._base_objs = [BrownNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['mul', 'add']
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
 class FM(PyoObject):
     """
     A simple frequency modulation generator.

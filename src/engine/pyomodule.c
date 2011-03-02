@@ -883,6 +883,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&PinkNoiseType);
     PyModule_AddObject(m, "PinkNoise_base", (PyObject *)&PinkNoiseType);
+
+    if (PyType_Ready(&BrownNoiseType) < 0)
+        return;
+    Py_INCREF(&BrownNoiseType);
+    PyModule_AddObject(m, "BrownNoise_base", (PyObject *)&BrownNoiseType);
     
     if (PyType_Ready(&BiquadType) < 0)
         return;
