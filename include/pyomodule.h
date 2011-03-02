@@ -185,6 +185,7 @@ extern PyTypeObject Allpass2Type;
 extern PyTypeObject PhaserType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
+extern PyTypeObject MirrorType;
 extern PyTypeObject BetweenType;
 extern PyTypeObject DegradeType;
 extern PyTypeObject CompressType;
