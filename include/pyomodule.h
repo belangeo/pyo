@@ -186,6 +186,7 @@ extern PyTypeObject PhaserType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject MirrorType;
+extern PyTypeObject WrapType;
 extern PyTypeObject BetweenType;
 extern PyTypeObject DegradeType;
 extern PyTypeObject CompressType;
