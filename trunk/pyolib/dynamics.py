@@ -146,6 +146,135 @@ class Clip(PyoObject):
     @max.setter
     def max(self, x): self.setMax(x)
 
+class Mirror(PyoObject):
+    """
+    Reflects the signal that exceeds the min and max thresholds.
+
+    This object is useful for table indexing or for clipping and
+    modeling an audio signal.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    min : float or PyoObject, optional
+        Minimum possible value. Defaults to 0.
+    max : float or PyoObject, optional
+        Maximum possible value. Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    min : float or PyoObject. Minimum possible value.
+    max : float or PyoObject. Maximum possible value.
+
+    Notes:
+    
+    If `min` is higher than `max`, then the output will be the average of the two.
+    
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Sine(freq=[399.1,397.8,404.3,397.5,399.5,402.9,396.1,396.3])
+    >>> lfmin = Sine(freq=1.5, mul=.25, add=-0.75)
+    >>> lfmax = Sine(freq=2, mul=.25, add=0.75)
+    >>> b = Mirror(a, min=lfmin, max=lfmax)
+    >>> c = Tone(b, freq=500, mul=.1).out()
+
+    """
+    def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._min = min
+        self._max = max
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
+        self._base_objs = [Mirror_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'min', 'max', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(0., 1., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def min(self):
+        """float or PyoObject. Minimum possible value.""" 
+        return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+
+    @property
+    def max(self):
+        """float or PyoObject. Maximum possible value.""" 
+        return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
+
 class Degrade(PyoObject):
     """
     Signal quality reducer.

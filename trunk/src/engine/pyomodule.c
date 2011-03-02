@@ -939,6 +939,11 @@ init_pyo64(void)
     Py_INCREF(&ClipType);
     PyModule_AddObject(m, "Clip_base", (PyObject *)&ClipType);
 
+    if (PyType_Ready(&MirrorType) < 0)
+        return;
+    Py_INCREF(&MirrorType);
+    PyModule_AddObject(m, "Mirror_base", (PyObject *)&MirrorType);
+    
     if (PyType_Ready(&BetweenType) < 0)
         return;
     Py_INCREF(&BetweenType);

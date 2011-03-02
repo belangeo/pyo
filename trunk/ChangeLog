@@ -1,5 +1,10 @@
 2011-03-01 belangeo <belangeo@gmail.com>
 
+    * Added new object : Mirror (Reflects the signal that exceeds the `min` and `max` thresholds.)
+    - rev 561
+
+2011-03-01 belangeo <belangeo@gmail.com>
+
     * Added new object : Between (Output a trig if input is between `min` and `max`)
     - rev 558
 
