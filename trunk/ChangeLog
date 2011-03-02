@@ -1,5 +1,10 @@
 2011-03-02 belangeo <belangeo@gmail.com>
 
+    * Added new object : BrownNoise
+    - rev 564
+
+2011-03-02 belangeo <belangeo@gmail.com>
+
     * Added new object : Wrap (Wraps-around the signal that exceeds the `min` and `max` thresholds.)
     - rev 562
 
