@@ -1213,6 +1213,26 @@ init_pyo64(void)
         return;
     Py_INCREF(&ConvolveType);
     PyModule_AddObject(m, "Convolve_base", (PyObject *)&ConvolveType);
+
+    if (PyType_Ready(&IRWinSincType) < 0)
+        return;
+    Py_INCREF(&IRWinSincType);
+    PyModule_AddObject(m, "IRWinSinc_base", (PyObject *)&IRWinSincType);
+
+    if (PyType_Ready(&IRPulseType) < 0)
+        return;
+    Py_INCREF(&IRPulseType);
+    PyModule_AddObject(m, "IRPulse_base", (PyObject *)&IRPulseType);
+    
+    if (PyType_Ready(&IRAverageType) < 0)
+        return;
+    Py_INCREF(&IRAverageType);
+    PyModule_AddObject(m, "IRAverage_base", (PyObject *)&IRAverageType);
+
+    if (PyType_Ready(&IRFMType) < 0)
+        return;
+    Py_INCREF(&IRFMType);
+    PyModule_AddObject(m, "IRFM_base", (PyObject *)&IRFMType);
     
     if (PyType_Ready(&GranulatorType) < 0)
         return;
