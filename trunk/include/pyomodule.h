@@ -199,6 +199,10 @@ extern PyTypeObject FreeverbType;
 extern PyTypeObject WGVerbType;
 extern PyTypeObject ChorusType;
 extern PyTypeObject ConvolveType;
+extern PyTypeObject IRWinSincType;
+extern PyTypeObject IRPulseType;
+extern PyTypeObject IRAverageType;
+extern PyTypeObject IRFMType;
 
 extern PyTypeObject GranulatorType;
 extern PyTypeObject HarmonizerType;

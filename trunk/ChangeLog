@@ -1,3 +1,8 @@
+2011-03-14 belangeo <belangeo@gmail.com>
+
+    * Convolution-based filter family : IRWinSinc, IRPulse, IRAverage, IRFM
+    - rev 565
+
 2011-03-02 belangeo <belangeo@gmail.com>
 
     * Added new object : BrownNoise
