@@ -659,7 +659,7 @@ class PyoObjectControl(wx.Frame):
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
 
         if sys.platform == "linux2":
-            Y_OFF = 5
+            Y_OFF = 15
         elif sys.platform == "win32":
             Y_OFF = 55
         else:
@@ -699,7 +699,7 @@ class ViewTable_withPIL(wx.Frame):
         self.height = 200
         self.half_height = self.height / 2
         if sys.platform == "linux2":
-            Y_OFF = 5
+            Y_OFF = 25
         elif sys.platform == "win32":
             Y_OFF = 55
         else:
@@ -738,7 +738,7 @@ class ViewTable_withoutPIL(wx.Frame):
         self.height = 200
         self.half_height = self.height / 2
         if sys.platform == "linux2":
-            Y_OFF = 15
+            Y_OFF = 35
         else:
             Y_OFF = 40
         self.SetSize((self.width+10, self.height+Y_OFF))
@@ -1337,7 +1337,7 @@ class ServerGUI(wx.Frame):
             box.Add(self.text, 0, wx.LEFT, 28)
 
         if sys.platform == "linux2":
-            Y_OFF = 10
+            Y_OFF = 25
         elif sys.platform == "win32":
             Y_OFF = 60
         else:
