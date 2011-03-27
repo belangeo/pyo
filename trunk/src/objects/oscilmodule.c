@@ -6879,3 +6879,1658 @@ PyTypeObject BlitType = {
     0,                         /* tp_alloc */
     Blit_new,                 /* tp_new */
 };
+
+const MYFLT ROSSLER_SCALE     = 0.05757;
+const MYFLT ROSSLER_ALT_SCALE = 0.06028;
+
+/* Rossler object */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pitch;
+    Stream *pitch_stream;
+    PyObject *chaos;
+    Stream *chaos_stream;
+    MYFLT *altBuffer;
+    MYFLT vDX;
+    MYFLT vDY;
+    MYFLT vDZ;
+    MYFLT vX;
+    MYFLT vY;
+    MYFLT vZ;
+    MYFLT pA;
+    MYFLT pB;
+    MYFLT scalePitch;
+    int modebuffer[4];
+} Rossler;
+
+static void
+Rossler_readframes_ii(Rossler *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    pit = PyFloat_AS_DOUBLE(self->pitch);
+    chao = PyFloat_AS_DOUBLE(self->chaos);
+    if (pit < 0.0)
+        pit = 1.0;
+    else if (pit > 1.0)
+        pit = 1000.0;
+    else
+        pit = pit * 999.0 + 1.0;
+    delta = self->scalePitch * pit;
+
+    if (chao < 0.0)
+        chao = 3.0;
+    else if (chao > 1.0)
+        chao = 10.0;
+    else
+        chao = chao * 7.0 + 3.0;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->vDX = -self->vY - self->vZ;
+        self->vDY = self->vX + self->pA * self->vY;
+        self->vDZ = self->pB + self->vZ * (self->vX - chao);
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * ROSSLER_SCALE;
+        self->altBuffer[i] = self->vY * ROSSLER_ALT_SCALE;
+    }
+}
+
+static void
+Rossler_readframes_ai(Rossler *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    MYFLT *fr = Stream_getData((Stream *)self->pitch_stream);
+    chao = PyFloat_AS_DOUBLE(self->chaos);
+    if (chao < 0.0)
+        chao = 3.0;
+    else if (chao > 1.0)
+        chao = 10.0;
+    else
+        chao = chao * 7.0 + 3.0;
+    
+    for (i=0; i<self->bufsize; i++) {
+        pit = fr[i];
+        if (pit < 0.0)
+            pit = 1.0;
+        else if (pit > 1.0)
+            pit = 1000.0;
+        else
+            pit = pit * 999.0 + 1.0;
+        delta = self->scalePitch * pit;
+        self->vDX = -self->vY - self->vZ;
+        self->vDY = self->vX + self->pA * self->vY;
+        self->vDZ = self->pB + self->vZ * (self->vX - chao);
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * ROSSLER_SCALE;
+        self->altBuffer[i] = self->vY * ROSSLER_ALT_SCALE;
+    }
+}
+
+static void
+Rossler_readframes_ia(Rossler *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT *ch = Stream_getData((Stream *)self->chaos_stream);
+
+    if (pit < 0.0)
+        pit = 1.0;
+    else if (pit > 1.0)
+        pit = 1000.0;
+    else
+        pit = pit * 999.0 + 1.0;
+    delta = self->scalePitch * pit;
+    
+    for (i=0; i<self->bufsize; i++) {
+        chao = ch[i];
+        if (chao < 0.0)
+            chao = 3.0;
+        else if (chao > 1.0)
+            chao = 10.0;
+        else
+            chao = chao * 7.0 + 3.0;        
+        self->vDX = -self->vY - self->vZ;
+        self->vDY = self->vX + self->pA * self->vY;
+        self->vDZ = self->pB + self->vZ * (self->vX - chao);
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * ROSSLER_SCALE;
+        self->altBuffer[i] = self->vY * ROSSLER_ALT_SCALE;
+    }
+}
+
+static void
+Rossler_readframes_aa(Rossler *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    MYFLT *fr = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT *ch = Stream_getData((Stream *)self->chaos_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        pit = fr[i];
+        if (pit < 0.0)
+            pit = 1.0;
+        else if (pit > 1.0)
+            pit = 1000.0;
+        else
+            pit = pit * 999.0 + 1.0;
+        delta = self->scalePitch * pit;
+        
+        chao = ch[i];
+        if (chao < 0.0)
+            chao = 3.0;
+        else if (chao > 1.0)
+            chao = 10.0;
+        else
+            chao = chao * 7.0 + 3.0;        
+        self->vDX = -self->vY - self->vZ;
+        self->vDY = self->vX + self->pA * self->vY;
+        self->vDZ = self->pB + self->vZ * (self->vX - chao);
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * ROSSLER_SCALE;
+        self->altBuffer[i] = self->vY * ROSSLER_ALT_SCALE;
+    }
+}
+
+static void Rossler_postprocessing_ii(Rossler *self) { POST_PROCESSING_II };
+static void Rossler_postprocessing_ai(Rossler *self) { POST_PROCESSING_AI };
+static void Rossler_postprocessing_ia(Rossler *self) { POST_PROCESSING_IA };
+static void Rossler_postprocessing_aa(Rossler *self) { POST_PROCESSING_AA };
+static void Rossler_postprocessing_ireva(Rossler *self) { POST_PROCESSING_IREVA };
+static void Rossler_postprocessing_areva(Rossler *self) { POST_PROCESSING_AREVA };
+static void Rossler_postprocessing_revai(Rossler *self) { POST_PROCESSING_REVAI };
+static void Rossler_postprocessing_revaa(Rossler *self) { POST_PROCESSING_REVAA };
+static void Rossler_postprocessing_revareva(Rossler *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Rossler_setProcMode(Rossler *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Rossler_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Rossler_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Rossler_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Rossler_readframes_aa;
+            break;
+    } 
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Rossler_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Rossler_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Rossler_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Rossler_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Rossler_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Rossler_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Rossler_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Rossler_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Rossler_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Rossler_compute_next_data_frame(Rossler *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Rossler_traverse(Rossler *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pitch);    
+    Py_VISIT(self->pitch_stream);    
+    Py_VISIT(self->chaos);    
+    Py_VISIT(self->chaos_stream);    
+    return 0;
+}
+
+static int 
+Rossler_clear(Rossler *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pitch);    
+    Py_CLEAR(self->pitch_stream);    
+    Py_CLEAR(self->chaos);    
+    Py_CLEAR(self->chaos_stream);    
+    return 0;
+}
+
+static void
+Rossler_dealloc(Rossler* self)
+{
+    free(self->data);
+    free(self->altBuffer);
+    Rossler_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Rossler_deleteStream(Rossler *self) { DELETE_STREAM };
+
+static PyObject *
+Rossler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Rossler *self;
+    self = (Rossler *)type->tp_alloc(type, 0);
+    
+    self->pitch = PyFloat_FromDouble(0.25);    
+    self->chaos = PyFloat_FromDouble(0.5);    
+    self->pA = 0.15;
+    self->pB = 0.20;
+    self->vDX = self->vDY = self->vDZ = 0.0;
+    self->vX = self->vY = self->vZ = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Rossler_compute_next_data_frame);
+    self->mode_func_ptr = Rossler_setProcMode;
+    
+    self->scalePitch = 2.91 / self->sr;
+
+    return (PyObject *)self;
+}
+
+static int
+Rossler_init(Rossler *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *pitchtmp=NULL, *chaostmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"pitch", "chaos", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (pitchtmp) {
+        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+    }
+
+    if (chaostmp) {
+        PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->altBuffer = (MYFLT *)realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->altBuffer[i] = 0.0;
+    }    
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Rossler_getServer(Rossler* self) { GET_SERVER };
+static PyObject * Rossler_getStream(Rossler* self) { GET_STREAM };
+static PyObject * Rossler_setMul(Rossler *self, PyObject *arg) { SET_MUL };	
+static PyObject * Rossler_setAdd(Rossler *self, PyObject *arg) { SET_ADD };	
+static PyObject * Rossler_setSub(Rossler *self, PyObject *arg) { SET_SUB };	
+static PyObject * Rossler_setDiv(Rossler *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Rossler_play(Rossler *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Rossler_out(Rossler *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Rossler_stop(Rossler *self) { STOP };
+
+static PyObject * Rossler_multiply(Rossler *self, PyObject *arg) { MULTIPLY };
+static PyObject * Rossler_inplace_multiply(Rossler *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Rossler_add(Rossler *self, PyObject *arg) { ADD };
+static PyObject * Rossler_inplace_add(Rossler *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Rossler_sub(Rossler *self, PyObject *arg) { SUB };
+static PyObject * Rossler_inplace_sub(Rossler *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Rossler_div(Rossler *self, PyObject *arg) { DIV };
+static PyObject * Rossler_inplace_div(Rossler *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Rossler_setPitch(Rossler *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pitch);
+	if (isNumber == 1) {
+		self->pitch = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->pitch = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pitch_stream);
+        self->pitch_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Rossler_setChaos(Rossler *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->chaos);
+	if (isNumber == 1) {
+		self->chaos = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->chaos = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->chaos_stream);
+        self->chaos_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+MYFLT *
+Rossler_getAltBuffer(Rossler *self)
+{
+    return (MYFLT *)self->altBuffer;
+}    
+
+static PyMemberDef Rossler_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Rossler, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Rossler, stream), 0, "Stream object."},
+    {"pitch", T_OBJECT_EX, offsetof(Rossler, pitch), 0, "Pitch."},
+    {"chaos", T_OBJECT_EX, offsetof(Rossler, chaos), 0, "Chaotic behavior."},
+    {"mul", T_OBJECT_EX, offsetof(Rossler, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Rossler, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Rossler_methods[] = {
+    {"getServer", (PyCFunction)Rossler_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Rossler_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Rossler_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Rossler_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Rossler_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Rossler_stop, METH_NOARGS, "Stops computing."},
+    {"setPitch", (PyCFunction)Rossler_setPitch, METH_O, "Sets oscillator pitch."},
+    {"setChaos", (PyCFunction)Rossler_setChaos, METH_O, "Sets oscillator chaotic behavior."},
+    {"setMul", (PyCFunction)Rossler_setMul, METH_O, "Sets Rossler mul factor."},
+    {"setAdd", (PyCFunction)Rossler_setAdd, METH_O, "Sets Rossler add factor."},
+    {"setSub", (PyCFunction)Rossler_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Rossler_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Rossler_as_number = {
+    (binaryfunc)Rossler_add,                      /*nb_add*/
+    (binaryfunc)Rossler_sub,                 /*nb_subtract*/
+    (binaryfunc)Rossler_multiply,                 /*nb_multiply*/
+    (binaryfunc)Rossler_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Rossler_inplace_add,              /*inplace_add*/
+    (binaryfunc)Rossler_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Rossler_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Rossler_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject RosslerType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Rossler_base",         /*tp_name*/
+    sizeof(Rossler),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Rossler_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Rossler_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Rossler objects. Rossler attractor.",           /* tp_doc */
+    (traverseproc)Rossler_traverse,   /* tp_traverse */
+    (inquiry)Rossler_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Rossler_methods,             /* tp_methods */
+    Rossler_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Rossler_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Rossler_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    Rossler *mainRossler;
+    int modebuffer[2];
+} RosslerAlt;
+
+static void RosslerAlt_postprocessing_ii(RosslerAlt *self) { POST_PROCESSING_II };
+static void RosslerAlt_postprocessing_ai(RosslerAlt *self) { POST_PROCESSING_AI };
+static void RosslerAlt_postprocessing_ia(RosslerAlt *self) { POST_PROCESSING_IA };
+static void RosslerAlt_postprocessing_aa(RosslerAlt *self) { POST_PROCESSING_AA };
+static void RosslerAlt_postprocessing_ireva(RosslerAlt *self) { POST_PROCESSING_IREVA };
+static void RosslerAlt_postprocessing_areva(RosslerAlt *self) { POST_PROCESSING_AREVA };
+static void RosslerAlt_postprocessing_revai(RosslerAlt *self) { POST_PROCESSING_REVAI };
+static void RosslerAlt_postprocessing_revaa(RosslerAlt *self) { POST_PROCESSING_REVAA };
+static void RosslerAlt_postprocessing_revareva(RosslerAlt *self) { POST_PROCESSING_REVAREVA };
+
+static void
+RosslerAlt_setProcMode(RosslerAlt *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = RosslerAlt_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = RosslerAlt_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = RosslerAlt_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = RosslerAlt_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = RosslerAlt_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = RosslerAlt_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = RosslerAlt_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = RosslerAlt_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = RosslerAlt_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+RosslerAlt_compute_next_data_frame(RosslerAlt *self)
+{
+    int i;
+    MYFLT *tmp;
+    tmp = Rossler_getAltBuffer((Rossler *)self->mainRossler);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+RosslerAlt_traverse(RosslerAlt *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainRossler);
+    return 0;
+}
+
+static int 
+RosslerAlt_clear(RosslerAlt *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainRossler);    
+    return 0;
+}
+
+static void
+RosslerAlt_dealloc(RosslerAlt* self)
+{
+    free(self->data);
+    RosslerAlt_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * RosslerAlt_deleteStream(RosslerAlt *self) { DELETE_STREAM };
+
+static PyObject *
+RosslerAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    RosslerAlt *self;
+    self = (RosslerAlt *)type->tp_alloc(type, 0);
+    
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, RosslerAlt_compute_next_data_frame);
+    self->mode_func_ptr = RosslerAlt_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+RosslerAlt_init(RosslerAlt *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainRossler", "mul", "alt", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainRossler);
+    Py_INCREF(maintmp);
+    self->mainRossler = (Rossler *)maintmp;
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * RosslerAlt_getServer(RosslerAlt* self) { GET_SERVER };
+static PyObject * RosslerAlt_getStream(RosslerAlt* self) { GET_STREAM };
+static PyObject * RosslerAlt_setMul(RosslerAlt *self, PyObject *arg) { SET_MUL };	
+static PyObject * RosslerAlt_setAdd(RosslerAlt *self, PyObject *arg) { SET_ADD };	
+static PyObject * RosslerAlt_setSub(RosslerAlt *self, PyObject *arg) { SET_SUB };	
+static PyObject * RosslerAlt_setDiv(RosslerAlt *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * RosslerAlt_play(RosslerAlt *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * RosslerAlt_out(RosslerAlt *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * RosslerAlt_stop(RosslerAlt *self) { STOP };
+
+static PyObject * RosslerAlt_multiply(RosslerAlt *self, PyObject *arg) { MULTIPLY };
+static PyObject * RosslerAlt_inplace_multiply(RosslerAlt *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * RosslerAlt_add(RosslerAlt *self, PyObject *arg) { ADD };
+static PyObject * RosslerAlt_inplace_add(RosslerAlt *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * RosslerAlt_sub(RosslerAlt *self, PyObject *arg) { SUB };
+static PyObject * RosslerAlt_inplace_sub(RosslerAlt *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * RosslerAlt_div(RosslerAlt *self, PyObject *arg) { DIV };
+static PyObject * RosslerAlt_inplace_div(RosslerAlt *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef RosslerAlt_members[] = {
+    {"server", T_OBJECT_EX, offsetof(RosslerAlt, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(RosslerAlt, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(RosslerAlt, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(RosslerAlt, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef RosslerAlt_methods[] = {
+    {"getServer", (PyCFunction)RosslerAlt_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)RosslerAlt_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)RosslerAlt_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)RosslerAlt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)RosslerAlt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)RosslerAlt_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)RosslerAlt_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)RosslerAlt_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)RosslerAlt_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)RosslerAlt_setDiv, METH_O, "Sets inverse mul factor."},        
+    {NULL}  /* Sentinel */
+};
+static PyNumberMethods RosslerAlt_as_number = {
+    (binaryfunc)RosslerAlt_add,                         /*nb_add*/
+    (binaryfunc)RosslerAlt_sub,                         /*nb_subtract*/
+    (binaryfunc)RosslerAlt_multiply,                    /*nb_multiply*/
+    (binaryfunc)RosslerAlt_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)RosslerAlt_inplace_add,                 /*inplace_add*/
+    (binaryfunc)RosslerAlt_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)RosslerAlt_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)RosslerAlt_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject RosslerAltType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.RosslerAlt_base",         /*tp_name*/
+    sizeof(RosslerAlt),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)RosslerAlt_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &RosslerAlt_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "RosslerAlt objects. Sends the alternate signal of a Rossler attractor.",           /* tp_doc */
+    (traverseproc)RosslerAlt_traverse,   /* tp_traverse */
+    (inquiry)RosslerAlt_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    RosslerAlt_methods,             /* tp_methods */
+    RosslerAlt_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)RosslerAlt_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    RosslerAlt_new,                 /* tp_new */
+};
+
+/* 
+ static void
+ Lorenz_readframes_i(Rossler *self) {
+ MYFLT delta, pit;
+ int i;
+ 
+ pit = PyFloat_AS_DOUBLE(self->pitch);
+ if (pit < 0.0)
+ pit = 1.0;
+ else if (pit > 1.0)
+ pit = 1000.0;
+ else
+ pit = pit * 999.0 + 1.0;
+ delta = pit / self->sr;
+ 
+ for (i=0; i<self->bufsize; i++) {
+ self->vDX = self->pA * (self->vY - self->vX);
+ self->vDY = self->vX * (self->pB-self->vZ) - self->vY;
+ self->vDZ = self->vX * self->vY - self->pC * self->vZ;
+ 
+ self->vX += self->vDX * delta;
+ self->vY += self->vDY * delta;
+ self->vZ += self->vDZ * delta;
+ 
+ self->data[i] = self->vX * LORENZ_SCALE;
+ }
+ }
+ 
+ self->pA = 10.0;
+ self->pB = 28.0;
+ self->pC = 2.666; 
+*/
+
+const MYFLT LORENZ_SCALE     = 0.05107;
+const MYFLT LORENZ_ALT_SCALE = 0.03679;
+
+/* Lorenz object */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *pitch;
+    Stream *pitch_stream;
+    PyObject *chaos;
+    Stream *chaos_stream;
+    MYFLT *altBuffer;
+    MYFLT vDX;
+    MYFLT vDY;
+    MYFLT vDZ;
+    MYFLT vX;
+    MYFLT vY;
+    MYFLT vZ;
+    MYFLT pA;
+    MYFLT pB;
+    MYFLT oneOnSr;
+    int modebuffer[4];
+} Lorenz;
+
+static void
+Lorenz_readframes_ii(Lorenz *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    pit = PyFloat_AS_DOUBLE(self->pitch);
+    chao = PyFloat_AS_DOUBLE(self->chaos);
+    if (pit < 0.0)
+        pit = 1.0;
+    else if (pit > 1.0)
+        pit = 750.0;
+    else
+        pit = pit * 749.0 + 1.0;
+    delta = self->oneOnSr * pit;
+    
+    if (chao < 0.0)
+        chao = 0.5;
+    else if (chao > 1.0)
+        chao = 3.0;
+    else
+        chao = chao * 2.5 + 0.5;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->vDX = self->pA * (self->vY - self->vX);
+        self->vDY = self->vX * (self->pB - self->vZ) - self->vY;
+        self->vDZ = self->vX * self->vY - chao * self->vZ;
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * LORENZ_SCALE;
+        self->altBuffer[i] = self->vY * LORENZ_ALT_SCALE;
+    }
+}
+
+static void
+Lorenz_readframes_ai(Lorenz *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    MYFLT *fr = Stream_getData((Stream *)self->pitch_stream);
+    chao = PyFloat_AS_DOUBLE(self->chaos);
+    if (chao < 0.0)
+        chao = 0.5;
+    else if (chao > 1.0)
+        chao = 3.0;
+    else
+        chao = chao * 2.5 + 0.5;
+    
+    for (i=0; i<self->bufsize; i++) {
+        pit = fr[i];
+        if (pit < 0.0)
+            pit = 1.0;
+        else if (pit > 1.0)
+            pit = 750.0;
+        else
+            pit = pit * 749.0 + 1.0;
+        delta = self->oneOnSr * pit;
+        self->vDX = self->pA * (self->vY - self->vX);
+        self->vDY = self->vX * (self->pB - self->vZ) - self->vY;
+        self->vDZ = self->vX * self->vY - chao * self->vZ;
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * LORENZ_SCALE;
+        self->altBuffer[i] = self->vY * LORENZ_ALT_SCALE;
+    }
+}
+
+static void
+Lorenz_readframes_ia(Lorenz *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    pit = PyFloat_AS_DOUBLE(self->pitch);
+    MYFLT *ch = Stream_getData((Stream *)self->chaos_stream);
+    
+    if (pit < 0.0)
+        pit = 1.0;
+    else if (pit > 1.0)
+        pit = 750.0;
+    else
+        pit = pit * 749.0 + 1.0;
+    delta = self->oneOnSr * pit;
+    
+    for (i=0; i<self->bufsize; i++) {
+        chao = ch[i];
+        if (chao < 0.0)
+            chao = 0.5;
+        else if (chao > 1.0)
+            chao = 3.0;
+        else
+            chao = chao * 2.5 + 0.5;        
+        self->vDX = self->pA * (self->vY - self->vX);
+        self->vDY = self->vX * (self->pB - self->vZ) - self->vY;
+        self->vDZ = self->vX * self->vY - chao * self->vZ;
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * LORENZ_SCALE;
+        self->altBuffer[i] = self->vY * LORENZ_ALT_SCALE;
+    }
+}
+
+static void
+Lorenz_readframes_aa(Lorenz *self) {
+    MYFLT delta, pit, chao;
+    int i;
+    
+    MYFLT *fr = Stream_getData((Stream *)self->pitch_stream);
+    MYFLT *ch = Stream_getData((Stream *)self->chaos_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        pit = fr[i];
+        if (pit < 0.0)
+            pit = 1.0;
+        else if (pit > 1.0)
+            pit = 750.0;
+        else
+            pit = pit * 749.0 + 1.0;
+        delta = self->oneOnSr * pit;
+        
+        chao = ch[i];
+        if (chao < 0.0)
+            chao = 0.5;
+        else if (chao > 1.0)
+            chao = 3.0;
+        else
+            chao = chao * 2.5 + 0.5;        
+        self->vDX = self->pA * (self->vY - self->vX);
+        self->vDY = self->vX * (self->pB - self->vZ) - self->vY;
+        self->vDZ = self->vX * self->vY - chao * self->vZ;
+        
+        self->vX += self->vDX * delta;
+        self->vY += self->vDY * delta;
+        self->vZ += self->vDZ * delta;
+        
+        self->data[i] = self->vX * LORENZ_SCALE;
+        self->altBuffer[i] = self->vY * LORENZ_ALT_SCALE;
+    }
+}
+
+static void Lorenz_postprocessing_ii(Lorenz *self) { POST_PROCESSING_II };
+static void Lorenz_postprocessing_ai(Lorenz *self) { POST_PROCESSING_AI };
+static void Lorenz_postprocessing_ia(Lorenz *self) { POST_PROCESSING_IA };
+static void Lorenz_postprocessing_aa(Lorenz *self) { POST_PROCESSING_AA };
+static void Lorenz_postprocessing_ireva(Lorenz *self) { POST_PROCESSING_IREVA };
+static void Lorenz_postprocessing_areva(Lorenz *self) { POST_PROCESSING_AREVA };
+static void Lorenz_postprocessing_revai(Lorenz *self) { POST_PROCESSING_REVAI };
+static void Lorenz_postprocessing_revaa(Lorenz *self) { POST_PROCESSING_REVAA };
+static void Lorenz_postprocessing_revareva(Lorenz *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Lorenz_setProcMode(Lorenz *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = Lorenz_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Lorenz_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Lorenz_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Lorenz_readframes_aa;
+            break;
+    } 
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Lorenz_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Lorenz_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Lorenz_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Lorenz_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Lorenz_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Lorenz_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Lorenz_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Lorenz_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Lorenz_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Lorenz_compute_next_data_frame(Lorenz *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+Lorenz_traverse(Lorenz *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->pitch);    
+    Py_VISIT(self->pitch_stream);    
+    Py_VISIT(self->chaos);    
+    Py_VISIT(self->chaos_stream);    
+    return 0;
+}
+
+static int 
+Lorenz_clear(Lorenz *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->pitch);    
+    Py_CLEAR(self->pitch_stream);    
+    Py_CLEAR(self->chaos);    
+    Py_CLEAR(self->chaos_stream);    
+    return 0;
+}
+
+static void
+Lorenz_dealloc(Lorenz* self)
+{
+    free(self->data);
+    free(self->altBuffer);
+    Lorenz_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Lorenz_deleteStream(Lorenz *self) { DELETE_STREAM };
+
+static PyObject *
+Lorenz_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Lorenz *self;
+    self = (Lorenz *)type->tp_alloc(type, 0);
+    
+    self->pitch = PyFloat_FromDouble(0.25);    
+    self->chaos = PyFloat_FromDouble(0.5);    
+    self->pA = 10.0;
+    self->pB = 28.0;
+    self->vDX = self->vDY = self->vDZ = 0.0;
+    self->vX = self->vY = self->vZ = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Lorenz_compute_next_data_frame);
+    self->mode_func_ptr = Lorenz_setProcMode;
+    
+    self->oneOnSr = 1.0 / self->sr;
+    
+    return (PyObject *)self;
+}
+
+static int
+Lorenz_init(Lorenz *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *pitchtmp=NULL, *chaostmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"pitch", "chaos", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &pitchtmp, &chaostmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (pitchtmp) {
+        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+    }
+    
+    if (chaostmp) {
+        PyObject_CallMethod((PyObject *)self, "setChaos", "O", chaostmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->altBuffer = (MYFLT *)realloc(self->altBuffer, self->bufsize * sizeof(MYFLT));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->altBuffer[i] = 0.0;
+    }    
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Lorenz_getServer(Lorenz* self) { GET_SERVER };
+static PyObject * Lorenz_getStream(Lorenz* self) { GET_STREAM };
+static PyObject * Lorenz_setMul(Lorenz *self, PyObject *arg) { SET_MUL };	
+static PyObject * Lorenz_setAdd(Lorenz *self, PyObject *arg) { SET_ADD };	
+static PyObject * Lorenz_setSub(Lorenz *self, PyObject *arg) { SET_SUB };	
+static PyObject * Lorenz_setDiv(Lorenz *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Lorenz_play(Lorenz *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Lorenz_out(Lorenz *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Lorenz_stop(Lorenz *self) { STOP };
+
+static PyObject * Lorenz_multiply(Lorenz *self, PyObject *arg) { MULTIPLY };
+static PyObject * Lorenz_inplace_multiply(Lorenz *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Lorenz_add(Lorenz *self, PyObject *arg) { ADD };
+static PyObject * Lorenz_inplace_add(Lorenz *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Lorenz_sub(Lorenz *self, PyObject *arg) { SUB };
+static PyObject * Lorenz_inplace_sub(Lorenz *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Lorenz_div(Lorenz *self, PyObject *arg) { DIV };
+static PyObject * Lorenz_inplace_div(Lorenz *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Lorenz_setPitch(Lorenz *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pitch);
+	if (isNumber == 1) {
+		self->pitch = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->pitch = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pitch_stream);
+        self->pitch_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Lorenz_setChaos(Lorenz *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->chaos);
+	if (isNumber == 1) {
+		self->chaos = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->chaos = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->chaos, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->chaos_stream);
+        self->chaos_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+MYFLT *
+Lorenz_getAltBuffer(Lorenz *self)
+{
+    return (MYFLT *)self->altBuffer;
+}    
+
+static PyMemberDef Lorenz_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Lorenz, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Lorenz, stream), 0, "Stream object."},
+    {"pitch", T_OBJECT_EX, offsetof(Lorenz, pitch), 0, "Pitch."},
+    {"chaos", T_OBJECT_EX, offsetof(Lorenz, chaos), 0, "Chaotic behavior."},
+    {"mul", T_OBJECT_EX, offsetof(Lorenz, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Lorenz, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Lorenz_methods[] = {
+    {"getServer", (PyCFunction)Lorenz_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Lorenz_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Lorenz_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Lorenz_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Lorenz_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Lorenz_stop, METH_NOARGS, "Stops computing."},
+    {"setPitch", (PyCFunction)Lorenz_setPitch, METH_O, "Sets oscillator pitch."},
+    {"setChaos", (PyCFunction)Lorenz_setChaos, METH_O, "Sets oscillator chaotic behavior."},
+    {"setMul", (PyCFunction)Lorenz_setMul, METH_O, "Sets Lorenz mul factor."},
+    {"setAdd", (PyCFunction)Lorenz_setAdd, METH_O, "Sets Lorenz add factor."},
+    {"setSub", (PyCFunction)Lorenz_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Lorenz_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Lorenz_as_number = {
+    (binaryfunc)Lorenz_add,                      /*nb_add*/
+    (binaryfunc)Lorenz_sub,                 /*nb_subtract*/
+    (binaryfunc)Lorenz_multiply,                 /*nb_multiply*/
+    (binaryfunc)Lorenz_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Lorenz_inplace_add,              /*inplace_add*/
+    (binaryfunc)Lorenz_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Lorenz_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Lorenz_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject LorenzType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Lorenz_base",         /*tp_name*/
+    sizeof(Lorenz),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Lorenz_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Lorenz_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Lorenz objects. Lorenz attractor.",           /* tp_doc */
+    (traverseproc)Lorenz_traverse,   /* tp_traverse */
+    (inquiry)Lorenz_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Lorenz_methods,             /* tp_methods */
+    Lorenz_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Lorenz_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Lorenz_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    Lorenz *mainLorenz;
+    int modebuffer[2];
+} LorenzAlt;
+
+static void LorenzAlt_postprocessing_ii(LorenzAlt *self) { POST_PROCESSING_II };
+static void LorenzAlt_postprocessing_ai(LorenzAlt *self) { POST_PROCESSING_AI };
+static void LorenzAlt_postprocessing_ia(LorenzAlt *self) { POST_PROCESSING_IA };
+static void LorenzAlt_postprocessing_aa(LorenzAlt *self) { POST_PROCESSING_AA };
+static void LorenzAlt_postprocessing_ireva(LorenzAlt *self) { POST_PROCESSING_IREVA };
+static void LorenzAlt_postprocessing_areva(LorenzAlt *self) { POST_PROCESSING_AREVA };
+static void LorenzAlt_postprocessing_revai(LorenzAlt *self) { POST_PROCESSING_REVAI };
+static void LorenzAlt_postprocessing_revaa(LorenzAlt *self) { POST_PROCESSING_REVAA };
+static void LorenzAlt_postprocessing_revareva(LorenzAlt *self) { POST_PROCESSING_REVAREVA };
+
+static void
+LorenzAlt_setProcMode(LorenzAlt *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = LorenzAlt_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = LorenzAlt_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = LorenzAlt_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = LorenzAlt_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = LorenzAlt_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = LorenzAlt_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = LorenzAlt_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = LorenzAlt_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = LorenzAlt_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+LorenzAlt_compute_next_data_frame(LorenzAlt *self)
+{
+    int i;
+    MYFLT *tmp;
+    tmp = Lorenz_getAltBuffer((Lorenz *)self->mainLorenz);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+LorenzAlt_traverse(LorenzAlt *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainLorenz);
+    return 0;
+}
+
+static int 
+LorenzAlt_clear(LorenzAlt *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainLorenz);    
+    return 0;
+}
+
+static void
+LorenzAlt_dealloc(LorenzAlt* self)
+{
+    free(self->data);
+    LorenzAlt_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * LorenzAlt_deleteStream(LorenzAlt *self) { DELETE_STREAM };
+
+static PyObject *
+LorenzAlt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    LorenzAlt *self;
+    self = (LorenzAlt *)type->tp_alloc(type, 0);
+    
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, LorenzAlt_compute_next_data_frame);
+    self->mode_func_ptr = LorenzAlt_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+LorenzAlt_init(LorenzAlt *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainLorenz", "mul", "alt", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &maintmp, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainLorenz);
+    Py_INCREF(maintmp);
+    self->mainLorenz = (Lorenz *)maintmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * LorenzAlt_getServer(LorenzAlt* self) { GET_SERVER };
+static PyObject * LorenzAlt_getStream(LorenzAlt* self) { GET_STREAM };
+static PyObject * LorenzAlt_setMul(LorenzAlt *self, PyObject *arg) { SET_MUL };	
+static PyObject * LorenzAlt_setAdd(LorenzAlt *self, PyObject *arg) { SET_ADD };	
+static PyObject * LorenzAlt_setSub(LorenzAlt *self, PyObject *arg) { SET_SUB };	
+static PyObject * LorenzAlt_setDiv(LorenzAlt *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * LorenzAlt_play(LorenzAlt *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * LorenzAlt_out(LorenzAlt *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * LorenzAlt_stop(LorenzAlt *self) { STOP };
+
+static PyObject * LorenzAlt_multiply(LorenzAlt *self, PyObject *arg) { MULTIPLY };
+static PyObject * LorenzAlt_inplace_multiply(LorenzAlt *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * LorenzAlt_add(LorenzAlt *self, PyObject *arg) { ADD };
+static PyObject * LorenzAlt_inplace_add(LorenzAlt *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * LorenzAlt_sub(LorenzAlt *self, PyObject *arg) { SUB };
+static PyObject * LorenzAlt_inplace_sub(LorenzAlt *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * LorenzAlt_div(LorenzAlt *self, PyObject *arg) { DIV };
+static PyObject * LorenzAlt_inplace_div(LorenzAlt *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef LorenzAlt_members[] = {
+    {"server", T_OBJECT_EX, offsetof(LorenzAlt, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(LorenzAlt, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(LorenzAlt, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(LorenzAlt, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef LorenzAlt_methods[] = {
+    {"getServer", (PyCFunction)LorenzAlt_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)LorenzAlt_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)LorenzAlt_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)LorenzAlt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)LorenzAlt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)LorenzAlt_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)LorenzAlt_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)LorenzAlt_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)LorenzAlt_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)LorenzAlt_setDiv, METH_O, "Sets inverse mul factor."},        
+    {NULL}  /* Sentinel */
+};
+static PyNumberMethods LorenzAlt_as_number = {
+    (binaryfunc)LorenzAlt_add,                         /*nb_add*/
+    (binaryfunc)LorenzAlt_sub,                         /*nb_subtract*/
+    (binaryfunc)LorenzAlt_multiply,                    /*nb_multiply*/
+    (binaryfunc)LorenzAlt_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)LorenzAlt_inplace_add,                 /*inplace_add*/
+    (binaryfunc)LorenzAlt_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)LorenzAlt_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)LorenzAlt_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject LorenzAltType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.LorenzAlt_base",         /*tp_name*/
+    sizeof(LorenzAlt),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)LorenzAlt_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &LorenzAlt_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "LorenzAlt objects. Sends the alternate signal of a Lorenz attractor.",           /* tp_doc */
+    (traverseproc)LorenzAlt_traverse,   /* tp_traverse */
+    (inquiry)LorenzAlt_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    LorenzAlt_methods,             /* tp_methods */
+    LorenzAlt_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)LorenzAlt_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    LorenzAlt_new,                 /* tp_new */
+};

@@ -853,6 +853,26 @@ init_pyo64(void)
         return;
     Py_INCREF(&BlitType);
     PyModule_AddObject(m, "Blit_base", (PyObject *)&BlitType);
+
+    if (PyType_Ready(&RosslerType) < 0)
+        return;
+    Py_INCREF(&RosslerType);
+    PyModule_AddObject(m, "Rossler_base", (PyObject *)&RosslerType);
+    
+    if (PyType_Ready(&RosslerAltType) < 0)
+        return;
+    Py_INCREF(&RosslerAltType);
+    PyModule_AddObject(m, "RosslerAlt_base", (PyObject *)&RosslerAltType);
+
+    if (PyType_Ready(&LorenzType) < 0)
+        return;
+    Py_INCREF(&LorenzType);
+    PyModule_AddObject(m, "Lorenz_base", (PyObject *)&LorenzType);
+
+    if (PyType_Ready(&LorenzAltType) < 0)
+        return;
+    Py_INCREF(&LorenzAltType);
+    PyModule_AddObject(m, "LorenzAlt_base", (PyObject *)&LorenzAltType);
     
     if (PyType_Ready(&PhasorType) < 0)
         return;
