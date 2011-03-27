@@ -1,3 +1,8 @@
+2011-03-27 belangeo <belangeo@gmail.com>
+
+    * New chaotic attractor objects : Lorenz and Rossler
+    - rev 567
+
 2011-03-14 belangeo <belangeo@gmail.com>
 
     * Convolution-based filter family : IRWinSinc, IRPulse, IRAverage, IRFM

@@ -585,7 +585,7 @@ class Beat(PyoObject):
 
         Can be used to convert audio stream to usable Python data.
 
-        "amp" or "dur" must be given to `identifier` to specify
+        "tap", "amp" or "dur" must be given to `identifier` to specify
         which stream to get value from.
 
         Parameters:
