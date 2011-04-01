@@ -1,3 +1,8 @@
+2011-04-01 belangeo <belangeo@gmail.com>
+
+    * New objects : LFO, Band-limited Low Frequency Oscillator with different wave shapes.
+    - rev 571
+
 2011-03-27 belangeo <belangeo@gmail.com>
 
     * New chaotic attractor objects : Lorenz and Rossler

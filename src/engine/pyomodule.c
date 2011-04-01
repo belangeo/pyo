@@ -848,6 +848,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&CrossFmType);
     PyModule_AddObject(m, "CrossFm_base", (PyObject *)&CrossFmType);
+
+    if (PyType_Ready(&LFOType) < 0)
+        return;
+    Py_INCREF(&LFOType);
+    PyModule_AddObject(m, "LFO_base", (PyObject *)&LFOType);
     
     if (PyType_Ready(&BlitType) < 0)
         return;

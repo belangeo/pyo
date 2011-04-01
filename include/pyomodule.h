@@ -68,6 +68,8 @@
 #define MYFABS fabsf
 #define MYFMOD fmodf
 #define MYFLOOR floorf
+#define MYTANH tanhf
+#define MYATAN atanf
 
 #else
 #define LIB_BASE_NAME "_pyo64"
@@ -113,6 +115,9 @@
 #define MYFABS fabs
 #define MYFMOD fmod
 #define MYFLOOR floor
+#define MYTANH tanh
+#define MYATAN atan
+
 
 #endif
 #endif
@@ -121,6 +126,7 @@ extern PyTypeObject SineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
 extern PyTypeObject CrossFmType;
+extern PyTypeObject LFOType;
 extern PyTypeObject BlitType;
 extern PyTypeObject RosslerType;
 extern PyTypeObject RosslerAltType;

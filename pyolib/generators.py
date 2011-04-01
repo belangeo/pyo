@@ -1054,3 +1054,133 @@ class Lorenz(PyoObject):
         return self._chaos
     @chaos.setter
     def chaos(self, x): self.setChaos(x)
+
+class LFO(PyoObject):
+    """
+    Band-limited Low Frequency Oscillator with different wave shapes.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    freq : float or PyoObject, optional
+        Oscillator frequency in cycles per second. Defaults to 100.
+    sharp : float or PyoObject, optional
+        Sharpness factor between 0 and 1. Sharper waveform results
+        in more harmonics in the spectrum. Defaults to 0.5.
+    type : int, optional
+        Waveform type. eight possible values :
+            0 = Saw up (default)
+            1 = Saw down
+            2 = Square
+            3 = Triangle
+            4 = Pulse
+            5 = Bipolar pulse
+            6 = Sample and hold
+            7 = Modulated Sine
+
+    Methods:
+
+    setFreq(x) : Replace the `freq` attribute.
+    setSharp(x) : Replace the `sharp` attribute.
+    setType(x) : Replace the `type` attribute.
+
+    Attributes:
+
+    freq : float or PyoObject. Oscillator frequency in cycles per second.
+    sharp : float or PyoObject. Sharpness factor between 0 and 1.
+    type : int. Waveform type.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lf = Sine([.31,.34], mul=15, add=20)
+    >>> lf2 = LFO([.43,.41], sharp=.7, type=2, mul=.4, add=.4)
+    >>> a = LFO(freq=lf, sharp=lf2, type=7, mul=100, add=300)
+    >>> b = SineLoop(freq=a, feedback = 0.12, mul=.3).out()
+
+    """
+    def __init__(self, freq=100, sharp=0.5, type=0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._freq = freq
+        self._sharp = sharp
+        self._type = type
+        self._mul = mul
+        self._add = add
+        freq, sharp, type, mul, add, lmax = convertArgsToLists(freq, sharp, type, mul, add)
+        self._base_objs = [LFO_base(wrap(freq,i), wrap(sharp,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['freq', 'sharp', 'type', 'mul', 'add']
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute, in cycles per seconds.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSharp(self, x):
+        """
+        Replace the `sharp` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `sharp` attribute, in the range 0 -> 1.
+
+        """
+        self._sharp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSharp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setType(self, x):
+        """
+        Replace the `type` attribute.
+
+        Parameters:
+
+        x : int
+            New `type` attribute. Choices are :
+            0 = Saw up, 1 = Saw down, 2 = Square, 3 = Triangle, 4 = Pulse
+            5 = Bipolar pulse, 6 = Sample and hold, 7 = Modulated Sine
+            
+
+        """
+        if x >= 0 and x < 8:
+            self._type = x
+            x, lmax = convertArgsToLists(x)
+            [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), SLMap(0., 1., "lin", "sharp", self._sharp), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Oscillator frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def sharp(self):
+        """float or PyoObject. Sharpness factor {0 -> 1}.""" 
+        return self._sharp
+    @sharp.setter
+    def sharp(self, x): self.setSharp(x)
+
+    @property
+    def type(self):
+        """int. Waveform type.""" 
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
