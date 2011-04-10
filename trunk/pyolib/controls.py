@@ -312,7 +312,7 @@ class Adsr(PyoObject):
             new `sustain` attribute.
         
         """
-        self._sustain = x
+        self._release = x
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 

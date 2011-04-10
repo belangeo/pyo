@@ -226,3 +226,195 @@ class Notein(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+class MidiAdsr(PyoObject):
+    """
+    Midi triggered ADSR envelope generator.
+
+    Calculates the classical ADSR envelope using linear segments. 
+    The envelope starts when it receives a positive value in input,
+    this value is used as the peak amplitude of the envelope. The
+    `sustain` parameter is a fraction of the peak value and sets
+    the real sustain value. A 0 in input (note off) starts the
+    release part of the envelope.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal used to trigger the envelope. A positive value
+        sets the peak amplitude and starts the envelope. A 0 starts
+        the release part of the envelope.
+    attack : float, optional
+        Duration of the attack phase in seconds. Defaults to 0.01.
+    decay : float, optional
+        Duration of the decay phase in seconds. Defaults to 0.05.
+    sustain : float, optional
+        Amplitude of the sustain phase, as a fraction of the peak
+        amplitude at the start of the envelope. Defaults to 0.7.
+    release : float, optional
+        Duration of the release phase in seconds. Defaults to 0.1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setAttack(x) : Replace the `attack` attribute.
+    setDecay(x) : Replace the `decay` attribute.
+    setSustain(x) : Replace the `sustain` attribute.
+    setRelease(x) : Replace the `release` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal used to trigger the envelope.
+    attack : float. Duration of the attack phase in seconds.
+    decay : float. Duration of the decay in seconds.
+    sustain : float. Amplitude of the sustain phase.
+    release : float. Duration of the release in seconds.
+
+    Notes:
+
+    The out() method is bypassed. MidiAdsr's signal can not be sent to audio outs.
+
+    Shape of a classical Adsr:
+
+          -
+         -  -
+        -     -
+       -        ------------------------
+      -                                  -
+     -                                     -
+    -                                        -
+      att - dec -        sustain       - rel
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> mid = Notein(scale=1)
+    >>> env = MidiAdsr(mid['velocity'], attack=.005, decay=.1, sustain=.4, release=1)
+    >>> a = SineLoop(freq=mid['pitch'], feedback=.1, mul=env).out()
+    >>> b = SineLoop(freq=mid['pitch']*1.005, feedback=.1, mul=env).out(1)
+
+    """
+    def __init__(self, input, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._attack = attack
+        self._decay = decay
+        self._sustain = sustain
+        self._release = release
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, attack, decay, sustain, release, mul, add)
+        self._base_objs = [MidiAdsr_base(wrap(in_fader,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'attack', 'decay', 'sustain', 'release', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal used to trigger the envelope.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setAttack(self, x):
+        """
+        Replace the `attack` attribute.
+
+        Parameters:
+
+        x : float
+            new `attack` attribute.
+
+        """
+        self._attack = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setAttack(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDecay(self, x):
+        """
+        Replace the `decay` attribute.
+
+        Parameters:
+
+        x : float
+            new `decay` attribute.
+
+        """
+        self._decay = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSustain(self, x):
+        """
+        Replace the `sustain` attribute.
+
+        Parameters:
+
+        x : float
+            new `sustain` attribute.
+
+        """
+        self._sustain = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSustain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRelease(self, x):
+        """
+        Replace the `sustain` attribute.
+
+        Parameters:
+
+        x : float
+            new `sustain` attribute.
+
+        """
+        self._release = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def attack(self):
+        """float. Duration of the attack phase in seconds.""" 
+        return self._attack
+    @attack.setter
+    def attack(self, x): self.setAttack(x)
+
+    @property
+    def decay(self):
+        """float. Duration of the decay phase in seconds.""" 
+        return self._decay
+    @decay.setter
+    def decay(self, x): self.setDecay(x)
+
+    @property
+    def sustain(self):
+        """float. Amplitude of the sustain phase, as fraction of the peak amplitude.""" 
+        return self._sustain
+    @sustain.setter
+    def sustain(self, x): self.setSustain(x)
+
+    @property
+    def release(self):
+        """float. Duration of the release phase in seconds.""" 
+        return self._release
+    @release.setter
+    def release(self, x): self.setRelease(x)

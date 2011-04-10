@@ -40,6 +40,7 @@
 #define TYPE_S__OIFI "s|Oifi"
 #define TYPE__FFFOO "|fffOO"
 #define TYPE__FFFFFOO "|fffffOO"
+#define TYPE_O_FFFFOO "O|ffffOO"
 #define TYPE_OO_F "OO|f"
 #define TYPE_F_O "f|O"
 #define TYPE__OFFI "|Offi"
@@ -87,6 +88,7 @@
 #define TYPE_S__OIFI "s|Oidi"
 #define TYPE__FFFOO "|dddOO"
 #define TYPE__FFFFFOO "|dddddOO"
+#define TYPE_O_FFFFOO "O|ddddOO"
 #define TYPE_OO_F "OO|d"
 #define TYPE_F_O "d|O"
 #define TYPE__OFFI "|Oddi"
@@ -220,6 +222,7 @@ extern PyTypeObject HarmonizerType;
 extern PyTypeObject MidictlType;
 extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
+extern PyTypeObject MidiAdsrType;
 
 extern PyTypeObject DummyType;
 extern PyTypeObject RecordType;
