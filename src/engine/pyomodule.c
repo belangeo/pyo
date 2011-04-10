@@ -1028,6 +1028,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&NoteinType);
     PyModule_AddObject(m, "Notein_base", (PyObject *)&NoteinType);
+
+    if (PyType_Ready(&MidiAdsrType) < 0)
+        return;
+    Py_INCREF(&MidiAdsrType);
+    PyModule_AddObject(m, "MidiAdsr_base", (PyObject *)&MidiAdsrType);
     
     if (PyType_Ready(&OscSendType) < 0)
         return;

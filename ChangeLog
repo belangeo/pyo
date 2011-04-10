@@ -1,3 +1,8 @@
+2011-04-10 belangeo <belangeo@gmail.com>
+
+    * New object : MidiAdsr, a Midi triggered ADSR envelope generator.
+    - rev 572
+
 2011-04-01 belangeo <belangeo@gmail.com>
 
     * New objects : LFO, Band-limited Low Frequency Oscillator with different wave shapes.

@@ -870,3 +870,364 @@ Notein_members,             /* tp_members */
 Notein_new,                 /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2];
+    int fademode;
+    int changed;
+    MYFLT topValue;
+    MYFLT offsetAmp;
+    MYFLT initAmp;
+    MYFLT sustainAmp;
+    MYFLT attack;
+    MYFLT decay;
+    MYFLT sustain;
+    MYFLT release;
+    double currentTime;
+    MYFLT sampleToSec;
+} MidiAdsr;
+
+static void
+MidiAdsr_generates(MidiAdsr *self) {
+    MYFLT val;
+    int i;
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        if (self->fademode == 0 && in[i] > 0.0) {
+            self->fademode = 1;
+            self->initAmp = in[i];
+            self->offsetAmp = self->data[i];
+            self->sustainAmp = self->initAmp * self->sustain;
+            self->currentTime = 0.0;
+        }
+        else if (self->fademode == 1 && in[i] == 0.0) {
+            self->fademode = 0;
+            self->currentTime = 0.0;
+        }
+        
+        if (self->fademode == 1) {
+            if (self->currentTime <= self->attack)
+                val = self->currentTime / self->attack * (self->initAmp - self->offsetAmp) + self->offsetAmp;
+            else if (self->currentTime <= (self->attack + self->decay))
+                val = (self->decay - (self->currentTime - self->attack)) / self->decay * (self->initAmp - self->sustainAmp) + self->sustainAmp;
+            else
+                val = self->sustainAmp;
+            self->topValue = val;
+        }    
+        else {  
+            if (self->currentTime <= self->release)
+                val = self->topValue * (1. - self->currentTime / self->release);
+            else 
+                val = 0.;
+        }    
+        self->data[i] = val;
+        self->currentTime += self->sampleToSec;    
+    }
+}
+
+static void MidiAdsr_postprocessing_ii(MidiAdsr *self) { POST_PROCESSING_II };
+static void MidiAdsr_postprocessing_ai(MidiAdsr *self) { POST_PROCESSING_AI };
+static void MidiAdsr_postprocessing_ia(MidiAdsr *self) { POST_PROCESSING_IA };
+static void MidiAdsr_postprocessing_aa(MidiAdsr *self) { POST_PROCESSING_AA };
+static void MidiAdsr_postprocessing_ireva(MidiAdsr *self) { POST_PROCESSING_IREVA };
+static void MidiAdsr_postprocessing_areva(MidiAdsr *self) { POST_PROCESSING_AREVA };
+static void MidiAdsr_postprocessing_revai(MidiAdsr *self) { POST_PROCESSING_REVAI };
+static void MidiAdsr_postprocessing_revaa(MidiAdsr *self) { POST_PROCESSING_REVAA };
+static void MidiAdsr_postprocessing_revareva(MidiAdsr *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MidiAdsr_setProcMode(MidiAdsr *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = MidiAdsr_generates;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = MidiAdsr_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = MidiAdsr_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = MidiAdsr_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = MidiAdsr_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = MidiAdsr_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = MidiAdsr_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = MidiAdsr_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = MidiAdsr_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = MidiAdsr_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+MidiAdsr_compute_next_data_frame(MidiAdsr *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+MidiAdsr_traverse(MidiAdsr *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+MidiAdsr_clear(MidiAdsr *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+MidiAdsr_dealloc(MidiAdsr* self)
+{
+    free(self->data);
+    MidiAdsr_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * MidiAdsr_deleteStream(MidiAdsr *self) { DELETE_STREAM };
+
+static PyObject *
+MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MidiAdsr *self;
+    self = (MidiAdsr *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    self->topValue = 0.0;
+    self->fademode = 0;
+    self->changed = 0;
+    self->attack = 0.01;
+    self->decay = 0.05;
+    self->sustain = 0.707;
+    self->release = 0.1;
+    self->currentTime = 0.0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MidiAdsr_compute_next_data_frame);
+    self->mode_func_ptr = MidiAdsr_setProcMode;
+
+    self->sampleToSec = 1. / self->sr;
+    
+    return (PyObject *)self;
+}
+
+static int
+MidiAdsr_init(MidiAdsr *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "attack", "decay", "sustain", "release", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFOO, kwlist, &inputtmp, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * MidiAdsr_getServer(MidiAdsr* self) { GET_SERVER };
+static PyObject * MidiAdsr_getStream(MidiAdsr* self) { GET_STREAM };
+static PyObject * MidiAdsr_setMul(MidiAdsr *self, PyObject *arg) { SET_MUL };	
+static PyObject * MidiAdsr_setAdd(MidiAdsr *self, PyObject *arg) { SET_ADD };	
+static PyObject * MidiAdsr_setSub(MidiAdsr *self, PyObject *arg) { SET_SUB };	
+static PyObject * MidiAdsr_setDiv(MidiAdsr *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * MidiAdsr_play(MidiAdsr *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MidiAdsr_stop(MidiAdsr *self) { STOP }
+
+static PyObject * MidiAdsr_multiply(MidiAdsr *self, PyObject *arg) { MULTIPLY };
+static PyObject * MidiAdsr_inplace_multiply(MidiAdsr *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MidiAdsr_add(MidiAdsr *self, PyObject *arg) { ADD };
+static PyObject * MidiAdsr_inplace_add(MidiAdsr *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MidiAdsr_sub(MidiAdsr *self, PyObject *arg) { SUB };
+static PyObject * MidiAdsr_inplace_sub(MidiAdsr *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MidiAdsr_div(MidiAdsr *self, PyObject *arg) { DIV };
+static PyObject * MidiAdsr_inplace_div(MidiAdsr *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
+{
+    self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
+{
+    self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
+{
+    self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
+{
+    self->release = PyFloat_AsDouble(PyNumber_Float(arg));
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef MidiAdsr_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MidiAdsr, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MidiAdsr, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MidiAdsr, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(MidiAdsr, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MidiAdsr, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MidiAdsr_methods[] = {
+    {"getServer", (PyCFunction)MidiAdsr_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MidiAdsr_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)MidiAdsr_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)MidiAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MidiAdsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
+    {"setMul", (PyCFunction)MidiAdsr_setMul, METH_O, "Sets MidiAdsr mul factor."},
+    {"setAdd", (PyCFunction)MidiAdsr_setAdd, METH_O, "Sets MidiAdsr add factor."},
+    {"setSub", (PyCFunction)MidiAdsr_setSub, METH_O, "Sets inverse add factor."},
+    {"setAttack", (PyCFunction)MidiAdsr_setAttack, METH_O, "Sets attack time in seconds."},
+    {"setDecay", (PyCFunction)MidiAdsr_setDecay, METH_O, "Sets decay time in seconds."},
+    {"setSustain", (PyCFunction)MidiAdsr_setSustain, METH_O, "Sets sustain level in percent of note amplitude."},
+    {"setRelease", (PyCFunction)MidiAdsr_setRelease, METH_O, "Sets release time in seconds."},
+    {"setDiv", (PyCFunction)MidiAdsr_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MidiAdsr_as_number = {
+    (binaryfunc)MidiAdsr_add,                      /*nb_add*/
+    (binaryfunc)MidiAdsr_sub,                 /*nb_subtract*/
+    (binaryfunc)MidiAdsr_multiply,                 /*nb_multiply*/
+    (binaryfunc)MidiAdsr_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)MidiAdsr_inplace_add,              /*inplace_add*/
+    (binaryfunc)MidiAdsr_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)MidiAdsr_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)MidiAdsr_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject MidiAdsrType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.MidiAdsr_base",         /*tp_name*/
+    sizeof(MidiAdsr),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MidiAdsr_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &MidiAdsr_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MidiAdsr objects. Generates MidiAdsr envelope signal.",           /* tp_doc */
+    (traverseproc)MidiAdsr_traverse,   /* tp_traverse */
+    (inquiry)MidiAdsr_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MidiAdsr_methods,             /* tp_methods */
+    MidiAdsr_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)MidiAdsr_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    MidiAdsr_new,                 /* tp_new */
+};
+
