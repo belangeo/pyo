@@ -352,39 +352,43 @@ int
 Server_pa_init(Server *self)
 {
     PaError err;
-
+    PaStreamParameters outputParameters;
+    PaStreamParameters inputParameters;
+    PaDeviceIndex n;
+    
     err = Pa_Initialize();
     portaudio_assert(err, "Pa_Initialize");
 
-    int n = Pa_GetDeviceCount();
+    n = Pa_GetDeviceCount();
     if (n < 0) {
         portaudio_assert(n, "Pa_GetDeviceCount");
     }
 
-    // -- setup input and output -- 
-    PaStreamParameters inputParameters;
     PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData *));
     self->audio_be_data = (void *) be_data;
-    memset(&inputParameters, 0, sizeof(inputParameters));
-    if (self->input == -1)
-        inputParameters.device = Pa_GetDefaultInputDevice(); // default input device
-    else
-        inputParameters.device = self->input; // selected input device
-    inputParameters.channelCount = self->nchnls;
-    inputParameters.sampleFormat = paFloat32;
-    inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
-    inputParameters.hostApiSpecificStreamInfo = NULL;
 
-    PaStreamParameters outputParameters;
+    /* setup output and input streams */
     memset(&outputParameters, 0, sizeof(outputParameters));
     if (self->output == -1)
-        outputParameters.device = Pa_GetDefaultOutputDevice(); // default output device 
+        outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */ 
     else
-        outputParameters.device = self->output; // selected output device 
+        outputParameters.device = (PaDeviceIndex) self->output; /* selected output device */ 
     outputParameters.channelCount = self->nchnls;
     outputParameters.sampleFormat = paFloat32;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
+
+    if (self->duplex == 1) {
+        memset(&inputParameters, 0, sizeof(inputParameters));
+        if (self->input == -1)
+            inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
+        else
+            inputParameters.device = (PaDeviceIndex) self->input; /* selected input device */
+        inputParameters.channelCount = self->nchnls;
+        inputParameters.sampleFormat = paFloat32;
+        inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
+        inputParameters.hostApiSpecificStreamInfo = NULL;
+    }
 
     if (self->input == -1 && self->output == -1) {
         if (self->duplex == 1)
@@ -392,8 +396,12 @@ Server_pa_init(Server *self)
         else
             err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
     }
-    else
-        err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
+    else {
+        if (self->duplex == 1)
+            err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
+        else
+            err = Pa_OpenStream(&be_data->stream, NULL, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
+    }        
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
         Server_error(self, "Portaudio error: %s", Pa_GetErrorText(err));
@@ -660,7 +668,7 @@ Server_coreaudio_init(Server *self)
     /************************************/
     /* Acquire input and output devices */
     /************************************/    
-    // Acquire input audio device    
+    /* Acquire input audio device */    
     if (self->duplex == 1) {
         if (self->input != -1)
             mInputDevice = devices[self->input];
@@ -688,7 +696,7 @@ Server_coreaudio_init(Server *self)
         free(name);
     }    
     
-    // Acquire output audio device    
+    /* Acquire output audio device */    
     if (self->output != -1)
         mOutputDevice = devices[self->output];
         
@@ -721,7 +729,7 @@ Server_coreaudio_init(Server *self)
     AudioValueRange range;
     Float64 sampleRate;
 
-    // Get input device buffer frame size and buffer frame size range
+    /* Get input device buffer frame size and buffer frame size range */
     if (self->duplex == 1) {
         count = sizeof(UInt32);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
@@ -735,7 +743,7 @@ Server_coreaudio_init(Server *self)
             Server_error(self, "Get kAudioDevicePropertyBufferSizeRange error %s\n", (char*)&err);
         Server_debug(self, "Coreaudio : Coreaudio input device buffer size range = %f -> %f\n", range.mMinimum, range.mMaximum);
     
-        // Get input device sampling rate
+        /* Get input device sampling rate */
         count = sizeof(Float64);
         err = AudioDeviceGetProperty(mInputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
         if (err != kAudioHardwareNoError)
@@ -743,7 +751,7 @@ Server_coreaudio_init(Server *self)
         Server_debug(self, "Coreaudio : Coreaudio input device sampling rate = %.2f\n", sampleRate);
     }
     
-    // Get output device buffer frame size and buffer frame size range
+    /* Get output device buffer frame size and buffer frame size range */
     count = sizeof(UInt32);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyBufferFrameSize, &count, &bufferSize);
     if (err != kAudioHardwareNoError)
@@ -756,7 +764,7 @@ Server_coreaudio_init(Server *self)
         Server_error(self, "Get kAudioDevicePropertyBufferSizeRange error %s\n", (char*)&err);
     Server_debug(self, "Coreaudio : Coreaudio output device buffer size range = %.2f -> %.2f\n", range.mMinimum, range.mMaximum);
     
-    // Get output device sampling rate
+    /* Get output device sampling rate */
     count = sizeof(Float64);
     err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyNominalSampleRate, &count, &sampleRate);
     if (err != kAudioHardwareNoError)
@@ -767,7 +775,7 @@ Server_coreaudio_init(Server *self)
     /****************************************/
     /********* Set audio properties *********/
     /****************************************/
-    // set/get the buffersize for the devices
+    /* set/get the buffersize for the devices */
     count = sizeof(UInt32);
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
     if (err != kAudioHardwareNoError) {
@@ -789,7 +797,7 @@ Server_coreaudio_init(Server *self)
         }    
     }    
 
-    // set/get the sampling rate for the devices
+    /* set/get the sampling rate for the devices */
     count = sizeof(double);
     double pyoSamplingRate = self->samplingRate;
     err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyNominalSampleRate, count, &pyoSamplingRate);
@@ -827,37 +835,41 @@ Server_coreaudio_init(Server *self)
         if (err != kAudioHardwareNoError)
             Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
     
-        //inputStreamDescription.mSampleRate = (Float64)self->samplingRate;
+        /*
+        inputStreamDescription.mSampleRate = (Float64)self->samplingRate;
     
-        //err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &inputStreamDescription);
-        //if (err != kAudioHardwareNoError)
-        //    Server_debug(self, "-- Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+        err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &inputStreamDescription);
+        if (err != kAudioHardwareNoError)
+            Server_debug(self, "-- Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
     
-        /* Print new input stream description */
-        //err = AudioDeviceGetProperty(mInputDevice, 0, true, kAudioDevicePropertyStreamFormat, &count, &inputStreamDescription);
-        //if (err != kAudioHardwareNoError)
-        //    Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+        // Print new input stream description
+        err = AudioDeviceGetProperty(mInputDevice, 0, true, kAudioDevicePropertyStreamFormat, &count, &inputStreamDescription);
+        if (err != kAudioHardwareNoError)
+            Server_debug(self, "Get kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
+        */
         Server_debug(self, "Coreaudio : Coreaudio driver input stream sampling rate = %.2f\n", inputStreamDescription.mSampleRate);
         Server_debug(self, "Coreaudio : Coreaudio driver input stream bytes per frame = %i\n", inputStreamDescription.mBytesPerFrame);
         Server_debug(self, "Coreaudio : Coreaudio driver input stream number of channels = %i\n", inputStreamDescription.mChannelsPerFrame);
     }
     
-    // Get output device stream configuration
+    /* Get output device stream configuration */
     count = sizeof(AudioStreamBasicDescription);
 	err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
     if (err != kAudioHardwareNoError)
         Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
 
-    //outputStreamDescription.mSampleRate = (Float64)self->samplingRate;
+    /*
+    outputStreamDescription.mSampleRate = (Float64)self->samplingRate;
     
-	//err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &outputStreamDescription);
-    //if (err != kAudioHardwareNoError)
-    //    Server_debug(self, "Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+	err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &outputStreamDescription);
+    if (err != kAudioHardwareNoError)
+        Server_debug(self, "Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
     
-    /* Print new output stream description */
-	//err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
-    //if (err != kAudioHardwareNoError)
-    //    Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+    // Print new output stream description
+	err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
+    if (err != kAudioHardwareNoError)
+        Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
+    */
     Server_debug(self, "Coreaudio : Coreaudio driver output stream sampling rate = %.2f\n", outputStreamDescription.mSampleRate);
     Server_debug(self, "Coreaudio : Coreaudio driver output stream bytes per frame = %i\n", outputStreamDescription.mBytesPerFrame);
     Server_debug(self, "Coreaudio : Coreaudio driver output stream number of channels = %i\n", outputStreamDescription.mChannelsPerFrame);

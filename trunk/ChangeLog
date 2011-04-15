@@ -1,3 +1,8 @@
+2011-04-15 belangeo <belangeo@gmail.com>
+
+    * Fixed crash when duplex=0 on Windows
+    - rev 574
+
 2011-04-10 belangeo <belangeo@gmail.com>
 
     * New object : MidiAdsr, a Midi triggered ADSR envelope generator.
