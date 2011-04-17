@@ -132,7 +132,7 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
 
 /* Portaudio callback function */
 static int 
-pa_callback( const void *inputBuffer, void *outputBuffer,
+pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
                             unsigned long framesPerBuffer,
                             const PaStreamCallbackTimeInfo* timeInfo,
                             PaStreamCallbackFlags statusFlags,
@@ -162,6 +162,53 @@ pa_callback( const void *inputBuffer, void *outputBuffer,
     Server_process_buffers(server);
     for (i=0; i<server->bufferSize*server->nchnls; i++) {
         out[i] = (float) server->output_buffer[i];
+    }
+    server->midi_count = 0;
+    
+    if (server->server_started == 1) {
+        if (server->server_stopped == 1 && server->currentAmp < 0.0001)
+            server->server_started = 0;
+        return paContinue;
+    }    
+    else {
+        return paComplete;
+    }
+}
+
+static int 
+pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
+                        unsigned long framesPerBuffer,
+                        const PaStreamCallbackTimeInfo* timeInfo,
+                        PaStreamCallbackFlags statusFlags,
+                        void *arg )
+{
+    float **out = (float **)outputBuffer;
+    Server *server = (Server *) arg;
+    
+    assert(framesPerBuffer == server->bufferSize);
+    int i, j;
+    
+    /* avoid unused variable warnings */
+    (void) timeInfo;
+    (void) statusFlags;
+    
+    if (server->withPortMidi == 1) {
+        portmidiGetEvents(server);
+    }
+
+    if (server->duplex == 1) {
+        float **in = (float **)inputBuffer;
+        for (i=0; i<server->bufferSize; i++) {
+            for (j=0; j<server->nchnls; j++) {
+                server->input_buffer[(i*server->nchnls)+j] = (MYFLT)in[j][i];
+            }
+        }
+    }
+
+    for (i=0; i<server->bufferSize; i++) {
+        for (j=0; j<server->nchnls; j++) {
+            out[j][i] = (float) server->output_buffer[(i*server->nchnls)+j];
+        }
     }
     server->midi_count = 0;
     
@@ -354,8 +401,14 @@ Server_pa_init(Server *self)
     PaError err;
     PaStreamParameters outputParameters;
     PaStreamParameters inputParameters;
-    PaDeviceIndex n;
-    
+    PaDeviceIndex n, inDevice, outDevice;
+    const PaDeviceInfo *deviceInfo;
+    PaHostApiIndex hostIndex;
+    const PaHostApiInfo *hostInfo;
+    PaHostApiTypeId hostId;
+    PaSampleFormat sampleFormat;
+    PaStreamCallback *streamCallback;
+
     err = Pa_Initialize();
     portaudio_assert(err, "Pa_Initialize");
 
@@ -367,40 +420,60 @@ Server_pa_init(Server *self)
     PyoPaBackendData *be_data = (PyoPaBackendData *) malloc(sizeof(PyoPaBackendData *));
     self->audio_be_data = (void *) be_data;
 
+    if (self->output == -1)
+        outDevice = Pa_GetDefaultOutputDevice(); /* default output device */
+    else
+        outDevice = (PaDeviceIndex) self->output; /* selected output device */ 
+    if (self->input == -1)
+        inDevice = Pa_GetDefaultInputDevice(); /* default input device */
+    else
+        inDevice = (PaDeviceIndex) self->input; /* selected input device */
+
+    /* Retrieve host api id and define sample and callback format*/
+    deviceInfo = Pa_GetDeviceInfo(outDevice);
+    hostIndex = deviceInfo->hostApi;
+    hostInfo = Pa_GetHostApiInfo(hostIndex);
+    hostId = hostInfo->type;
+    if (hostId == paASIO) {
+        Server_debug(self, "Portaudio uses non-interleaved callback.\n");
+        sampleFormat = paFloat32 | paNonInterleaved;
+        streamCallback = pa_callback_nonInterleaved;
+    }
+    else {
+        Server_debug(self, "Portaudio uses interleaved callback.\n");
+        sampleFormat = paFloat32;
+        streamCallback = pa_callback_interleaved;
+    }
+    
+
     /* setup output and input streams */
     memset(&outputParameters, 0, sizeof(outputParameters));
-    if (self->output == -1)
-        outputParameters.device = Pa_GetDefaultOutputDevice(); /* default output device */ 
-    else
-        outputParameters.device = (PaDeviceIndex) self->output; /* selected output device */ 
+    outputParameters.device = outDevice;
     outputParameters.channelCount = self->nchnls;
-    outputParameters.sampleFormat = paFloat32;
+    outputParameters.sampleFormat = sampleFormat;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
 
     if (self->duplex == 1) {
         memset(&inputParameters, 0, sizeof(inputParameters));
-        if (self->input == -1)
-            inputParameters.device = Pa_GetDefaultInputDevice(); /* default input device */
-        else
-            inputParameters.device = (PaDeviceIndex) self->input; /* selected input device */
+        inputParameters.device = inDevice;
         inputParameters.channelCount = self->nchnls;
-        inputParameters.sampleFormat = paFloat32;
+        inputParameters.sampleFormat = sampleFormat;
         inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
         inputParameters.hostApiSpecificStreamInfo = NULL;
     }
 
     if (self->input == -1 && self->output == -1) {
         if (self->duplex == 1)
-            err = Pa_OpenDefaultStream(&be_data->stream, self->nchnls, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, self->nchnls, self->nchnls, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
         else
-            err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls, paFloat32, self->samplingRate, self->bufferSize, pa_callback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
     }
     else {
         if (self->duplex == 1)
-            err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
+            err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
         else
-            err = Pa_OpenStream(&be_data->stream, NULL, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, pa_callback,  (void *) self);
+            err = Pa_OpenStream(&be_data->stream, NULL, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
     }        
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
@@ -1649,7 +1722,7 @@ Server_boot(Server *self)
     }
     else {
         self->server_booted = 0;
-        Server_error(self, "Server not booted.\n");
+        Server_error(self, "\nServer not booted.\n");
     }    
     
     Py_INCREF(Py_None);

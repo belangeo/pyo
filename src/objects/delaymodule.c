@@ -2383,7 +2383,7 @@ static int
 AllpassWG_init(AllpassWG *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *feedtmp=NULL, *detunetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i, j, alpsize;
+    int i, j;
     
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
     
