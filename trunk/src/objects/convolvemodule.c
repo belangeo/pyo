@@ -403,7 +403,7 @@ IRWinSinc_alloc_memory(IRWinSinc *self) {
 static void
 IRWinSinc_create_impulse(IRWinSinc *self, MYFLT freq, MYFLT bandwidth) {
     int i, half, ipart;
-    MYFLT val, fpart, sum, invSum, env, envPointer, envPointerScaling, sincScaling, w, bw;
+    MYFLT val, fpart, sum, invSum, env, envPointer, envPointerScaling, sincScaling, w;
     
     half = self->order / 2;
     sum = 0.0;
@@ -662,7 +662,6 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 IRWinSinc_init(IRWinSinc *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
@@ -1084,7 +1083,6 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 IRAverage_init(IRAverage *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "order", "mul", "add", NULL};
@@ -1561,7 +1559,6 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 IRPulse_init(IRPulse *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
@@ -2067,7 +2064,6 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 IRFM_init(IRFM *self, PyObject *args, PyObject *kwds)
 {
-    int i;
     PyObject *inputtmp, *input_streamtmp, *carriertmp=NULL, *ratiotmp=NULL, *indextmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"input", "carrier", "ratio", "index", "order", "mul", "add", NULL};

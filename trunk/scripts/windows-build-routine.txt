@@ -8,10 +8,10 @@ http://www.scons.org/download.php
 
 --- Install MinGW from sourceforge
 
--- Install pthreads (just copy files from ftp)
+--- Install pthreads (just copy files from ftp)
 ftp://sourceware.org/pub/pthreads-win32/dll-latest/
 
-1 --- Update libsndfile from http://www.mega-nerd.com/libsndfile  to the most recent version that works, which may be pre-release or release; currently it the latest stable release (1.0.20). Do not build from sources.
+1 --- Update libsndfile from http://www.mega-nerd.com/libsndfile  to the most recent version that works, which may be pre-release or release; currently it is the latest stable release (1.0.20). Do not build from sources.
 
 2 --- Update liblo tag 0.26 from the tarball at http://liblo.sourceforge.net (not SVN!), and build with this SConstruct:
 
