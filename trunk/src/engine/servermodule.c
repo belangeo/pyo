@@ -205,6 +205,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
         }
     }
 
+    Server_process_buffers(server);
     for (i=0; i<server->bufferSize; i++) {
         for (j=0; j<server->nchnls; j++) {
             out[j][i] = (float) server->output_buffer[(i*server->nchnls)+j];
