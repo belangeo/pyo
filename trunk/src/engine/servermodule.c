@@ -408,6 +408,7 @@ Server_pa_init(Server *self)
     PaHostApiTypeId hostId;
     PaSampleFormat sampleFormat;
     PaStreamCallback *streamCallback;
+    double deviceDefaultSamplingRate;
 
     err = Pa_Initialize();
     portaudio_assert(err, "Pa_Initialize");
@@ -431,6 +432,7 @@ Server_pa_init(Server *self)
 
     /* Retrieve host api id and define sample and callback format*/
     deviceInfo = Pa_GetDeviceInfo(outDevice);
+    deviceDefaultSamplingRate = deviceInfo->defaultSampleRate;
     hostIndex = deviceInfo->hostApi;
     hostInfo = Pa_GetHostApiInfo(hostIndex);
     hostId = hostInfo->type;
@@ -473,7 +475,7 @@ Server_pa_init(Server *self)
         if (self->duplex == 1)
             err = Pa_OpenStream(&be_data->stream, &inputParameters, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
         else
-            err = Pa_OpenStream(&be_data->stream, NULL, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
+            err = Pa_OpenStream(&be_data->stream, (PaStreamParameters *) NULL, &outputParameters, self->samplingRate, self->bufferSize, paNoFlag, streamCallback,  (void *) self);
     }        
     portaudio_assert(err, "Pa_OpenStream");
     if (err < 0) {
