@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{4F72B6EF-CFA0-434F-A2B4-B130F94F54EB}
 AppName=Pyo
-AppVersion=0.03
+AppVersion=0.03.1
 AppPublisher=iACT.umontreal.ca
 AppPublisherURL=http://code.google.com/p/pyo
 AppSupportURL=http://code.google.com/p/pyo
@@ -17,7 +17,7 @@ DisableDirPage=yes
 DefaultGroupName=pyo
 AllowNoIcons=yes
 InfoBeforeFile=C:\pyo\scripts\\README-win32-py26.txt
-OutputBaseFilename=pyo_0.03_py2.6_setup
+OutputBaseFilename=pyo_0.03.1_py2.6_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
