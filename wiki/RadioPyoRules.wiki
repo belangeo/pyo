@@ -1,13 +1,12 @@
-#summary One-sentence summary of this page.
+#summary Simple rules to follow to have your script playing on the Radio pyo.
 
 = Introduction =
 
-Add your content here.
+Here is the rules to follow if you want to have your script playing on the Radio pyo.
 
 
 = Details =
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
+  * First of all, it must be a one-page script, named as _author!_title.py_
   * Headings, paragraphs, and lists
   * Automatic links to other wiki pages
