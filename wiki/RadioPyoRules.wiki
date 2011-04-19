@@ -1,8 +1,6 @@
 #summary Simple rules to follow to have your script playing on the Radio pyo.
 
-= Introduction =
-
-Here is the rules to follow if you want to have your script playing on the Radio pyo.
+= Here is the rules to follow if you want to have your script playing on the Radio pyo =
 
 
 = Details =
