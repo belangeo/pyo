@@ -8,5 +8,5 @@ Here is the rules to follow if you want to have your script playing on the Radio
 = Details =
 
   * First of all, it must be a one-page script, named as _author`_`title.py_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+  * The server's variable must be _s_
+  * The script must be finite in time. Duration must be specified, in seconds, with a line like : _duration = 300_ for a 5 minutes piece   
