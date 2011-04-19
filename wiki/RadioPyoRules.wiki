@@ -9,4 +9,6 @@ Here is the rules to follow if you want to have your script playing on the Radio
 
   * First of all, it must be a one-page script, named as _author`_`title.py_
   * The server's variable must be _s_
-  * The script must be finite in time. Duration must be specified, in seconds, with a line like : _duration = 300_ for a 5 minutes piece   
+  * The script must be finite in time. Example: for a 5 minutes piece, duration is specified, in seconds, with this line : _duration = 300_ 
+  * No soundfile, only synthesis!
+   
