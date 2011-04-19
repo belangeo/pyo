@@ -11,4 +11,4 @@ Here is the rules to follow if you want to have your script playing on the Radio
   * The server's variable must be _s_
   * The script must be finite in time. Example: for a 5 minutes piece, duration is specified, in seconds, with this line : _duration = 300_ 
   * No soundfile, only synthesis!
-   
+  * To submit your script, send it by email to belangeo@gmail.com or jm.dumas@gmail.com
