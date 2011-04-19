@@ -1,9 +1,9 @@
 #summary Simple rules to follow to have your script playing on the Radio pyo.
 
-= Here is the rules to follow if you want to have your script playing on the Radio pyo =
+== Here is the rules to follow if you want to have your script playing on the Radio pyo ==
 
 
-= Details =
+== Details ==
 
   * First of all, it must be a one-page script, named as _author`_`title.py_
   * The server's variable must be _s_
