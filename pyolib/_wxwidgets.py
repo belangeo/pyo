@@ -1338,7 +1338,7 @@ class ServerGUI(wx.Frame):
 
         if sys.platform == "linux2":
             X_OFF = 3
-            Y_OFF = 25
+            Y_OFF = 30
         elif sys.platform == "win32":
             X_OFF = 12
             Y_OFF = 65
