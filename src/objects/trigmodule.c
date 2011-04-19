@@ -6246,7 +6246,7 @@ Percent_setPercent(Percent *self, PyObject *arg)
 	Py_DECREF(self->percent);
 	if (isNumber == 1) {
 		self->percent = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
+        self->modebuffer[2] = 0;
 	}
 	else {
 		self->percent = tmp;
@@ -6254,7 +6254,7 @@ Percent_setPercent(Percent *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->percent_stream);
         self->percent_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
+		self->modebuffer[2] = 1;
 	}
     
     (*self->mode_func_ptr)(self);
