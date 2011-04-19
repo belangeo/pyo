@@ -2078,11 +2078,12 @@ SndTable_loadSound(SndTable *self) {
     self->size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
+    /*
     printf("samples = %d\n", self->size);
     printf("samplingrate = %d\n", self->sndSr);
     printf("channels = %d\n", num_chnls);
+    */
     num_items = self->size * num_chnls;
-    //printf("num_items=%d\n",num_items);
     /* Allocate space for the data to be read, then read it. */
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
