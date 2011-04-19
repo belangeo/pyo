@@ -1,4 +1,4 @@
-#sumary Introductory tutorial to Pyo
+#summary Introductory tutorial to Pyo
 
 = Introductory tutorial to Pyo =
 Here is quick introduction to Pyo. It assumes you already know Python and basics about Object-oriented programming.
