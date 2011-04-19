@@ -743,7 +743,7 @@ class PyoTableObject(object):
             samples = [obj.getTable() for i, obj in enumerate(self._base_objs)]
         savefile(samples, path, sr, len(self._base_objs), format)    
     
-    def write(self, path):
+    def write(self, path, oneline=True):
         """
         Writes the content of the table in a text file.
         
@@ -752,7 +752,19 @@ class PyoTableObject(object):
          
         """
         f = open(path, "w")
-        f.write(str([obj.getTable() for obj in self._base_objs]))
+        if oneline:
+            f.write(str([obj.getTable() for obj in self._base_objs]))
+        else:
+            text = "["
+            for obj in self._base_objs:
+                text += "["
+                for i, val in enumerate(obj.getTable()):
+                    if (i % 8) == 0:
+                        text += "\n"
+                    text += str(val) + ", "
+                text += "]"
+            text += "]"
+            f.write(text)
         f.close()
 
     def read(self, path):
