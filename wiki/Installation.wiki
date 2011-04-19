@@ -1,3 +1,5 @@
+#summary How to run pyo from sources
+
 =Dependencies=
 To install pyo, you will need the following dependencies:
   * [http://www.python.org/download/releases/ Python 2.6.x]
