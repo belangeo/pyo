@@ -7,6 +7,6 @@ Here is the rules to follow if you want to have your script playing on the Radio
 
 = Details =
 
-  * First of all, it must be a one-page script, named as _author\_title.py_
+  * First of all, it must be a one-page script, named as _author`_`title.py_
   * Headings, paragraphs, and lists
   * Automatic links to other wiki pages
