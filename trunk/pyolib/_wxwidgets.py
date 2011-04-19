@@ -1337,15 +1337,18 @@ class ServerGUI(wx.Frame):
             box.Add(self.text, 0, wx.LEFT, 28)
 
         if sys.platform == "linux2":
+            X_OFF = 3
             Y_OFF = 25
         elif sys.platform == "win32":
-            Y_OFF = 60
+            X_OFF = 10
+            Y_OFF = 65
         else:
+            X_OFF = 3
             Y_OFF = 40
         panel.SetSizerAndFit(box)
         x, y = panel.GetSize()
-        panel.SetSize((x+3, y+Y_OFF))
-        self.SetSize((x+3, y+Y_OFF))
+        panel.SetSize((x+X_OFF, y+Y_OFF))
+        self.SetSize((x+X_OFF, y+Y_OFF))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
 
