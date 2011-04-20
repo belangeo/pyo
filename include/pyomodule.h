@@ -196,6 +196,7 @@ extern PyTypeObject PortType;
 extern PyTypeObject AllpassType;
 extern PyTypeObject Allpass2Type;
 extern PyTypeObject PhaserType;
+extern PyTypeObject DenormType;
 extern PyTypeObject DistoType;
 extern PyTypeObject ClipType;
 extern PyTypeObject MirrorType;

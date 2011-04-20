@@ -337,18 +337,22 @@ portmidi_get_default_input(){
 /****** Libsndfile utilities ******/
 #define sndinfo_info \
 "\nRetrieve informations about a soundfile.\n\n\
-Prints the infos of the given soundfile to the console and returns a tuple containing (number of frames, duration in seconds, sampling rate, number of channels).\n\nsndinfo(path)\n\nParameters:\n\n    \
-path : string\n        Path of a valid soundfile.\n\n"
+Prints the infos of the given soundfile to the console and returns a tuple containing (number of frames, duration in seconds, sampling rate, number of channels).\n\nsndinfo(path, print=False)\n\nParameters:\n\n    \
+path : string\n        Path of a valid soundfile.\n    \
+print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\n"
 
 
 static PyObject *
-sndinfo(PyObject *self, PyObject *args) {
+sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     
     SNDFILE *sf;
     SF_INFO info;
     char *path;
+    int print = 0;
 
-    if (! PyArg_ParseTuple(args, "s", &path))
+    static char *kwlist[] = {"path", "print", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &path, &print))
         return NULL;
 
     /* Open the sound file. */
@@ -360,7 +364,8 @@ sndinfo(PyObject *self, PyObject *args) {
         Py_RETURN_NONE;
     }
     else {
-        fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\n", path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels);
+        if (print)
+            fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\n", path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels);
         PyObject *sndinfo = PyTuple_Pack(4, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels));
         sf_close(sf);
         return sndinfo;
@@ -498,7 +503,7 @@ static PyMethodDef pyo_functions[] = {
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Prints a list of all devices found by Portmidi."},
 {"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, "Returns Midi input devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portmidi index of each device."},
 {"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "Returns Portmidi default input device."},
-{"sndinfo", (PyCFunction)sndinfo, METH_VARARGS, sndinfo_info},
+{"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns the frequency in Hertz equivalent to the given midi note."},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, "Returns the transposition factor equivalent to the given midi note (central key = 60)."},
@@ -973,6 +978,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&PortType);
     PyModule_AddObject(m, "Port_base", (PyObject *)&PortType);
+    
+    if (PyType_Ready(&DenormType) < 0)
+        return;
+    Py_INCREF(&DenormType);
+    PyModule_AddObject(m, "Denorm_base", (PyObject *)&DenormType);
     
     if (PyType_Ready(&DistoType) < 0)
         return;

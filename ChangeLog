@@ -1,5 +1,10 @@
 2011-04-15 belangeo <belangeo@gmail.com>
 
+    * Added new object : Denorm.
+    - rev 601
+
+2011-04-15 belangeo <belangeo@gmail.com>
+
     * Added portaudio non-interleaved callback for ASIO support.
     - rev 577
 
