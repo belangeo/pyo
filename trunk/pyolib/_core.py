@@ -666,7 +666,7 @@ class PyoTableObject(object):
     view() : Opens a window showing the contents of the table.
     dump() : Print current status of the object's attributes.
     save(path, format) : Writes the content of the table in an audio file.
-    write(path) : Writes the content of the table in a text file.
+    write(path, oneline) : Writes the content of the table in a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
     put(value, pos) : Puts a value at specified position in the table.
@@ -749,7 +749,16 @@ class PyoTableObject(object):
         
         This function can be used to store the table data as a
         list of floats into a text file.
-         
+        
+        Parameters:
+        
+        path : string
+            Full path of the generated file.
+        oneline : boolean, optional
+            If True, list of samples will inserted on one line.
+            If False, list of samples will be truncated to 8 floats
+            per line. Defaults to True.
+
         """
         f = open(path, "w")
         if oneline:
