@@ -1027,8 +1027,9 @@ class Hilbert(PyoObject):
         self._base_players = [HilbertMain_base(wrap(in_fader,i)) for i in range(lmax)]
         self._base_objs = []
         for i in range(lmax2):
-            self._base_objs.append(Hilbert_base(wrap(self._base_players,i), 0, wrap(mul,i), wrap(add,i)))
-            self._base_objs.append(Hilbert_base(wrap(self._base_players,i), 1, wrap(mul,i), wrap(add,i)))
+            for j in range(lmax):
+                self._base_objs.append(Hilbert_base(wrap(self._base_players,j), 0, wrap(mul,i), wrap(add,i)))
+                self._base_objs.append(Hilbert_base(wrap(self._base_players,j), 1, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
         return ['input', 'mul', 'add']
