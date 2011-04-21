@@ -975,6 +975,19 @@ class Hilbert(PyoObject):
     """
     Hilbert transform.
     
+    Hilbert is an IIR filter based implementation of a broad-band 90 degree 
+    phase difference network. The outputs of hilbert have an identical 
+    frequency response to the input (i.e. they sound the same), but the two 
+    outputs have a constant phase difference of 90 degrees, plus or minus some 
+    small amount of error, throughout the entire frequency range. The outputs 
+    are in quadrature.
+
+    Hilbert is useful in the implementation of many digital signal processing 
+    techniques that require a signal in phase quadrature. ar1 corresponds to the 
+    cosine output of hilbert, while ar2 corresponds to the sine output. The two 
+    outputs have a constant phase difference throughout the audio range that 
+    corresponds to the phase relationship between cosine and sine waves.
+    
     Parent class : PyoObject
     
     Parameters:

@@ -4698,10 +4698,15 @@ static PyObject * TableRead_play(TableRead *self, PyObject *args, PyObject *kwds
 static PyObject * TableRead_out(TableRead *self, PyObject *args, PyObject *kwds) 
 { 
     self->pointerPos = 0.0;
-    self->go = 0;
+    self->init = 1;
+    self->go = 1;
     OUT 
 };
-static PyObject * TableRead_stop(TableRead *self) { STOP };
+static PyObject * TableRead_stop(TableRead *self) 
+{ 
+    self->go = 0;
+    STOP 
+};
 
 static PyObject * TableRead_multiply(TableRead *self, PyObject *arg) { MULTIPLY };
 static PyObject * TableRead_inplace_multiply(TableRead *self, PyObject *arg) { INPLACE_MULTIPLY };
