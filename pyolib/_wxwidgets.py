@@ -745,7 +745,6 @@ class ViewTable_withoutPIL(wx.Frame):
         self.SetMinSize((self.width+10, self.height+Y_OFF))
         self.SetMaxSize((self.width+10, self.height+Y_OFF))
         self.tableclass = tableclass
-        print tableclass
         if sys.platform == 'win32':
             if tableclass == 'SndTable':
                 self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
