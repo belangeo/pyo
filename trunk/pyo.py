@@ -322,6 +322,151 @@ class Looper(PyoObject):
     @dur.setter
     def dur(self, x): self.setDur(x)
 
+class PitchShift(PyoObject):
+    """
+    Frequency shifting using single sideband amplitude modulation.
+
+    Shifting frequencies means that the input signal can be "detuned," 
+    where the harmonic components of the signal are shifted out of 
+    harmonic alignment with each other, e.g. a signal with harmonics at 
+    100, 200, 300, 400 and 500 Hz, shifted up by 50 Hz, will have harmonics 
+    at 150, 250, 350, 450, and 550 Hz.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    shift : float or PyoObject, optional
+        Amount of shifting in Hertz. Defaults to 100.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setShift(x) : Replace the `shift` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    shift : float or PyoObject. Amount of shifting in Hertz.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SineLoop(freq=300, feedback=.1, mul=.5)
+    >>> lf1 = Sine(freq=.04, mul=10)
+    >>> lf2 = Sine(freq=.05, mul=10)
+    >>> b = PitchShift(a, shift=lf1, mul=.5).out()
+    >>> c = PitchShift(a, shift=lf2, mul=.5).out(1)
+
+    """
+    def __init__(self, input, shift=100, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._shift = shift
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, shift, mul, add, lmax = convertArgsToLists(self._in_fader, shift, mul, add)
+
+        self._hilb_objs = []
+        self._sin_objs = []
+        self._cos_objs = []
+        self._mod_objs = []
+        self._base_objs = []
+        for i in range(lmax):
+            self._hilb_objs.append(Hilbert(wrap(in_fader,i)))
+            self._sin_objs.append(Sine(freq=wrap(shift,i), mul=.707))
+            self._cos_objs.append(Sine(freq=wrap(shift,i), phase=0.25, mul=.707))
+            self._mod_objs.append(Mix(self._hilb_objs[-1]['real'] * self._sin_objs[-1] + self._hilb_objs[-1]['imag'] * self._cos_objs[-1], 
+                                      mul=wrap(mul,i), add=wrap(add,i)))
+            self._base_objs.extend(self._mod_objs[-1].getBaseObjects())
+
+    def __dir__(self):
+        return ["input", "shift", "mul", "add"]    
+
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._hilb_objs)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._sin_objs)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._cos_objs)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._mod_objs)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._hilb_objs]
+        [obj.stop() for obj in self._sin_objs]
+        [obj.stop() for obj in self._cos_objs]
+        [obj.stop() for obj in self._mod_objs]
+        [obj.stop() for obj in self._base_objs]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._hilb_objs)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._sin_objs)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._cos_objs)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._mod_objs)]
+        if type(chnl) == ListType:
+            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        else:
+            if chnl < 0:    
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+            else:
+                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setShift(self, x):
+        """
+        Replace the `shift` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `shift` attribute.
+
+        """
+        self._shift = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._sin_objs)]
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._cos_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-2000., 2000., "lin", "shift", self._shift), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self): 
+        """PyoObject. Input signal to pitch shift.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def shift(self): 
+        """float or PyoObject. Amount of pitch shift in Hertz.""" 
+        return self._shift
+    @shift.setter
+    def shift(self, x): self.setShift(x)
+
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pm_get_input_devices',
                                     'pa_list_devices', 'pa_count_host_apis', 'pa_list_host_apis', 'pa_get_default_host_api', 
@@ -332,7 +477,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr', 'Linseg', 'Expseg']),
                       'dynamics': sorted(['Clip', 'Compress', 'Degrade', 'Mirror', 'Wrap']),
                       'effects': sorted(['Delay', 'SDelay', 'Disto', 'Freeverb', 'Waveguide', 'Convolve', 'WGVerb', 
-                                         'Harmonizer', 'Chorus', 'AllpassWG']),
+                                         'Harmonizer', 'Chorus', 'AllpassWG', 'PitchShift']),
                       'filters': sorted(['Biquad', 'BandSplit', 'Port', 'Hilbert', 'Tone', 'DCBlock', 'EQ', 'Allpass',
                                          'Allpass2', 'Phaser', 'Biquadx', 'IRWinSinc', 'IRAverage', 'IRPulse', 'IRFM']),
                       'generators': sorted(['Noise', 'Phasor', 'Sine', 'Input', 'FM', 'SineLoop', 'Blit', 'PinkNoise', 'CrossFM',
