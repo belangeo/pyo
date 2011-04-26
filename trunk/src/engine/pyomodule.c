@@ -833,6 +833,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&OscLoopType);
     PyModule_AddObject(m, "OscLoop_base", (PyObject *)&OscLoopType);
+
+    if (PyType_Ready(&OscBankType) < 0)
+        return;
+    Py_INCREF(&OscBankType);
+    PyModule_AddObject(m, "OscBank_base", (PyObject *)&OscBankType);
     
     if (PyType_Ready(&TableReadType) < 0)
         return;

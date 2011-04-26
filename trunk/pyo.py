@@ -322,7 +322,7 @@ class Looper(PyoObject):
     @dur.setter
     def dur(self, x): self.setDur(x)
 
-class PitchShift(PyoObject):
+class FreqShift(PyoObject):
     """
     Frequency shifting using single sideband amplitude modulation.
 
@@ -358,8 +358,8 @@ class PitchShift(PyoObject):
     >>> a = SineLoop(freq=300, feedback=.1, mul=.5)
     >>> lf1 = Sine(freq=.04, mul=10)
     >>> lf2 = Sine(freq=.05, mul=10)
-    >>> b = PitchShift(a, shift=lf1, mul=.5).out()
-    >>> c = PitchShift(a, shift=lf2, mul=.5).out(1)
+    >>> b = FreqShift(a, shift=lf1, mul=.5).out()
+    >>> c = FreqShift(a, shift=lf2, mul=.5).out(1)
 
     """
     def __init__(self, input, shift=100, mul=1, add=0):
@@ -477,7 +477,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'controls': sorted(['Fader', 'Sig', 'SigTo', 'Adsr', 'Linseg', 'Expseg']),
                       'dynamics': sorted(['Clip', 'Compress', 'Degrade', 'Mirror', 'Wrap']),
                       'effects': sorted(['Delay', 'SDelay', 'Disto', 'Freeverb', 'Waveguide', 'Convolve', 'WGVerb', 
-                                         'Harmonizer', 'Chorus', 'AllpassWG', 'PitchShift']),
+                                         'Harmonizer', 'Chorus', 'AllpassWG', 'FreqShift']),
                       'filters': sorted(['Biquad', 'BandSplit', 'Port', 'Hilbert', 'Tone', 'DCBlock', 'EQ', 'Allpass',
                                          'Allpass2', 'Phaser', 'Biquadx', 'IRWinSinc', 'IRAverage', 'IRPulse', 'IRFM']),
                       'generators': sorted(['Noise', 'Phasor', 'Sine', 'Input', 'FM', 'SineLoop', 'Blit', 'PinkNoise', 'CrossFM',
@@ -490,7 +490,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                       'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 'XnoiseMidi']),
                       'players': sorted(['SfMarkerShuffler', 'SfPlayer', 'SfMarkerLooper']),
                       'tableprocess': sorted(['TableRec', 'Osc', 'Pointer', 'Lookup', 'Granulator', 'Pulsar', 
-                                            'TableRead', 'TableMorph', 'Looper', 'TableIndex']),
+                                            'TableRead', 'TableMorph', 'Looper', 'TableIndex', 'OscBank']),
                       'matrixprocess': sorted(['MatrixRec', 'MatrixPointer', 'MatrixMorph']), 
                       'triggers': sorted(['Metro', 'Beat', 'TrigEnv', 'TrigRand', 'TrigRandInt', 'Select', 'Counter', 'TrigChoice', 
                                         'TrigFunc', 'Thresh', 'Cloud', 'Trig', 'TrigXnoise', 'TrigXnoiseMidi',

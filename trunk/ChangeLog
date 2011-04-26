@@ -1,6 +1,11 @@
+2011-04-26 belangeo <belangeo@gmail.com>
+
+    * Added new object : OscBank. Mixes any number of oscillators.
+    - rev 606
+
 2011-04-22 belangeo <belangeo@gmail.com>
 
-    * Added new object : PitchShift, frequency shifter using single sideband amplitude modulation.
+    * Added new object : FreqShift, frequency shifter using single sideband amplitude modulation.
     - rev 605
 
 2011-04-15 belangeo <belangeo@gmail.com>

@@ -142,6 +142,7 @@ extern PyTypeObject TableReadType;
 extern PyTypeObject TableReadTrigType;
 extern PyTypeObject OscType;
 extern PyTypeObject OscLoopType;
+extern PyTypeObject OscBankType;
 extern PyTypeObject PulsarType;
 extern PyTypeObject NoiseType;
 extern PyTypeObject PinkNoiseType;
