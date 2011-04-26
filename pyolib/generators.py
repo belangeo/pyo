@@ -355,6 +355,14 @@ class Noise(PyoObject):
         
     Parent class: PyoObject
     
+    Methods:
+    
+    setType(x) : Sets the generation algorithm.
+
+    Attributes:
+    
+    type : int {0, 1}, Generation algorithm.
+
     Examples:
     
     >>> s = Server().boot()
@@ -365,6 +373,7 @@ class Noise(PyoObject):
     """
     def __init__(self, mul=1, add=0):                
         PyoObject.__init__(self)
+        self._type = 0
         self._mul = mul
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
@@ -373,9 +382,31 @@ class Noise(PyoObject):
     def __dir__(self):
         return ['mul', 'add']
 
+    def setType(self, x):
+        """
+        Sets the generation algorithm.
+
+        Parameters:
+
+        x : int, {0, 1}
+            0 uses the system rand() method to generate number. Used as default.
+            1 uses a simple linear congruential generator, cheaper than rand().
+
+        """
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def type(self):
+        """int {0, 1}. Sets the generation algorithm.""" 
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
 
 class PinkNoise(PyoObject):
     """

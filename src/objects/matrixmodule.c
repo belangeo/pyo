@@ -954,7 +954,7 @@ MatrixMorph_init(MatrixMorph *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "matrix", "sources", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|", kwlist, &inputtmp, &matrixtmp, &sourcestmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &matrixtmp, &sourcestmp))
         return -1; 
     
     Py_XDECREF(self->input);

@@ -28,16 +28,26 @@
 typedef struct {
     pyo_audio_HEAD
     int modebuffer[2];
+    int seed;
+    int type;
 } Noise;
 
 static void
 Noise_generate(Noise *self) {
-    MYFLT val;
     int i;
 
     for (i=0; i<self->bufsize; i++) {
-        val = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
-        self->data[i] = val;
+        self->data[i] = rand()/((MYFLT)(RAND_MAX)+1)*1.98-0.99;
+    }
+}
+
+static void
+Noise_generate_cheap(Noise *self) {
+    int i;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->seed = (self->seed * 15625 + 1) & 0xFFFF;
+        self->data[i] = (self->seed - 0x8000) * 3.0517578125e-05;
     }
 }
 
@@ -57,6 +67,14 @@ Noise_setProcMode(Noise *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
+    switch (self->type) {
+        case 0:
+            self->proc_func_ptr = Noise_generate;
+            break;
+        case 1:
+            self->proc_func_ptr = Noise_generate_cheap;
+            break;
+    }
 	switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = Noise_postprocessing_ii;
@@ -91,7 +109,7 @@ Noise_setProcMode(Noise *self)
 static void
 Noise_compute_next_data_frame(Noise *self)
 {
-    Noise_generate(self); 
+    (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
@@ -127,6 +145,7 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
     
+    self->type = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 
@@ -158,10 +177,11 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    (*self->mode_func_ptr)(self);
-    
     srand((unsigned)(time(0)));
-    
+    self->seed = rand();
+
+    (*self->mode_func_ptr)(self);
+
     Py_INCREF(self);
     return 0;
 }
@@ -186,6 +206,28 @@ static PyObject * Noise_inplace_sub(Noise *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Noise_div(Noise *self, PyObject *arg) { DIV };
 static PyObject * Noise_inplace_div(Noise *self, PyObject *arg) { INPLACE_DIV };
 
+static PyObject *
+Noise_setType(Noise *self, PyObject *arg)
+{
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (PyInt_AS_LONG(arg) == 0)
+        self->type = 0;
+    else if (PyInt_AS_LONG(arg) == 1)
+        self->type = 1;
+
+    (*self->mode_func_ptr)(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Noise_members[] = {
 {"server", T_OBJECT_EX, offsetof(Noise, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Noise, stream), 0, "Stream object."},
@@ -201,6 +243,7 @@ static PyMethodDef Noise_methods[] = {
 {"play", (PyCFunction)Noise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Noise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Noise_stop, METH_NOARGS, "Stops computing."},
+{"setType", (PyCFunction)Noise_setType, METH_O, "Sets Noise generation algorithm."},
 {"setMul", (PyCFunction)Noise_setMul, METH_O, "Sets Noise mul factor."},
 {"setAdd", (PyCFunction)Noise_setAdd, METH_O, "Sets Noise add factor."},
 {"setSub", (PyCFunction)Noise_setSub, METH_O, "Sets inverse add factor."},

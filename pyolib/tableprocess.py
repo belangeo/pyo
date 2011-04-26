@@ -305,6 +305,326 @@ class OscLoop(PyoObject):
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
+class OscBank(PyoObject):
+    """
+    Any number of oscillators reading a waveform table.
+    
+    OscBank mixes the output of any number of oscillators. The frequencies
+    of each oscillator is controlled with two parameters, the base frequency 
+    `freq` and a coefficient of expansion `spread`. Frequencies are computed 
+    with the following formula (`n` is the order of the partial):
+    
+    f_n = freq + freq * spread * n
+
+    The frequencies and amplitudes can be modulated by two random generators 
+    with interpolation (each partial have a different set of randoms).
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    table : PyoTableObject
+        Table containing the waveform samples.
+    freq : float or PyoObject, optional
+        Base frequency in cycles per second. Defaults to 100.
+    spread : float or PyoObject, optional
+        Coefficient of expansion used to compute partial frequencies. 
+        If `spread` is 0, all partials will be at the base frequency. 
+        A value of 1 will generate integer harmonics, a value of 2
+        will skip even harmonics and non-integer values will generate
+        different series of inharmonic frequencies. Defaults to 1.
+    slope : float or PyoObject, optional
+        specifies the multiplier in the series of amplitude coefficients. 
+        This is a power series: the nth partial will have an amplitude of 
+        (slope ** n), i.e. strength values trace an exponential curve.
+        Defaults to 1.
+    frndf : float or PyoObject, optional
+        Frequency, in cycle per second, of the frequency modulations. 
+        Defaults to 1.
+    frnda : float or PyoObject, optional
+        Maximum frequency deviation (positive and negative) in portion of 
+        the partial frequency. A value of 1 means that the frequency can
+        drift from 0 Hz to twice the partial frequency. A value of 0 
+        deactivates the frequency deviations. Defaults to 0.
+    arndf : float or PyoObject, optional
+        Frequency, in cycle per second, of the amplitude modulations. 
+        Defaults to 1.
+    arnda : float or PyoObject, optional
+        Amount of amplitude deviation. 0 deactivates the amplitude 
+        modulations and 1 gives full amplitude modulations.
+        Defaults to 0.
+    num : int, optional
+        Number of oscillators. Available at initialization only.
+        Defaults to 24.
+    fjit : boolean, optional
+        If True, a small jitter is added to the frequency of each partial.
+        For a large number of oscillators and a very small `spread`, the
+        periodicity between partial frequencies can cause very strange
+        artefact. Adding a jitter breaks the periodicity. Defaults to False.
+
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setSpread(x) : Replace the `spread` attribute.
+    setSlope(x) : Replace the `slope` attribute.
+    setFrndf(x) : Replace the `frndf` attribute.
+    setFrnda(x) : Replace the `frnda` attribute.
+    setArndf(x) : Replace the `arndf` attribute.
+    setArnda(x) : Replace the `arnda` attribute.
+    setFjit(x) : Replace the `fjit` attribute.
+
+    Attributes:
+
+    table : PyoTableObject. Table containing the waveform samples.
+    freq : float or PyoObject, Base frequency in cycles per second.
+    spread : float or PyoObject, Coefficient of expansion.
+    slope : float or PyoObject, Multiplier in the series of amplitudes.
+    frndf : float or PyoObject, Frequency of the frequency modulations.
+    frnda : float or PyoObject, Maximum frequency deviation from 0 to 1.
+    arndf : float or PyoObject, Frequency of the amplitude modulations.
+    arnda : float or PyoObject, Amount of amplitude deviation from 0 to 1.
+    fjit : boolean, Jitter added to the parial frequencies.
+
+    See also: Osc
+
+    Notes:
+    
+    Altough parameters can be audio signals, values are sampled only once 
+    per buffer size. To avoid artefacts, it is recommended to keep variations
+    at low rate (< 20 Hz).
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> ta = HarmTable([1,.3,.2])
+    >>> tb = HarmTable([1])
+    >>> f = Fader(fadein=.1, fadeout=.5, dur=4).play()
+    >>> a = OscBank(ta,100,spread=0,frndf=.25,frnda=.01,num=[10,10],fjit=True,mul=f*0.5).out()
+    >>> b = OscBank(tb,250,spread=.25,slope=.8,arndf=4,arnda=1,num=[10,10],mul=f*0.5).out()
+
+    """
+    def __init__(self, table, freq=100, spread=1, slope=.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._table = table
+        self._freq = freq
+        self._spread = spread
+        self._slope = slope
+        self._frndf = frndf
+        self._frnda = frnda
+        self._arndf = arndf
+        self._arnda = arnda
+        self._fjit = fjit
+        self._num = num
+        self._mul = mul
+        self._add = add
+        table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add, lmax = convertArgsToLists(table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add)
+        self._base_objs = [OscBank_base(wrap(table,i), wrap(freq,i), wrap(spread,i), wrap(slope,i), wrap(frndf,i), wrap(frnda,i), wrap(arndf,i), wrap(arnda,i), wrap(num,i), wrap(fjit,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'freq', 'spread', 'slope', 'frndf', 'frnda', 'arndf', 'arnda', 'fjit', 'mul', 'add']
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSpread(self, x):
+        """
+        Replace the `spread` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `spread` attribute.
+
+        """
+        self._spread = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSlope(self, x):
+        """
+        Replace the `slope` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `slope` attribute.
+
+        """
+        self._slope = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFrndf(self, x):
+        """
+        Replace the `frndf` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `frndf` attribute.
+
+        """
+        self._frndf = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFrndf(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFrnda(self, x):
+        """
+        Replace the `frnda` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `frnda` attribute.
+
+        """
+        self._frnda = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFrnda(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setArndf(self, x):
+        """
+        Replace the `arndf` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `arndf` attribute.
+
+        """
+        self._arndf = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setArndf(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setArnda(self, x):
+        """
+        Replace the `arnda` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `arnda` attribute.
+
+        """
+        self._arnda = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setArnda(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFjit(self, x):
+        """
+        Replace the `fjit` attribute.
+
+        Parameters:
+
+        x : boolean
+            new `fjit` attribute.
+
+        """
+        self._fjit = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFjit(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.001, 15000, "log", "freq", self._freq),
+                          SLMap(0.001, 2, "log", "spread", self._spread),
+                          SLMap(0, 1, "lin", "slope", self._slope),
+                          SLMap(0.001, 20, "log", "frndf", self._frndf),
+                          SLMap(0, 1, "lin", "frnda", self._frnda),
+                          SLMap(0.001, 20, "log", "arndf", self._arndf),
+                          SLMap(0, 1, "lin", "arnda", self._arnda),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def spread(self): 
+        """float or PyoObject. Frequency expansion factor.""" 
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def slope(self): 
+        """float or PyoObject. Multiplier in the series of amplitudes.""" 
+        return self._slope
+    @slope.setter
+    def slope(self, x): self.setSlope(x)
+
+    @property
+    def frndf(self): 
+        """float or PyoObject. Frequency of the frequency modulations.""" 
+        return self._frndf
+    @frndf.setter
+    def frndf(self, x): self.setFrndf(x)
+
+    @property
+    def frnda(self): 
+        """float or PyoObject. Maximum frequency deviation from 0 to 1.""" 
+        return self._frnda
+    @frnda.setter
+    def frnda(self, x): self.setFrnda(x)
+
+    @property
+    def arndf(self): 
+        """float or PyoObject. Frequency of the amplitude modulations.""" 
+        return self._arndf
+    @arndf.setter
+    def arndf(self, x): self.setArndf(x)
+
+    @property
+    def arnda(self): 
+        """float or PyoObject. Amount of amplitude deviation from 0 to 1.""" 
+        return self._arnda
+    @arnda.setter
+    def arnda(self, x): self.setArnda(x)
+
+    @property
+    def fjit(self): 
+        """boolean. Jitter added to the parial frequencies.""" 
+        return self._fjit
+    @fjit.setter
+    def fjit(self, x): self.setFjit(x)
+
 class TableRead(PyoObject):
     """
     Simple waveform table reader.
