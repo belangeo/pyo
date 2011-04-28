@@ -386,6 +386,9 @@ class Linseg(PyoObject):
         and must be in increasing order.
     loop : boolean, optional
         Looping mode. Defaults to False.
+    initToFirstVal : boolean, optional
+        If True, audio buffer will be filled at initialization with the
+        starting value of the line. Defaults to False.
         
     Methods:
 
@@ -414,19 +417,19 @@ class Linseg(PyoObject):
     >>> l.play()
     
     """
-    def __init__(self, list, loop=False, mul=1, add=0):
+    def __init__(self, list, loop=False, initToFirstVal=False, mul=1, add=0):
         PyoObject.__init__(self)
         self._list = list
         self._loop = loop
         self._mul = mul
         self._add = add
-        loop, mul, add, lmax = convertArgsToLists(loop, mul, add)
+        initToFirstVal, loop, mul, add, lmax = convertArgsToLists(initToFirstVal, loop, mul, add)
         if type(list[0]) != ListType:
-            self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             listlen = len(list)
             lmax = max(listlen, lmax)
-            self._base_objs = [Linseg_base(wrap(list,i), wrap(loop,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [Linseg_base(wrap(list,i), wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['list', 'loop', 'mul', 'add']
