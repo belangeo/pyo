@@ -3191,7 +3191,7 @@ TableMorph_init(TableMorph *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "table", "sources", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|", kwlist, &inputtmp, &tabletmp, &sourcestmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &tabletmp, &sourcestmp))
         return -1; 
     
     Py_XDECREF(self->input);
