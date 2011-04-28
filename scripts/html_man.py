@@ -26,7 +26,7 @@ man_file = 'manual-dev'
 if man_file == 'manual-dev':
     man_version = 'latest sources'
 else:
-    man_version = 'version %.2f' % PYO_VERSION
+    man_version = 'version %s' % PYO_VERSION
 
 try:
     os.mkdir(os.getcwd() + '/doc')
