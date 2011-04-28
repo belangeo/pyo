@@ -566,6 +566,9 @@ class Expseg(PyoObject):
     inverse : boolean, optional
         If True, downward slope will be inversed. Useful to create 
         biexponential curves. Defaults to True.
+    initToFirstVal : boolean, optional
+        If True, audio buffer will be filled at initialization with the
+        starting value of the line. Defaults to False.
 
     Methods:
 
@@ -598,7 +601,7 @@ class Expseg(PyoObject):
     >>> l.play()
 
     """
-    def __init__(self, list, loop=False, exp=10, inverse=True, mul=1, add=0):
+    def __init__(self, list, loop=False, exp=10, inverse=True, initToFirstVal=False, mul=1, add=0):
         PyoObject.__init__(self)
         self._list = list
         self._loop = loop
@@ -606,14 +609,13 @@ class Expseg(PyoObject):
         self._inverse = inverse
         self._mul = mul
         self._add = add
-        loop, exp, inverse, mul, add, lmax = convertArgsToLists(loop, exp, inverse, mul, add)
-        self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        loop, exp, inverse, initToFirstVal, mul, add, lmax = convertArgsToLists(loop, exp, inverse, initToFirstVal, mul, add)
         if type(list[0]) != ListType:
-            self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         else:
             listlen = len(list)
             lmax = max(listlen, lmax)
-            self._base_objs = [Expseg_base(wrap(list,i), wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+            self._base_objs = [Expseg_base(wrap(list,i), wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['list', 'loop', 'exp', 'inverse', 'mul', 'add']

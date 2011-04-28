@@ -1404,10 +1404,11 @@ static int
 Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
 {
     PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
+    int i, initToFirstVal = 0;
     
-    static char *kwlist[] = {"list", "loop", "exp", "inverse", "mul", "add", NULL};
+    static char *kwlist[] = {"list", "loop", "exp", "inverse", "initToFirstVal", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFIOO, kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFIIOO, kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
         return -1; 
     
     Py_INCREF(pointslist);
@@ -1425,6 +1426,12 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (initToFirstVal) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->targets[0];
+        }
+    }
     
     (*self->mode_func_ptr)(self);
         
