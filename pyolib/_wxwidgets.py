@@ -1290,16 +1290,21 @@ class ServerGUI(wx.Frame):
         box = wx.BoxSizer(wx.VERTICAL)
         box.AddSpacer(5)
 
+        if sys.platform == "linux2":
+            buttonSize = (75,-1)
+        else:
+            buttonSize = wx.DefaultSize
+
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.startButton = wx.Button(panel, -1, 'Start', (20,20))
+        self.startButton = wx.Button(panel, -1, 'Start', (20,20), buttonSize)
         self.startButton.Bind(wx.EVT_BUTTON, self.start)
         buttonBox.Add(self.startButton, 0, wx.RIGHT, 6)
 
-        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20))
+        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20), buttonSize)
         self.recButton.Bind(wx.EVT_BUTTON, self.record)
         buttonBox.Add(self.recButton, 0, wx.RIGHT, 5)
 
-        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20))
+        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20), buttonSize)
         self.quitButton.Bind(wx.EVT_BUTTON, self.on_quit)
         buttonBox.Add(self.quitButton, 0, wx.RIGHT, 0)
 
@@ -1336,7 +1341,7 @@ class ServerGUI(wx.Frame):
             box.Add(self.text, 0, wx.LEFT, 28)
 
         if sys.platform == "linux2":
-            X_OFF = 3
+            X_OFF = 0
             Y_OFF = 30
         elif sys.platform == "win32":
             X_OFF = 12
