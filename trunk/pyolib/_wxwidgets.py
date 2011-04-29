@@ -1294,14 +1294,17 @@ class ServerGUI(wx.Frame):
             X_OFF = 0
             Y_OFF = 30
             buttonSize = (75,-1)
+            leftMargin = 25
         elif sys.platform == "win32":
             X_OFF = 8
             Y_OFF = 65
             buttonSize = (72,-1)
+            leftMargin = 24
         else:
             X_OFF = 0
             Y_OFF = 35
             buttonSize = wx.DefaultSize
+            leftMargin = 25
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
         self.startButton = wx.Button(panel, -1, 'Start', (20,20), buttonSize)
@@ -1319,34 +1322,34 @@ class ServerGUI(wx.Frame):
         box.Add(buttonBox, 0, wx.TOP | wx.LEFT | wx.RIGHT, 10)
         box.AddSpacer(10)
 
-        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, 24)
+        box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, leftMargin)
         ampBox = wx.BoxSizer(wx.HORIZONTAL)
         self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(203, 16), outFunction=self.setAmp)
-        ampBox.Add(self.ampScale, 0, wx.LEFT, 14)
+        ampBox.Add(self.ampScale, 0, wx.LEFT, leftMargin-10)
         box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
         
         if meter:
             box.AddSpacer(10)
             self.meter = VuMeter(panel, size=(200,5*self.nchnls+1), numSliders=self.nchnls)
-            box.Add(self.meter, 0, wx.LEFT, 24)
+            box.Add(self.meter, 0, wx.LEFT, leftMargin)
             box.AddSpacer(5)
 
         if timer:
             box.AddSpacer(10)
             tt = wx.StaticText(panel, -1, "Elapsed time (hh : mm : ss : ms)")
-            box.Add(tt, 0, wx.LEFT, 24)
+            box.Add(tt, 0, wx.LEFT, leftMargin)
             box.AddSpacer(3)
             self.timetext = wx.StaticText(panel, -1, "00 : 00 : 00 : 000")
-            box.Add(self.timetext, 0, wx.LEFT, 24)
+            box.Add(self.timetext, 0, wx.LEFT, leftMargin)
 
         if self.locals != None:
             box.AddSpacer(10)
             t = wx.StaticText(panel, -1, "Interpreter")
-            box.Add(t, 0, wx.LEFT, 24)
+            box.Add(t, 0, wx.LEFT, leftMargin)
             self.text = wx.TextCtrl(panel, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
             self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
             self.text.Bind(wx.EVT_CHAR, self.onChar)
-            box.Add(self.text, 0, wx.LEFT, 24)
+            box.Add(self.text, 0, wx.LEFT, leftMargin)
 
         panel.SetSizerAndFit(box)
         x, y = panel.GetSize()
