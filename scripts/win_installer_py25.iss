@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{541DDAF4-6B49-448A-A30C-3D44308652C0}
 AppName=Pyo
-AppVersion=0.03
+AppVersion=0.4.0
 AppPublisher=iACT.umontreal.ca
 AppPublisherURL=http://code.google.com/p/pyo
 AppSupportURL=http://code.google.com/p/pyo
@@ -17,7 +17,7 @@ DisableDirPage=yes
 DefaultGroupName=pyo
 AllowNoIcons=yes
 InfoBeforeFile=C:\pyo\scripts\\README-win32-py25.txt
-OutputBaseFilename=pyo_0.03_py2.5_setup
+OutputBaseFilename=pyo_0.4.0_py2.5_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
@@ -40,7 +40,7 @@ Source: "C:\Python25\Lib\site-packages\pthreadVC2.dll"; DestDir: "{sd}\Python25\
 Source: "C:\Python25\Lib\site-packages\msvcr90.dll"; DestDir: "{sd}\Python25\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{sd}\Python25\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{sd}\Python25\Lib\site-packages"; Flags: ignoreversion
-Source: "C:\Python25\Lib\site-packages\pyo-0.03-py2.5.egg-info"; DestDir: "{sd}\Python25\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Python25\Lib\site-packages\pyo-0.4.0-py2.5.egg-info"; DestDir: "{sd}\Python25\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples"; Flags: ignoreversion
 Source: "C:\pyo\scripts\README-win32-py25.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
