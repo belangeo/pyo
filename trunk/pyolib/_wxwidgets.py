@@ -1288,11 +1288,19 @@ class ServerGUI(wx.Frame):
         panel = wx.Panel(self)
         panel.SetBackgroundColour(BACKGROUND_COLOUR)
         box = wx.BoxSizer(wx.VERTICAL)
-        box.AddSpacer(5)
+        #box.AddSpacer(5)
 
         if sys.platform == "linux2":
+            X_OFF = 0
+            Y_OFF = 30
             buttonSize = (75,-1)
+        elif sys.platform == "win32":
+            X_OFF = 8
+            Y_OFF = 65
+            buttonSize = (72,-1)
         else:
+            X_OFF = 0
+            Y_OFF = 40
             buttonSize = wx.DefaultSize
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -1340,15 +1348,6 @@ class ServerGUI(wx.Frame):
             self.text.Bind(wx.EVT_CHAR, self.onChar)
             box.Add(self.text, 0, wx.LEFT, 26)
 
-        if sys.platform == "linux2":
-            X_OFF = 0
-            Y_OFF = 30
-        elif sys.platform == "win32":
-            X_OFF = 12
-            Y_OFF = 65
-        else:
-            X_OFF = 0
-            Y_OFF = 40
         panel.SetSizerAndFit(box)
         x, y = panel.GetSize()
         panel.SetSize((x+X_OFF, y+Y_OFF))
