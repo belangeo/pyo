@@ -1300,7 +1300,7 @@ class ServerGUI(wx.Frame):
             buttonSize = (72,-1)
         else:
             X_OFF = 0
-            Y_OFF = 40
+            Y_OFF = 35
             buttonSize = wx.DefaultSize
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
