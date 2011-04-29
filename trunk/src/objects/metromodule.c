@@ -475,7 +475,7 @@ Seqer_generate_a(Seqer *self) {
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
     
     if (self->currentTime == -1.0) {
-        self->currentTime = tm;
+        self->currentTime = time[0];
     }    
     
     for (i=0; i<(self->poly*self->bufsize); i++) {

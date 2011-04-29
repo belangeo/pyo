@@ -208,24 +208,21 @@ static PyObject * Noise_inplace_div(Noise *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
 Noise_setType(Noise *self, PyObject *arg)
-{
-	
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-	
-	int isInt = PyInt_Check(arg);
+{	
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
     
-	if (PyInt_AS_LONG(arg) == 0)
+    if (PyInt_AS_LONG(arg) == 0)
         self->type = 0;
     else if (PyInt_AS_LONG(arg) == 1)
         self->type = 1;
 
     (*self->mode_func_ptr)(self);
 
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }	
 
 static PyMemberDef Noise_members[] = {
