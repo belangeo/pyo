@@ -1288,7 +1288,6 @@ class ServerGUI(wx.Frame):
         panel = wx.Panel(self)
         panel.SetBackgroundColour(BACKGROUND_COLOUR)
         box = wx.BoxSizer(wx.VERTICAL)
-        #box.AddSpacer(5)
 
         if sys.platform == "linux2":
             X_OFF = 0
@@ -1296,7 +1295,13 @@ class ServerGUI(wx.Frame):
             buttonSize = (72,-1)
             leftMargin = 25
         elif sys.platform == "win32":
-            X_OFF = 8
+            try:
+                if sys.getwindowsversion()[0] >= 6:
+                    X_OFF = 16
+                else:
+                    X_OFF = 8
+            except:
+                X_OFF = 8
             Y_OFF = 65
             buttonSize = (72,-1)
             leftMargin = 24
