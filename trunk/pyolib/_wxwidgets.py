@@ -1293,7 +1293,7 @@ class ServerGUI(wx.Frame):
         if sys.platform == "linux2":
             X_OFF = 0
             Y_OFF = 30
-            buttonSize = (75,-1)
+            buttonSize = (72,-1)
             leftMargin = 25
         elif sys.platform == "win32":
             X_OFF = 8
@@ -1331,7 +1331,7 @@ class ServerGUI(wx.Frame):
         if meter:
             box.AddSpacer(10)
             self.meter = VuMeter(panel, size=(200,5*self.nchnls+1), numSliders=self.nchnls)
-            box.Add(self.meter, 0, wx.LEFT, leftMargin)
+            box.Add(self.meter, 0, wx.LEFT, leftMargin-1)
             box.AddSpacer(5)
 
         if timer:
