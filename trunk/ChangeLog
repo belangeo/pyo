@@ -1,3 +1,7 @@
+2010-02-29 belangeo <belangeo@gmail.com>
+
+    * rev 622 - pyo 0.4.0 release.
+
 2011-04-26 belangeo <belangeo@gmail.com>
 
     * Added new object : OscBank. Mixes any number of oscillators.
