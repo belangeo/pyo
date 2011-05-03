@@ -1757,7 +1757,7 @@ AllpassWG_process_iii(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         for (j=0; j<3; j++) {
@@ -1766,7 +1766,7 @@ AllpassWG_process_iii(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -1829,7 +1829,7 @@ AllpassWG_process_aii(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         for (j=0; j<3; j++) {
@@ -1838,7 +1838,7 @@ AllpassWG_process_aii(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -1856,7 +1856,7 @@ AllpassWG_process_aii(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
@@ -1901,7 +1901,7 @@ AllpassWG_process_iai(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         for (j=0; j<3; j++) {
@@ -1910,7 +1910,7 @@ AllpassWG_process_iai(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -1928,7 +1928,7 @@ AllpassWG_process_iai(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
@@ -1973,7 +1973,7 @@ AllpassWG_process_aai(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         for (j=0; j<3; j++) {
@@ -1982,7 +1982,7 @@ AllpassWG_process_aai(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -2000,7 +2000,7 @@ AllpassWG_process_aai(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
@@ -2045,7 +2045,7 @@ AllpassWG_process_iia(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
@@ -2055,7 +2055,7 @@ AllpassWG_process_iia(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -2073,7 +2073,7 @@ AllpassWG_process_iia(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
 
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
@@ -2118,7 +2118,7 @@ AllpassWG_process_aia(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
@@ -2128,7 +2128,7 @@ AllpassWG_process_aia(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -2146,7 +2146,7 @@ AllpassWG_process_aia(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
@@ -2191,7 +2191,7 @@ AllpassWG_process_iaa(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
@@ -2201,7 +2201,7 @@ AllpassWG_process_iaa(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -2219,7 +2219,7 @@ AllpassWG_process_iaa(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
@@ -2263,7 +2263,7 @@ AllpassWG_process_aaa(AllpassWG *self) {
             xind += self->size;
         ind = (long)xind;
         frac = xind - ind;
-        val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
+        val = self->buffer[ind] + (self->buffer[ind+1] - self->buffer[ind]) * frac;
         
         /* all-pass filter */
         alpdetune = detune * self->alpsize;
@@ -2273,7 +2273,7 @@ AllpassWG_process_aaa(AllpassWG *self) {
                 xind += self->alpsize;
             ind = (long)xind;
             frac = xind - ind;
-            alpsampdel = self->alpbuffer[j][ind] * (1.0 - frac) + self->alpbuffer[j][ind+1] * frac;
+            alpsampdel = self->alpbuffer[j][ind] + (self->alpbuffer[j][ind+1] - self->alpbuffer[j][ind]) * frac;
             alpsampdelin = val + ((val - alpsampdel) * alp_feedback);
             val = alpsampdelin * alp_feedback + alpsampdel;
             /* write current allpass value in the allpass delay line */
@@ -2291,7 +2291,7 @@ AllpassWG_process_aaa(AllpassWG *self) {
         self->data[i] = self->yn1 = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count] = in[i] + (0.0 - (val * feed));
+        self->buffer[self->in_count] = in[i] + val * feed;
         if (self->in_count == 0)
             self->buffer[self->size] = self->buffer[0];
         self->in_count++;
