@@ -1408,7 +1408,7 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"list", "loop", "exp", "inverse", "initToFirstVal", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFIIOO, kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
         return -1; 
     
     Py_INCREF(pointslist);
@@ -1432,7 +1432,7 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
             self->data[i] = self->targets[0];
         }
     }
-    
+
     (*self->mode_func_ptr)(self);
         
     Py_INCREF(self);
