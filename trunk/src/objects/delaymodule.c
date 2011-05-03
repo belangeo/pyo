@@ -1048,7 +1048,8 @@ Waveguide_process_ii(Waveguide *self) {
         self->lpsamp = val;
 
         /* lagrange filtering */
-        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
+            (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
         self->lagrange[3] = self->lagrange[2];
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
@@ -1062,7 +1063,10 @@ Waveguide_process_ii(Waveguide *self) {
         self->data[i] = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count++] = in[i] + (x * feed);
+        self->buffer[self->in_count] = in[i] + (x * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count == self->size)
             self->in_count = 0;
     }
@@ -1125,7 +1129,8 @@ Waveguide_process_ai(Waveguide *self) {
         self->lpsamp = val;
         
         /* lagrange filtering */
-        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
+            (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
         self->lagrange[3] = self->lagrange[2];
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
@@ -1139,7 +1144,10 @@ Waveguide_process_ai(Waveguide *self) {
         self->data[i] = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count++] = in[i] + (x * feed);
+        self->buffer[self->in_count] = in[i] + (x * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count == self->size)
             self->in_count = 0;
     }
@@ -1196,7 +1204,8 @@ Waveguide_process_ia(Waveguide *self) {
         self->lpsamp = val;
         
         /* lagrange filtering */
-        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
+            (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
         self->lagrange[3] = self->lagrange[2];
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
@@ -1210,7 +1219,10 @@ Waveguide_process_ia(Waveguide *self) {
         self->data[i] = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count++] = in[i] + (x * feed);
+        self->buffer[self->in_count] = in[i] + (x * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count == self->size)
             self->in_count = 0;
     }
@@ -1273,7 +1285,8 @@ Waveguide_process_aa(Waveguide *self) {
         self->lpsamp = val;
         
         /* lagrange filtering */
-        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+(self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
+        x = (val*self->coeffs[0])+(self->lagrange[0]*self->coeffs[1])+(self->lagrange[1]*self->coeffs[2])+
+            (self->lagrange[2]*self->coeffs[3])+(self->lagrange[3]*self->coeffs[4]);
         self->lagrange[3] = self->lagrange[2];
         self->lagrange[2] = self->lagrange[1];
         self->lagrange[1] = self->lagrange[0];
@@ -1287,7 +1300,10 @@ Waveguide_process_aa(Waveguide *self) {
         self->data[i] = y;
         
         /* write current value in the delay line */
-        self->buffer[self->in_count++] = in[i] + (x * feed);
+        self->buffer[self->in_count] = in[i] + (x * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count == self->size)
             self->in_count = 0;
     }
