@@ -3209,13 +3209,15 @@ Allpass_process_ii(Allpass *self) {
     for (i=0; i<self->bufsize; i++) {
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += (self->size-1);
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
         
         self->buffer[self->in_count] = in[i] + (val * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
         self->in_count++;
         if (self->in_count >= self->size)
             self->in_count = 0;
@@ -3246,13 +3248,16 @@ Allpass_process_ai(Allpass *self) {
         sampdel = del * self->sr;
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += (self->size-1);
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
         
-        self->buffer[self->in_count++] = in[i]  + (val * feed);
+        self->buffer[self->in_count] = in[i]  + (val * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count >= self->size)
             self->in_count = 0;
     }
@@ -3282,13 +3287,16 @@ Allpass_process_ia(Allpass *self) {
             feed = 1;
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += (self->size-1);
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
 
-        self->buffer[self->in_count++] = in[i] + (val * feed);
+        self->buffer[self->in_count] = in[i] + (val * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count == self->size)
             self->in_count = 0;
     }
@@ -3318,13 +3326,16 @@ Allpass_process_aa(Allpass *self) {
         sampdel = del * self->sr;
         xind = self->in_count - sampdel;
         if (xind < 0)
-            xind += (self->size-1);
+            xind += self->size;
         ind = (int)xind;
         frac = xind - ind;
         val = self->buffer[ind] * (1.0 - frac) + self->buffer[ind+1] * frac;
         self->data[i] = val * (1.0 - (feed * feed)) + in[i] * -feed;
           
-        self->buffer[self->in_count++] = in[i] + (val * feed);
+        self->buffer[self->in_count] = in[i] + (val * feed);
+        if (self->in_count == 0)
+            self->buffer[self->size] = self->buffer[0];
+        self->in_count++;
         if (self->in_count == self->size)
             self->in_count = 0;
     }
