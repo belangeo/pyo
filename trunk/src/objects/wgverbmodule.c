@@ -110,7 +110,7 @@ WGVerb_process_ii(WGVerb *self) {
             
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
-                xind += (self->size[j]-1);
+                xind += self->size[j];
             ind = (int)xind;
             frac = xind - ind;
             x = self->buffer[j][ind];
@@ -122,6 +122,8 @@ WGVerb_process_ii(WGVerb *self) {
         
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
+            if(self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][0];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -168,7 +170,7 @@ WGVerb_process_ai(WGVerb *self) {
             
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
-                xind += (self->size[j]-1);
+                xind += self->size[j];
             ind = (int)xind;
             frac = xind - ind;
             x = self->buffer[j][ind];
@@ -180,6 +182,8 @@ WGVerb_process_ai(WGVerb *self) {
             
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
+            if(self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][0];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -226,7 +230,7 @@ WGVerb_process_ia(WGVerb *self) {
             
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
-                xind += (self->size[j]-1);
+                xind += self->size[j];
             ind = (int)xind;
             frac = xind - ind;
             x = self->buffer[j][ind];
@@ -238,6 +242,8 @@ WGVerb_process_ia(WGVerb *self) {
             
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
+            if(self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][0];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -284,7 +290,7 @@ WGVerb_process_aa(WGVerb *self) {
             
             xind = self->in_count[j] - (self->delays[j] + self->rnd[j]);
             if (xind < 0)
-                xind += (self->size[j]-1);
+                xind += self->size[j];
             ind = (int)xind;
             frac = xind - ind;
             x = self->buffer[j][ind];
@@ -296,6 +302,8 @@ WGVerb_process_aa(WGVerb *self) {
             
             self->buffer[j][self->in_count[j]] = inval + junction - self->lastSamples[j];
             self->lastSamples[j] = filt;
+            if(self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][0];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
