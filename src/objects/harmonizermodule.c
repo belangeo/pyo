@@ -26,8 +26,6 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 
-MYFLT ENV_ARRAY[513] = {0.0, 0.0625, 0.088388347648318447, 0.10825317547305482, 0.125, 0.13975424859373686, 0.15309310892394862, 0.16535945694153692, 0.17677669529663689, 0.1875, 0.19764235376052372, 0.20728904939721249, 0.21650635094610965, 0.22534695471649932, 0.23385358667337133, 0.24206145913796356, 0.25, 0.25769410160110379, 0.2651650429449553, 0.27243118397129212, 0.27950849718747373, 0.28641098093473999, 0.29315098498896436, 0.29973947020704494, 0.30618621784789724, 0.3125, 0.31868871959954903, 0.3247595264191645, 0.33071891388307384, 0.33657280044590648, 0.34232659844072882, 0.34798527267687634, 0.35355339059327379, 0.35903516540862679, 0.3644344934278313, 0.36975498644372601, 0.375, 0.38017265814363871, 0.385275875185561, 0.39031237489989989, 0.39528470752104744, 0.40019526483955303, 0.40504629365049127, 0.40983990776887502, 0.41457809879442498, 0.41926274578121059, 0.42389562394532926, 0.42847841252506524, 0.4330127018922193, 0.4375, 0.44194173824159222, 0.44633927678392815, 0.45069390943299864, 0.45500686808003238, 0.45927932677184591, 0.46351240544347894, 0.46770717334674267, 0.47186465220442186, 0.47598581911649429, 0.48007160924178799, 0.48412291827592713, 0.48814060474416587, 0.4921254921257382, 0.49607837082461076, 0.5, 0.50389110926865932, 0.50775240028974755, 0.51158454824202815, 0.51538820320220757, 0.51916399143237968, 0.52291251658379723, 0.52663436082352244, 0.5303300858899106, 0.53400023408234565, 0.53764532919016417, 0.54126587736527421, 0.54486236794258425, 0.54843527421200766, 0.55198505414549048, 0.55551215108222429, 0.55901699437494745, 0.5625, 0.56596157113358858, 0.5694020986965187, 0.57282196186947998, 0.57622152858080544, 0.5796011559684815, 0.58296119081805098, 0.58630196997792872, 0.5896238207535377, 0.59292706128157113, 0.59621200088559101, 0.59947894041408989, 0.60272817256205968, 0.60595998217704117, 0.60917464655056019, 0.61237243569579447, 0.6155536126122565, 0.61871843353822908, 0.62186714819163746, 0.625, 0.62811722632005562, 0.63121905864762984, 0.6343057228182637, 0.63737743919909806, 0.64043442287247487, 0.64347688381168755, 0.64650502704928758, 0.649519052838329, 0.65251915680690942, 0.65550553010634471, 0.65847835955329614, 0.66143782776614768, 0.66438411329591562, 0.66731739075195695, 0.67023783092272549, 0.67314560089181297, 0.67604086414949804, 0.67892378070001347, 0.68179450716473211, 0.68465319688145765, 0.6875, 0.69033506357420382, 0.69315853165058861, 0.69597054535375269, 0.69877124296868431, 0.70156076002011403, 0.70433922934904025, 0.70710678118654757, 0.7098635432250342, 0.7126096406869612, 0.71534519639122485, 0.71807033081725358, 0.72078516216692479, 0.72348980642438909, 0.72618437741389064, 0.72886898685566259, 0.7315437444199766, 0.73420875777942063, 0.7368641326594747, 0.73950997288745202, 0.7421463804398698, 0.74477345548831153, 0.74739129644383739, 0.75, 0.75259966117451849, 0.75519037334966077, 0.7577722283113838, 0.76034531628727742, 0.76290972598335638, 0.76546554461974314, 0.76801285796528174, 0.770551750371122, 0.7730823048033113, 0.77560460287442856, 0.77811872487429579, 0.78062474979979979, 0.78312275538385423, 0.78561281812353345, 0.78809501330740572, 0.79056941504209488, 0.79303609627809502, 0.79549512883486595, 0.7979465834252315, 0.80039052967910607, 0.80282703616657058, 0.80525617042032038, 0.80767799895750536, 0.81009258730098255, 0.8125, 0.81490030065033114, 0.81729355191387631, 0.81967981553775004, 0.82205915237286908, 0.82443162239205747, 0.82679728470768454, 0.82915619758884995, 0.8315084184781294, 0.83385400400789589, 0.83619301001622826, 0.83852549156242118, 0.84085150294210687, 0.8431710977020026, 0.84548432865429268, 0.84779124789065852, 0.85009190679596525, 0.85238635606161595, 0.85467464569858398, 0.85695682505013049, 0.85923294280422002, 0.86150304700563884, 0.86376718506782835, 0.8660254037844386, 0.86827774934061275, 0.87052426732400745, 0.87276500273555879, 0.875, 0.87722930297613744, 0.87945295496689302, 0.88167099872911781, 0.88388347648318444, 0.88609042992236409, 0.88829190022199345, 0.8904879280484379, 0.8926785535678563, 0.89486381645477209, 0.89704375590045771, 0.89921841062113494, 0.90138781886599728, 0.90355201842506006, 0.90571104663683988, 0.90786494039587184, 0.91001373616006476, 0.91215746995790148, 0.91429617739548708, 0.91642989366344874, 0.91855865354369182, 0.92068249141601466, 0.92280144126458752, 0.92491553668429638, 0.92702481088695787, 0.92912929670740663, 0.93122902660945872, 0.9333240326917549, 0.93541434669348533, 0.9375, 0.93958102364830676, 0.94165744833246023, 0.94372930440884373, 0.94579662190134728, 0.94785943050644383, 0.94991775959816649, 0.95197163823298858, 0.9540210951546092, 0.9560661587986472, 0.95810685729724321, 0.96014321848357598, 0.96217526989629076, 0.9642030387838445, 0.96622655210876918, 0.96824583655185426, 0.97026091851625151, 0.97227182413150282, 0.9742785792574935, 0.97628120948833175, 0.97827974015615804, 0.98027419633488266, 0.98226460284385697, 0.98425098425147639, 0.98623336487871871, 0.98821176880261852, 0.9901862198596787, 0.99215674164922152, 0.99412335753667913, 0.99608609065682674, 0.99804496391695696, 1.0, 0.99804496391695696, 0.99608609065682674, 0.99412335753667913, 0.99215674164922152, 0.9901862198596787, 0.98821176880261852, 0.98623336487871871, 0.98425098425147639, 0.98226460284385697, 0.98027419633488266, 0.97827974015615804, 0.97628120948833175, 0.9742785792574935, 0.97227182413150282, 0.97026091851625151, 0.96824583655185426, 0.96622655210876918, 0.9642030387838445, 0.96217526989629076, 0.96014321848357598, 0.95810685729724321, 0.9560661587986472, 0.9540210951546092, 0.95197163823298858, 0.94991775959816649, 0.94785943050644383, 0.94579662190134728, 0.94372930440884373, 0.94165744833246023, 0.93958102364830676, 0.9375, 0.93541434669348533, 0.9333240326917549, 0.93122902660945872, 0.92912929670740663, 0.92702481088695787, 0.92491553668429638, 0.92280144126458752, 0.92068249141601466, 0.91855865354369182, 0.91642989366344874, 0.91429617739548708, 0.91215746995790148, 0.91001373616006476, 0.90786494039587184, 0.90571104663683988, 0.90355201842506006, 0.90138781886599728, 0.89921841062113494, 0.89704375590045771, 0.89486381645477209, 0.8926785535678563, 0.8904879280484379, 0.88829190022199345, 0.88609042992236409, 0.88388347648318444, 0.88167099872911781, 0.87945295496689302, 0.87722930297613744, 0.875, 0.87276500273555879, 0.87052426732400745, 0.86827774934061275, 0.8660254037844386, 0.86376718506782835, 0.86150304700563884, 0.85923294280422002, 0.85695682505013049, 0.85467464569858398, 0.85238635606161595, 0.85009190679596525, 0.84779124789065852, 0.84548432865429268, 0.8431710977020026, 0.84085150294210687, 0.83852549156242118, 0.83619301001622826, 0.83385400400789589, 0.8315084184781294, 0.82915619758884995, 0.82679728470768454, 0.82443162239205747, 0.82205915237286908, 0.81967981553775004, 0.81729355191387631, 0.81490030065033114, 0.8125, 0.81009258730098255, 0.80767799895750536, 0.80525617042032038, 0.80282703616657058, 0.80039052967910607, 0.7979465834252315, 0.79549512883486595, 0.79303609627809502, 0.79056941504209488, 0.78809501330740572, 0.78561281812353345, 0.78312275538385423, 0.78062474979979979, 0.77811872487429579, 0.77560460287442856, 0.7730823048033113, 0.770551750371122, 0.76801285796528174, 0.76546554461974314, 0.76290972598335638, 0.76034531628727742, 0.7577722283113838, 0.75519037334966077, 0.75259966117451849, 0.75, 0.74739129644383739, 0.74477345548831153, 0.7421463804398698, 0.73950997288745202, 0.7368641326594747, 0.73420875777942063, 0.7315437444199766, 0.72886898685566259, 0.72618437741389064, 0.72348980642438909, 0.72078516216692479, 0.71807033081725358, 0.71534519639122485, 0.7126096406869612, 0.7098635432250342, 0.70710678118654757, 0.70433922934904025, 0.70156076002011403, 0.69877124296868431, 0.69597054535375269, 0.69315853165058861, 0.69033506357420382, 0.6875, 0.68465319688145765, 0.68179450716473211, 0.67892378070001347, 0.67604086414949804, 0.67314560089181297, 0.67023783092272549, 0.66731739075195695, 0.66438411329591562, 0.66143782776614768, 0.65847835955329614, 0.65550553010634471, 0.65251915680690942, 0.649519052838329, 0.64650502704928758, 0.64347688381168755, 0.64043442287247487, 0.63737743919909806, 0.6343057228182637, 0.63121905864762984, 0.62811722632005562, 0.625, 0.62186714819163746, 0.61871843353822908, 0.6155536126122565, 0.61237243569579447, 0.60917464655056019, 0.60595998217704117, 0.60272817256205968, 0.59947894041408989, 0.59621200088559101, 0.59292706128157113, 0.5896238207535377, 0.58630196997792872, 0.58296119081805098, 0.5796011559684815, 0.57622152858080544, 0.57282196186947998, 0.5694020986965187, 0.56596157113358858, 0.5625, 0.55901699437494745, 0.55551215108222429, 0.55198505414549048, 0.54843527421200766, 0.54486236794258425, 0.54126587736527421, 0.53764532919016417, 0.53400023408234565, 0.5303300858899106, 0.52663436082352244, 0.52291251658379723, 0.51916399143237968, 0.51538820320220757, 0.51158454824202815, 0.50775240028974755, 0.50389110926865932, 0.5, 0.49607837082461076, 0.4921254921257382, 0.48814060474416587, 0.48412291827592713, 0.48007160924178799, 0.47598581911649429, 0.47186465220442186, 0.46770717334674267, 0.46351240544347894, 0.45927932677184591, 0.45500686808003238, 0.45069390943299864, 0.44633927678392815, 0.44194173824159222, 0.4375, 0.4330127018922193, 0.42847841252506524, 0.42389562394532926, 0.41926274578121059, 0.41457809879442498, 0.40983990776887502, 0.40504629365049127, 0.40019526483955303, 0.39528470752104744, 0.39031237489989989, 0.385275875185561, 0.38017265814363871, 0.375, 0.36975498644372601, 0.3644344934278313, 0.35903516540862679, 0.35355339059327379, 0.34798527267687634, 0.34232659844072882, 0.33657280044590648, 0.33071891388307384, 0.3247595264191645, 0.31868871959954903, 0.3125, 0.30618621784789724, 0.29973947020704494, 0.29315098498896436, 0.28641098093473999, 0.27950849718747373, 0.27243118397129212, 0.2651650429449553, 0.25769410160110379, 0.25, 0.24206145913796356, 0.23385358667337133, 0.22534695471649932, 0.21650635094610965, 0.20728904939721249, 0.19764235376052372, 0.1875, 0.17677669529663689, 0.16535945694153692, 0.15309310892394862, 0.13975424859373686, 0.125, 0.10825317547305482, 0.088388347648318447, 0.0625, 0.0};
-
 typedef struct {
     pyo_audio_HEAD
     PyObject *input;
@@ -36,6 +34,7 @@ typedef struct {
     Stream *transpo_stream;
     PyObject *feedback;
     Stream *feedback_stream;
+    MYFLT *envelope;
     MYFLT winsize;
 	MYFLT pointerPos;
     int in_count;
@@ -59,51 +58,48 @@ Harmonizer_transform_ii(Harmonizer *self) {
     for (i=0; i<self->bufsize; i++) {
 		/* first overlap */
 		pos = self->pointerPos;
-        if (pos > 1)
-            pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
-		
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
+        
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] = val * amp;
 
 		/* second overlap */
 		pos = self->pointerPos + 0.5;
-        if (pos > 1)
+        if (pos >= 1)
             pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
 		
         self->pointerPos += inc;
-        if (self->pointerPos < 0)
+        if (self->pointerPos < 0.0)
             self->pointerPos += 1.0;
-        else if (self->pointerPos >= 1)
+        else if (self->pointerPos >= 1.0)
             self->pointerPos -= 1.0;
 		
-		self->buffer[self->in_count++] = in[i]  + (self->data[i] * feed);
+		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed);
+        if (self->in_count == 0)
+            self->buffer[(int)self->sr] = self->buffer[0];
+        self->in_count++;
         if (self->in_count >= self->sr)
             self->in_count = 0;
     }    
@@ -127,42 +123,36 @@ Harmonizer_transform_ai(Harmonizer *self) {
 		
 		/* first overlap */
 		pos = self->pointerPos;
-        if (pos > 1)
-            pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] = val * amp;
 		
 		/* second overlap */
 		pos = self->pointerPos + 0.5;
-        if (pos > 1)
+        if (pos >= 1)
             pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
 		
         self->pointerPos += inc;
@@ -171,7 +161,10 @@ Harmonizer_transform_ai(Harmonizer *self) {
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
 		
-		self->buffer[self->in_count++] = in[i]  + (self->data[i] * feed);
+		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed);
+        if (self->in_count == 0)
+            self->buffer[(int)self->sr] = self->buffer[0];
+        self->in_count++;
         if (self->in_count >= self->sr)
             self->in_count = 0;
     }  
@@ -193,42 +186,36 @@ Harmonizer_transform_ia(Harmonizer *self) {
     for (i=0; i<self->bufsize; i++) {
 		/* first overlap */
 		pos = self->pointerPos;
-        if (pos > 1)
-            pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] = val * amp;
 		
 		/* second overlap */
 		pos = self->pointerPos + 0.5;
         if (pos > 1)
             pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
 		
         self->pointerPos += inc;
@@ -237,7 +224,10 @@ Harmonizer_transform_ia(Harmonizer *self) {
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
 		
-		self->buffer[self->in_count++] = in[i]  + (self->data[i] * feed[i]);
+		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed[i]);
+        if (self->in_count == 0)
+            self->buffer[(int)self->sr] = self->buffer[0];
+        self->in_count++;
         if (self->in_count >= self->sr)
             self->in_count = 0;
     }  
@@ -261,42 +251,36 @@ Harmonizer_transform_aa(Harmonizer *self) {
 		
 		/* first overlap */
 		pos = self->pointerPos;
-        if (pos > 1)
-            pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] = val * amp;
 		
 		/* second overlap */
 		pos = self->pointerPos + 0.5;
         if (pos > 1)
             pos -= 1.0;
-		envpos = pos * 512;
+		envpos = pos * 8192.0;
 		ipart = (int)envpos;
 		fpart = envpos - ipart;
-		amp = ENV_ARRAY[ipart] * (1.0-fpart) + ENV_ARRAY[ipart+1] * fpart;
+		amp = self->envelope[ipart] + (self->envelope[ipart+1] - self->envelope[ipart]) * fpart;
 		
 		del = pos * self->winsize;
-        if (del > 1.0)
-            del = 1.0;
         xind = self->in_count - (del * self->sr);
         if (xind < 0)
-            xind += (self->sr-1);
+            xind += self->sr;
         ipart = (int)xind;
         fpart = xind - ipart;
-        val = self->buffer[ipart] * (1.0 - fpart) + self->buffer[ipart+1] * fpart;
+        val = self->buffer[ipart] + (self->buffer[ipart+1] - self->buffer[ipart]) * fpart;
         self->data[i] += (val * amp);
 		
         self->pointerPos += inc;
@@ -305,7 +289,10 @@ Harmonizer_transform_aa(Harmonizer *self) {
         else if (self->pointerPos >= 1)
             self->pointerPos -= 1.0;
 		
-		self->buffer[self->in_count++] = in[i]  + (self->data[i] * feed[i]);
+		self->buffer[self->in_count] = in[i]  + (self->data[i] * feed[i]);
+        if (self->in_count == 0)
+            self->buffer[(int)self->sr] = self->buffer[0];
+        self->in_count++;
         if (self->in_count >= self->sr)
             self->in_count = 0;
     }
@@ -411,7 +398,8 @@ static void
 Harmonizer_dealloc(Harmonizer* self)
 {
     free(self->data);   
-    free(self->buffer);   
+    free(self->buffer);
+    free(self->envelope);
     Harmonizer_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -427,7 +415,7 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->transpo = PyFloat_FromDouble(-7.0);
     self->feedback = PyFloat_FromDouble(0.0);
-    self->winsize = 0.05;
+    self->winsize = 0.1;
     self->pointerPos = 1.0;
 	self->in_count = 0;
 	self->modebuffer[0] = 0;
@@ -446,11 +434,12 @@ static int
 Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT wintmp;
     PyObject *inputtmp, *input_streamtmp, *transpotmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"input", "transpo", "feedback", "winsize", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &transpotmp, &feedbacktmp, &self->winsize, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &transpotmp, &feedbacktmp, &wintmp, &multmp, &addtmp))
         return -1; 
 
 	INIT_INPUT_STREAM
@@ -479,6 +468,23 @@ Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
         self->buffer[i] = 0.;
     }    
 	
+    if (wintmp <= 1.0)
+        self->winsize = wintmp;
+    else
+        printf("Harmonizer : winsize larger than 1.0 second, keeping default value.\n");
+
+    self->envelope = (MYFLT *)realloc(self->envelope, 8193 * sizeof(MYFLT));
+    for (i=0; i<8192; i++) {
+        self->envelope[i] = 0.5 + (MYCOS(TWOPI * (i - 4095) / 8192.0) * 0.5);
+        /* if (i < 4096) {
+            self->envelope[i] = MYSQRT(i / 4096.0);
+        }
+        else {
+            self->envelope[i] = MYSQRT((8191-i) / 4096.0);
+        } */
+    }
+    self->envelope[8192] = 0.0;
+
     (*self->mode_func_ptr)(self);
 
     Py_INCREF(self);
@@ -581,6 +587,8 @@ Harmonizer_setWinsize(Harmonizer *self, PyObject *arg)
         wintmp = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
 		if (wintmp <= 1.0)
 			self->winsize = wintmp;
+        else
+            printf("winsize larger than 1.0 second!\n");
 	}
 	
 	Py_INCREF(Py_None);

@@ -1242,7 +1242,7 @@ class Harmonizer(PyoObject):
          Defaults to 0.
     winsize : float, optional
         Window size in seconds (max = 1.0). 
-        Defaults to 0.05.
+        Defaults to 0.1.
 
     Methods:
 
@@ -1267,7 +1267,7 @@ class Harmonizer(PyoObject):
     >>> harm = Harmonizer(sf, 4).out(1)
 
     """
-    def __init__(self, input, transpo=-7.0, feedback=0, winsize=0.05, mul=1, add=0):
+    def __init__(self, input, transpo=-7.0, feedback=0, winsize=0.1, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._transpo = transpo
