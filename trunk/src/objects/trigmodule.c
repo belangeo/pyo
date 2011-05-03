@@ -3104,7 +3104,7 @@ TrigExpseg_init(TrigExpseg *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "list", "exp", "inverse", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FIOO, kwlist, &inputtmp, &pointslist, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|diOO", kwlist, &inputtmp, &pointslist, &self->exp_tmp, &self->inverse_tmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
