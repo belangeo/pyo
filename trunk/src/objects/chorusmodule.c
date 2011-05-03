@@ -29,14 +29,14 @@ MYFLT LFO_ARRAY[513] = {0.0, 0.012271538285719925, 0.024541228522912288, 0.03680
 
 /* center delay time, delay time deviation, lfo frequency */
 static const MYFLT chorusParams[8][3] = {
-{ 384.0, 44.0, 0.254 },
-{ 450.0, 53.0, 0.465 },
-{ 489.0, 57.0, 0.657 },
-{ 553.0, 62.0, 0.879 },
-{ 591.0, 66.0, 1.231 },
-{ 662.0, 71.0, 1.342 },
-{ 753.0, 88.0, 1.654 },
-{ 785.0, 101.0, 1.879 }
+{ 384.0, 44.0, 1.879 },
+{ 450.0, 53.0, 1.654 },
+{ 489.0, 57.0, 1.342 },
+{ 553.0, 62.0, 1.231 },
+{ 591.0, 66.0, 0.879 },
+{ 662.0, 71.0, 0.657 },
+{ 753.0, 88.0, 0.465 },
+{ 785.0, 101.0, 0.254 }
 };
 
 typedef struct {
@@ -55,7 +55,7 @@ typedef struct {
     MYFLT delays[8];
     MYFLT delay_devs[8];
     long size[8];
-    int in_count[8];
+    long in_count[8];
     MYFLT *buffer[8];
     // jitters
     MYFLT pointerPos[8];
@@ -97,13 +97,15 @@ Chorus_process_ii(Chorus *self) {
             
             pos = self->in_count[j] - lfo;
             if (pos < 0)
-                pos += (self->size[j]-1);
+                pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
             
             self->buffer[j][self->in_count[j]] = inval + val * feed;
+            if (self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -142,13 +144,15 @@ Chorus_process_ai(Chorus *self) {
             
             pos = self->in_count[j] - lfo;
             if (pos < 0)
-                pos += (self->size[j]-1);
+                pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
             
             self->buffer[j][self->in_count[j]] = inval + val * feed;
+            if (self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -187,13 +191,15 @@ Chorus_process_ia(Chorus *self) {
             
             pos = self->in_count[j] - lfo;
             if (pos < 0)
-                pos += (self->size[j]-1);
+                pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
             
             self->buffer[j][self->in_count[j]] = inval + val * feed;
+            if (self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -237,13 +243,15 @@ Chorus_process_aa(Chorus *self) {
             
             pos = self->in_count[j] - lfo;
             if (pos < 0)
-                pos += (self->size[j]-1);
+                pos += self->size[j];
             ipart = (int)pos;
             fpart = pos - ipart;
             val = (self->buffer[j][ipart] * (1.0 - fpart) + self->buffer[j][ipart+1] * fpart);
             self->total_signal += val;
             
             self->buffer[j][self->in_count[j]] = inval + val * feed;
+            if (self->in_count[j] == 0)
+                self->buffer[j][self->size[j]] = self->buffer[j][self->in_count[j]];
             self->in_count[j]++;
             if (self->in_count[j] >= self->size[j])
                 self->in_count[j] = 0;
@@ -452,7 +460,8 @@ static int
 Chorus_init(Chorus *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp, *depthtmp=NULL, *feedbacktmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i, j;
+    int i;
+    long j;
     MYFLT srfac;
     
     static char *kwlist[] = {"input", "depth", "feedback", "mix", "mul", "add", NULL};
@@ -487,7 +496,7 @@ Chorus_init(Chorus *self, PyObject *args, PyObject *kwds)
 
     srfac = self->sr / 44100.0;
     for (i=0; i<8; i++) {
-        self->size[i] = (int)(chorusParams[i][0] * srfac * 2 + 0.5);
+        self->size[i] = (long)(chorusParams[i][0] * srfac * 2 + 0.5);
         self->buffer[i] = (MYFLT *)realloc(self->buffer[i], (self->size[i]+1) * sizeof(MYFLT));
         for (j=0; j<(self->size[i]+1); j++) {
             self->buffer[i][j] = 0.;
