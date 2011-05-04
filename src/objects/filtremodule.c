@@ -2051,15 +2051,11 @@ direction(Port *self, MYFLT val)
 {
     if (val == self->x1)
         return;
-    
-    if (val > self->x1) {
-        self->x1 = val;
+    else if (val > self->x1)
         self->dir = 1;
-    }    
-    if (val < self->x1) {
-        self->x1 = val;
+    else
         self->dir = 0;
-    }
+    self->x1 = val;
 }    
     
 static void
@@ -2069,8 +2065,8 @@ Port_filters_ii(Port *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
     MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
-    MYFLT risefactor = 1. / (risetime * self->sr);
-    MYFLT fallfactor = 1. / (falltime * self->sr);
+    MYFLT risefactor = 1. / ((risetime + 0.001) * self->sr);
+    MYFLT fallfactor = 1. / ((falltime + 0.001) * self->sr);
     MYFLT factors[2] = {fallfactor, risefactor};
 
     for (i=0; i<self->bufsize; i++) {
@@ -2088,7 +2084,7 @@ Port_filters_ai(Port *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
     MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
-    MYFLT fallfactor = 1. / (falltime * self->sr);
+    MYFLT fallfactor = 1. / ((falltime + 0.001) * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
@@ -2109,7 +2105,7 @@ Port_filters_ia(Port *self) {
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
     MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
-    MYFLT risefactor = 1. / (risetime * self->sr);
+    MYFLT risefactor = 1. / ((risetime + 0.001) * self->sr);
     
     for (i=0; i<self->bufsize; i++) {
         direction(self, in[i]);
