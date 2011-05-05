@@ -775,14 +775,15 @@ class SigTo(PyoObject):
     """
     Convert numeric value to PyoObject signal with portamento.
     
-    When `value` attribute is changed, a ramp is applied from the
-    current value to the new value.
+    When `value` is changed, a ramp is applied from the current 
+    value to the new value. Can be used with PyoObject to apply
+    a linear portamento on an audio signal.
     
     Parent class: PyoObject
 
     Parameters:
 
-    value : float
+    value : float or PyoObject
         Numerical value to convert.
     time : float, optional
         Ramp time, in seconds, to reach the new value. Defaults to 0.025.
@@ -796,7 +797,7 @@ class SigTo(PyoObject):
     
     Attributes:
     
-    value : float. Numerical value to convert.
+    value : float or PyoObject. Numerical value to convert.
     time : float. Ramp time.
     
     Notes:
@@ -830,7 +831,7 @@ class SigTo(PyoObject):
 
         Parameters:
 
-        x : float
+        x : float or PyoObject
             Numerical value to convert.
 
         """
@@ -856,7 +857,7 @@ class SigTo(PyoObject):
     
     @property
     def value(self):
-        """float. Numerical value to convert.""" 
+        """float or PyoObject. Numerical value to convert.""" 
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)    

@@ -233,6 +233,7 @@ static PyObject * Sig_inplace_div(Sig *self, PyObject *arg) { INPLACE_DIV };
 static PyMemberDef Sig_members[] = {
 {"server", T_OBJECT_EX, offsetof(Sig, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Sig, stream), 0, "Stream object."},
+{"value", T_OBJECT_EX, offsetof(Sig, value), 0, "Target value."},
 {"mul", T_OBJECT_EX, offsetof(Sig, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(Sig, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
@@ -341,36 +342,62 @@ Sig_new,                 /* tp_new */
 /***************************/
 typedef struct {
     pyo_audio_HEAD
-    MYFLT value;
+    PyObject *value;
+    Stream *value_stream;
     MYFLT time;
     MYFLT lastValue;
     MYFLT currentValue;
     long timeStep;
     MYFLT stepVal;
     long timeCount;
-    int modebuffer[2];
+    int modebuffer[3];
 } SigTo;
 
 static void
 SigTo_generates_i(SigTo *self) {
     int i;
+    MYFLT value;
     
-    if (self->value != self->lastValue) {
-        self->timeCount = 0;
-        self->stepVal = (self->value - self->currentValue) / self->timeStep;
-        self->lastValue = self->value;
-    }    
-        
-    for (i=0; i<self->bufsize; i++) {
-        if (self->timeCount == (self->timeStep - 1)) {
-            self->currentValue = self->value;
-            self->timeCount++;
-        }
-        else if (self->timeCount < self->timeStep) {
-            self->currentValue += self->stepVal;
-            self->timeCount++;
+    if (self->modebuffer[2] == 0) {
+        value = PyFloat_AS_DOUBLE(self->value);
+        if (value != self->lastValue) {
+            self->timeCount = 0;
+            self->stepVal = (value - self->currentValue) / self->timeStep;
+            self->lastValue = value;
         }    
-        self->data[i] = self->currentValue;
+        
+        for (i=0; i<self->bufsize; i++) {
+            if (self->timeCount == (self->timeStep - 1)) {
+                self->currentValue = value;
+                self->timeCount++;
+            }
+            else if (self->timeCount < self->timeStep) {
+                self->currentValue += self->stepVal;
+                self->timeCount++;
+            }    
+            self->data[i] = self->currentValue;
+        }
+    }
+    else {
+        MYFLT *vals = Stream_getData((Stream *)self->value_stream);        
+        for (i=0; i<self->bufsize; i++) {
+            value = vals[i];
+            if (value != self->lastValue) {
+                self->timeCount = 0;
+                self->stepVal = (value - self->currentValue) / self->timeStep;
+                self->lastValue = value;
+            }    
+            
+            if (self->timeCount == (self->timeStep - 1)) {
+                self->currentValue = value;
+                self->timeCount++;
+            }
+            else if (self->timeCount < self->timeStep) {
+                self->currentValue += self->stepVal;
+                self->timeCount++;
+            }    
+            self->data[i] = self->currentValue;
+        }
     }
 }
 
@@ -435,6 +462,8 @@ static int
 SigTo_traverse(SigTo *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->value);    
+    Py_VISIT(self->value_stream);    
     return 0;
 }
 
@@ -442,6 +471,8 @@ static int
 SigTo_clear(SigTo *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->value);    
+    Py_CLEAR(self->value_stream);    
     return 0;
 }
 
@@ -462,12 +493,14 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     SigTo *self;
     self = (SigTo *)type->tp_alloc(type, 0);
 
+    self->value = PyFloat_FromDouble(0.0);
     self->time = 0.025;
     self->timeStep = (long)(self->time * self->sr);
     self->timeCount = 0;
     self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SigTo_compute_next_data_frame);
@@ -522,7 +555,7 @@ SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
 static PyObject *
 SigTo_setValue(SigTo *self, PyObject *arg)
 {
-	PyObject *tmp;
+	PyObject *tmp, *streamtmp;
 	
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
@@ -533,10 +566,19 @@ SigTo_setValue(SigTo *self, PyObject *arg)
 	
 	tmp = arg;
 	Py_INCREF(tmp);
-	if (isNumber == 1)
-		self->value = PyFloat_AsDouble(PyNumber_Float(tmp));
-    else
-        self->value = self->lastValue;
+    Py_DECREF(self->value);
+	if (isNumber == 1) {
+		self->value = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+    }
+    else {
+		self->value = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->value, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->value_stream);
+        self->value_stream = (Stream *)streamtmp;
+        self->modebuffer[2] = 1;
+    }
     
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -587,6 +629,7 @@ static PyObject * SigTo_inplace_div(SigTo *self, PyObject *arg) { INPLACE_DIV };
 static PyMemberDef SigTo_members[] = {
 {"server", T_OBJECT_EX, offsetof(SigTo, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(SigTo, stream), 0, "Stream object."},
+{"value", T_OBJECT_EX, offsetof(SigTo, value), 0, "Target value."},
 {"mul", T_OBJECT_EX, offsetof(SigTo, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(SigTo, add), 0, "Add factor."},
 {NULL}  /* Sentinel */
