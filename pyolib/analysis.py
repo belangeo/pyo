@@ -64,9 +64,9 @@ class Follower(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
-    >>> fol = Follower(sf, freq=20)
-    >>> n = Noise(mul=fol).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.5).out()
+    >>> fol = Follower(sf, freq=30)
+    >>> n = Noise(mul=fol).out(1)
 
     """
     def __init__(self, input, freq=20, mul=1, add=0):
@@ -132,6 +132,133 @@ class Follower(PyoObject):
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
+class Follower2(PyoObject):
+    """
+    Envelope follower with different attack and release times.
+
+    Output signal is the continuous mean amplitude of an input signal.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to filter.
+    risetime : float or PyoObject, optional
+        Time to reach upward value in seconds. Default to 0.01.
+    falltime : float or PyoObject, optional
+        Time to reach downward value in seconds. Default to 0.1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setRisetime(x) : Replace the `risetime` attribute.
+    setFalltime(x) : Replace the `falltime` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    risetime : float or PyoObject. Time to reach upward value in seconds.
+    falltime : float or PyoObject. Time to reach downward value in seconds.
+
+    Notes:
+
+    The out() method is bypassed. Follower's signal can not be sent to 
+    audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.5).out()
+    >>> fol2 = Follower2(sf, risetime=0.002, falltime=.1, mul=.5)
+    >>> n = Noise(fol2).out(1)
+
+    """
+    def __init__(self, input, risetime=0.01, falltime=0.1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._risetime = risetime
+        self._falltime = falltime
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
+        self._base_objs = [Follower2_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime, i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'risetime', 'falltime', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setRisetime(self, x):
+        """
+        Replace the `risetime` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `risetime` attribute.
+
+        """
+        self._risetime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRisetime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFalltime(self, x):
+        """
+        Replace the `falltime` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `falltime` attribute.
+
+        """
+        self._falltime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFalltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.001, 1., 'log', 'risetime', self._risetime)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def risetime(self):
+        """float or PyoObject. Time to reach upward value in seconds.""" 
+        return self._risetime
+    @risetime.setter
+    def risetime(self, x): self.setRisetime(x)
+
+    @property
+    def falltime(self):
+        """float or PyoObject. Time to reach downward value in seconds.""" 
+        return self._falltime
+    @falltime.setter
+    def falltime(self, x): self.setFalltime(x)
 
 class ZCross(PyoObject):
     """

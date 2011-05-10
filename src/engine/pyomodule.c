@@ -1174,6 +1174,11 @@ init_pyo64(void)
     Py_INCREF(&FollowerType);
     PyModule_AddObject(m, "Follower_base", (PyObject *)&FollowerType);
 
+    if (PyType_Ready(&Follower2Type) < 0)
+        return;
+    Py_INCREF(&Follower2Type);
+    PyModule_AddObject(m, "Follower2_base", (PyObject *)&Follower2Type);
+    
     if (PyType_Ready(&ZCrossType) < 0)
         return;
     Py_INCREF(&ZCrossType);

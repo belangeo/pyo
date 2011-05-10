@@ -282,6 +282,7 @@ extern PyTypeObject HilbertMainType;
 extern PyTypeObject HilbertType;
 
 extern PyTypeObject FollowerType;
+extern PyTypeObject Follower2Type;
 extern PyTypeObject ZCrossType;
 
 extern PyTypeObject SPannerType;
