@@ -40,11 +40,12 @@ typedef struct {
     Stream *thresh_stream;
     Stream *ratio_stream;
     int modebuffer[6]; // need at least 2 slots for mul & add 
-    void (*comp_func_ptr)();
-    MYFLT y1; // sample memory
-    MYFLT x1;
-    int dir;
-    MYFLT *follow;
+    MYFLT follow;
+    MYFLT knee;
+    long lh_delay;
+    long lh_size;
+    long lh_in_count;    
+    MYFLT *lh_buffer;
 } Compress;
 
 static MYFLT
@@ -58,171 +59,86 @@ C_clip(MYFLT x)
         return x;
 }
 
-static void 
-direction(Compress *self, MYFLT val)
-{
-    if (val == self->x1)
-        return;
-    
-    if (val > self->x1) {
-        self->x1 = val;
-        self->dir = 1;
-    }    
-    if (val < self->x1) {
-        self->x1 = val;
-        self->dir = 0;
-    }
-}    
-
 static void
-Compress_filters_ii(Compress *self) {
-    MYFLT absin, val;
+Compress_compress_soft(Compress *self) {
+    MYFLT samp, ampthresh, absin, indb, diff, outdb, outa;
+    MYFLT kneethresh, kneescl, knee, kneeratio, invKneeRange;
+    MYFLT risetime, falltime, thresh, ratio;
     int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
-    MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
-    MYFLT risefactor = 1. / (risetime * self->sr);
-    MYFLT fallfactor = 1. / (falltime * self->sr);
-    MYFLT factors[2] = {fallfactor, risefactor};
+    long ind;
     
-    for (i=0; i<self->bufsize; i++) {
-        absin = in[i] * in[i];
-        direction(self, absin);
-        val = self->y1 + (absin - self->y1) * factors[self->dir];
-        self->follow[i] = self->y1 = val;
-    }
-}
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->modebuffer[2] == 0)
+        risetime = PyFloat_AS_DOUBLE(self->risetime);
+    else
+        risetime = Stream_getData((Stream *)self->risetime_stream)[0];
+    if (risetime <= 0.0)
+        risetime = 0.001;
+    if (self->modebuffer[3] == 0)
+        falltime = PyFloat_AS_DOUBLE(self->falltime);
+    else
+        falltime = Stream_getData((Stream *)self->falltime_stream)[0];
+    if (falltime <= 0.0)
+        falltime = 0.001;
+    if (self->modebuffer[4] == 0)
+        thresh = PyFloat_AS_DOUBLE(self->thresh);
+    else
+        thresh = Stream_getData((Stream *)self->thresh_stream)[0];
+    if (self->modebuffer[5] == 0)
+        ratio = PyFloat_AS_DOUBLE(self->ratio);
+    else
+        ratio = Stream_getData((Stream *)self->ratio_stream)[0];
 
-static void
-Compress_filters_ai(Compress *self) {
-    MYFLT absin, val, risefactor;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
-    MYFLT falltime = PyFloat_AS_DOUBLE(self->falltime);
-    MYFLT fallfactor = 1. / (falltime * self->sr);
-    
+    ratio = 1.0 / ratio;    
+    risetime = MYEXP(-1.0 / (self->sr * risetime));
+    falltime = MYEXP(-1.0 / (self->sr * falltime));
+    knee = self->knee * 0.999 + 0.001; /* 0 = hard knee, 1 = soft knee */
+    thresh += 3.0 * self->knee;
+    if (thresh > 0.0)
+        thresh = 0.0;
+    ampthresh = MYPOW(10.0, thresh * 0.05); /* up to 3 dB above threshold */
+    kneethresh = MYPOW(10.0, (thresh - (self->knee * 8.5 + 0.5)) * 0.05); /* up to 6 dB under threshold */
+    invKneeRange = 1.0 / (ampthresh - kneethresh);
+
     for (i=0; i<self->bufsize; i++) {
-        absin = in[i] * in[i];
-        direction(self, absin);
-        risefactor = *risetime++ * self->sr;  
-        if (self->dir == 1)
-            val = self->y1 + (absin - self->y1) / risefactor;
+        /* Envelope follower */
+        absin = in[i];  
+        if (absin < 0.0)
+            absin = -absin;
+        if (self->follow < absin)
+            self->follow = absin + risetime * (self->follow - absin);
         else
-            val = self->y1 + (absin - self->y1) * fallfactor;
-        self->follow[i] = self->y1 = val;
-    }
-}
-
-static void
-Compress_filters_ia(Compress *self) {
-    MYFLT absin, val, fallfactor;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
-    MYFLT risetime = PyFloat_AS_DOUBLE(self->risetime);
-    MYFLT risefactor = 1. / (risetime * self->sr);
-    
-    for (i=0; i<self->bufsize; i++) {
-        absin = in[i] * in[i];
-        direction(self, absin);
-        fallfactor = *falltime++ * self->sr;  
-        if (self->dir == 1)
-            val = self->y1 + (absin - self->y1) * risefactor;
-        else
-            val = self->y1 + (absin - self->y1) / fallfactor;
-        self->follow[i] = self->y1 = val;
-    }
-}
-
-static void
-Compress_filters_aa(Compress *self) {
-    MYFLT absin, val, risefactor, fallfactor;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *risetime = Stream_getData((Stream *)self->risetime_stream);
-    MYFLT *falltime = Stream_getData((Stream *)self->falltime_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        absin = in[i] * in[i];
-        direction(self, absin);
-        risefactor = *risetime++ * self->sr;  
-        fallfactor = *falltime++ * self->sr;  
-        if (self->dir == 1)
-            val = self->y1 + (absin - self->y1) / risefactor;
-        else
-            val = self->y1 + (absin - self->y1) / fallfactor;
-        self->follow[i] = self->y1 = val;
-    }
-}
-
-static void
-Compress_compress_ii(Compress *self) {
-    MYFLT indb, diff, outdb, outa;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT thresh = PyFloat_AS_DOUBLE(self->thresh);
-    MYFLT ratio = PyFloat_AS_DOUBLE(self->ratio);
-    ratio = 1.0 / ratio;
-    
-    for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
-        diff = indb - thresh;
-        outdb = diff - diff * ratio;
-        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * C_clip(outa);
-    }
-}
-
-static void
-Compress_compress_ai(Compress *self) {
-    MYFLT indb, diff, outdb, outa;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *thresh = Stream_getData((Stream *)self->thresh_stream);
-    MYFLT ratio = PyFloat_AS_DOUBLE(self->ratio);
-    ratio = 1.0 / ratio;
-    
-    for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
-        diff = indb - thresh[i];
-        outdb = diff - diff * ratio;
-        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * C_clip(outa);
-    }
-}
-
-static void
-Compress_compress_ia(Compress *self) {
-    MYFLT indb, diff, outdb, outa;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT thresh = PyFloat_AS_DOUBLE(self->thresh);
-    MYFLT *ratio = Stream_getData((Stream *)self->ratio_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
-        diff = indb - thresh;
-        outdb = diff - diff / ratio[i];
-        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * C_clip(outa);
-    }
-}
-
-static void
-Compress_compress_aa(Compress *self) {
-    MYFLT indb, diff, outdb, outa;
-    int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *thresh = Stream_getData((Stream *)self->thresh_stream);
-    MYFLT *ratio = Stream_getData((Stream *)self->ratio_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        indb = 20.0 * MYLOG10(C_clip(self->follow[i]));
-        diff = indb - thresh[i];
-        outdb = diff - diff / ratio[i];
-        outa = MYPOW(10.0, (0.0 - outdb) * 0.05);
-        self->data[i] = in[i] * C_clip(outa);
+            self->follow = absin + falltime * (self->follow - absin);
+        
+        /* Look ahead */
+        ind = self->lh_in_count - self->lh_delay;
+        if (ind < 0)
+            ind += self->lh_size;
+        samp = self->lh_buffer[ind];
+        
+        self->lh_buffer[self->lh_in_count] = in[i];
+        self->lh_in_count++;
+        if (self->lh_in_count >= self->lh_size)
+            self->lh_in_count = 0;
+        
+        /* Compress signal */
+        outa = 1.0;
+        if (self->follow > ampthresh) { /* Above threshold */
+            indb = 20.0 * MYLOG10(C_clip(self->follow));
+            diff = indb - thresh;
+            outdb = diff - diff * ratio;
+            outa = MYPOW(10.0, -outdb * 0.05);
+        }
+        else if (self->follow > kneethresh) { /* Under the knee */
+            kneescl = (self->follow - kneethresh) * invKneeRange;
+            kneeratio = (((knee + 1.0) * kneescl) / (knee + kneescl)) * (ratio - 1.0) + 1.0;
+            indb = 20.0 * MYLOG10(C_clip(self->follow));
+            diff = indb - thresh;
+            outdb = diff - diff * kneeratio;
+            outa = MYPOW(10.0, -outdb * 0.05);            
+        }
+        self->data[i] = samp * C_clip(outa);
     }
 }
 
@@ -239,39 +155,9 @@ static void Compress_postprocessing_revareva(Compress *self) { POST_PROCESSING_R
 static void
 Compress_setProcMode(Compress *self)
 {
-    int compmode, procmode, muladdmode;
-    compmode = self->modebuffer[4] + self->modebuffer[5] * 10;
-    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (compmode) {
-        case 0:    
-            self->comp_func_ptr = Compress_compress_ii;
-            break;
-        case 1:    
-            self->comp_func_ptr = Compress_compress_ai;
-            break;
-        case 10:    
-            self->comp_func_ptr = Compress_compress_ia;
-            break;
-        case 11:    
-            self->comp_func_ptr = Compress_compress_aa;
-            break;
-    }
-	switch (procmode) {
-        case 0:    
-            self->proc_func_ptr = Compress_filters_ii;
-            break;
-        case 1:    
-            self->proc_func_ptr = Compress_filters_ai;
-            break;
-        case 10:    
-            self->proc_func_ptr = Compress_filters_ia;
-            break;
-        case 11:    
-            self->proc_func_ptr = Compress_filters_aa;
-            break;
-    } 
 	switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = Compress_postprocessing_ii;
@@ -307,7 +193,6 @@ static void
 Compress_compute_next_data_frame(Compress *self)
 {
     (*self->proc_func_ptr)(self); 
-    (*self->comp_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
@@ -350,7 +235,7 @@ static void
 Compress_dealloc(Compress* self)
 {
     free(self->data);
-    free(self->follow);
+    free(self->lh_buffer);
     Compress_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -366,19 +251,21 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->thresh = PyFloat_FromDouble(-20.0);
     self->ratio = PyFloat_FromDouble(2.0);
-    self->risetime = PyFloat_FromDouble(0.005);
-    self->falltime = PyFloat_FromDouble(0.05);
+    self->risetime = PyFloat_FromDouble(0.01);
+    self->falltime = PyFloat_FromDouble(0.1);
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
 	self->modebuffer[5] = 0;
-    self->y1 = 0.0;
-    self->x1 = 0.0;
-    self->dir = 1;
-    
+    self->follow = 0.0;
+    self->lh_delay = 0;
+    self->lh_in_count = 0;
+    self->knee = 0.;
+
     INIT_OBJECT_COMMON
+
     Stream_setFunctionPtr(self->stream, Compress_compute_next_data_frame);
     self->mode_func_ptr = Compress_setProcMode;
     return (PyObject *)self;
@@ -387,11 +274,13 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Compress_init(Compress *self, PyObject *args, PyObject *kwds)
 {
+    int i;
     PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *looktmp=NULL, *kneetmp=NULL;
     
-    static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -420,8 +309,17 @@ Compress_init(Compress *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
 
-    self->follow = (MYFLT *)realloc(self->follow, self->bufsize * sizeof(MYFLT));
+    PyObject_CallMethod((PyObject *)self, "setLookAhead", "O", looktmp);
+    PyObject_CallMethod((PyObject *)self, "setKnee", "O", kneetmp);
     
+    self->lh_size = (long)(0.025 * self->sr + 0.5);
+    self->lh_buffer = (MYFLT *)realloc(self->lh_buffer, (self->lh_size+1) * sizeof(MYFLT));
+    for (i=0; i<(self->lh_size+1); i++) {
+        self->lh_buffer[i] = 0.;
+    }    
+
+    self->proc_func_ptr = Compress_compress_soft;
+
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
@@ -478,9 +376,7 @@ Compress_setThresh(Compress *self, PyObject *arg)
         self->thresh_stream = (Stream *)streamtmp;
 		self->modebuffer[4] = 1;
 	}
-    
-    (*self->mode_func_ptr)(self);
-    
+        
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
@@ -512,9 +408,7 @@ Compress_setRatio(Compress *self, PyObject *arg)
         self->ratio_stream = (Stream *)streamtmp;
 		self->modebuffer[5] = 1;
 	}
-    
-    (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
@@ -546,9 +440,7 @@ Compress_setRiseTime(Compress *self, PyObject *arg)
         self->risetime_stream = (Stream *)streamtmp;
 		self->modebuffer[2] = 1;
 	}
-    
-    (*self->mode_func_ptr)(self);
-    
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
@@ -580,9 +472,51 @@ Compress_setFallTime(Compress *self, PyObject *arg)
         self->falltime_stream = (Stream *)streamtmp;
 		self->modebuffer[3] = 1;
 	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Compress_setLookAhead(Compress *self, PyObject *arg)
+{
+    MYFLT tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	if (PyNumber_Check(arg)) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        if (tmp <= 25.0)
+            self->lh_delay = (long)(tmp * 0.001 * self->sr);
+        else
+            printf("lookahead must be less than 25.0 ms.\n");
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Compress_setKnee(Compress *self, PyObject *arg)
+{
+    MYFLT tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
     
-    (*self->mode_func_ptr)(self);
-    
+	if (PyNumber_Check(arg)) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        if (tmp >= 0.0 && tmp <= 1.0)
+            self->knee = tmp;
+        else
+            printf("knee must be in range 0 (hard) -> 1 (soft).\n");
+	}
+
 	Py_INCREF(Py_None);
 	return Py_None;
 }	
@@ -611,6 +545,8 @@ static PyMethodDef Compress_methods[] = {
 {"setRatio", (PyCFunction)Compress_setRatio, METH_O, "Sets compressor ratio."},
 {"setRiseTime", (PyCFunction)Compress_setRiseTime, METH_O, "Sets rising portamento time in seconds."},
 {"setFallTime", (PyCFunction)Compress_setFallTime, METH_O, "Sets falling portamento time in seconds."},
+{"setLookAhead", (PyCFunction)Compress_setLookAhead, METH_O, "Sets look ahead time in ms."},
+{"setKnee", (PyCFunction)Compress_setKnee, METH_O, "Sets the knee between 0 (hard) and 1 (soft)."},
 {"setMul", (PyCFunction)Compress_setMul, METH_O, "Sets mul factor."},
 {"setAdd", (PyCFunction)Compress_setAdd, METH_O, "Sets add factor."},
 {"setSub", (PyCFunction)Compress_setSub, METH_O, "Sets inverse add factor."},

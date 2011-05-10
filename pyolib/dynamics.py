@@ -552,10 +552,17 @@ class Compress(PyoObject):
         threshold. Defaults to 2.
     risetime : float or PyoObject, optional
         Used in amplitude follower, time to reach upward value in 
-        seconds. Defaults to 0.005.
+        seconds. Defaults to 0.01.
     falltime : float or PyoObject, optional
         Used in amplitude follower, time to reach downward value in 
-        seconds. Defaults to 0.05.
+        seconds. Defaults to 0.1.
+    lookahead : float, optional
+        Delay length, in ms, for the "look-ahead" buffer. Range is
+        0 -> 25 ms. Defaults to 5.0.
+    knee : float optional
+        Shape of the transfert function around the threshold, specified
+        in the range 0 -> 1. A value of 0 means a hard knee and a value 
+        of 1.0 means a softer knee. Defaults to 0.
         
     Methods:
 
@@ -564,6 +571,8 @@ class Compress(PyoObject):
     setRatio(x) : Replace the `ratio` attribute.
     setRiseTime(x) : Replace the `risetime` attribute.
     setFallTime(x) : Replace the `falltime` attribute.
+    setLookAhead(x) : Replace the `lookahead` attribute.
+    setKnee(x) : Replace the `knee` attribute.
     
     Attributes:
     
@@ -572,30 +581,34 @@ class Compress(PyoObject):
     ratio : float or PyoObject. in/out ratio for signals above the threshold.
     risetime : float or PyoObject. Time to reach upward value in seconds.
     falltime : float or PyoObject. Time to reach downward value in seconds.
+    lookahead : float. Delay length, in ms, for the "look-ahead" buffer.
+    knee : float. Shape of the transfert function around the threshold.
      
     Examples:
     
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True)
-    >>> b = Compress(a, thresh=-30, ratio=4, risetime=.005, falltime=.1).out()
+    >>> b = Compress(a, thresh=-24, ratio=3, risetime=.01, falltime=.2, knee=0.5).out()
     
     """
-    def __init__(self, input, thresh=-20, ratio=2, risetime=0.005, falltime=0.05, mul=1, add=0):
+    def __init__(self, input, thresh=-20, ratio=2, risetime=0.01, falltime=0.1, lookahead=5.0, knee=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._thresh = thresh
         self._ratio = ratio
         self._risetime = risetime
         self._falltime = falltime
+        self._lookahead = lookahead
+        self._knee = knee
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, thresh, ratio, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, mul, add)
-        self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, thresh, ratio, risetime, falltime, lookahead, knee, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, lookahead, knee, mul, add)
+        self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(knee,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'thresh', 'ratio', 'risetime', 'falltime', 'mul', 'add']
+        return ['input', 'thresh', 'ratio', 'risetime', 'falltime', 'lookahead', 'knee', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -668,11 +681,39 @@ class Compress(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setLookAhead(self, x):
+        """
+        Replace the `lookahead` attribute.
+
+        Parameters:
+
+        x : float
+            New `lookahead` attribute.
+
+        """
+        self._lookahead = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLookAhead(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setKnee(self, x):
+        """
+        Replace the `knee` attribute.
+
+        Parameters:
+
+        x : float
+            New `knee` attribute.
+
+        """
+        self._knee = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setKnee(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-90., 0., 'lin', 'thresh',  self._thresh),
+        self._map_list = [SLMap(-60., 0., 'lin', 'thresh',  self._thresh),
                           SLMap(1., 10., 'lin', 'ratio',  self._ratio),
-                          SLMap(0.001, .2, 'lin', 'risetime',  self._risetime),
-                          SLMap(0.001, .2, 'lin', 'falltime',  self._falltime),
+                          SLMap(0.001, .3, 'lin', 'risetime',  self._risetime),
+                          SLMap(0.001, .3, 'lin', 'falltime',  self._falltime),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -710,3 +751,17 @@ class Compress(PyoObject):
         return self._falltime
     @falltime.setter
     def falltime(self, x): self.setFallTime(x)
+    
+    @property
+    def lookahead(self):
+        """float. Delay length, in ms, for the "look-ahead" buffer."""
+        return self._lookahead
+    @lookahead.setter
+    def lookahead(self, x): self.setLookAhead(x)
+
+    @property
+    def knee(self):
+        """float. Shape of the transfert function around the threshold."""
+        return self._knee
+    @knee.setter
+    def knee(self, x): self.setKnee(x)
