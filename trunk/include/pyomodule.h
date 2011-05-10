@@ -70,6 +70,7 @@
 #define MYFLOOR floorf
 #define MYTANH tanhf
 #define MYATAN atanf
+#define MYEXP expf
 
 #else
 #define LIB_BASE_NAME "_pyo64"
@@ -117,6 +118,7 @@
 #define MYFLOOR floor
 #define MYTANH tanh
 #define MYATAN atan
+#define MYEXP exp
 
 
 #endif
