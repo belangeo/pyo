@@ -43,7 +43,7 @@ class Follower(PyoObject):
     input : PyoObject
         Input signal to filter.
     freq : float or PyoObject, optional
-        Cutoff frequency of the filter in hertz. Default to 10.
+        Cutoff frequency of the filter in hertz. Default to 20.
 
     Methods:
 
@@ -65,11 +65,11 @@ class Follower(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
-    >>> fol = Follower(sf, freq=10)
+    >>> fol = Follower(sf, freq=20)
     >>> n = Noise(mul=fol).out()
 
     """
-    def __init__(self, input, freq=10, mul=1, add=0):
+    def __init__(self, input, freq=20, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._freq = freq

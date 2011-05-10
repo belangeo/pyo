@@ -35,85 +35,50 @@ typedef struct {
     PyObject *freq;
     Stream *freq_stream;
     int modebuffer[3]; // need at least 2 slots for mul & add 
-    // sample memories
-    MYFLT x1;
-    MYFLT x2;
-    MYFLT y1;
-    MYFLT y2;
-    // variables
-    MYFLT c;
-    MYFLT w0;
-    MYFLT alpha;
-    // coefficients
-    MYFLT b0;
-    MYFLT b1;
-    MYFLT b2;
-    MYFLT a0;
-    MYFLT a1;
-    MYFLT a2;
+    MYFLT follow;
+    MYFLT last_freq;
+    MYFLT factor;
 } Follower;
-
-static void 
-Follower_compute_coeffs_lp(Follower *self)
-{
-    self->b0 = (1 - self->c) / 2;
-    self->b1 = 1 - self->c;
-    self->b2 = self->b0;
-    self->a0 = 1 + self->alpha;
-    self->a1 = -2 * self->c;
-    self->a2 = 1 - self->alpha;
-}
-
-static void
-Follower_compute_variables(Follower *self, MYFLT freq, MYFLT q)
-{
-    //MYFLT w0, c, alpha;
-    
-    if (freq <= 1) 
-        freq = 1;
-    else if (freq >= self->sr)
-        freq = self->sr;
-    
-    self->w0 = TWOPI * freq / self->sr;
-    self->c = MYCOS(self->w0);
-    self->alpha = MYSIN(self->w0) / (2 * q);
-    Follower_compute_coeffs_lp((Follower *)self);
-}
 
 static void
 Follower_filters_i(Follower *self) {
-    MYFLT absin, val;
+    MYFLT absin, freq;
     int i;
+
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    freq = PyFloat_AS_DOUBLE(self->freq);
+
+    if (freq != self->last_freq) {
+        self->factor = MYEXP(-1.0 / (self->sr / freq));
+        self->last_freq = freq;
+    }
     
     for (i=0; i<self->bufsize; i++) {
-        absin = in[i] * in[i];
-        val = ( (self->b0 * absin) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
-        self->y2 = self->y1;
-        self->y1 = val;
-        self->x2 = self->x1;
-        self->x1 = absin;
-        self->data[i] = val;
+        absin = in[i];
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow = self->data[i] = absin + self->factor * (self->follow - absin);
     }
 }
 
 static void
 Follower_filters_a(Follower *self) {
-    MYFLT val, absin;
+    MYFLT freq, absin;
     int i;
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        Follower_compute_variables(self, fr[i], 1.0);
-        absin = in[i] * in[i];
-        val = ( (self->b0 * absin) + (self->b1 * self->x1) + (self->b2 * self->x2) - (self->a1 * self->y1) - (self->a2 * self->y2) ) / self->a0;
-        self->y2 = self->y1;
-        self->y1 = val;
-        self->x2 = self->x1;
-        self->x1 = absin;
-        self->data[i] = val;
+        freq = fr[i];
+        if (freq != self->last_freq) {
+            self->factor = MYEXP(-1.0 / (self->sr / freq));
+            self->last_freq = freq;
+        }
+        absin = in[i];
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow = self->data[i] = absin + self->factor * (self->follow - absin);        
     }
 }
 
@@ -136,7 +101,6 @@ Follower_setProcMode(Follower *self)
     
 	switch (procmode) {
         case 0:    
-            Follower_compute_variables(self, PyFloat_AS_DOUBLE(self->freq), 1.0);
             self->proc_func_ptr = Follower_filters_i;
             break;
         case 1:    
@@ -221,8 +185,10 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Follower *self;
     self = (Follower *)type->tp_alloc(type, 0);
     
-    self->freq = PyFloat_FromDouble(100);
-    self->x1 = self->x2 = self->y1 = self->y2 = 0.0;
+    self->freq = PyFloat_FromDouble(20);
+    self->follow = 0.0;
+    self->last_freq = -1.0;
+    self->factor = 0.99;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
