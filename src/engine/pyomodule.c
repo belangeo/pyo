@@ -1023,6 +1023,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&CompressType);
     PyModule_AddObject(m, "Compress_base", (PyObject *)&CompressType);
+
+    if (PyType_Ready(&GateType) < 0)
+        return;
+    Py_INCREF(&GateType);
+    PyModule_AddObject(m, "Gate_base", (PyObject *)&GateType);
     
     if (PyType_Ready(&DelayType) < 0)
         return;

@@ -765,3 +765,183 @@ class Compress(PyoObject):
         return self._knee
     @knee.setter
     def knee(self, x): self.setKnee(x)
+
+class Gate(PyoObject):
+    """
+    Allows a signal to pass only when it's amplitude is above a set threshold.
+
+    A noise gate is used when the level of the 'signal' is above the level of 
+    the 'noise'. The threshold is set above the level of the 'noise' and so when 
+    there is no 'signal' the gate is closed. A noise gate does not remove noise 
+    from the signal. When the gate is open both the signal and the noise will 
+    pass through.
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    thresh : float or PyoObject, optional
+        Level, expressed in dB, below which the gate is closed. 
+        Reference level is 0dB. Defaults to -70.
+    risetime : float or PyoObject, optional
+        Time to open the gate in seconds. Defaults to 0.01.
+    falltime : float or PyoObject, optional
+        Time to close the gate in seconds. Defaults to 0.05.
+    lookahead : float, optional
+        Delay length, in ms, for the "look-ahead" buffer. Range is
+        0 -> 25 ms. Defaults to 5.0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setThresh(x) : Replace the `thresh` attribute.
+    setRiseTime(x) : Replace the `risetime` attribute.
+    setFallTime(x) : Replace the `falltime` attribute.
+    setLookAhead(x) : Replace the `lookahead` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    thresh : float or PyoObject. Level below which the gate is closed.
+    risetime : float or PyoObject. Time to open the gate in seconds.
+    falltime : float or PyoObject. Time to close the gate in seconds.
+    lookahead : float. Delay length, in ms, for the "look-ahead" buffer.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[1,.5], loop=True)
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5).out()
+
+    """
+    def __init__(self, input, thresh=-70, risetime=0.01, falltime=0.05, lookahead=5.0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._thresh = thresh
+        self._risetime = risetime
+        self._falltime = falltime
+        self._lookahead = lookahead
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, thresh, risetime, falltime, lookahead, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, risetime, falltime, lookahead, mul, add)
+        self._base_objs = [Gate_base(wrap(in_fader,i), wrap(thresh,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'thresh', 'risetime', 'falltime', 'lookahead', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setThresh(self, x):
+        """
+        Replace the `thresh` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `thresh` attribute.
+
+        """
+        self._thresh = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setRiseTime(self, x):
+        """
+        Replace the `risetime` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `risetime` attribute.
+
+        """
+        self._risetime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRiseTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFallTime(self, x):
+        """
+        Replace the `falltime` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `falltime` attribute.
+
+        """
+        self._falltime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFallTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setLookAhead(self, x):
+        """
+        Replace the `lookahead` attribute.
+
+        Parameters:
+
+        x : float
+            New `lookahead` attribute.
+
+        """
+        self._lookahead = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLookAhead(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-100., 0., 'lin', 'thresh',  self._thresh),
+                          SLMap(0.0001, .3, 'lin', 'risetime',  self._risetime),
+                          SLMap(0.0001, .3, 'lin', 'falltime',  self._falltime),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def thresh(self):
+        """float or PyoObject. Level below which the gate is closed.""" 
+        return self._thresh
+    @thresh.setter
+    def thresh(self, x): self.setThresh(x)
+
+    @property
+    def risetime(self):
+        """float or PyoObject. Time to open the gate in seconds.""" 
+        return self._risetime
+    @risetime.setter
+    def risetime(self, x): self.setRiseTime(x)
+
+    @property
+    def falltime(self):
+        """float or PyoObject. Time to close the gate in seconds."""
+        return self._falltime
+    @falltime.setter
+    def falltime(self, x): self.setFallTime(x)
+
+    @property
+    def lookahead(self):
+        """float. Delay length, in ms, for the "look-ahead" buffer."""
+        return self._lookahead
+    @lookahead.setter
+    def lookahead(self, x): self.setLookAhead(x)
