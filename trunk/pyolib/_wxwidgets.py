@@ -1264,12 +1264,13 @@ class ServerGUI(wx.Frame):
         
         self.menubar = wx.MenuBar()
         self.menu = wx.Menu()
+        self.menu.Append(22999, 'Start/Stop\tCtrl+R', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.start, id=22999)
         quit_item = self.menu.Append(23000, "Quit\tCtrl+Q")  
         self.Bind(wx.EVT_MENU, self.on_quit, id=23000)
-        if wx.Platform=="__WXMAC__":
+        if wx.Platform == "__WXMAC__":
             wx.App.SetMacExitMenuItemId(quit_item.GetId())
-        else:
-            self.menubar.Append(self.menu, "&File")
+        self.menubar.Append(self.menu, "&File")
         self.SetMenuBar(self.menubar)
 
         self.shutdown = shutdown
