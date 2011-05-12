@@ -608,6 +608,11 @@ init_pyo64(void)
     Py_INCREF(&HannTableType);
     PyModule_AddObject(m, "HannTable_base", (PyObject *)&HannTableType);
 
+    if (PyType_Ready(&ParaTableType) < 0)
+        return;
+    Py_INCREF(&ParaTableType);
+    PyModule_AddObject(m, "ParaTable_base", (PyObject *)&ParaTableType);
+    
     if (PyType_Ready(&LinTableType) < 0)
         return;
     Py_INCREF(&LinTableType);

@@ -239,6 +239,7 @@ extern PyTypeObject InputFaderType;
 extern PyTypeObject HarmTableType;
 extern PyTypeObject ChebyTableType;
 extern PyTypeObject HannTableType;
+extern PyTypeObject ParaTableType;
 extern PyTypeObject LinTableType;
 extern PyTypeObject CosTableType;
 extern PyTypeObject CurveTableType;
