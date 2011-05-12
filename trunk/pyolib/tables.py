@@ -398,7 +398,7 @@ class ChebyTable(PyoTableObject):
         
 class HannTable(PyoTableObject):
     """
-    Generates Hanning window. 
+    Generates Hanning window function. 
     
     Parent class: PyoTableObject
     
@@ -409,8 +409,7 @@ class HannTable(PyoTableObject):
         
     Methods:
     
-    setSize(size) : Change the size of the table. This will redraw 
-        the envelope.
+    setSize(size) : Change the size of the table. This will redraw the envelope.
     
     Attributes:
     
@@ -443,6 +442,66 @@ class HannTable(PyoTableObject):
         size : int
             New table size in samples.
         
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+
+    @property
+    def size(self): 
+        """int. Table size in samples."""
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+class ParaTable(PyoTableObject):
+    """
+    Generates parabola window function. 
+
+    The parabola is a conic section, the intersection of a right circular conical 
+    surface and a plane parallel to a generating straight line of that surface.
+
+    Parent class: PyoTableObject
+
+    Parameters:
+
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+
+    Methods:
+
+    setSize(size) : Change the size of the table. This will redraw the envelope.
+
+    Attributes:
+
+    size : int
+        Table size in samples.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Parabola envelope
+    >>> t = ParaTable()
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
+    """
+    def __init__(self, size=8192):
+        self._size = size
+        self._base_objs = [ParaTable_base(size)]
+
+    def __dir__(self):
+        return ['size']
+
+    def setSize(self, size):
+        """
+        Change the size of the table. This will redraw the envelope.
+
+        Parameters:
+
+        size : int
+            New table size in samples.
+
         """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]

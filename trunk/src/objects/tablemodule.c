@@ -780,7 +780,7 @@ sizeof(HannTable),         /*tp_basicsize*/
 0,                         /*tp_setattro*/
 0,                         /*tp_as_buffer*/
 Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
-"HannTable objects. Generates a table filled with a waveform whose harmonic content correspond to a given amplitude list values.",  /* tp_doc */
+"HannTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
 (traverseproc)HannTable_traverse,   /* tp_traverse */
 (inquiry)HannTable_clear,           /* tp_clear */
 0,		               /* tp_richcompare */
@@ -798,6 +798,193 @@ HannTable_members,             /* tp_members */
 (initproc)HannTable_init,      /* tp_init */
 0,                         /* tp_alloc */
 HannTable_new,                 /* tp_new */
+};
+
+/***********************/
+/* ParaTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+} ParaTable;
+
+static void
+ParaTable_generate(ParaTable *self) {
+    int i, sizeMinusOne;
+    MYFLT rdur, rdur2, level, slope, curve;
+    
+    sizeMinusOne = self->size - 1;
+    rdur = 1.0 / sizeMinusOne;
+    rdur2 = rdur * rdur;
+    level = 0.0;
+    slope = 4.0 * (rdur - rdur2);
+    curve = -8.0 * rdur2;
+
+    for(i=0; i<sizeMinusOne; i++) {
+        self->data[i] = level;
+        level += slope;
+        slope += curve;
+    }
+
+    self->data[sizeMinusOne] = self->data[0];  
+    self->data[self->size] = self->data[0];  
+}
+
+static int
+ParaTable_traverse(ParaTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+ParaTable_clear(ParaTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+ParaTable_dealloc(ParaTable* self)
+{
+    free(self->data);
+    ParaTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    ParaTable *self;
+    
+    self = (ParaTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->size = 8192;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+ParaTable_init(ParaTable *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
+        return -1; 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+	TableStream_setData(self->tablestream, self->data);
+    ParaTable_generate(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * ParaTable_getServer(ParaTable* self) { GET_SERVER };
+static PyObject * ParaTable_getTableStream(ParaTable* self) { GET_TABLE_STREAM };
+static PyObject * ParaTable_setData(ParaTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * ParaTable_normalize(ParaTable *self) { NORMALIZE };
+static PyObject * ParaTable_getTable(ParaTable *self) { GET_TABLE };
+static PyObject * ParaTable_getViewTable(ParaTable *self) { GET_VIEW_TABLE };
+static PyObject * ParaTable_put(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * ParaTable_get(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+ParaTable_setSize(ParaTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->size = PyInt_AsLong(value); 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    ParaTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+ParaTable_getSize(ParaTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyMemberDef ParaTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(ParaTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(ParaTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef ParaTable_methods[] = {
+    {"getServer", (PyCFunction)ParaTable_getServer, METH_NOARGS, "Returns server object."},
+    {"getTable", (PyCFunction)ParaTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)ParaTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)ParaTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)ParaTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"setSize", (PyCFunction)ParaTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)ParaTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)ParaTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject ParaTableType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.ParaTable_base",         /*tp_name*/
+    sizeof(ParaTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)ParaTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "ParaTable objects. Generates a parabola table.",  /* tp_doc */
+    (traverseproc)ParaTable_traverse,   /* tp_traverse */
+    (inquiry)ParaTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    ParaTable_methods,             /* tp_methods */
+    ParaTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)ParaTable_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    ParaTable_new,                 /* tp_new */
 };
 
 /***********************/
