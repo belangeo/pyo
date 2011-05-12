@@ -563,6 +563,11 @@ class Compress(PyoObject):
         Shape of the transfert function around the threshold, specified
         in the range 0 -> 1. A value of 0 means a hard knee and a value 
         of 1.0 means a softer knee. Defaults to 0.
+    outputAmp : boolean, optional
+        If True, the object's output signal will be the compression level
+        alone, not the compressed signal. It can be useful if 2 or more
+        channels need to linked on the same compression slope. Available
+        at initialization only. Defaults to False.
         
     Methods:
 
@@ -592,7 +597,7 @@ class Compress(PyoObject):
     >>> b = Compress(a, thresh=-24, ratio=3, risetime=.01, falltime=.2, knee=0.5).out()
     
     """
-    def __init__(self, input, thresh=-20, ratio=2, risetime=0.01, falltime=0.1, lookahead=5.0, knee=0, mul=1, add=0):
+    def __init__(self, input, thresh=-20, ratio=2, risetime=0.01, falltime=0.1, lookahead=5.0, knee=0, outputAmp=False, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._thresh = thresh
@@ -604,8 +609,8 @@ class Compress(PyoObject):
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, thresh, ratio, risetime, falltime, lookahead, knee, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, lookahead, knee, mul, add)
-        self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(knee,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add)
+        self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(knee,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['input', 'thresh', 'ratio', 'risetime', 'falltime', 'lookahead', 'knee', 'mul', 'add']
@@ -768,7 +773,7 @@ class Compress(PyoObject):
 
 class Gate(PyoObject):
     """
-    Allows a signal to pass only when it's amplitude is above a set threshold.
+    Allows a signal to pass only when its amplitude is above a set threshold.
 
     A noise gate is used when the level of the 'signal' is above the level of 
     the 'noise'. The threshold is set above the level of the 'noise' and so when 
@@ -792,6 +797,11 @@ class Gate(PyoObject):
     lookahead : float, optional
         Delay length, in ms, for the "look-ahead" buffer. Range is
         0 -> 25 ms. Defaults to 5.0.
+    outputAmp : boolean, optional
+        If True, the object's output signal will be the gating level
+        alone, not the gated signal. It can be useful if 2 or more
+        channels need to linked on the same gating slope. Available
+        at initialization only. Defaults to False.
 
     Methods:
 
@@ -817,7 +827,7 @@ class Gate(PyoObject):
     >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5).out()
 
     """
-    def __init__(self, input, thresh=-70, risetime=0.01, falltime=0.05, lookahead=5.0, mul=1, add=0):
+    def __init__(self, input, thresh=-70, risetime=0.01, falltime=0.05, lookahead=5.0, outputAmp=False, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._thresh = thresh
@@ -827,8 +837,8 @@ class Gate(PyoObject):
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, thresh, risetime, falltime, lookahead, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, risetime, falltime, lookahead, mul, add)
-        self._base_objs = [Gate_base(wrap(in_fader,i), wrap(thresh,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add)
+        self._base_objs = [Gate_base(wrap(in_fader,i), wrap(thresh,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['input', 'thresh', 'risetime', 'falltime', 'lookahead', 'mul', 'add']
