@@ -40,6 +40,7 @@ typedef struct {
     Stream *thresh_stream;
     Stream *ratio_stream;
     int modebuffer[6]; // need at least 2 slots for mul & add 
+    int outputAmp;
     MYFLT follow;
     MYFLT knee;
     long lh_delay;
@@ -138,7 +139,10 @@ Compress_compress_soft(Compress *self) {
             outdb = diff - diff * kneeratio;
             outa = MYPOW(10.0, -outdb * 0.05);            
         }
-        self->data[i] = samp * C_clip(outa);
+        if (self->outputAmp == 0)
+            self->data[i] = samp * C_clip(outa);
+        else
+            self->data[i] = C_clip(outa);
     }
 }
 
@@ -259,6 +263,7 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
 	self->modebuffer[5] = 0;
+    self->outputAmp = 0;
     self->follow = 0.0;
     self->lh_delay = 0;
     self->lh_in_count = 0;
@@ -278,9 +283,9 @@ Compress_init(Compress *self, PyObject *args, PyObject *kwds)
     PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
     PyObject *looktmp=NULL, *kneetmp=NULL;
     
-    static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "outputAmp", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &self->outputAmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -653,6 +658,7 @@ typedef struct {
     PyObject *falltime;
     Stream *falltime_stream;
     int modebuffer[5]; // need at least 2 slots for mul & add 
+    int outputAmp;
     MYFLT lpfollow;
     MYFLT lpfactor;
     MYFLT gate;
@@ -715,7 +721,10 @@ Gate_filters_iii(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -769,7 +778,10 @@ Gate_filters_aii(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -824,7 +836,10 @@ Gate_filters_iai(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -880,7 +895,10 @@ Gate_filters_aai(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -934,7 +952,10 @@ Gate_filters_iia(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -989,7 +1010,10 @@ Gate_filters_aia(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -1043,7 +1067,10 @@ Gate_filters_iaa(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -1098,7 +1125,10 @@ Gate_filters_aaa(Gate *self) {
             self->lh_in_count = 0;
         
         /* Gate the signal */
-        self->data[i] = samp * self->gate;
+        if (self->outputAmp == 0)
+            self->data[i] = samp * self->gate;
+        else
+            self->data[i] = self->gate;
     }
 }
 
@@ -1246,6 +1276,7 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[4] = 0;
     self->lh_delay = 0;
     self->lh_in_count = 0;
+    self->outputAmp = 0;
     
     INIT_OBJECT_COMMON
     
@@ -1263,9 +1294,9 @@ Gate_init(Gate *self, PyObject *args, PyObject *kwds)
     PyObject *looktmp=NULL;
     int i;
     
-    static char *kwlist[] = {"input", "thresh", "risetime", "falltime", "lookahead", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "thresh", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOO", kwlist, &inputtmp, &threshtmp, &risetimetmp, &falltimetmp, &looktmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &threshtmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
