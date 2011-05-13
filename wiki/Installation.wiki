@@ -62,7 +62,7 @@ If you want to be able to use a 64-bit pyo (All platforms):
 Under Ubuntu 10.04 you can type the following commands to get pyo up and running:
 
 {{{
-sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion python-imaging-tk
+sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion python-imaging-tk python-wxgtk2.8
 svn checkout http://pyo.googlecode.com/svn/trunk/ pyo-read-only
 cd pyo-read-only
 sudo python setup.py install --install-layout=deb
