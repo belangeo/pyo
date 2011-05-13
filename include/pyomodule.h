@@ -279,6 +279,8 @@ extern PyTypeObject CallAfterType;
 
 extern PyTypeObject BandSplitterType;
 extern PyTypeObject BandSplitType;
+extern PyTypeObject FourBandMainType;
+extern PyTypeObject FourBandType;
 
 extern PyTypeObject HilbertMainType;
 extern PyTypeObject HilbertType;

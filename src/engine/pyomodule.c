@@ -1169,6 +1169,16 @@ init_pyo64(void)
     Py_INCREF(&BandSplitType);
     PyModule_AddObject(m, "BandSplit_base", (PyObject *)&BandSplitType);
 
+    if (PyType_Ready(&FourBandMainType) < 0)
+        return;
+    Py_INCREF(&FourBandMainType);
+    PyModule_AddObject(m, "FourBandMain_base", (PyObject *)&FourBandMainType);
+    
+    if (PyType_Ready(&FourBandType) < 0)
+        return;
+    Py_INCREF(&FourBandType);
+    PyModule_AddObject(m, "FourBand_base", (PyObject *)&FourBandType);
+    
     if (PyType_Ready(&HilbertMainType) < 0)
         return;
     Py_INCREF(&HilbertMainType);

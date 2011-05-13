@@ -831,8 +831,9 @@ class BandSplit(PyoObject):
     Splits an input signal into multiple frequency bands.
     
     The input signal will be separated into `num` bands between `min` 
-    and `max` frequencies. Each band will then be assigned to an 
-    independent audio stream. Useful for multiband processing.
+    and `max` frequencies using second-order bandpass filters. Each 
+    band will then be assigned to an independent audio stream. 
+    Useful for multiband processing.
 
     Parent class: PyoObject
     
@@ -970,6 +971,200 @@ class BandSplit(PyoObject):
         return self._q
     @q.setter
     def q(self, x): self.setQ(x) 
+
+class FourBand(PyoObject):
+    """
+    Splits an input signal into four frequency bands.
+
+    The input signal will be separated into 4 bands around `freqs` 
+    arguments using fourth-order Linkwitz-Riley lowpass and highpass 
+    filters. Each band will then be assigned to an independent audio 
+    stream. The sum of the four bands reproduces the same signal as 
+    the `input`. Useful for multiband processing.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to filter.
+    freq1 : float or PyoObject, optional
+        First crossover frequency. First band will contain signal
+        from 0 Hz to `freq1` Hz. Defaults to 150.
+    freq2 : float or PyoObject, optional
+        Second crossover frequency. Second band will contain signal
+        from `freq1` Hz to `freq2`. `freq2` is the lower limit of the
+        third band signal. Defaults to 500.
+    freq3 : float or PyoObject, optional
+        Third crossover frequency. It's the upper limit of the third
+        band signal and fourth band will contain signal from `freq3`
+        to sr/2. Defaults to 2000.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq1(x) : Replace the `freq1` attribute.
+    setFreq2(x) : Replace the `freq2` attribute.
+    setFreq3(x) : Replace the `freq3` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    freq1 : float or PyoObject. First crossover frequency.
+    freq2 : float or PyoObject. Second crossover frequency.
+    freq3 : float or PyoObject. Third crossover frequency.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfos = Sine(freq=[.3,.4,.5,.6], mul=.5, add=.5)
+    >>> n = BrownNoise(.5)
+    >>> a = FourBand(n, freq1=250, freq2=1000, freq3=2500, mul=lfos).out()
+
+    """
+    def __init__(self, input, freq1=150, freq2=500, freq3=2000, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._freq1 = freq1
+        self._freq2 = freq2
+        self._freq3 = freq3
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq1, freq2, freq3, lmax = convertArgsToLists(self._in_fader, freq1, freq2, freq3)
+        mul, add, lmax2 = convertArgsToLists(mul, add)
+        self._base_players = [FourBandMain_base(wrap(in_fader,i), wrap(freq1,i), wrap(freq2,i), wrap(freq3,i)) for i in range(lmax)]
+        self._base_objs = []
+        for i in range(lmax):
+            for j in range(4):
+                self._base_objs.append(FourBand_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
+
+    def __dir__(self):
+        return ['input', 'freq1', 'freq2', 'freq3', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._base_players:
+            obj.deleteStream()
+            del obj
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq1(self, x):
+        """
+        Replace the `freq1` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq1` attribute.
+
+        """
+        self._freq1 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq1(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setFreq2(self, x):
+        """
+        Replace the `freq2` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq2` attribute.
+
+        """
+        self._freq2 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq2(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setFreq3(self, x):
+        """
+        Replace the `freq3` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq3` attribute.
+
+        """
+        self._freq3 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq3(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        if type(chnl) == ListType:
+            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        else:
+            if chnl < 0:    
+                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+            else:   
+                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_players]
+        [obj.stop() for obj in self._base_objs]
+        return self
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(40,300,"log","freq1",self._freq1),
+                          SLMap(300,1000,"log","freq2",self._freq2),
+                          SLMap(1000,5000,"log","freq3",self._freq3),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq1(self): 
+        """float or PyoObject. First crossover frequency."""
+        return self._freq1
+    @freq1.setter
+    def freq1(self, x): self.setFreq1(x) 
+
+    @property
+    def freq2(self): 
+        """float or PyoObject. Second crossover frequency."""
+        return self._freq2
+    @freq2.setter
+    def freq2(self, x): self.setFreq2(x) 
+
+    @property
+    def freq3(self): 
+        """float or PyoObject. Third crossover frequency."""
+        return self._freq3
+    @freq3.setter
+    def freq3(self, x): self.setFreq3(x) 
 
 class Hilbert(PyoObject):
     """

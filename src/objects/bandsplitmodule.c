@@ -650,3 +650,738 @@ BandSplit_members,             /* tp_members */
 0,                         /* tp_alloc */
 BandSplit_new,                 /* tp_new */
 };
+
+/*****************/
+/* FourBand main */
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq1;
+    Stream *freq1_stream;
+    PyObject *freq2;
+    Stream *freq2_stream;
+    PyObject *freq3;
+    Stream *freq3_stream;
+    MYFLT last_freq1;
+    MYFLT last_freq2;
+    MYFLT last_freq3;
+    // sample memories
+    MYFLT x1[6];
+    MYFLT x2[6];
+    MYFLT x3[6];
+    MYFLT x4[6];
+    MYFLT y1[6];
+    MYFLT y2[6];
+    MYFLT y3[6];
+    MYFLT y4[6];
+    // coefficients
+    MYFLT b1[3];
+    MYFLT b2[3];
+    MYFLT b3[3];
+    MYFLT b4[3];
+    MYFLT la0[3];
+    MYFLT la1[3];
+    MYFLT la2[3];
+    MYFLT ha0[3];
+    MYFLT ha1[3];
+    MYFLT ha2[3];
+    MYFLT *buffer_streams;
+    int modebuffer[3];
+} FourBandMain;
+
+
+static void
+FourBandMain_compute_variables(FourBandMain *self, MYFLT freq, int band)
+{    
+    MYFLT wc = TWOPI * freq;
+    MYFLT wc2 = wc * wc;
+    MYFLT wc3 = wc2 * wc;
+    MYFLT wc4 = wc2 * wc2;
+    MYFLT k = wc / MYTAN(PI * freq / self->sr);
+    MYFLT k2 = k * k;
+    MYFLT k3 = k2 * k;
+    MYFLT k4 = k2 * k2;
+    MYFLT sqrt2 = MYSQRT(2.0);
+    MYFLT sq_tmp1 = sqrt2 * wc3 * k;
+    MYFLT sq_tmp2 = sqrt2 * wc * k3;
+    MYFLT a_tmp = 4.0 * wc2 * k2 + 2.0 * sq_tmp1 + k4 + 2.0 * sq_tmp2 + wc4;
+    MYFLT wc4_a_tmp = wc4 / a_tmp;
+    MYFLT k4_a_tmp = k4 / a_tmp;
+    
+    /* common */
+    self->b1[band] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
+    self->b2[band] = (6.0 * wc4 - 8.0 * wc2 * k2 + 6.0 * k4) / a_tmp;
+    self->b3[band] = (4.0 * (wc4 - sq_tmp1 + sq_tmp2 - k4)) / a_tmp;
+    self->b4[band] = (k4 - 2.0 * sq_tmp1 + wc4 - 2.0 * sq_tmp2 + 4.0 * wc2 * k2) / a_tmp;
+    
+    /* lowpass */
+    self->la0[band] = wc4_a_tmp;
+    self->la1[band] = 4.0 * wc4_a_tmp;
+    self->la2[band] = 6.0 * wc4_a_tmp;
+    
+    /* highpass */
+    self->ha0[band] = k4_a_tmp;
+    self->ha1[band] = -4.0 * k4_a_tmp;
+    self->ha2[band] = 6.0 * k4_a_tmp;    
+}
+
+static void
+FourBandMain_filters(FourBandMain *self) {
+    MYFLT val, inval, tmp, f1, f2, f3;
+    int i, j, j1, ind, ind1;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->modebuffer[0] == 0)
+        f1 = PyFloat_AS_DOUBLE(self->freq1);
+    else
+        f1 = Stream_getData((Stream *)self->freq1_stream)[0];
+    if (self->modebuffer[1] == 0)
+        f2 = PyFloat_AS_DOUBLE(self->freq2);
+    else
+        f2 = Stream_getData((Stream *)self->freq2_stream)[0];
+    if (self->modebuffer[2] == 0)
+        f3 = PyFloat_AS_DOUBLE(self->freq3);
+    else
+        f3 = Stream_getData((Stream *)self->freq3_stream)[0];
+    
+    if (f1 != self->last_freq1) {
+        self->last_freq1 = f1;
+        FourBandMain_compute_variables(self, f1, 0);
+    }
+
+    if (f2 != self->last_freq2) {
+        self->last_freq2 = f2;
+        FourBandMain_compute_variables(self, f2, 1);
+    }
+
+    if (f3 != self->last_freq3) {
+        self->last_freq3 = f3;
+        FourBandMain_compute_variables(self, f3, 2);
+    }
+    
+    
+    for (i=0; i<self->bufsize; i++) {   
+        inval = in[i];
+        /* First band */
+        val = self->la0[0] * inval + self->la1[0] * self->x1[0] + self->la2[0] * self->x2[0] + self->la1[0] * self->x3[0] + self->la0[0] * self->x4[0] - 
+              self->b1[0] * self->y1[0] - self->b2[0] * self->y2[0] - self->b3[0] * self->y3[0] - self->b4[0] * self->y4[0];
+        self->y4[0] = self->y3[0];
+        self->y3[0] = self->y2[0];
+        self->y2[0] = self->y1[0];
+        self->y1[0] = val;
+        self->x4[0] = self->x3[0];
+        self->x3[0] = self->x2[0];
+        self->x2[0] = self->x1[0];
+        self->x1[0] = inval;
+        self->buffer_streams[i] = val;
+        
+        /* Second and third bands */
+        for (j=0; j<2; j++) {
+            j1 = j + 1;
+            ind = j * 2 + 1;
+            ind1 = ind + 1;
+            tmp = self->ha0[j] * inval + self->ha1[j] * self->x1[ind] + self->ha2[j] * self->x2[ind] + self->ha1[j] * self->x3[ind] + self->ha0[j] * self->x4[ind] - 
+                  self->b1[j] * self->y1[ind] - self->b2[j] * self->y2[ind] - self->b3[j] * self->y3[ind] - self->b4[j] * self->y4[ind];
+            self->y4[ind] = self->y3[ind];
+            self->y3[ind] = self->y2[ind];
+            self->y2[ind] = self->y1[ind];
+            self->y1[ind] = tmp;
+            self->x4[ind] = self->x3[ind];
+            self->x3[ind] = self->x2[ind];
+            self->x2[ind] = self->x1[ind];
+            self->x1[ind] = inval;
+            
+            val = self->la0[j1] * tmp + self->la1[j1] * self->x1[ind1] + self->la2[j1] * self->x2[ind1] + self->la1[j1] * self->x3[ind1] + self->la0[j1] * self->x4[ind1] - 
+                  self->b1[j1] * self->y1[ind1] - self->b2[j1] * self->y2[ind1] - self->b3[j1] * self->y3[ind1] - self->b4[j1] * self->y4[ind1];
+            self->y4[ind1] = self->y3[ind1];
+            self->y3[ind1] = self->y2[ind1];
+            self->y2[ind1] = self->y1[ind1];
+            self->y1[ind1] = val;
+            self->x4[ind1] = self->x3[ind1];
+            self->x3[ind1] = self->x2[ind1];
+            self->x2[ind1] = self->x1[ind1];
+            self->x1[ind1] = tmp;
+            
+            self->buffer_streams[i + j1 * self->bufsize] = val;            
+        }
+
+        val = self->ha0[2] * inval + self->ha1[2] * self->x1[5] + self->ha2[2] * self->x2[5] + self->ha1[2] * self->x3[5] + self->ha0[2] * self->x4[5] - 
+              self->b1[2] * self->y1[5] - self->b2[2] * self->y2[5] - self->b3[2] * self->y3[5] - self->b4[2] * self->y4[5];
+        self->y4[5] = self->y3[5];
+        self->y3[5] = self->y2[5];
+        self->y2[5] = self->y1[5];
+        self->y1[5] = val;
+        self->x4[5] = self->x3[5];
+        self->x3[5] = self->x2[5];
+        self->x2[5] = self->x1[5];
+        self->x1[5] = inval;
+        self->buffer_streams[i + 3 * self->bufsize] = val;
+    }    
+}
+
+MYFLT *
+FourBandMain_getSamplesBuffer(FourBandMain *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+static void
+FourBandMain_setProcMode(FourBandMain *self)
+{
+    self->proc_func_ptr = FourBandMain_filters;
+}
+
+static void
+FourBandMain_compute_next_data_frame(FourBandMain *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+FourBandMain_traverse(FourBandMain *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq1);
+    Py_VISIT(self->freq1_stream);
+    Py_VISIT(self->freq2);
+    Py_VISIT(self->freq2_stream);
+    Py_VISIT(self->freq3);
+    Py_VISIT(self->freq3_stream);
+    return 0;
+}
+
+static int 
+FourBandMain_clear(FourBandMain *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq1);
+    Py_CLEAR(self->freq1_stream);
+    Py_CLEAR(self->freq2);
+    Py_CLEAR(self->freq2_stream);
+    Py_CLEAR(self->freq3);
+    Py_CLEAR(self->freq3_stream);
+    return 0;
+}
+
+static void
+FourBandMain_dealloc(FourBandMain* self)
+{
+    free(self->data);
+    free(self->buffer_streams);
+    FourBandMain_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * FourBandMain_deleteStream(FourBandMain *self) { DELETE_STREAM };
+
+static PyObject *
+FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    FourBandMain *self;
+    self = (FourBandMain *)type->tp_alloc(type, 0);
+    
+    self->freq1 = PyFloat_FromDouble(150);
+    self->freq2 = PyFloat_FromDouble(500);
+    self->freq3 = PyFloat_FromDouble(2000);
+    self->last_freq1 = self->last_freq2 = self->last_freq3 = -1.0;
+    
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, FourBandMain_compute_next_data_frame);
+    self->mode_func_ptr = FourBandMain_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+FourBandMain_init(FourBandMain *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freq1tmp=NULL, *freq2tmp=NULL, *freq3tmp=NULL;
+    
+    static char *kwlist[] = {"input", "freq1", "freq2", "freq3", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freq1tmp, &freq2tmp, &freq3tmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    for (i=0; i<6; i++) {
+        self->x1[i] = self->x2[i] = self->x3[i] = self->x4[i] = self->y1[i] = self->y2[i] = self->y3[i] = self->y4[i] = 0.0;
+    }
+
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 4 * self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<(4 * self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    if (freq1tmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq1", "O", freq1tmp);
+    }
+
+    if (freq2tmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq2", "O", freq2tmp);
+    }
+
+    if (freq3tmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq3", "O", freq3tmp);
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject *
+FourBandMain_setFreq1(FourBandMain *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq1);
+	if (isNumber == 1) {
+		self->freq1 = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->freq1 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq1, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq1_stream);
+        self->freq1_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+FourBandMain_setFreq2(FourBandMain *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq2);
+	if (isNumber == 1) {
+		self->freq2 = PyNumber_Float(tmp);
+        self->modebuffer[1] = 0;
+	}
+	else {
+		self->freq2 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq2, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq2_stream);
+        self->freq2_stream = (Stream *)streamtmp;
+		self->modebuffer[1] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+FourBandMain_setFreq3(FourBandMain *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq3);
+	if (isNumber == 1) {
+		self->freq3 = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq3 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq3, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq3_stream);
+        self->freq3_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject * FourBandMain_getServer(FourBandMain* self) { GET_SERVER };
+static PyObject * FourBandMain_getStream(FourBandMain* self) { GET_STREAM };
+
+static PyObject * FourBandMain_play(FourBandMain *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FourBandMain_stop(FourBandMain *self) { STOP };
+
+static PyMemberDef FourBandMain_members[] = {
+    {"server", T_OBJECT_EX, offsetof(FourBandMain, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(FourBandMain, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(FourBandMain, input), 0, "Input sound object."},
+    {"freq1", T_OBJECT_EX, offsetof(FourBandMain, freq1), 0, "First cutoff frequency."},
+    {"freq2", T_OBJECT_EX, offsetof(FourBandMain, freq2), 0, "Second cutoff frequency."},
+    {"freq3", T_OBJECT_EX, offsetof(FourBandMain, freq3), 0, "Third cutoff frequency."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef FourBandMain_methods[] = {
+    {"getServer", (PyCFunction)FourBandMain_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)FourBandMain_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)FourBandMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"setFreq1", (PyCFunction)FourBandMain_setFreq1, METH_O, "Sets the first cutoff frequency."},
+    {"setFreq2", (PyCFunction)FourBandMain_setFreq2, METH_O, "Sets the second cutoff frequency."},
+    {"setFreq3", (PyCFunction)FourBandMain_setFreq3, METH_O, "Sets the third cutoff frequency."},
+    {"play", (PyCFunction)FourBandMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FourBandMain_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject FourBandMainType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.FourBandMain_base",                                   /*tp_name*/
+    sizeof(FourBandMain),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)FourBandMain_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    0,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "FourBandMain objects. Split audio stream in four flat frequency and phase bands.",           /* tp_doc */
+    (traverseproc)FourBandMain_traverse,                  /* tp_traverse */
+    (inquiry)FourBandMain_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    FourBandMain_methods,                                 /* tp_methods */
+    FourBandMain_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)FourBandMain_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    FourBandMain_new,                                     /* tp_new */
+};
+
+/************************************************************************************************/
+/* FourBand streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    FourBandMain *mainSplitter;
+    int modebuffer[2];
+    int chnl; 
+} FourBand;
+
+static void FourBand_postprocessing_ii(FourBand *self) { POST_PROCESSING_II };
+static void FourBand_postprocessing_ai(FourBand *self) { POST_PROCESSING_AI };
+static void FourBand_postprocessing_ia(FourBand *self) { POST_PROCESSING_IA };
+static void FourBand_postprocessing_aa(FourBand *self) { POST_PROCESSING_AA };
+static void FourBand_postprocessing_ireva(FourBand *self) { POST_PROCESSING_IREVA };
+static void FourBand_postprocessing_areva(FourBand *self) { POST_PROCESSING_AREVA };
+static void FourBand_postprocessing_revai(FourBand *self) { POST_PROCESSING_REVAI };
+static void FourBand_postprocessing_revaa(FourBand *self) { POST_PROCESSING_REVAA };
+static void FourBand_postprocessing_revareva(FourBand *self) { POST_PROCESSING_REVAREVA };
+
+static void
+FourBand_setProcMode(FourBand *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = FourBand_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = FourBand_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = FourBand_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = FourBand_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = FourBand_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = FourBand_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = FourBand_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = FourBand_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = FourBand_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+FourBand_compute_next_data_frame(FourBand *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = FourBandMain_getSamplesBuffer((FourBandMain *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+FourBand_traverse(FourBand *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainSplitter);
+    return 0;
+}
+
+static int 
+FourBand_clear(FourBand *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainSplitter);    
+    return 0;
+}
+
+static void
+FourBand_dealloc(FourBand* self)
+{
+    free(self->data);
+    FourBand_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * FourBand_deleteStream(FourBand *self) { DELETE_STREAM };
+
+static PyObject *
+FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    FourBand *self;
+    self = (FourBand *)type->tp_alloc(type, 0);
+    
+    self->chnl = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, FourBand_compute_next_data_frame);
+    self->mode_func_ptr = FourBand_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+FourBand_init(FourBand *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (FourBandMain *)maintmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * FourBand_getServer(FourBand* self) { GET_SERVER };
+static PyObject * FourBand_getStream(FourBand* self) { GET_STREAM };
+static PyObject * FourBand_setMul(FourBand *self, PyObject *arg) { SET_MUL };	
+static PyObject * FourBand_setAdd(FourBand *self, PyObject *arg) { SET_ADD };	
+static PyObject * FourBand_setSub(FourBand *self, PyObject *arg) { SET_SUB };	
+static PyObject * FourBand_setDiv(FourBand *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * FourBand_play(FourBand *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FourBand_out(FourBand *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * FourBand_stop(FourBand *self) { STOP };
+
+static PyObject * FourBand_multiply(FourBand *self, PyObject *arg) { MULTIPLY };
+static PyObject * FourBand_inplace_multiply(FourBand *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * FourBand_add(FourBand *self, PyObject *arg) { ADD };
+static PyObject * FourBand_inplace_add(FourBand *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * FourBand_sub(FourBand *self, PyObject *arg) { SUB };
+static PyObject * FourBand_inplace_sub(FourBand *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * FourBand_div(FourBand *self, PyObject *arg) { DIV };
+static PyObject * FourBand_inplace_div(FourBand *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef FourBand_members[] = {
+    {"server", T_OBJECT_EX, offsetof(FourBand, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(FourBand, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(FourBand, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(FourBand, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef FourBand_methods[] = {
+    {"getServer", (PyCFunction)FourBand_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)FourBand_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)FourBand_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)FourBand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)FourBand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)FourBand_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)FourBand_setMul, METH_O, "Sets FourBand mul factor."},
+    {"setAdd", (PyCFunction)FourBand_setAdd, METH_O, "Sets FourBand add factor."},
+    {"setSub", (PyCFunction)FourBand_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)FourBand_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods FourBand_as_number = {
+    (binaryfunc)FourBand_add,                      /*nb_add*/
+    (binaryfunc)FourBand_sub,                 /*nb_subtract*/
+    (binaryfunc)FourBand_multiply,                 /*nb_multiply*/
+    (binaryfunc)FourBand_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)FourBand_inplace_add,              /*inplace_add*/
+    (binaryfunc)FourBand_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)FourBand_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)FourBand_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject FourBandType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.FourBand_base",         /*tp_name*/
+    sizeof(FourBand),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)FourBand_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &FourBand_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "FourBand objects. Reads one band from a FourBandMain process.",           /* tp_doc */
+    (traverseproc)FourBand_traverse,   /* tp_traverse */
+    (inquiry)FourBand_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    FourBand_methods,             /* tp_methods */
+    FourBand_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)FourBand_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    FourBand_new,                 /* tp_new */
+};
