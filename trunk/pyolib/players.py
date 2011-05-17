@@ -27,6 +27,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from _core import *
 from _maps import *
 import aifc
+from types import ListType
 
 class SfPlayer(PyoObject):
     """
@@ -176,6 +177,22 @@ class SfPlayer(PyoObject):
             Full path of the new sound.
 
         """
+        if type(self._sound) == ListType:
+            curNchnls = sndinfo(self._sound[0])[3]
+        else:
+            curNchnls = sndinfo(self._sound)[3]
+        if type(path) == ListType:
+            p = path[0]
+        else:
+            p = path
+        try:
+            _snd_size, _dur, _snd_sr, _snd_chnls = sndinfo(p)
+        except:
+            return
+        if _snd_chnls != curNchnls:
+            print "Soundfile must contains exactly %d channels." % curNchnls
+            return
+    
         self._sound = path
         path, lmax = convertArgsToLists(path)
         [obj.setSound(wrap(path,i)) for i, obj in enumerate(self._base_players)]
