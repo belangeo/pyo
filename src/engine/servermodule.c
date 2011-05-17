@@ -442,7 +442,17 @@ Server_pa_init(Server *self)
         sampleFormat = paFloat32 | paNonInterleaved;
         streamCallback = pa_callback_nonInterleaved;
     }
-    else {
+    else if (hostId == paALSA) {
+        Server_debug(self, "Portaudio uses interleaved callback.\n");
+        Server_debug(self, "Using ALSA, if no input/output devices are specified, force to devices 0.\n");
+        if (self->input == -1 && self->output == -1) {
+            self->input = self->output = 0;
+            inDevice = outDevice = (PaDeviceIndex) 0;
+        }
+        sampleFormat = paFloat32;
+        streamCallback = pa_callback_interleaved;
+    }
+     else {
         Server_debug(self, "Portaudio uses interleaved callback.\n");
         sampleFormat = paFloat32;
         streamCallback = pa_callback_interleaved;
