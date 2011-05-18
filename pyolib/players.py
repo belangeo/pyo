@@ -33,9 +33,10 @@ class SfPlayer(PyoObject):
     """
     Soundfile player.
     
-    Reads audio data from a file, and can alter its pitch using one of 
-    several available interpolation types, as well as convert the sample 
-    rate to match the Server sampling rate setting.
+    Reads audio data from a file using one of several available interpolation 
+    types. User can alter its pitch with the `speed` attribute. The object
+    takes care of sampling rate conversion to match the Server sampling 
+    rate setting.
     
     Parent class: PyoObject
     
@@ -47,9 +48,9 @@ class SfPlayer(PyoObject):
         Transpose the pitch of input sound by this factor. 1 is the 
         original pitch, lower values play sound slower, and higher 
         values play sound faster. Negative values results in playing 
-        sound backward. At audio rate, fast changes between positive and
-        negative values can result in strong DC components in the output 
-        sound. Defaults to 1.
+        sound backward. Although the `speed` attribute accepts audio
+        rate signal, its value is updated only once per buffer size. 
+        Defaults to 1.
     loop : bool, optional
         If set to True, sound will play in loop. Defaults to False.
     offset : float, optional 
@@ -167,9 +168,8 @@ class SfPlayer(PyoObject):
         """
         Sets a new sound to read.
         
-        If the number of channels of the new sound doesn't match those 
-        of the sound loaded at initialization time, erratic behaviors 
-        can occur.
+        The number of channels of the new sound must match those 
+        of the sound loaded at initialization time.
         
         Parameters:
         
