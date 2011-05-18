@@ -1218,7 +1218,6 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
         }
     }
     else if (sp < 0) { /* reading backward */
-        /*** validate self->endPos on dir changes ***/
         if (self->startPos == -1 || self->lastDir != -1) {
             self->lastDir = self->startPos = -1;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
@@ -1877,7 +1876,7 @@ typedef struct {
     Stream *speed_stream;
     PyObject *mark;
     Stream *mark_stream;
-    int modebuffer[4];
+    int modebuffer[2];
     SNDFILE *sf;
     SF_INFO info;
     char *path;
@@ -1895,6 +1894,7 @@ typedef struct {
     MYFLT *markers;
     int markers_size;
     int old_mark;
+    int lastDir;
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfMarkerLooper;
 
@@ -1904,12 +1904,15 @@ static void SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir);
 
 static void
 SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
-    MYFLT sp, frac, bufpos, delta;
+    MYFLT sp, frac, bufpos, delta, tmp;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
-    
-    sp = PyFloat_AS_DOUBLE(self->speed);
-    
+   
+    if (self->modebuffer[0] == 0) 
+        sp = PyFloat_AS_DOUBLE(self->speed);
+    else
+        sp = Stream_getData((Stream *)self->speed_stream)[0];
+
     delta = MYFABS(sp) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
@@ -1917,12 +1920,18 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
     MYFLT buffer[totlen];
     MYFLT buffer2[self->sndChnls][buflen];
     
-    //printf("startPos: %f\nendPos: %f\npointerPos: %f\n", self->startPos, self->endPos, self->pointerPos);
-    if (sp > 0) {
-        if (self->startPos == -1) {
+    if (sp > 0) { /* reading forward */
+        if (self->startPos == -1 || self->lastDir == 0) {
+            self->lastDir = 1;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 1);
             self->pointerPos = self->startPos;
-        }    
+        }
+        if (self->lastDir != 1) {
+            tmp = self->startPos;
+            self->startPos = self->endPos;
+            self->endPos = tmp;
+            self->lastDir = 1;
+        }
         index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
         
@@ -1966,8 +1975,9 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             self->pointerPos = self->startPos + off;
         }
     }
-    else {
-        if (self->startPos == -1) {
+    else if (sp < 0) { /* reading backward */
+        if (self->startPos == -1 || self->lastDir != -1) {
+            self->lastDir = self->startPos = -1;
             SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 0);
             self->pointerPos = self->startPos;
         }    
@@ -2032,152 +2042,18 @@ SfMarkerLooper_readframes_i(SfMarkerLooper *self) {
             self->pointerPos = self->startPos - off;
         }
     }
+    else { /* speed == 0 */
+        self->lastDir = 0;
+        for (i = 0; i < (self->bufsize*self->sndChnls); i++) {
+            self->samplesBuffer[i] = 0.0;
+        }
+    }
 }    
-
-static void
-SfMarkerLooper_readframes_a(SfMarkerLooper *self) {
-    MYFLT frac, bufpos, delta;
-    int i, j, totlen, buflen, shortbuflen, bufindex;
-    sf_count_t index;
-    
-    MYFLT *spobj = Stream_getData((Stream *)self->speed_stream);
-    
-    MYFLT mini = min_arr(spobj, self->bufsize);
-    MYFLT maxi = max_arr(spobj, self->bufsize);
-    if (MYFABS(mini) > MYFABS(maxi))
-        maxi = mini;
-    delta = MYFABS(maxi) * self->srScale;
-    
-    buflen = (int)(self->bufsize * delta + 0.5) + 64;
-    totlen = self->sndChnls*buflen;
-    MYFLT buffer[totlen];
-    MYFLT buffer2[self->sndChnls][buflen];
-    
-    if (maxi > 0) {
-        if (self->startPos == -1) {
-            SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 1);
-            self->pointerPos = self->startPos;
-        }  
-        index = (int)self->pointerPos;
-        sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
-        
-        /* fill a buffer with enough samples to satisfy speed reading */
-        /* if not enough samples to read in the file */
-        if ((index+buflen) > self->endPos) {
-            shortbuflen = self->endPos - index;
-            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
-            
-            /* wrap around and read new samples if loop */
-            int pad = buflen - shortbuflen;
-            int padlen = pad*self->sndChnls;
-            MYFLT buftemp[padlen];
-            sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
-            SF_READ(self->sf, buftemp, padlen);
-            for (i=0; i<padlen; i++) {
-                buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
-            }
-        }
-        else /* without zero padding */
-            SF_READ(self->sf, buffer, totlen);
-        
-        /* de-interleave samples */
-        for (i=0; i<totlen; i++) {
-            buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
-        }
-        
-        /* fill stream buffer with samples */
-        for (i=0; i<self->bufsize; i++) {
-            bufpos = self->pointerPos - index;
-            bufindex = (int)bufpos;
-            frac = bufpos - bufindex;
-            for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }
-            self->pointerPos += spobj[i] * self->srScale;
-        }
-        if (self->pointerPos >= self->endPos) {
-            MYFLT off = self->pointerPos - self->endPos;
-            SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 1);
-            self->pointerPos = self->startPos + off;
-        } 
-    } 
-    else {
-        if (self->startPos == -1) {
-            SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 0);
-            self->pointerPos = self->startPos;
-        }
-        index = (int)self->pointerPos + 1;
-        
-        /* fill a buffer with enough samples to satisfy speed reading */
-        /* if not enough samples to read in the file */
-        if ((index-buflen) < self->endPos) {
-            shortbuflen = index - self->endPos;
-            int pad = buflen - shortbuflen;
-            int padlen = pad*self->sndChnls;
-            //SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
-            
-            /* wrap around and read new samples if loop */
-            MYFLT buftemp[padlen];
-            sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
-            SF_READ(self->sf, buftemp, padlen);
-            for (i=0; i<padlen; i++) {
-                buffer[i] = buftemp[i];
-            }
-        }
-        else { /* without zero padding */
-            sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            SF_READ(self->sf, buffer, totlen);
-        }
-        
-        /* de-interleave samples */
-        for (i=0; i<totlen; i++) {
-            buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
-        }
-        
-        /* reverse arrays */
-        MYFLT swap;
-        for (i=0; i<self->sndChnls; i++) {
-            int a;
-            int b = buflen; 
-            for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
-                swap = buffer2[i][a];       //put what's in a into swap space
-                buffer2[i][a] = buffer2[i][b];    //put what's in b into a
-                buffer2[i][b] = swap;       //put what's in the swap (a) into b
-            }
-        }
-        
-        /* fill stream buffer with samples */
-        for (i=0; i<self->bufsize; i++) {
-            bufpos = index - self->pointerPos;
-            bufindex = (int)bufpos;
-            frac = bufpos - bufindex;
-            for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }
-            self->pointerPos += spobj[i] * self->srScale;
-        }
-        if (self->pointerPos <= self->endPos) {
-            MYFLT off = self->endPos - self->pointerPos;
-            SfMarkerLooper_chooseNewMark((SfMarkerLooper *)self, 0);
-            self->pointerPos = self->startPos - off;
-        }
-    }    
-}
 
 static void
 SfMarkerLooper_setProcMode(SfMarkerLooper *self)
 {
-    int procmode;
-    procmode = self->modebuffer[2];
-    
-	switch (procmode) {
-        case 0:        
-            self->proc_func_ptr = SfMarkerLooper_readframes_i;
-            break;
-        case 1:    
-            self->proc_func_ptr = SfMarkerLooper_readframes_a;
-            break;
-    }     
+    self->proc_func_ptr = SfMarkerLooper_readframes_i;
 }
 
 static void
@@ -2191,18 +2067,16 @@ SfMarkerLooper_chooseNewMark(SfMarkerLooper *self, int dir)
 {
     int mark;
     
-    if (self->modebuffer[3] == 0)
+    if (self->modebuffer[1] == 0)
         mark = (int)(PyFloat_AS_DOUBLE(self->mark));
     else
         mark = (int)(Stream_getData((Stream *)self->mark_stream)[0]);
 
-    if (mark < 0 || mark >= self->markers_size)
-        mark = 0;
+    if (mark < 0 || mark >= self->markers_size) {
+        mark = self->markers_size / 2;
+    }
     
-    if (mark == self->old_mark)
-        return;
-    else
-        self->old_mark = mark;
+    self->old_mark = mark;
 
     if (dir == 1) {
         if (self->startPos == -1) {
@@ -2251,7 +2125,9 @@ SfMarkerLooper_traverse(SfMarkerLooper *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->speed);    
     Py_VISIT(self->speed_stream);    
-    return 0;
+    Py_VISIT(self->mark);    
+    Py_VISIT(self->mark_stream);    
+     return 0;
 }
 
 static int 
@@ -2260,6 +2136,8 @@ SfMarkerLooper_clear(SfMarkerLooper *self)
     pyo_CLEAR
     Py_CLEAR(self->speed);    
     Py_CLEAR(self->speed_stream);    
+    Py_CLEAR(self->mark);    
+    Py_CLEAR(self->mark_stream);    
     return 0;
 }
 
@@ -2289,9 +2167,9 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->startPos = -1;
     self->endPos = -1;
     self->old_mark = -1;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
+    self->lastDir = 1;
+    self->modebuffer[0] = 0;	
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLooper_compute_next_data_frame);
@@ -2381,7 +2259,7 @@ SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
 	Py_DECREF(self->speed);
 	if (isNumber == 1) {
 		self->speed = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
+        self->modebuffer[0] = 0;
 	}
 	else {
 		self->speed = tmp;
@@ -2389,10 +2267,8 @@ SfMarkerLooper_setSpeed(SfMarkerLooper *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
         self->speed_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
+		self->modebuffer[0] = 1;
 	}
-    
-    (*self->mode_func_ptr)(self);
     
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -2415,7 +2291,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
 	Py_DECREF(self->mark);
 	if (isNumber == 1) {
 		self->mark = PyNumber_Float(tmp);
-        self->modebuffer[3] = 0;
+        self->modebuffer[1] = 0;
 	}
 	else {
 		self->mark = tmp;
@@ -2423,7 +2299,7 @@ SfMarkerLooper_setMark(SfMarkerLooper *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->mark_stream);
         self->mark_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
+		self->modebuffer[1] = 1;
 	}
 
 	Py_INCREF(Py_None);

@@ -340,11 +340,6 @@ class SfMarkerShuffler(PyoObject):
     speed : float or PyoObject, Transposition factor.
     interp : int {1, 2, 3, 4}, Interpolation method.
  
-    Notes:
-    
-    Reading backward with fast changes at audio rate can generates strong 
-    DC in the resulting sound.
-    
     Examples:
     
     >>> s = Server().boot()
@@ -466,11 +461,14 @@ class SfMarkerLooper(PyoObject):
     """
     AIFF with markers soundfile looper.
 
-    Reads audio data from a AIFF file, and can alter its pitch using 
-    one of several available interpolation types, as well as convert 
-    the sample rate to match the Server sampling rate setting. The 
-    reading pointer loops a specific marker (set in the header of the 
-    file) until it received a new integer in the `mark` parameter.
+    Reads audio data from a AIFF file using one of several available 
+    interpolation types. User can alter its pitch with the `speed`
+    attribute. The object takes care of sampling rate conversion to 
+    match the Server sampling rate setting. 
+    
+    The reading pointer loops a specific marker (from the MARK chunk
+    in the header of the AIFF file) until it received a new integer 
+    in the `mark` attribute.
 
     Parent class: PyoObject
 
@@ -482,12 +480,12 @@ class SfMarkerLooper(PyoObject):
         Transpose the pitch of input sound by this factor. 1 is the 
         original pitch, lower values play sound slower, and higher 
         values play sound faster. Negative values results in playing 
-        sound backward. At audio rate, fast changes between positive and
-        negative values can result in strong DC components in the output 
-        sound. Defaults to 1.
+        sound backward. Although the `speed` attribute accepts audio
+        rate signal, its value is updated only once per buffer size. 
+        Defaults to 1.
     mark : float or PyoObject, optional
-        Integer denoting the marker to loop, in the range 0 -> len(getMarkers()).
-        Defaults to 0.
+        Integer denoting the marker to loop, in the range 
+        0 -> len(getMarkers()). Defaults to 0.
     interp : int, optional
         Choice of the interpolation method. Defaults to 2.
             1 : no interpolation
@@ -507,11 +505,6 @@ class SfMarkerLooper(PyoObject):
     speed : float or PyoObject, Transposition factor.
     mark : float or PyoObject, Marker to loop.
     interp : int {1, 2, 3, 4}, Interpolation method.
-
-    Notes:
-
-    Reading backward with fast changes at audio rate can generates strong 
-    DC in the resulting sound.
 
     Examples:
 
