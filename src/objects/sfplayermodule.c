@@ -1119,7 +1119,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *speed;
     Stream *speed_stream;
-    int modebuffer[3];
+    int modebuffer[1];
     SNDFILE *sf;
     SF_INFO info;
     char *path;
@@ -1127,6 +1127,7 @@ typedef struct {
     int sndSize; /* number of frames */
     int sndChnls;
     int sndSr;
+    int lastDir;
     MYFLT srScale;
     MYFLT startPos;
     MYFLT endPos;
@@ -1145,12 +1146,15 @@ static void SfMarkerShuffler_chooseNewMark(SfMarkerShuffler *self, int dir);
 
 static void
 SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
-    MYFLT sp, frac, bufpos, delta;
+    MYFLT sp, frac, bufpos, delta, tmp;
     int i, j, totlen, buflen, shortbuflen, bufindex;
     sf_count_t index;
-    
-    sp = PyFloat_AS_DOUBLE(self->speed);
-    
+
+    if (self->modebuffer[0] == 0)
+        sp = PyFloat_AS_DOUBLE(self->speed);
+    else
+        sp = Stream_getData((Stream *)self->speed_stream)[0];
+
     delta = MYFABS(sp) * self->srScale;
     
     buflen = (int)(self->bufsize * delta + 0.5) + 64;
@@ -1158,12 +1162,18 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
     MYFLT buffer[totlen];
     MYFLT buffer2[self->sndChnls][buflen];
 
-    //printf("startPos: %f\nendPos: %f\npointerPos: %f\n", self->startPos, self->endPos, self->pointerPos);
-    if (sp > 0) {
-        if (self->startPos == -1) {
+    if (sp > 0) { /* reading forward */
+        if (self->startPos == -1 || self->lastDir == 0) {
+            self->lastDir = 1;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 1);
             self->pointerPos = self->startPos;
-        }    
+        }
+        if (self->lastDir != 1) {
+            tmp = self->startPos;
+            self->startPos = self->endPos;
+            self->endPos = tmp;
+            self->lastDir = 1;
+        }
         index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
         
@@ -1173,17 +1183,17 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             shortbuflen = self->endPos - index;
             SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
 
-            /* wrap around and read new samples if loop */
+            /* wrap around and read new samples from new marker */
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
             MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
             SF_READ(self->sf, buftemp, padlen);
-            for (i=0; i<(padlen); i++) {
+            for (i=0; i<padlen; i++) {
                 buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
             }
         }
-        else /* without zero padding */
+        else /* without wraparound */
             SF_READ(self->sf, buffer, totlen);
         
         /* de-interleave samples */
@@ -1207,8 +1217,10 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             self->pointerPos = self->startPos + off;
         }
     }
-    else {
-        if (self->startPos == -1) {
+    else if (sp < 0) { /* reading backward */
+        /*** validate self->endPos on dir changes ***/
+        if (self->startPos == -1 || self->lastDir != -1) {
+            self->lastDir = self->startPos = -1;
             SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
             self->pointerPos = self->startPos;
         }    
@@ -1221,7 +1233,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             int pad = buflen - shortbuflen;
             int padlen = pad*self->sndChnls;
 
-            /* wrap around and read new samples if loop */
+            /* wrap around and read new samples from new marker */
             MYFLT buftemp[padlen];
             sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
             SF_READ(self->sf, buftemp, padlen);
@@ -1236,7 +1248,7 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
                 buffer[i+padlen] = buftemp2[i];
             }    
         }
-        else { /* without zero padding */
+        else { /* without wraparound */
             sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
             SF_READ(self->sf, buffer, totlen);
         }
@@ -1273,152 +1285,18 @@ SfMarkerShuffler_readframes_i(SfMarkerShuffler *self) {
             self->pointerPos = self->startPos - off;
         }
     }
+    else { /* speed == 0 */
+        self->lastDir = 0;
+        for (i = 0; i < (self->bufsize*self->sndChnls); i++) {
+            self->samplesBuffer[i] = 0.0;
+        }
+    }
 }    
-
-static void
-SfMarkerShuffler_readframes_a(SfMarkerShuffler *self) {
-    MYFLT frac, bufpos, delta;
-    int i, j, totlen, buflen, shortbuflen, bufindex;
-    sf_count_t index;
-    
-    MYFLT *spobj = Stream_getData((Stream *)self->speed_stream);
-    
-    MYFLT mini = min_arr(spobj, self->bufsize);
-    MYFLT maxi = max_arr(spobj, self->bufsize);
-    if (MYFABS(mini) > MYFABS(maxi))
-        maxi = mini;
-    delta = MYFABS(maxi) * self->srScale;
-    
-    buflen = (int)(self->bufsize * delta + 0.5) + 64;
-    totlen = self->sndChnls*buflen;
-    MYFLT buffer[totlen];
-    MYFLT buffer2[self->sndChnls][buflen];
-    
-    if (maxi > 0) {
-        if (self->startPos == -1) {
-            SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 1);
-            self->pointerPos = self->startPos;
-        }  
-        index = (int)self->pointerPos;
-        sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
-        
-        /* fill a buffer with enough samples to satisfy speed reading */
-        /* if not enough samples to read in the file */
-        if ((index+buflen) > self->endPos) {
-            shortbuflen = self->endPos - index;
-            SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
-            
-            /* wrap around and read new samples if loop */
-            int pad = buflen - shortbuflen;
-            int padlen = pad*self->sndChnls;
-            MYFLT buftemp[padlen];
-            sf_seek(self->sf, (int)self->nextStartPos, SEEK_SET);
-            SF_READ(self->sf, buftemp, padlen);
-            for (i=0; i<padlen; i++) {
-                buffer[i+shortbuflen*self->sndChnls] = buftemp[i];
-            }
-        }
-        else /* without zero padding */
-            SF_READ(self->sf, buffer, totlen);
-        
-        /* de-interleave samples */
-        for (i=0; i<totlen; i++) {
-            buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
-        }
-        
-        /* fill stream buffer with samples */
-        for (i=0; i<self->bufsize; i++) {
-            bufpos = self->pointerPos - index;
-            bufindex = (int)bufpos;
-            frac = bufpos - bufindex;
-            for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }
-            self->pointerPos += spobj[i] * self->srScale;
-        }
-        if (self->pointerPos >= self->endPos) {
-            MYFLT off = self->pointerPos - self->endPos;
-            SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 1);
-            self->pointerPos = self->startPos + off;
-        } 
-    } 
-    else {
-        if (self->startPos == -1) {
-            SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
-            self->pointerPos = self->startPos;
-        }
-        index = (int)self->pointerPos + 1;
-        
-        /* fill a buffer with enough samples to satisfy speed reading */
-        /* if not enough samples to read in the file */
-        if ((index-buflen) < self->endPos) {
-            shortbuflen = index - self->endPos;
-            int pad = buflen - shortbuflen;
-            int padlen = pad*self->sndChnls;
-            //SF_READ(self->sf, buffer, shortbuflen*self->sndChnls);
-
-            /* wrap around and read new samples if loop */
-            MYFLT buftemp[padlen];
-            sf_seek(self->sf, (int)self->nextStartPos-pad, SEEK_SET);
-            SF_READ(self->sf, buftemp, padlen);
-            for (i=0; i<padlen; i++) {
-                buffer[i] = buftemp[i];
-            }
-        }
-        else { /* without zero padding */
-            sf_seek(self->sf, index-buflen, SEEK_SET); /* sets position pointer in the file */
-            SF_READ(self->sf, buffer, totlen);
-        }
-        
-        /* de-interleave samples */
-        for (i=0; i<totlen; i++) {
-            buffer2[i%self->sndChnls][(int)(i/self->sndChnls)] = buffer[i];
-        }
-        
-        /* reverse arrays */
-        MYFLT swap;
-        for (i=0; i<self->sndChnls; i++) {
-            int a;
-            int b = buflen; 
-            for (a=0; a<--b; a++) { //increment a and decrement b until they meet eachother
-                swap = buffer2[i][a];       //put what's in a into swap space
-                buffer2[i][a] = buffer2[i][b];    //put what's in b into a
-                buffer2[i][b] = swap;       //put what's in the swap (a) into b
-            }
-        }
-        
-        /* fill stream buffer with samples */
-        for (i=0; i<self->bufsize; i++) {
-            bufpos = index - self->pointerPos;
-            bufindex = (int)bufpos;
-            frac = bufpos - bufindex;
-            for (j=0; j<self->sndChnls; j++) {
-                self->samplesBuffer[i+(j*self->bufsize)] = (*self->interp_func_ptr)(buffer2[j], bufindex, frac, buflen);
-            }
-            self->pointerPos += spobj[i] * self->srScale;
-        }
-        if (self->pointerPos <= self->endPos) {
-            MYFLT off = self->endPos - self->pointerPos;
-            SfMarkerShuffler_chooseNewMark((SfMarkerShuffler *)self, 0);
-            self->pointerPos = self->startPos - off;
-        }
-    }    
-}
 
 static void
 SfMarkerShuffler_setProcMode(SfMarkerShuffler *self)
 {
-    int procmode;
-    procmode = self->modebuffer[2];
-    
-	switch (procmode) {
-        case 0:        
-            self->proc_func_ptr = SfMarkerShuffler_readframes_i;
-            break;
-        case 1:    
-            self->proc_func_ptr = SfMarkerShuffler_readframes_a;
-            break;
-    }     
+    self->proc_func_ptr = SfMarkerShuffler_readframes_i;
 }
 
 static void
@@ -1520,9 +1398,7 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->startPos = -1;
     self->endPos = -1;
 	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-    
+    self->lastDir = 1;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffler_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerShuffler_setProcMode;
@@ -1607,7 +1483,7 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
 	Py_DECREF(self->speed);
 	if (isNumber == 1) {
 		self->speed = PyNumber_Float(tmp);
-        self->modebuffer[2] = 0;
+        self->modebuffer[0] = 0;
 	}
 	else {
 		self->speed = tmp;
@@ -1615,7 +1491,7 @@ SfMarkerShuffler_setSpeed(SfMarkerShuffler *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->speed_stream);
         self->speed_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
+		self->modebuffer[0] = 1;
 	}
     
     (*self->mode_func_ptr)(self);
