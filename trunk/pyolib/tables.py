@@ -1372,7 +1372,7 @@ class DataTable(PyoTableObject):
     >>> notes = [midiToHz(random.randint(60,84)) for i in range(10)]
     >>> tab = DataTable(size=10, init=notes)
     >>> ind = RandInt(10, 8)
-    >>> pit = Index(tab, ind)
+    >>> pit = TableIndex(tab, ind)
     >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.5).out()
 
     """
