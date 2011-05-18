@@ -298,26 +298,30 @@ class SfMarkerShuffler(PyoObject):
     """
     AIFF with markers soundfile shuffler.
     
-    Reads audio data from a AIFF file, and can alter its pitch using 
-    one of several available interpolation types, as well as convert 
-    the sample rate to match the Server sampling rate setting. The 
-    reading pointer choose randomly a marker (set in the header of the 
-    file) as its starting point and reads the samples until it reaches 
-    the following marker. Then, it choose another marker and so on...
+    Reads audio data from a AIFF file using one of several available 
+    interpolation types. User can alter its pitch with the `speed` 
+    attribute. The object takes care of sampling rate conversion to 
+    match the Server sampling rate setting. 
+    
+    The reading pointer randomly choose a marker (from the MARK chunk
+    in the header of the AIFF file) as its starting point and reads 
+    the samples until it reaches the following marker. Then, it choose 
+    another marker and reads from the new position and so on...
     
     Parent class: PyoObject
     
     Parameters:
     
     path : string
-        Full path name of the sound to read.
+        Full path name of the sound to read. Can't e changed after
+        initialization.
     speed : float or PyoObject, optional
         Transpose the pitch of input sound by this factor. 1 is the 
         original pitch, lower values play sound slower, and higher 
         values play sound faster. Negative values results in playing 
-        sound backward. At audio rate, fast changes between positive and
-        negative values can result in strong DC components in the output 
-        sound. Defaults to 1.
+        sound backward. Although the `speed` attribute accepts audio
+        rate signal, its value is updated only once per buffer size. 
+        Defaults to 1.
     interp : int, optional
         Choice of the interpolation method. Defaults to 2.
             1 : no interpolation
