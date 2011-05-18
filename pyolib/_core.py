@@ -23,7 +23,7 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
 
-PYO_VERSION = '0.4.0'
+PYO_VERSION = '0.4.1'
 
 import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
@@ -176,7 +176,22 @@ def class_args(cls):
     arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
     arg = arg.replace("self, ", "")
     return name + arg
-        
+
+def getVersion():
+    """
+    Returns the version number of the current pyo installation.
+
+    This function returns the version number of the current pyo
+    installation as a 3-ints tuple (major, minor, rev). 
+
+    The returned tuple for version '0.4.1' will look like :
+    
+    (0, 4, 1)
+
+    """
+    major, minor, rev = PYO_VERSION.split('.')
+    return (int(major), int(minor), int(rev))
+
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
 ######################################################################
