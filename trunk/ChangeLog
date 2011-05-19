@@ -1,4 +1,71 @@
-2010-02-29 belangeo <belangeo@gmail.com>
+2011-05-18 belangeo <belangeo@gmail.com>
+
+    * Added getVersion() function and upgrade version number to '0.4.1'.
+	- rev 645		
+
+2011-05-18 belangeo <belangeo@gmail.com>
+
+    * Improved soundfile player family (SfPlayer, SfMarkerShuffler and SfMarkerLooper).
+	- rev 644		
+
+2011-05-13 belangeo <belangeo@gmail.com>
+
+    * New object : FourBand (linear phase spectrum splitter).
+	- rev 640		
+
+2011-05-11 belangeo <belangeo@gmail.com>
+
+    * New object : ParaTable (parabola window function).
+	- rev 637		
+
+2011-05-11 belangeo <belangeo@gmail.com>
+
+    * Added 'outputAmp' argument to Compress and Gate. Useful to link several channels.
+	- rev 636
+
+2011-05-10 belangeo <belangeo@gmail.com>
+
+    * New object: Gate (noise gate).
+	- rev 635		
+
+2011-05-10 belangeo <belangeo@gmail.com>
+
+    * New object: Follower2 (different attack and release times).
+	- rev 634	
+
+2011-05-10 belangeo <belangeo@gmail.com>
+
+    * Completely redesigned Follower.
+	- rev 633	
+
+2011-05-10 belangeo <belangeo@gmail.com>
+
+    * Completely redesigned Compress.
+	- rev 632		
+
+2011-05-05 belangeo <belangeo@gmail.com>
+
+    * SigTo can be used with PyoObject as input value.
+	- rev 631		
+
+2011-05-03 belangeo <belangeo@gmail.com>
+ 
+    * Port filter optimization.
+	- rev 630		
+	
+	
+2011-05-03 belangeo <belangeo@gmail.com>	
+
+    * Fixed glitches in objects using recursive delay lines.
+	- rev 629
+
+2011-05-02	belangeo <belangeo@gmail.com>
+
+	* Fixed bug in Expseg and TrigExpseg "exp" argument initilization.		
+	- rev 624
+
+
+2011-02-29 belangeo <belangeo@gmail.com>
 
     * rev 622 - pyo 0.4.0 release.
 
