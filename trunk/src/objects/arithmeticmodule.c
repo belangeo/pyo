@@ -2685,3 +2685,419 @@ PyTypeObject M_PowType = {
     0,                         /* tp_alloc */
     M_Pow_new,                 /* tp_new */
 };
+
+/**************/
+/* M_Atan2 object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *b;
+    Stream *b_stream;
+    PyObject *a;
+    Stream *a_stream;
+    int modebuffer[4];
+} M_Atan2;
+
+static void
+M_Atan2_readframes_ii(M_Atan2 *self) {
+    int i;
+    
+    MYFLT b = PyFloat_AS_DOUBLE(self->b);
+    MYFLT a = PyFloat_AS_DOUBLE(self->a);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = MYATAN2(b, a);
+    }
+}
+
+static void
+M_Atan2_readframes_ai(M_Atan2 *self) {
+    int i;
+    
+    MYFLT *b = Stream_getData((Stream *)self->b_stream);
+    MYFLT a = PyFloat_AS_DOUBLE(self->a);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = MYATAN2(b[i], a);
+    }
+}
+
+static void
+M_Atan2_readframes_ia(M_Atan2 *self) {
+    int i;
+    
+    MYFLT b = PyFloat_AS_DOUBLE(self->b);
+    MYFLT *a = Stream_getData((Stream *)self->a_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = MYATAN2(b, a[i]);
+    }
+}
+
+static void
+M_Atan2_readframes_aa(M_Atan2 *self) {
+    int i;
+    
+    MYFLT *b = Stream_getData((Stream *)self->b_stream);
+    MYFLT *a = Stream_getData((Stream *)self->a_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = MYATAN2(b[i], a[i]);
+    }
+}
+
+static void M_Atan2_postprocessing_ii(M_Atan2 *self) { POST_PROCESSING_II };
+static void M_Atan2_postprocessing_ai(M_Atan2 *self) { POST_PROCESSING_AI };
+static void M_Atan2_postprocessing_ia(M_Atan2 *self) { POST_PROCESSING_IA };
+static void M_Atan2_postprocessing_aa(M_Atan2 *self) { POST_PROCESSING_AA };
+static void M_Atan2_postprocessing_ireva(M_Atan2 *self) { POST_PROCESSING_IREVA };
+static void M_Atan2_postprocessing_areva(M_Atan2 *self) { POST_PROCESSING_AREVA };
+static void M_Atan2_postprocessing_revai(M_Atan2 *self) { POST_PROCESSING_REVAI };
+static void M_Atan2_postprocessing_revaa(M_Atan2 *self) { POST_PROCESSING_REVAA };
+static void M_Atan2_postprocessing_revareva(M_Atan2 *self) { POST_PROCESSING_REVAREVA };
+
+static void
+M_Atan2_setProcMode(M_Atan2 *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = M_Atan2_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = M_Atan2_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = M_Atan2_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = M_Atan2_readframes_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = M_Atan2_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = M_Atan2_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = M_Atan2_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = M_Atan2_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = M_Atan2_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = M_Atan2_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = M_Atan2_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = M_Atan2_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = M_Atan2_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+M_Atan2_compute_next_data_frame(M_Atan2 *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+M_Atan2_traverse(M_Atan2 *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->b);    
+    Py_VISIT(self->b_stream);    
+    Py_VISIT(self->a);    
+    Py_VISIT(self->a_stream);    
+    return 0;
+}
+
+static int 
+M_Atan2_clear(M_Atan2 *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->b);    
+    Py_CLEAR(self->b_stream);    
+    Py_CLEAR(self->a);    
+    Py_CLEAR(self->a_stream);    
+    return 0;
+}
+
+static void
+M_Atan2_dealloc(M_Atan2* self)
+{
+    free(self->data);
+    M_Atan2_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * M_Atan2_deleteStream(M_Atan2 *self) { DELETE_STREAM };
+
+static PyObject *
+M_Atan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    M_Atan2 *self;
+    self = (M_Atan2 *)type->tp_alloc(type, 0);
+    
+    self->a = PyFloat_FromDouble(1);
+    self->b = PyFloat_FromDouble(1);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, M_Atan2_compute_next_data_frame);
+    self->mode_func_ptr = M_Atan2_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+M_Atan2_init(M_Atan2 *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *btmp=NULL, *atmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"b", "a", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &btmp, &atmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (btmp) {
+        PyObject_CallMethod((PyObject *)self, "setB", "O", btmp);
+    }
+    
+    if (atmp) {
+        PyObject_CallMethod((PyObject *)self, "setA", "O", atmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+        
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * M_Atan2_getServer(M_Atan2* self) { GET_SERVER };
+static PyObject * M_Atan2_getStream(M_Atan2* self) { GET_STREAM };
+static PyObject * M_Atan2_setMul(M_Atan2 *self, PyObject *arg) { SET_MUL };	
+static PyObject * M_Atan2_setAdd(M_Atan2 *self, PyObject *arg) { SET_ADD };	
+static PyObject * M_Atan2_setSub(M_Atan2 *self, PyObject *arg) { SET_SUB };	
+static PyObject * M_Atan2_setDiv(M_Atan2 *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * M_Atan2_play(M_Atan2 *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * M_Atan2_out(M_Atan2 *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * M_Atan2_stop(M_Atan2 *self) { STOP };
+
+static PyObject * M_Atan2_multiply(M_Atan2 *self, PyObject *arg) { MULTIPLY };
+static PyObject * M_Atan2_inplace_multiply(M_Atan2 *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * M_Atan2_add(M_Atan2 *self, PyObject *arg) { ADD };
+static PyObject * M_Atan2_inplace_add(M_Atan2 *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * M_Atan2_sub(M_Atan2 *self, PyObject *arg) { SUB };
+static PyObject * M_Atan2_inplace_sub(M_Atan2 *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * M_Atan2_div(M_Atan2 *self, PyObject *arg) { DIV };
+static PyObject * M_Atan2_inplace_div(M_Atan2 *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+M_Atan2_setB(M_Atan2 *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->b);
+	if (isNumber == 1) {
+		self->b = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->b = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->b, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->b_stream);
+        self->b_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+M_Atan2_setA(M_Atan2 *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->a);
+	if (isNumber == 1) {
+		self->a = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->a = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->a, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->a_stream);
+        self->a_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef M_Atan2_members[] = {
+    {"server", T_OBJECT_EX, offsetof(M_Atan2, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(M_Atan2, stream), 0, "Stream object."},
+    {"b", T_OBJECT_EX, offsetof(M_Atan2, b), 0, "b composant."},
+    {"a", T_OBJECT_EX, offsetof(M_Atan2, a), 0, "a composant."},
+    {"mul", T_OBJECT_EX, offsetof(M_Atan2, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(M_Atan2, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef M_Atan2_methods[] = {
+    {"getServer", (PyCFunction)M_Atan2_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)M_Atan2_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)M_Atan2_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)M_Atan2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)M_Atan2_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)M_Atan2_stop, METH_NOARGS, "Stops computing."},
+    {"setB", (PyCFunction)M_Atan2_setB, METH_O, "Sets b."},
+    {"setA", (PyCFunction)M_Atan2_setA, METH_O, "Sets a."},
+    {"setMul", (PyCFunction)M_Atan2_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)M_Atan2_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)M_Atan2_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)M_Atan2_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods M_Atan2_as_number = {
+    (binaryfunc)M_Atan2_add,                      /*nb_add*/
+    (binaryfunc)M_Atan2_sub,                 /*nb_subtract*/
+    (binaryfunc)M_Atan2_multiply,                 /*nb_multiply*/
+    (binaryfunc)M_Atan2_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)M_Atan2_inplace_add,              /*inplace_add*/
+    (binaryfunc)M_Atan2_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)M_Atan2_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)M_Atan2_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject M_Atan2Type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.M_Atan2_base",         /*tp_name*/
+    sizeof(M_Atan2),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)M_Atan2_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &M_Atan2_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "M_Atan2 objects. Atan2er function.",           /* tp_doc */
+    (traverseproc)M_Atan2_traverse,   /* tp_traverse */
+    (inquiry)M_Atan2_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    M_Atan2_methods,             /* tp_methods */
+    M_Atan2_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)M_Atan2_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    M_Atan2_new,                 /* tp_new */
+};

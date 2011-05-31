@@ -1178,10 +1178,10 @@ class Hilbert(PyoObject):
     are in quadrature.
 
     Hilbert is useful in the implementation of many digital signal processing 
-    techniques that require a signal in phase quadrature. ar1 corresponds to the 
-    cosine output of hilbert, while ar2 corresponds to the sine output. The two 
-    outputs have a constant phase difference throughout the audio range that 
-    corresponds to the phase relationship between cosine and sine waves.
+    techniques that require a signal in phase quadrature. The real part corresponds 
+    to the cosine output of hilbert, while the imaginary part corresponds to the 
+    sine output. The two outputs have a constant phase difference throughout the 
+    audio range that corresponds to the phase relationship between cosine and sine waves.
     
     Parent class : PyoObject
     

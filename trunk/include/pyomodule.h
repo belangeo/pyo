@@ -70,6 +70,7 @@
 #define MYFLOOR floorf
 #define MYTANH tanhf
 #define MYATAN atanf
+#define MYATAN2 atan2f
 #define MYEXP expf
 
 #else
@@ -118,6 +119,7 @@
 #define MYFLOOR floor
 #define MYTANH tanh
 #define MYATAN atan
+#define MYATAN2 atan2
 #define MYEXP exp
 
 
@@ -313,7 +315,11 @@ extern PyTypeObject M_LogType;
 extern PyTypeObject M_Log2Type;
 extern PyTypeObject M_Log10Type;
 extern PyTypeObject M_PowType;
+extern PyTypeObject M_Atan2Type;
 
+extern PyTypeObject FFTMainType;
+extern PyTypeObject FFTType;
+extern PyTypeObject IFFTType;
 /* Constants */
 #define E M_E
 #define PI M_PI

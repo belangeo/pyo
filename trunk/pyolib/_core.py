@@ -366,7 +366,10 @@ class PyoObject(object):
         if type(i) == SliceType or i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"         
+            if type(i) == StringType:
+                print "Object %s has no stream named '%s'!" % (self.__class__, i)
+            else:
+                print "'i' too large!"         
  
     def __len__(self):
         return len(self._base_objs)

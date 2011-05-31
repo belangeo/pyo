@@ -866,7 +866,8 @@ class Grapher(wx.Panel):
         self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
         self.Bind(wx.EVT_MOTION, self.MouseMotion)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
-        
+        self.Bind(wx.EVT_SIZE, self.OnResize)
+
         self.mode = mode
         self.exp = exp
         self.inverse = inverse
@@ -952,6 +953,10 @@ class Grapher(wx.Panel):
         if self.outFunction != None:
             values = self.getValues()
             self.outFunction(values)
+
+    def OnResize(self, evt):
+        self.Refresh()
+        evt.Skip()
 
     def OnLeave(self, evt):
         self.pos = (OFF+RAD,OFF+RAD)
@@ -1224,7 +1229,7 @@ class TableGrapher(wx.Frame):
             self.Bind(wx.EVT_MENU, self.reset, id=10002)
             self.menubar.Append(self.fileMenu, "&File")
             self.SetMenuBar(self.menubar)
-
+            
             self.clipboard = wx.Clipboard()
 
         def close(self, evt):

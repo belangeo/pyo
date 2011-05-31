@@ -48,12 +48,12 @@ if '--use-coreaudio' in sys.argv:
     
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
-        'interpolation.c']
+        'interpolation.c', 'fft.c', "wind.c"]
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c', 'matrixmodule.c', 'oscilmodule.c', 'filtremodule.c', 
-        'noisemodule.c', 'distomodule.c',
+files = ['fftmodule.c', 'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c', 'matrixmodule.c', 
+        'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'oscmodule.c', 'delaymodule.c',
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
         'selectmodule.c', 'freeverbmodule.c', 'granulatormodule.c', 'compressmodule.c', 'analysismodule.c',
