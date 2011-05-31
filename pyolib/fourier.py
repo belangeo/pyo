@@ -39,7 +39,7 @@ class FFT(PyoObject):
     domain. Three audio signals are sent out of the object, the
     `real` and the `imaginary` parts for the real spectrum from bin
     0 to bin size/2-1, and the bin number, an increasing count from
-    0 to size/2-1. See "Notes" for an example of how to retrieve
+    0 to size/2-1. See notes below for an example of how to retrieve
     each signal component.
     
     Parent class : PyoObject
@@ -74,8 +74,8 @@ class FFT(PyoObject):
     
     setInput(x, fadetime) : Replace the `input` attribute.
     setSize(x) : Replace the `size` attribute.
-    setWintype(x) : Replace the `wintype` attribute. 
-    get(identifier, all) : Return the first sample of the current 
+    setWinType(x) : Replace the `wintype` attribute. 
+    get(identifier, all) : Return the first sample of the current
         buffer as a float.
 
     Attributes:
@@ -335,7 +335,7 @@ class IFFT(PyoObject):
     setInReal(x, fadetime) : Replace the `inreal` attribute.
     setInImag(x, fadetime) : Replace the `inmag` attribute.
     setSize(x) : Replace the `size` attribute.
-    setWintype(x) : Replace the `wintype` attribute. 
+    setWinType(x) : Replace the `wintype` attribute. 
 
     Attributes:
     
