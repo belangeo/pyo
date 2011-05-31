@@ -1378,7 +1378,12 @@ init_pyo64(void)
         return;
     Py_INCREF(&M_PowType);
     PyModule_AddObject(m, "M_Pow_base", (PyObject *)&M_PowType);    
-    
+
+    if (PyType_Ready(&M_Atan2Type) < 0)
+        return;
+    Py_INCREF(&M_Atan2Type);
+    PyModule_AddObject(m, "M_Atan2_base", (PyObject *)&M_Atan2Type);    
+
     if (PyType_Ready(&SnapType) < 0)
         return;
     Py_INCREF(&SnapType);
@@ -1393,5 +1398,20 @@ init_pyo64(void)
         return;
     Py_INCREF(&SampHoldType);
     PyModule_AddObject(m, "SampHold_base", (PyObject *)&SampHoldType);
+
+    if (PyType_Ready(&FFTMainType) < 0)
+        return;
+    Py_INCREF(&FFTMainType);
+    PyModule_AddObject(m, "FFTMain_base", (PyObject *)&FFTMainType);
+
+    if (PyType_Ready(&FFTType) < 0)
+        return;
+    Py_INCREF(&FFTType);
+    PyModule_AddObject(m, "FFT_base", (PyObject *)&FFTType);
+
+    if (PyType_Ready(&IFFTType) < 0)
+        return;
+    Py_INCREF(&IFFTType);
+    PyModule_AddObject(m, "IFFT_base", (PyObject *)&IFFTType);
     
 }

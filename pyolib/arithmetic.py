@@ -673,3 +673,97 @@ class Pow(PyoObject):
         return self._exponent
     @exponent.setter
     def exponent(self, x): self.setExponent(x)
+
+class Atan2(PyoObject):
+    """
+    Computes the principal value of the arc tangent of b/a.
+
+    Computes the principal value of the arc tangent of b/a, 
+    using the signs of both arguments to determine the quadrant 
+    of the return value.
+
+    Parameters:
+
+    b : float or PyoObject, optional
+        Numerator. Defaults to 1.
+    a : float or PyoObject, optional
+        Denominator. Defaults to 1.
+
+    Methods:
+
+    setB(x) : Replace the `b` attribute.
+    setA(x) : Replace the `a` attribute.
+
+    Attributes:
+
+    b : float or PyoObject, Numerator.
+    a : float or PyoObject, Denominator.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # simple disto
+    >>> a = Sine(freq=200)
+    >>> lf = Sine(freq=1, mul=.2, add=.2)
+    >>> dist = Atan2(a, lf)
+    >>> lp = Tone(dist, freq=2000, mul=.1).out()
+
+    """
+    def __init__(self, b=10, a=1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._b = b
+        self._a = a
+        self._mul = mul
+        self._add = add
+        b, a, mul, add, lmax = convertArgsToLists(b, a, mul, add)
+        self._base_objs = [M_Atan2_base(wrap(b,i), wrap(a,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['b', 'a', 'mul', 'add']
+
+    def setB(self, x):
+        """
+        Replace the `b` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `b` attribute.
+
+        """
+        self._b = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setB(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setA(self, x):
+        """
+        Replace the `a` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `a` attribute.
+
+        """
+        self._a = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setA(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def b(self):
+        """float or PyoObject. Numerator.""" 
+        return self._b
+    @b.setter
+    def b(self, x): self.setB(x)
+
+    @property
+    def a(self):
+        """float or PyoObject. Denominator.""" 
+        return self._a
+    @a.setter
+    def a(self, x): self.setA(x)
