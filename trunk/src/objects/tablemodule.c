@@ -1016,6 +1016,8 @@ LinTable_generate(LinTable *self) {
         y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
         y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
         steps = y1 - x1;
+        if (steps <= 0)
+            continue;
         diff = (y2 - x2) / steps;
         for(j=0; j<steps; j++) {
             self->data[x1+j] = x2 + diff * j;
@@ -1293,6 +1295,8 @@ CosTable_generate(CosTable *self) {
         y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
         
         steps = y1 - x1;
+        if (steps <= 0)
+            continue;
         for(j=0; j<steps; j++) {
             mu = (MYFLT)j / steps;
             mu2 = (1.0-MYCOS(mu*PI))/2.0;
@@ -1595,6 +1599,8 @@ CurveTable_generate(CurveTable *self) {
         y0 = values[i-1]; y1 = values[i]; y2 = values[i+1]; y3 = values[i+2];
         
         steps = x2 - x1;
+        if (steps <= 0)
+            continue;
         for(j=0; j<steps; j++) {
             mu = (MYFLT)j / steps;
             mu2 = mu * mu;
@@ -1931,6 +1937,8 @@ ExpTable_generate(ExpTable *self) {
         
         range = y2 - y1;
         steps = x2 - x1;
+        if (steps <= 0)
+            continue;
         inc = 1.0 / steps;
         pointer = 0.0;
         if (self->inverse == 1) {

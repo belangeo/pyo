@@ -1,3 +1,8 @@
+2011-06-01 belangeo <belangeo@gmail.com>
+
+	* Protected (self->steps == 0) in line generation to avoid division by zero.
+	- rev 654
+
 2011-05-31 belangeo <belangeo@gmail.com>
 
 	* Added Fast Fourier Transform (FFT, IFFT).
