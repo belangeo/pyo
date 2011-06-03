@@ -800,7 +800,6 @@ static PyObject * IFFT_inplace_sub(IFFT *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * IFFT_div(IFFT *self, PyObject *arg) { DIV };
 static PyObject * IFFT_inplace_div(IFFT *self, PyObject *arg) { INPLACE_DIV };
 
-/* Not used */
 static PyObject *
 IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
 {
@@ -944,5 +943,597 @@ PyTypeObject IFFTType = {
     (initproc)IFFT_init,      /* tp_init */
     0,                         /* tp_alloc */
     IFFT_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input; /* real input */
+    Stream *input_stream;
+    PyObject *input2; /* imag input */
+    Stream *input2_stream;
+    int modebuffer[2];
+    int chnl; // 0 = mag, 1 = ang
+} CarToPol;
+
+static void
+CarToPol_generate(CarToPol *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+
+    if (self->chnl == 0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYSQRT(in[i]*in[i] + in2[i]*in2[i]);
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = MYATAN2(in2[i], in[i]);
+        }
+    }
+}
+
+static void CarToPol_postprocessing_ii(CarToPol *self) { POST_PROCESSING_II };
+static void CarToPol_postprocessing_ai(CarToPol *self) { POST_PROCESSING_AI };
+static void CarToPol_postprocessing_ia(CarToPol *self) { POST_PROCESSING_IA };
+static void CarToPol_postprocessing_aa(CarToPol *self) { POST_PROCESSING_AA };
+static void CarToPol_postprocessing_ireva(CarToPol *self) { POST_PROCESSING_IREVA };
+static void CarToPol_postprocessing_areva(CarToPol *self) { POST_PROCESSING_AREVA };
+static void CarToPol_postprocessing_revai(CarToPol *self) { POST_PROCESSING_REVAI };
+static void CarToPol_postprocessing_revaa(CarToPol *self) { POST_PROCESSING_REVAA };
+static void CarToPol_postprocessing_revareva(CarToPol *self) { POST_PROCESSING_REVAREVA };
+
+static void
+CarToPol_setProcMode(CarToPol *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = CarToPol_generate;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = CarToPol_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = CarToPol_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = CarToPol_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = CarToPol_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = CarToPol_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = CarToPol_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = CarToPol_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = CarToPol_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = CarToPol_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+CarToPol_compute_next_data_frame(CarToPol *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+CarToPol_traverse(CarToPol *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    return 0;
+}
+
+static int 
+CarToPol_clear(CarToPol *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    return 0;
+}
+
+static void
+CarToPol_dealloc(CarToPol* self)
+{
+    free(self->data);
+    CarToPol_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * CarToPol_deleteStream(CarToPol *self) { DELETE_STREAM };
+
+static PyObject *
+CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    CarToPol *self;
+    self = (CarToPol *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, CarToPol_compute_next_data_frame);
+    self->mode_func_ptr = CarToPol_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+CarToPol_init(CarToPol *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * CarToPol_getServer(CarToPol* self) { GET_SERVER };
+static PyObject * CarToPol_getStream(CarToPol* self) { GET_STREAM };
+static PyObject * CarToPol_setMul(CarToPol *self, PyObject *arg) { SET_MUL };	
+static PyObject * CarToPol_setAdd(CarToPol *self, PyObject *arg) { SET_ADD };	
+static PyObject * CarToPol_setSub(CarToPol *self, PyObject *arg) { SET_SUB };	
+static PyObject * CarToPol_setDiv(CarToPol *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * CarToPol_play(CarToPol *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CarToPol_stop(CarToPol *self) { STOP };
+
+static PyObject * CarToPol_multiply(CarToPol *self, PyObject *arg) { MULTIPLY };
+static PyObject * CarToPol_inplace_multiply(CarToPol *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * CarToPol_add(CarToPol *self, PyObject *arg) { ADD };
+static PyObject * CarToPol_inplace_add(CarToPol *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * CarToPol_sub(CarToPol *self, PyObject *arg) { SUB };
+static PyObject * CarToPol_inplace_sub(CarToPol *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * CarToPol_div(CarToPol *self, PyObject *arg) { DIV };
+static PyObject * CarToPol_inplace_div(CarToPol *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef CarToPol_members[] = {
+    {"server", T_OBJECT_EX, offsetof(CarToPol, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CarToPol, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(CarToPol, input), 0, "Real sound object."},
+    {"input2", T_OBJECT_EX, offsetof(CarToPol, input2), 0, "Imaginary sound object."},
+    {"mul", T_OBJECT_EX, offsetof(CarToPol, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(CarToPol, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CarToPol_methods[] = {
+    {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)CarToPol_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)CarToPol_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CarToPol_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)CarToPol_setMul, METH_O, "Sets CarToPol mul factor."},
+    {"setAdd", (PyCFunction)CarToPol_setAdd, METH_O, "Sets CarToPol add factor."},
+    {"setSub", (PyCFunction)CarToPol_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)CarToPol_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods CarToPol_as_number = {
+    (binaryfunc)CarToPol_add,                      /*nb_add*/
+    (binaryfunc)CarToPol_sub,                 /*nb_subtract*/
+    (binaryfunc)CarToPol_multiply,                 /*nb_multiply*/
+    (binaryfunc)CarToPol_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)CarToPol_inplace_add,              /*inplace_add*/
+    (binaryfunc)CarToPol_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)CarToPol_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)CarToPol_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject CarToPolType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.CarToPol_base",         /*tp_name*/
+    sizeof(CarToPol),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CarToPol_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &CarToPol_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "CarToPol objects. Cartesian to polar transform.",           /* tp_doc */
+    (traverseproc)CarToPol_traverse,   /* tp_traverse */
+    (inquiry)CarToPol_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    CarToPol_methods,             /* tp_methods */
+    CarToPol_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)CarToPol_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    CarToPol_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input; /* mag input */
+    Stream *input_stream;
+    PyObject *input2; /* ang input */
+    Stream *input2_stream;
+    int modebuffer[2];
+    int chnl; // 0 = real, 1 = imag
+} PolToCar;
+
+static void
+PolToCar_generate(PolToCar *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    if (self->chnl == 0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = in[i] * MYCOS(in2[i]);
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = in[i] * MYSIN(in2[i]);
+        }
+    }
+}
+
+static void PolToCar_postprocessing_ii(PolToCar *self) { POST_PROCESSING_II };
+static void PolToCar_postprocessing_ai(PolToCar *self) { POST_PROCESSING_AI };
+static void PolToCar_postprocessing_ia(PolToCar *self) { POST_PROCESSING_IA };
+static void PolToCar_postprocessing_aa(PolToCar *self) { POST_PROCESSING_AA };
+static void PolToCar_postprocessing_ireva(PolToCar *self) { POST_PROCESSING_IREVA };
+static void PolToCar_postprocessing_areva(PolToCar *self) { POST_PROCESSING_AREVA };
+static void PolToCar_postprocessing_revai(PolToCar *self) { POST_PROCESSING_REVAI };
+static void PolToCar_postprocessing_revaa(PolToCar *self) { POST_PROCESSING_REVAA };
+static void PolToCar_postprocessing_revareva(PolToCar *self) { POST_PROCESSING_REVAREVA };
+
+static void
+PolToCar_setProcMode(PolToCar *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = PolToCar_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = PolToCar_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = PolToCar_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = PolToCar_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = PolToCar_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = PolToCar_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = PolToCar_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = PolToCar_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = PolToCar_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = PolToCar_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+PolToCar_compute_next_data_frame(PolToCar *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+PolToCar_traverse(PolToCar *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    return 0;
+}
+
+static int 
+PolToCar_clear(PolToCar *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    return 0;
+}
+
+static void
+PolToCar_dealloc(PolToCar* self)
+{
+    free(self->data);
+    PolToCar_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * PolToCar_deleteStream(PolToCar *self) { DELETE_STREAM };
+
+static PyObject *
+PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PolToCar *self;
+    self = (PolToCar *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PolToCar_compute_next_data_frame);
+    self->mode_func_ptr = PolToCar_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+PolToCar_init(PolToCar *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * PolToCar_getServer(PolToCar* self) { GET_SERVER };
+static PyObject * PolToCar_getStream(PolToCar* self) { GET_STREAM };
+static PyObject * PolToCar_setMul(PolToCar *self, PyObject *arg) { SET_MUL };	
+static PyObject * PolToCar_setAdd(PolToCar *self, PyObject *arg) { SET_ADD };	
+static PyObject * PolToCar_setSub(PolToCar *self, PyObject *arg) { SET_SUB };	
+static PyObject * PolToCar_setDiv(PolToCar *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * PolToCar_play(PolToCar *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PolToCar_stop(PolToCar *self) { STOP };
+
+static PyObject * PolToCar_multiply(PolToCar *self, PyObject *arg) { MULTIPLY };
+static PyObject * PolToCar_inplace_multiply(PolToCar *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * PolToCar_add(PolToCar *self, PyObject *arg) { ADD };
+static PyObject * PolToCar_inplace_add(PolToCar *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * PolToCar_sub(PolToCar *self, PyObject *arg) { SUB };
+static PyObject * PolToCar_inplace_sub(PolToCar *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * PolToCar_div(PolToCar *self, PyObject *arg) { DIV };
+static PyObject * PolToCar_inplace_div(PolToCar *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef PolToCar_members[] = {
+    {"server", T_OBJECT_EX, offsetof(PolToCar, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(PolToCar, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(PolToCar, input), 0, "Magnitude sound object."},
+    {"input2", T_OBJECT_EX, offsetof(PolToCar, input2), 0, "Angle sound object."},
+    {"mul", T_OBJECT_EX, offsetof(PolToCar, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(PolToCar, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef PolToCar_methods[] = {
+    {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)PolToCar_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)PolToCar_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)PolToCar_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)PolToCar_setMul, METH_O, "Sets PolToCar mul factor."},
+    {"setAdd", (PyCFunction)PolToCar_setAdd, METH_O, "Sets PolToCar add factor."},
+    {"setSub", (PyCFunction)PolToCar_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)PolToCar_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods PolToCar_as_number = {
+    (binaryfunc)PolToCar_add,                      /*nb_add*/
+    (binaryfunc)PolToCar_sub,                 /*nb_subtract*/
+    (binaryfunc)PolToCar_multiply,                 /*nb_multiply*/
+    (binaryfunc)PolToCar_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)PolToCar_inplace_add,              /*inplace_add*/
+    (binaryfunc)PolToCar_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)PolToCar_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)PolToCar_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject PolToCarType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.PolToCar_base",         /*tp_name*/
+    sizeof(PolToCar),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)PolToCar_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &PolToCar_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "PolToCar objects. Polar to cartesian transform.",           /* tp_doc */
+    (traverseproc)PolToCar_traverse,   /* tp_traverse */
+    (inquiry)PolToCar_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    PolToCar_methods,             /* tp_methods */
+    PolToCar_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)PolToCar_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    PolToCar_new,                 /* tp_new */
 };
 

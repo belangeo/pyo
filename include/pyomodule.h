@@ -320,6 +320,9 @@ extern PyTypeObject M_Atan2Type;
 extern PyTypeObject FFTMainType;
 extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;
+extern PyTypeObject CarToPolType;
+extern PyTypeObject PolToCarType;
+
 /* Constants */
 #define E M_E
 #define PI M_PI

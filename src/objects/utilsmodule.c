@@ -825,11 +825,11 @@ Interp_init(Interp *self, PyObject *args, PyObject *kwds)
     
     INIT_INPUT_STREAM
 
-    Py_XDECREF(self->input2); \
-    self->input2 = input2tmp; \
-    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL); \
-    Py_INCREF(input2_streamtmp); \
-    Py_XDECREF(self->input2_stream); \
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
     self->input2_stream = (Stream *)input2_streamtmp;
     
     if (interptmp) {

@@ -1413,5 +1413,15 @@ init_pyo64(void)
         return;
     Py_INCREF(&IFFTType);
     PyModule_AddObject(m, "IFFT_base", (PyObject *)&IFFTType);
+
+    if (PyType_Ready(&CarToPolType) < 0)
+        return;
+    Py_INCREF(&CarToPolType);
+    PyModule_AddObject(m, "CarToPol_base", (PyObject *)&CarToPolType);
+
+    if (PyType_Ready(&PolToCarType) < 0)
+        return;
+    Py_INCREF(&PolToCarType);
+    PyModule_AddObject(m, "PolToCar_base", (PyObject *)&PolToCarType);
     
 }
