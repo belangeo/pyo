@@ -778,3 +778,209 @@ class PolToCar(PyoObject):
     @inang.setter
     def inang(self, x): self.setInAng(x)
 
+class FrameDelta(PyoObject):
+    """
+    Computes the phase differences between successive frames..
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Phase input signal.
+    frameSize : int, optional
+        Frame size in samples. Usually half of the FFT frame.
+        Defaults to 512.
+
+    Methods:
+
+    setInPut(x, fadetime) : Replace the `input` attribute.
+    setFrameSize(x) : Replace the `frameSize` attribute.
+
+    Attributes:
+
+    input : PyoObject. Phase input signal.
+    frameSize : int. Frame size in samples.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
+    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
+    >>> fin1 = FFT(snd1, size=1024, overlaps=4)
+    >>> fin2 = FFT(snd2, size=1024, overlaps=4)
+    >>> # get magnitudes and phases of input sounds
+    >>> pol1 = CarToPol(fin1["real"], fin1["imag"])
+    >>> pol2 = CarToPol(fin2["real"], fin2["imag"])
+    >>> # times magnitudes and adds phases
+    >>> mag = pol1["mag"] * pol2["mag"] * 100
+    >>> pha = pol1["ang"] + pol2["ang"]
+    >>> # converts back to rectangular
+    >>> car = PolToCar(mag, pha)
+    >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+
+    """
+    def __init__(self, input, frameSize=512, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._frameSize = frameSize
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, frameSize, mul, add, lmax = convertArgsToLists(self._in_fader, frameSize, mul, add)
+        self._base_objs = [FrameDelta_base(wrap(in_fader,i), wrap(frameSize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'frameSize', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFrameSize(self, x):
+        """
+        Replace the `frameSize` attribute.
+
+        Parameters:
+
+        x : int
+            new `frameSize` attribute.
+
+        """
+        self._frameSize = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFrameSize(wrap(x,i)) for i, obj in self._base_objs]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Phase input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def frameSize(self):
+        """PyoObject. Frame size in samples.""" 
+        return self._frameSize
+    @frameSize.setter
+    def frameSize(self, x): self.setFrameSize(x)
+
+class FrameAccum(PyoObject):
+    """
+    Accumulates the phase differences between successive frames..
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Phase input signal.
+    frameSize : int, optional
+        Frame size in samples. Usually half of the FFT frame.
+        Defaults to 512.
+
+    Methods:
+
+    setInPut(x, fadetime) : Replace the `input` attribute.
+    setFrameSize(x) : Replace the `frameSize` attribute.
+
+    Attributes:
+
+    input : PyoObject. Phase input signal.
+    frameSize : int. Frame size in samples.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
+    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
+    >>> fin1 = FFT(snd1, size=1024, overlaps=4)
+    >>> fin2 = FFT(snd2, size=1024, overlaps=4)
+    >>> # get magnitudes and phases of input sounds
+    >>> pol1 = CarToPol(fin1["real"], fin1["imag"])
+    >>> pol2 = CarToPol(fin2["real"], fin2["imag"])
+    >>> # times magnitudes and adds phases
+    >>> mag = pol1["mag"] * pol2["mag"] * 100
+    >>> pha = pol1["ang"] + pol2["ang"]
+    >>> # converts back to rectangular
+    >>> car = PolToCar(mag, pha)
+    >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+
+    """
+    def __init__(self, input, frameSize=512, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._frameSize = frameSize
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, frameSize, mul, add, lmax = convertArgsToLists(self._in_fader, frameSize, mul, add)
+        self._base_objs = [FrameAccum_base(wrap(in_fader,i), wrap(frameSize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'frameSize', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFrameSize(self, x):
+        """
+        Replace the `frameSize` attribute.
+
+        Parameters:
+
+        x : int
+            new `frameSize` attribute.
+
+        """
+        self._frameSize = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFrameSize(wrap(x,i)) for i, obj in self._base_objs]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Phase input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def frameSize(self):
+        """PyoObject. Frame size in samples.""" 
+        return self._frameSize
+    @frameSize.setter
+    def frameSize(self, x): self.setFrameSize(x)
+
