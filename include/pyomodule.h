@@ -322,6 +322,8 @@ extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;
 extern PyTypeObject CarToPolType;
 extern PyTypeObject PolToCarType;
+extern PyTypeObject FrameDeltaType;
+extern PyTypeObject FrameAccumType;
 
 /* Constants */
 #define E M_E
