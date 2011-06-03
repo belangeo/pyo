@@ -1,78 +1,83 @@
+2011-06-02 belangeo <belangeo@gmail.com>
+
+    * Added cartesian to polar and polar to cartesian conversions.
+    - rev 655
+
 2011-06-01 belangeo <belangeo@gmail.com>
 
-	* Protected (self->steps == 0) in line generation to avoid division by zero.
-	- rev 654
+    * Protected (self->steps == 0) in line generation to avoid division by zero.
+    - rev 654
 
 2011-05-31 belangeo <belangeo@gmail.com>
 
-	* Added Fast Fourier Transform (FFT, IFFT).
-	- rev 652
+    * Added Fast Fourier Transform (FFT, IFFT).
+    - rev 652
 
 2011-05-18 belangeo <belangeo@gmail.com>
 
     * Added getVersion() function and upgrade version number to '0.4.1'.
-	- rev 645		
+    - rev 645
 
 2011-05-18 belangeo <belangeo@gmail.com>
 
     * Improved soundfile player family (SfPlayer, SfMarkerShuffler and SfMarkerLooper).
-	- rev 644		
+    - rev 644
 
 2011-05-13 belangeo <belangeo@gmail.com>
 
     * New object : FourBand (linear phase spectrum splitter).
-	- rev 640		
+    - rev 640
 
 2011-05-11 belangeo <belangeo@gmail.com>
 
     * New object : ParaTable (parabola window function).
-	- rev 637		
+    - rev 637
 
 2011-05-11 belangeo <belangeo@gmail.com>
 
     * Added 'outputAmp' argument to Compress and Gate. Useful to link several channels.
-	- rev 636
+    - rev 636
 
 2011-05-10 belangeo <belangeo@gmail.com>
 
     * New object: Gate (noise gate).
-	- rev 635		
+    - rev 635
 
 2011-05-10 belangeo <belangeo@gmail.com>
 
     * New object: Follower2 (different attack and release times).
-	- rev 634	
+    - rev 634
 
 2011-05-10 belangeo <belangeo@gmail.com>
 
     * Completely redesigned Follower.
-	- rev 633	
+    - rev 633
 
 2011-05-10 belangeo <belangeo@gmail.com>
 
     * Completely redesigned Compress.
-	- rev 632		
+    - rev 632
 
 2011-05-05 belangeo <belangeo@gmail.com>
 
     * SigTo can be used with PyoObject as input value.
-	- rev 631		
+    - rev 631
 
 2011-05-03 belangeo <belangeo@gmail.com>
- 
+
     * Port filter optimization.
-	- rev 630		
-	
-	
-2011-05-03 belangeo <belangeo@gmail.com>	
+    - rev 630
+
+
+2011-05-03 belangeo <belangeo@gmail.com>
 
     * Fixed glitches in objects using recursive delay lines.
-	- rev 629
+    - rev 629
 
-2011-05-02	belangeo <belangeo@gmail.com>
+2011-05-02  belangeo <belangeo@gmail.com>
 
-	* Fixed bug in Expseg and TrigExpseg "exp" argument initilization.		
-	- rev 624
+    * Fixed bug in Expseg and TrigExpseg "exp" argument initilization.
+    - rev 624
 
 
 2011-02-29 belangeo <belangeo@gmail.com>
@@ -215,9 +220,9 @@
 
 2010-10-04 mantaraya36 <mantaraya36@gmail.com>
            belangeo <belangeo@gmail.com>
-    
+
     * Added offline rendering.
-    - rev 452   
+    - rev 452
 
 2010-09-30 belangeo <belangeo@gmail.com>
 
@@ -229,13 +234,13 @@
 
     * Added new objet : Percent
     - rev 434
-    
+
 2010-09-21 belangeo <belangeo@gmail.com>
 
     * Added support for Coreaudio backend.
       Build with --use-coreaudio option.
     - rev 431
-    
+
 2010-09-17 mantaraya36 <mantaraya36@gmail.com>
 
     * Added support for Jack audio backend.
@@ -250,12 +255,12 @@
     - rev 417.
 
 2010-09-13 belangeo <belangeo@gmail.com>
-    
+
     * Added "dur" and "delay" arguments to play and out methods of PyoObject.
     - rev 413.
-    
+
 2010-09-06 belangeo <belangeo@gmail.com>
 
     * rev 390 - pyo 0.01 release.
-    
-    
+
+

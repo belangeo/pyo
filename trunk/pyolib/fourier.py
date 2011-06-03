@@ -486,3 +486,295 @@ class IFFT(PyoObject):
     def wintype(self, x): self.setWinType(x)
 
 
+class CarToPol(PyoObject):
+    """
+    Performs the cartesian to polar conversion.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    inreal : PyoObject
+        Real input signal.
+    inimag : PyoObject
+        Imaginary input signal.
+
+    Methods:
+
+    setInReal(x, fadetime) : Replace the `inreal` attribute.
+    setInImag(x, fadetime) : Replace the `inimag` attribute.
+
+    Attributes:
+
+    inreal : PyoObject. Real input signal.
+    inimag : PyoObject. Imaginary input signal.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
+    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
+    >>> fin1 = FFT(snd1, size=1024, overlaps=4)
+    >>> fin2 = FFT(snd2, size=1024, overlaps=4)
+    >>> # get magnitudes and phases of input sounds
+    >>> pol1 = CarToPol(fin1["real"], fin1["imag"])
+    >>> pol2 = CarToPol(fin2["real"], fin2["imag"])
+    >>> # times magnitudes and adds phases
+    >>> mag = pol1["mag"] * pol2["mag"] * 100
+    >>> pha = pol1["ang"] + pol2["ang"]
+    >>> # converts back to rectangular
+    >>> car = PolToCar(mag, pha)
+    >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+
+    """
+    def __init__(self, inreal, inimag, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._mag_dummy = []
+        self._ang_dummy = []
+        self._inreal = inreal
+        self._inimag = inimag
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(inreal)
+        self._in_fader2 = InputFader(inimag)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        self._base_objs = []
+        for i in range(lmax):
+            self._base_objs.append(CarToPol_base(wrap(in_fader,i), wrap(in_fader2,i), 0, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(CarToPol_base(wrap(in_fader,i), wrap(in_fader2,i), 1, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['inreal', 'inimag', 'mul', 'add']
+
+    def __len__(self):
+        return len(self._inreal)
+
+    def __getitem__(self, str):
+        if str == 'mag':
+            self._mag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
+            return self._mag_dummy[-1]
+        if str == 'ang':
+            self._ang_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 1]))
+            return self._ang_dummy[-1]
+
+    def get(self, identifier="mag", all=False):
+        """
+        Return the first sample of the current buffer as a float.
+
+        Can be used to convert audio stream to usable Python data.
+
+        "mag" or "ang" must be given to `identifier` to specify
+        which stream to get value from.
+
+        Parameters:
+
+            identifier : string {"mag", "ang"}
+                Address string parameter identifying audio stream.
+                Defaults to "mag".
+            all : boolean, optional
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
+                of the first object's stream will be returned as a float.
+                Defaults to False.
+
+        """
+        if not all:
+            return self.__getitem__(identifier)[0]._getStream().getValue()
+        else:
+            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+
+    def setInReal(self, x, fadetime=0.05):
+        """
+        Replace the `inreal` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._inreal = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInImag(self, x, fadetime=0.05):
+        """
+        Replace the `inimag` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._inimag = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def inreal(self):
+        """PyoObject. Real input signal.""" 
+        return self._inreal
+    @inreal.setter
+    def inreal(self, x): self.setInReal(x)
+
+    @property
+    def inimag(self):
+        """PyoObject. Imaginary input signal.""" 
+        return self._inimag
+    @inimag.setter
+    def inimag(self, x): self.setInImag(x)
+
+class PolToCar(PyoObject):
+    """
+    Performs the polar to cartesian conversion.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    inmag : PyoObject
+        Magintude input signal.
+    inang : PyoObject
+        Angle input signal.
+
+    Methods:
+
+    setInMag(x, fadetime) : Replace the `inmag` attribute.
+    setInAng(x, fadetime) : Replace the `inang` attribute.
+
+    Attributes:
+
+    inmag : PyoObject. Magintude input signal.
+    inang : PyoObject. Angle input signal.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
+    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
+    >>> fin1 = FFT(snd1, size=1024, overlaps=4)
+    >>> fin2 = FFT(snd2, size=1024, overlaps=4)
+    >>> # get magnitudes and phases of input sounds
+    >>> pol1 = CarToPol(fin1["real"], fin1["imag"])
+    >>> pol2 = CarToPol(fin2["real"], fin2["imag"])
+    >>> # times magnitudes and adds phases
+    >>> mag = pol1["mag"] * pol2["mag"] * 100
+    >>> pha = pol1["ang"] + pol2["ang"]
+    >>> # converts back to rectangular
+    >>> car = PolToCar(mag, pha)
+    >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+
+    """
+    def __init__(self, inmag, inang, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._real_dummy = []
+        self._imag_dummy = []
+        self._inmag = inmag
+        self._inang = inang
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(inmag)
+        self._in_fader2 = InputFader(inang)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        self._base_objs = []
+        for i in range(lmax):
+            self._base_objs.append(PolToCar_base(wrap(in_fader,i), wrap(in_fader2,i), 0, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(PolToCar_base(wrap(in_fader,i), wrap(in_fader2,i), 1, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['inmag', 'inang', 'mul', 'add']
+
+    def __len__(self):
+        return len(self._inmag)
+
+    def __getitem__(self, str):
+        if str == 'real':
+            self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
+            return self._real_dummy[-1]
+        if str == 'imag':
+            self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 1]))
+            return self._imag_dummy[-1]
+
+    def get(self, identifier="real", all=False):
+        """
+        Return the first sample of the current buffer as a float.
+
+        Can be used to convert audio stream to usable Python data.
+
+        "real" or "imag" must be given to `identifier` to specify
+        which stream to get value from.
+
+        Parameters:
+
+            identifier : string {"real", "imag"}
+                Address string parameter identifying audio stream.
+                Defaults to "mag".
+            all : boolean, optional
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
+                of the first object's stream will be returned as a float.
+                Defaults to False.
+
+        """
+        if not all:
+            return self.__getitem__(identifier)[0]._getStream().getValue()
+        else:
+            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+
+    def setInMag(self, x, fadetime=0.05):
+        """
+        Replace the `inmag` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._inmag = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInAng(self, x, fadetime=0.05):
+        """
+        Replace the `inang` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._inang = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def inmag(self):
+        """PyoObject. Magnitude input signal.""" 
+        return self._inmag
+    @inmag.setter
+    def inmag(self, x): self.setInMag(x)
+
+    @property
+    def inang(self):
+        """PyoObject. Angle input signal.""" 
+        return self._inang
+    @inang.setter
+    def inang(self, x): self.setInAng(x)
+

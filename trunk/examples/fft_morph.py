@@ -11,7 +11,7 @@ s = Server().boot()
 
 snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
 lfos = Sine(freq=[.05,.04], mul=.05, add=[1,.5])
-snd2 = FM(carrier=[75,100.03,125.5,149], ratio=lfos, index=20, mul=.25).mix(2)
+snd2 = FM(carrier=[75,100.03,125.5,149], ratio=lfos, index=20, mul=.1).mix(2)
 
 size = 1024
 olaps = 4
@@ -23,22 +23,21 @@ fin1 = FFT(snd1, size=size, overlaps=olaps)
 fin2 = FFT(snd2, size=size, overlaps=olaps)
 
 # get magnitudes and phases of input sounds
-mag1 = Sqrt(fin1["real"]*fin1["real"] + fin1["imag"]*fin1["imag"], mul=5)
-mag2 = Sqrt(fin2["real"]*fin2["real"] + fin2["imag"]*fin2["imag"], mul=5)
-pha1 = Atan2(fin1["imag"], fin1["real"])
-pha2 = Atan2(fin2["imag"], fin2["real"])
+pol1 = CarToPol(fin1["real"], fin1["imag"])
+pol2 = CarToPol(fin2["real"], fin2["imag"])
 
 # times magnitudes and adds phases
-mag3 = mag1 * mag2
-pha3 = pha1 + pha2
-# interpolation between dry and morphed sounds
-mag = Selector([mag1*.03, mag3, mag2*.03], voice=inter)
-pha = Selector([pha1, pha3, pha2], voice=inter)
-# converts back to rectangular
-real = mag * Cos(pha)
-imag = mag * Sin(pha)
+mag3 = pol1["mag"] * pol2["mag"] * 100
+pha3 = pol1["ang"] + pol2["ang"]
 
-fout = IFFT(real, imag, size=size, overlaps=olaps)
+# interpolation between dry and morphed sounds
+mag = Selector([pol1["mag"], mag3, pol2["mag"]], voice=inter)
+pha = Selector([pol1["ang"], pha3, pol2["ang"]], voice=inter)
+
+# converts back to rectangular
+car = PolToCar(mag, pha)
+
+fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps)
 ffout = fout.mix(2).out()
 
 s.gui(locals())
