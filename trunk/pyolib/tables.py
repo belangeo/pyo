@@ -1252,6 +1252,8 @@ class NewTable(PyoTableObject):
         Initial table. List of list can match the number of channels,
         otherwise, the list will be loaded in all tablestreams. 
         Defaults to None.
+    feedback : float, optional
+        Amount of old data to mix with a new recording. Defaults to 0.0.
         
     Methods:    
     
@@ -1261,7 +1263,12 @@ class NewTable(PyoTableObject):
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read the sound at its original pitch.
     replace() : Replaces the actual table.
+    setFeedback() : Replace the `feedback` attribute.
 
+    Attributes:
+    
+    feedback : float. Amount of old data to mix with a new recording.
+    
     See also: DataTable, TableRec
 
     Examples:
@@ -1276,15 +1283,16 @@ class NewTable(PyoTableObject):
     >>> # b.play()
 
     """
-    def __init__(self, length, chnls=1, init=None):
+    def __init__(self, length, chnls=1, init=None, feedback=0.0):
         self._length = length
         self._chnls = chnls
+        self._feedback = feedback
         if init == None:
-            self._base_objs = [NewTable_base(length) for i in range(chnls)]
+            self._base_objs = [NewTable_base(length, feedback=feedback) for i in range(chnls)]
         else:
             if type(init[0]) != ListType: 
                 init = [init]
-            self._base_objs = [NewTable_base(length, wrap(init,i)) for i in range(chnls)]
+            self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
                     
 
     def __dir__(self):
@@ -1305,6 +1313,19 @@ class NewTable(PyoTableObject):
         if type(x[0]) != ListType: 
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedback(self, x):
+        """
+        Replaces the`feedback` attribute.
+
+        Parameters:
+
+        x : float
+            New `feedback` value.
+
+        """
+        self._feedback = x
+        [obj.setFeedback(x) for i, obj in enumerate(self._base_objs)]
         
     def getSize(self):
         """
@@ -1334,6 +1355,13 @@ class NewTable(PyoTableObject):
         
         """
         return self._base_objs[0].getRate()
+
+    @property
+    def feedback(self):
+        """float. Amount of old data to mix with a new recording.""" 
+        return self._feedback
+    @feedback.setter
+    def feedback(self, x): self.setFeedback(x)
 
 class DataTable(PyoTableObject):
     """
