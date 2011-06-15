@@ -48,6 +48,9 @@ LFO_generates_ii(LFO *self) {
     int i, maxHarms;
 
     freq = PyFloat_AS_DOUBLE(self->freq);
+    if (freq <= 0) {
+        return;
+    }
     sharp = PyFloat_AS_DOUBLE(self->sharp);
     if (sharp < 0.0)
         sharp = 0.0;
@@ -211,6 +214,9 @@ LFO_generates_ai(LFO *self) {
     int i, maxHarms;
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    if (fr[0] <= 0) {
+        return;
+    }
     sharp = PyFloat_AS_DOUBLE(self->sharp);
     if (sharp < 0.0)
         sharp = 0.0;
@@ -389,6 +395,9 @@ LFO_generates_ia(LFO *self) {
     int i, maxHarms;
     
     freq = PyFloat_AS_DOUBLE(self->freq);
+    if (freq <= 0) {
+        return;
+    }
     MYFLT *sh = Stream_getData((Stream *)self->sharp_stream);
     inc = freq / self->sr;
     
@@ -588,6 +597,9 @@ LFO_generates_aa(LFO *self) {
     int i, maxHarms;
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    if (fr[0] <= 0) {
+        return;
+    }
     MYFLT *sh = Stream_getData((Stream *)self->sharp_stream);
     
     switch (self->wavetype) {

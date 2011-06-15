@@ -1371,7 +1371,7 @@ class TableRec(PyoObject):
     >>> rec = TableRec(a, table=t, fadetime=0.01)
     >>> tr = TrigEnv(rec['trig'], table=t, dur=1).out()
 
-    See also: NewTable
+    See also: NewTable, TrigTableRec
     
     Examples:
     
@@ -1859,3 +1859,182 @@ class Granulator(PyoObject):
     @basedur.setter
     def basedur(self, x): self.setBaseDur(x)
 
+class TrigTableRec(PyoObject):
+    """
+    TrigTableRec is for writing samples into a previously created NewTable.
+
+    See `NewTable` to create an empty table.
+
+    Each time a "trigger" is received in the `trig` input, TrigTableRec
+    starts the recording into the table until the table is full.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal to write in the table.
+    trig : PyoObject
+        Audio signal sending triggers.
+    table : PyoTableObject
+        The table where to write samples.
+    fadetime : float, optional
+        Fade time at the beginning and the end of the recording 
+        in seconds. Defaults to 0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setTrig(x, fadetime) : Replace the `trig` attribute.
+    setTable(x) : Replace the `table` attribute.
+
+    Attributes:
+
+    input : PyoObject. Audio signal to write in the table.
+    trig : PyoObject. Audio signal sending triggers.
+    table : PyoTableObject. The table where to write samples.
+
+    Notes:
+
+    The out() method is bypassed. TrigTableRec returns no signal.
+
+    TrigTableRec has no `mul` and `add` attributes.
+
+    TrigTableRec will sends a trigger signal at the end of the recording. 
+    User can retrieve the trigger streams by calling obj['trig'].
+
+    See also: NewTable, TableRec
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd = SNDS_PATH + '/transparent.aif'
+    >>> dur = sndinfo(snd)[1]
+    >>> t = NewTable(length=dur)
+    >>> src = SfPlayer(snd, mul=.5).out()
+    >>> trec = TrigTableRec(src, trig=Trig().play(), table=t)
+    >>> rep = TrigEnv(trec["trig"], table=t, dur=dur).out(1)
+
+    """
+    def __init__(self, input, trig, table, fadetime=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._trig = trig
+        self._table = table
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(trig)
+        in_fader, in_fader2, table, fadetime, lmax = convertArgsToLists(self._in_fader, self._in_fader2, table, fadetime)
+        self._base_objs = [TrigTableRec_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
+        self._trig_objs = [TrigTableRecTrig_base(obj) for obj in self._base_objs]
+
+    def __dir__(self):
+        return ['input', 'trig', 'table', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
+
+    def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
+
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTrig(self, x, fadetime=0.05):
+        """
+        Replace the `trig` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New trigger signal.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._trig = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        Parameters:
+
+        x : NewTable
+            new `table` attribute.
+
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Audio signal to write in the table.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def trig(self):
+        """PyoObject. Audio signal sending triggers.""" 
+        return self._trig
+    @trig.setter
+    def trig(self, x): self.setTrig(x)
+
+    @property
+    def table(self):
+        """PyoTableObject. The table where to write samples."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)

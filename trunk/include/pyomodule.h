@@ -42,6 +42,7 @@
 #define TYPE__FFFFFOO "|fffffOO"
 #define TYPE_O_FFFFOO "O|ffffOO"
 #define TYPE_OO_F "OO|f"
+#define TYPE_OOO_F "OOO|f"
 #define TYPE_F_O "f|O"
 #define TYPE__OFFI "|Offi"
 #define TYPE__OFII "|Ofii"
@@ -72,6 +73,7 @@
 #define MYATAN atanf
 #define MYATAN2 atan2f
 #define MYEXP expf
+#define MYROUND roundf
 
 #else
 #define LIB_BASE_NAME "_pyo64"
@@ -91,6 +93,7 @@
 #define TYPE__FFFFFOO "|dddddOO"
 #define TYPE_O_FFFFOO "O|ddddOO"
 #define TYPE_OO_F "OO|d"
+#define TYPE_OOO_F "OOO|d"
 #define TYPE_F_O "d|O"
 #define TYPE__OFFI "|Oddi"
 #define TYPE__OFII "|Odii"
@@ -121,6 +124,7 @@
 #define MYATAN atan
 #define MYATAN2 atan2
 #define MYEXP exp
+#define MYROUND round
 
 
 #endif
@@ -252,6 +256,8 @@ extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
 extern PyTypeObject TableRecTrigType;
 extern PyTypeObject TableMorphType;
+extern PyTypeObject TrigTableRecType;
+extern PyTypeObject TrigTableRecTrigType;
 
 extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;
