@@ -2490,6 +2490,7 @@ SndTable_new,                 /* tp_new */
 typedef struct {
     pyo_table_HEAD
     MYFLT length;
+    MYFLT feedback;
     int pointer;
 } NewTable;
 
@@ -2498,11 +2499,22 @@ NewTable_recordChunk(NewTable *self, MYFLT *data, int datasize)
 {
     int i;
 
-    for (i=0; i<datasize; i++) {
-        self->data[self->pointer++] = data[i];
-        if (self->pointer == self->size)
-            self->pointer = 0;
-    }    
+    if (self->feedback == 0.0) {
+        for (i=0; i<datasize; i++) {
+            self->data[self->pointer++] = data[i];
+            if (self->pointer == self->size)
+                self->pointer = 0;
+        }
+    }
+    else {
+        for (i=0; i<datasize; i++) {
+            self->data[self->pointer] = data[i] + self->data[self->pointer] * self->feedback;
+            self->pointer++;
+            if (self->pointer == self->size)
+                self->pointer = 0;
+        }
+    }
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2541,6 +2553,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server = PyServer_get_server();
     
     self->pointer = 0;
+    self->feedback = 0.0;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
     
@@ -2552,9 +2565,9 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
 {    
     int i;
     PyObject *inittmp=NULL;
-    static char *kwlist[] = {"length", "init", NULL};
+    static char *kwlist[] = {"length", "init", "feedback", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_O, kwlist, &self->length, &inittmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
         return -1; 
 
     MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
@@ -2633,6 +2646,23 @@ NewTable_setTable(NewTable *self, PyObject *value)
     Py_RETURN_NONE;    
 }
 
+static PyObject *
+NewTable_setFeedback(NewTable *self, PyObject *value)
+{
+    MYFLT feed;
+
+    if (PyNumber_Check(value)) {
+        feed = PyFloat_AsDouble(PyNumber_Float(value));
+        if (feed < -1.0)
+            feed = -1.0;
+        else if (feed > 1.0)
+            feed = 1.0;
+        self->feedback = feed;
+    }
+        
+    Py_RETURN_NONE;    
+}
+
 static PyMemberDef NewTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(NewTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(NewTable, tablestream), 0, "Table stream object."},
@@ -2645,6 +2675,7 @@ static PyMethodDef NewTable_methods[] = {
 {"setTable", (PyCFunction)NewTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getViewTable", (PyCFunction)NewTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)NewTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setFeedback", (PyCFunction)NewTable_setFeedback, METH_O, "Feedback sets the amount of old data to mix with a new recording."},
 {"setData", (PyCFunction)NewTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)NewTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"put", (PyCFunction)NewTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
