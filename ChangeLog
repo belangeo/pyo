@@ -1,3 +1,8 @@
+2011-06-15 belangeo <belangeo@gmail.com>
+
+    * Added 'feedback' attribute to NewTable object.
+    - rev 659
+
 2011-06-14 belangeo <belangeo@gmail.com>
 
     * New object : TrigTableRec.
