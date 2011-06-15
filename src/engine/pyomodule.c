@@ -653,16 +653,26 @@ init_pyo64(void)
     Py_INCREF(&TableRecType);
     PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
 
-    if (PyType_Ready(&TableMorphType) < 0)
-        return;
-    Py_INCREF(&TableMorphType);
-    PyModule_AddObject(m, "TableMorph_base", (PyObject *)&TableMorphType);
-    
     if (PyType_Ready(&TableRecTrigType) < 0)
         return;
     Py_INCREF(&TableRecTrigType);
     PyModule_AddObject(m, "TableRecTrig_base", (PyObject *)&TableRecTrigType);
+    
+    if (PyType_Ready(&TableMorphType) < 0)
+        return;
+    Py_INCREF(&TableMorphType);
+    PyModule_AddObject(m, "TableMorph_base", (PyObject *)&TableMorphType);
 
+    if (PyType_Ready(&TrigTableRecType) < 0)
+        return;
+    Py_INCREF(&TrigTableRecType);
+    PyModule_AddObject(m, "TrigTableRec_base", (PyObject *)&TrigTableRecType);
+    
+    if (PyType_Ready(&TrigTableRecTrigType) < 0)
+        return;
+    Py_INCREF(&TrigTableRecTrigType);
+    PyModule_AddObject(m, "TrigTableRecTrig_base", (PyObject *)&TrigTableRecTrigType);
+    
     /* Matrix objects */
     if (PyType_Ready(&MatrixStreamType) < 0)
         return;
