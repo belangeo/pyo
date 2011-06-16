@@ -161,15 +161,12 @@ class FFT(PyoObject):
 
     def __getitem__(self, str):
         if str == 'real':
-            #if self._real_dummy == None:
             self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._real_objs)]))
             return self._real_dummy[-1]
         if str == 'imag':
-            #if self._imag_dummy == None:
             self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._imag_objs)]))
             return self._imag_dummy[-1]
         if str == 'bin':
-            #if self._bin_dummy == None:
             self._bin_dummy.append(Dummy([obj for i, obj in enumerate(self._bin_objs)]))
             return self._bin_dummy[-1]
 

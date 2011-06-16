@@ -526,6 +526,10 @@ class Beat(PyoObject):
     """
     def __init__(self, time=.125, taps=16, w1=80, w2=50, w3=30, poly=1):
         PyoObject.__init__(self)
+        self._tap_dummy = []
+        self._amp_dummy = []
+        self._dur_dummy = []
+        self._end_dummy = []
         self._time = time
         self._taps = taps
         self._w1 = w1
@@ -565,13 +569,17 @@ class Beat(PyoObject):
 
     def __getitem__(self, i):
         if i == 'tap':
-            return self._tap_objs
+            self._tap_dummy.append(Dummy([obj for obj in self._tap_objs]))
+            return self._tap_dummy[-1]
         if i == 'amp':
-            return self._amp_objs
+            self._amp_dummy.append(Dummy([obj for obj in self._amp_objs]))
+            return self._amp_dummy[-1]
         if i == 'dur':
-            return self._dur_objs
+            self._dur_dummy.append(Dummy([obj for obj in self._dur_objs]))
+            return self._dur_dummy[-1]
         if i == 'end':
-            return self._end_objs
+            self._end_dummy.append(Dummy([obj for obj in self._end_objs]))
+            return self._end_dummy[-1]
         if type(i) == SliceType:
             return self._base_objs[i]
         if i < len(self._base_objs):
