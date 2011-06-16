@@ -1323,10 +1323,6 @@ class Sig(PyoObject):
     Attributes:
     
     value : float or PyoObject. Numerical value to convert.
-
-    Notes:
-
-    The out() method is bypassed. Sig's signal can not be sent to audio outs.
     
     Examples:
     
