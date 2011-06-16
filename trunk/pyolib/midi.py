@@ -142,8 +142,8 @@ class Notein(PyoObject):
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):
         PyoObject.__init__(self)
-        self._pitch_dummy = None
-        self._velocity_dummy = None
+        self._pitch_dummy = []
+        self._velocity_dummy = []
         self._poly = poly
         self._scale = scale
         self._first = first
@@ -175,13 +175,11 @@ class Notein(PyoObject):
 
     def __getitem__(self, str):
         if str == 'pitch':
-            if self._pitch_dummy == None:
-                self._pitch_dummy = Dummy([self._base_objs[i*2] for i in range(self._poly)])
-            return self._pitch_dummy
+            self._pitch_dummy.append(Dummy([self._base_objs[i*2] for i in range(self._poly)]))
+            return self._pitch_dummy[-1]
         if str == 'velocity':
-            if self._velocity_dummy == None:
-                self._velocity_dummy = Dummy([self._base_objs[i*2+1] for i in range(self._poly)])
-            return self._velocity_dummy
+            self._velocity_dummy.append(Dummy([self._base_objs[i*2+1] for i in range(self._poly)]))
+            return self._velocity_dummy[-1]
 
     def get(self, identifier="pitch", all=False):
         """

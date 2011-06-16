@@ -1224,8 +1224,8 @@ class Hilbert(PyoObject):
     """
     def __init__(self, input, mul=1, add=0):
         PyoObject.__init__(self)
-        self._real_dummy = None
-        self._imag_dummy = None
+        self._real_dummy = []
+        self._imag_dummy = []
         self._input = input
         self._mul = mul
         self._add = add
@@ -1252,13 +1252,11 @@ class Hilbert(PyoObject):
 
     def __getitem__(self, str):
         if str == 'real':
-            if self._real_dummy == None:
-                self._real_dummy = Dummy([obj for i, obj in enumerate(self._base_objs) if (i%2) == 0])
-            return self._real_dummy
+            self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if (i%2) == 0]))
+            return self._real_dummy[-1]
         if str == 'imag':
-            if self._imag_dummy == None:
-                self._imag_dummy = Dummy([obj for i, obj in enumerate(self._base_objs) if (i%2) == 1])
-            return self._imag_dummy
+            self._imag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if (i%2) == 1]))
+            return self._imag_dummy[-1]
 
     def get(self, identifier="real", all=False):
         """
