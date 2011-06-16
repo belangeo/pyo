@@ -1036,8 +1036,8 @@ class FourBand(PyoObject):
         mul, add, lmax2 = convertArgsToLists(mul, add)
         self._base_players = [FourBandMain_base(wrap(in_fader,i), wrap(freq1,i), wrap(freq2,i), wrap(freq3,i)) for i in range(lmax)]
         self._base_objs = []
-        for i in range(lmax):
-            for j in range(4):
+        for j in range(4):
+            for i in range(lmax):
                 self._base_objs.append(FourBand_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
 
     def __dir__(self):
