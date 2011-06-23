@@ -146,6 +146,15 @@ class FFT(PyoObject):
         return len(self._real_objs)
 
     def __del__(self):
+        if self._real_dummy:
+            [obj.deleteStream() for obj in self._real_dummy]
+        if self._imag_dummy:
+            [obj.deleteStream() for obj in self._imag_dummy]
+        if self._bin_dummy:
+            [obj.deleteStream() for obj in self._bin_dummy]
+        self._real_dummy = []
+        self._imag_dummy = []
+        self._bin_dummy = []
         for obj in self._real_objs:
             obj.deleteStream()
             del obj
@@ -547,6 +556,17 @@ class CarToPol(PyoObject):
     def __len__(self):
         return len(self._inreal)
 
+    def __del__(self):
+        if self._mag_dummy:
+            [obj.deleteStream() for obj in self._mag_dummy]
+        if self._ang_dummy:
+            [obj.deleteStream() for obj in self._ang_dummy]
+        self._mag_dummy = []
+        self._ang_dummy = []
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+
     def __getitem__(self, str):
         if str == 'mag':
             self._mag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
@@ -692,6 +712,17 @@ class PolToCar(PyoObject):
 
     def __len__(self):
         return len(self._inmag)
+
+    def __del__(self):
+        if self._real_dummy:
+            [obj.deleteStream() for obj in self._real_dummy]
+        if self._imag_dummy:
+            [obj.deleteStream() for obj in self._imag_dummy]
+        self._real_dummy = []
+        self._imag_dummy = []
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
 
     def __getitem__(self, str):
         if str == 'real':
