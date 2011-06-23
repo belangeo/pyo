@@ -120,6 +120,9 @@ class SfPlayer(PyoObject):
         return ['sound', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
 
     def __del__(self):
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj            
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
@@ -130,7 +133,6 @@ class SfPlayer(PyoObject):
     def __getitem__(self, i):
         if i == 'trig':
             return self._trig_objs
-        
         if type(i) == SliceType:
             return self._base_objs[i]
         if i < len(self._base_objs):

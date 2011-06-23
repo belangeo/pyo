@@ -165,6 +165,8 @@ class Notein(PyoObject):
             [obj.deleteStream() for obj in self._pitch_dummy]
         if self._velocity_dummy:
             [obj.deleteStream() for obj in self._velocity_dummy]
+        self._pitch_dummy = []
+        self._velocity_dummy = []
         for obj in self._base_objs:
             obj.deleteStream()
             del obj

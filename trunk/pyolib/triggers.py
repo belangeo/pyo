@@ -548,6 +548,18 @@ class Beat(PyoObject):
         return ['time', 'taps', 'w1', 'w2', 'w3']
 
     def __del__(self):
+        if self._tap_dummy:
+            [obj.deleteStream() for obj in self._tap_dummy]
+        if self._amp_dummy:
+            [obj.deleteStream() for obj in self._amp_dummy]
+        if self._dur_dummy:
+            [obj.deleteStream() for obj in self._dur_dummy]
+        if self._end_dummy:
+            [obj.deleteStream() for obj in self._end_dummy]
+        self._tap_dummy = []
+        self._amp_dummy = []
+        self._dur_dummy = []
+        self._end_dummy = []
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
