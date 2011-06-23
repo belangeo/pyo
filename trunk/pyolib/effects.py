@@ -941,7 +941,7 @@ class WGVerb(PyoObject):
     cutoff : float or PyoObject, optional
         cutoff frequency of simple first order lowpass filters in the 
         feedback loop of delay lines, in Hz. Defaults to 5000.
-    mix : float or PyoObject, optional
+    bal : float or PyoObject, optional
         Balance between wet and dry signal, between 0 and 1. 0 means no 
         reverb. Defaults to 0.5.
 
@@ -950,7 +950,7 @@ class WGVerb(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setFeedback(x) : Replace the `feedback` attribute.
     setCutoff(x) : Replace the `cutoff` attribute.
-    setMix(x) : Replace the `mix` attribute.
+    setMix(x) : Replace the `bal` attribute.
     
     Attributes:
     
@@ -959,30 +959,30 @@ class WGVerb(PyoObject):
         into the delay line.
     cutoff : float or PyoObject. Internal lowpass filter cutoff 
         frequency in Hz.
-    mix : float or PyoObject. Balance between wet and dry signal.
+    bal : float or PyoObject. Balance between wet and dry signal.
     
     Examples:
     
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> d = WGVerb(a, feedback=.75, cutoff=5000, mix=.25, mul=.5).out()
+    >>> d = WGVerb(a, feedback=.75, cutoff=5000, bal=.25, mul=.5).out()
 
     """
-    def __init__(self, input, feedback=0.5, cutoff=5000, mix=0.5, mul=1, add=0):
+    def __init__(self, input, feedback=0.5, cutoff=5000, bal=0.5, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._feedback = feedback
         self._cutoff = cutoff
-        self._mix = mix
+        self._bal = bal
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, feedback, cutoff, mix, mul, add, lmax = convertArgsToLists(self._in_fader, feedback, cutoff, mix, mul, add)
-        self._base_objs = [WGVerb_base(wrap(in_fader,i), wrap(feedback,i), wrap(cutoff,i), wrap(mix,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, feedback, cutoff, bal, mul, add, lmax = convertArgsToLists(self._in_fader, feedback, cutoff, bal, mul, add)
+        self._base_objs = [WGVerb_base(wrap(in_fader,i), wrap(feedback,i), wrap(cutoff,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'feedback', 'cutoff', 'mix', 'mul', 'add']
+        return ['input', 'feedback', 'cutoff', 'bal', 'mul', 'add']
         
     def setInput(self, x, fadetime=0.05):
         """
@@ -1027,24 +1027,24 @@ class WGVerb(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def setMix(self, x):
+    def setBal(self, x):
         """
-        Replace the `mix` attribute.
+        Replace the `bal` attribute.
         
         Parameters:
 
         x : float or PyoObject
-            New `mix` attribute.
+            New `bal` attribute.
 
         """
-        self._cutoff = x
+        self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., 'lin', 'feedback', self._feedback),
                           SLMap(500., 15000., 'log', 'cutoff', self._cutoff),
-                          SLMap(0., 1., 'lin', 'mix', self._mix),
+                          SLMap(0., 1., 'lin', 'bal', self._bal),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1070,11 +1070,11 @@ class WGVerb(PyoObject):
     def cutoff(self, x): self.setCutoff(x)
 
     @property
-    def mix(self):
+    def bal(self):
         """float or PyoObject. wet - dry balance.""" 
-        return self._mix
-    @mix.setter
-    def mix(self, x): self.setMix(x)
+        return self._bal
+    @bal.setter
+    def bal(self, x): self.setBal(x)
 
 class Chorus(PyoObject):
     """
@@ -1091,7 +1091,7 @@ class Chorus(PyoObject):
     feedback : float or PyoObject, optional
         Amount of output signal sent back into the delay lines.
         Defaults to 0.25.
-    mix : float or PyoObject, optional
+    bal : float or PyoObject, optional
         Balance between wet and dry signals, between 0 and 1. 0 means no 
         chorus. Defaults to 0.5.
 
@@ -1100,7 +1100,7 @@ class Chorus(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setDepth(x) : Replace the `depth` attribute.
     setFeedback(x) : Replace the `feedback` attribute.
-    setMix(x) : Replace the `mix` attribute.
+    setBal(x) : Replace the `bal` attribute.
 
     Attributes:
 
@@ -1108,30 +1108,30 @@ class Chorus(PyoObject):
     depth : float or PyoObject. Chorus depth, between 0 and 5.
     feedback : float or PyoObject. Amount of output signal sent back 
         into the delay line.
-    mix : float or PyoObject. Balance between wet and dry signal.
+    bal : float or PyoObject. Balance between wet and dry signal.
 
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5)
-    >>> chor = Chorus(sf, depth=2, feedback=0.5, mix=0.5).out()
+    >>> chor = Chorus(sf, depth=2, feedback=0.5, bal=0.5).out()
 
     """
-    def __init__(self, input, depth=1, feedback=0.25, mix=0.5, mul=1, add=0):
+    def __init__(self, input, depth=1, feedback=0.25, bal=0.5, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._depth = depth
         self._feedback = feedback
-        self._mix = mix
+        self._bal = bal
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, depth, feedback, mix, mul, add, lmax = convertArgsToLists(self._in_fader, depth, feedback, mix, mul, add)
-        self._base_objs = [Chorus_base(wrap(in_fader,i), wrap(depth,i), wrap(feedback,i), wrap(mix,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, depth, feedback, bal, mul, add, lmax = convertArgsToLists(self._in_fader, depth, feedback, bal, mul, add)
+        self._base_objs = [Chorus_base(wrap(in_fader,i), wrap(depth,i), wrap(feedback,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'depth', 'feedback', 'mix', 'mul', 'add']
+        return ['input', 'depth', 'feedback', 'bal', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1176,24 +1176,24 @@ class Chorus(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def setMix(self, x):
+    def setBal(self, x):
         """
-        Replace the `mix` attribute.
+        Replace the `bal` attribute.
 
         Parameters:
 
         x : float or PyoObject
-            New `mix` attribute.
+            New `bal` attribute.
 
         """
-        self._cutoff = x
+        self._bal = x
         x, lmax = convertArgsToLists(x)
         [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 5., 'lin', 'depth', self._depth),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
-                          SLMap(0., 1., 'lin', 'mix', self._mix),
+                          SLMap(0., 1., 'lin', 'bal', self._bal),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1219,11 +1219,11 @@ class Chorus(PyoObject):
     def feedback(self, x): self.setFeedback(x)
 
     @property
-    def mix(self):
+    def bal(self):
         """float or PyoObject. wet - dry balance.""" 
-        return self._mix
-    @mix.setter
-    def mix(self, x): self.setMix(x)
+        return self._bal
+    @bal.setter
+    def bal(self, x): self.setBal(x)
 
 class Harmonizer(PyoObject):
     """
