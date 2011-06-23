@@ -161,12 +161,10 @@ class Notein(PyoObject):
         return ['mul', 'add']
 
     def __del__(self):
-        if self._pitch_dummy != None:
-            self._pitch_dummy.deleteStream()
-            del self._pitch_dummy
+        if self._pitch_dummy:
+            [obj.deleteStream() for obj in self._pitch_dummy]
         if self._velocity_dummy:
-            self._velocity_dummy.deleteStream()
-            del self._velocity_dummy
+            [obj.deleteStream() for obj in self._velocity_dummy]
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
