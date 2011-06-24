@@ -83,6 +83,13 @@ def wrap(arg, i):
     else:
         return x
 
+def duplicateArgsList(args, num):
+    tmp = []
+    for arg in args:
+        print args
+    return args
+    #return [arg for arg in args for i in range(num)]
+
 if sys.version_info[:2] <= (2, 5):
     def example(cls, dur=5):
         """
@@ -257,15 +264,16 @@ class PyoObject(object):
         self._add = 0.0
         self._add_dummy = None
         self._mul_dummy = None
+        self._op_duplicate = 1
 
     def __add__(self, x):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            self._add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                self._add_dummy = x + self 
+                self._add_dummy = x + self
             else:
                 self._add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])  
         return self._add_dummy
@@ -274,7 +282,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._add_dummy = Dummy([obj + wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            self._add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             self._add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])                
         return self._add_dummy
@@ -287,7 +295,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            self._add_dummy = Dummy([obj - wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 print 'Substraction Warning: %s - %s' % (self.__repr__(), x.__repr__()),
@@ -301,7 +309,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._add_dummy = Dummy([Sig(wrap(x,i)) - obj for i, obj in enumerate(self._base_objs)])
+            self._add_dummy = Dummy([Sig(wrap(x,i/self._op_duplicate)) - obj for i, obj in enumerate(self._base_objs)])
         else:
             self._add_dummy = Dummy([Sig(obj) - wrap(self._base_objs,i) for i, obj in enumerate(x)])
         return self._add_dummy
@@ -314,7 +322,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            self._mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 self._mul_dummy = x * self 
@@ -326,7 +334,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._mul_dummy = Dummy([obj * wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            self._mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             self._mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])                
         return self._mul_dummy
@@ -339,7 +347,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
+            self._mul_dummy = Dummy([obj / wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
                 print 'Division Warning: %s / %s' % (self.__repr__(), x.__repr__()),
@@ -353,7 +361,7 @@ class PyoObject(object):
         self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
-            self._mul_dummy = Dummy([Sig(wrap(x,i)) / obj for i, obj in enumerate(self._base_objs)])
+            self._mul_dummy = Dummy([Sig(wrap(x,i/self._op_duplicate)) / obj for i, obj in enumerate(self._base_objs)])
         else:
             self._mul_dummy = Dummy([Sig(obj) / wrap(self._base_objs,i) for i, obj in enumerate(x)])
         return self._mul_dummy
@@ -536,7 +544,6 @@ class PyoObject(object):
             
         """
         return Mix(self, voices)
-        #return self._mix
         
     def setMul(self, x):
         """
@@ -550,7 +557,7 @@ class PyoObject(object):
         """
         self._mul = x
         x, lmax = convertArgsToLists(x)
-        [obj.setMul(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setMul(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
         
     def setAdd(self, x):
         """
@@ -564,7 +571,7 @@ class PyoObject(object):
         """
         self._add = x
         x, lmax = convertArgsToLists(x)
-        [obj.setAdd(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAdd(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setSub(self, x):
         """
@@ -578,7 +585,7 @@ class PyoObject(object):
         """
         self._add = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSub(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setSub(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def setDiv(self, x):
         """
@@ -592,7 +599,7 @@ class PyoObject(object):
         """
         self._mul = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDiv(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setDiv(wrap(x,i/self._op_duplicate)) for i, obj in enumerate(self._base_objs)]
 
     def set(self, attr, value, port=0.025):
         """

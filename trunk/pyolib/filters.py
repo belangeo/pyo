@@ -884,11 +884,12 @@ class BandSplit(PyoObject):
         self._add = add
         self._in_fader = InputFader(input)
         in_fader, q, lmax = convertArgsToLists(self._in_fader, q)
+        self._op_duplicate = lmax
         mul, add, lmax2 = convertArgsToLists(mul, add)
         self._base_players = [BandSplitter_base(wrap(in_fader,i), num, min, max, wrap(q,i)) for i in range(lmax)]
         self._base_objs = []
-        for i in range(lmax):
-            for j in range(num):
+        for j in range(num):
+            for i in range(lmax):
                 self._base_objs.append(BandSplit_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
 
     def __dir__(self):
@@ -1033,6 +1034,7 @@ class FourBand(PyoObject):
         self._add = add
         self._in_fader = InputFader(input)
         in_fader, freq1, freq2, freq3, lmax = convertArgsToLists(self._in_fader, freq1, freq2, freq3)
+        self._op_duplicate = lmax
         mul, add, lmax2 = convertArgsToLists(mul, add)
         self._base_players = [FourBandMain_base(wrap(in_fader,i), wrap(freq1,i), wrap(freq2,i), wrap(freq3,i)) for i in range(lmax)]
         self._base_objs = []
