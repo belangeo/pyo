@@ -373,8 +373,8 @@ class Switch(PyoObject):
         in_fader, voice, mul, add, lmax = convertArgsToLists(self._in_fader, voice, mul, add)
         self._base_players = [Switcher_base(wrap(in_fader,i), outs, wrap(voice,i)) for i in range(lmax)]
         self._base_objs = []
-        for i in range(lmax):
-            for j in range(outs):
+        for j in range(outs):
+            for i in range(lmax):
                 self._base_objs.append(Switch_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
@@ -429,9 +429,9 @@ class Switch(PyoObject):
         if type(chnl) == ListType:
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
-            if chnl < 0:    
+            if chnl < 0:
                 self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
+            else:
                 self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
