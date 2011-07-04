@@ -50,7 +50,7 @@ TODO before releasing _pyo_ version 1.0.
 
 *PyoPVObject* (new base class)
 
-- FFTAnal, FFTSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
+- PVAnal, PVSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
 
 *!PyoObject fft implementation*
 
