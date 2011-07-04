@@ -575,7 +575,7 @@ CallAfter_init(CallAfter *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"callable", "time", "arg", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|fO", kwlist, &calltmp, &self->time, &argtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FO, kwlist, &calltmp, &self->time, &argtmp))
         return -1; 
     
     if (! PyCallable_Check(calltmp))

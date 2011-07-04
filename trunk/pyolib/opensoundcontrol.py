@@ -230,3 +230,187 @@ class OscReceive(PyoObject):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
         
+class OscDataSend(PyoObject):
+    """
+    Sends data values over a network via the Open Sound Control protocol.
+
+    Uses the OSC protocol to share values to other softwares or other 
+    computers. Values are sent on the form of a list containing `types`
+    elements.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    types : str
+        String specifying the types sequence of the message to be sent.
+        Possible values are :
+            integer : "i"
+            long integer : "h"
+            float : "f"
+            double : "d"
+            string : "s"
+        The string "ssfi" indicates that the value to send will be a list
+        containing two strings followed by a float and an integer.
+    port : int
+        Port on which values are sent. Receiver should listen on the 
+        same port.
+    address : string
+        Address used on the port to identify values. Address is in 
+        the form of a Unix path (ex.: '/pitch').
+    host : string, optional
+        IP address of the target computer. The default, '127.0.0.1', 
+        is the localhost.
+
+    Methods:
+
+    send(msg, address=None) : Method used to send `msg` values (a list)
+        at the `address` destination if specified. Otherwise, values will 
+        be sent to all destinations managed by the object.
+
+    Notes:
+
+    The out() method is bypassed. OscDataSend has no audio signal.
+
+    OscDataSend has no `mul` and `add` attributes.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = OscDataSend("fissif", 9900, "/data/test")
+    >>> def pp(address, *args):
+    ...     print address
+    ...     print args
+    >>> b = OscDataReceive(9900, "/data/test", pp)
+    >>> msg = [3.14159, 1, "Hello", "world!", 2, 6.18]
+    >>> a.send(msg)
+
+    """
+    def __init__(self, types, port, address, host="127.0.0.1"):    
+        PyoObject.__init__(self)
+        types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
+        self._base_objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
+        self._addresses = {}
+        for i, adr in enumerate(address):
+            self._addresses[adr] = self._base_objs[i]
+            
+    def __dir__(self):
+        return []
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass    
+
+    def send(self, msg, address=None):
+        """
+        Method used to send `msg` values as a list.
+        
+        Parameters:
+        
+        msg : list
+            List of values to send. Types of values in list
+            must be of the kind defined of `types` argument
+            given at the object's initialization.
+        address : string, optional
+            Address destination to send values. If None, values
+            will be sent to all addresses managed by the object.
+        
+        """
+        if address == None:
+            [obj.send(msg) for obj in self._base_objs]
+        else:
+            self._addresses[address].send(msg)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+class OscDataReceive(PyoObject):
+    """
+    Receives data values over a network via the Open Sound Control protocol.
+
+    Uses the OSC protocol to receive data values from other softwares or 
+    other computers. When a message is received, the function given at the
+    argument `function` is called with the current address destination in 
+    argument followed by a tuple of values.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    port : int
+        Port on which values are received. Sender should output on 
+        the same port. Only one port per object.
+    address : string
+        Address used on the port to identify values. Address is in 
+        the form of a Unix path (ex.: '/pitch'). There can be as many
+        addresses as needed on a single port.
+    function : callable
+        This function will be called whenever a message with a known
+        address is received. Only one function per object.
+
+    Methods:
+
+    getAddresses() : Returns the addresses managed by the object.
+
+    Notes:
+
+    The definition of function at `function` argument must be in this form :
+
+    def my_func(address, *args):
+        ...
+
+    The out() method is bypassed. OscDataReceive has no audio signal.
+
+    OscDataReceive has no `mul` and `add` attributes.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = OscDataSend("fissif", 9900, "/data/test")
+    >>> def pp(address, *args):
+    ...     print address
+    ...     print args
+    >>> b = OscDataReceive(9900, "/data/test", pp)
+    >>> msg = [3.14159, 1, "Hello", "world!", 2, 6.18]
+    >>> a.send(msg)
+
+    """
+
+    def __init__(self, port, address, function, mul=1, add=0):    
+        PyoObject.__init__(self)
+        self._port = port
+        self._address = address
+        self._function = function
+        address, lmax = convertArgsToLists(address)
+        self._base_objs = [OscDataReceive_base(port, address, function)]
+
+    def __dir__(self):
+        return []
+
+    def __del__(self):
+        self._base_objs[0].free_port()
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def getAddresses(self):
+        """
+        Returns the addresses managed by the object.
+        
+        """
+        return self._address
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)

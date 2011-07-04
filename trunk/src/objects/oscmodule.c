@@ -66,6 +66,8 @@ static int
 OscReceiver_traverse(OscReceiver *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->dict);
+    Py_VISIT(self->address_path);
     return 0;
 }
 
@@ -73,6 +75,8 @@ static int
 OscReceiver_clear(OscReceiver *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->dict);
+    Py_CLEAR(self->address_path);
     return 0;
 }
 
@@ -213,8 +217,6 @@ OscReceiver_members,             /* tp_members */
 OscReceiver_new,                 /* tp_new */
 };
 
-
-
 /* OSC receiver stream object */
 typedef struct {
     pyo_audio_HEAD
@@ -292,6 +294,8 @@ static int
 OscReceive_traverse(OscReceive *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->address_path);
     return 0;
 }
 
@@ -299,6 +303,8 @@ static int
 OscReceive_clear(OscReceive *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->address_path);
     return 0;
 }
 
@@ -523,7 +529,9 @@ static int
 OscSend_traverse(OscSend *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->address_path);
     Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
     return 0;
 }
 
@@ -531,7 +539,9 @@ static int
 OscSend_clear(OscSend *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->address_path);
     Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
     return 0;
 }
 
@@ -661,3 +671,423 @@ OscSend_members,             /* tp_members */
 OscSend_new,                 /* tp_new */
 };
 
+/* OscDataSend object */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *value;
+    PyObject *address_path;
+    lo_address address;
+    char *host;
+    char *types;
+    int port;
+    int something_to_send;
+    int num_items;
+} OscDataSend;
+
+static void
+OscDataSend_compute_next_data_frame(OscDataSend *self)
+{    
+    int i;
+    lo_message *msg;
+    char *path  = PyString_AsString(self->address_path);
+        
+    if (self->something_to_send == 1) {
+        msg = lo_message_new();
+
+        for (i=0; i<self->num_items; i++) {
+            switch (self->types[i]) {
+                case LO_INT32:
+                    lo_message_add_int32(msg, PyInt_AsLong(PyList_GetItem(self->value, i)));
+                    break;
+                case LO_INT64:
+                    lo_message_add_int64(msg, (long)PyLong_AsLong(PyList_GetItem(self->value, i)));
+                    break;
+                case LO_FLOAT:
+                    lo_message_add_float(msg, PyFloat_AsDouble(PyList_GetItem(self->value, i)));
+                    break;
+                case LO_DOUBLE:
+                    lo_message_add_double(msg, (double)PyFloat_AsDouble(PyList_GetItem(self->value, i)));
+                    break;
+                case LO_STRING:
+                    lo_message_add_string(msg, PyString_AsString(PyList_GetItem(self->value, i)));
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (lo_send_message(self->address, path, msg) == -1) {
+            printf("OSC error %d: %s\n", lo_address_errno(self->address), lo_address_errstr(self->address));
+        }
+        self->something_to_send = 0;
+        lo_message_free(msg);
+    }
+    
+}
+
+static int
+OscDataSend_traverse(OscDataSend *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->value);
+    Py_VISIT(self->address_path);
+    return 0;
+}
+
+static int 
+OscDataSend_clear(OscDataSend *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->value);
+    Py_CLEAR(self->address_path);
+    return 0;
+}
+
+static void
+OscDataSend_dealloc(OscDataSend* self)
+{
+    free(self->data);
+    OscDataSend_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * OscDataSend_deleteStream(OscDataSend *self) { DELETE_STREAM };
+
+static PyObject *
+OscDataSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    OscDataSend *self;
+    self = (OscDataSend *)type->tp_alloc(type, 0);
+    
+    self->host = NULL;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, OscDataSend_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+OscDataSend_init(OscDataSend *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pathtmp;
+    
+    static char *kwlist[] = {"types", "port", "address", "host", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "siO|s", kwlist, &self->types, &self->port, &pathtmp, &self->host))
+        return -1; 
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    if (! PyString_Check(pathtmp)) {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string.");
+        return -1;
+    }    
+    
+    self->num_items = strlen(self->types);
+    
+    Py_INCREF(pathtmp);    
+    Py_XDECREF(self->address_path);
+    self->address_path = pathtmp;
+    
+    char buf[20];
+    sprintf(buf, "%i", self->port);
+    self->address = lo_address_new(self->host, buf);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * OscDataSend_getServer(OscDataSend* self) { GET_SERVER };
+static PyObject * OscDataSend_getStream(OscDataSend* self) { GET_STREAM };
+
+static PyObject * OscDataSend_play(OscDataSend *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * OscDataSend_stop(OscDataSend *self) { STOP };
+
+static PyObject *
+OscDataSend_send(OscDataSend *self, PyObject *arg)
+{	
+    PyObject *tmp;
+    
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    if (PyList_Check(arg)) {
+        tmp = arg;
+        Py_XDECREF(self->value);
+        Py_INCREF(tmp);
+        self->value = tmp;
+        self->something_to_send = 1;
+    }
+    else
+        printf("argument to send() method must be a tuple of values.\n");
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef OscDataSend_members[] = {
+    {"server", T_OBJECT_EX, offsetof(OscDataSend, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(OscDataSend, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef OscDataSend_methods[] = {
+    {"getServer", (PyCFunction)OscDataSend_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)OscDataSend_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)OscDataSend_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"send", (PyCFunction)OscDataSend_send, METH_O, "Sets values to be sent."},
+    {"play", (PyCFunction)OscDataSend_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)OscDataSend_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject OscDataSendType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.OscDataSend_base",         /*tp_name*/
+    sizeof(OscDataSend),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)OscDataSend_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "OscDataSend objects. Send data values via Open Sound Control protocol.",           /* tp_doc */
+    (traverseproc)OscDataSend_traverse,   /* tp_traverse */
+    (inquiry)OscDataSend_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    OscDataSend_methods,             /* tp_methods */
+    OscDataSend_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)OscDataSend_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    OscDataSend_new,                 /* tp_new */
+};
+
+/* main OscDataReceive */
+typedef struct {
+    pyo_audio_HEAD
+    lo_server osc_server;
+    int port;
+    PyObject *address_path;
+    PyObject *callable;
+} OscDataReceive;
+
+int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, int argc,
+                        void *data, void *user_data)
+{
+    OscDataReceive *self = user_data;
+    PyObject *tup;
+    tup = PyTuple_New(argc+1);
+    int i, ok = 0;
+    
+    Py_ssize_t lsize = PyList_Size(self->address_path);
+    for (i=0; i<lsize; i++) {
+        if (lo_pattern_match(path, PyString_AsString(PyList_GetItem(self->address_path, i)))) {
+            ok = 1;
+            break;
+        }
+    }
+    
+    if (ok) {
+        PyTuple_SetItem(tup, 0, PyString_FromString(path));
+        for (i=0; i<argc; i++) {
+            switch (types[i]) {
+                case LO_INT32:
+                    PyTuple_SetItem(tup, i+1, PyInt_FromLong(argv[i]->i));
+                    break;
+                case LO_INT64:
+                    PyTuple_SetItem(tup, i+1, PyLong_FromLong(argv[i]->h));
+                    break;
+                case LO_FLOAT:
+                    PyTuple_SetItem(tup, i+1, PyFloat_FromDouble(argv[i]->f));
+                    break;
+                case LO_DOUBLE:
+                    PyTuple_SetItem(tup, i+1, PyFloat_FromDouble(argv[i]->d));
+                    break;
+                case LO_STRING:
+                    PyTuple_SetItem(tup, i+1, PyString_FromString(&argv[i]->s));
+                    break;
+                default:
+                    break;
+            }
+        }
+        PyObject_Call(self->callable, tup, NULL);                
+    }
+    return 0;
+}
+
+static void
+OscDataReceive_compute_next_data_frame(OscDataReceive *self)
+{
+    while (lo_server_recv_noblock(self->osc_server, 0) != 0) {};
+}
+
+static int
+OscDataReceive_traverse(OscDataReceive *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->address_path);
+    Py_VISIT(self->callable);
+    return 0;
+}
+
+static int 
+OscDataReceive_clear(OscDataReceive *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->address_path);
+    Py_CLEAR(self->callable);
+    return 0;
+}
+
+static void
+OscDataReceive_dealloc(OscDataReceive* self)
+{
+    lo_server_free(self->osc_server);
+    free(self->data);
+    OscDataReceive_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+OscDataReceive_free_port(OscDataReceive *self)
+{
+    lo_server_free(self->osc_server);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * OscDataReceive_deleteStream(OscDataReceive *self) { DELETE_STREAM };
+
+static PyObject *
+OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    OscDataReceive *self;
+    self = (OscDataReceive *)type->tp_alloc(type, 0);
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, OscDataReceive_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+OscDataReceive_init(OscDataReceive *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pathtmp, *calltmp;
+    Py_ssize_t i;
+    
+    static char *kwlist[] = {"port", "address", "callable", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->port, &pathtmp, &calltmp))
+        return -1; 
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    Py_XDECREF(self->callable);
+    self->callable = calltmp;
+    
+    if (PyString_Check(pathtmp) || PyList_Check(pathtmp)) {
+        Py_INCREF(pathtmp);    
+        Py_XDECREF(self->address_path);
+        self->address_path = pathtmp;
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a list of strings.");
+        return -1;
+    }    
+
+    char buf[20];
+    sprintf(buf, "%i", self->port);
+    self->osc_server = lo_server_new(buf, error);
+    
+    lo_server_add_method(self->osc_server, NULL, NULL, OscDataReceive_handler, self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * OscDataReceive_getServer(OscDataReceive* self) { GET_SERVER };
+static PyObject * OscDataReceive_getStream(OscDataReceive* self) { GET_STREAM };
+
+static PyMemberDef OscDataReceive_members[] = {
+    {"server", T_OBJECT_EX, offsetof(OscDataReceive, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(OscDataReceive, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef OscDataReceive_methods[] = {
+    {"getServer", (PyCFunction)OscDataReceive_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)OscDataReceive_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)OscDataReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"free_port", (PyCFunction)OscDataReceive_free_port, METH_NOARGS, "Call on __del__ method to free osc port used by the object."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject OscDataReceiveType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.OscDataReceive_base",         /*tp_name*/
+    sizeof(OscDataReceive),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)OscDataReceive_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "OscDataReceive objects. Receive values via Open Sound Control protocol.",           /* tp_doc */
+    (traverseproc)OscDataReceive_traverse,   /* tp_traverse */
+    (inquiry)OscDataReceive_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    OscDataReceive_methods,             /* tp_methods */
+    OscDataReceive_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)OscDataReceive_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    OscDataReceive_new,                 /* tp_new */
+};

@@ -34,6 +34,7 @@
 #define TYPE_F_II "f|ii"
 #define TYPE__FFF "|fff"
 #define TYPE_O_F "O|f"
+#define TYPE_O_FO "O|fO"
 #define TYPE__OF "|Of"
 #define TYPE_O_FOO "O|fOO"
 #define TYPE_I_FFOO "i|ffOO"
@@ -86,6 +87,7 @@
 #define TYPE_F_II "d|ii"
 #define TYPE__FFF "|ddd"
 #define TYPE_O_F "O|d"
+#define TYPE_O_FO "O|dO"
 #define TYPE__OF "|Od"
 #define TYPE_O_FOO "O|dOO"
 #define TYPE_I_FFOO "i|ddOO"
@@ -270,6 +272,8 @@ extern PyTypeObject MatrixMorphType;
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
 extern PyTypeObject OscReceiverType;
+extern PyTypeObject OscDataSendType;
+extern PyTypeObject OscDataReceiveType;
 
 extern PyTypeObject TrigRandIntType;
 extern PyTypeObject TrigRandType;
