@@ -1423,9 +1423,9 @@ class ServerGUI(wx.Frame):
     def getText(self, evt):
         source = self.text.GetValue()
         self.text.Clear()
-        exec source in self.locals
         self._history.append(source)
         self._histo_count = len(self._history)
+        exec source in self.locals
 
     def onChar(self, evt):
         key = evt.GetKeyCode()
