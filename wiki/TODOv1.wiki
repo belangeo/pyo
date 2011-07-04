@@ -44,15 +44,11 @@ TODO before releasing _pyo_ version 1.0.
 
 - Improve OSC scheduling with time stamp.
 
-- Communication in data mode, possibility to send and receive string, list or other message types directly in Python. !OscDataSend, !OscDataReceive
-
 - !UdpSend, !UdpReceive
-
-- Autodiscovery on the network using Bonjour/Avahi/Zeroconf (in progress)
 
 ----
 
-*PyoFFTObject* (new base class)
+*PyoPVObject* (new base class)
 
 - FFTAnal, FFTSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
 
@@ -74,7 +70,7 @@ TODO before releasing _pyo_ version 1.0.
   * !TrigGrains(one-stream and multi-stream)
   * Vocoder
   * CrossPM, CrossFMPM
-  * !TrigProb (!PyoMatrix), !TrigMarkov (!PyoTable)
+  * !TrigMarkov (!PyoTable)
   * Looper (rewrite in C)
   * !SfMarkerTrigger
   * !MatrixSetCol (make sure that there is only one value in a column, others are 0)
