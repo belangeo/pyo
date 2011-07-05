@@ -337,7 +337,7 @@ portmidi_get_default_input(){
 /****** Libsndfile utilities ******/
 #define sndinfo_info \
 "\nRetrieve informations about a soundfile.\n\n\
-Prints the infos of the given soundfile to the console and returns a tuple containing (number of frames, duration in seconds, sampling rate, number of channels).\n\nsndinfo(path, print=False)\n\nParameters:\n\n    \
+Prints the infos of the given soundfile to the console and returns a tuple containing:\n (number of frames, duration in seconds, sampling rate, number of channels, file format, sample type).\n\nsndinfo(path, print=False)\n\nParameters:\n\n    \
 path : string\n        Path of a valid soundfile.\n    \
 print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\n"
 
@@ -347,27 +347,90 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     
     SNDFILE *sf;
     SF_INFO info;
+    char *pathtmp;
     char *path;
+    char fileformat[4];
+    char *sampletype;
+    int format;
+    int subformat;
     int print = 0;
 
     static char *kwlist[] = {"path", "print", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &path, &print))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &pathtmp, &print))
         return NULL;
+
+    path = malloc(strlen(pathtmp)+1);
+    strcpy(path, pathtmp);
 
     /* Open the sound file. */
     info.format = 0;
     sf = sf_open(path, SFM_READ, &info);
-    if (sf == NULL)
-    {
+    if (sf == NULL) {
         printf("Failed to open the file.\n");
         Py_RETURN_NONE;
     }
     else {
+        /* Retrieve file format */
+        format = (int)info.format;
+        if (format > SF_FORMAT_WAV && format < SF_FORMAT_AIFF) {
+            strcpy(fileformat, "WAVE");
+            subformat = format - SF_FORMAT_WAV;
+        }
+        else if (format > SF_FORMAT_AIFF && format < SF_FORMAT_AU) {
+            strcpy(fileformat, "AIFF");
+            subformat = format - SF_FORMAT_AIFF;
+        }
+        else {
+            strcpy(fileformat, "????");
+            subformat = -1;
+        }
+        /* Retrieve sample type */
+        if (subformat != -1) {
+            switch (subformat) {
+                case SF_FORMAT_PCM_S8:
+                    sampletype = malloc(strlen("s8 bit int") + 1);
+                    strcpy(sampletype, "s8 bit int");
+                    break;
+                case SF_FORMAT_PCM_U8:
+                    sampletype = malloc(strlen("u8 bit int") + 1);
+                    strcpy(sampletype, "u8 bit int");
+                    break;
+                case SF_FORMAT_PCM_16:
+                    sampletype = malloc(strlen("16 bit int") + 1);
+                    strcpy(sampletype, "16 bit int");
+                    break;
+                case SF_FORMAT_PCM_24:
+                    sampletype = malloc(strlen("24 bit int") + 1);
+                    strcpy(sampletype, "24 bit int");
+                    break;
+                case SF_FORMAT_PCM_32:
+                    sampletype = malloc(strlen("32 bit int") + 1);
+                    strcpy(sampletype, "32 bit int");
+                    break;
+                case SF_FORMAT_FLOAT:
+                    sampletype = malloc(strlen("32 bit float") + 1);
+                    strcpy(sampletype, "32 bit float");
+                    break;
+                case SF_FORMAT_DOUBLE:
+                    sampletype = malloc(strlen("64 bit float") + 1);
+                    strcpy(sampletype, "64 bit float");
+                    break;
+                default:
+                    sampletype = malloc(strlen("Unknown...") + 1);
+                    strcpy(sampletype, "Unknown...");
+                    break;
+            }
+        }
+            
         if (print)
-            fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\n", path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels);
-        PyObject *sndinfo = PyTuple_Pack(4, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels));
+            fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n", 
+                    path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, fileformat, sampletype);
+        PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), PyFloat_FromDouble(info.samplerate), 
+                                         PyInt_FromLong(info.channels), PyString_FromString(fileformat), PyString_FromString(sampletype));
         sf_close(sf);
+        free(path);
+        free(sampletype);
         return sndinfo;
         
     }
@@ -384,10 +447,10 @@ fileformat : int, optional\n        Format type of the new file. Defaults to 0. 
         1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n    \
 sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0. Supported types are:\n    \
         0 : 16 bit int\n    \
-        1 : 24 bits int\n    \
-        2 : 32 bits int\n    \
-        3 : 32 bits float\n    \
-        4 : 64 bits float\n\n"
+        1 : 24 bit int\n    \
+        2 : 32 bit int\n    \
+        3 : 32 bit float\n    \
+        4 : 64 bit float\n\n"
 
 static PyObject *
 savefile(PyObject *self, PyObject *args, PyObject *kwds) {
