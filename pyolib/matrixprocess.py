@@ -52,6 +52,9 @@ class MatrixRec(PyoObject):
     fadetime : float, optional
         Fade time at the beginning and the end of the recording 
         in seconds. Defaults to 0.
+    delay : int, optional
+        Delay time, in samples, before the recording begins. 
+        Available at initialization time only. Defaults to 0.
     
     Methods:
 
@@ -95,13 +98,13 @@ class MatrixRec(PyoObject):
     >>> c = MatrixPointer(mm, x, y, .5).out()
     
     """
-    def __init__(self, input, matrix, fadetime=0):
+    def __init__(self, input, matrix, fadetime=0, delay=0):
         PyoObject.__init__(self)
         self._input = input
         self._matrix = matrix
         self._in_fader = InputFader(input)
-        in_fader, matrix, fadetime, lmax = convertArgsToLists(self._in_fader, matrix, fadetime)
-        self._base_objs = [MatrixRec_base(wrap(in_fader,i), wrap(matrix,i), wrap(fadetime,i)) for i in range(len(matrix))]
+        in_fader, matrix, fadetime, delay, lmax = convertArgsToLists(self._in_fader, matrix, fadetime, delay)
+        self._base_objs = [MatrixRec_base(wrap(in_fader,i), wrap(matrix,i), wrap(fadetime,i), wrap(delay,i)) for i in range(len(matrix))]
         self._trig_objs = [MatrixRecTrig_base(obj) for obj in self._base_objs]
 
     def __dir__(self):

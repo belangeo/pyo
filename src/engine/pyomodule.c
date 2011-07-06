@@ -349,7 +349,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     SF_INFO info;
     char *pathtmp;
     char *path;
-    char fileformat[4];
+    char fileformat[5];
     char *sampletype;
     int format;
     int subformat;

@@ -1170,7 +1170,7 @@ class SndTable(PyoTableObject):
         self._path = path
         path, lmax = convertArgsToLists(path)
         for p in path:
-            _size, _dur, _snd_sr, _snd_chnls = sndinfo(p)
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
             self._size.append(_size)
             self._dur.append(_dur)
             if chnl == None:
@@ -1206,12 +1206,12 @@ class SndTable(PyoTableObject):
             path, lmax = convertArgsToLists(path)
             for i, obj in enumerate(self._base_objs):
                 p = path[i%lmax]
-                _size, _dur, _snd_sr, _snd_chnls = sndinfo(p)
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
                 obj.setSound(p, 0)
         else:    
-            _size, _dur, _snd_sr, _snd_chnls = sndinfo(path)
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
             self._path = path

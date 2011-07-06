@@ -453,6 +453,8 @@ typedef struct {
     NewMatrix *matrix;
     int pointer;
     int active;
+    int delay;
+    int delayCount;
     MYFLT fadetime;
     MYFLT fadeInSample;
     MYFLT *trigsBuffer;
@@ -462,12 +464,14 @@ typedef struct {
 static void
 MatrixRec_compute_next_data_frame(MatrixRec *self)
 {
-    int i, num, upBound;
+    int i, num, num2, upBound;
     MYFLT sclfade, val;
     int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
     int height = NewMatrix_getHeight((NewMatrix *)self->matrix);
     int size = width * height;
-    
+   
+    int off = self->delay - self->delayCount;
+ 
     if ((size - self->pointer) >= self->bufsize)
         num = self->bufsize;
     else {
@@ -484,22 +488,34 @@ MatrixRec_compute_next_data_frame(MatrixRec *self)
     if (self->pointer < size) {   
         sclfade = 1. / self->fadetime;
         upBound = size - self->fadeInSample;
-        
-        MYFLT buffer[num];
+       
+        if (off == 0)
+            num2 = num;
+        else if ((num-off) <= 0)
+            num2 = 0;
+        else
+            num2 = num-off;
+
+        MYFLT buffer[num2];
         memset(&buffer, 0, sizeof(buffer));
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
         
         for (i=0; i<num; i++) {
-            if (self->pointer < self->fadeInSample)
-                val = self->pointer / self->fadeInSample;
-            else if (self->pointer > upBound)
-                val = (size - self->pointer) / self->fadeInSample;
-            else
-                val = 1.;
-            buffer[i] = in[i] * val;
-            self->pointer++;
+            if (self->delayCount < self->delay) {
+                self->delayCount++;
+            }
+            else {
+                if (self->pointer < self->fadeInSample)
+                    val = self->pointer / self->fadeInSample;
+                else if (self->pointer > upBound)
+                    val = (size - self->pointer) / self->fadeInSample;
+                else
+                    val = 1.;
+                buffer[i-off] = in[i] * val;
+                self->pointer++;
+            }
         }
-        NewMatrix_recordChunkAllRow((NewMatrix *)self->matrix, buffer, num);
+        NewMatrix_recordChunkAllRow((NewMatrix *)self->matrix, buffer, num2);
     }    
 }
 
@@ -545,6 +561,7 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointer = 0;
     self->active = 1;
     self->fadetime = 0.;
+    self->delay = self->delayCount = 0;
     
     INIT_OBJECT_COMMON
     
@@ -560,9 +577,9 @@ MatrixRec_init(MatrixRec *self, PyObject *args, PyObject *kwds)
     int i;
     PyObject *inputtmp, *input_streamtmp, *matrixtmp;
     
-    static char *kwlist[] = {"input", "matrix", "fadetime", NULL};
+    static char *kwlist[] = {"input", "matrix", "fadetime", "delay", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &matrixtmp, &self->fadetime))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_FI, kwlist, &inputtmp, &matrixtmp, &self->fadetime, &self->delay))
         return -1; 
     
     Py_XDECREF(self->input);
@@ -603,6 +620,7 @@ static PyObject * MatrixRec_play(MatrixRec *self, PyObject *args, PyObject *kwds
 { 
     self->pointer = 0;
     self->active = 1;
+    self->delayCount = 0;
     PLAY 
 };
 

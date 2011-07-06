@@ -10,7 +10,7 @@ from pyo import *
 s = Server().boot()
 
 snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True)
-snd2 = FM(carrier=[75,100.03,125.5,149], ratio=[.99,.505], index=20, mul=.4).mix(2)
+snd2 = FM(carrier=[75,100,125,150], ratio=[.999,.5005], index=20, mul=.4).mix(2)
 
 size = 1024
 olaps = 4

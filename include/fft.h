@@ -27,9 +27,10 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle);
 void fft_compute_split_twiddle(MYFLT **twiddle, int size);
 void fft_compute_window(MYFLT *window, int size, int wintype);
 /* in-place radix-2 real fft (not used actually) */
-void realfft_packed(MYFLT *data, int size, MYFLT *twiddle);
-void irealfft_packed(MYFLT *data, int size, MYFLT *twiddle);
+void realfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle);
+void irealfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle);
 /* Prototype for array generation of twiddle factors */
 void fft_compute_split_twiddle(MYFLT **twiddle, int size);
+void fft_compute_radix2_twiddle(MYFLT *twiddle, int size);
 #endif
 

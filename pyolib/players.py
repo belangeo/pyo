@@ -110,7 +110,7 @@ class SfPlayer(PyoObject):
         self._base_objs = []
         self._trig_objs = []
         for i in range(lmax):
-            _snd_size, _dur, _snd_sr, _snd_chnls = sndinfo(path[0])
+            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type  = sndinfo(path[0])
             self._base_players.append(SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)))
             for j in range(_snd_chnls):
                 self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul,i), wrap(add,i)))
@@ -188,7 +188,7 @@ class SfPlayer(PyoObject):
         else:
             p = path
         try:
-            _snd_size, _dur, _snd_sr, _snd_chnls = sndinfo(p)
+            _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
         except:
             return
         if _snd_chnls != curNchnls:
@@ -358,7 +358,7 @@ class SfMarkerShuffler(PyoObject):
         path, speed, interp, mul, add, lmax = convertArgsToLists(path, speed, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0])
         for i in range(lmax):
             try:
                 sf = aifc.open(wrap(path,i))
@@ -527,7 +527,7 @@ class SfMarkerLooper(PyoObject):
         path, speed, mark, interp, mul, add, lmax = convertArgsToLists(path, speed, mark, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._snd_size, self._dur, self._snd_sr, self._snd_chnls = sndinfo(path[0])
+        self._snd_size, self._dur, self._snd_sr, self._snd_chnls, _format, _type = sndinfo(path[0])
         for i in range(lmax):
             try:
                 sf = aifc.open(wrap(path,i))

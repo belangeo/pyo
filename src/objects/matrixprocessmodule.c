@@ -42,10 +42,10 @@ typedef struct {
 static void
 MatrixPointer_readframes(MatrixPointer *self) {
     int i;
-    
+
     MYFLT *x = Stream_getData((Stream *)self->x_stream);
     MYFLT *y = Stream_getData((Stream *)self->y_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = MatrixStream_getInterpPointFromPos(self->matrix, x[i], y[i]);
     }
