@@ -422,7 +422,11 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
                     break;
             }
         }
-            
+        else {
+            sampletype = malloc(strlen("Unknown...") + 1);
+            strcpy(sampletype, "Unknown...");
+        }
+    
         if (print)
             fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n", 
                     path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, fileformat, sampletype);
