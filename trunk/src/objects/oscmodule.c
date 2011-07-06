@@ -1000,7 +1000,6 @@ static int
 OscDataReceive_init(OscDataReceive *self, PyObject *args, PyObject *kwds)
 {
     PyObject *pathtmp, *calltmp;
-    Py_ssize_t i;
     
     static char *kwlist[] = {"port", "address", "callable", NULL};
     

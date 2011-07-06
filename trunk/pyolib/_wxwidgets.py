@@ -880,6 +880,8 @@ class Grapher(wx.Panel):
         self.init = [tup for tup in init]
         self.points = init
         self.outFunction = outFunction
+        
+        self.SetFocus()
 
     def setInitPoints(self, pts):
         self.init = [(p[0],p[1]) for p in pts]
@@ -1254,6 +1256,7 @@ class TableGrapher(wx.Frame):
             data = wx.TextDataObject(pstr)
             ret = self.clipboard.Open()
             if ret:
+                self.clipboard.Clear()
                 self.clipboard.SetData(data)
                 self.clipboard.Close()
         

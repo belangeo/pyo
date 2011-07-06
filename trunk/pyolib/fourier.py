@@ -816,7 +816,7 @@ class FrameDelta(PyoObject):
 
     input : PyoObject
         Phase input signal.
-    frameSize : int, optional
+    framesize : int, optional
         Frame size in samples. Usually half of the FFT frame.
         Defaults to 512.
 
@@ -828,7 +828,7 @@ class FrameDelta(PyoObject):
     Attributes:
 
     input : PyoObject. Phase input signal.
-    frameSize : int. Frame size in samples.
+    framesize : int. Frame size in samples.
 
     Examples:
 
@@ -849,18 +849,18 @@ class FrameDelta(PyoObject):
     >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
 
     """
-    def __init__(self, input, frameSize=512, mul=1, add=0):
+    def __init__(self, input, framesize=512, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
-        self._frameSize = frameSize
+        self._framesize = framesize
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, frameSize, mul, add, lmax = convertArgsToLists(self._in_fader, frameSize, mul, add)
-        self._base_objs = [FrameDelta_base(wrap(in_fader,i), wrap(frameSize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, framesize, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, mul, add)
+        self._base_objs = [FrameDelta_base(wrap(in_fader,i), wrap(framesize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'frameSize', 'mul', 'add']
+        return ['input', 'framesize', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -879,15 +879,15 @@ class FrameDelta(PyoObject):
 
     def setFrameSize(self, x):
         """
-        Replace the `frameSize` attribute.
+        Replace the `framesize` attribute.
 
         Parameters:
 
         x : int
-            new `frameSize` attribute.
+            new `framesize` attribute.
 
         """
-        self._frameSize = x
+        self._framesize = x
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in self._base_objs]
 
@@ -903,11 +903,11 @@ class FrameDelta(PyoObject):
     def input(self, x): self.setInput(x)
 
     @property
-    def frameSize(self):
+    def framesize(self):
         """PyoObject. Frame size in samples.""" 
-        return self._frameSize
-    @frameSize.setter
-    def frameSize(self, x): self.setFrameSize(x)
+        return self._framesize
+    @framesize.setter
+    def framesize(self, x): self.setFrameSize(x)
 
 class FrameAccum(PyoObject):
     """
@@ -919,19 +919,19 @@ class FrameAccum(PyoObject):
 
     input : PyoObject
         Phase input signal.
-    frameSize : int, optional
+    framesize : int, optional
         Frame size in samples. Usually half of the FFT frame.
         Defaults to 512.
 
     Methods:
 
     setInPut(x, fadetime) : Replace the `input` attribute.
-    setFrameSize(x) : Replace the `frameSize` attribute.
+    setFrameSize(x) : Replace the `framesize` attribute.
 
     Attributes:
 
     input : PyoObject. Phase input signal.
-    frameSize : int. Frame size in samples.
+    framesize : int. Frame size in samples.
 
     Examples:
 
@@ -952,18 +952,19 @@ class FrameAccum(PyoObject):
     >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
 
     """
-    def __init__(self, input, frameSize=512, mul=1, add=0):
+    def __init__(self, input, framesize=512, reset=None, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
-        self._frameSize = frameSize
+        self._framesize = framesize
+        self._reset = reset
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, frameSize, mul, add, lmax = convertArgsToLists(self._in_fader, frameSize, mul, add)
-        self._base_objs = [FrameAccum_base(wrap(in_fader,i), wrap(frameSize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, framesize, reset, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, reset, mul, add)
+        self._base_objs = [FrameAccum_base(wrap(in_fader,i), wrap(framesize,i), wrap(reset,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'frameSize', 'mul', 'add']
+        return ['input', 'framesize', 'reset', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -982,17 +983,31 @@ class FrameAccum(PyoObject):
 
     def setFrameSize(self, x):
         """
-        Replace the `frameSize` attribute.
+        Replace the `framesize` attribute.
 
         Parameters:
 
         x : int
-            new `frameSize` attribute.
+            new `framesize` attribute.
 
         """
-        self._frameSize = x
+        self._framesize = x
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in self._base_objs]
+
+    def setReset(self, x):
+        """
+        Replace the `reset` attribute.
+
+        Parameters:
+
+        x : int
+            new `reset` attribute.
+
+        """
+        self._reset = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setReset(wrap(x,i)) for i, obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -1006,9 +1021,16 @@ class FrameAccum(PyoObject):
     def input(self, x): self.setInput(x)
 
     @property
-    def frameSize(self):
+    def framesize(self):
         """PyoObject. Frame size in samples.""" 
-        return self._frameSize
-    @frameSize.setter
-    def frameSize(self, x): self.setFrameSize(x)
+        return self._framesize
+    @framesize.setter
+    def framesize(self, x): self.setFrameSize(x)
+
+    @property
+    def reset(self):
+        """PyoObject. Reset trigger stream.""" 
+        return self._reset
+    @reset.setter
+    def reset(self, x): self.setReset(x)
 

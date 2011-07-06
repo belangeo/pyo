@@ -45,6 +45,7 @@ typedef struct {
     MYFLT *outframe;    
     MYFLT *window;
     MYFLT **twiddle;
+    MYFLT *twiddle2;
     MYFLT *buffer_streams;
 } FFTMain;
 
@@ -64,6 +65,8 @@ FFTMain_realloc_memories(FFTMain *self) {
     for(i=0; i<4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
     fft_compute_split_twiddle(self->twiddle, self->size);
+    self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
+    fft_compute_radix2_twiddle(self->twiddle2, self->size);
     self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
@@ -73,7 +76,7 @@ static void
 FFTMain_filters(FFTMain *self) {
     int i, outcount;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+        
     for (i=0; i<self->bufsize; i++) {
         if (self->incount >= 0) {
             self->inframe[self->incount] = in[i] * self->window[self->incount];
@@ -91,7 +94,24 @@ FFTMain_filters(FFTMain *self) {
             self->incount -= self->size;      
             realfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
-    }    
+    } 
+    /*
+    for (i=0; i<self->bufsize; i++) {
+        if (self->incount >= 0) {
+            self->inframe[(self->incount+self->hopsize)%self->size] = in[i] * self->window[self->incount];
+            outcount = self->incount % self->hsize;
+            self->buffer_streams[i] = self->outframe[outcount*2];
+            self->buffer_streams[i+self->bufsize] = self->outframe[outcount*2+1];
+            self->buffer_streams[i+self->bufsize*2] = (MYFLT)outcount;
+        }
+
+        self->incount++;
+        if (self->incount >= self->size) {
+            self->incount -= self->size;      
+            realfft_packed(self->inframe, self->outframe, self->size, self->twiddle2);
+        }
+    }
+    */
 }
 
 MYFLT *
@@ -143,6 +163,7 @@ FFTMain_dealloc(FFTMain* self)
         free(self->twiddle[i]);
     }
     free(self->twiddle);
+    free(self->twiddle2);
     FFTMain_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -573,6 +594,7 @@ typedef struct {
     MYFLT *outframe;    
     MYFLT *window;
     MYFLT **twiddle;
+    MYFLT *twiddle2;
     int modebuffer[2];
 } IFFT;
 
@@ -589,6 +611,8 @@ IFFT_realloc_memories(IFFT *self) {
     for(i=0; i<4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
     fft_compute_split_twiddle(self->twiddle, self->size);
+    self->twiddle2 = (MYFLT *)realloc(self->twiddle2, self->size * sizeof(MYFLT));
+    fft_compute_radix2_twiddle(self->twiddle2, self->size);
     self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
     gen_window(self->window, self->size, self->wintype);
     self->incount = -self->hopsize;
@@ -599,7 +623,7 @@ IFFT_filters(IFFT *self) {
     int i, outcount;
     MYFLT *inreal = Stream_getData((Stream *)self->inreal_stream);
     MYFLT *inimag = Stream_getData((Stream *)self->inimag_stream);
-    
+
     for (i=0; i<self->bufsize; i++) {
         if (self->incount >= 0) {
             outcount = self->incount % self->hsize;
@@ -616,7 +640,23 @@ IFFT_filters(IFFT *self) {
             self->incount -= self->size;      
             irealfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
-    }    
+    } 
+    /*
+    for (i=0; i<self->bufsize; i++) {
+        if (self->incount >= 0) {
+            outcount = self->incount % self->hsize;
+            self->inframe[outcount*2] = inreal[i];
+            self->inframe[outcount*2+1] = inimag[i];
+            self->data[i] = self->outframe[self->incount] * self->window[self->incount];
+        }
+        
+        self->incount++;
+        if (self->incount >= self->size) {
+            self->incount -= self->size;      
+            irealfft_packed(self->inframe, self->outframe, self->size, self->twiddle2);
+        }
+    }
+    */   
 }
 
 static void IFFT_postprocessing_ii(IFFT *self) { POST_PROCESSING_II };
@@ -710,6 +750,7 @@ IFFT_dealloc(IFFT* self)
         free(self->twiddle[i]);
     }
     free(self->twiddle);
+    free(self->twiddle2);
 
     IFFT_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -1543,6 +1584,8 @@ typedef struct {
     int modebuffer[2];
     int frameSize; 
     int count;
+    MYFLT scal;
+    MYFLT fac;
     MYFLT *frameBuffer;
 } FrameDelta;
 
@@ -1563,7 +1606,7 @@ FrameDelta_generate(FrameDelta *self) {
         while (diff > PI) {
             diff -= TWOPI;
         }
-        self->data[i] = diff;
+        self->data[i] = diff; //(diff + self->count*self->scal) * self->fac;
         self->frameBuffer[self->count] = curPhase;
         if (self->count++ >= self->frameSize)
             self->count = 0;
@@ -1702,6 +1745,9 @@ FrameDelta_init(FrameDelta *self, PyObject *args, PyObject *kwds)
     for (i=0; i<self->frameSize; i++) {
         self->frameBuffer[i] = 0.0;
     }
+    
+    self->scal = TWOPI * 256 / (self->frameSize * 2);
+    self->fac = self->sr / (256 * TWOPI);
     
     (*self->mode_func_ptr)(self);
     
@@ -1862,29 +1908,63 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input; 
     Stream *input_stream;
-    int modebuffer[2];
+    PyObject *reset; 
+    Stream *reset_stream;    
+    int modebuffer[3];
     int frameSize; 
     int count;
+    MYFLT scal;
+    MYFLT fac;
     MYFLT *frameBuffer;
 } FrameAccum;
 
 static void
-FrameAccum_generate(FrameAccum *self) {
+FrameAccum_generate_0(FrameAccum *self) {
     int i;
     MYFLT curPhase, lastPhase, diff;
     
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
-        curPhase = in[i];
+        curPhase = in[i]; //(in[i] - self->count * self->scal) * self->fac;
         lastPhase = self->frameBuffer[self->count];
         diff = curPhase + lastPhase;
-        while (diff < -PI) {
-            diff += TWOPI;
+        //while (diff < -PI) {
+        //    diff += TWOPI;
+        //}
+        //while (diff > PI) {
+        //    diff -= TWOPI;
+        //}
+        self->data[i] = diff;
+        self->frameBuffer[self->count] = diff;
+        if (self->count++ >= self->frameSize)
+            self->count = 0;
+    }
+}
+
+static void
+FrameAccum_generate_1(FrameAccum *self) {
+    int i;
+    MYFLT curPhase, lastPhase, diff;
+    
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *reset = Stream_getData((Stream *)self->reset_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (reset[i] == 1.0) {
+            for (i=0; i<self->frameSize; i++) {
+                self->frameBuffer[i] = 0.0;
+            }
         }
-        while (diff > PI) {
-            diff -= TWOPI;
-        }
+        curPhase = in[i]; //(in[i] - self->count * self->scal) * self->fac;
+        lastPhase = self->frameBuffer[self->count];
+        diff = curPhase + lastPhase;
+        //while (diff < -PI) {
+        //    diff += TWOPI;
+        //}
+        //while (diff > PI) {
+        //    diff -= TWOPI;
+        //}
         self->data[i] = diff;
         self->frameBuffer[self->count] = diff;
         if (self->count++ >= self->frameSize)
@@ -1905,11 +1985,20 @@ static void FrameAccum_postprocessing_revareva(FrameAccum *self) { POST_PROCESSI
 static void
 FrameAccum_setProcMode(FrameAccum *self)
 {
-    int muladdmode;
+    int muladdmode, procmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    procmode = self->modebuffer[2];
     
-    self->proc_func_ptr = FrameAccum_generate;
-    
+    printf("procmode = %d\n", procmode);
+    switch (procmode) {
+        case 0:
+            self->proc_func_ptr = FrameAccum_generate_0;
+            break;
+        case 1:
+            self->proc_func_ptr = FrameAccum_generate_1;
+            break;                    
+    }
+
 	switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = FrameAccum_postprocessing_ii;
@@ -1955,6 +2044,8 @@ FrameAccum_traverse(FrameAccum *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    Py_VISIT(self->reset);
+    Py_VISIT(self->reset_stream);
     return 0;
 }
 
@@ -1964,6 +2055,8 @@ FrameAccum_clear(FrameAccum *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->reset);
+    Py_CLEAR(self->reset_stream);
     return 0;
 }
 
@@ -1987,6 +2080,7 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
     self->count = 0;
     
     INIT_OBJECT_COMMON
@@ -2000,14 +2094,18 @@ static int
 FrameAccum_init(FrameAccum *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *inputtmp, *input_streamtmp, *resettmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "frameSize", "mul", "add", NULL};
+    static char *kwlist[] = {"input", "frameSize", "reset", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &inputtmp, &self->frameSize, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OOO", kwlist, &inputtmp, &self->frameSize, &resettmp, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
+
+    if (resettmp && resettmp != Py_None) {
+        PyObject_CallMethod((PyObject *)self, "setReset", "O", resettmp);
+    }
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -2024,6 +2122,9 @@ FrameAccum_init(FrameAccum *self, PyObject *args, PyObject *kwds)
     for (i=0; i<self->frameSize; i++) {
         self->frameBuffer[i] = 0.0;
     }
+    
+    self->scal = self->sr / (self->frameSize * 2.);
+    self->fac = 256 * TWOPI / self->sr;
     
     (*self->mode_func_ptr)(self);
     
@@ -2073,10 +2174,42 @@ FrameAccum_setFrameSize(FrameAccum *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+FrameAccum_setReset(FrameAccum *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		printf("reset argument of FrameAccum must be a trigger audio stream.\n");
+	}
+	else {
+	    tmp = arg;
+	    Py_INCREF(tmp);
+	    Py_XDECREF(self->reset);
+		self->reset = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->reset, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->reset_stream);
+        self->reset_stream = (Stream *)streamtmp;
+        self->modebuffer[2] = 1;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef FrameAccum_members[] = {
     {"server", T_OBJECT_EX, offsetof(FrameAccum, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameAccum, stream), 0, "Stream object."},
     {"input", T_OBJECT_EX, offsetof(FrameAccum, input), 0, "Phase input object."},
+    {"reset", T_OBJECT_EX, offsetof(FrameAccum, reset), 0, "Reset trigger object."},
     {"mul", T_OBJECT_EX, offsetof(FrameAccum, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(FrameAccum, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -2089,6 +2222,7 @@ static PyMethodDef FrameAccum_methods[] = {
     {"play", (PyCFunction)FrameAccum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)FrameAccum_stop, METH_NOARGS, "Stops computing."},
     {"setFrameSize", (PyCFunction)FrameAccum_setFrameSize, METH_O, "Sets frame size."},
+    {"setReset", (PyCFunction)FrameAccum_setReset, METH_O, "Sets FrameAccum reset object stream."},
     {"setMul", (PyCFunction)FrameAccum_setMul, METH_O, "Sets FrameAccum mul factor."},
     {"setAdd", (PyCFunction)FrameAccum_setAdd, METH_O, "Sets FrameAccum add factor."},
     {"setSub", (PyCFunction)FrameAccum_setSub, METH_O, "Sets inverse add factor."},

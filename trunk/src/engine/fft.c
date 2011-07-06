@@ -43,6 +43,17 @@ void fft_compute_split_twiddle(MYFLT **twiddle, int size) {
     return;
 }
 
+void fft_compute_radix2_twiddle(MYFLT *twiddle, int size) {
+    /* pre-compute radix-2 twiddle factors in one array of length n */
+    /* re[0], re[1], ..., re[n/2-1], im[0], im[1], ..., im[n/2-1] */
+    int i;
+    int hsize = size / 2;
+    for (i=0; i<hsize; i++) {
+        twiddle[i] = MYCOS(TWOPI/hsize*i);
+        twiddle[hsize+i] = MYSIN(TWOPI/hsize*i);
+    }
+
+}
 /****************************************************************
 ** Sorensen in-place split-radix FFT for real values
 ** data: array of doubles:
@@ -543,20 +554,18 @@ void unrealize(MYFLT *data, int size) {
 **
 ** Source: see the routines it calls ...
 ******************************************************* */
-void realfft_packed(MYFLT *data, int size, MYFLT *twiddle) {
+void realfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle) {
 
-	MYFLT *l, *end;
-	MYFLT div;
+    int i;
 
 	size >>= 1;
 	dif_butterfly(data, size, twiddle);
 	unshuffle(data, size);
 	realize(data, size);
 
-	end = data + size + size;
-	div = size + size;
-	for(l=data; l<end; l++)
-	    *l = *l / div;
+	size <<= 1;
+	for (i=0; i<size; i++)
+	    outdata[i] = data[i] / size;
 }
 
 /* *****************************************************
@@ -571,17 +580,17 @@ void realfft_packed(MYFLT *data, int size, MYFLT *twiddle) {
 **
 ** Source: see the routines it calls ...
 ******************************************************* */
-void irealfft_packed(MYFLT *data, int size, MYFLT *twiddle) {
+void irealfft_packed(MYFLT *data, MYFLT *outdata, int size, MYFLT *twiddle) {
 
-	MYFLT *l, *end;
+    int i;
 
 	size >>= 1;
 	unrealize(data, size);
 	unshuffle(data, size);
 	inverse_dit_butterfly(data, size, twiddle);
 
-	end = data + size + size;
-	for(l=data; l<end; l++)
-	    *l = (*l) * 2;
+	size <<= 1;
+	for (i=0; i<size; i++)
+	    outdata[i] = data[i] * 2;
 }
 
