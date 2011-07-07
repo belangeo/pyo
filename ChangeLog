@@ -1,3 +1,8 @@
+2011-07-07 belangeo <belangeo@gmail.com>
+
+    * Added new arithmetic object: Round.
+    - rev 675
+
 2011-07-06 belangeo <belangeo@gmail.com>
 
     * Added new arithmetic object: Floor.
