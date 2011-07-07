@@ -1471,6 +1471,11 @@ init_pyo64(void)
     Py_INCREF(&M_Atan2Type);
     PyModule_AddObject(m, "M_Atan2_base", (PyObject *)&M_Atan2Type);    
 
+    if (PyType_Ready(&M_FloorType) < 0)
+        return;
+    Py_INCREF(&M_FloorType);
+    PyModule_AddObject(m, "M_Floor_base", (PyObject *)&M_FloorType);    
+    
     if (PyType_Ready(&SnapType) < 0)
         return;
     Py_INCREF(&SnapType);

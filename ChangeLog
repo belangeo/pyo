@@ -1,3 +1,8 @@
+2011-07-06 belangeo <belangeo@gmail.com>
+
+    * Added new arithmetic object: Floor.
+    - rev 674
+
 2011-07-03 belangeo <belangeo@gmail.com>
 
     * Added new objects: OscDataSend and OscDataReceive.
