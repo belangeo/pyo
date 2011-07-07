@@ -331,6 +331,7 @@ extern PyTypeObject M_Log10Type;
 extern PyTypeObject M_PowType;
 extern PyTypeObject M_Atan2Type;
 extern PyTypeObject M_FloorType;
+extern PyTypeObject M_RoundType;
 
 extern PyTypeObject FFTMainType;
 extern PyTypeObject FFTType;
