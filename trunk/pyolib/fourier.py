@@ -37,9 +37,11 @@ class FFT(PyoObject):
 
     FFT analyses an input signal and converts it into the spectral
     domain. Three audio signals are sent out of the object, the
-    `real` and the `imaginary` parts for the real spectrum from bin
-    0 to bin size/2-1, and the bin number, an increasing count from
-    0 to size/2-1. See notes below for an example of how to retrieve
+    `real` part, from bin 0 (DC) to bin size/2 (Nyquist), the 
+    `imaginary` part, from bin 0 to bin size/2-1, and the bin 
+    number, an increasing count from 0 to size-1. `real` and 
+    `imaginary` buffer's left samples  up to size-1 are filled 
+    with zeros. See notes below for an example of how to retrieve 
     each signal component.
     
     Parent class : PyoObject
@@ -292,7 +294,6 @@ class FFT(PyoObject):
     @wintype.setter
     def wintype(self, x): self.setWinType(x)
 
-
 class IFFT(PyoObject):
     """
     Inverse Fast Fourier Transform.
@@ -302,7 +303,7 @@ class IFFT(PyoObject):
     IFFT takes two signals in input, the `real` and `imaginary` parts
     of an FFT analysis and returns the corresponding real signal.
     These signals must correspond to `real` and `imaginary` parts
-    for bins 0 to size/2-1.
+    from an FFT object.
 
     Parent class : PyoObject
     
@@ -490,7 +491,6 @@ class IFFT(PyoObject):
         return self._wintype
     @wintype.setter
     def wintype(self, x): self.setWinType(x)
-
 
 class CarToPol(PyoObject):
     """
@@ -808,7 +808,7 @@ class PolToCar(PyoObject):
 
 class FrameDelta(PyoObject):
     """
-    Computes the phase differences between successive frames..
+    Computes the phase differences between successive frames.
 
     Parent class: PyoObject
 
@@ -817,8 +817,8 @@ class FrameDelta(PyoObject):
     input : PyoObject
         Phase input signal.
     framesize : int, optional
-        Frame size in samples. Usually half of the FFT frame.
-        Defaults to 512.
+        Frame size in samples. Usually same as the FFT size.
+        Defaults to 1024.
 
     Methods:
 
@@ -849,7 +849,7 @@ class FrameDelta(PyoObject):
     >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
 
     """
-    def __init__(self, input, framesize=512, mul=1, add=0):
+    def __init__(self, input, framesize=1024, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._framesize = framesize
@@ -911,7 +911,7 @@ class FrameDelta(PyoObject):
 
 class FrameAccum(PyoObject):
     """
-    Accumulates the phase differences between successive frames..
+    Accumulates the phase differences between successive frames.
 
     Parent class: PyoObject
 
@@ -920,8 +920,8 @@ class FrameAccum(PyoObject):
     input : PyoObject
         Phase input signal.
     framesize : int, optional
-        Frame size in samples. Usually half of the FFT frame.
-        Defaults to 512.
+        Frame size in samples. Usually same as the FFT size.
+        Defaults to 1024.
 
     Methods:
 
@@ -952,7 +952,7 @@ class FrameAccum(PyoObject):
     >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
 
     """
-    def __init__(self, input, framesize=512, reset=None, mul=1, add=0):
+    def __init__(self, input, framesize=1024, reset=None, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._framesize = framesize

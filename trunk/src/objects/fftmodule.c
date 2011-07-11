@@ -74,44 +74,54 @@ FFTMain_realloc_memories(FFTMain *self) {
 
 static void
 FFTMain_filters(FFTMain *self) {
-    int i, outcount;
+    int i, incount;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-        
-    for (i=0; i<self->bufsize; i++) {
-        if (self->incount >= 0) {
-            self->inframe[self->incount] = in[i] * self->window[self->incount];
-            outcount = self->incount % self->hsize;
-            self->buffer_streams[i] = self->outframe[outcount];
-            if (outcount)
-                self->buffer_streams[i+self->bufsize] = self->outframe[self->size - outcount];
-            else
-                self->buffer_streams[i+self->bufsize] = 0.0;
-            self->buffer_streams[i+self->bufsize*2] = (MYFLT)outcount;
-        }
+   
+    incount = self->incount;
 
-        self->incount++;
-        if (self->incount >= self->size) {
-            self->incount -= self->size;      
+    for (i=0; i<self->bufsize; i++) {
+        if (incount >= 0) {
+            self->inframe[incount] = in[i] * self->window[incount];
+            if (incount < self->hsize) {
+                self->buffer_streams[i] = self->outframe[incount];
+                if (incount)
+                    self->buffer_streams[i+self->bufsize] = self->outframe[self->size - incount];
+                else
+                    self->buffer_streams[i+self->bufsize] = 0.0;
+            }
+            else if (incount == self->hsize)
+                self->buffer_streams[i] = self->outframe[incount];
+            else
+                self->buffer_streams[i] = self->buffer_streams[i+self->bufsize] = 0.0;
+            self->buffer_streams[i+self->bufsize*2] = (MYFLT)incount;
+        }
+        incount++;
+        if (incount >= self->size) {
+            incount -= self->size;      
             realfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
     } 
+
     /*
     for (i=0; i<self->bufsize; i++) {
-        if (self->incount >= 0) {
-            self->inframe[(self->incount+self->hopsize)%self->size] = in[i] * self->window[self->incount];
-            outcount = self->incount % self->hsize;
-            self->buffer_streams[i] = self->outframe[outcount*2];
-            self->buffer_streams[i+self->bufsize] = self->outframe[outcount*2+1];
-            self->buffer_streams[i+self->bufsize*2] = (MYFLT)outcount;
+        if (incount >= 0) {
+            self->inframe[incount] = in[i] * self->window[incount];
+            if (incount < self->hsize) {
+                self->buffer_streams[i] = self->outframe[incount*2];
+                self->buffer_streams[i+self->bufsize] = self->outframe[incount*2+1];
+            }
+            else
+                self->buffer_streams[i] = self->buffer_streams[i+self->bufsize] = 0.0; 
+            self->buffer_streams[i+self->bufsize*2] = (MYFLT)incount;
         }
-
-        self->incount++;
-        if (self->incount >= self->size) {
-            self->incount -= self->size;      
+        incount++;
+        if (incount >= self->size) {
+            incount -= self->size;      
             realfft_packed(self->inframe, self->outframe, self->size, self->twiddle2);
         }
     }
     */
+    self->incount = incount;
 }
 
 MYFLT *
@@ -620,43 +630,45 @@ IFFT_realloc_memories(IFFT *self) {
 
 static void
 IFFT_filters(IFFT *self) {
-    int i, outcount;
+    int i, incount;
     MYFLT *inreal = Stream_getData((Stream *)self->inreal_stream);
     MYFLT *inimag = Stream_getData((Stream *)self->inimag_stream);
 
+    incount = self->incount;
     for (i=0; i<self->bufsize; i++) {
-        if (self->incount >= 0) {
-            outcount = self->incount % self->hsize;
-            self->inframe[outcount] = inreal[i];
-            if (outcount)
-                self->inframe[self->size - outcount] = inimag[i];
-            else
-                self->inframe[self->hsize] = 0.0;
-            self->data[i] = self->outframe[self->incount] * self->window[self->incount];
+        if (incount >= 0) {
+            if (incount < self->hsize) {
+                self->inframe[incount] = inreal[i];
+                if (incount)
+                    self->inframe[self->size - incount] = inimag[i];
+            }
+            else if (incount == self->hsize)
+                self->inframe[incount] = inreal[i];
+            self->data[i] = self->outframe[incount] * self->window[incount];
         }
-        
-        self->incount++;
-        if (self->incount >= self->size) {
-            self->incount -= self->size;      
+        incount++;
+        if (incount >= self->size) {
+            incount -= self->size;      
             irealfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
     } 
     /*
     for (i=0; i<self->bufsize; i++) {
-        if (self->incount >= 0) {
-            outcount = self->incount % self->hsize;
-            self->inframe[outcount*2] = inreal[i];
-            self->inframe[outcount*2+1] = inimag[i];
-            self->data[i] = self->outframe[self->incount] * self->window[self->incount];
+        if (incount >= 0) {
+            if (incount < self->hsize) {
+                self->inframe[incount*2] = inreal[i];
+                self->inframe[incount*2+1] = inimag[i];
+            }
+            self->data[i] = self->outframe[incount] * self->window[incount];
         }
-        
-        self->incount++;
-        if (self->incount >= self->size) {
-            self->incount -= self->size;      
+        incount++;
+        if (incount >= self->size) {
+            incount -= self->size;      
             irealfft_packed(self->inframe, self->outframe, self->size, self->twiddle2);
         }
     }
-    */   
+    */ 
+    self->incount = incount;
 }
 
 static void IFFT_postprocessing_ii(IFFT *self) { POST_PROCESSING_II };
@@ -1956,7 +1968,7 @@ FrameAccum_generate_1(FrameAccum *self) {
                 self->frameBuffer[i] = 0.0;
             }
         }
-        curPhase = in[i]; //(in[i] - self->count * self->scal) * self->fac;
+        curPhase = (in[i] - self->count * self->scal) * self->fac;
         lastPhase = self->frameBuffer[self->count];
         diff = curPhase + lastPhase;
         //while (diff < -PI) {
@@ -1989,7 +2001,6 @@ FrameAccum_setProcMode(FrameAccum *self)
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     procmode = self->modebuffer[2];
     
-    printf("procmode = %d\n", procmode);
     switch (procmode) {
         case 0:
             self->proc_func_ptr = FrameAccum_generate_0;
