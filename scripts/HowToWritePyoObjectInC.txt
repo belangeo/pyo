@@ -15,7 +15,7 @@ In mousemodule.c:
     Here you put all your calls...
     I'm not sure "Stream_setData(self->stream, self->data);" is needed here (ref.: Notein), I removed it in other objects.
    
-4-  In Mouse object "struct", you need an array "modebuffer" with at least two slots for the "mul" and "add" mode (audio or init).
+4-  In Mouse object "struct", you need an array "modebuffer" with at least two slots for the "mul" and "add" mode (audio or float).
     This is called at the end of Name_comput_next_data_frame with:
         (*self->muladd_func_ptr)(self);
     This pointer is set with Name_setProcMode function. All postprocessing functions are MACROS in pyomodule.h.
