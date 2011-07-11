@@ -52,16 +52,6 @@ TODO before releasing _pyo_ version 1.0.
 
 - PVAnal, PVSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
 
-*!PyoObject fft implementation*
-
-- FFT (return 3 streams)
-
-  * obj`['real']`
-  * obj`['imag']`
-  * obj`['bin']` -> integer from 0 to fftsize/2
-
-- IFFT -> 2 streams (real, imag) in input
-
 ----
 
 *New objects*
