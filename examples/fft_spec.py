@@ -18,8 +18,8 @@ son = 'baseballmajeur_m.aif'
 info = sndinfo(son)
 a = SfPlayer(son, mul=.25).mix(1).out()
 
-size = 1024
-m = NewMatrix(width=size/2, height=info[0]/(size/2))
+size = 512
+m = NewMatrix(width=size, height=info[0]/size)
 
 fin = FFT(a*100, overlaps=1)
 mag = Sqrt(fin["real"]*fin["real"] + fin["imag"]*fin["imag"])
