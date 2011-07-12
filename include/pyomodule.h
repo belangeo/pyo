@@ -338,7 +338,9 @@ extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;
 extern PyTypeObject CarToPolType;
 extern PyTypeObject PolToCarType;
+extern PyTypeObject FrameDeltaMainType;
 extern PyTypeObject FrameDeltaType;
+extern PyTypeObject FrameAccumMainType;
 extern PyTypeObject FrameAccumType;
 
 /* Constants */

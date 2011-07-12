@@ -631,6 +631,7 @@ IFFT_realloc_memories(IFFT *self) {
 static void
 IFFT_filters(IFFT *self) {
     int i, incount;
+    MYFLT data;
     MYFLT *inreal = Stream_getData((Stream *)self->inreal_stream);
     MYFLT *inimag = Stream_getData((Stream *)self->inimag_stream);
 
@@ -644,14 +645,15 @@ IFFT_filters(IFFT *self) {
             }
             else if (incount == self->hsize)
                 self->inframe[incount] = inreal[i];
-            self->data[i] = self->outframe[incount] * self->window[incount];
+            data = self->outframe[incount] * self->window[incount];
+            self->data[i] = data;
         }
         incount++;
         if (incount >= self->size) {
             incount -= self->size;      
             irealfft_split(self->inframe, self->outframe, self->size, self->twiddle);
         }
-    } 
+    }
     /*
     for (i=0; i<self->bufsize; i++) {
         if (incount >= 0) {
@@ -1592,38 +1594,283 @@ PyTypeObject PolToCarType = {
 typedef struct {
     pyo_audio_HEAD
     PyObject *input; 
-    Stream *input_stream;
+    int inputSize;
     int modebuffer[2];
     int frameSize; 
+    int overlaps;
+    int hopsize;
     int count;
-    MYFLT scal;
-    MYFLT fac;
-    MYFLT *frameBuffer;
-} FrameDelta;
+    MYFLT **frameBuffer;
+    MYFLT *buffer_streams;
+} FrameDeltaMain;
 
 static void
-FrameDelta_generate(FrameDelta *self) {
-    int i;
+FrameDeltaMain_generate(FrameDeltaMain *self) {
+    int i, j, which, where;
     MYFLT curPhase, lastPhase, diff;
-    
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
+
+    MYFLT ins[self->overlaps][self->bufsize];
+    for (j=0; j<self->overlaps; j++) {
+        MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
+        for (i=0; i<self->bufsize; i++) {
+            ins[j][i] = in[i];
+        }
+    }   
     for (i=0; i<self->bufsize; i++) {
-        curPhase = in[i];
-        lastPhase = self->frameBuffer[self->count];
-        diff = curPhase - lastPhase;
-        while (diff < -PI) {
-            diff += TWOPI;
+        for (j=0; j<self->overlaps; j++) {
+            curPhase = ins[j][i];
+            which = j - 1;
+            if (which < 0)
+                which = self->overlaps - 1;
+            where = self->count - self->hopsize;
+            if (where < 0)
+                where += self->frameSize;
+            lastPhase = self->frameBuffer[which][where];
+            diff = curPhase - lastPhase;
+            while (diff < -PI) {
+                diff += TWOPI;
+            }
+            while (diff > PI) {
+                diff -= TWOPI;
+            }
+            self->frameBuffer[j][self->count] = curPhase;            
+            self->buffer_streams[i+j*self->bufsize] = diff;
         }
-        while (diff > PI) {
-            diff -= TWOPI;
-        }
-        self->data[i] = diff; //(diff + self->count*self->scal) * self->fac;
-        self->frameBuffer[self->count] = curPhase;
-        if (self->count++ >= self->frameSize)
+        self->count++;
+        if (self->count >= self->frameSize)
             self->count = 0;
     }
 }
+
+MYFLT *
+FrameDeltaMain_getSamplesBuffer(FrameDeltaMain *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+static void
+FrameDeltaMain_setProcMode(FrameDeltaMain *self)
+{    
+    self->proc_func_ptr = FrameDeltaMain_generate;
+}
+
+static void
+FrameDeltaMain_compute_next_data_frame(FrameDeltaMain *self)
+{
+    (*self->proc_func_ptr)(self); 
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+FrameDeltaMain_traverse(FrameDeltaMain *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    return 0;
+}
+
+static int 
+FrameDeltaMain_clear(FrameDeltaMain *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    return 0;
+}
+
+static void
+FrameDeltaMain_dealloc(FrameDeltaMain* self)
+{
+    int i;
+    free(self->data);
+    for (i=0; i<self->overlaps; i++) {
+        free(self->frameBuffer[i]);
+    }
+    free(self->frameBuffer);
+    free(self->buffer_streams);
+    FrameDeltaMain_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * FrameDeltaMain_deleteStream(FrameDeltaMain *self) { DELETE_STREAM };
+
+static PyObject *
+FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    FrameDeltaMain *self;
+    self = (FrameDeltaMain *)type->tp_alloc(type, 0);
+    
+    self->count = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, FrameDeltaMain_compute_next_data_frame);
+    self->mode_func_ptr = FrameDeltaMain_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+FrameDeltaMain_init(FrameDeltaMain *self, PyObject *args, PyObject *kwds)
+{
+    int i, j;
+    PyObject *inputtmp;
+    
+    static char *kwlist[] = {"input", "frameSize", "overlaps", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
+        return -1; 
+    
+    if (inputtmp) {
+        PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+    }
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->hopsize = self->frameSize / self->overlaps;
+    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+    for(i=0; i<self->overlaps; i++) {
+        self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+        for (j=0; j<self->frameSize; j++) {
+            self->frameBuffer[i][j] = 0.0;
+        }
+    }
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
+    for (i=0; i<(self->overlaps*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * FrameDeltaMain_getServer(FrameDeltaMain* self) { GET_SERVER };
+static PyObject * FrameDeltaMain_getStream(FrameDeltaMain* self) { GET_STREAM };
+
+static PyObject * FrameDeltaMain_play(FrameDeltaMain *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FrameDeltaMain_stop(FrameDeltaMain *self) { STOP };
+
+static PyObject *
+FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    self->inputSize = PyList_Size(tmp);
+    Py_INCREF(tmp);
+	Py_XDECREF(self->input);
+    self->input = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
+{    
+    int i, j, tmp;
+
+    if (PyInt_Check(arg)) { 
+        tmp = PyLong_AsLong(arg);
+        if (isPowerOfTwo(tmp)) {
+            self->frameSize = tmp;
+            self->hopsize = self->frameSize / self->overlaps;
+
+            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+            for(i=0; i<self->overlaps; i++) {
+                self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+                for (j=0; j<self->frameSize; j++) {
+                    self->frameBuffer[i][j] = 0.0;
+                }
+            }
+
+            self->count = 0;
+        }
+    }
+    else
+        printf("frameSize must be a power of two!\n");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef FrameDeltaMain_members[] = {
+    {"server", T_OBJECT_EX, offsetof(FrameDeltaMain, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(FrameDeltaMain, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(FrameDeltaMain, input), 0, "Phase input object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef FrameDeltaMain_methods[] = {
+    {"getServer", (PyCFunction)FrameDeltaMain_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)FrameDeltaMain_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)FrameDeltaMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FrameDeltaMain_stop, METH_NOARGS, "Stops computing."},
+    {"setInput", (PyCFunction)FrameDeltaMain_setInput, METH_O, "Sets list of input streams."},
+    {"setFrameSize", (PyCFunction)FrameDeltaMain_setFrameSize, METH_O, "Sets frame size."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject FrameDeltaMainType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.FrameDeltaMain_base",         /*tp_name*/
+    sizeof(FrameDeltaMain),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)FrameDeltaMain_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "FrameDeltaMain objects. Compute the phase difference between successive frames.",           /* tp_doc */
+    (traverseproc)FrameDeltaMain_traverse,   /* tp_traverse */
+    (inquiry)FrameDeltaMain_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    FrameDeltaMain_methods,             /* tp_methods */
+    FrameDeltaMain_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)FrameDeltaMain_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    FrameDeltaMain_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* FrameDelta streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    FrameDeltaMain *mainSplitter;
+    int modebuffer[2];
+    int chnl; // panning order
+} FrameDelta;
 
 static void FrameDelta_postprocessing_ii(FrameDelta *self) { POST_PROCESSING_II };
 static void FrameDelta_postprocessing_ai(FrameDelta *self) { POST_PROCESSING_AI };
@@ -1640,8 +1887,6 @@ FrameDelta_setProcMode(FrameDelta *self)
 {
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
-    self->proc_func_ptr = FrameDelta_generate;
     
 	switch (muladdmode) {
         case 0:        
@@ -1677,7 +1922,13 @@ FrameDelta_setProcMode(FrameDelta *self)
 static void
 FrameDelta_compute_next_data_frame(FrameDelta *self)
 {
-    (*self->proc_func_ptr)(self); 
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = FrameDeltaMain_getSamplesBuffer((FrameDeltaMain *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
     (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
@@ -1686,8 +1937,7 @@ static int
 FrameDelta_traverse(FrameDelta *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
+    Py_VISIT(self->mainSplitter);
     return 0;
 }
 
@@ -1695,8 +1945,7 @@ static int
 FrameDelta_clear(FrameDelta *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->mainSplitter);    
     return 0;
 }
 
@@ -1704,7 +1953,6 @@ static void
 FrameDelta_dealloc(FrameDelta* self)
 {
     free(self->data);
-    free(self->frameBuffer);
     FrameDelta_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -1720,7 +1968,6 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    self->count = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDelta_compute_next_data_frame);
@@ -1732,16 +1979,17 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 FrameDelta_init(FrameDelta *self, PyObject *args, PyObject *kwds)
 {
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "frameSize", "mul", "add", NULL};
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &inputtmp, &self->frameSize, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         return -1; 
     
-    INIT_INPUT_STREAM
-
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (FrameDeltaMain *)maintmp;
+    
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
     }
@@ -1752,14 +2000,6 @@ FrameDelta_init(FrameDelta *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    self->frameBuffer = (MYFLT *)realloc(self->frameBuffer, self->frameSize * sizeof(MYFLT));
-    for (i=0; i<self->frameSize; i++) {
-        self->frameBuffer[i] = 0.0;
-    }
-    
-    self->scal = TWOPI * 256 / (self->frameSize * 2);
-    self->fac = self->sr / (256 * TWOPI);
     
     (*self->mode_func_ptr)(self);
     
@@ -1775,6 +2015,7 @@ static PyObject * FrameDelta_setSub(FrameDelta *self, PyObject *arg) { SET_SUB }
 static PyObject * FrameDelta_setDiv(FrameDelta *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * FrameDelta_play(FrameDelta *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FrameDelta_out(FrameDelta *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * FrameDelta_stop(FrameDelta *self) { STOP };
 
 static PyObject * FrameDelta_multiply(FrameDelta *self, PyObject *arg) { MULTIPLY };
@@ -1786,33 +2027,9 @@ static PyObject * FrameDelta_inplace_sub(FrameDelta *self, PyObject *arg) { INPL
 static PyObject * FrameDelta_div(FrameDelta *self, PyObject *arg) { DIV };
 static PyObject * FrameDelta_inplace_div(FrameDelta *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-FrameDelta_setFrameSize(FrameDelta *self, PyObject *arg)
-{    
-    int i, tmp;
-
-    if (PyInt_Check(arg)) { 
-        tmp = PyLong_AsLong(arg);
-        if (isPowerOfTwo(tmp)) {
-            self->frameSize = tmp;
-            self->frameBuffer = (MYFLT *)realloc(self->frameBuffer, self->frameSize * sizeof(MYFLT));
-            for (i=0; i<self->frameSize; i++) {
-                self->frameBuffer[i] = 0.0;
-            }
-            self->count = 0;
-        }
-    }
-    else
-        printf("frameSize must be a power of two!\n");
-    
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
 static PyMemberDef FrameDelta_members[] = {
     {"server", T_OBJECT_EX, offsetof(FrameDelta, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameDelta, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FrameDelta, input), 0, "Phase input object."},
     {"mul", T_OBJECT_EX, offsetof(FrameDelta, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(FrameDelta, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -1823,8 +2040,8 @@ static PyMethodDef FrameDelta_methods[] = {
     {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)FrameDelta_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FrameDelta_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)FrameDelta_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FrameDelta_stop, METH_NOARGS, "Stops computing."},
-    {"setFrameSize", (PyCFunction)FrameDelta_setFrameSize, METH_O, "Sets frame size."},
     {"setMul", (PyCFunction)FrameDelta_setMul, METH_O, "Sets FrameDelta mul factor."},
     {"setAdd", (PyCFunction)FrameDelta_setAdd, METH_O, "Sets FrameDelta add factor."},
     {"setSub", (PyCFunction)FrameDelta_setSub, METH_O, "Sets inverse add factor."},
@@ -1896,7 +2113,7 @@ PyTypeObject FrameDeltaType = {
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-    "FrameDelta objects. Compute the phase difference between successive frames.",           /* tp_doc */
+    "FrameDelta objects. Reads one band from a FrameDeltaMain object.",           /* tp_doc */
     (traverseproc)FrameDelta_traverse,   /* tp_traverse */
     (inquiry)FrameDelta_clear,           /* tp_clear */
     0,		               /* tp_richcompare */
@@ -1919,70 +2136,277 @@ PyTypeObject FrameDeltaType = {
 typedef struct {
     pyo_audio_HEAD
     PyObject *input; 
-    Stream *input_stream;
-    PyObject *reset; 
-    Stream *reset_stream;    
-    int modebuffer[3];
+    int inputSize;
+    int modebuffer[2];
     int frameSize; 
+    int overlaps;
+    int hopsize;
     int count;
-    MYFLT scal;
-    MYFLT fac;
-    MYFLT *frameBuffer;
-} FrameAccum;
+    MYFLT **frameBuffer;
+    MYFLT *buffer_streams;
+} FrameAccumMain;
 
 static void
-FrameAccum_generate_0(FrameAccum *self) {
-    int i;
+FrameAccumMain_generate(FrameAccumMain *self) {
+    int i, j, which, where;
     MYFLT curPhase, lastPhase, diff;
     
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        curPhase = in[i]; //(in[i] - self->count * self->scal) * self->fac;
-        lastPhase = self->frameBuffer[self->count];
-        diff = curPhase + lastPhase;
-        //while (diff < -PI) {
-        //    diff += TWOPI;
-        //}
-        //while (diff > PI) {
-        //    diff -= TWOPI;
-        //}
-        self->data[i] = diff;
-        self->frameBuffer[self->count] = diff;
-        if (self->count++ >= self->frameSize)
-            self->count = 0;
-    }
-}
-
-static void
-FrameAccum_generate_1(FrameAccum *self) {
-    int i;
-    MYFLT curPhase, lastPhase, diff;
-    
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *reset = Stream_getData((Stream *)self->reset_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        if (reset[i] == 1.0) {
-            for (i=0; i<self->frameSize; i++) {
-                self->frameBuffer[i] = 0.0;
-            }
+    MYFLT ins[self->overlaps][self->bufsize];
+    for (j=0; j<self->overlaps; j++) {
+        MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
+        for (i=0; i<self->bufsize; i++) {
+            ins[j][i] = in[i];
         }
-        curPhase = (in[i] - self->count * self->scal) * self->fac;
-        lastPhase = self->frameBuffer[self->count];
-        diff = curPhase + lastPhase;
-        //while (diff < -PI) {
-        //    diff += TWOPI;
-        //}
-        //while (diff > PI) {
-        //    diff -= TWOPI;
-        //}
-        self->data[i] = diff;
-        self->frameBuffer[self->count] = diff;
-        if (self->count++ >= self->frameSize)
+    }   
+    for (i=0; i<self->bufsize; i++) {
+        for (j=0; j<self->overlaps; j++) {
+            curPhase = ins[j][i];
+            which = j - 1;
+            if (which < 0)
+                which = self->overlaps - 1;
+            where = self->count - self->hopsize;
+            if (where < 0)
+                where += self->frameSize;
+            lastPhase = self->frameBuffer[which][where];
+            diff = curPhase + lastPhase;
+            self->frameBuffer[j][self->count] = diff;            
+            self->buffer_streams[i+j*self->bufsize] = diff;
+        }
+        self->count++;
+        if (self->count >= self->frameSize)
             self->count = 0;
     }
 }
+
+MYFLT *
+FrameAccumMain_getSamplesBuffer(FrameAccumMain *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+static void
+FrameAccumMain_setProcMode(FrameAccumMain *self)
+{    
+    self->proc_func_ptr = FrameAccumMain_generate;
+}
+
+static void
+FrameAccumMain_compute_next_data_frame(FrameAccumMain *self)
+{
+    (*self->proc_func_ptr)(self); 
+    Stream_setData(self->stream, self->data);
+}
+
+static int
+FrameAccumMain_traverse(FrameAccumMain *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    return 0;
+}
+
+static int 
+FrameAccumMain_clear(FrameAccumMain *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    return 0;
+}
+
+static void
+FrameAccumMain_dealloc(FrameAccumMain* self)
+{
+    int i;
+    free(self->data);
+    for (i=0; i<self->overlaps; i++) {
+        free(self->frameBuffer[i]);
+    }
+    free(self->frameBuffer);
+    free(self->buffer_streams);
+    FrameAccumMain_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * FrameAccumMain_deleteStream(FrameAccumMain *self) { DELETE_STREAM };
+
+static PyObject *
+FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    FrameAccumMain *self;
+    self = (FrameAccumMain *)type->tp_alloc(type, 0);
+    
+    self->count = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, FrameAccumMain_compute_next_data_frame);
+    self->mode_func_ptr = FrameAccumMain_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+FrameAccumMain_init(FrameAccumMain *self, PyObject *args, PyObject *kwds)
+{
+    int i, j;
+    PyObject *inputtmp;
+    
+    static char *kwlist[] = {"input", "framesize", "overlaps", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
+        return -1; 
+    
+    if (inputtmp) {
+        PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->hopsize = self->frameSize / self->overlaps;
+    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+    for(i=0; i<self->overlaps; i++) {
+        self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+        for (j=0; j<self->frameSize; j++) {
+            self->frameBuffer[i][j] = 0.0;
+        }
+    }
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
+    for (i=0; i<(self->overlaps*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * FrameAccumMain_getServer(FrameAccumMain* self) { GET_SERVER };
+static PyObject * FrameAccumMain_getStream(FrameAccumMain* self) { GET_STREAM };
+
+static PyObject * FrameAccumMain_play(FrameAccumMain *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FrameAccumMain_stop(FrameAccumMain *self) { STOP };
+
+static PyObject *
+FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    self->inputSize = PyList_Size(tmp);
+    Py_INCREF(tmp);
+	Py_XDECREF(self->input);
+    self->input = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
+{    
+    int i, j, tmp;
+    
+    if (PyInt_Check(arg)) { 
+        tmp = PyLong_AsLong(arg);
+        if (isPowerOfTwo(tmp)) {
+            self->frameSize = tmp;
+            self->hopsize = self->frameSize / self->overlaps;
+            
+            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+            for(i=0; i<self->overlaps; i++) {
+                self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+                for (j=0; j<self->frameSize; j++) {
+                    self->frameBuffer[i][j] = 0.0;
+                }
+            }
+            
+            self->count = 0;
+        }
+    }
+    else
+        printf("frameSize must be a power of two!\n");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef FrameAccumMain_members[] = {
+    {"server", T_OBJECT_EX, offsetof(FrameAccumMain, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(FrameAccumMain, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(FrameAccumMain, input), 0, "Phase input object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef FrameAccumMain_methods[] = {
+    {"getServer", (PyCFunction)FrameAccumMain_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)FrameAccumMain_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)FrameAccumMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)FrameAccumMain_stop, METH_NOARGS, "Stops computing."},
+    {"setInput", (PyCFunction)FrameAccumMain_setInput, METH_O, "Sets list of input streams."},
+    {"setFrameSize", (PyCFunction)FrameAccumMain_setFrameSize, METH_O, "Sets frame size."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject FrameAccumMainType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.FrameAccumMain_base",         /*tp_name*/
+    sizeof(FrameAccumMain),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)FrameAccumMain_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "FrameAccumMain objects. Integrate the phase difference between successive frames.",           /* tp_doc */
+    (traverseproc)FrameAccumMain_traverse,   /* tp_traverse */
+    (inquiry)FrameAccumMain_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    FrameAccumMain_methods,             /* tp_methods */
+    FrameAccumMain_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)FrameAccumMain_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    FrameAccumMain_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* FrameAccum streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    FrameAccumMain *mainSplitter;
+    int modebuffer[2];
+    int chnl; // panning order
+} FrameAccum;
 
 static void FrameAccum_postprocessing_ii(FrameAccum *self) { POST_PROCESSING_II };
 static void FrameAccum_postprocessing_ai(FrameAccum *self) { POST_PROCESSING_AI };
@@ -1997,19 +2421,9 @@ static void FrameAccum_postprocessing_revareva(FrameAccum *self) { POST_PROCESSI
 static void
 FrameAccum_setProcMode(FrameAccum *self)
 {
-    int muladdmode, procmode;
+    int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    procmode = self->modebuffer[2];
     
-    switch (procmode) {
-        case 0:
-            self->proc_func_ptr = FrameAccum_generate_0;
-            break;
-        case 1:
-            self->proc_func_ptr = FrameAccum_generate_1;
-            break;                    
-    }
-
 	switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = FrameAccum_postprocessing_ii;
@@ -2044,7 +2458,13 @@ FrameAccum_setProcMode(FrameAccum *self)
 static void
 FrameAccum_compute_next_data_frame(FrameAccum *self)
 {
-    (*self->proc_func_ptr)(self); 
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = FrameAccumMain_getSamplesBuffer((FrameAccumMain *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
     (*self->muladd_func_ptr)(self);
     Stream_setData(self->stream, self->data);
 }
@@ -2053,10 +2473,7 @@ static int
 FrameAccum_traverse(FrameAccum *self, visitproc visit, void *arg)
 {
     pyo_VISIT
-    Py_VISIT(self->input);
-    Py_VISIT(self->input_stream);
-    Py_VISIT(self->reset);
-    Py_VISIT(self->reset_stream);
+    Py_VISIT(self->mainSplitter);
     return 0;
 }
 
@@ -2064,10 +2481,7 @@ static int
 FrameAccum_clear(FrameAccum *self)
 {
     pyo_CLEAR
-    Py_CLEAR(self->input);
-    Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->reset);
-    Py_CLEAR(self->reset_stream);
+    Py_CLEAR(self->mainSplitter);    
     return 0;
 }
 
@@ -2075,7 +2489,6 @@ static void
 FrameAccum_dealloc(FrameAccum* self)
 {
     free(self->data);
-    free(self->frameBuffer);
     FrameAccum_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -2091,8 +2504,6 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-    self->count = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccum_compute_next_data_frame);
@@ -2104,19 +2515,16 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 FrameAccum_init(FrameAccum *self, PyObject *args, PyObject *kwds)
 {
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *resettmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     
-    static char *kwlist[] = {"input", "frameSize", "reset", "mul", "add", NULL};
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OOO", kwlist, &inputtmp, &self->frameSize, &resettmp, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
         return -1; 
     
-    INIT_INPUT_STREAM
-
-    if (resettmp && resettmp != Py_None) {
-        PyObject_CallMethod((PyObject *)self, "setReset", "O", resettmp);
-    }
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (FrameAccumMain *)maintmp;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -2128,14 +2536,6 @@ FrameAccum_init(FrameAccum *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    self->frameBuffer = (MYFLT *)realloc(self->frameBuffer, self->frameSize * sizeof(MYFLT));
-    for (i=0; i<self->frameSize; i++) {
-        self->frameBuffer[i] = 0.0;
-    }
-    
-    self->scal = self->sr / (self->frameSize * 2.);
-    self->fac = 256 * TWOPI / self->sr;
     
     (*self->mode_func_ptr)(self);
     
@@ -2151,6 +2551,7 @@ static PyObject * FrameAccum_setSub(FrameAccum *self, PyObject *arg) { SET_SUB }
 static PyObject * FrameAccum_setDiv(FrameAccum *self, PyObject *arg) { SET_DIV };	
 
 static PyObject * FrameAccum_play(FrameAccum *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * FrameAccum_out(FrameAccum *self, PyObject *args, PyObject *kwds) { OUT };
 static PyObject * FrameAccum_stop(FrameAccum *self) { STOP };
 
 static PyObject * FrameAccum_multiply(FrameAccum *self, PyObject *arg) { MULTIPLY };
@@ -2162,65 +2563,9 @@ static PyObject * FrameAccum_inplace_sub(FrameAccum *self, PyObject *arg) { INPL
 static PyObject * FrameAccum_div(FrameAccum *self, PyObject *arg) { DIV };
 static PyObject * FrameAccum_inplace_div(FrameAccum *self, PyObject *arg) { INPLACE_DIV };
 
-static PyObject *
-FrameAccum_setFrameSize(FrameAccum *self, PyObject *arg)
-{    
-    int i, tmp;
-    
-    if (PyInt_Check(arg)) { 
-        tmp = PyLong_AsLong(arg);
-        if (isPowerOfTwo(tmp)) {
-            self->frameSize = tmp;
-            self->frameBuffer = (MYFLT *)realloc(self->frameBuffer, self->frameSize * sizeof(MYFLT));
-            for (i=0; i<self->frameSize; i++) {
-                self->frameBuffer[i] = 0.0;
-            }
-            self->count = 0;
-        }
-    }
-    else
-        printf("frameSize must be a power of two!\n");
-    
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *
-FrameAccum_setReset(FrameAccum *self, PyObject *arg)
-{
-	PyObject *tmp, *streamtmp;
-	
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-    
-	int isNumber = PyNumber_Check(arg);
-	
-	if (isNumber == 1) {
-		printf("reset argument of FrameAccum must be a trigger audio stream.\n");
-	}
-	else {
-	    tmp = arg;
-	    Py_INCREF(tmp);
-	    Py_XDECREF(self->reset);
-		self->reset = tmp;
-        streamtmp = PyObject_CallMethod((PyObject *)self->reset, "_getStream", NULL);
-        Py_INCREF(streamtmp);
-        Py_XDECREF(self->reset_stream);
-        self->reset_stream = (Stream *)streamtmp;
-        self->modebuffer[2] = 1;
-	}
-    
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
-
 static PyMemberDef FrameAccum_members[] = {
     {"server", T_OBJECT_EX, offsetof(FrameAccum, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(FrameAccum, stream), 0, "Stream object."},
-    {"input", T_OBJECT_EX, offsetof(FrameAccum, input), 0, "Phase input object."},
-    {"reset", T_OBJECT_EX, offsetof(FrameAccum, reset), 0, "Reset trigger object."},
     {"mul", T_OBJECT_EX, offsetof(FrameAccum, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(FrameAccum, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -2231,9 +2576,8 @@ static PyMethodDef FrameAccum_methods[] = {
     {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)FrameAccum_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FrameAccum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)FrameAccum_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FrameAccum_stop, METH_NOARGS, "Stops computing."},
-    {"setFrameSize", (PyCFunction)FrameAccum_setFrameSize, METH_O, "Sets frame size."},
-    {"setReset", (PyCFunction)FrameAccum_setReset, METH_O, "Sets FrameAccum reset object stream."},
     {"setMul", (PyCFunction)FrameAccum_setMul, METH_O, "Sets FrameAccum mul factor."},
     {"setAdd", (PyCFunction)FrameAccum_setAdd, METH_O, "Sets FrameAccum add factor."},
     {"setSub", (PyCFunction)FrameAccum_setSub, METH_O, "Sets inverse add factor."},
@@ -2305,7 +2649,7 @@ PyTypeObject FrameAccumType = {
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-    "FrameAccum objects. Accumulates the phase difference between successive frames.",           /* tp_doc */
+    "FrameAccum objects. Reads one band from a FrameAccumMain object.",           /* tp_doc */
     (traverseproc)FrameAccum_traverse,   /* tp_traverse */
     (inquiry)FrameAccum_clear,           /* tp_clear */
     0,		               /* tp_richcompare */
