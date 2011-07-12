@@ -825,7 +825,7 @@ class FrameDelta(PyoObject):
 
     Methods:
 
-    setInPut(x, fadetime) : Replace the `input` attribute.
+    setInput(x, fadetime) : Replace the `input` attribute.
     setFrameSize(x) : Replace the `framesize` attribute.
 
     Attributes:
@@ -973,7 +973,7 @@ class FrameAccum(PyoObject):
 
     Methods:
 
-    setInPut(x, fadetime) : Replace the `input` attribute.
+    setInput(x, fadetime) : Replace the `input` attribute.
     setFrameSize(x) : Replace the `framesize` attribute.
 
     Attributes:
