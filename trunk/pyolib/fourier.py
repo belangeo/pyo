@@ -817,50 +817,95 @@ class FrameDelta(PyoObject):
     input : PyoObject
         Phase input signal.
     framesize : int, optional
-        Frame size in samples. Usually same as the FFT size.
+        Frame size in samples. Usually the same as the FFT size.
         Defaults to 1024.
+    overlaps : int, optional
+        Number of overlaps in incomming signal. Usually the same
+        as the FFT overlaps. Defaults to 4.
 
     Methods:
 
     setInPut(x, fadetime) : Replace the `input` attribute.
-    setFrameSize(x) : Replace the `frameSize` attribute.
+    setFrameSize(x) : Replace the `framesize` attribute.
 
     Attributes:
 
     input : PyoObject. Phase input signal.
     framesize : int. Frame size in samples.
 
+    Notes:
+
+    FrameDelta has no `out` method.
+
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
-    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
-    >>> fin1 = FFT(snd1, size=1024, overlaps=4)
-    >>> fin2 = FFT(snd2, size=1024, overlaps=4)
-    >>> # get magnitudes and phases of input sounds
-    >>> pol1 = CarToPol(fin1["real"], fin1["imag"])
-    >>> pol2 = CarToPol(fin2["real"], fin2["imag"])
-    >>> # times magnitudes and adds phases
-    >>> mag = pol1["mag"] * pol2["mag"] * 100
-    >>> pha = pol1["ang"] + pol2["ang"]
-    >>> # converts back to rectangular
-    >>> car = PolToCar(mag, pha)
-    >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+    >>> snd = SNDS_PATH + '/transparent.aif'
+    >>> size, hop = 1024, 256
+    >>> nframes = sndinfo(snd)[0] / size
+    >>> a = SfPlayer(snd, mul=.5)
+    >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
+    >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
+    >>> fin = FFT(a, size=size, overlaps=4)
+    >>> pol = CarToPol(fin["real"], fin["imag"])
+    >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
+    >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
+    >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=2))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=1.5))
+    >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
+    >>> car = PolToCar(m_mag_read, accum)
+    >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
 
     """
-    def __init__(self, input, framesize=1024, mul=1, add=0):
+    def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._framesize = framesize
+        self._overlaps = overlaps
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, framesize, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, mul, add)
-        self._base_objs = [FrameDelta_base(wrap(in_fader,i), wrap(framesize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
+        num_of_mains = len(self._in_fader) / self._overlaps
+        self._main_players = []
+        for j in range(num_of_mains):
+            objs_list = []
+            for i in range(len(self._in_fader)):
+                if (i % num_of_mains) == j:
+                    objs_list.append(self._in_fader[i])
+            self._main_players.append(FrameDeltaMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+        self._base_objs = []
+        for i in range(lmax):
+            main_player = i % num_of_mains
+            overlap = i / num_of_mains
+            self._base_objs.append(FrameDelta_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
         return ['input', 'framesize', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._main_players:
+            obj.deleteStream()
+            del obj
+
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._main_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._main_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._main_players]
+        [obj.stop() for obj in self._base_objs]
+        return self
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -889,7 +934,7 @@ class FrameDelta(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in self._base_objs]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in self._main_players]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -922,6 +967,9 @@ class FrameAccum(PyoObject):
     framesize : int, optional
         Frame size in samples. Usually same as the FFT size.
         Defaults to 1024.
+    overlaps : int, optional
+        Number of overlaps in incomming signal. Usually the same
+        as the FFT overlaps. Defaults to 4.
 
     Methods:
 
@@ -933,38 +981,79 @@ class FrameAccum(PyoObject):
     input : PyoObject. Phase input signal.
     framesize : int. Frame size in samples.
 
+    Notes:
+
+    FrameAccum has no `out` method.
+
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
-    >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
-    >>> fin1 = FFT(snd1, size=1024, overlaps=4)
-    >>> fin2 = FFT(snd2, size=1024, overlaps=4)
-    >>> # get magnitudes and phases of input sounds
-    >>> pol1 = CarToPol(fin1["real"], fin1["imag"])
-    >>> pol2 = CarToPol(fin2["real"], fin2["imag"])
-    >>> # times magnitudes and adds phases
-    >>> mag = pol1["mag"] * pol2["mag"] * 100
-    >>> pha = pol1["ang"] + pol2["ang"]
-    >>> # converts back to rectangular
-    >>> car = PolToCar(mag, pha)
-    >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+    >>> snd = SNDS_PATH + '/transparent.aif'
+    >>> size, hop = 1024, 256
+    >>> nframes = sndinfo(snd)[0] / size
+    >>> a = SfPlayer(snd, mul=.5)
+    >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
+    >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
+    >>> fin = FFT(a, size=size, overlaps=4)
+    >>> pol = CarToPol(fin["real"], fin["imag"])
+    >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
+    >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
+    >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=2))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=1.5))
+    >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
+    >>> car = PolToCar(m_mag_read, accum)
+    >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
 
     """
-    def __init__(self, input, framesize=1024, reset=None, mul=1, add=0):
+    def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._framesize = framesize
-        self._reset = reset
+        self._overlaps = overlaps
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, framesize, reset, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, reset, mul, add)
-        self._base_objs = [FrameAccum_base(wrap(in_fader,i), wrap(framesize,i), wrap(reset,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
+        num_of_mains = len(self._in_fader) / self._overlaps
+        self._main_players = []
+        for j in range(num_of_mains):
+            objs_list = []
+            for i in range(len(self._in_fader)):
+                if (i%num_of_mains) == j:
+                    objs_list.append(self._in_fader[i])
+            self._main_players.append(FrameAccumMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+        self._base_objs = []
+        for i in range(lmax):
+            main_player = i % num_of_mains
+            overlap = i / num_of_mains
+            self._base_objs.append(FrameAccum_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
-        return ['input', 'framesize', 'reset', 'mul', 'add']
+        return ['input', 'framesize', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._main_players:
+            obj.deleteStream()
+            del obj
+
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._main_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._main_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._main_players]
+        [obj.stop() for obj in self._base_objs]
+        return self
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -993,21 +1082,7 @@ class FrameAccum(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in self._base_objs]
-
-    def setReset(self, x):
-        """
-        Replace the `reset` attribute.
-
-        Parameters:
-
-        x : int
-            new `reset` attribute.
-
-        """
-        self._reset = x
-        x, lmax = convertArgsToLists(x)
-        [obj.setReset(wrap(x,i)) for i, obj in self._base_objs]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in self._main_players]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -1026,11 +1101,4 @@ class FrameAccum(PyoObject):
         return self._framesize
     @framesize.setter
     def framesize(self, x): self.setFrameSize(x)
-
-    @property
-    def reset(self):
-        """PyoObject. Reset trigger stream.""" 
-        return self._reset
-    @reset.setter
-    def reset(self, x): self.setReset(x)
 

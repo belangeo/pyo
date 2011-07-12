@@ -1521,6 +1521,11 @@ init_pyo64(void)
     Py_INCREF(&PolToCarType);
     PyModule_AddObject(m, "PolToCar_base", (PyObject *)&PolToCarType);
 
+    if (PyType_Ready(&FrameDeltaMainType) < 0)
+        return;
+    Py_INCREF(&FrameDeltaMainType);
+    PyModule_AddObject(m, "FrameDeltaMain_base", (PyObject *)&FrameDeltaMainType);
+    
     if (PyType_Ready(&FrameDeltaType) < 0)
         return;
     Py_INCREF(&FrameDeltaType);
@@ -1530,5 +1535,10 @@ init_pyo64(void)
         return;
     Py_INCREF(&FrameAccumType);
     PyModule_AddObject(m, "FrameAccum_base", (PyObject *)&FrameAccumType);
+
+    if (PyType_Ready(&FrameAccumMainType) < 0)
+        return;
+    Py_INCREF(&FrameAccumMainType);
+    PyModule_AddObject(m, "FrameAccumMain_base", (PyObject *)&FrameAccumMainType);
     
 }
