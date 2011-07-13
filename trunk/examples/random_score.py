@@ -13,8 +13,9 @@ a = SfPlayer(SNDS_PATH + '/accord.aif', mul=.5).stop()
 b = Linseg([(0,0),(.05,1),(.2,0)], mul=.5).stop()
 c = Sine(1000,0,b).out()
 
-d = Linseg([(0,0),(.05,1),(.2,0)], mul=.5).stop()
-e = Noise(d).out(1)
+d = Linseg([(0,0),(.05,1),(.2,0)], mul=.35).stop()
+e = Noise(d)
+f = Tone(e, freq=2000).out(1)
 
 def event_0():
     a.speed = random.uniform(1.5,2.5)

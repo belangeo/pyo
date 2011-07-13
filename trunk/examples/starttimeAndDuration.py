@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-Created by Olivier Bélanger on 2010-09-10.
+Show how to use `dur` and `delay` parameters of play() and out()
+functions to sequence events over time.
+
+Created by belangeo on 2010-09-10.
 """
 from pyo import *
 

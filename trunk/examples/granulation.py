@@ -19,7 +19,7 @@ pnz = Noise(5)
 dur = Noise(.002, .1)
 
 gran = Granulator(table=snd, env=env, pitch=[.999, 1.0011], pos=pos+pnz, 
-                  dur=dur, grains=40, basedur=.1, mul=.03).out()
+                  dur=dur, grains=40, basedur=.1, mul=.1).out()
          
 s.gui(locals())
 

@@ -25,5 +25,5 @@ def change():
 p = Pattern(change, .1)
 p.play()
 
-t.view()
+t.view(title="Waveform at initialization")
 s.gui(locals())
