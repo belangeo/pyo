@@ -17,7 +17,7 @@ BASE_HZ = midiToHz(60)
 env = HannTable()
 
 wsize = .04
-trans = 7
+trans = 5
 
 new_hz = midiToHz(60+trans)
 ratio = new_hz / BASE_HZ
@@ -25,8 +25,6 @@ rate = (ratio-1) / wsize
 
 ind = Phasor(-rate, [0, .5])
 win = Pointer(env, ind)
-snd = Delay(sf, ind*wsize, mul=win).out([0,0])
+snd = Delay(sf, ind*wsize, mul=win).mix(1).out()
 
 s.gui(locals())
-
-#Harmonizer(input, transpo, feedback, winsize, mul, add)

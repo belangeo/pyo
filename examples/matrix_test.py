@@ -36,15 +36,16 @@ if TEST == 0:
 if TEST == 1:
     SIZE = 256
     mm = NewMatrix(SIZE, SIZE)
-    fmind = Sine(.2, 0, 2, 2.5)
+    fmind = Sine(.2, 0, .2, 2.5)
     fmrat = Sine(.33, 0, .05, .5)
     aa = FM(carrier=10, ratio=fmrat, index=fmind)
     rec = MatrixRec(aa, mm, 0).play()
     lfx = Sine(.1, 0, .24, .25)
     lfy = Sine(.15, 0, .124, .25)
-    x = Sine(1000, 0, lfx, .5)
-    y = Sine(1.5, 0, lfy, .5)
-    c = MatrixPointer(mm, x, y).out()
+    x = Sine([1000,999.9], 0, lfx, .5)
+    y = Sine([40.5,40.6], 0, lfy, .5)
+    c = MatrixPointer(mm, x, y, mul=.5)
+    filt = Tone(c, freq=3000).out()
 
     def func():
         print "End of recording"

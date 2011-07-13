@@ -9,8 +9,8 @@ from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 
-a = Sine([.1,.2,.3], 0, 100, 500)
-b = Sine(a, mul=.4).out()
+a = Sine([.1,.2,.4,.3], 0, 100, 500)
+b = Sine(a, mul=.1).out()
 
 def print_val():
     print a.get(True)
