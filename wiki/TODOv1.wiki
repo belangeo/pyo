@@ -61,7 +61,6 @@ TODO before releasing _pyo_ version 1.0.
   * Vocoder
   * CrossPM, CrossFMPM
   * !TrigMarkov (!PyoTable)
-  * Looper (rewrite in C)
   * !SfMarkerTrigger
   * !MatrixSetCol (make sure that there is only one value in a column, others are 0)
   * !TrigProb (uses a matrix as a probability distribution (work with !MatrixSetCol))
