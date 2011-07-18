@@ -1411,6 +1411,11 @@ init_pyo64(void)
     Py_INCREF(&GranulatorType);
     PyModule_AddObject(m, "Granulator_base", (PyObject *)&GranulatorType);
 
+    if (PyType_Ready(&LooperType) < 0)
+        return;
+    Py_INCREF(&LooperType);
+    PyModule_AddObject(m, "Looper_base", (PyObject *)&LooperType);
+    
 	if (PyType_Ready(&HarmonizerType) < 0)
         return;
     Py_INCREF(&HarmonizerType);

@@ -48,12 +48,6 @@ TableStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
-int
-TableStream_getSize(TableStream *self)
-{
-    return self->size;
-}
-
 MYFLT *
 TableStream_getData(TableStream *self)
 {
@@ -66,10 +60,28 @@ TableStream_setData(TableStream *self, MYFLT *data)
     self->data = data;
 }    
 
+int
+TableStream_getSize(TableStream *self)
+{
+    return self->size;
+}
+
 void
 TableStream_setSize(TableStream *self, int size)
 {
     self->size = size;
+}    
+
+double
+TableStream_getSamplingRate(TableStream *self)
+{
+    return self->samplingRate;
+}
+
+void
+TableStream_setSamplingRate(TableStream *self, double sr)
+{
+    self->samplingRate = sr;
 }    
 
 PyTypeObject TableStreamType = {
@@ -216,7 +228,10 @@ HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     HarmTable_generate(self);
-        
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -489,7 +504,10 @@ ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ChebyTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -694,7 +712,10 @@ HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
     HannTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -881,7 +902,10 @@ ParaTable_init(ParaTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
 	TableStream_setData(self->tablestream, self->data);
     ParaTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -1103,7 +1127,10 @@ LinTable_init(LinTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     LinTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -1383,7 +1410,10 @@ CosTable_init(CosTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CosTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -1690,7 +1720,10 @@ CurveTable_init(CurveTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     CurveTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -2038,7 +2071,10 @@ ExpTable_init(ExpTable *self, PyObject *args, PyObject *kwds)
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setData(self->tablestream, self->data);
     ExpTable_generate(self);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
@@ -2294,6 +2330,7 @@ SndTable_loadSound(SndTable *self) {
 
     free(tmp);
     TableStream_setSize(self->tablestream, self->size);
+    TableStream_setSamplingRate(self->tablestream, self->sndSr);
     TableStream_setData(self->tablestream, self->data);
 }
 
@@ -2570,7 +2607,7 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
         return -1; 
 
-    MYFLT sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     self->size = (int)(self->length * sr + 0.5);
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
@@ -2585,6 +2622,7 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
     }
     
     TableStream_setData(self->tablestream, self->data);
+    TableStream_setSamplingRate(self->tablestream, sr);
 
     Py_INCREF(self);
     return 0;
@@ -2799,7 +2837,10 @@ DataTable_init(DataTable *self, PyObject *args, PyObject *kwds)
     }
     
     TableStream_setData(self->tablestream, self->data);
-    
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
     Py_INCREF(self);
     return 0;
 }
