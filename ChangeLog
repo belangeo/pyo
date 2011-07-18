@@ -1,3 +1,8 @@
+2011-07-18 belangeo <belangeo@gmail.com>
+
+    * Added C impementation of the Looper object.
+    - rev 682
+
 2011-07-07 belangeo <belangeo@gmail.com>
 
     * Added new arithmetic object: Round.

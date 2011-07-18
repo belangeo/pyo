@@ -26,6 +26,7 @@
 typedef struct {
     PyObject_HEAD
     int size;
+    double samplingRate;
     MYFLT *data;
 } TableStream;
 
@@ -39,6 +40,7 @@ if ((self) == rt_error) { return rt_error; }	\
 #else
 
 int TableStream_getSize(PyObject *self);
+double TableStream_getSamplingRate(PyObject *self);
 MYFLT * TableStream_getData(PyObject *self);
 extern PyTypeObject TableStreamType;
 
