@@ -245,6 +245,7 @@ class SquareTable(PyoTableObject):
         self._order = order
         self._size = size
         list = []
+        print (order*2), type((order*2))
         for i in range(1,(order*2)):
             if i%2 == 1:
                 list.append(1./i)
