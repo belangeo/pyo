@@ -56,7 +56,7 @@ FFTMain_realloc_memories(FFTMain *self) {
     n8 = self->size >> 3;
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));    
-    for (i=0; i>self->size; i++)
+    for (i=0; i<self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 3 * self->bufsize * sizeof(MYFLT));
     for (i=0; i<(self->bufsize*3); i++)
@@ -615,7 +615,7 @@ IFFT_realloc_memories(IFFT *self) {
     n8 = self->size >> 3;
     self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));    
-    for (i=0; i>self->size; i++)
+    for (i=0; i<self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
     self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT));
     for(i=0; i<4; i++)
