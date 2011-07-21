@@ -609,6 +609,21 @@ init_pyo64(void)
         return;
     Py_INCREF(&RecordType);
     PyModule_AddObject(m, "Record_base", (PyObject *)&RecordType);
+
+    if (PyType_Ready(&ControlRecType) < 0)
+        return;
+    Py_INCREF(&ControlRecType);
+    PyModule_AddObject(m, "ControlRec_base", (PyObject *)&ControlRecType);
+
+    if (PyType_Ready(&ControlReadType) < 0)
+        return;
+    Py_INCREF(&ControlReadType);
+    PyModule_AddObject(m, "ControlRead_base", (PyObject *)&ControlReadType);
+
+    if (PyType_Ready(&ControlReadTrigType) < 0)
+        return;
+    Py_INCREF(&ControlReadTrigType);
+    PyModule_AddObject(m, "ControlReadTrig_base", (PyObject *)&ControlReadTrigType);
     
     if (PyType_Ready(&CompareType) < 0)
         return;

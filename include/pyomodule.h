@@ -38,6 +38,7 @@
 #define TYPE__OF "|Of"
 #define TYPE_O_FOO "O|fOO"
 #define TYPE_I_FFOO "i|ffOO"
+#define TYPE_O_IF "O|if"
 #define TYPE_S__OIFI "s|Oifi"
 #define TYPE__FFFOO "|fffOO"
 #define TYPE__FFFFFOO "|fffffOO"
@@ -93,6 +94,7 @@
 #define TYPE__OF "|Od"
 #define TYPE_O_FOO "O|dOO"
 #define TYPE_I_FFOO "i|ddOO"
+#define TYPE_O_IF "O|id"
 #define TYPE_S__OIFI "s|Oidi"
 #define TYPE__FFFOO "|dddOO"
 #define TYPE__FFFFFOO "|dddddOO"
@@ -244,6 +246,9 @@ extern PyTypeObject MidiAdsrType;
 
 extern PyTypeObject DummyType;
 extern PyTypeObject RecordType;
+extern PyTypeObject ControlRecType;
+extern PyTypeObject ControlReadType;
+extern PyTypeObject ControlReadTrigType;
 extern PyTypeObject CompareType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;
