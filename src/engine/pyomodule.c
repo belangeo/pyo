@@ -531,6 +531,172 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     Py_RETURN_NONE;    
 }
 
+#define reducePoints_info \
+"\nDouglas–Peucker curve reduction algorithm.\n\n\
+This function receives a list of points as input and returns a simplified list by eliminating redundancies.\n\n\
+A point is a tuple (or a list) of two floats, time and value. A list of points looks like: [(0, 0), (0.1, 0.7), (0.2, 0.5), ...]\n\n\
+reducePoints(pointlist, tolerance=0.02)\n\nParameters:\n\n    \
+pointlist : list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
+tolerance : float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
+
+typedef struct STACK_RECORD {
+    int nAnchorIndex;
+    int nFloaterIndex;
+    struct STACK_RECORD *precPrev;
+} STACK_RECORD;
+
+STACK_RECORD *m_pStack = NULL;
+
+void StackPush( int nAnchorIndex, int nFloaterIndex )
+{
+    STACK_RECORD *precPrev = m_pStack;
+    m_pStack = (STACK_RECORD *)malloc( sizeof(STACK_RECORD) );
+    m_pStack->nAnchorIndex = nAnchorIndex;
+    m_pStack->nFloaterIndex = nFloaterIndex;
+    m_pStack->precPrev = precPrev;
+}
+
+int StackPop( int *pnAnchorIndex, int *pnFloaterIndex )
+{
+    STACK_RECORD *precStack = m_pStack;
+    if ( precStack == NULL )
+        return 0;
+    *pnAnchorIndex = precStack->nAnchorIndex;
+    *pnFloaterIndex = precStack->nFloaterIndex;
+    m_pStack = precStack->precPrev;
+    free( precStack );
+    return 1;
+}
+
+static PyObject *
+reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    int i, nPointsCount, nOutPointsCount, nVertexIndex, nAnchorIndex, nFloaterIndex;
+    MYFLT dSegmentVecLength;
+    MYFLT dAnchorVecX, dAnchorVecY;
+    MYFLT dAnchorUnitVecX, dAnchorUnitVecY;
+    MYFLT dVertexVecLength;
+    MYFLT dVertexVecX, dVertexVecY;
+    MYFLT dProjScalar;
+    MYFLT dVertexDistanceToSegment;
+    MYFLT dMaxDistThisSegment;
+    int nVertexIndexMaxDistance;
+    PyObject *pointlist, *pPointsOut, *tup;
+    MYFLT *pPointsX, *pPointsY;
+    int *pnUseFlag;
+    MYFLT dTolerance = .02;
+    MYFLT xMax, yMin, yMax, yRange;;
+    
+    static char *kwlist[] = {"pointlist", "tolerance", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
+        return PyInt_FromLong(-1);
+    
+    nPointsCount = PyList_Size(pointlist);
+    nOutPointsCount = 0;
+    
+    pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
+    pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
+    pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
+    
+    tup = PyList_GET_ITEM(pointlist, 0);
+    if (PyTuple_Check(tup) == 1) {
+        for (i=0; i<nPointsCount; i++) {
+            tup = PyList_GET_ITEM(pointlist, i);
+            pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
+            pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+            pnUseFlag[i] = 0;
+        }
+    }
+    else {
+        for (i=0; i<nPointsCount; i++) {
+            tup = PyList_GET_ITEM(pointlist, i);
+            pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 0)));
+            pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 1)));
+            pnUseFlag[i] = 0;
+        }
+    }
+
+    // rescale points between 0. and 1.
+    xMax = pPointsX[nPointsCount-1];
+    yMin = 9999999999.9; yMax = -999999.9;
+    for (i=0; i<nPointsCount; i++) {
+        if (pPointsY[i] < yMin)
+            yMin = pPointsY[i];
+        else if (pPointsY[i] > yMax)
+            yMax = pPointsY[i];
+    }    
+    yRange = yMax - yMin;
+    for (i=0; i<nPointsCount; i++) {
+        pPointsX[i] = pPointsX[i] / xMax;
+        pPointsY[i] = (pPointsY[i] - yMin) / yMax;
+    }
+
+    // filter...
+    pnUseFlag[0] = pnUseFlag[nPointsCount-1] = 1;
+    nAnchorIndex = 0;
+    nFloaterIndex = nPointsCount - 1;
+    StackPush( nAnchorIndex, nFloaterIndex );
+    while ( StackPop( &nAnchorIndex, &nFloaterIndex ) ) {
+        // initialize line segment
+        dAnchorVecX = pPointsX[ nFloaterIndex ] - pPointsX[ nAnchorIndex ];
+        dAnchorVecY = pPointsY[ nFloaterIndex ] - pPointsY[ nAnchorIndex ];
+        dSegmentVecLength = sqrt( dAnchorVecX * dAnchorVecX
+                                 + dAnchorVecY * dAnchorVecY );
+        dAnchorUnitVecX = dAnchorVecX / dSegmentVecLength;
+        dAnchorUnitVecY = dAnchorVecY / dSegmentVecLength;
+        // inner loop:
+        dMaxDistThisSegment = 0.0;
+        nVertexIndexMaxDistance = nAnchorIndex + 1;
+        for ( nVertexIndex = nAnchorIndex + 1; nVertexIndex < nFloaterIndex; nVertexIndex++ ) {
+            //compare to anchor
+            dVertexVecX = pPointsX[ nVertexIndex ] - pPointsX[ nAnchorIndex ];
+            dVertexVecY = pPointsY[ nVertexIndex ] - pPointsY[ nAnchorIndex ];
+            dVertexVecLength = sqrt( dVertexVecX * dVertexVecX
+                                    + dVertexVecY * dVertexVecY );
+            //dot product:
+            dProjScalar = dVertexVecX * dAnchorUnitVecX + dVertexVecY * dAnchorUnitVecY;
+            if ( dProjScalar < 0.0 )
+                dVertexDistanceToSegment = dVertexVecLength;
+            else {
+                //compare to floater
+                dVertexVecX = pPointsX[ nVertexIndex ] - pPointsX[ nFloaterIndex ];
+                dVertexVecY = pPointsY[ nVertexIndex ] - pPointsY[ nFloaterIndex ];
+                dVertexVecLength = sqrt( dVertexVecX * dVertexVecX
+                                        + dVertexVecY * dVertexVecY );
+                //dot product:
+                dProjScalar = dVertexVecX * (-dAnchorUnitVecX) + dVertexVecY * (-dAnchorUnitVecY);
+                if ( dProjScalar < 0.0 )
+                    dVertexDistanceToSegment = dVertexVecLength;
+                else //calculate perpendicular distance to line (pythagorean theorem):
+                    dVertexDistanceToSegment =
+                    sqrt( fabs( dVertexVecLength * dVertexVecLength - dProjScalar * dProjScalar ) );
+            }
+            if ( dMaxDistThisSegment < dVertexDistanceToSegment ) {
+                dMaxDistThisSegment = dVertexDistanceToSegment;
+                nVertexIndexMaxDistance = nVertexIndex;
+            }
+        }
+        if ( dMaxDistThisSegment <= dTolerance ) { //use line segment
+            pnUseFlag[ nAnchorIndex ] = 1;
+            pnUseFlag[ nFloaterIndex ] = 1;
+        }
+        else {
+            StackPush( nAnchorIndex, nVertexIndexMaxDistance );
+            StackPush( nVertexIndexMaxDistance, nFloaterIndex );
+        }
+    }
+    
+    pPointsOut = PyList_New(0);    
+    for (i=0; i<nPointsCount; i++) {
+        if (pnUseFlag[i] == 1) {
+            PyList_Append(pPointsOut, PyList_GET_ITEM(pointlist, i));
+        }
+    }        
+
+    return pPointsOut;    
+}
+
 /****** Conversion utilities ******/
 static PyObject *
 midiToHz(PyObject *self, PyObject *arg) {
@@ -572,6 +738,7 @@ static PyMethodDef pyo_functions[] = {
 {"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "Returns Portmidi default input device."},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
+{"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns the frequency in Hertz equivalent to the given midi note."},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, "Returns the transposition factor equivalent to the given midi note (central key = 60)."},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Returns the number of samples equivalent of the given duration in seconds."},

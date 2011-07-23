@@ -533,6 +533,7 @@ class LinTable(PyoTableObject):
     
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -588,9 +589,42 @@ class LinTable(PyoTableObject):
             List of tuples indicating location and value of each points 
             in the table. Location must be integer.
 
-        """      
+        """ 
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+
+    def loadRecFile(self, filename, tolerance=0.02):
+        """
+        Import an automation recording file in the table.
+        
+        loadRecFile takes a recording file, usually from a ControlRec object,
+        as `filename` parameter, applies a filtering pre-processing to eliminate
+        redundancies and loads the result in the table as a list of points. 
+        Filtering process can be controled with the `tolerance` parameter. 
+        
+        Parameters:
+        
+        filename : string
+            Full path of an automation recording file.
+        tolerance : float, optional
+            Tolerance of the filter. A higher value will eliminate more points.
+            Defaults to 0.02.
+
+        """
+        _path, _name = os.path.split(filename)
+        # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
+        # if _name not in files: files.append(_name)
+        files = [filename]
+        for i, obj in enumerate(self._base_objs):
+            p = os.path.join(_path, wrap(files,i))
+            f = open(p, "r")
+            values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
+            scl = self._size / values[-1][0]
+            values = [(int(v[0]*scl), v[1]) for v in values]
+            f.close()
+            values = reducePoints(values, tolerance=tolerance)
+            self._list = values
+            obj.replace(values)
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -656,6 +690,7 @@ class CosTable(PyoTableObject):
     
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -714,6 +749,39 @@ class CosTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+
+    def loadRecFile(self, filename, tolerance=0.02):
+        """
+        Import an automation recording file in the table.
+
+        loadRecFile takes a recording file, usually from a ControlRec object,
+        as `filename` parameter, applies a filtering pre-processing to eliminate
+        redundancies and loads the result in the table as a list of points. 
+        Filtering process can be controled with the `tolerance` parameter. 
+
+        Parameters:
+
+        filename : string
+            Full path of an automation recording file.
+        tolerance : float, optional
+            Tolerance of the filter. A higher value will eliminate more points.
+            Defaults to 0.02.
+
+        """
+        _path, _name = os.path.split(filename)
+        # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
+        # if _name not in files: files.append(_name)
+        files = [filename]
+        for i, obj in enumerate(self._base_objs):
+            p = os.path.join(_path, wrap(files,i))
+            f = open(p, "r")
+            values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
+            scl = self._size / values[-1][0]
+            values = [(int(v[0]*scl), v[1]) for v in values]
+            f.close()
+            values = reducePoints(values, tolerance=tolerance)
+            self._list = values
+            obj.replace(values)
 
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -794,6 +862,7 @@ class CurveTable(PyoTableObject):
     setTension(x) : Replace the `tension` attribute.
     setTension(x) : Replace the `bias` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
     
@@ -892,6 +961,39 @@ class CurveTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+
+    def loadRecFile(self, filename, tolerance=0.02):
+        """
+        Import an automation recording file in the table.
+
+        loadRecFile takes a recording file, usually from a ControlRec object,
+        as `filename` parameter, applies a filtering pre-processing to eliminate
+        redundancies and loads the result in the table as a list of points. 
+        Filtering process can be controled with the `tolerance` parameter. 
+
+        Parameters:
+
+        filename : string
+            Full path of an automation recording file.
+        tolerance : float, optional
+            Tolerance of the filter. A higher value will eliminate more points.
+            Defaults to 0.02.
+
+        """
+        _path, _name = os.path.split(filename)
+        # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
+        # if _name not in files: files.append(_name)
+        files = [filename]
+        for i, obj in enumerate(self._base_objs):
+            p = os.path.join(_path, wrap(files,i))
+            f = open(p, "r")
+            values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
+            scl = self._size / values[-1][0]
+            values = [(int(v[0]*scl), v[1]) for v in values]
+            f.close()
+            values = reducePoints(values, tolerance=tolerance)
+            self._list = values
+            obj.replace(values)
         
     def getPoints(self):
         return self._base_objs[0].getPoints()
@@ -979,6 +1081,7 @@ class ExpTable(PyoTableObject):
     setExp(x) : Replace the `exp` attribute.
     setInverse(x) : Replace the `inverse` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
+    loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -1068,6 +1171,39 @@ class ExpTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+
+    def loadRecFile(self, filename, tolerance=0.02):
+        """
+        Import an automation recording file in the table.
+
+        loadRecFile takes a recording file, usually from a ControlRec object,
+        as `filename` parameter, applies a filtering pre-processing to eliminate
+        redundancies and loads the result in the table as a list of points. 
+        Filtering process can be controled with the `tolerance` parameter. 
+
+        Parameters:
+
+        filename : string
+            Full path of an automation recording file.
+        tolerance : float, optional
+            Tolerance of the filter. A higher value will eliminate more points.
+            Defaults to 0.02.
+
+        """
+        _path, _name = os.path.split(filename)
+        # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
+        # if _name not in files: files.append(_name)
+        files = [filename]
+        for i, obj in enumerate(self._base_objs):
+            p = os.path.join(_path, wrap(files,i))
+            f = open(p, "r")
+            values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
+            scl = self._size / values[-1][0]
+            values = [(int(v[0]*scl), v[1]) for v in values]
+            f.close()
+            values = reducePoints(values, tolerance=tolerance)
+            self._list = values
+            obj.replace(values)
         
     def getPoints(self):
         return self._base_objs[0].getPoints()
