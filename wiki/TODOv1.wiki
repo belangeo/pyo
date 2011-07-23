@@ -22,14 +22,6 @@ TODO before releasing _pyo_ version 1.0.
 
 ----
 
-*Variable rate table*
-
-- Add a rate factor to !TableRec (rate=10 means record a value every 10 samples)
-
-- !TableRead2 controlled with a rate factor (same as !TableRec)
-
-----
-
 *Midi*
 
 - Improve Midi scheduling with time stamp.
