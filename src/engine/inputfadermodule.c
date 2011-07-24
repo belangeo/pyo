@@ -111,7 +111,6 @@ static void
 InputFader_compute_next_data_frame(InputFader *self)
 {   
     (*self->proc_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

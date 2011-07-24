@@ -89,7 +89,6 @@ Input_compute_next_data_frame(Input *self)
             self->data[(int)(i/self->nchnls)] = tmp[i];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

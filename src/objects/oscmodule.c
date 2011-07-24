@@ -286,7 +286,6 @@ OscReceive_compute_next_data_frame(OscReceive *self)
     }  
     self->oldValue = self->value;
     
-    Stream_setData(self->stream, self->data);    
     (*self->muladd_func_ptr)(self);
 }
 

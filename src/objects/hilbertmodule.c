@@ -308,7 +308,6 @@ Hilbert_compute_next_data_frame(Hilbert *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

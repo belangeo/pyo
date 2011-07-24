@@ -96,7 +96,6 @@ Sig_compute_next_data_frame(Sig *self)
         }
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -457,7 +456,6 @@ SigTo_compute_next_data_frame(SigTo *self)
 {
     (*self->proc_func_ptr)(self);  
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -849,7 +847,6 @@ VarPort_compute_next_data_frame(VarPort *self)
 {
     (*self->proc_func_ptr)(self);  
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

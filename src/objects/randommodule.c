@@ -312,7 +312,6 @@ Randi_compute_next_data_frame(Randi *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -932,7 +931,6 @@ Randh_compute_next_data_frame(Randh *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1394,7 +1392,6 @@ Choice_compute_next_data_frame(Choice *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1830,7 +1827,6 @@ RandInt_compute_next_data_frame(RandInt *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2675,7 +2671,6 @@ Xnoise_compute_next_data_frame(Xnoise *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3638,7 +3633,6 @@ XnoiseMidi_compute_next_data_frame(XnoiseMidi *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

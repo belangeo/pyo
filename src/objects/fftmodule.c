@@ -388,7 +388,6 @@ FFT_compute_next_data_frame(FFT *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -727,7 +726,6 @@ IFFT_compute_next_data_frame(IFFT *self)
 {   
     (*self->proc_func_ptr)(self);    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1081,7 +1079,6 @@ CarToPol_compute_next_data_frame(CarToPol *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1377,7 +1374,6 @@ PolToCar_compute_next_data_frame(PolToCar *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1658,7 +1654,6 @@ static void
 FrameDeltaMain_compute_next_data_frame(FrameDeltaMain *self)
 {
     (*self->proc_func_ptr)(self); 
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1930,7 +1925,6 @@ FrameDelta_compute_next_data_frame(FrameDelta *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2194,7 +2188,6 @@ static void
 FrameAccumMain_compute_next_data_frame(FrameAccumMain *self)
 {
     (*self->proc_func_ptr)(self); 
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2466,7 +2459,6 @@ FrameAccum_compute_next_data_frame(FrameAccum *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

@@ -3230,7 +3230,6 @@ TableRecTrig_compute_next_data_frame(TableRecTrig *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
     }    
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3912,8 +3911,7 @@ TrigTableRecTrig_compute_next_data_frame(TrigTableRecTrig *self)
     tmp = TrigTableRec_getTrigsBuffer((TrigTableRec *)self->mainReader);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
-    }    
-    Stream_setData(self->stream, self->data);
+    }
 }
 
 static int

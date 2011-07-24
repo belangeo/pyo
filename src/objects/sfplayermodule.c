@@ -646,7 +646,6 @@ SfPlay_compute_next_data_frame(SfPlay *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -917,7 +916,6 @@ SfPlayTrig_compute_next_data_frame(SfPlayTrig *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1663,7 +1661,6 @@ SfMarkerShuffle_compute_next_data_frame(SfMarkerShuffle *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2472,7 +2469,6 @@ SfMarkerLoop_compute_next_data_frame(SfMarkerLoop *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

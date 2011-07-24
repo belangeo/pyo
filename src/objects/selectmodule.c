@@ -110,7 +110,6 @@ Select_compute_next_data_frame(Select *self)
 {
     (*self->proc_func_ptr)(self);    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -412,7 +411,6 @@ Change_compute_next_data_frame(Change *self)
 {
     (*self->proc_func_ptr)(self);    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

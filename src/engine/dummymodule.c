@@ -82,7 +82,6 @@ Dummy_compute_next_data_frame(Dummy *self)
         self->data[i] = in[i];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

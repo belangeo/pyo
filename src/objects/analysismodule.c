@@ -143,7 +143,6 @@ Follower_compute_next_data_frame(Follower *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -615,7 +614,6 @@ Follower2_compute_next_data_frame(Follower2 *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1002,7 +1000,6 @@ ZCross_compute_next_data_frame(ZCross *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

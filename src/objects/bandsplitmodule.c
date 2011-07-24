@@ -447,7 +447,6 @@ BandSplit_compute_next_data_frame(BandSplit *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1182,7 +1181,6 @@ FourBand_compute_next_data_frame(FourBand *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
