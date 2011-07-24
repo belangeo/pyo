@@ -302,7 +302,6 @@ Biquad_compute_next_data_frame(Biquad *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -932,7 +931,6 @@ Biquadx_compute_next_data_frame(Biquadx *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1666,7 +1664,6 @@ EQ_compute_next_data_frame(EQ *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2207,7 +2204,6 @@ Port_compute_next_data_frame(Port *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2630,7 +2626,6 @@ Tone_compute_next_data_frame(Tone *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2962,7 +2957,6 @@ DCBlock_compute_next_data_frame(DCBlock *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3404,7 +3398,6 @@ Allpass_compute_next_data_frame(Allpass *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3902,7 +3895,6 @@ Allpass2_compute_next_data_frame(Allpass2 *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -4658,7 +4650,6 @@ Phaser_compute_next_data_frame(Phaser *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

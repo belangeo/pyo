@@ -515,7 +515,6 @@ Pan_compute_next_data_frame(Pan *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1147,7 +1146,6 @@ SPan_compute_next_data_frame(SPan *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1722,7 +1720,6 @@ Switch_compute_next_data_frame(Switch *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2068,7 +2065,6 @@ Selector_compute_next_data_frame(Selector *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2765,12 +2761,10 @@ MixerVoice_compute_next_data_frame(MixerVoice *self)
     MYFLT *tmp;
     int offset = self->chnl * self->bufsize;
     tmp = Mixer_getSamplesBuffer((Mixer *)self->mainMixer);
-    //printf("sample value : %f\n", tmp[offset]);
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

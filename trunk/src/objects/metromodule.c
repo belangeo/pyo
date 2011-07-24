@@ -155,7 +155,6 @@ Metro_compute_next_data_frame(Metro *self)
 {
     (*self->proc_func_ptr)(self);    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -529,7 +528,6 @@ static void
 Seqer_compute_next_data_frame(Seqer *self)
 {
     (*self->proc_func_ptr)(self);    
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -815,7 +813,6 @@ Seq_compute_next_data_frame(Seq *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1101,7 +1098,6 @@ static void
 Clouder_compute_next_data_frame(Clouder *self)
 {
     (*self->proc_func_ptr)(self);    
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1347,7 +1343,6 @@ Cloud_compute_next_data_frame(Cloud *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1609,7 +1604,6 @@ Trig_compute_next_data_frame(Trig *self)
     else
         self->data[0] = 0.0;
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2222,7 +2216,6 @@ static void
 Beater_compute_next_data_frame(Beater *self)
 {
     (*self->proc_func_ptr)(self);    
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2644,7 +2637,6 @@ Beat_compute_next_data_frame(Beat *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2907,7 +2899,6 @@ BeatTapStream_compute_next_data_frame(BeatTapStream *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3170,7 +3161,6 @@ BeatAmpStream_compute_next_data_frame(BeatAmpStream *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3433,7 +3423,6 @@ BeatDurStream_compute_next_data_frame(BeatDurStream *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3696,7 +3685,6 @@ BeatEndStream_compute_next_data_frame(BeatEndStream *self)
         self->data[i] = tmp[i + offset];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

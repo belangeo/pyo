@@ -100,7 +100,6 @@ M_Sin_compute_next_data_frame(M_Sin *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -378,7 +377,6 @@ M_Cos_compute_next_data_frame(M_Cos *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -656,7 +654,6 @@ M_Tan_compute_next_data_frame(M_Tan *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -939,7 +936,6 @@ M_Abs_compute_next_data_frame(M_Abs *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1221,7 +1217,6 @@ M_Sqrt_compute_next_data_frame(M_Sqrt *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1503,7 +1498,6 @@ M_Log_compute_next_data_frame(M_Log *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1785,7 +1779,6 @@ M_Log10_compute_next_data_frame(M_Log10 *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2067,7 +2060,6 @@ M_Log2_compute_next_data_frame(M_Log2 *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2397,7 +2389,6 @@ M_Pow_compute_next_data_frame(M_Pow *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2813,7 +2804,6 @@ M_Atan2_compute_next_data_frame(M_Atan2 *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3176,7 +3166,6 @@ M_Floor_compute_next_data_frame(M_Floor *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3453,7 +3442,6 @@ M_Round_compute_next_data_frame(M_Round *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

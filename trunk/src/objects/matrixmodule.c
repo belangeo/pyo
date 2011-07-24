@@ -734,7 +734,6 @@ MatrixRecTrig_compute_next_data_frame(MatrixRecTrig *self)
     for (i=0; i<self->bufsize; i++) {
         self->data[i] = tmp[i];
     }    
-    Stream_setData(self->stream, self->data);
 }
 
 static int

@@ -120,7 +120,6 @@ Midictl_compute_next_data_frame(Midictl *self)
     }  
     
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -983,7 +982,6 @@ MidiAdsr_compute_next_data_frame(MidiAdsr *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

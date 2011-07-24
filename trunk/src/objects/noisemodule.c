@@ -111,7 +111,6 @@ Noise_compute_next_data_frame(Noise *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -415,7 +414,6 @@ PinkNoise_compute_next_data_frame(PinkNoise *self)
 {
     PinkNoise_generate(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -688,7 +686,6 @@ BrownNoise_compute_next_data_frame(BrownNoise *self)
 {
     BrownNoise_generate(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

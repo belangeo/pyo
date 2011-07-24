@@ -217,7 +217,6 @@ Sine_compute_next_data_frame(Sine *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -669,7 +668,6 @@ SineLoop_compute_next_data_frame(SineLoop *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1151,7 +1149,6 @@ Osc_compute_next_data_frame(Osc *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1684,7 +1681,6 @@ OscLoop_compute_next_data_frame(OscLoop *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2187,7 +2183,6 @@ Phasor_compute_next_data_frame(Phasor *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2560,7 +2555,6 @@ Pointer_compute_next_data_frame(Pointer *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2913,7 +2907,6 @@ TableIndex_compute_next_data_frame(TableIndex *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3274,7 +3267,6 @@ Lookup_compute_next_data_frame(Lookup *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -3989,7 +3981,6 @@ Pulsar_compute_next_data_frame(Pulsar *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -4576,7 +4567,6 @@ TableRead_compute_next_data_frame(TableRead *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -4999,7 +4989,6 @@ TableReadTrig_compute_next_data_frame(TableReadTrig *self)
         self->data[i] = tmp[i];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -5522,7 +5511,6 @@ Fm_compute_next_data_frame(Fm *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -6017,7 +6005,6 @@ CrossFm_compute_next_data_frame(CrossFm *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -6595,7 +6582,6 @@ Blit_compute_next_data_frame(Blit *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -7123,7 +7109,6 @@ Rossler_compute_next_data_frame(Rossler *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -7494,7 +7479,6 @@ RosslerAlt_compute_next_data_frame(RosslerAlt *self)
         self->data[i] = tmp[i];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -7967,7 +7951,6 @@ Lorenz_compute_next_data_frame(Lorenz *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -8338,7 +8321,6 @@ LorenzAlt_compute_next_data_frame(LorenzAlt *self)
         self->data[i] = tmp[i];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

@@ -83,7 +83,6 @@ static void
 Record_compute_next_data_frame(Record *self)
 {
     (*self->proc_func_ptr)(self); 
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -613,7 +612,6 @@ ControlRead_compute_next_data_frame(ControlRead *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -991,7 +989,6 @@ ControlReadTrig_compute_next_data_frame(ControlReadTrig *self)
         self->data[i] = tmp[i];
     }    
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

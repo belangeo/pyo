@@ -270,7 +270,6 @@ Delay_compute_next_data_frame(Delay *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -706,7 +705,6 @@ SDelay_compute_next_data_frame(SDelay *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1380,7 +1378,6 @@ Waveguide_compute_next_data_frame(Waveguide *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -2383,7 +2380,6 @@ AllpassWG_compute_next_data_frame(AllpassWG *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

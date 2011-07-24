@@ -365,7 +365,6 @@ Harmonizer_compute_next_data_frame(Harmonizer *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int

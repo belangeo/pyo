@@ -117,7 +117,6 @@ Convolve_compute_next_data_frame(Convolve *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -591,7 +590,6 @@ IRWinSinc_compute_next_data_frame(IRWinSinc *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1029,7 +1027,6 @@ IRAverage_compute_next_data_frame(IRAverage *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1489,7 +1486,6 @@ IRPulse_compute_next_data_frame(IRPulse *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
@@ -1989,7 +1985,6 @@ IRFM_compute_next_data_frame(IRFM *self)
 {
     (*self->proc_func_ptr)(self); 
     (*self->muladd_func_ptr)(self);
-    Stream_setData(self->stream, self->data);
 }
 
 static int
