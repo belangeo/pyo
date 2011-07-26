@@ -1265,7 +1265,7 @@ class ExpTable(PyoTableObject):
             
 class SndTable(PyoTableObject):
     """
-    Load data from a soundfile into a function table.
+    Transfers data from a soundfile into a function table.
     
     If `chnl` is None, the table will contain as many table streams as 
     necessary to read all channels of the loaded sound.
@@ -1277,7 +1277,15 @@ class SndTable(PyoTableObject):
     path : string
         Full path name of the sound.
     chnl : int, optional
-        Channel number to read in. The default (None) reads all channels.
+        Channel number to read in. Available at initialization time only.
+        The default (None) reads all channels.
+    start : float, optional
+        Begins reading at `start` seconds into the file. Available at 
+        initialization time only. Defaults to 0.
+    stop : float, optional
+        Stops reading at `stop` seconds into the file.  Available at 
+        initialization time only. The default (None) means the end of 
+        the file.
 
     Methods:
 
@@ -1299,7 +1307,7 @@ class SndTable(PyoTableObject):
     >>> a = Osc(table=t, freq=t.getRate(), mul=.5).out()
 
     """
-    def __init__(self, path, chnl=None):
+    def __init__(self, path, chnl=None, start=0, stop=None):
         self._size = []
         self._dur = []
         self._base_objs = []
@@ -1310,9 +1318,15 @@ class SndTable(PyoTableObject):
             self._size.append(_size)
             self._dur.append(_dur)
             if chnl == None:
-                self._base_objs.extend([SndTable_base(p, i) for i in range(_snd_chnls)])
+                if stop == None:
+                    self._base_objs.extend([SndTable_base(p, i, start) for i in range(_snd_chnls)])
+                else:
+                    self._base_objs.extend([SndTable_base(p, i, start, stop) for i in range(_snd_chnls)])
             else:
-                self._base_objs.append(SndTable_base(p, chnl))
+                if stop == None:
+                    self._base_objs.append(SndTable_base(p, chnl, start))
+                else:
+                    self._base_objs.append(SndTable_base(p, chnl, start, stop))
         if lmax == 1:
             self._size = _size
             self._dur = _dur

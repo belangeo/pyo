@@ -2288,36 +2288,45 @@ typedef struct {
     char *path;
     int sndSr;
     int chnl;
+    MYFLT start;
+    MYFLT stop;
 } SndTable;
 
 static void
 SndTable_loadSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int i, num, num_items, num_chnls;
-    MYFLT val;
+    unsigned int i, num, num_items, num_chnls, snd_size, start, stop;
     MYFLT *tmp;
         
-    /* Open the WAV file. */
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
         printf("Failed to open the file.\n");
     }
-    /* Print some of the info, and figure out how much data to read. */
-    self->size = info.frames;
+    snd_size = info.frames;
     self->sndSr = info.samplerate;
     num_chnls = info.channels;
-    /*
-    printf("samples = %d\n", self->size);
-    printf("samplingrate = %d\n", self->sndSr);
-    printf("channels = %d\n", num_chnls);
-    */
+
+    if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
+        stop = snd_size;
+    else
+        stop = (unsigned int)(self->stop * self->sndSr);
+
+    if (self->start < 0 || (self->start*self->sndSr) > snd_size)
+        start = 0;
+    else
+        start = (unsigned int)(self->start * self->sndSr);
+    
+    self->size = stop - start;
     num_items = self->size * num_chnls;
+    
     /* Allocate space for the data to be read, then read it. */
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+    
+    sf_seek(sf, start, SEEK_SET);
     num = SF_READ(sf, tmp, num_items);
     sf_close(sf);
     for (i=0; i<num_items; i++) {
@@ -2325,9 +2334,11 @@ SndTable_loadSound(SndTable *self) {
             self->data[(int)(i/num_chnls)] = tmp[i];
         }    
     }
-    val = self->data[0];
-    self->data[self->size] = val;  
 
+    self->data[self->size] = self->data[0];  
+
+    self->start = 0.0;
+    self->stop = -1.0;
     free(tmp);
     TableStream_setSize(self->tablestream, self->size);
     TableStream_setSamplingRate(self->tablestream, self->sndSr);
@@ -2368,6 +2379,7 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server = PyServer_get_server();
     
     self->chnl = 0;
+    self->stop = -1.0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
     
@@ -2377,9 +2389,9 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 SndTable_init(SndTable *self, PyObject *args, PyObject *kwds)
 {    
-    static char *kwlist[] = {"path", "chnl", NULL};
+    static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &self->path, &self->chnl))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &self->stop))
         return -1; 
     
     SndTable_loadSound(self);
@@ -2411,10 +2423,6 @@ SndTable_getViewTable(SndTable *self) {
     samples = PyList_New(w*4);
     for(i=0; i<w; i++) {
         absin = 0.0;
-        /*for (j=0; j<step; j++) {
-            absin += self->data[count++];
-        }
-        y = (int)(MYFABS(absin / step) * amp); */
         for (j=0; j<step; j++) {
             if (MYFABS(self->data[count++]) > absin)
                 absin = self->data[count];
