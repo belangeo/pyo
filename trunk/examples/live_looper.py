@@ -20,7 +20,7 @@ a = Looper( table=tab, # table to loop in
             start=start, # loop start position
             dur=dur, # loop duration
             xfade=20, # crossfade duration in %
-            mode=2, # looping mode 
+            mode=1, # looping mode 
             xfadeshape=0, # crossfade shape
             startfromloop=False, # first start position, False means from beginning of the table
             interp=2 # interpolation method

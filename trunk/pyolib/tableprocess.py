@@ -2065,10 +2065,17 @@ class Looper(PyoObject):
     xfade : float or PyoObject {0 -> 50}, optional
         Percent of the loop time used to crossfade readers, updated only once per 
         loop cycle and clipped between 0 and 50. Defaults to 20.
-    mode : int {0, 1, 2}, optional
-        Loop modes: 0 = forward, 1 = backward, 2 = back-and-forth. Defaults to 0.
+    mode : int {0, 1, 2, 3}, optional
+        Loop modes. Defaults to 1. 
+            0 : no loop
+            1 : forward 
+            2 : backward
+            3 : back-and-forth
     xfadeshape : int {0, 1, 2}, optional
-        Crossfade envelope: 0 = linear, 1 = equal power, 2 = sigmoid. Defaults to 0.
+        Crossfade envelope shape. Defaults to 0. 
+            0 : linear
+            1 : equal power
+            2 : sigmoid
     startfromloop : boolean, optional
         If True, reading will begin directly at the loop start point. Otherwise, it
         begins at the beginning of the table. Defaults to False.
@@ -2122,7 +2129,7 @@ class Looper(PyoObject):
     >>> a = Looper(table=tab, pitch=pit, start=start, dur=dur, startfromloop=True, mul=.5).out()
 
     """
-    def __init__(self, table, pitch=1, start=0, dur=1., xfade=20, mode=0, xfadeshape=0, startfromloop=False, interp=2, autosmooth=False, mul=1, add=0):
+    def __init__(self, table, pitch=1, start=0, dur=1., xfade=20, mode=1, xfadeshape=0, startfromloop=False, interp=2, autosmooth=False, mul=1, add=0):
         PyoObject.__init__(self)
         self._table = table
         self._pitch = pitch
