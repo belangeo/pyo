@@ -1315,8 +1315,6 @@ class SndTable(PyoTableObject):
         path, lmax = convertArgsToLists(path)
         for p in path:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
-            self._size.append(_size)
-            self._dur.append(_dur)
             if chnl == None:
                 if stop == None:
                     self._base_objs.extend([SndTable_base(p, i, start) for i in range(_snd_chnls)])
@@ -1327,9 +1325,11 @@ class SndTable(PyoTableObject):
                     self._base_objs.append(SndTable_base(p, chnl, start))
                 else:
                     self._base_objs.append(SndTable_base(p, chnl, start, stop))
+            self._size.append(self._base_objs[-1].getSize())
+            self._dur.append(self._size[-1] / float(_snd_sr))
         if lmax == 1:
-            self._size = _size
-            self._dur = _dur
+            self._size = self._base_objs[-1].getSize()
+            self._dur = self._size / float(_snd_sr)
 
     def __dir__(self):
         return ['sound']
