@@ -105,7 +105,7 @@
 #define TYPE_OO_FI "OO|di"
 #define TYPE_OOO_F "OOO|d"
 #define TYPE_F_O "d|O"
-#define TYPE_F_OF "f|Od"
+#define TYPE_F_OF "d|Od"
 #define TYPE__OFFI "|Oddi"
 #define TYPE__OFII "|Odii"
 #define TYPE_O_OFOO "O|OdOO"
