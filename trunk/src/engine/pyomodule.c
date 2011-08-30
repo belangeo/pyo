@@ -571,7 +571,7 @@ int StackPop( int *pnAnchorIndex, int *pnFloaterIndex )
 static PyObject *
 reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int i, nPointsCount, nOutPointsCount, nVertexIndex, nAnchorIndex, nFloaterIndex;
+    int i, nPointsCount, nVertexIndex, nAnchorIndex, nFloaterIndex;
     MYFLT dSegmentVecLength;
     MYFLT dAnchorVecX, dAnchorVecY;
     MYFLT dAnchorUnitVecX, dAnchorUnitVecY;
@@ -593,7 +593,6 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
         return PyInt_FromLong(-1);
     
     nPointsCount = PyList_Size(pointlist);
-    nOutPointsCount = 0;
     
     pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
     pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
@@ -791,6 +790,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&ControlReadTrigType);
     PyModule_AddObject(m, "ControlReadTrig_base", (PyObject *)&ControlReadTrigType);
+
+    if (PyType_Ready(&NoteinRecType) < 0)
+        return;
+    Py_INCREF(&NoteinRecType);
+    PyModule_AddObject(m, "NoteinRec_base", (PyObject *)&NoteinRecType);
     
     if (PyType_Ready(&CompareType) < 0)
         return;

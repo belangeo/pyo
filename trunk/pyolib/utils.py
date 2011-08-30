@@ -800,7 +800,7 @@ class ControlRec(PyoObject):
     of streams, other parameters can't be in list format. The user
     must call the `write` method to create text files on the disk.
 
-    Each line in the text files contains two values, the asolute time
+    Each line in the text files contains two values, the absolute time
     in seconds and the sampled value.
 
     The play() method starts the recording and is not called at the 
@@ -1071,6 +1071,91 @@ class ControlRead(PyoObject):
         return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
+
+class NoteinRec(PyoObject):
+    """
+    Records Notein inputs and writes them in a text file.
+
+    `input` parameter must be a Notein object managing any number
+    of streams, other parameters can't be in list format. The user
+    must call the `write` method to create text files on the disk.
+
+    Each line in the text files contains three values, the absolute time
+    in seconds, the Midi pitch and the normalized velocity.
+
+    The play() method starts the recording and is not called at the 
+    object creation time.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : Notein
+        Notein signal to sample.
+    filename : string
+        Full path (without extension) used to create the files. 
+        "_000" will be added to file's names with increasing digits
+        according to the number of streams in input. The same 
+        filename can be passed to a NoteinRead object to read all
+        related files.
+
+    Methods:
+
+    write() : Writes values in a text file on the disk.
+
+    Notes:
+
+    All parameters can only be set at intialization time.    
+
+    The `write` method must be called on the object to write the files 
+    on the disk.
+
+    The out() method is bypassed. NoteinRec's signal can not be sent to 
+    audio outs.
+
+    NoteinRec has no `mul` and `add` attributes.
+
+    See also: NoteinRead
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> notes = Notein(poly=2)
+    >>> home = os.path.expanduser('~')
+    >>> rec = NoteinRec(notes, home+"/test").play()
+    >>> # call rec.write() to save "test_000" and "test_001" in the home directory.
+
+    """
+    def __init__(self, input, filename):
+        PyoObject.__init__(self)
+        self._input = input
+        self._filename = filename
+        self._path, self._name = os.path.split(filename)
+        self._in_pitch = self._input["pitch"]
+        self.in_velocity = self._input["velocity"]
+        in_pitch, in_velocity, lmax = convertArgsToLists(self._in_pitch, self.in_velocity)
+        self._base_objs = [NoteinRec_base(wrap(in_pitch,i), wrap(in_velocity,i)) for i in range(lmax)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def __dir__(self):
+        return []
+
+    def write(self):
+        """
+        Writes recorded values in text files on the disk.
+
+        """
+        for i, obj in enumerate(self._base_objs):
+            f = open(os.path.join(self._path, "%s_%03d" % (self._name, i)), "w")
+            [f.write("%f %f %f\n" % p) for p in obj.getData()]
+            f.close()
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
 class Denorm(PyoObject):
     """
