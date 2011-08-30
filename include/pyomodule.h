@@ -46,6 +46,7 @@
 #define TYPE_O_FFFFOO "O|ffffOO"
 #define TYPE_OO_F "OO|f"
 #define TYPE_OO_FI "OO|fi"
+#define TYPE_OO_IF "OO|if"
 #define TYPE_OOO_F "OOO|f"
 #define TYPE_F_O "f|O"
 #define TYPE_F_OF "f|Of"
@@ -103,6 +104,7 @@
 #define TYPE_O_FFFFOO "O|ddddOO"
 #define TYPE_OO_F "OO|d"
 #define TYPE_OO_FI "OO|di"
+#define TYPE_OO_IF "OO|id"
 #define TYPE_OOO_F "OOO|d"
 #define TYPE_F_O "d|O"
 #define TYPE_F_OF "d|Od"
@@ -251,6 +253,7 @@ extern PyTypeObject RecordType;
 extern PyTypeObject ControlRecType;
 extern PyTypeObject ControlReadType;
 extern PyTypeObject ControlReadTrigType;
+extern PyTypeObject NoteinRecType;
 extern PyTypeObject CompareType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;

@@ -1180,3 +1180,233 @@ PyTypeObject ControlReadTrigType = {
     0,                         /* tp_alloc */
     ControlReadTrig_new,                 /* tp_new */
 };
+
+/************/
+/* NoteinRec */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *inputp;
+    Stream *inputp_stream;
+    PyObject *inputv;
+    Stream *inputv_stream;
+    PyObject *tmp_list_p;
+    PyObject *tmp_list_v;
+    PyObject *tmp_list_t;
+    MYFLT last_pitch;
+    MYFLT last_vel;
+    long time;
+} NoteinRec;
+
+static void
+NoteinRec_process(NoteinRec *self) {
+    int i;
+    MYFLT pit, vel;
+    
+    MYFLT *inp = Stream_getData((Stream *)self->inputp_stream);
+    MYFLT *inv = Stream_getData((Stream *)self->inputv_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        pit = inp[i];
+        vel = inv[i];
+        if (pit != self->last_pitch || vel != self->last_vel) {
+            self->last_pitch = pit;
+            self->last_vel = vel;
+            PyList_Append(self->tmp_list_p, PyFloat_FromDouble(pit));
+            PyList_Append(self->tmp_list_v, PyFloat_FromDouble(vel));
+            PyList_Append(self->tmp_list_t, PyFloat_FromDouble( (float)self->time / self->sr) );
+        }
+        self->time++;
+    }
+}
+
+static void
+NoteinRec_setProcMode(NoteinRec *self)
+{       
+    self->proc_func_ptr = NoteinRec_process;   
+}
+
+static void
+NoteinRec_compute_next_data_frame(NoteinRec *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+NoteinRec_traverse(NoteinRec *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->inputp);
+    Py_VISIT(self->inputp_stream);
+    Py_VISIT(self->inputv);
+    Py_VISIT(self->inputv_stream);
+    Py_VISIT(self->tmp_list_p);
+    Py_VISIT(self->tmp_list_v);
+    Py_VISIT(self->tmp_list_t);
+    return 0;
+}
+
+static int 
+NoteinRec_clear(NoteinRec *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->inputp);
+    Py_CLEAR(self->inputp_stream);
+    Py_CLEAR(self->inputv);
+    Py_CLEAR(self->inputv_stream);
+    Py_CLEAR(self->tmp_list_p);
+    Py_CLEAR(self->tmp_list_v);
+    Py_CLEAR(self->tmp_list_t);
+    return 0;
+}
+
+static void
+NoteinRec_dealloc(NoteinRec* self)
+{
+    free(self->data);
+    NoteinRec_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * NoteinRec_deleteStream(NoteinRec *self) { DELETE_STREAM };
+
+static PyObject *
+NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    NoteinRec *self;
+    self = (NoteinRec *)type->tp_alloc(type, 0);
+    
+    self->tmp_list_p = PyList_New(0);
+    self->tmp_list_v = PyList_New(0);
+    self->tmp_list_t = PyList_New(0);
+    self->last_pitch = self->last_vel = 0.0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, NoteinRec_compute_next_data_frame);
+    self->mode_func_ptr = NoteinRec_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+NoteinRec_init(NoteinRec *self, PyObject *args, PyObject *kwds)
+{
+    long i;
+    PyObject *inputptmp, *inputp_streamtmp, *inputvtmp, *inputv_streamtmp;
+    
+    static char *kwlist[] = {"inputp", "inputv", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputptmp, &inputvtmp))
+        return -1; 
+    
+    Py_XDECREF(self->inputp);
+    self->inputp = inputptmp;
+    inputp_streamtmp = PyObject_CallMethod((PyObject *)self->inputp, "_getStream", NULL);
+    Py_INCREF(inputp_streamtmp);
+    Py_XDECREF(self->inputp_stream);
+    self->inputp_stream = (Stream *)inputp_streamtmp;
+
+    Py_XDECREF(self->inputv);
+    self->inputv = inputvtmp;
+    inputv_streamtmp = PyObject_CallMethod((PyObject *)self->inputv, "_getStream", NULL);
+    Py_INCREF(inputv_streamtmp);
+    Py_XDECREF(self->inputv_stream);
+    self->inputv_stream = (Stream *)inputv_streamtmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * NoteinRec_getServer(NoteinRec* self) { GET_SERVER };
+static PyObject * NoteinRec_getStream(NoteinRec* self) { GET_STREAM };
+
+static PyObject * NoteinRec_play(NoteinRec *self, PyObject *args, PyObject *kwds) { 
+    self->time = 0;
+    PLAY 
+};
+
+static PyObject * NoteinRec_stop(NoteinRec *self) { STOP };
+
+static PyObject *
+NoteinRec_getData(NoteinRec *self) {
+    int i;
+    PyObject *data, *point;
+    
+    Py_ssize_t size = PyList_Size(self->tmp_list_p);
+    data = PyList_New(size);
+    
+    for (i=0; i<size; i++) {
+        point = PyTuple_New(3);
+        PyTuple_SET_ITEM(point, 0, PyList_GET_ITEM(self->tmp_list_t, i));
+        PyTuple_SET_ITEM(point, 1, PyList_GET_ITEM(self->tmp_list_p, i));
+        PyTuple_SET_ITEM(point, 2, PyList_GET_ITEM(self->tmp_list_v, i));
+        PyList_SetItem(data, i, point);
+    }
+	return data;
+}
+
+static PyMemberDef NoteinRec_members[] = {
+    {"server", T_OBJECT_EX, offsetof(NoteinRec, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(NoteinRec, stream), 0, "Stream object."},
+    {"inputp", T_OBJECT_EX, offsetof(NoteinRec, inputp), 0, "Pitch input."},
+    {"inputv", T_OBJECT_EX, offsetof(NoteinRec, inputv), 0, "Velocity input."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef NoteinRec_methods[] = {
+    {"getServer", (PyCFunction)NoteinRec_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)NoteinRec_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)NoteinRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)NoteinRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)NoteinRec_stop, METH_NOARGS, "Stops computing."},
+    {"getData", (PyCFunction)NoteinRec_getData, METH_NOARGS, "Returns list of sampled points."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject NoteinRecType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.NoteinRec_base",                                   /*tp_name*/
+    sizeof(NoteinRec),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)NoteinRec_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    0,												/*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "NoteinRec objects. Records Notein signal with user-defined sampling rate.",           /* tp_doc */
+    (traverseproc)NoteinRec_traverse,                  /* tp_traverse */
+    (inquiry)NoteinRec_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    NoteinRec_methods,                                 /* tp_methods */
+    NoteinRec_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)NoteinRec_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    NoteinRec_new,                                     /* tp_new */
+};
