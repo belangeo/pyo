@@ -1034,6 +1034,24 @@ OscDataReceive_init(OscDataReceive *self, PyObject *args, PyObject *kwds)
 static PyObject * OscDataReceive_getServer(OscDataReceive* self) { GET_SERVER };
 static PyObject * OscDataReceive_getStream(OscDataReceive* self) { GET_STREAM };
 
+static PyObject *
+OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
+    int i;
+    if (arg != NULL) {
+        if (PyString_Check(arg))
+            PyList_Append(self->address_path, arg);
+        else if (PyList_Check(arg)) {
+            Py_ssize_t len = PyList_Size(arg);
+            for (i=0; i<len; i++) {
+                PyList_Append(self->address_path, PyList_GET_ITEM(arg, i));
+            }
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+    
+}
+
 static PyMemberDef OscDataReceive_members[] = {
     {"server", T_OBJECT_EX, offsetof(OscDataReceive, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(OscDataReceive, stream), 0, "Stream object."},
@@ -1045,6 +1063,7 @@ static PyMethodDef OscDataReceive_methods[] = {
     {"_getStream", (PyCFunction)OscDataReceive_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)OscDataReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"free_port", (PyCFunction)OscDataReceive_free_port, METH_NOARGS, "Call on __del__ method to free osc port used by the object."},
+    {"addAddress", (PyCFunction)OscDataReceive_addAddress, METH_O, "Add new paths to the object."},
     {NULL}  /* Sentinel */
 };
 

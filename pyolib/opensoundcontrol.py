@@ -358,6 +358,7 @@ class OscDataReceive(PyoObject):
     Methods:
 
     getAddresses() : Returns the addresses managed by the object.
+    addAddress(path) : Adds new address(es) to the object's handler.
 
     Notes:
 
@@ -410,6 +411,18 @@ class OscDataReceive(PyoObject):
         
         """
         return self._address
+
+    def addAddress(self, path):
+        """
+        Adds new address(es) to the object's handler.
+        
+        Parameters:
+        
+        path : string or list of strings
+            New path(s) to handled.
+
+        """
+        self._base_objs[0].addAddress(path)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
