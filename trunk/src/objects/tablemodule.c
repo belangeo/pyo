@@ -26,6 +26,7 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 #include "sndfile.h"
+#include "wind.h"
 
 #define __TABLE_MODULE
 #include "tablemodule.h"
@@ -819,6 +820,204 @@ HannTable_members,             /* tp_members */
 (initproc)HannTable_init,      /* tp_init */
 0,                         /* tp_alloc */
 HannTable_new,                 /* tp_new */
+};
+
+/***********************/
+/* WinTable structure  */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    int type;
+} WinTable;
+
+static void
+WinTable_generate(WinTable *self) {
+    gen_window(self->data, self->size, self->type);
+    self->data[self->size] = self->data[0];
+}
+
+static int
+WinTable_traverse(WinTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+WinTable_clear(WinTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+WinTable_dealloc(WinTable* self)
+{
+    free(self->data);
+    WinTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    WinTable *self;
+    
+    self = (WinTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->size = 8192;
+    self->type = 2;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+WinTable_init(WinTable *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"type", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ii", kwlist, &self->type, &self->size))
+        return -1; 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+	TableStream_setData(self->tablestream, self->data);
+    WinTable_generate(self);
+
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * WinTable_getServer(WinTable* self) { GET_SERVER };
+static PyObject * WinTable_getTableStream(WinTable* self) { GET_TABLE_STREAM };
+static PyObject * WinTable_setData(WinTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * WinTable_normalize(WinTable *self) { NORMALIZE };
+static PyObject * WinTable_getTable(WinTable *self) { GET_TABLE };
+static PyObject * WinTable_getViewTable(WinTable *self) { GET_VIEW_TABLE };
+static PyObject * WinTable_put(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * WinTable_get(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+WinTable_setSize(WinTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->size = PyInt_AsLong(value); 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    WinTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+WinTable_getSize(WinTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+WinTable_setType(WinTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the type attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The type attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->type = PyInt_AsLong(value);
+    
+    WinTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef WinTable_members[] = {
+{"server", T_OBJECT_EX, offsetof(WinTable, server), 0, "Pyo server."},
+{"tablestream", T_OBJECT_EX, offsetof(WinTable, tablestream), 0, "Table stream object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef WinTable_methods[] = {
+{"getServer", (PyCFunction)WinTable_getServer, METH_NOARGS, "Returns server object."},
+{"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+{"getViewTable", (PyCFunction)WinTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"setData", (PyCFunction)WinTable_setData, METH_O, "Sets the table from samples in a text file."},
+{"normalize", (PyCFunction)WinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+{"setSize", (PyCFunction)WinTable_setSize, METH_O, "Sets the size of the table in samples"},
+{"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+{"setType", (PyCFunction)WinTable_setType, METH_O, "Sets the type of the table."},
+{"put", (PyCFunction)WinTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+{"get", (PyCFunction)WinTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject WinTableType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.WinTable_base",         /*tp_name*/
+sizeof(WinTable),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)WinTable_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,                         /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+"WinTable objects. Generates a table filled with a hanning function.",  /* tp_doc */
+(traverseproc)WinTable_traverse,   /* tp_traverse */
+(inquiry)WinTable_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+WinTable_methods,             /* tp_methods */
+WinTable_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+(initproc)WinTable_init,      /* tp_init */
+0,                         /* tp_alloc */
+WinTable_new,                 /* tp_new */
 };
 
 /***********************/

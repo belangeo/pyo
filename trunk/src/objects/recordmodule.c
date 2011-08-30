@@ -529,7 +529,7 @@ typedef struct {
 static void
 ControlRead_readframes_i(ControlRead *self) {
     MYFLT fpart;
-    long i, ipart, mod;
+    long i, mod;
     MYFLT invmodulo = 1.0 / self->modulo;
     
     if (self->go == 0)
@@ -541,9 +541,11 @@ ControlRead_readframes_i(ControlRead *self) {
             fpart = mod * invmodulo;
             self->data[i] = (*self->interp_func_ptr)(self->values, (int)self->count, fpart, (int)self->size);            
         }
-        else
+        else {
+            mod = -1;
             self->data[i] = 0.0;
-        
+        }
+
         if (mod == 0) {
             self->count++;
             if (self->count >= self->size) {
@@ -738,7 +740,6 @@ static PyObject *
 ControlRead_setValues(ControlRead *self, PyObject *arg)
 {
     Py_ssize_t i;
-	PyObject *tmp;
 	
 	if (arg == NULL) {
 		Py_INCREF(Py_None);
@@ -1292,7 +1293,6 @@ NoteinRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 NoteinRec_init(NoteinRec *self, PyObject *args, PyObject *kwds)
 {
-    long i;
     PyObject *inputptmp, *inputp_streamtmp, *inputvtmp, *inputv_streamtmp;
     
     static char *kwlist[] = {"inputp", "inputv", NULL};

@@ -453,6 +453,99 @@ class HannTable(PyoTableObject):
     @size.setter
     def size(self, x): self.setSize(x)
 
+class WinTable(PyoTableObject):
+    """
+    Generates different kind of windowing functions. 
+    
+    Parent class: PyoTableObject
+    
+    Parameters:
+    
+    type : int, optional
+        Windowing function. Defaults to 2.
+        Possible choices are:
+            0 : Rectangular (no window)
+            1 : Hamming
+            2 : Hanning
+            3 : Bartlett (triangular)
+            4 : Blackman 3-term
+            5 : Blackman-Harris 4-term
+            6 : Blackman-Harris 7-term
+            7 : Tuckey (alpha = 0.66)
+            8 : Sine (half-sine window)
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+        
+    Methods:
+    
+    setType(x) : Sets the windowing function.
+    setSize(size) : Change the size of the table. This will redraw the envelope.
+
+    Attributes:
+   
+    type : int
+        Windowing function.
+    size : int
+        Table size in samples.
+
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Triangular envelope
+    >>> t = WinTable(3)
+    >>> a = Osc(table=t, freq=2, mul=.5)
+    >>> b = Sine(freq=500, mul=a).out()
+
+    """
+    def __init__(self, type=2, size=8192):
+        self._type = type
+        self._size = size
+        self._base_objs = [WinTable_base(type, size)]
+
+    def __dir__(self):
+        return ['type', 'size']
+
+    def setType(self, type):
+        """
+        Sets the windowing function.
+
+        Parameters:
+
+        type : int {0 -> 8}
+        Windowing function.
+        """
+        self._type = type
+        [obj.setType(type) for obj in self._base_objs]
+
+
+    def setSize(self, size):
+        """
+        Change the size of the table. This will redraw the envelope.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+
+    @property
+    def type(self): 
+        """int. Windowing function."""
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
+
+    @property
+    def size(self): 
+        """int. Table size in samples."""
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
 class ParaTable(PyoTableObject):
     """
     Generates parabola window function. 
