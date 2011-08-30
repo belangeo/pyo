@@ -1842,8 +1842,6 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static int
 Looper_init(Looper *self, PyObject *args, PyObject *kwds)
 {
-    int i;
-    MYFLT phase;
     PyObject *tabletmp, *pitchtmp=NULL, *starttmp=NULL, *durtmp=NULL, *xfadetmp=NULL, *multmp=NULL, *addtmp=NULL;
     
     static char *kwlist[] = {"table", "pitch", "start", "dur", "xfade", "mode", "xfadeshape", "startfromloop", "interp", "autosmooth", "mul", "add", NULL};
