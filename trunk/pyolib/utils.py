@@ -792,6 +792,77 @@ class Record(PyoObject):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
+class Denorm(PyoObject):
+    """
+    Mixes low level noise to an input signal.
+
+    Mixes low level (~1e-24 for floats, and ~1e-60 for doubles) noise to a an input signal. 
+    Can be used before IIR filters and reverbs to avoid denormalized numbers which may 
+    otherwise result in significantly increased CPU usage. 
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> amp = Linseg([(0,0),(2,1),(4,0)]).play()
+    >>> a = Sine(freq=1000, mul=0.01*amp)
+    >>> den = Denorm(a)
+    >>> rev = Freeverb(den, size=.9).out()
+
+    """
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [Denorm_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
 class ControlRec(PyoObject):
     """
     Records control values and writes them in a text file.
@@ -1156,74 +1227,174 @@ class NoteinRec(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
-
-class Denorm(PyoObject):
+    
+class NoteinRead(PyoObject):
     """
-    Mixes low level noise to an input signal.
-
-    Mixes low level (~1e-24 for floats, and ~1e-60 for doubles) noise to a an input signal. 
-    Can be used before IIR filters and reverbs to avoid denormalized numbers which may 
-    otherwise result in significantly increased CPU usage. 
+    Reads Notein values previously stored in text files.
 
     Parent class: PyoObject
 
     Parameters:
 
-    input : PyoObject
-        Input signal to process.
+    filename : string
+        Full path (without extension) used to create the files. Usually
+        the same filename as the one given to a NoteinRec object to 
+        record automation. The directory will be scaned and all files
+        named "filename_xxx" will add a new stream in the object.
+    loop : boolean, optional
+        Looping mode, False means off, True means on. 
+        Defaults to False.
 
     Methods:
 
-    setInput(x, fadetime) : Replace the `input` attribute.
+    setLoop(x) : Replace the `loop` attribute.
+    get(identifier, all) : Return the first sample of the current buffer as a float.
 
     Attributes:
 
-    input : PyoObject. Input signal to process.
+    loop : boolean, Looping mode.
+
+    Notes:
+
+    NoteinRead will sends a trigger signal at the end of the playback if 
+    loop is off or any time it wraps around if loop is on. User can 
+    retreive the trigger streams by calling obj['trig']:
+
+    >>> notes = NoteinRead(home+"/notes_rec", loop=True)
+    >>> t = SndTable(SNDS_PATH+"/transparent.aif")
+    >>> loop = TrigEnv(notes["trig"], t, dur=[.2,.3,.4,.5], mul=.25).out()
+
+    The out() method is bypassed. NoteinRead's signal can not be sent to 
+    audio outs.
+
+    See also: NoteinRec
 
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> amp = Linseg([(0,0),(2,1),(4,0)]).play()
-    >>> a = Sine(freq=1000, mul=0.01*amp)
-    >>> den = Denorm(a)
-    >>> rev = Freeverb(den, size=.9).out()
+    >>> home = os.path.expanduser('~')
+    >>> # assuming "test_xxx" exists in the user directory
+    >>> notes = NoteinRead(home+"/test", loop=True)
+    >>> amps = Port(notes['velocity'], 0.001, 0.5, mul=.2)
+    >>> sines = SineLoop(freq=notes['pitch'], feedback=.05, mul=amps).out()
 
     """
-    def __init__(self, input, mul=1, add=0):
+    def __init__(self, filename, loop=False, mul=1, add=0):
         PyoObject.__init__(self)
-        self._input = input
+        self._pitch_dummy = []
+        self._velocity_dummy = []
+        self._filename = filename
+        self._path, self._name = os.path.split(filename)
+        self._loop = loop
         self._mul = mul
         self._add = add
-        self._in_fader = InputFader(input)
-        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
-        self._base_objs = [Denorm_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        files = sorted([f for f in os.listdir(self._path) if self._name+"_" in f])
+        mul, add, lmax = convertArgsToLists(mul, add)
+        self._base_objs = []
+        self._trig_objs = []
+        self._poly = len(files)
+        for i in range(self._poly):
+            path = os.path.join(self._path, files[i])
+            f = open(path, "r")
+            vals = [l.split() for l in f.readlines()]
+            timestamps = [float(v[0]) for v in vals]
+            pitches = [float(v[1]) for v in vals]
+            amps = [float(v[2]) for v in vals]
+            f.close()
+            self._base_objs.append(NoteinRead_base(pitches, timestamps, loop))
+            self._base_objs.append(NoteinRead_base(amps, timestamps, loop, wrap(mul,i), wrap(add,i)))
+            self._trig_objs.append(NoteinReadTrig_base(self._base_objs[-1]))
 
     def __dir__(self):
-        return ['input', 'mul', 'add']
+        return ['loop', 'mul', 'add']
 
-    def setInput(self, x, fadetime=0.05):
+    def __del__(self):
+        if self._pitch_dummy:
+            [obj.deleteStream() for obj in self._pitch_dummy]
+        if self._velocity_dummy:
+            [obj.deleteStream() for obj in self._velocity_dummy]
+        self._pitch_dummy = []
+        self._velocity_dummy = []
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._trig_objs:
+            obj.deleteStream()
+            del obj
+
+    def __getitem__(self, str):
+        if str == 'trig':
+            return self._trig_objs
+        if str == 'pitch':
+            self._pitch_dummy.append(Dummy([self._base_objs[i*2] for i in range(self._poly)]))
+            return self._pitch_dummy[-1]
+        if str == 'velocity':
+            self._velocity_dummy.append(Dummy([self._base_objs[i*2+1] for i in range(self._poly)]))
+            return self._velocity_dummy[-1]
+
+    def get(self, identifier="pitch", all=False):
         """
-        Replace the `input` attribute.
+        Return the first sample of the current buffer as a float.
+        
+        Can be used to convert audio stream to usable Python data.
+        
+        "pitch" or "velocity" must be given to `identifier` to specify
+        which stream to get value from.
+        
+        Parameters:
+
+            identifier : string {"pitch", "velocity"}
+                Address string parameter identifying audio stream.
+                Defaults to "pitch".
+            all : boolean, optional
+                If True, the first value of each object's stream
+                will be returned as a list. Otherwise, only the value
+                of the first object's stream will be returned as a float.
+                Defaults to False.
+                 
+        """
+        if not all:
+            return self.__getitem__(identifier)[0]._getStream().getValue()
+        else:
+            return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
+ 
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._base_objs]
+        [obj.stop() for obj in self._trig_objs]
+        return self
+
+    def setLoop(self, x):
+        """
+        Replace the `loop` attribute.
 
         Parameters:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+        x : boolean
+            new `loop` attribute.
 
         """
-        self._input = x
-        self._in_fader.setInput(x, fadetime)
+        self._loop = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def input(self):
-        """PyoObject. Input signal to filter.""" 
-        return self._input
-    @input.setter
-    def input(self, x): self.setInput(x)
+    def loop(self): 
+        """boolean. Looping mode.""" 
+        return self._loop
+    @loop.setter
+    def loop(self, x): self.setLoop(x)
+

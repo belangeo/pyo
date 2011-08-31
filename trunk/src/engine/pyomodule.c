@@ -795,7 +795,18 @@ init_pyo64(void)
         return;
     Py_INCREF(&NoteinRecType);
     PyModule_AddObject(m, "NoteinRec_base", (PyObject *)&NoteinRecType);
-    
+
+    if (PyType_Ready(&NoteinReadType) < 0)
+        return;
+    Py_INCREF(&NoteinReadType);
+    PyModule_AddObject(m, "NoteinRead_base", (PyObject *)&NoteinReadType);
+
+    if (PyType_Ready(&NoteinReadTrigType) < 0)
+        return;
+    Py_INCREF(&NoteinReadTrigType);
+    PyModule_AddObject(m, "NoteinReadTrig_base", (PyObject *)&NoteinReadTrigType);
+
+
     if (PyType_Ready(&CompareType) < 0)
         return;
     Py_INCREF(&CompareType);
