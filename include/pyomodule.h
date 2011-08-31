@@ -254,6 +254,8 @@ extern PyTypeObject ControlRecType;
 extern PyTypeObject ControlReadType;
 extern PyTypeObject ControlReadTrigType;
 extern PyTypeObject NoteinRecType;
+extern PyTypeObject NoteinReadType;
+extern PyTypeObject NoteinReadTrigType;
 extern PyTypeObject CompareType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;
