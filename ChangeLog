@@ -1,3 +1,9 @@
+-------------------------------------------------------------------------------------
+
+2011-07-31 belangeo <belangeo@gmail.com>
+
+    * rev 702 - pyo 0.5.0 release.
+
 2011-07-31 belangeo <belangeo@gmail.com>
 
     * Added new objects : NoteinRec and NoteinRead. Records and reads Notein automations.
@@ -63,6 +69,8 @@
 
     * Added Fast Fourier Transform (FFT, IFFT).
     - rev 652
+
+-------------------------------------------------------------------------------------
 
 2011-05-18 belangeo <belangeo@gmail.com>
 
@@ -130,6 +138,7 @@
     * Fixed bug in Expseg and TrigExpseg "exp" argument initilization.
     - rev 624
 
+-------------------------------------------------------------------------------------
 
 2011-02-29 belangeo <belangeo@gmail.com>
 
@@ -225,6 +234,8 @@
     * All trig signals can be treated as number, allowing arithmetic operations.
     - rev 547
 
+-------------------------------------------------------------------------------------
+
 2010-02-20 belangeo <belangeo@gmail.com>
 
     * rev 544 - pyo 0.03 release.
@@ -240,6 +251,8 @@
       control of the envelope's shape with a grapher window.
     - rev 532
 
+
+-------------------------------------------------------------------------------------
 
 2010-11-02 belangeo <belangeo@gmail.com>
 
@@ -309,6 +322,8 @@
 
     * Added "dur" and "delay" arguments to play and out methods of PyoObject.
     - rev 413.
+
+-------------------------------------------------------------------------------------
 
 2010-09-06 belangeo <belangeo@gmail.com>
 
