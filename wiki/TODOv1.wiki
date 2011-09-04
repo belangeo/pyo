@@ -61,4 +61,3 @@ TODO before releasing _pyo_ version 1.0.
   * Iter (triggers iterate over a list of values)
   * Timer (Report elapsed time between two triggers)
   * !TrigRec, !TrigRead 
-  * !NoteRec, !NoteRead
