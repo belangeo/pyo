@@ -147,7 +147,7 @@ Print_init(Print *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "method", "interval", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|if", kwlist, &inputtmp, &self->method, &self->time))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IF, kwlist, &inputtmp, &self->method, &self->time))
         return -1; 
     
     INIT_INPUT_STREAM

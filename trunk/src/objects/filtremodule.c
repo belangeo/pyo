@@ -3468,7 +3468,7 @@ Allpass_init(Allpass *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "delay", "feedback", "maxDelay", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxDelay, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxDelay, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM

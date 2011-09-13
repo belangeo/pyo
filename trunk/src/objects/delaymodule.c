@@ -1458,7 +1458,7 @@ Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOfOO", kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -2462,7 +2462,7 @@ AllpassWG_init(AllpassWG *self, PyObject *args, PyObject *kwds)
     
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOfOO", kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOFOO, kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp))
         return -1; 
     
     INIT_INPUT_STREAM
