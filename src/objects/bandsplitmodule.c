@@ -663,51 +663,51 @@ typedef struct {
     Stream *freq2_stream;
     PyObject *freq3;
     Stream *freq3_stream;
-    MYFLT last_freq1;
-    MYFLT last_freq2;
-    MYFLT last_freq3;
+    double last_freq1;
+    double last_freq2;
+    double last_freq3;
     // sample memories
-    MYFLT x1[6];
-    MYFLT x2[6];
-    MYFLT x3[6];
-    MYFLT x4[6];
-    MYFLT y1[6];
-    MYFLT y2[6];
-    MYFLT y3[6];
-    MYFLT y4[6];
+    double x1[6];
+    double x2[6];
+    double x3[6];
+    double x4[6];
+    double y1[6];
+    double y2[6];
+    double y3[6];
+    double y4[6];
     // coefficients
-    MYFLT b1[3];
-    MYFLT b2[3];
-    MYFLT b3[3];
-    MYFLT b4[3];
-    MYFLT la0[3];
-    MYFLT la1[3];
-    MYFLT la2[3];
-    MYFLT ha0[3];
-    MYFLT ha1[3];
-    MYFLT ha2[3];
+    double b1[3];
+    double b2[3];
+    double b3[3];
+    double b4[3];
+    double la0[3];
+    double la1[3];
+    double la2[3];
+    double ha0[3];
+    double ha1[3];
+    double ha2[3];
     MYFLT *buffer_streams;
     int modebuffer[3];
 } FourBandMain;
 
 
 static void
-FourBandMain_compute_variables(FourBandMain *self, MYFLT freq, int band)
+FourBandMain_compute_variables(FourBandMain *self, double freq, int band)
 {    
-    MYFLT wc = TWOPI * freq;
-    MYFLT wc2 = wc * wc;
-    MYFLT wc3 = wc2 * wc;
-    MYFLT wc4 = wc2 * wc2;
-    MYFLT k = wc / MYTAN(PI * freq / self->sr);
-    MYFLT k2 = k * k;
-    MYFLT k3 = k2 * k;
-    MYFLT k4 = k2 * k2;
-    MYFLT sqrt2 = MYSQRT(2.0);
-    MYFLT sq_tmp1 = sqrt2 * wc3 * k;
-    MYFLT sq_tmp2 = sqrt2 * wc * k3;
-    MYFLT a_tmp = 4.0 * wc2 * k2 + 2.0 * sq_tmp1 + k4 + 2.0 * sq_tmp2 + wc4;
-    MYFLT wc4_a_tmp = wc4 / a_tmp;
-    MYFLT k4_a_tmp = k4 / a_tmp;
+    double wc = TWOPI * freq;
+    double wc2 = wc * wc;
+    double wc3 = wc2 * wc;
+    double wc4 = wc2 * wc2;
+    double k = wc / tan(PI * freq / self->sr);
+    double k2 = k * k;
+    double k3 = k2 * k;
+    double k4 = k2 * k2;
+    double sqrt2 = sqrt(2.0);
+    double sq_tmp1 = sqrt2 * wc3 * k;
+    double sq_tmp2 = sqrt2 * wc * k3;
+    double a_tmp = 4.0 * wc2 * k2 + 2.0 * sq_tmp1 + k4 + 2.0 * sq_tmp2 + wc4;
+    double wc4_a_tmp = wc4 / a_tmp;
+    double k4_a_tmp = k4 / a_tmp;
     
     /* common */
     self->b1[band] = (4.0 * (wc4 + sq_tmp1 - k4 - sq_tmp2)) / a_tmp;
@@ -728,7 +728,7 @@ FourBandMain_compute_variables(FourBandMain *self, MYFLT freq, int band)
 
 static void
 FourBandMain_filters(FourBandMain *self) {
-    MYFLT val, inval, tmp, f1, f2, f3;
+    double val, inval, tmp, f1, f2, f3;
     int i, j, j1, ind, ind1;
     
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
@@ -736,15 +736,15 @@ FourBandMain_filters(FourBandMain *self) {
     if (self->modebuffer[0] == 0)
         f1 = PyFloat_AS_DOUBLE(self->freq1);
     else
-        f1 = Stream_getData((Stream *)self->freq1_stream)[0];
+        f1 = (double)Stream_getData((Stream *)self->freq1_stream)[0];
     if (self->modebuffer[1] == 0)
         f2 = PyFloat_AS_DOUBLE(self->freq2);
     else
-        f2 = Stream_getData((Stream *)self->freq2_stream)[0];
+        f2 = (double)Stream_getData((Stream *)self->freq2_stream)[0];
     if (self->modebuffer[2] == 0)
         f3 = PyFloat_AS_DOUBLE(self->freq3);
     else
-        f3 = Stream_getData((Stream *)self->freq3_stream)[0];
+        f3 = (double)Stream_getData((Stream *)self->freq3_stream)[0];
     
     if (f1 != self->last_freq1) {
         self->last_freq1 = f1;
@@ -763,7 +763,7 @@ FourBandMain_filters(FourBandMain *self) {
     
     
     for (i=0; i<self->bufsize; i++) {   
-        inval = in[i];
+        inval = (double)in[i];
         /* First band */
         val = self->la0[0] * inval + self->la1[0] * self->x1[0] + self->la2[0] * self->x2[0] + self->la1[0] * self->x3[0] + self->la0[0] * self->x4[0] - 
               self->b1[0] * self->y1[0] - self->b2[0] * self->y2[0] - self->b3[0] * self->y3[0] - self->b4[0] * self->y4[0];
@@ -775,7 +775,7 @@ FourBandMain_filters(FourBandMain *self) {
         self->x3[0] = self->x2[0];
         self->x2[0] = self->x1[0];
         self->x1[0] = inval;
-        self->buffer_streams[i] = val;
+        self->buffer_streams[i] = (MYFLT)val;
         
         /* Second and third bands */
         for (j=0; j<2; j++) {
@@ -804,7 +804,7 @@ FourBandMain_filters(FourBandMain *self) {
             self->x2[ind1] = self->x1[ind1];
             self->x1[ind1] = tmp;
             
-            self->buffer_streams[i + j1 * self->bufsize] = val;            
+            self->buffer_streams[i + j1 * self->bufsize] = (MYFLT)val;            
         }
 
         val = self->ha0[2] * inval + self->ha1[2] * self->x1[5] + self->ha2[2] * self->x2[5] + self->ha1[2] * self->x3[5] + self->ha0[2] * self->x4[5] - 
@@ -817,7 +817,7 @@ FourBandMain_filters(FourBandMain *self) {
         self->x3[5] = self->x2[5];
         self->x2[5] = self->x1[5];
         self->x1[5] = inval;
-        self->buffer_streams[i + 3 * self->bufsize] = val;
+        self->buffer_streams[i + 3 * self->bufsize] = (MYFLT)val;
     }    
 }
 

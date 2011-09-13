@@ -59,6 +59,7 @@
 #define TYPE_O_OFOOOO "O|OfOOOO"
 #define TYPE_O_OOFOO "O|OOfOO"
 #define TYPE_O_OOFFOO "O|OOffOO"
+#define TYPE_O_OOOFOO "O|OOOfOO"
 #define TYPE_OO_OOOIFOO "OO|OOOifOO"
 //#define TYPE_O_OOOOIIFIOO "O|OOOOiifiOO"
 
@@ -117,6 +118,7 @@
 #define TYPE_O_OFOOOO "O|OdOOOO"
 #define TYPE_O_OOFOO "O|OOdOO"
 #define TYPE_O_OOFFOO "O|OOddOO"
+#define TYPE_O_OOOFOO "O|OOOdOO"
 #define TYPE_OO_OOOIFOO "OO|OOOidOO"
 //#define TYPE_O_OOOOIIFIOO "O|OOOOiidiOO"
 
