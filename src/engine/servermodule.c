@@ -1878,6 +1878,9 @@ Server_start_rec_internal(Server *self, char *filename)
     self->recinfo.samplerate = (int)self->samplingRate;
     self->recinfo.channels = self->nchnls;
 
+    Server_debug(self, "recinfo.samplerate : %i\n", self->recinfo.samplerate);
+    Server_debug(self, "recinfo.channels : %i\n", self->recinfo.channels);
+
     switch (self->recformat) {
         case 0:
             self->recinfo.format = SF_FORMAT_WAV;
@@ -1903,17 +1906,22 @@ Server_start_rec_internal(Server *self, char *filename)
             self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
             break;
     }
-    
+    Server_debug(self, "recinfo.format : %i\n", self->recinfo.format);
+
     /* Open the output file. */
     if (filename == NULL) {
+        Server_debug(self, "recpath : %s\n", self->recpath);
         if (! (self->recfile = sf_open(self->recpath, SFM_WRITE, &self->recinfo))) {   
             Server_error(self, "Not able to open output file %s.\n", self->recpath);
+            Server_debug(self, "%s\n", sf_strerror(self->recfile));
             return -1;
         }
     }
     else {
+        Server_debug(self, "filename : %s\n", filename);
         if (! (self->recfile = sf_open(filename, SFM_WRITE, &self->recinfo))) {   
             Server_error(self, "Not able to open output file %s.\n", filename);
+            Server_debug(self, "%s\n", sf_strerror(self->recfile));
             return -1;
         }
     }
