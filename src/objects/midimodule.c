@@ -29,6 +29,208 @@
 
 typedef struct {
     pyo_audio_HEAD
+    PyObject *callable;
+    int ctlnumber;
+    int toprint;
+} CtlScan;
+
+static void
+CtlScan_setProcMode(CtlScan *self) {}
+
+static void
+CtlScan_compute_next_data_frame(CtlScan *self)
+{   
+    PmEvent *buffer;
+    int i, count;
+
+    buffer = Server_getMidiEventBuffer((Server *)self->server);
+    count = Server_getMidiEventCount((Server *)self->server);
+
+    if (count > 0) {
+        PyObject *tup;
+        for (i=count-1; i>=0; i--) {
+            int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+            int number = Pm_MessageData1(buffer[i].message);
+            int value = Pm_MessageData2(buffer[i].message);
+
+            if (status == 0xB0) {
+                if (number != self->ctlnumber) {
+                    self->ctlnumber = number;
+                    tup = PyTuple_New(1);
+                    PyTuple_SetItem(tup, 0, PyInt_FromLong(self->ctlnumber));
+                    PyObject_Call((PyObject *)self->callable, tup, NULL);
+                }
+                if (self->toprint == 1)
+                    printf("ctl number : %i, ctl value : %i\n", self->ctlnumber, value);    
+            }
+        }
+    }
+}
+
+static int
+CtlScan_traverse(CtlScan *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->callable);
+    return 0;
+}
+
+static int 
+CtlScan_clear(CtlScan *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->callable);
+    return 0;
+}
+
+static void
+CtlScan_dealloc(CtlScan* self)
+{
+    free(self->data);
+    CtlScan_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * CtlScan_deleteStream(CtlScan *self) { DELETE_STREAM };
+
+static PyObject *
+CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    
+    CtlScan *self;
+    self = (CtlScan *)type->tp_alloc(type, 0);
+
+    self->ctlnumber = -1;
+    self->toprint = 1;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, CtlScan_compute_next_data_frame);
+    self->mode_func_ptr = CtlScan_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+CtlScan_init(CtlScan *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *calltmp=NULL;
+
+    static char *kwlist[] = {"callable", "toprint", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
+        return -1; 
+
+    if (calltmp) {
+        PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
+    }
+
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * CtlScan_getServer(CtlScan* self) { GET_SERVER };
+static PyObject * CtlScan_getStream(CtlScan* self) { GET_STREAM };
+
+static PyObject * CtlScan_play(CtlScan *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CtlScan_stop(CtlScan *self) { STOP };
+
+static PyObject *
+CtlScan_setFunction(CtlScan *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    Py_XDECREF(self->callable);
+    Py_INCREF(tmp);
+    self->callable = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+CtlScan_setToprint(CtlScan *self, PyObject *arg)
+{
+	
+	if (PyInt_Check(arg)) {
+	    self->toprint = PyInt_AsLong(arg);
+    }
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+static PyMemberDef CtlScan_members[] = {
+    {"server", T_OBJECT_EX, offsetof(CtlScan, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CtlScan, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CtlScan_methods[] = {
+    {"getServer", (PyCFunction)CtlScan_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CtlScan_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)CtlScan_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)CtlScan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CtlScan_stop, METH_NOARGS, "Stops computing."},
+    {"setFunction", (PyCFunction)CtlScan_setFunction, METH_O, "Sets the function to be called."},
+    {"setToprint", (PyCFunction)CtlScan_setToprint, METH_O, "If True, print values to the console."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject CtlScanType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.CtlScan_base",         /*tp_name*/
+    sizeof(CtlScan),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CtlScan_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "CtlScan objects. Retreive controller numbers from a Midi input.",           /* tp_doc */
+    (traverseproc)CtlScan_traverse,   /* tp_traverse */
+    (inquiry)CtlScan_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    CtlScan_methods,             /* tp_methods */
+    CtlScan_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)CtlScan_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    CtlScan_new,                 /* tp_new */
+};
+
+
+typedef struct {
+    pyo_audio_HEAD
     int ctlnumber;
     MYFLT minscale;
     MYFLT maxscale;

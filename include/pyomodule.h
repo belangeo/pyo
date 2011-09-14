@@ -246,6 +246,7 @@ extern PyTypeObject LooperType;
 extern PyTypeObject HarmonizerType;
 
 extern PyTypeObject MidictlType;
+extern PyTypeObject CtlScanType;
 extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
 extern PyTypeObject MidiAdsrType;
