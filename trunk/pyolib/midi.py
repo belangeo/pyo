@@ -87,6 +87,118 @@ class Midictl(PyoObject):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
+class CtlScan(PyoObject):
+    """
+    Scan the Midi controller's number in input.
+    
+    Scan the Midi controller's number in input and send it to
+    a standard python `function`. Useful to implement a MidiLearn
+    algorithm.
+
+    Parent class: PyoObject
+    
+    Parameters:
+    
+    function : Python function
+        Function to be called. The function must be declared
+        with an argument for the controller number in input. Ex.: 
+        def ctl_scan(ctlnum):
+            print ctlnum
+    toprint : boolean, optional
+        If True, controller number and value will be print to 
+        the console.
+
+    Methods:
+
+    setFunction(x) : Replace the `function` attribute.
+    setToprint(x) : Replace the `toprint` attribute.
+
+    Attributes:
+    
+    function : Python function. Function to be called.
+    toprint : boolean. If True, print values to the console.
+
+    Notes:
+
+    The out() method is bypassed. CtlScan's signal can not be sent 
+    to audio outs.
+
+    Examples:
+    
+    >>> s = Server()
+    >>> s.setMidiInputDevice(0) # enter your device number (see pm_list_devices())
+    >>> s.boot()
+    >>> s.start()
+    >>> def ctl_scan(ctlnum):
+    ...     print ctlnum
+    >>> a = CtlScan(ctl_scan)
+        
+    """
+    def __init__(self, function, toprint=True):
+        PyoObject.__init__(self)
+        self._function = function
+        self._toprint = toprint
+        self._base_objs = [CtlScan_base(self._function, self._toprint)]
+
+    def __dir__(self):
+        return []
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass
+
+    def setSub(self, x):
+        pass
+
+    def setDiv(self, x):
+        pass
+
+    def setFunction(self, x):
+        """
+        Replace the `function` attribute.
+
+        Parameters:
+
+        x : Python function
+            new `function` attribute.
+
+        """
+        self._function = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setToprint(self, x):
+        """
+        Replace the `toprint` attribute.
+
+        Parameters:
+
+        x : int
+            new `toprint` attribute.
+
+        """
+        self._toprint = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def function(self): return self._function
+    @function.setter
+    def function(self, x): self.setFunction(x)   
+    @property
+    def toprint(self): return self._toprint
+    @toprint.setter
+    def toprint(self, x): self.setToprint(x)   
+
 class Notein(PyoObject):
     """
     Generates Midi note messages.

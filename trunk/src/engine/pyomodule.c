@@ -1338,6 +1338,11 @@ init_pyo64(void)
     Py_INCREF(&MidictlType);
     PyModule_AddObject(m, "Midictl_base", (PyObject *)&MidictlType);
 
+    if (PyType_Ready(&CtlScanType) < 0)
+        return;
+    Py_INCREF(&CtlScanType);
+    PyModule_AddObject(m, "CtlScan_base", (PyObject *)&CtlScanType);
+
     if (PyType_Ready(&MidiNoteType) < 0)
         return;
     Py_INCREF(&MidiNoteType);

@@ -1,3 +1,8 @@
+2011-08-13 belangeo <belangeo@gmail.com>
+
+    * Added new object : CtlScan : Scan for Midi controller number in input.
+    - rev 707
+
 -------------------------------------------------------------------------------------
 
 2011-07-31 belangeo <belangeo@gmail.com>

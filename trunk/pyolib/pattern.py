@@ -37,6 +37,7 @@ class Pattern(PyoObject):
     Parameters:
 
     function : Python function
+        Function to be called.
     time : float or PyoObject, optional
         Time, in seconds, between each call. Default to 1.
         
