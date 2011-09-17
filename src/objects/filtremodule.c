@@ -38,6 +38,7 @@ typedef struct {
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add 
     int filtertype;
+    MYFLT nyquist;
     // sample memories
     MYFLT x1;
     MYFLT x2;
@@ -111,8 +112,8 @@ Biquad_compute_variables(Biquad *self, MYFLT freq, MYFLT q)
 {    
     if (freq <= 1) 
         freq = 1;
-    else if (freq >= self->sr)
-        freq = self->sr;
+    else if (freq >= self->nyquist)
+        freq = self->nyquist;
     
     self->w0 = TWOPI * freq / self->sr;
     self->c = MYCOS(self->w0);
@@ -357,6 +358,9 @@ Biquad_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->init = 1;
 
     INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    
     Stream_setFunctionPtr(self->stream, Biquad_compute_next_data_frame);
     self->mode_func_ptr = Biquad_setProcMode;
     return (PyObject *)self;
@@ -633,6 +637,7 @@ typedef struct {
     int modebuffer[4]; // need at least 2 slots for mul & add 
     int filtertype;
     int stages;
+    MYFLT nyquist;
     // sample memories
     MYFLT *x1;
     MYFLT *x2;
@@ -716,8 +721,8 @@ Biquadx_compute_variables(Biquadx *self, MYFLT freq, MYFLT q)
 {    
     if (freq <= 1) 
         freq = 1;
-    else if (freq >= self->sr)
-        freq = self->sr;
+    else if (freq >= self->nyquist)
+        freq = self->nyquist;
     
     self->w0 = TWOPI * freq / self->sr;
     self->c = MYCOS(self->w0);
@@ -991,6 +996,9 @@ Biquadx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->init = 1;
     
     INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+
     Stream_setFunctionPtr(self->stream, Biquadx_compute_next_data_frame);
     self->mode_func_ptr = Biquadx_setProcMode;
     return (PyObject *)self;
@@ -1292,6 +1300,7 @@ typedef struct {
     int init;
     int modebuffer[5]; // need at least 2 slots for mul & add 
     int filtertype;
+    MYFLT nyquist;
     // sample memories
     MYFLT x1;
     MYFLT x2;
@@ -1359,8 +1368,8 @@ EQ_compute_variables(EQ *self, MYFLT freq, MYFLT q, MYFLT boost)
 {    
     if (freq <= 1) 
         freq = 1;
-    else if (freq >= self->sr)
-        freq = self->sr;
+    else if (freq >= self->nyquist)
+        freq = self->nyquist;
     
     self->A = MYPOW(10.0, boost/40.0);
     self->w0 = TWOPI * freq / self->sr;
@@ -1725,6 +1734,9 @@ EQ_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->init = 1;
     
     INIT_OBJECT_COMMON
+
+    self->nyquist = (MYFLT)self->sr * 0.49;
+
     Stream_setFunctionPtr(self->stream, EQ_compute_next_data_frame);
     self->mode_func_ptr = EQ_setProcMode;
     return (PyObject *)self;
@@ -2516,6 +2528,7 @@ typedef struct {
     Stream *freq_stream;
     int modebuffer[3]; // need at least 2 slots for mul & add 
     MYFLT lastFreq;
+    MYFLT nyquist;
     // sample memories
     MYFLT y1;
     // variables
@@ -2529,8 +2542,12 @@ Tone_filters_i(Tone *self) {
     int i;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
-    
+        
     if (fr != self->lastFreq) {
+        if (fr <= 1.0)
+            fr = 1.0;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;        
         self->lastFreq = fr;
         b = 2.0 - MYCOS(TWOPI * fr / self->sr);
         self->c2 = (b - MYSQRT(b * b - 1.0));
@@ -2552,8 +2569,12 @@ Tone_filters_a(Tone *self) {
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
         
     for (i=0; i<self->bufsize; i++) {
-        freq = fr[i];
+        freq = fr[i];        
         if (freq != self->lastFreq) {
+            if (freq <= 1.0)
+                freq = 1.0;
+            else if (freq >= self->nyquist)
+                freq = self->nyquist;            
             self->lastFreq = freq;
             b = 2.0 - MYCOS(TWOPI * freq / self->sr);
             self->c2 = (b - MYSQRT(b * b - 1.0));
@@ -2675,6 +2696,9 @@ Tone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
     
     INIT_OBJECT_COMMON
+
+    self->nyquist = (MYFLT)self->sr * 0.49;
+
     Stream_setFunctionPtr(self->stream, Tone_compute_next_data_frame);
     self->mode_func_ptr = Tone_setProcMode;
     return (PyObject *)self;
@@ -3715,6 +3739,7 @@ typedef struct {
     int init;
     int modebuffer[4]; // need at least 2 slots for mul & add 
     MYFLT oneOnSr;
+    MYFLT nyquist;
     // sample memories
     MYFLT y1;
     MYFLT y2;
@@ -3729,8 +3754,8 @@ Allpass2_compute_variables(Allpass2 *self, MYFLT freq, MYFLT bw)
     MYFLT radius, angle;
     if (freq <= 1) 
         freq = 1;
-    else if (freq >= (self->sr/2.0))
-        freq = self->sr/2.0;
+    else if (freq >= self->nyquist)
+        freq = self->nyquist;
     
     radius = MYPOW(E, -PI * bw * self->oneOnSr);
     angle = TWOPI * freq * self->oneOnSr;
@@ -3951,7 +3976,8 @@ Allpass2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     
     self->oneOnSr = 1.0 / self->sr;
-    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+
     Stream_setFunctionPtr(self->stream, Allpass2_compute_next_data_frame);
     self->mode_func_ptr = Allpass2_setProcMode;
     return (PyObject *)self;
@@ -4722,7 +4748,7 @@ Phaser_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     INIT_OBJECT_COMMON
     
-    self->halfSr = self->sr / 2.0;
+    self->halfSr = (MYFLT)self->sr * 0.49;
     self->minusPiOnSr = -PI / self->sr;
     self->twoPiOnSr = TWOPI / self->sr;
     self->norm_arr_pos = 1.0 / PI * 512.0;
