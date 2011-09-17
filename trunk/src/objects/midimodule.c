@@ -375,9 +375,9 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
 {
     PyObject *multmp=NULL, *addtmp=NULL;
 
-    static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "mul", "add", NULL};
+    static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "init", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->oldValue, &multmp, &addtmp))
         return -1; 
  
     if (multmp) {
@@ -390,6 +390,8 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
             
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->value = self->oldValue;
 
     (*self->mode_func_ptr)(self);
 
@@ -425,7 +427,6 @@ static PyMemberDef Midictl_members[] = {
 };
 
 static PyMethodDef Midictl_methods[] = {
-    //{"getMidictl", (PyCFunction)Midictl_getTable, METH_NOARGS, "Returns input sound object."},
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
     {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},

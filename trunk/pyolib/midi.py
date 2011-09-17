@@ -53,6 +53,8 @@ class Midictl(PyoObject):
     maxscale : float, optional
         High range value for mapping. Available at initialization 
         time only.
+    init : float, optional
+        Initial value. Defaults to 0.
 
     Notes:
 
@@ -70,12 +72,12 @@ class Midictl(PyoObject):
     >>> a2 = Sine(freq=p*1.5, mul=.3).out()
         
     """
-    def __init__(self, ctlnumber, minscale=0, maxscale=1, mul=1, add=0):
+    def __init__(self, ctlnumber, minscale=0, maxscale=1, init=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._mul = mul
         self._add = add
-        ctlnumber, minscale, maxscale, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, mul, add)
-        self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        ctlnumber, minscale, maxscale, init, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, init, mul, add)
+        self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['mul', 'add']

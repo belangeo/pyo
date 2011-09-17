@@ -185,6 +185,7 @@ class ControlSlider(wx.Panel):
         self.selected = False
         self._enable = True
         self.propagate = True
+        self.midictl = None
         self.new = ''
         if init != None: 
             self.SetValue(init)
@@ -203,6 +204,13 @@ class ControlSlider(wx.Panel):
         self.Bind(wx.EVT_KILL_FOCUS, self.LooseFocus)
         self.createSliderBitmap()
         self.createKnobBitmap()
+
+    def setMidiCtl(self, x):
+        self.midictl = x
+        self.Refresh()
+
+    def getMidiCtl(self):
+        return self.midictl
 
     def getMinValue(self):
         return self.minvalue
@@ -399,6 +407,11 @@ class ControlSlider(wx.Panel):
         dc.SetPen(wx.Pen(self.backgroundColour, width=self.borderWidth, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
 
+        if sys.platform in ['win32', 'linux2']:
+            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+        else:    
+            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+        
         # Draw inner part
         if self._enable: sliderColour =  "#99A7CC"
         else: sliderColour = "#BBBBBB"
@@ -406,6 +419,11 @@ class ControlSlider(wx.Panel):
         rec = wx.Rect(0, h2, w, self.sliderHeight)
         dc.GradientFillLinear(rec, "#646986", sliderColour, wx.BOTTOM)
         dc.DrawBitmap(self.sliderMask, 0, 0, True)
+
+        if self.midictl != None:
+            dc.SetTextForeground('#FFFFFF')
+            dc.DrawLabel(str(self.midictl), wx.Rect(0,0,h,h), wx.ALIGN_CENTER)
+            dc.DrawLabel(str(self.midictl), wx.Rect(w-h,0,h,h), wx.ALIGN_CENTER)
 
         # Draw knob
         if self._enable: knobColour = '#888888'
@@ -419,11 +437,6 @@ class ControlSlider(wx.Panel):
             dc.SetBrush(wx.Brush('#333333', wx.SOLID))
             dc.SetPen(wx.Pen('#333333', width=self.borderWidth, style=wx.SOLID))  
             dc.DrawRoundedRectangleRect(rec2, 3)
-
-        if sys.platform in ['win32', 'linux2']:
-            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
-        else:    
-            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
 
         # Draw text
         if self.selected and self.new:
