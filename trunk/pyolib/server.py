@@ -75,6 +75,7 @@ class Server(object):
     getNchnls() : Returns the current number of channels.
     getBufferSize() : Returns the current buffer size.
     getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
+    getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
 
     The next methods must be called before booting the server
 
@@ -461,6 +462,14 @@ class Server(object):
         
         """
         return self._server.getIsStarted()
+
+    def getMidiActive(self):
+        """
+        Returns 1 if Midi callback is active, otherwise returns 0.
+        
+        """
+        return self._server.getMidiActive()
+
 
     @property
     def amp(self):
