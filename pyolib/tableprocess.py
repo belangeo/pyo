@@ -57,6 +57,7 @@ class Osc(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
     setInterp(x) : Replace the `interp` attribute.
+    reset() : Resets current phase to 0.
 
     Attributes:
     
@@ -144,6 +145,13 @@ class Osc(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+        
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq),
@@ -655,6 +663,7 @@ class TableRead(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setLoop(x) : Replace the `loop` attribute.
     setInterp(x) : Replace the `interp` attribute.
+    reset() : Resets current phase to 0.
 
     Attributes:
     
@@ -794,6 +803,14 @@ class TableRead(PyoObject):
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]

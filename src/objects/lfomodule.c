@@ -1082,6 +1082,16 @@ LFO_setType(LFO *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject * 
+LFO_reset(LFO *self) 
+{
+    self->pointerPos = 0.0;
+    self->sahPointerPos = 0.0;
+    self->modPointerPos = 0.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef LFO_members[] = {
     {"server", T_OBJECT_EX, offsetof(LFO, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(LFO, stream), 0, "Stream object."},
@@ -1102,6 +1112,7 @@ static PyMethodDef LFO_methods[] = {
 	{"setFreq", (PyCFunction)LFO_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setSharp", (PyCFunction)LFO_setSharp, METH_O, "Sets the sharpness factor."},
     {"setType", (PyCFunction)LFO_setType, METH_O, "Sets waveform type."},
+    {"reset", (PyCFunction)LFO_reset, METH_NOARGS, "Resets pointer position to 0."},
 	{"setMul", (PyCFunction)LFO_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)LFO_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)LFO_setSub, METH_O, "Sets inverse add factor."},
