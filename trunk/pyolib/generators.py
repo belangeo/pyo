@@ -49,6 +49,7 @@ class Sine(PyoObject):
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
+    reset() : Resets current phase to 0.
     
     Attributes:
     
@@ -103,6 +104,14 @@ class Sine(PyoObject):
         self._phase = x
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
@@ -237,6 +246,7 @@ class Phasor(PyoObject):
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
+    reset() : Resets current phase to 0.
  
     Attributes:
     
@@ -292,6 +302,14 @@ class Phasor(PyoObject):
         self._phase = x
         x, lmax = convertArgsToLists(x)
         [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapPhase(self._phase), SLMapMul(self._mul)]
@@ -1115,6 +1133,7 @@ class LFO(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setSharp(x) : Replace the `sharp` attribute.
     setType(x) : Replace the `type` attribute.
+    reset() : Resets current phase to 0.
 
     Attributes:
 
@@ -1190,6 +1209,14 @@ class LFO(PyoObject):
             self._type = x
             x, lmax = convertArgsToLists(x)
             [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMap(0., 1., "lin", "sharp", self._sharp), SLMapMul(self._mul)]

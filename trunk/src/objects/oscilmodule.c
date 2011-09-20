@@ -396,6 +396,14 @@ Sine_setPhase(Sine *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject * 
+Sine_reset(Sine *self) 
+{
+    self->pointerPos = 0.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Sine_members[] = {
 {"server", T_OBJECT_EX, offsetof(Sine, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Sine, stream), 0, "Stream object."},
@@ -415,6 +423,7 @@ static PyMethodDef Sine_methods[] = {
 {"stop", (PyCFunction)Sine_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Sine_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 {"setPhase", (PyCFunction)Sine_setPhase, METH_O, "Sets oscillator phase between 0 and 1."},
+{"reset", (PyCFunction)Sine_reset, METH_NOARGS, "Resets pointer position to 0."},
 {"setMul", (PyCFunction)Sine_setMul, METH_O, "Sets Sine mul factor."},
 {"setAdd", (PyCFunction)Sine_setAdd, METH_O, "Sets Sine add factor."},
 {"setSub", (PyCFunction)Sine_setSub, METH_O, "Sets inverse add factor."},
@@ -1381,6 +1390,14 @@ Osc_setInterp(Osc *self, PyObject *arg)
     return Py_None;
 }
 
+static PyObject * 
+Osc_reset(Osc *self) 
+{
+    self->pointerPos = 0.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Osc_members[] = {
     {"server", T_OBJECT_EX, offsetof(Osc, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Osc, stream), 0, "Stream object."},
@@ -1404,6 +1421,7 @@ static PyMethodDef Osc_methods[] = {
 	{"setFreq", (PyCFunction)Osc_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
     {"setPhase", (PyCFunction)Osc_setPhase, METH_O, "Sets oscillator phase."},
     {"setInterp", (PyCFunction)Osc_setInterp, METH_O, "Sets oscillator interpolation mode."},
+    {"reset", (PyCFunction)Osc_reset, METH_NOARGS, "Resets pointer position to 0."},
 	{"setMul", (PyCFunction)Osc_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Osc_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Osc_setSub, METH_O, "Sets oscillator inverse add factor."},
@@ -2362,6 +2380,14 @@ Phasor_setPhase(Phasor *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject * 
+Phasor_reset(Phasor *self) 
+{
+    self->pointerPos = 0.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Phasor_members[] = {
 {"server", T_OBJECT_EX, offsetof(Phasor, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Phasor, stream), 0, "Stream object."},
@@ -2381,6 +2407,7 @@ static PyMethodDef Phasor_methods[] = {
 {"stop", (PyCFunction)Phasor_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Phasor_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 {"setPhase", (PyCFunction)Phasor_setPhase, METH_O, "Sets oscillator phase."},
+{"reset", (PyCFunction)Phasor_reset, METH_NOARGS, "Resets pointer position to 0."},
 {"setMul", (PyCFunction)Phasor_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Phasor_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Phasor_setSub, METH_O, "Sets oscillator inverse add factor."},
@@ -4811,6 +4838,14 @@ TableRead_getTrigsBuffer(TableRead *self)
     return (MYFLT *)self->tempTrigsBuffer;
 }    
 
+static PyObject * 
+TableRead_reset(TableRead *self) 
+{
+    self->pointerPos = 0.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef TableRead_members[] = {
 {"server", T_OBJECT_EX, offsetof(TableRead, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TableRead, stream), 0, "Stream object."},
@@ -4833,6 +4868,7 @@ static PyMethodDef TableRead_methods[] = {
 {"setFreq", (PyCFunction)TableRead_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
 {"setLoop", (PyCFunction)TableRead_setLoop, METH_O, "Sets the looping mode."},
 {"setInterp", (PyCFunction)TableRead_setInterp, METH_O, "Sets reader interpolation mode."},
+{"reset", (PyCFunction)TableRead_reset, METH_NOARGS, "Resets pointer position to 0."},
 {"setMul", (PyCFunction)TableRead_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)TableRead_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)TableRead_setSub, METH_O, "Sets oscillator inverse add factor."},
