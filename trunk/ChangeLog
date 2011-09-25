@@ -1,3 +1,8 @@
+2011-09-25 belangeo <belangeo@gmail.com>
+
+    * Updated version number to 0.5.1.
+    - rev 713
+
 2011-08-13 belangeo <belangeo@gmail.com>
 
     * Added new object : CtlScan : Scan for Midi controller number in input.
