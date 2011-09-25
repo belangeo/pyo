@@ -23,7 +23,7 @@ import random, os, sys, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
 
-PYO_VERSION = '0.5.0'
+PYO_VERSION = '0.5.1'
 
 import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
