@@ -205,7 +205,8 @@ class ControlSlider(wx.Panel):
         self.createSliderBitmap()
         self.createKnobBitmap()
 
-    def setMidiCtl(self, x):
+    def setMidiCtl(self, x, propagate=True):
+        self.propagate = propagate
         self.midictl = x
         self.Refresh()
 
@@ -339,7 +340,8 @@ class ControlSlider(wx.Panel):
                 self.new = ''
                 self.selected = False
             self.Refresh()
- 
+        event.Skip()
+
     def MouseDown(self, evt):
         if evt.ShiftDown():
             self.DoubleClick(evt)
