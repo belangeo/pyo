@@ -983,6 +983,7 @@ typedef struct {
     MYFLT lastFeed;
     long size;
     int in_count;
+    MYFLT nyquist;
     int modebuffer[4];
     MYFLT lpsamp; // lowpass sample memory
     MYFLT coeffs[5]; // lagrange coefficients
@@ -1004,6 +1005,9 @@ Waveguide_process_ii(Waveguide *self) {
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
+    else if (fr >= self->nyquist)
+        fr = self->nyquist;
+    
     if (dur <= 0)
         dur = 0.1;
     
@@ -1089,6 +1093,8 @@ Waveguide_process_ai(Waveguide *self) {
         /* Check frequency boundary */
         if (freq < self->minfreq)
             freq = self->minfreq;
+        else if (freq >= self->nyquist)
+            freq = self->nyquist;
 
         sampdel = self->lastSampDel;
         feed = self->lastFeed;
@@ -1166,6 +1172,8 @@ Waveguide_process_ia(Waveguide *self) {
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
+    else if (fr >= self->nyquist)
+        fr = self->nyquist;
 
     sampdel = self->lastSampDel;
     /* lagrange coeffs and feedback coeff */
@@ -1245,6 +1253,9 @@ Waveguide_process_aa(Waveguide *self) {
         /* Check boundaries */
         if (freq < self->minfreq)
             freq = self->minfreq;
+        else if (freq >= self->nyquist)
+            freq = self->nyquist;
+
         if (dur <= 0)
             dur = 0.1;
         
@@ -1444,6 +1455,9 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
     
     INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.45;
+
     Stream_setFunctionPtr(self->stream, Waveguide_compute_next_data_frame);
     self->mode_func_ptr = Waveguide_setProcMode;
     

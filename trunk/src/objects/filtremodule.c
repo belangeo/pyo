@@ -4271,8 +4271,8 @@ Phaser_compute_variables(Phaser *self, MYFLT freq, MYFLT spread, MYFLT q)
     qfactor = 1.0 / q * self->minusPiOnSr;
     fr = freq;
     for (i=0; i<self->stages; i++) {
-        if (fr <= 1) 
-            fr = 1;
+        if (fr <= 20) 
+            fr = 20;
         else if (fr >= self->halfSr)
             fr = self->halfSr;
     
