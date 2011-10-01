@@ -172,7 +172,7 @@ class ControlSlider(wx.Panel):
         self.SetMinSize(self.GetSize())
         self.knobSize = 40
         self.knobHalfSize = 20
-        self.sliderHeight = 11
+        self.sliderHeight = size[1] - 5
         self.outFunction = outFunction
         self.integer = integer
         self.log = log
