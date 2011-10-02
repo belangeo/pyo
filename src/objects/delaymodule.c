@@ -465,6 +465,17 @@ Delay_setFeedback(Delay *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Delay_reset(Delay *self)
+{
+    int i;
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Delay_members[] = {
     {"server", T_OBJECT_EX, offsetof(Delay, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Delay, stream), 0, "Stream object."},
@@ -485,6 +496,7 @@ static PyMethodDef Delay_methods[] = {
     {"stop", (PyCFunction)Delay_stop, METH_NOARGS, "Stops computing."},
 	{"setDelay", (PyCFunction)Delay_setDelay, METH_O, "Sets delay time in seconds."},
     {"setFeedback", (PyCFunction)Delay_setFeedback, METH_O, "Sets feedback value between 0 -> 1."},
+    {"reset", (PyCFunction)Delay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
 	{"setMul", (PyCFunction)Delay_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Delay_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Delay_setSub, METH_O, "Sets inverse add factor."},
@@ -603,17 +615,27 @@ SDelay_process_i(SDelay *self) {
     long sampdel = (long)(del * self->sr);
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        ind = self->in_count - sampdel;
-        if (ind < 0)
-            ind += (self->size-1);
-        self->data[i] = self->buffer[ind];
+
+    if (sampdel == 0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->buffer[self->in_count] = in[i];
+            self->in_count++;
+            if (self->in_count >= self->size)
+                self->in_count = 0;
+        }
+    }
+    else {    
+        for (i=0; i<self->bufsize; i++) {
+            ind = self->in_count - sampdel;
+            if (ind < 0)
+                ind += (self->size-1);
+            self->data[i] = self->buffer[ind];
         
-        self->buffer[self->in_count] = in[i];
-        self->in_count++;
-        if (self->in_count >= self->size)
-            self->in_count = 0;
+            self->buffer[self->in_count] = in[i];
+            self->in_count++;
+            if (self->in_count >= self->size)
+                self->in_count = 0;
+        }
     }
 }
 
@@ -633,11 +655,15 @@ SDelay_process_a(SDelay *self) {
         else if (del > self->maxdelay)
             del = self->maxdelay;
         sampdel = (long)(del * self->sr);
-        ind = self->in_count - sampdel;
-        if (ind < 0)
-            ind += (self->size-1);
-        self->data[i] = self->buffer[ind];
-        
+        if (sampdel == 0) {
+            self->data[i] = self->buffer[self->in_count] = in[i];
+        }
+        else {
+            ind = self->in_count - sampdel;
+            if (ind < 0)
+                ind += (self->size-1);
+            self->data[i] = self->buffer[ind];
+        }
         self->buffer[self->in_count++] = in[i];
         if (self->in_count >= self->size)
             self->in_count = 0;
@@ -856,6 +882,17 @@ SDelay_setDelay(SDelay *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+SDelay_reset(SDelay *self)
+{
+    int i;
+    for (i=0; i<(self->size+1); i++) {
+        self->buffer[i] = 0.;
+    }    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef SDelay_members[] = {
     {"server", T_OBJECT_EX, offsetof(SDelay, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(SDelay, stream), 0, "Stream object."},
@@ -874,6 +911,7 @@ static PyMethodDef SDelay_methods[] = {
     {"out", (PyCFunction)SDelay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SDelay_stop, METH_NOARGS, "Stops computing."},
 	{"setDelay", (PyCFunction)SDelay_setDelay, METH_O, "Sets delay time in seconds."},
+	{"reset", (PyCFunction)SDelay_reset, METH_NOARGS, "Resets the memory buffer to zeros."},
 	{"setMul", (PyCFunction)SDelay_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)SDelay_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)SDelay_setSub, METH_O, "Sets inverse add factor."},
