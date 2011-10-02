@@ -1357,6 +1357,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&MidiAdsrType);
     PyModule_AddObject(m, "MidiAdsr_base", (PyObject *)&MidiAdsrType);
+
+    if (PyType_Ready(&MidiDelAdsrType) < 0)
+        return;
+    Py_INCREF(&MidiDelAdsrType);
+    PyModule_AddObject(m, "MidiDelAdsr_base", (PyObject *)&MidiDelAdsrType);
     
     if (PyType_Ready(&OscSendType) < 0)
         return;
