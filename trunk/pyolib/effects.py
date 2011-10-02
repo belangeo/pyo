@@ -173,7 +173,8 @@ class Delay(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setDelay(x) : Replace the `delay` attribute.
     setFeedback(x) : Replace the `feedback` attribute.
-    
+    reset() : Reset the memory buffer to zeros.
+
     Attributes:
     
     input : PyoObject. Input signal to delayed.
@@ -185,7 +186,7 @@ class Delay(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
     >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out(1)
 
     """
@@ -247,6 +248,13 @@ class Delay(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedback(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+        
+        """
+        [obj.reset() for obj in self._base_objs]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
@@ -294,6 +302,7 @@ class SDelay(PyoObject):
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setDelay(x) : Replace the `delay` attribute.
+    reset() : Reset the memory buffer to zeros.
 
     Attributes:
 
@@ -350,6 +359,13 @@ class SDelay(PyoObject):
         self._delay = x
         x, lmax = convertArgsToLists(x)
         [obj.setDelay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset the memory buffer to zeros.
+        
+        """
+        [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
