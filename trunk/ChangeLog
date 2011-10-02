@@ -1,3 +1,8 @@
+2011-10-02 belangeo <belangeo@gmail.com>
+
+    * Added new object : MidiDelAdsr : Midi triggered ADSR envelope with pre-delay.
+    - rev 719
+
 2011-09-25 belangeo <belangeo@gmail.com>
 
     * Updated version number to 0.5.1.
