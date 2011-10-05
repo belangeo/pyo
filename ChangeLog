@@ -1,3 +1,8 @@
+2011-10-05 belangeo <belangeo@gmail.com>
+
+    * Added new object : Ceil : Returns the smallest integral value greater than or equal to the input signal.
+    - rev 720
+
 2011-10-02 belangeo <belangeo@gmail.com>
 
     * Added new object : MidiDelAdsr : Midi triggered ADSR envelope with pre-delay.

@@ -1693,6 +1693,11 @@ init_pyo64(void)
     Py_INCREF(&M_FloorType);
     PyModule_AddObject(m, "M_Floor_base", (PyObject *)&M_FloorType);    
 
+    if (PyType_Ready(&M_CeilType) < 0)
+        return;
+    Py_INCREF(&M_CeilType);
+    PyModule_AddObject(m, "M_Ceil_base", (PyObject *)&M_CeilType);    
+    
     if (PyType_Ready(&M_RoundType) < 0)
         return;
     Py_INCREF(&M_RoundType);
