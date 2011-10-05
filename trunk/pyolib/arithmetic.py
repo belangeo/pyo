@@ -838,6 +838,76 @@ class Floor(PyoObject):
     @input.setter
     def input(self, x): self.setInput(x)
 
+class Ceil(PyoObject):
+    """
+    Rounds to smallest integral value greater than or equal to the input signal.
+
+    For each samples in the input signal, rounds to smallest integral 
+    value greater than or equal to the sample value.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> sweep = Phasor(freq=[1,.67], mul=4)
+    >>> flo = Ceil(sweep, mul=50, add=200)
+    >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Ceil_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
 class Round(PyoObject):
     """
     Rounds to the nearest integer value in a floating-point format.

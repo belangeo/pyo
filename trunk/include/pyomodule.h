@@ -79,6 +79,7 @@
 #define MYFABS fabsf
 #define MYFMOD fmodf
 #define MYFLOOR floorf
+#define MYCEIL ceilf
 #define MYTANH tanhf
 #define MYATAN atanf
 #define MYATAN2 atan2f
@@ -140,6 +141,7 @@
 #define MYFABS fabs
 #define MYFMOD fmod
 #define MYFLOOR floor
+#define MYCEIL ceil
 #define MYTANH tanh
 #define MYATAN atan
 #define MYATAN2 atan2
@@ -355,6 +357,7 @@ extern PyTypeObject M_Log10Type;
 extern PyTypeObject M_PowType;
 extern PyTypeObject M_Atan2Type;
 extern PyTypeObject M_FloorType;
+extern PyTypeObject M_CeilType;
 extern PyTypeObject M_RoundType;
 
 extern PyTypeObject FFTMainType;
