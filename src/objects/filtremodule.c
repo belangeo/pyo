@@ -114,6 +114,8 @@ Biquad_compute_variables(Biquad *self, MYFLT freq, MYFLT q)
         freq = 1;
     else if (freq >= self->nyquist)
         freq = self->nyquist;
+    if (q < 0.1)
+        q = 0.1;
     
     self->w0 = TWOPI * freq / self->sr;
     self->c = MYCOS(self->w0);
@@ -723,6 +725,8 @@ Biquadx_compute_variables(Biquadx *self, MYFLT freq, MYFLT q)
         freq = 1;
     else if (freq >= self->nyquist)
         freq = self->nyquist;
+    if (q < 0.1)
+        q = 0.1;
     
     self->w0 = TWOPI * freq / self->sr;
     self->c = MYCOS(self->w0);
