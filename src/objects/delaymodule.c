@@ -1763,6 +1763,7 @@ typedef struct {
     PyObject *detune;
     Stream *detune_stream;
     MYFLT minfreq;
+    MYFLT nyquist;
     long size;
     int alpsize;
     int in_count;
@@ -1788,6 +1789,8 @@ AllpassWG_process_iii(AllpassWG *self) {
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
+    else if (fr >= self->nyquist)
+        fr = self->nyquist;
     feed *= 0.4525;
     if (feed > 0.4525)
         feed = 0.4525;
@@ -1874,6 +1877,8 @@ AllpassWG_process_aii(AllpassWG *self) {
         fr = freq[i];
         if (fr < self->minfreq)
             fr = self->minfreq;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;
         
         /* pick a new value in the delay line */
         sampdel = 1.0 / (fr * freqshift) * self->sr;
@@ -1932,6 +1937,8 @@ AllpassWG_process_iai(AllpassWG *self) {
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
+    else if (fr >= self->nyquist)
+        fr = self->nyquist;
     freqshift = detune * 0.5 + 1.;
     detune = detune * 0.95 + 0.05;
     if (detune < 0.05)
@@ -2013,6 +2020,8 @@ AllpassWG_process_aai(AllpassWG *self) {
         fr = freq[i];
         if (fr < self->minfreq)
             fr = self->minfreq;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;
         feed = fdb[i] * 0.4525;
         if (feed > 0.4525)
             feed = 0.4525;
@@ -2076,6 +2085,8 @@ AllpassWG_process_iia(AllpassWG *self) {
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
+    else if (fr >= self->nyquist)
+        fr = self->nyquist;
     feed *= 0.4525;
     if (feed > 0.4525)
         feed = 0.4525;
@@ -2156,6 +2167,8 @@ AllpassWG_process_aia(AllpassWG *self) {
         fr = freq[i];
         if (fr < self->minfreq)
             fr = self->minfreq;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;
         detune = det[i];
         freqshift = detune * 0.5 + 1.;
         detune = detune * 0.95 + 0.05;
@@ -2222,6 +2235,8 @@ AllpassWG_process_iaa(AllpassWG *self) {
     /* Check boundaries */
     if (fr < self->minfreq)
         fr = self->minfreq;
+    else if (fr >= self->nyquist)
+        fr = self->nyquist;
     
     for (i=0; i<self->bufsize; i++) {
         feed = fdb[i] * 0.4525;
@@ -2296,6 +2311,8 @@ AllpassWG_process_aaa(AllpassWG *self) {
         fr = freq[i];
         if (fr < self->minfreq)
             fr = self->minfreq;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;
         feed = fdb[i] * 0.4525;
         if (feed > 0.4525)
             feed = 0.4525;
@@ -2500,6 +2517,9 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[4] = 0;
     
     INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.45;
+
     Stream_setFunctionPtr(self->stream, AllpassWG_compute_next_data_frame);
     self->mode_func_ptr = AllpassWG_setProcMode;
     
