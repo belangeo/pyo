@@ -408,11 +408,6 @@ class ControlSlider(wx.Panel):
         # Draw background
         dc.SetPen(wx.Pen(self.backgroundColour, width=self.borderWidth, style=wx.SOLID))
         dc.DrawRectangle(0, 0, w, h)
-
-        if sys.platform in ['win32', 'linux2']:
-            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
-        else:    
-            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
         
         # Draw inner part
         if self._enable: sliderColour =  "#99A7CC"
@@ -423,8 +418,12 @@ class ControlSlider(wx.Panel):
         dc.DrawBitmap(self.sliderMask, 0, 0, True)
 
         if self.midictl != None:
+            if sys.platform in ['win32', 'linux2']:
+                dc.SetFont(wx.Font(6, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+            else:    
+                dc.SetFont(wx.Font(9, wx.ROMAN, wx.NORMAL, wx.NORMAL))
             dc.SetTextForeground('#FFFFFF')
-            dc.DrawLabel(str(self.midictl), wx.Rect(0,0,h,h), wx.ALIGN_CENTER)
+            dc.DrawLabel(str(self.midictl), wx.Rect(2,0,h,h), wx.ALIGN_CENTER)
             dc.DrawLabel(str(self.midictl), wx.Rect(w-h,0,h,h), wx.ALIGN_CENTER)
 
         # Draw knob
@@ -439,6 +438,11 @@ class ControlSlider(wx.Panel):
             dc.SetBrush(wx.Brush('#333333', wx.SOLID))
             dc.SetPen(wx.Pen('#333333', width=self.borderWidth, style=wx.SOLID))  
             dc.DrawRoundedRectangleRect(rec2, 3)
+
+        if sys.platform in ['win32', 'linux2']:
+            dc.SetFont(wx.Font(7, wx.ROMAN, wx.NORMAL, wx.NORMAL))
+        else:    
+            dc.SetFont(wx.Font(10, wx.ROMAN, wx.NORMAL, wx.NORMAL))
 
         # Draw text
         if self.selected and self.new:
