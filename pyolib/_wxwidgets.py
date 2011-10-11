@@ -1293,10 +1293,8 @@ class ServerGUI(wx.Frame):
         self.menu = wx.Menu()
         self.menu.Append(22999, 'Start/Stop\tCtrl+R', kind=wx.ITEM_NORMAL)
         self.Bind(wx.EVT_MENU, self.start, id=22999)
-        quit_item = self.menu.Append(23000, "Quit\tCtrl+Q")  
-        self.Bind(wx.EVT_MENU, self.on_quit, id=23000)
-        if wx.Platform == "__WXMAC__":
-            wx.App.SetMacExitMenuItemId(quit_item.GetId())
+        quit_item = self.menu.Append(wx.ID_EXIT, "Quit\tCtrl+Q")  
+        self.Bind(wx.EVT_MENU, self.on_quit, id=wx.ID_EXIT)
         self.menubar.Append(self.menu, "&File")
         self.SetMenuBar(self.menubar)
 
@@ -1320,7 +1318,6 @@ class ServerGUI(wx.Frame):
         if sys.platform == "linux2":
             X_OFF = 0
             Y_OFF = 30
-            buttonSize = (72,-1)
             leftMargin = 25
         elif sys.platform == "win32":
             try:
@@ -1331,24 +1328,22 @@ class ServerGUI(wx.Frame):
             except:
                 X_OFF = 8
             Y_OFF = 65
-            buttonSize = (72,-1)
             leftMargin = 24
         else:
             X_OFF = 0
             Y_OFF = 35
-            buttonSize = wx.DefaultSize
             leftMargin = 25
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.startButton = wx.Button(panel, -1, 'Start', (20,20), buttonSize)
+        self.startButton = wx.Button(panel, -1, 'Start', (20,20), (72,-1))
         self.startButton.Bind(wx.EVT_BUTTON, self.start)
         buttonBox.Add(self.startButton, 0, wx.RIGHT, 5)
 
-        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20), buttonSize)
+        self.recButton = wx.Button(panel, -1, 'Rec Start', (20,20), (72,-1))
         self.recButton.Bind(wx.EVT_BUTTON, self.record)
         buttonBox.Add(self.recButton, 0, wx.RIGHT, 5)
 
-        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20), buttonSize)
+        self.quitButton = wx.Button(panel, -1, 'Quit', (20,20), (72,-1))
         self.quitButton.Bind(wx.EVT_BUTTON, self.on_quit)
         buttonBox.Add(self.quitButton, 0, wx.RIGHT, 0)
 
@@ -1421,6 +1416,7 @@ class ServerGUI(wx.Frame):
             self.recButton.SetLabel('Rec Start')
 
     def on_quit(self, evt):
+        print "caca"
         self.shutdown()
         self.Destroy()
         sys.exit()
