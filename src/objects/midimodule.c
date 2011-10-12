@@ -53,7 +53,7 @@ CtlScan_compute_next_data_frame(CtlScan *self)
             int number = Pm_MessageData1(buffer[i].message);
             int value = Pm_MessageData2(buffer[i].message);
 
-            if (status == 0xB0) {
+            if ((status & 0xF0) == 0xB0) {
                 if (number != self->ctlnumber) {
                     self->ctlnumber = number;
                     tup = PyTuple_New(1);
@@ -61,7 +61,7 @@ CtlScan_compute_next_data_frame(CtlScan *self)
                     PyObject_Call((PyObject *)self->callable, tup, NULL);
                 }
                 if (self->toprint == 1)
-                    printf("ctl number : %i, ctl value : %i\n", self->ctlnumber, value);    
+                    printf("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, status - 0xB0 + 1);    
             }
         }
     }
@@ -232,6 +232,7 @@ PyTypeObject CtlScanType = {
 typedef struct {
     pyo_audio_HEAD
     int ctlnumber;
+    int channel;
     MYFLT minscale;
     MYFLT maxscale;
     MYFLT value;
@@ -290,13 +291,26 @@ Midictl_setProcMode(Midictl *self)
 // Take MIDI events and translate them...
 void translateMidi(Midictl *self, PmEvent *buffer, int count)
 {
-    int i;
+    int i, ok;
     for (i=count-1; i>=0; i--) {
         int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
         int number = Pm_MessageData1(buffer[i].message);
         int value = Pm_MessageData2(buffer[i].message);
+        
+        if (self->channel == 0) {
+            if ((status & 0xF0) == 0xB0)
+                ok = 1;
+            else
+                ok = 0;
+        }
+        else {
+            if (status == (0xB0 | (self->channel - 1)))
+                ok = 1;
+            else
+                ok = 0;
+        }
 
-        if (status == 0xB0 && number == self->ctlnumber) {
+        if (ok == 1 && number == self->ctlnumber) {
             self->oldValue = self->value;
             self->value = (value / 127.) * (self->maxscale - self->minscale) + self->minscale;
             break;
@@ -356,6 +370,7 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Midictl *self;
     self = (Midictl *)type->tp_alloc(type, 0);
 
+    self->channel = 0;
     self->value = 0.;
     self->oldValue = 0.;
     self->minscale = 0.;
@@ -375,9 +390,9 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
 {
     PyObject *multmp=NULL, *addtmp=NULL;
 
-    static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "init", "mul", "add", NULL};
+    static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "init", "channel", "mul", "add", NULL};
 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->oldValue, &multmp, &addtmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFIOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->oldValue, &self->channel, &multmp, &addtmp))
         return -1; 
  
     if (multmp) {
@@ -418,6 +433,50 @@ static PyObject * Midictl_inplace_sub(Midictl *self, PyObject *arg) { INPLACE_SU
 static PyObject * Midictl_div(Midictl *self, PyObject *arg) { DIV };
 static PyObject * Midictl_inplace_div(Midictl *self, PyObject *arg) { INPLACE_DIV };
 
+static PyObject *
+Midictl_setCtlNumber(Midictl *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->ctlnumber = tmp;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Midictl_setChannel(Midictl *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->channel = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef Midictl_members[] = {
     {"server", T_OBJECT_EX, offsetof(Midictl, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Midictl, stream), 0, "Stream object."},
@@ -432,6 +491,8 @@ static PyMethodDef Midictl_methods[] = {
     {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
+	{"setCtlNumber", (PyCFunction)Midictl_setCtlNumber, METH_O, "Sets the controller number."},
+	{"setChannel", (PyCFunction)Midictl_setChannel, METH_O, "Sets the midi channel."},
 	{"setMul", (PyCFunction)Midictl_setMul, METH_O, "Sets oscillator mul factor."},
 	{"setAdd", (PyCFunction)Midictl_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Midictl_setSub, METH_O, "Sets inverse add factor."},
@@ -532,6 +593,7 @@ typedef struct {
     int first;
     int last;
     int centralkey;
+    int channel;
 } MidiNote;
 
 static void
@@ -591,23 +653,30 @@ int whichVoice(int *buf, int pitch, int len) {
 // Take MIDI events and keep track of notes
 void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
 {
-    int i, voice;
+    int i, ok, voice;
     for (i=0; i<count; i++) {
         int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
         int pitch = Pm_MessageData1(buffer[i].message);
         int velocity = Pm_MessageData2(buffer[i].message);
         // int timestamp = buffer[i].timestamp;
         // printf("pitch : %i, velocity : %i, timestamp : %i\n", pitch, velocity, timestamp);
-    
-        //printf("%i, %i, %i\n", status, pitch, velocity);
-        if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80) {
+
+        if (self->channel == 0) {
+            if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80)
+                ok = 1;
+            else
+                ok = 0;
+        }
+        else {
+            if ( status == (0x90 | (self->channel - 1)) || status == (0x80 | (self->channel - 1)))
+                ok = 1;
+            else
+                ok = 0;
+        }
+        
+        if (ok == 1) {
             if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
-                //voice = firstEmpty(self->notebuf, self->voices);
-                //voice = self->vcount;
-                //self->vcount++;
-                //if (self->vcount == self->voices) 
-                //    self->vcount = 0;
                 voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
                 if (voice != -1) {
                     self->vcount = voice;
@@ -680,6 +749,7 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->scale = 0;
     self->first = 0;
     self->last = 127;
+    self->channel = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiNote_compute_next_data_frame);
@@ -693,9 +763,9 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
 {
     int i;
     
-    static char *kwlist[] = {"voices", "scale", "first", "last", NULL};
+    static char *kwlist[] = {"voices", "scale", "first", "last", "channel", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iiii", kwlist, &self->voices, &self->scale, &self->first, &self->last))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iiiii", kwlist, &self->voices, &self->scale, &self->first, &self->last, &self->channel))
         return -1; 
 
     Py_INCREF(self->stream);
@@ -741,6 +811,50 @@ static PyObject * MidiNote_getStream(MidiNote* self) { GET_STREAM };
 static PyObject * MidiNote_play(MidiNote *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * MidiNote_stop(MidiNote *self) { STOP };
 
+static PyObject *
+MidiNote_setChannel(MidiNote *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->channel = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= self->first && tmp <= self->last)
+            self->centralkey = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef MidiNote_members[] = {
 {"server", T_OBJECT_EX, offsetof(MidiNote, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(MidiNote, stream), 0, "Stream object."},
@@ -753,6 +867,8 @@ static PyMethodDef MidiNote_methods[] = {
 {"deleteStream", (PyCFunction)MidiNote_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)MidiNote_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)MidiNote_stop, METH_NOARGS, "Stops computing."},
+{"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
+{"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
 {NULL}  /* Sentinel */
 };
 

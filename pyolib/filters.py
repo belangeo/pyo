@@ -212,7 +212,7 @@ class Biquadx(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setQ(x) : Replace the `q` attribute.
     setType(x) : Replace the `type` attribute.
-    setType(x) : Replace the `stages` attribute.
+    setStages(x) : Replace the `stages` attribute.
 
     Attributes:
 

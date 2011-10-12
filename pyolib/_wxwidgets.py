@@ -1416,7 +1416,6 @@ class ServerGUI(wx.Frame):
             self.recButton.SetLabel('Rec Start')
 
     def on_quit(self, evt):
-        print "caca"
         self.shutdown()
         self.Destroy()
         sys.exit()
