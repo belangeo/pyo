@@ -36,7 +36,7 @@ from _maps import *
 ######################################################################                                       
 class Midictl(PyoObject):
     """
-    Get the current value of a Midi channel controller.
+    Get the current value of a Midi controller.
     
     Get the current value of a controller and optionally map it 
     inside a specified range.
@@ -46,7 +46,7 @@ class Midictl(PyoObject):
     Parameters:
     
     ctlnumber : int
-        Midi channel. Available at initialization time only.
+        Controller number.
     minscale : float, optional
         Low range value for mapping. Available at initialization 
         time only.
@@ -55,6 +55,18 @@ class Midictl(PyoObject):
         time only.
     init : float, optional
         Initial value. Defaults to 0.
+    channel : int, optional
+        Midi channel. 0 means all channels. Defaults to 0.
+
+    Methods:
+
+    setCtlNumber(x) : Replace the `ctlnumber` attribute.
+    setChannel(x) : Replace the `channel` attribute.
+
+    Attributes:
+
+    ctlnumber : Controller number.
+    channel : Midi channel. 0 means all channels.
 
     Notes:
 
@@ -72,22 +84,62 @@ class Midictl(PyoObject):
     >>> a2 = Sine(freq=p*1.5, mul=.3).out()
         
     """
-    def __init__(self, ctlnumber, minscale=0, maxscale=1, init=0, mul=1, add=0):
+    def __init__(self, ctlnumber, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
         PyoObject.__init__(self)
+        self._ctlnumber = ctlnumber
+        self._channel = channel
         self._mul = mul
         self._add = add
-        ctlnumber, minscale, maxscale, init, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, init, mul, add)
-        self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        ctlnumber, minscale, maxscale, init, channel, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, init, channel, mul, add)
+        self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['mul', 'add']
+        return ['ctlnumber', 'channel', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
+    def setCtlNumber(self, x):
+        """
+        Replace the `ctlnumber` attribute.
+
+        Parameters:
+
+        x : int
+            new `ctlnumber` attribute.
+
+        """
+        self._ctlnumber = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCtlNumber(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setChannel(self, x):
+        """
+        Replace the `channel` attribute.
+
+        Parameters:
+
+        x : int
+            new `channel` attribute.
+
+        """
+        self._channel = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def ctlnumber(self): return self._ctlnumber
+    @ctlnumber.setter
+    def ctlnumber(self, x): self.setCtlNumber(x)   
+
+    @property
+    def channel(self): return self._channel
+    @channel.setter
+    def channel(self, x): self.setChannel(x)   
 
 class CtlScan(PyoObject):
     """
@@ -218,18 +270,27 @@ class Notein(PyoObject):
         Number of streams of polyphony generated. Defaults to 10.
     scale : int, optional
         Pitch output format. 0 = Midi, 1 = Hertz, 2 = transpo. 
-        In the transpo mode, the central key (the key where there 
-        is no transposition) is (`first` + `last`) / 2.
+        In the transpo mode, the default central key (the key where 
+        there is no transposition) is (`first` + `last`) / 2. The
+        central key can be changed with the setCentralKey method.
     first : int, optional
         Lowest Midi value. Defaults to 0.
     last : int, optional
         Highest Midi value. Defaults to 127.
+    channel : int, optional
+        Midi channel. 0 means all channels. Defaults to 0.
 
     Methods:
 
+    setChannel(x) : Replace the `channel` attribute.
+    setCentralKey(x) : Set the midi key where there is no transposition.
     get(identifier, all) : Return the first sample of the current 
         buffer as a float.
 
+    Attributes:
+    
+    channel : Midi channel. 0 means all channels.
+    
     Notes:
     
     Pitch and velocity are two separated set of streams. 
@@ -254,7 +315,7 @@ class Notein(PyoObject):
     >>> d = Sine(freq=notes['pitch'] * 1.005, mul=p).out()
     
     """
-    def __init__(self, poly=10, scale=0, first=0, last=127, mul=1, add=0):
+    def __init__(self, poly=10, scale=0, first=0, last=127, channel=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._pitch_dummy = []
         self._velocity_dummy = []
@@ -262,17 +323,18 @@ class Notein(PyoObject):
         self._scale = scale
         self._first = first
         self._last = last
+        self._channel = channel
         self._mul = mul
         self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
-        self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last)
+        self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last, self._channel)
         self._base_objs = []
         for i in range(lmax * poly):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
             self._base_objs.append(Notein_base(self._base_handler, i, 1, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
-        return ['mul', 'add']
+        return ['channel', 'mul', 'add']
 
     def __del__(self):
         if self._pitch_dummy:
@@ -294,6 +356,34 @@ class Notein(PyoObject):
         if str == 'velocity':
             self._velocity_dummy.append(Dummy([self._base_objs[i*2+1] for i in range(self._poly)]))
             return self._velocity_dummy[-1]
+
+    def setChannel(self, x):
+        """
+        Replace the `channel` attribute.
+
+        Parameters:
+
+        x : int
+            new `channel` attribute.
+
+        """
+        self._channel = x
+        self._base_handler.setChannel(x)
+
+    def setCentralKey(self, x):
+        """
+        Set the midi key where there is no transposition.
+        
+        Used for transpo conversion. This value must be greater than or
+        equal to `first` and lower than or equal to `last`.
+
+        Parameters:
+
+        x : int
+            new centralkey value.
+
+        """
+        self._base_handler.setCentralKey(x)
 
     def get(self, identifier="pitch", all=False):
         """
@@ -338,6 +428,11 @@ class Notein(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def channel(self): return self._channel
+    @channel.setter
+    def channel(self, x): self.setChannel(x)   
 
 class MidiAdsr(PyoObject):
     """

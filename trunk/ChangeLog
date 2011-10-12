@@ -1,3 +1,8 @@
+2011-10-12 belangeo <belangeo@gmail.com>
+
+    * Added midi channel attributes to Midictl and Notein. Added setCentralKey(x) method to Notein.
+    - rev 726
+
 2011-10-05 belangeo <belangeo@gmail.com>
 
     * Added new object : Ceil : Returns the smallest integral value greater than or equal to the input signal.
