@@ -1472,6 +1472,8 @@ Choice_init(Choice *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
+    srand((unsigned)(time(0)));
+
     (*self->mode_func_ptr)(self);
         
     Py_INCREF(self);
@@ -1911,6 +1913,8 @@ RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
     
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    srand((unsigned)(time(0)));
 
     (*self->mode_func_ptr)(self);
         
