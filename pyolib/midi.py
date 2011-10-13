@@ -434,6 +434,139 @@ class Notein(PyoObject):
     @channel.setter
     def channel(self, x): self.setChannel(x)   
 
+class Bendin(PyoObject):
+    """
+    Get the current value of the pitch bend controller.
+
+    Get the current value of the pitch bend controller and optionally 
+    maps it inside a specified range.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    brange : float, optional
+        Bipolar range of the pitch bend in semitones. Defaults to 2.
+        -brange <= value < brange.
+    scale : int, optional
+        Output format. 0 = Midi, 1 = transpo. 
+        The transpo mode is useful if you want to transpose values that 
+        are in a frequency (Hz) format. Defaults to 0.
+    channel : int, optional
+        Midi channel. 0 means all channels. Defaults to 0.
+
+    Methods:
+
+    setBrange(x) : Replace the `brange` attribute.
+    setScale(x) : Replace the `scale` attribute.
+    setChannel(x) : Replace the `channel` attribute.
+
+    Attributes:
+
+    brange : Bipolar range of the pitch bend in semitones.
+    scale : Output format. 0 = Midi, 1 = transpo.
+    channel : Midi channel. 0 means all channels.
+
+    Notes:
+
+    The out() method is bypassed. Bendin's signal can not be sent 
+    to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> bend = Bendin(brange=2, scale=1)
+    >>> p = Port(notes['velocity'], .001, .5)
+    >>> b = Sine(freq=notes['pitch'] * bend, mul=p).out()
+    >>> c = Sine(freq=notes['pitch'] * bend * 0.997, mul=p).out()
+    >>> d = Sine(freq=notes['pitch'] * bend * 1.005, mul=p).out()
+
+    """
+    def __init__(self, brange=2, scale=0, channel=0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._brange = brange
+        self._scale = scale
+        self._channel = channel
+        self._mul = mul
+        self._add = add
+        brange, scale, channel, mul, add, lmax = convertArgsToLists(brange, scale, channel, mul, add)
+        self._base_objs = [Bendin_base(wrap(brange,i), wrap(scale,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['brange', 'scale', 'channel', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setBrange(self, x):
+        """
+        Replace the `brange` attribute.
+
+        Parameters:
+
+        x : int
+            new `brange` attribute.
+
+        """
+        self._brange = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBrange(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setScale(self, x):
+        """
+        Replace the `scale` attribute.
+
+        Parameters:
+
+        x : int
+            new `scale` attribute.
+
+        """
+        self._scale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setChannel(self, x):
+        """
+        Replace the `channel` attribute.
+
+        Parameters:
+
+        x : int
+            new `channel` attribute.
+
+        """
+        self._channel = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def brange(self): 
+        """float. Bipolar range of the pitch bend in semitones."""
+        return self._brange
+    @brange.setter
+    def brange(self, x): self.setBrange(x)   
+
+    @property
+    def scale(self): 
+        """int. Output format. 0 = Midi, 1 = transpo."""
+        return self._scale
+    @scale.setter
+    def scale(self, x): self.setScale(x)   
+
+    @property
+    def channel(self): 
+        """int. Midi channel. 0 means all channels."""
+        return self._channel
+    @channel.setter
+    def channel(self, x): self.setChannel(x)   
+
 class MidiAdsr(PyoObject):
     """
     Midi triggered ADSR envelope generator.

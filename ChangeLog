@@ -1,3 +1,8 @@
+2011-10-13 belangeo <belangeo@gmail.com>
+
+    * Added new object : Bendin : Get the current value of the pitch bend controller.
+    - rev 729
+
 2011-10-12 belangeo <belangeo@gmail.com>
 
     * Added midi channel attributes to Midictl and Notein. Added setCentralKey(x) method to Notein.

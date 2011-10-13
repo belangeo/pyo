@@ -55,6 +55,7 @@
 #define TYPE_F_OF "f|Of"
 #define TYPE__OFFI "|Offi"
 #define TYPE__OFII "|Ofii"
+#define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
 #define TYPE_O_IFFO "O|iffO"
 #define TYPE_OO_FFOO "OO|ffOO"
@@ -118,6 +119,7 @@
 #define TYPE_F_OF "d|Od"
 #define TYPE__OFFI "|Oddi"
 #define TYPE__OFII "|Odii"
+#define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
 #define TYPE_O_IFFO "O|iddO"
 #define TYPE_OO_FFOO "OO|ddOO"
@@ -257,6 +259,7 @@ extern PyTypeObject MidictlType;
 extern PyTypeObject CtlScanType;
 extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
+extern PyTypeObject BendinType;
 extern PyTypeObject MidiAdsrType;
 extern PyTypeObject MidiDelAdsrType;
 

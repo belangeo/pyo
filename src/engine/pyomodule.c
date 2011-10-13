@@ -1353,6 +1353,11 @@ init_pyo64(void)
     Py_INCREF(&NoteinType);
     PyModule_AddObject(m, "Notein_base", (PyObject *)&NoteinType);
 
+    if (PyType_Ready(&BendinType) < 0)
+        return;
+    Py_INCREF(&BendinType);
+    PyModule_AddObject(m, "Bendin_base", (PyObject *)&BendinType);
+    
     if (PyType_Ready(&MidiAdsrType) < 0)
         return;
     Py_INCREF(&MidiAdsrType);

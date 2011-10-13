@@ -586,6 +586,394 @@ PyTypeObject MidictlType = {
 
 typedef struct {
     pyo_audio_HEAD
+    int channel;
+    int scale; /* 0 = midi, 1 = transpo */
+    MYFLT range;
+    MYFLT value;
+    MYFLT oldValue;
+    MYFLT sampleToSec;
+    int modebuffer[2];
+} Bendin;
+
+static void Bendin_postprocessing_ii(Bendin *self) { POST_PROCESSING_II };
+static void Bendin_postprocessing_ai(Bendin *self) { POST_PROCESSING_AI };
+static void Bendin_postprocessing_ia(Bendin *self) { POST_PROCESSING_IA };
+static void Bendin_postprocessing_aa(Bendin *self) { POST_PROCESSING_AA };
+static void Bendin_postprocessing_ireva(Bendin *self) { POST_PROCESSING_IREVA };
+static void Bendin_postprocessing_areva(Bendin *self) { POST_PROCESSING_AREVA };
+static void Bendin_postprocessing_revai(Bendin *self) { POST_PROCESSING_REVAI };
+static void Bendin_postprocessing_revaa(Bendin *self) { POST_PROCESSING_REVAA };
+static void Bendin_postprocessing_revareva(Bendin *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Bendin_setProcMode(Bendin *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Bendin_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Bendin_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Bendin_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Bendin_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Bendin_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Bendin_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Bendin_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Bendin_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Bendin_postprocessing_revareva;
+            break;
+    }
+}
+
+// Take MIDI events and translate them...
+void Bendin_translateMidi(Bendin *self, PmEvent *buffer, int count)
+{
+    int i, ok;
+    MYFLT val;
+    for (i=count-1; i>=0; i--) {
+        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = Pm_MessageData1(buffer[i].message);
+        int value = Pm_MessageData2(buffer[i].message);
+        
+        if (self->channel == 0) {
+            if ((status & 0xF0) == 0xe0)
+                ok = 1;
+            else
+                ok = 0;
+        }
+        else {
+            if (status == (0xe0 | (self->channel - 1)))
+                ok = 1;
+            else
+                ok = 0;
+        }
+        
+        if (ok == 1) {
+            self->oldValue = self->value;
+            val = (number + (value << 7) - 8192) / 8192.0 * self->range;
+            if (self->scale == 0)
+                self->value = val;
+            else
+                self->value = MYPOW(1.0594630943593, val);
+            break;
+        }
+    }    
+}
+
+static void
+Bendin_compute_next_data_frame(Bendin *self)
+{   
+    PmEvent *tmp;
+    int i, count;
+    
+    tmp = Server_getMidiEventBuffer((Server *)self->server);
+    count = Server_getMidiEventCount((Server *)self->server);
+    
+    if (count > 0)
+        Bendin_translateMidi((Bendin *)self, tmp, count);
+    MYFLT step = (self->value - self->oldValue) / self->bufsize;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->oldValue + step;
+    }  
+    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Bendin_traverse(Bendin *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    return 0;
+}
+
+static int 
+Bendin_clear(Bendin *self)
+{
+    pyo_CLEAR
+    return 0;
+}
+
+static void
+Bendin_dealloc(Bendin* self)
+{
+    free(self->data);
+    Bendin_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Bendin_deleteStream(Bendin *self) { DELETE_STREAM };
+
+static PyObject *
+Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    
+    Bendin *self;
+    self = (Bendin *)type->tp_alloc(type, 0);
+    
+    self->channel = 0;
+    self->scale = 0;
+    self->value = 0.;
+    self->oldValue = 0.;
+    self->range = 2.;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Bendin_compute_next_data_frame);
+    self->mode_func_ptr = Bendin_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Bendin_init(Bendin *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"brange", "scale", "channel", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIOO, kwlist, &self->range, &self->scale, &self->channel, &multmp, &addtmp))
+        return -1; 
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->scale == 0)
+        self->oldValue = self->value = 0.;
+    else
+        self->oldValue = self->value = 1.;
+        
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Bendin_getServer(Bendin* self) { GET_SERVER };
+static PyObject * Bendin_getStream(Bendin* self) { GET_STREAM };
+static PyObject * Bendin_setMul(Bendin *self, PyObject *arg) { SET_MUL };	
+static PyObject * Bendin_setAdd(Bendin *self, PyObject *arg) { SET_ADD };	
+static PyObject * Bendin_setSub(Bendin *self, PyObject *arg) { SET_SUB };	
+static PyObject * Bendin_setDiv(Bendin *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Bendin_play(Bendin *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Bendin_stop(Bendin *self) { STOP };
+
+static PyObject * Bendin_multiply(Bendin *self, PyObject *arg) { MULTIPLY };
+static PyObject * Bendin_inplace_multiply(Bendin *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Bendin_add(Bendin *self, PyObject *arg) { ADD };
+static PyObject * Bendin_inplace_add(Bendin *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Bendin_sub(Bendin *self, PyObject *arg) { SUB };
+static PyObject * Bendin_inplace_sub(Bendin *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Bendin_div(Bendin *self, PyObject *arg) { DIV };
+static PyObject * Bendin_inplace_div(Bendin *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Bendin_setBrange(Bendin *self, PyObject *arg)
+{
+    MYFLT tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyNumber_Check(arg);
+    
+	if (isNum == 1) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        if (tmp >= 0.0 && tmp < 128.0)
+            self->range = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Bendin_setChannel(Bendin *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->channel = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Bendin_setScale(Bendin *self, PyObject *arg)
+{
+    int tmp;
+    
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isInt = PyInt_Check(arg);
+    
+    if (isInt == 1) {
+        tmp = PyInt_AsLong(arg);
+        if (tmp == 0)
+            self->scale = 0;
+        else if (tmp == 1)
+            self->scale = 1;
+    }
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}	
+
+
+static PyMemberDef Bendin_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Bendin, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Bendin, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Bendin, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Bendin, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Bendin_methods[] = {
+    {"getServer", (PyCFunction)Bendin_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Bendin_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Bendin_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Bendin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Bendin_stop, METH_NOARGS, "Stops computing."},
+	{"setBrange", (PyCFunction)Bendin_setBrange, METH_O, "Sets the bending bipolar range."},
+	{"setScale", (PyCFunction)Bendin_setScale, METH_O, "Sets the output type, midi vs transpo."},
+	{"setChannel", (PyCFunction)Bendin_setChannel, METH_O, "Sets the midi channel."},
+	{"setMul", (PyCFunction)Bendin_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Bendin_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Bendin_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Bendin_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Bendin_as_number = {
+    (binaryfunc)Bendin_add,                      /*nb_add*/
+    (binaryfunc)Bendin_sub,                 /*nb_subtract*/
+    (binaryfunc)Bendin_multiply,                 /*nb_multiply*/
+    (binaryfunc)Bendin_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Bendin_inplace_add,              /*inplace_add*/
+    (binaryfunc)Bendin_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Bendin_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Bendin_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject BendinType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Bendin_base",         /*tp_name*/
+    sizeof(Bendin),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Bendin_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Bendin_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Bendin objects. Retreive audio from an input channel.",           /* tp_doc */
+    (traverseproc)Bendin_traverse,   /* tp_traverse */
+    (inquiry)Bendin_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Bendin_methods,             /* tp_methods */
+    Bendin_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Bendin_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Bendin_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
     int *notebuf; /* pitch, velocity, ... */
     int *latencies; /* latency inside the bufsize for each note */
     int voices;
