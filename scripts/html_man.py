@@ -94,7 +94,7 @@ def getMethodsDoc(text, obj):
                     else:    
                         methods += obj + '.' + meth + arg + ':\n'
                     docstr = getattr(eval(obj), meth).__doc__.rstrip()
-                    methods += docstr + '\n\n    '
+                    methods += docstr + '\n\n\n    '
                 
         if 'Methods:' in line: 
             flag = True

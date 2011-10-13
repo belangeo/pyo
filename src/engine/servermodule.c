@@ -150,7 +150,6 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     (void) statusFlags;
 
     if (server->withPortMidi == 1) {
-        //printf("%i\n", Pt_Time());
         portmidiGetEvents(server);
     }
     
@@ -1625,8 +1624,8 @@ Server_pm_init(Server *self)
     pmerr = Pm_Initialize();
     if (pmerr) {
         Server_warning(self, "PortMidi warning: could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
-        Pt_Stop();
         self->withPortMidi = 0;
+        Pt_Stop();
         return -1;
     }    
     else {
@@ -2043,6 +2042,11 @@ Server_getMidiEventBuffer(Server *self) {
 int
 Server_getMidiEventCount(Server *self) {
     return self->midi_count;
+}
+
+unsigned int
+Server_getPortTimeTime(Server *self) {
+    return Pt_Time();
 }
 
 static PyObject *
