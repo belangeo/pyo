@@ -1357,6 +1357,16 @@ init_pyo64(void)
         return;
     Py_INCREF(&BendinType);
     PyModule_AddObject(m, "Bendin_base", (PyObject *)&BendinType);
+
+    if (PyType_Ready(&TouchinType) < 0)
+        return;
+    Py_INCREF(&TouchinType);
+    PyModule_AddObject(m, "Touchin_base", (PyObject *)&TouchinType);
+
+    if (PyType_Ready(&PrograminType) < 0)
+        return;
+    Py_INCREF(&PrograminType);
+    PyModule_AddObject(m, "Programin_base", (PyObject *)&PrograminType);
     
     if (PyType_Ready(&MidiAdsrType) < 0)
         return;
