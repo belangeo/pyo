@@ -24,8 +24,6 @@ TODO before releasing _pyo_ version 1.0.
 
 *Midi*
 
-- Improve Midi scheduling with time stamp.
-
 - Midiout, !MidiFileIn, !MidiFileOut
 
 - Coremidi support
@@ -33,8 +31,6 @@ TODO before releasing _pyo_ version 1.0.
 ----
 
 *OSC*
-
-- Improve OSC scheduling with time stamp.
 
 - !UdpSend, !UdpReceive
 
