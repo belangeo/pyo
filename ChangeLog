@@ -1,5 +1,10 @@
 2011-10-13 belangeo <belangeo@gmail.com>
 
+    * Added new objects : Touchin : Get the current value of the after-touch controller. Programin : Get the current value of a program change controller.
+    - rev 730
+
+2011-10-13 belangeo <belangeo@gmail.com>
+
     * Added new object : Bendin : Get the current value of the pitch bend controller.
     - rev 729
 

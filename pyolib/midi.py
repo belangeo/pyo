@@ -48,11 +48,9 @@ class Midictl(PyoObject):
     ctlnumber : int
         Controller number.
     minscale : float, optional
-        Low range value for mapping. Available at initialization 
-        time only.
+        Low range value for mapping. Defaults to 0.
     maxscale : float, optional
-        High range value for mapping. Available at initialization 
-        time only.
+        High range value for mapping. Defaults to 1.
     init : float, optional
         Initial value. Defaults to 0.
     channel : int, optional
@@ -61,11 +59,15 @@ class Midictl(PyoObject):
     Methods:
 
     setCtlNumber(x) : Replace the `ctlnumber` attribute.
+    setMinScale(x) : Replace the `minscale` attribute.
+    setMaxScale(x) : Replace the `maxscale` attribute.
     setChannel(x) : Replace the `channel` attribute.
 
     Attributes:
 
     ctlnumber : Controller number.
+    minscale : Minimum value for scaling.
+    maxscale : Maximum value for scaling.
     channel : Midi channel. 0 means all channels.
 
     Notes:
@@ -87,6 +89,8 @@ class Midictl(PyoObject):
     def __init__(self, ctlnumber, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._ctlnumber = ctlnumber
+        self._minscale = minscale
+        self._maxscale = maxscale
         self._channel = channel
         self._mul = mul
         self._add = add
@@ -94,7 +98,7 @@ class Midictl(PyoObject):
         self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['ctlnumber', 'channel', 'mul', 'add']
+        return ['ctlnumber', 'minscale', 'maxscale', 'channel', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
@@ -112,6 +116,34 @@ class Midictl(PyoObject):
         self._ctlnumber = x
         x, lmax = convertArgsToLists(x)
         [obj.setCtlNumber(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMinScale(self, x):
+        """
+        Replace the `minscale` attribute.
+
+        Parameters:
+
+        x : int
+            new `minscale` attribute.
+
+        """
+        self._minscale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMinScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMaxScale(self, x):
+        """
+        Replace the `maxscale` attribute.
+
+        Parameters:
+
+        x : int
+            new `maxscale` attribute.
+
+        """
+        self._maxscale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMaxScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def setChannel(self, x):
         """
@@ -135,6 +167,16 @@ class Midictl(PyoObject):
     def ctlnumber(self): return self._ctlnumber
     @ctlnumber.setter
     def ctlnumber(self, x): self.setCtlNumber(x)   
+
+    @property
+    def minscale(self): return self._minscale
+    @minscale.setter
+    def minscale(self, x): self.setMinScale(x)   
+
+    @property
+    def maxscale(self): return self._maxscale
+    @maxscale.setter
+    def maxscale(self, x): self.setMaxScale(x)   
 
     @property
     def channel(self): return self._channel
@@ -564,6 +606,207 @@ class Bendin(PyoObject):
     def channel(self): 
         """int. Midi channel. 0 means all channels."""
         return self._channel
+    @channel.setter
+    def channel(self, x): self.setChannel(x)   
+
+class Touchin(PyoObject):
+    """
+    Get the current value of an after-touch Midi controller.
+
+    Get the current value of an after-touch Midi controller and optionally 
+    maps it inside a specified range.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    minscale : float, optional
+        Low range value for mapping. Defaults to 0.
+    maxscale : float, optional
+        High range value for mapping. Defaults to 1.
+    init : float, optional
+        Initial value. Defaults to 0.
+    channel : int, optional
+        Midi channel. 0 means all channels. Defaults to 0.
+
+    Methods:
+
+    setMinScale(x) : Replace the `minscale` attribute.
+    setMaxScale(x) : Replace the `maxscale` attribute.
+    setChannel(x) : Replace the `channel` attribute.
+
+    Attributes:
+
+    minscale : Minimum value for scaling.
+    maxscale : Maximum value for scaling.
+    channel : Midi channel. 0 means all channels.
+
+    Notes:
+
+    The out() method is bypassed. Touchin's signal can not be sent 
+    to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> touch = Touchin(minscale=1, maxscale=2, init=1)
+    >>> p = Port(notes['velocity'], .001, .5)
+    >>> b = Sine(freq=notes['pitch'] * touch, mul=p).out()
+    >>> c = Sine(freq=notes['pitch'] * touch * 0.997, mul=p).out()
+    >>> d = Sine(freq=notes['pitch'] * touch * 1.005, mul=p).out()
+
+    """
+    def __init__(self, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._minscale = minscale
+        self._maxscale = maxscale
+        self._channel = channel
+        self._mul = mul
+        self._add = add
+        minscale, maxscale, init, channel, mul, add, lmax = convertArgsToLists(minscale, maxscale, init, channel, mul, add)
+        self._base_objs = [Touchin_base(wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['minscale', 'maxscale', 'channel', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setMinScale(self, x):
+        """
+        Replace the `minscale` attribute.
+
+        Parameters:
+
+        x : int
+            new `minscale` attribute.
+
+        """
+        self._minscale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMinScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMaxScale(self, x):
+        """
+        Replace the `maxscale` attribute.
+
+        Parameters:
+
+        x : int
+            new `maxscale` attribute.
+
+        """
+        self._maxscale = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMaxScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setChannel(self, x):
+        """
+        Replace the `channel` attribute.
+
+        Parameters:
+
+        x : int
+            new `channel` attribute.
+
+        """
+        self._channel = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def minscale(self): return self._minscale
+    @minscale.setter
+    def minscale(self, x): self.setMinScale(x)   
+
+    @property
+    def maxscale(self): return self._maxscale
+    @maxscale.setter
+    def maxscale(self, x): self.setMaxScale(x)   
+
+    @property
+    def channel(self): return self._channel
+    @channel.setter
+    def channel(self, x): self.setChannel(x)   
+
+class Programin(PyoObject):
+    """
+    Get the current value of a program change Midi controller.
+
+    Get the current value of a program change Midi controller.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    channel : int, optional
+        Midi channel. 0 means all channels. Defaults to 0.
+
+    Methods:
+
+    setChannel(x) : Replace the `channel` attribute.
+
+    Attributes:
+
+    channel : Midi channel. 0 means all channels.
+
+    Notes:
+
+    The out() method is bypassed. Programin's signal can not be sent 
+    to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> notes = Notein(poly=10, scale=1, mul=.5)
+    >>> pchg = Programin(mul=1./12, add=1)
+    >>> p = Port(notes['velocity'], .001, .5)
+    >>> b = Sine(freq=notes['pitch'] * pchg, mul=p).out()
+    >>> c = Sine(freq=notes['pitch'] * pchg * 0.997, mul=p).out()
+    >>> d = Sine(freq=notes['pitch'] * pchg * 1.005, mul=p).out()
+
+    """
+    def __init__(self, channel=0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._channel = channel
+        self._mul = mul
+        self._add = add
+        channel, mul, add, lmax = convertArgsToLists(channel, mul, add)
+        self._base_objs = [Programin_base(wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['channel', 'mul', 'add']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setChannel(self, x):
+        """
+        Replace the `channel` attribute.
+
+        Parameters:
+
+        x : int
+            new `channel` attribute.
+
+        """
+        self._channel = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def channel(self): return self._channel
     @channel.setter
     def channel(self, x): self.setChannel(x)   
 

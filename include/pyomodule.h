@@ -44,6 +44,7 @@
 #define TYPE_S_IFF "s|iff"
 #define TYPE_S__OIFI "s|Oifi"
 #define TYPE__FFFOO "|fffOO"
+#define TYPE__FFFIOO "|fffiOO"
 #define TYPE__FFFFFOO "|fffffOO"
 #define TYPE_O_FFFFOO "O|ffffOO"
 #define TYPE_O_FFFFFOO "O|fffffOO"
@@ -108,6 +109,7 @@
 #define TYPE_S_IFF "s|idd"
 #define TYPE_S__OIFI "s|Oidi"
 #define TYPE__FFFOO "|dddOO"
+#define TYPE__FFFIOO "|dddiOO"
 #define TYPE__FFFFFOO "|dddddOO"
 #define TYPE_O_FFFFOO "O|ddddOO"
 #define TYPE_O_FFFFFOO "O|dddddOO"
@@ -260,6 +262,8 @@ extern PyTypeObject CtlScanType;
 extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
 extern PyTypeObject BendinType;
+extern PyTypeObject TouchinType;
+extern PyTypeObject PrograminType;
 extern PyTypeObject MidiAdsrType;
 extern PyTypeObject MidiDelAdsrType;
 

@@ -434,6 +434,48 @@ static PyObject * Midictl_div(Midictl *self, PyObject *arg) { DIV };
 static PyObject * Midictl_inplace_div(Midictl *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+Midictl_setMinScale(Midictl *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyNumber_Check(arg);
+    
+	if (isNum == 1) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->minscale = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Midictl_setMaxScale(Midictl *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyNumber_Check(arg);
+    
+	if (isNum == 1) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->maxscale = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
 Midictl_setCtlNumber(Midictl *self, PyObject *arg)
 {
     int tmp;
@@ -491,6 +533,8 @@ static PyMethodDef Midictl_methods[] = {
     {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
+	{"setMinScale", (PyCFunction)Midictl_setMinScale, METH_O, "Sets the minimum value of scaling."},
+	{"setMaxScale", (PyCFunction)Midictl_setMaxScale, METH_O, "Sets the maximum value of scaling."},
 	{"setCtlNumber", (PyCFunction)Midictl_setCtlNumber, METH_O, "Sets the controller number."},
 	{"setChannel", (PyCFunction)Midictl_setChannel, METH_O, "Sets the midi channel."},
 	{"setMul", (PyCFunction)Midictl_setMul, METH_O, "Sets oscillator mul factor."},
@@ -970,6 +1014,701 @@ PyTypeObject BendinType = {
     (initproc)Bendin_init,      /* tp_init */
     0,                         /* tp_alloc */
     Bendin_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    int channel;
+    MYFLT minscale;
+    MYFLT maxscale;
+    MYFLT value;
+    MYFLT oldValue;
+    MYFLT sampleToSec;
+    int modebuffer[2];
+} Touchin;
+
+static void Touchin_postprocessing_ii(Touchin *self) { POST_PROCESSING_II };
+static void Touchin_postprocessing_ai(Touchin *self) { POST_PROCESSING_AI };
+static void Touchin_postprocessing_ia(Touchin *self) { POST_PROCESSING_IA };
+static void Touchin_postprocessing_aa(Touchin *self) { POST_PROCESSING_AA };
+static void Touchin_postprocessing_ireva(Touchin *self) { POST_PROCESSING_IREVA };
+static void Touchin_postprocessing_areva(Touchin *self) { POST_PROCESSING_AREVA };
+static void Touchin_postprocessing_revai(Touchin *self) { POST_PROCESSING_REVAI };
+static void Touchin_postprocessing_revaa(Touchin *self) { POST_PROCESSING_REVAA };
+static void Touchin_postprocessing_revareva(Touchin *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Touchin_setProcMode(Touchin *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Touchin_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Touchin_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Touchin_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Touchin_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Touchin_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Touchin_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Touchin_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Touchin_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Touchin_postprocessing_revareva;
+            break;
+    }
+}
+
+// Take MIDI events and translate them...
+void Touchin_translateMidi(Touchin *self, PmEvent *buffer, int count)
+{
+    int i, ok;
+    for (i=count-1; i>=0; i--) {
+        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = Pm_MessageData1(buffer[i].message);
+        /* int value = Pm_MessageData2(buffer[i].message); */
+
+        if (self->channel == 0) {
+            if ((status & 0xF0) == 0xd0)
+                ok = 1;
+            else
+                ok = 0;
+        }
+        else {
+            if (status == (0xd0 | (self->channel - 1)))
+                ok = 1;
+            else
+                ok = 0;
+        }
+        
+        if (ok == 1) {
+            self->oldValue = self->value;
+            self->value = (number / 127.) * (self->maxscale - self->minscale) + self->minscale;
+            break;
+        }
+    }    
+}
+
+static void
+Touchin_compute_next_data_frame(Touchin *self)
+{   
+    PmEvent *tmp;
+    int i, count;
+    
+    tmp = Server_getMidiEventBuffer((Server *)self->server);
+    count = Server_getMidiEventCount((Server *)self->server);
+    
+    if (count > 0)
+        Touchin_translateMidi((Touchin *)self, tmp, count);
+    MYFLT step = (self->value - self->oldValue) / self->bufsize;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->oldValue + step;
+    }  
+    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Touchin_traverse(Touchin *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    return 0;
+}
+
+static int 
+Touchin_clear(Touchin *self)
+{
+    pyo_CLEAR
+    return 0;
+}
+
+static void
+Touchin_dealloc(Touchin* self)
+{
+    free(self->data);
+    Touchin_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Touchin_deleteStream(Touchin *self) { DELETE_STREAM };
+
+static PyObject *
+Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    
+    Touchin *self;
+    self = (Touchin *)type->tp_alloc(type, 0);
+    
+    self->channel = 0;
+    self->value = 0.;
+    self->oldValue = 0.;
+    self->minscale = 0.;
+    self->maxscale = 1.;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Touchin_compute_next_data_frame);
+    self->mode_func_ptr = Touchin_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Touchin_init(Touchin *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"minscale", "maxscale", "init", "channel", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFIOO, kwlist, &self->minscale, &self->maxscale, &self->oldValue, &self->channel, &multmp, &addtmp))
+        return -1; 
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->value = self->oldValue;
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Touchin_getServer(Touchin* self) { GET_SERVER };
+static PyObject * Touchin_getStream(Touchin* self) { GET_STREAM };
+static PyObject * Touchin_setMul(Touchin *self, PyObject *arg) { SET_MUL };	
+static PyObject * Touchin_setAdd(Touchin *self, PyObject *arg) { SET_ADD };	
+static PyObject * Touchin_setSub(Touchin *self, PyObject *arg) { SET_SUB };	
+static PyObject * Touchin_setDiv(Touchin *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Touchin_play(Touchin *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Touchin_stop(Touchin *self) { STOP };
+
+static PyObject * Touchin_multiply(Touchin *self, PyObject *arg) { MULTIPLY };
+static PyObject * Touchin_inplace_multiply(Touchin *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Touchin_add(Touchin *self, PyObject *arg) { ADD };
+static PyObject * Touchin_inplace_add(Touchin *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Touchin_sub(Touchin *self, PyObject *arg) { SUB };
+static PyObject * Touchin_inplace_sub(Touchin *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Touchin_div(Touchin *self, PyObject *arg) { DIV };
+static PyObject * Touchin_inplace_div(Touchin *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Touchin_setMinScale(Touchin *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyNumber_Check(arg);
+    
+	if (isNum == 1) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+            self->minscale = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Touchin_setMaxScale(Touchin *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyNumber_Check(arg);
+    
+	if (isNum == 1) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->maxscale = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Touchin_setChannel(Touchin *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->channel = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Touchin_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Touchin, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Touchin, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Touchin, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Touchin, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Touchin_methods[] = {
+    {"getServer", (PyCFunction)Touchin_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Touchin_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Touchin_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Touchin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Touchin_stop, METH_NOARGS, "Stops computing."},
+	{"setMinScale", (PyCFunction)Touchin_setMinScale, METH_O, "Sets the minimum value of scaling."},
+	{"setMaxScale", (PyCFunction)Touchin_setMaxScale, METH_O, "Sets the maximum value of scaling."},
+	{"setChannel", (PyCFunction)Touchin_setChannel, METH_O, "Sets the midi channel."},
+	{"setMul", (PyCFunction)Touchin_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Touchin_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Touchin_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Touchin_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Touchin_as_number = {
+    (binaryfunc)Touchin_add,                      /*nb_add*/
+    (binaryfunc)Touchin_sub,                 /*nb_subtract*/
+    (binaryfunc)Touchin_multiply,                 /*nb_multiply*/
+    (binaryfunc)Touchin_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Touchin_inplace_add,              /*inplace_add*/
+    (binaryfunc)Touchin_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Touchin_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Touchin_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject TouchinType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Touchin_base",         /*tp_name*/
+    sizeof(Touchin),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Touchin_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Touchin_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Touchin objects. Retrieve the signal of an aftertouch midi controller.",           /* tp_doc */
+    (traverseproc)Touchin_traverse,   /* tp_traverse */
+    (inquiry)Touchin_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Touchin_methods,             /* tp_methods */
+    Touchin_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Touchin_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Touchin_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    int channel;
+    MYFLT value;
+    int modebuffer[2];
+} Programin;
+
+static void Programin_postprocessing_ii(Programin *self) { POST_PROCESSING_II };
+static void Programin_postprocessing_ai(Programin *self) { POST_PROCESSING_AI };
+static void Programin_postprocessing_ia(Programin *self) { POST_PROCESSING_IA };
+static void Programin_postprocessing_aa(Programin *self) { POST_PROCESSING_AA };
+static void Programin_postprocessing_ireva(Programin *self) { POST_PROCESSING_IREVA };
+static void Programin_postprocessing_areva(Programin *self) { POST_PROCESSING_AREVA };
+static void Programin_postprocessing_revai(Programin *self) { POST_PROCESSING_REVAI };
+static void Programin_postprocessing_revaa(Programin *self) { POST_PROCESSING_REVAA };
+static void Programin_postprocessing_revareva(Programin *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Programin_setProcMode(Programin *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Programin_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Programin_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Programin_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Programin_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Programin_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Programin_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Programin_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Programin_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Programin_postprocessing_revareva;
+            break;
+    }
+}
+
+// Take MIDI events and translate them...
+void Programin_translateMidi(Programin *self, PmEvent *buffer, int count)
+{
+    int i, ok;
+    
+    for (i=count-1; i>=0; i--) {
+        int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+        int number = Pm_MessageData1(buffer[i].message);
+        
+        if (self->channel == 0) {
+            if ((status & 0xF0) == 0xc0)
+                ok = 1;
+            else
+                ok = 0;
+        }
+        else {
+            if (status == (0xc0 | (self->channel - 1)))
+                ok = 1;
+            else
+                ok = 0;
+        }
+        
+        if (ok == 1) {
+            self->value = (MYFLT)number;
+            break;
+        }
+    }    
+}
+
+static void
+Programin_compute_next_data_frame(Programin *self)
+{   
+    PmEvent *tmp;
+    int i, count;
+    
+    tmp = Server_getMidiEventBuffer((Server *)self->server);
+    count = Server_getMidiEventCount((Server *)self->server);
+    
+    if (count > 0)
+        Programin_translateMidi((Programin *)self, tmp, count);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->value;
+    }  
+    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Programin_traverse(Programin *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    return 0;
+}
+
+static int 
+Programin_clear(Programin *self)
+{
+    pyo_CLEAR
+    return 0;
+}
+
+static void
+Programin_dealloc(Programin* self)
+{
+    free(self->data);
+    Programin_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Programin_deleteStream(Programin *self) { DELETE_STREAM };
+
+static PyObject *
+Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    
+    Programin *self;
+    self = (Programin *)type->tp_alloc(type, 0);
+    
+    self->channel = 0;
+    self->value = 0.;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Programin_compute_next_data_frame);
+    self->mode_func_ptr = Programin_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Programin_init(Programin *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"channel", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->channel, &multmp, &addtmp))
+        return -1; 
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Programin_getServer(Programin* self) { GET_SERVER };
+static PyObject * Programin_getStream(Programin* self) { GET_STREAM };
+static PyObject * Programin_setMul(Programin *self, PyObject *arg) { SET_MUL };	
+static PyObject * Programin_setAdd(Programin *self, PyObject *arg) { SET_ADD };	
+static PyObject * Programin_setSub(Programin *self, PyObject *arg) { SET_SUB };	
+static PyObject * Programin_setDiv(Programin *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Programin_play(Programin *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Programin_stop(Programin *self) { STOP };
+
+static PyObject * Programin_multiply(Programin *self, PyObject *arg) { MULTIPLY };
+static PyObject * Programin_inplace_multiply(Programin *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Programin_add(Programin *self, PyObject *arg) { ADD };
+static PyObject * Programin_inplace_add(Programin *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Programin_sub(Programin *self, PyObject *arg) { SUB };
+static PyObject * Programin_inplace_sub(Programin *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Programin_div(Programin *self, PyObject *arg) { DIV };
+static PyObject * Programin_inplace_div(Programin *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Programin_setChannel(Programin *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 128)
+            self->channel = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Programin_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Programin, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Programin, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Programin, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Programin, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Programin_methods[] = {
+    {"getServer", (PyCFunction)Programin_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Programin_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Programin_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Programin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Programin_stop, METH_NOARGS, "Stops computing."},
+	{"setChannel", (PyCFunction)Programin_setChannel, METH_O, "Sets the midi channel."},
+	{"setMul", (PyCFunction)Programin_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Programin_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Programin_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Programin_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Programin_as_number = {
+    (binaryfunc)Programin_add,                      /*nb_add*/
+    (binaryfunc)Programin_sub,                 /*nb_subtract*/
+    (binaryfunc)Programin_multiply,                 /*nb_multiply*/
+    (binaryfunc)Programin_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Programin_inplace_add,              /*inplace_add*/
+    (binaryfunc)Programin_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Programin_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Programin_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject PrograminType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Programin_base",         /*tp_name*/
+    sizeof(Programin),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Programin_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Programin_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Programin objects. Retrieve the signal of a program change midi controller.",           /* tp_doc */
+    (traverseproc)Programin_traverse,   /* tp_traverse */
+    (inquiry)Programin_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Programin_methods,             /* tp_methods */
+    Programin_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Programin_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Programin_new,                 /* tp_new */
 };
 
 typedef struct {
