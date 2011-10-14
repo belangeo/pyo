@@ -142,6 +142,7 @@ portaudio_list_devices(){
             portaudio_assert(n, "Pa_GetDeviceCount");
         }
         else {
+            printf("AUDIO devices:\n");
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
                 assert(info);
@@ -152,6 +153,7 @@ portaudio_list_devices(){
                 if (info->maxOutputChannels > 0)
                     fprintf(stdout, "%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
             }
+            printf("\n");
         }        
     }
     Py_RETURN_NONE;
@@ -286,14 +288,18 @@ portmidi_count_devices(){
 static PyObject *
 portmidi_list_devices(){
     int i;
-    printf("MIDI input devices:\n");
+    printf("MIDI devices:\n");
     for (i = 0; i < Pm_CountDevices(); i++) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        if (info->input) 
-            printf("%d: %s, %s\n", i, info->interf, info->name);
+        if (info->input && info->output) 
+            printf("%d: IN/OUT, name: %s, interface: %s\n", i, info->name, info->interf);
+        else if (info->input) 
+            printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
+        else if (info->output) 
+            printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    printf("\n");
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -306,18 +312,46 @@ portmidi_get_input_devices(){
 
     n = Pm_CountDevices();
     if (n < 0){
-        printf("Portmidi warning: No Midi interface found\n");
+        printf("Portmidi warning: No Midi interface found\n\n");
     }
     else {
         for (i=0; i < n; i++){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
         
             if (info->input){
-                printf("%d: %s, %s\n", i, info->interf, info->name);
+                printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
                 PyList_Append(list, PyString_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
         }
+        printf("\n");
+    }
+    return Py_BuildValue("OO", list, list_index);
+}
+
+static PyObject*
+portmidi_get_output_devices(){
+	int n, i;
+    
+    PyObject *list, *list_index;
+    list = PyList_New(0);
+    list_index = PyList_New(0);
+    
+    n = Pm_CountDevices();
+    if (n < 0){
+        printf("Portmidi warning: No Midi interface found\n\n");
+    }
+    else {
+        for (i=0; i < n; i++){
+            const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+            
+            if (info->output){
+                printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
+                PyList_Append(list, PyString_FromString(info->name));
+                PyList_Append(list_index, PyInt_FromLong(i));
+            }
+        }
+        printf("\n");
     }
     return Py_BuildValue("OO", list, list_index);
 }
@@ -327,10 +361,32 @@ portmidi_get_default_input(){
     PmDeviceID i;
     
     i = Pm_GetDefaultInputDeviceID();
-    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-    if (info->input) 
-        printf("%d: %s, %s\n", i, info->interf, info->name);
+    if (i >= 0) {
+        const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+        if (info->input) 
+            printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);        
+    }
+    else {
+        printf("pm_get_default_input: no midi input device found.\n");
+    }
 
+    return PyInt_FromLong(i);
+}
+
+static PyObject *
+portmidi_get_default_output(){
+    PmDeviceID i;
+    
+    i = Pm_GetDefaultOutputDeviceID();
+    if (i >= 0) {
+        const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
+        if (info->output) 
+            printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);        
+    }
+    else {
+        printf("pm_get_default_output: no midi output device found.\n");
+    }
+    
     return PyInt_FromLong(i);
 }
 
@@ -531,6 +587,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     Py_RETURN_NONE;    
 }
 
+/****** Algorithm utilities ******/
 #define reducePoints_info \
 "\nDouglas–Peucker curve reduction algorithm.\n\n\
 This function receives a list of points as input and returns a simplified list by eliminating redundancies.\n\n\
@@ -725,16 +782,18 @@ static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Prints a list of all devices found by Portaudio."},
-{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "Returns output devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portaudio index of each device."},
-{"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, "Returns input devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portaudio index of each device."},
+{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "\nReturns output devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portaudio index of each device."},
+{"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, "\nReturns input devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portaudio index of each device."},
 {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Prints a list of all host apis found by Portaudio."},
 {"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
 {"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
 {"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, "Returns Portaudio default output device."},
 {"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
 {"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Prints a list of all devices found by Portmidi."},
-{"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, "Returns Midi input devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portmidi index of each device."},
-{"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "Returns Portmidi default input device."},
+{"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, "\nReturns Midi input devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portmidi index of each device."},
+{"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "\nReturns Portmidi default input device.\n\n Returns the device id or -1 if no interface was found."},
+{"pm_get_output_devices", (PyCFunction)portmidi_get_output_devices, METH_NOARGS, "\nReturns Midi output devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portmidi index of each device."},
+{"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, "\nReturns Portmidi default output device.\n\n Returns the device id or -1 if no interface was found."},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
