@@ -65,7 +65,7 @@ if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\portmidi\porttime', 'C:\liblo', 'C:\pthreads\include', 'include']
     library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo']
-    libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo']
+    libraries = ['portaudio', 'portmidi', 'porttime', 'sndfile-1', 'lo']
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
 else:
