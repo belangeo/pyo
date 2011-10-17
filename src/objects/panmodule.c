@@ -50,6 +50,16 @@ P_clip(MYFLT p) {
 }
 
 static void
+Panner_splitter_thru(Panner *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->buffer_streams[i] = in[i];
+    }    
+}
+
+static void
 Panner_splitter_st_i(Panner *self) {
     MYFLT val, inval;
     int i;
@@ -205,7 +215,7 @@ Panner_setProcMode(Panner *self)
                 break;
         }         
     } 
-    else {
+    else if (self->chnls == 2) {
         switch (self->modebuffer[0]) {
             case 0:        
                 self->proc_func_ptr = Panner_splitter_st_i;
@@ -214,6 +224,9 @@ Panner_setProcMode(Panner *self)
                 self->proc_func_ptr = Panner_splitter_st_a;
                 break;
         }         
+    }         
+    else if (self->chnls == 1) {
+        self->proc_func_ptr = Panner_splitter_thru;
     }         
 }
 
@@ -302,6 +315,9 @@ Panner_init(Panner *self, PyObject *args, PyObject *kwds)
 
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->chnls < 1)
+        self->chnls = 1;
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
 
@@ -734,6 +750,16 @@ typedef struct {
 } SPanner;
 
 static void
+SPanner_splitter_thru(SPanner *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->buffer_streams[i] = in[i];
+    }    
+}
+
+static void
 SPanner_splitter_st_i(SPanner *self) {
     MYFLT val, inval;
     int i;
@@ -874,7 +900,7 @@ SPanner_setProcMode(SPanner *self)
                 break;
         }         
     } 
-    else {
+    else if (self->chnls == 2) {
         switch (self->modebuffer[0]) {
             case 0:        
                 self->proc_func_ptr = SPanner_splitter_st_i;
@@ -883,6 +909,9 @@ SPanner_setProcMode(SPanner *self)
                 self->proc_func_ptr = SPanner_splitter_st_a;
                 break;
         }         
+    }         
+    else if (self->chnls == 1) {
+            self->proc_func_ptr = SPanner_splitter_thru;
     }         
 }
 
@@ -965,6 +994,9 @@ SPanner_init(SPanner *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
+    if (self->chnls < 1)
+        self->chnls = 1;
+    
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->chnls * self->bufsize * sizeof(MYFLT));
     
     (*self->mode_func_ptr)(self);
