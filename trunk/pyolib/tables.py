@@ -1376,13 +1376,13 @@ class SndTable(PyoTableObject):
         Begins reading at `start` seconds into the file. Available at 
         initialization time only. Defaults to 0.
     stop : float, optional
-        Stops reading at `stop` seconds into the file.  Available at 
+        Stops reading at `stop` seconds into the file. Available at 
         initialization time only. The default (None) means the end of 
         the file.
 
     Methods:
 
-    setSound(path) : Load a new sound in the table.
+    setSound(path, start, stop) : Load a new sound in the table.
     getDur() : Return the duration of the sound in seconds.
     getRate() : Return the frequency in cps at which the sound will be 
         read at its original pitch.
@@ -1427,7 +1427,7 @@ class SndTable(PyoTableObject):
     def __dir__(self):
         return ['sound']
 
-    def setSound(self, path):
+    def setSound(self, path, start=0, stop=None):
         """
         Load a new sound in the table.
         
@@ -1440,6 +1440,11 @@ class SndTable(PyoTableObject):
         
         path : string
             Full path of the new sound.
+        start : float, optional
+            Begins reading at `start` seconds into the file. Defaults to 0.
+        stop : float, optional
+            Stops reading at `stop` seconds into the file. The default (None) 
+            means the end of the file.
 
         """
         self._path = path
@@ -1452,14 +1457,20 @@ class SndTable(PyoTableObject):
                 _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
                 self._size.append(_size)
                 self._dur.append(_dur)
-                obj.setSound(p, 0)
+                if stop == None:
+                    obj.setSound(p, 0, start)
+                else:
+                    obj.setSound(p, 0, start, stop)
         else:    
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
             self._path = path
-            [obj.setSound(path, (i%_snd_chnls)) for i, obj in enumerate(self._base_objs)]
-        
+            if stop == None:
+                [obj.setSound(path, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+            else:
+                [obj.setSound(path, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+                
     def getRate(self):
         if type(self._path) == ListType:
             return [obj.getRate() for obj in self._base_objs]
