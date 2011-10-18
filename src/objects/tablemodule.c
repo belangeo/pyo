@@ -2639,13 +2639,16 @@ SndTable_getViewTable(SndTable *self) {
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 {    
-    static char *kwlist[] = {"path", "chnl", NULL};
+    static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "si", kwlist, &self->path, &self->chnl)) {
+    MYFLT stoptmp = -1.0;
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &stoptmp)) {
         Py_INCREF(Py_None);
         return Py_None;
     }    
     
+    self->stop = stoptmp;
     SndTable_loadSound(self);
     
     Py_INCREF(Py_None);
