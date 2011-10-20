@@ -2487,8 +2487,10 @@ typedef struct {
     char *path;
     int sndSr;
     int chnl;
+    MYFLT sr;
     MYFLT start;
     MYFLT stop;
+    MYFLT crossfade;
 } SndTable;
 
 static void
@@ -2544,6 +2546,98 @@ SndTable_loadSound(SndTable *self) {
     TableStream_setData(self->tablestream, self->data);
 }
 
+static void
+SndTable_appendSound(SndTable *self) {
+    SNDFILE *sf;
+    SF_INFO info;
+    unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point, index, real_index;
+    MYFLT *tmp, *tmp_data;
+    MYFLT cross_amp;
+    
+    info.format = 0;
+    sf = sf_open(self->path, SFM_READ, &info);
+    if (sf == NULL)
+    {
+        printf("Failed to open the file.\n");
+    }
+    snd_size = info.frames;
+    self->sndSr = info.samplerate;
+    num_chnls = info.channels;
+    
+    if (self->stop <= 0 || self->stop <= self->start || (self->stop*self->sndSr) > snd_size)
+        stop = snd_size;
+    else
+        stop = (unsigned int)(self->stop * self->sndSr);
+    
+    if (self->start < 0 || (self->start*self->sndSr) > snd_size)
+        start = 0;
+    else
+        start = (unsigned int)(self->start * self->sndSr);
+    
+    to_load_size = stop - start;
+    num_items = to_load_size * num_chnls;
+    cross_in_samps = (unsigned int)(self->crossfade * self->sr);
+    if (cross_in_samps >= to_load_size)
+        cross_in_samps = to_load_size - 1;
+    if (cross_in_samps >= self->size)
+        cross_in_samps = self->size - 1;
+    
+    /* Allocate space for the data to be read, then read it. */
+    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+    tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+    
+    sf_seek(sf, start, SEEK_SET);
+    num = SF_READ(sf, tmp, num_items);
+    sf_close(sf);
+
+    for (i=0; i<self->size; i++) {
+        tmp_data[i] = self->data[i];
+    }
+    
+    cross_point = self->size - cross_in_samps;
+    self->size = self->size + to_load_size - cross_in_samps;
+    self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
+    
+    for (i=0; i<cross_point; i++) {
+        self->data[i] = tmp_data[i];
+    }
+
+    if (self->crossfade == 0.0) {
+        for (i=0; i<num_items; i++) {
+            if ((i % num_chnls) == self->chnl) {
+                index = (int)(i/num_chnls);
+                real_index = cross_point + index;
+                self->data[real_index] = tmp[i];
+            }    
+        }
+        
+    }
+    else {
+        for (i=0; i<num_items; i++) {
+            if ((i % num_chnls) == self->chnl) {
+                index = (int)(i/num_chnls);
+                real_index = cross_point + index;
+                if (index < cross_in_samps) {
+                    cross_amp = MYSQRT(index / (MYFLT)cross_in_samps);
+                    self->data[real_index] = tmp[i] * cross_amp + tmp_data[real_index] * (1. - cross_amp);
+                }
+                else
+                    self->data[real_index] = tmp[i];
+            }    
+        }        
+    }
+    
+    self->data[self->size] = self->data[0];  
+    
+    self->start = 0.0;
+    self->stop = -1.0;
+    free(tmp);
+    free(tmp_data);
+    TableStream_setSize(self->tablestream, self->size);
+    TableStream_setSamplingRate(self->tablestream, self->sndSr);
+    TableStream_setData(self->tablestream, self->data);
+}
+
 static int
 SndTable_traverse(SndTable *self, visitproc visit, void *arg)
 {
@@ -2576,9 +2670,11 @@ SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (SndTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
+    self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     
     self->chnl = 0;
     self->stop = -1.0;
+    self->crossfade = 0.0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
     
@@ -2656,6 +2752,31 @@ SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
+SndTable_append(SndTable *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"path", "crossfade", "chnl", "start", "stop", NULL};
+    
+    MYFLT stoptmp = -1.0;
+    MYFLT crosstmp = 0.0;
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_FIFF, kwlist, &self->path, &crosstmp, &self->chnl, &self->start, &stoptmp)) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }    
+    
+    self->stop = stoptmp;
+    if (crosstmp < 0.0)
+        self->crossfade = 0.0;
+    else
+        self->crossfade = crosstmp;
+    
+    SndTable_appendSound(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
 SndTable_getSize(SndTable *self)
 {
     return PyInt_FromLong(self->size);
@@ -2684,6 +2805,7 @@ static PyMethodDef SndTable_methods[] = {
 {"put", (PyCFunction)SndTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)SndTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS|METH_KEYWORDS, "Load a new sound in the table."},
+{"append", (PyCFunction)SndTable_append, METH_VARARGS|METH_KEYWORDS, "Append a sound in the table."},
 {"getSize", (PyCFunction)SndTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
 {"getRate", (PyCFunction)SndTable_getRate, METH_NOARGS, "Return the frequency (in cps) that reads the sound without pitch transposition."},
 {NULL}  /* Sentinel */
