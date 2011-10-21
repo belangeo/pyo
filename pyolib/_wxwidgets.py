@@ -1221,66 +1221,63 @@ class Grapher(wx.Panel):
             dc.DrawText("%.3f, %.3f" % (xval, yval), w-75, OFF)
 
 class TableGrapher(wx.Frame):
-        def __init__(self, parent=None, obj=None, mode=0, xlen=8192, yrange=(0.0, 1.0)):
-            wx.Frame.__init__(self, parent)
-            pts = obj.getPoints()
-            self.yrange = yrange
-            for i in range(len(pts)):
-                x = pts[i][0] / float(xlen)
-                y = (pts[i][1] - float(yrange[0])) / (yrange[1]-yrange[0])
-                pts[i] = (x,y)
-            if mode == 2:
-                self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, exp=obj.exp, inverse=obj.inverse, outFunction=obj.replace)
-            elif mode == 3:
-                self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, tension=obj.tension, bias=obj.bias, outFunction=obj.replace)
-            else:
-                self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, outFunction=obj.replace)
+    def __init__(self, parent=None, obj=None, mode=0, xlen=8192, yrange=(0.0, 1.0)):
+        wx.Frame.__init__(self, parent)
+        pts = obj.getPoints()
+        self.yrange = yrange
+        for i in range(len(pts)):
+            x = pts[i][0] / float(xlen)
+            y = (pts[i][1] - float(yrange[0])) / (yrange[1]-yrange[0])
+            pts[i] = (x,y)
+        if mode == 2:
+            self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, exp=obj.exp, inverse=obj.inverse, outFunction=obj.replace)
+        elif mode == 3:
+            self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, tension=obj.tension, bias=obj.bias, outFunction=obj.replace)
+        else:
+            self.graph = Grapher(self, xlen=xlen, yrange=yrange, init=pts, mode=mode, outFunction=obj.replace)
 
-            self.menubar = wx.MenuBar()        
-            self.fileMenu = wx.Menu()
-            self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.close, id=9999)
-            self.fileMenu.AppendSeparator()
-            self.fileMenu.Append(10000, 'Copy all points to the clipboard (4 digits of precision)\tCtrl+C', kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.copy, id=10000)
-            self.fileMenu.Append(10001, 'Copy all points to the clipboard (full precision)\tShift+Ctrl+C', kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.copy, id=10001)
-            self.fileMenu.AppendSeparator()
-            self.fileMenu.Append(10002, 'Reset\tCtrl+R', kind=wx.ITEM_NORMAL)
-            self.Bind(wx.EVT_MENU, self.reset, id=10002)
-            self.menubar.Append(self.fileMenu, "&File")
-            self.SetMenuBar(self.menubar)
-            
-            self.clipboard = wx.Clipboard()
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.close, id=9999)
+        self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(10000, 'Copy all points to the clipboard (4 digits of precision)\tCtrl+C', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.copy, id=10000)
+        self.fileMenu.Append(10001, 'Copy all points to the clipboard (full precision)\tShift+Ctrl+C', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.copy, id=10001)
+        self.fileMenu.AppendSeparator()
+        self.fileMenu.Append(10002, 'Reset\tCtrl+R', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.reset, id=10002)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
 
-        def close(self, evt):
-            self.Destroy()
+    def close(self, evt):
+        self.Destroy()
 
-        def copy(self, evt):
-            pts = self.graph.getValues()
-            if evt.GetId() == 10000:
-                pstr = "["
-                for i, pt in enumerate(pts):
-                    pstr += "("
-                    if type(pt[0]) == IntType:
-                        pstr += "%d," % pt[0]
-                    else:
-                        pstr += "%.4f," % pt[0]
-                    pstr += "%.4f)" % pt[1]
-                    if i < (len(pts)-1):
-                        pstr += ","
-                pstr += "]" 
-            else:
-                pstr = str(pts)           
-            data = wx.TextDataObject(pstr)
-            ret = self.clipboard.Open()
-            if ret:
-                self.clipboard.Clear()
-                self.clipboard.SetData(data)
-                self.clipboard.Close()
-        
-        def reset(self, evt):
-            self.graph.reset()
+    def copy(self, evt):
+        pts = self.graph.getValues()
+        if evt.GetId() == 10000:
+            pstr = "["
+            for i, pt in enumerate(pts):
+                pstr += "("
+                if type(pt[0]) == IntType:
+                    pstr += "%d," % pt[0]
+                else:
+                    pstr += "%.4f," % pt[0]
+                pstr += "%.4f)" % pt[1]
+                if i < (len(pts)-1):
+                    pstr += ","
+            pstr += "]" 
+        else:
+            pstr = str(pts)           
+        data = wx.TextDataObject(pstr)
+        if wx.TheClipboard.Open():
+            wx.TheClipboard.Clear()
+            wx.TheClipboard.SetData(data)
+            wx.TheClipboard.Close()
+
+    def reset(self, evt):
+        self.graph.reset()
 
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
