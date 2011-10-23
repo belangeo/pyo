@@ -1383,7 +1383,10 @@ class SndTable(PyoTableObject):
     Methods:
 
     setSound(path, start, stop) : Load a new sound in the table.
-    append(path, crossfade, start, stop) : Append a sound in the table with crossfade.
+    append(path, crossfade, start, stop) : Append a sound in the table 
+        with crossfade.
+    insert(path, pos, crossfade, start, stop) : Insert a sound in the 
+        table with crossfade.
     getDur() : Return the duration of the sound in seconds.
     getRate() : Return the frequency in cps at which the sound will be 
         read at its original pitch.
@@ -1491,7 +1494,7 @@ class SndTable(PyoTableObject):
         start : float, optional
             Begins reading at `start` seconds into the file. Defaults to 0.
         stop : float, optional
-            Stops reading at `stop` seconds into the file. The default (None) 
+            Stops reading at `stop` seconds into the file. The default, None, 
             means the end of the file.
 
         """
@@ -1518,14 +1521,76 @@ class SndTable(PyoTableObject):
                 [obj.append(path, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.append(path, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
-                
+
+    def insert(self, path, pos=0, crossfade=0, start=0, stop=None):
+        """
+        Insert a sound into the one already in the table with crossfade.
+
+        Insert a sound at position `pos`, specified in seconds, 
+        with crossfading at the beginning and the end of the insertion.
+        
+        Keeps the number of channels of the sound loaded at initialization.
+        If the new sound has less channels, it will wrap around and load 
+        the same channels many times. If the new sound has more channels, 
+        the extra channels will be skipped.
+
+        Parameters:
+
+        path : string
+            Full path of the new sound.
+        pos : float, optional
+            Position in the table, in seconds, where to insert the new sound.
+            Defaults to 0.
+        crossfade : float, optional
+            Crossfade time, in seconds, between the sound already in the table 
+            and the new one. Defaults to 0.
+        start : float, optional
+            Begins reading at `start` seconds into the file. Defaults to 0.
+        stop : float, optional
+            Stops reading at `stop` seconds into the file. The default, None, 
+            means the end of the file.
+
+        """
+        self._path = path
+        if type(path) == ListType:
+            self._size = []
+            self._dur = []
+            path, lmax = convertArgsToLists(path)
+            for i, obj in enumerate(self._base_objs):
+                p = path[i%lmax]
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+                self._size.append(_size)
+                self._dur.append(_dur)
+                if stop == None:
+                    obj.setSound(p, 0, start)
+                else:
+                    obj.setSound(p, 0, start, stop)
+        else:    
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
+            self._size = _size
+            self._dur = _dur
+            self._path = path
+            if stop == None:
+                [obj.insert(path, pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
+            else:
+                [obj.insert(path, pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+
     def getRate(self):
+        """
+        Return the frequency in cps at which the sound will be read at its 
+        original pitch.
+        
+        """
         if type(self._path) == ListType:
             return [obj.getRate() for obj in self._base_objs]
         else:    
             return self._base_objs[0].getRate()
 
     def getDur(self):
+        """
+        Return the duration of the sound in seconds.
+        
+        """
         return self._dur
 
     @property
