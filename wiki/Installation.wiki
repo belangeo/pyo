@@ -65,6 +65,26 @@ If you want to be able to use a 64-bit pyo (All platforms):
 --use-double
 }}}
 
+==Compilation scripts==
+
+To compile both 32-bit and 64-bit resolutions on linux:
+
+{{{
+sudo sh scripts/compile_linux_withJack.sh
+}}}
+
+To compile both 32-bit and 64-bit resolutions on OS X (without Jack):
+
+{{{
+sudo sh scripts/compile_OSX.sh
+}}}
+
+To compile both 32-bit and 64-bit resolutions on OS X (with Jack):
+
+{{{
+sudo sh scripts/compile_OSX_withJack.sh
+}}}
+
 =Ubuntu 10.04=
 
 Under Ubuntu 10.04 you can type the following commands to get pyo up and running:
