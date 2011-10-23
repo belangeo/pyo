@@ -2,7 +2,7 @@
 
 =Dependencies=
 To install pyo, you will need the following dependencies:
-  * [http://www.python.org/download/releases/2.7.2/ Python 2.7.2]
+  * [http://www.python.org/download/releases/ Python 2.6.x or 2.7.x]
   * [http://www.portaudio.com portaudio]
   * [http://sourceforge.net/apps/trac/portmedia/wiki/portmidi portmidi]
   * [http://www.mega-nerd.com/libsndfile libsndfile]
