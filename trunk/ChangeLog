@@ -1,3 +1,8 @@
+2011-10-22 belangeo <belangeo@gmail.com>
+
+    * Added "append" and "insert" methods to SndTable object.
+    - rev 740
+
 2011-10-13 belangeo <belangeo@gmail.com>
 
     * Added new objects : Touchin : Get the current value of the after-touch controller. Programin : Get the current value of a program change controller.
