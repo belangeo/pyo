@@ -1398,3 +1398,147 @@ class NoteinRead(PyoObject):
     @loop.setter
     def loop(self, x): self.setLoop(x)
 
+class DBToA(PyoObject):
+    """
+    Returns the amplitude equivalent of a decibel value.
+
+    Returns the amplitude equivalent of a decibel value, 0 dB = 1.
+    The `input` values are internally clipped to -120 dB so -120 dB
+    returns 0.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, decibel value.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> # amplitude modulation 6 dB around -12 dB
+    >>> db = Sine(1, mul=6, add=-12)
+    >>> amp = DBToA(db)
+    >>> b = SineLoop(freq=400, feedback=.1, mul=amp).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [DBToA_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+class AToDB(PyoObject):
+    """
+    Returns the decibel equivalent of an amplitude value.
+
+    Returns the decibel equivalent of an amplitude value, 1 = 0 dB.
+    The `input` values are internally clipped to 0.000001 so values
+    less than or equal to 0.000001 return -120 dB.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, amplitude value.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> # amplitude modulation of a notch around 1000 Hz, from -120 db to 0dB
+    >>> amp = Sine(1, mul=.5, add=.5)
+    >>> db = AToDB(amp)
+    >>> a = PinkNoise(.25)
+    >>> b = EQ(a, freq=1000, q=2, boost=db).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [AToDB_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)

@@ -1792,6 +1792,16 @@ init_pyo64(void)
     Py_INCREF(&SampHoldType);
     PyModule_AddObject(m, "SampHold_base", (PyObject *)&SampHoldType);
 
+    if (PyType_Ready(&DBToAType) < 0)
+        return;
+    Py_INCREF(&DBToAType);
+    PyModule_AddObject(m, "DBToA_base", (PyObject *)&DBToAType);
+
+    if (PyType_Ready(&AToDBType) < 0)
+        return;
+    Py_INCREF(&AToDBType);
+    PyModule_AddObject(m, "AToDB_base", (PyObject *)&AToDBType);
+    
     if (PyType_Ready(&FFTMainType) < 0)
         return;
     Py_INCREF(&FFTMainType);

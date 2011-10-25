@@ -358,6 +358,8 @@ extern PyTypeObject PrintType;
 extern PyTypeObject SnapType;
 extern PyTypeObject InterpType;
 extern PyTypeObject SampHoldType;
+extern PyTypeObject DBToAType;
+extern PyTypeObject AToDBType;
 
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
