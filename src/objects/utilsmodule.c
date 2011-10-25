@@ -2541,3 +2541,587 @@ PyTypeObject DenormType = {
     0,                                              /* tp_alloc */
     Denorm_new,                                     /* tp_new */
 };
+
+/************/
+/* DBToA */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT lastdb;
+    MYFLT currentamp;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} DBToA;
+
+static void
+DBToA_process(DBToA *self) {
+    int i;
+    MYFLT db;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        db = in[i];
+        if (db <= -120.0) {
+            self->data[i] = self->currentamp = 0.0;
+            self->lastdb = -120.0;
+        }
+        else if (db != self->lastdb) {
+            self->data[i] = self->currentamp = MYPOW(10.0, db * 0.05);
+            self->lastdb = db;
+        }
+        else
+            self->data[i] = self->currentamp;
+    }
+}
+
+static void DBToA_postprocessing_ii(DBToA *self) { POST_PROCESSING_II };
+static void DBToA_postprocessing_ai(DBToA *self) { POST_PROCESSING_AI };
+static void DBToA_postprocessing_ia(DBToA *self) { POST_PROCESSING_IA };
+static void DBToA_postprocessing_aa(DBToA *self) { POST_PROCESSING_AA };
+static void DBToA_postprocessing_ireva(DBToA *self) { POST_PROCESSING_IREVA };
+static void DBToA_postprocessing_areva(DBToA *self) { POST_PROCESSING_AREVA };
+static void DBToA_postprocessing_revai(DBToA *self) { POST_PROCESSING_REVAI };
+static void DBToA_postprocessing_revaa(DBToA *self) { POST_PROCESSING_REVAA };
+static void DBToA_postprocessing_revareva(DBToA *self) { POST_PROCESSING_REVAREVA };
+
+static void
+DBToA_setProcMode(DBToA *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = DBToA_process;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = DBToA_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = DBToA_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = DBToA_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = DBToA_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = DBToA_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = DBToA_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = DBToA_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = DBToA_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = DBToA_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+DBToA_compute_next_data_frame(DBToA *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+DBToA_traverse(DBToA *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+DBToA_clear(DBToA *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+DBToA_dealloc(DBToA* self)
+{
+    free(self->data);
+    DBToA_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * DBToA_deleteStream(DBToA *self) { DELETE_STREAM };
+
+static PyObject *
+DBToA_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    DBToA *self;
+    self = (DBToA *)type->tp_alloc(type, 0);
+    
+    self->lastdb = -120.0;
+    self->currentamp = MYPOW(10.0, self->lastdb * 0.05);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, DBToA_compute_next_data_frame);
+    self->mode_func_ptr = DBToA_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+DBToA_init(DBToA *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * DBToA_getServer(DBToA* self) { GET_SERVER };
+static PyObject * DBToA_getStream(DBToA* self) { GET_STREAM };
+static PyObject * DBToA_setMul(DBToA *self, PyObject *arg) { SET_MUL };	
+static PyObject * DBToA_setAdd(DBToA *self, PyObject *arg) { SET_ADD };	
+static PyObject * DBToA_setSub(DBToA *self, PyObject *arg) { SET_SUB };	
+static PyObject * DBToA_setDiv(DBToA *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * DBToA_play(DBToA *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * DBToA_out(DBToA *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * DBToA_stop(DBToA *self) { STOP };
+
+static PyObject * DBToA_multiply(DBToA *self, PyObject *arg) { MULTIPLY };
+static PyObject * DBToA_inplace_multiply(DBToA *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * DBToA_add(DBToA *self, PyObject *arg) { ADD };
+static PyObject * DBToA_inplace_add(DBToA *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * DBToA_sub(DBToA *self, PyObject *arg) { SUB };
+static PyObject * DBToA_inplace_sub(DBToA *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * DBToA_div(DBToA *self, PyObject *arg) { DIV };
+static PyObject * DBToA_inplace_div(DBToA *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef DBToA_members[] = {
+    {"server", T_OBJECT_EX, offsetof(DBToA, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(DBToA, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(DBToA, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(DBToA, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(DBToA, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef DBToA_methods[] = {
+    {"getServer", (PyCFunction)DBToA_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)DBToA_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)DBToA_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)DBToA_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)DBToA_stop, METH_NOARGS, "Stops computing."},
+    {"out", (PyCFunction)DBToA_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setMul", (PyCFunction)DBToA_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)DBToA_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)DBToA_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)DBToA_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods DBToA_as_number = {
+    (binaryfunc)DBToA_add,                         /*nb_add*/
+    (binaryfunc)DBToA_sub,                         /*nb_subtract*/
+    (binaryfunc)DBToA_multiply,                    /*nb_multiply*/
+    (binaryfunc)DBToA_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)DBToA_inplace_add,                 /*inplace_add*/
+    (binaryfunc)DBToA_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)DBToA_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)DBToA_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject DBToAType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.DBToA_base",                                   /*tp_name*/
+    sizeof(DBToA),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)DBToA_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &DBToA_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "DBToA objects. Converts dB value to amplitude value.",           /* tp_doc */
+    (traverseproc)DBToA_traverse,                  /* tp_traverse */
+    (inquiry)DBToA_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    DBToA_methods,                                 /* tp_methods */
+    DBToA_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)DBToA_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    DBToA_new,                                     /* tp_new */
+};
+
+/************/
+/* AToDB */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT lastamp;
+    MYFLT currentdb;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} AToDB;
+
+static void
+AToDB_process(AToDB *self) {
+    int i;
+    MYFLT amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        amp = in[i];
+        if (amp <= 0.000001) {
+            self->data[i] = self->currentdb = -120.0;
+            self->lastamp = 0.000001;
+        }
+        else if (amp != self->lastamp) {
+            self->data[i] = self->currentdb = 20.0 * MYLOG10(amp);
+            self->lastamp = amp;
+        }
+        else
+            self->data[i] = self->currentdb;
+    }
+}
+
+static void AToDB_postprocessing_ii(AToDB *self) { POST_PROCESSING_II };
+static void AToDB_postprocessing_ai(AToDB *self) { POST_PROCESSING_AI };
+static void AToDB_postprocessing_ia(AToDB *self) { POST_PROCESSING_IA };
+static void AToDB_postprocessing_aa(AToDB *self) { POST_PROCESSING_AA };
+static void AToDB_postprocessing_ireva(AToDB *self) { POST_PROCESSING_IREVA };
+static void AToDB_postprocessing_areva(AToDB *self) { POST_PROCESSING_AREVA };
+static void AToDB_postprocessing_revai(AToDB *self) { POST_PROCESSING_REVAI };
+static void AToDB_postprocessing_revaa(AToDB *self) { POST_PROCESSING_REVAA };
+static void AToDB_postprocessing_revareva(AToDB *self) { POST_PROCESSING_REVAREVA };
+
+static void
+AToDB_setProcMode(AToDB *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = AToDB_process;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = AToDB_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = AToDB_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = AToDB_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = AToDB_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = AToDB_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = AToDB_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = AToDB_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = AToDB_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = AToDB_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+AToDB_compute_next_data_frame(AToDB *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+AToDB_traverse(AToDB *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+AToDB_clear(AToDB *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+AToDB_dealloc(AToDB* self)
+{
+    free(self->data);
+    AToDB_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * AToDB_deleteStream(AToDB *self) { DELETE_STREAM };
+
+static PyObject *
+AToDB_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    AToDB *self;
+    self = (AToDB *)type->tp_alloc(type, 0);
+    
+    self->lastamp = 0.000001;
+    self->currentdb = 20.0 * MYLOG10(self->lastamp);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, AToDB_compute_next_data_frame);
+    self->mode_func_ptr = AToDB_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+AToDB_init(AToDB *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * AToDB_getServer(AToDB* self) { GET_SERVER };
+static PyObject * AToDB_getStream(AToDB* self) { GET_STREAM };
+static PyObject * AToDB_setMul(AToDB *self, PyObject *arg) { SET_MUL };	
+static PyObject * AToDB_setAdd(AToDB *self, PyObject *arg) { SET_ADD };	
+static PyObject * AToDB_setSub(AToDB *self, PyObject *arg) { SET_SUB };	
+static PyObject * AToDB_setDiv(AToDB *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * AToDB_play(AToDB *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * AToDB_out(AToDB *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * AToDB_stop(AToDB *self) { STOP };
+
+static PyObject * AToDB_multiply(AToDB *self, PyObject *arg) { MULTIPLY };
+static PyObject * AToDB_inplace_multiply(AToDB *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * AToDB_add(AToDB *self, PyObject *arg) { ADD };
+static PyObject * AToDB_inplace_add(AToDB *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * AToDB_sub(AToDB *self, PyObject *arg) { SUB };
+static PyObject * AToDB_inplace_sub(AToDB *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * AToDB_div(AToDB *self, PyObject *arg) { DIV };
+static PyObject * AToDB_inplace_div(AToDB *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef AToDB_members[] = {
+    {"server", T_OBJECT_EX, offsetof(AToDB, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(AToDB, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(AToDB, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(AToDB, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(AToDB, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef AToDB_methods[] = {
+    {"getServer", (PyCFunction)AToDB_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)AToDB_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)AToDB_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)AToDB_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)AToDB_stop, METH_NOARGS, "Stops computing."},
+    {"out", (PyCFunction)AToDB_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setMul", (PyCFunction)AToDB_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)AToDB_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)AToDB_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)AToDB_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods AToDB_as_number = {
+    (binaryfunc)AToDB_add,                         /*nb_add*/
+    (binaryfunc)AToDB_sub,                         /*nb_subtract*/
+    (binaryfunc)AToDB_multiply,                    /*nb_multiply*/
+    (binaryfunc)AToDB_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)AToDB_inplace_add,                 /*inplace_add*/
+    (binaryfunc)AToDB_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)AToDB_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)AToDB_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject AToDBType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.AToDB_base",                                   /*tp_name*/
+    sizeof(AToDB),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)AToDB_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &AToDB_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "AToDB objects. Converts dB value to amplitude value.",           /* tp_doc */
+    (traverseproc)AToDB_traverse,                  /* tp_traverse */
+    (inquiry)AToDB_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    AToDB_methods,                                 /* tp_methods */
+    AToDB_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)AToDB_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    AToDB_new,                                     /* tp_new */
+};
