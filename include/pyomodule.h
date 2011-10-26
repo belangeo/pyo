@@ -360,6 +360,7 @@ extern PyTypeObject InterpType;
 extern PyTypeObject SampHoldType;
 extern PyTypeObject DBToAType;
 extern PyTypeObject AToDBType;
+extern PyTypeObject ScaleType;
 
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
