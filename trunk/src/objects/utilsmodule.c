@@ -3752,3 +3752,579 @@ PyTypeObject ScaleType = {
     0,                                              /* tp_alloc */
     Scale_new,                                     /* tp_new */
 };
+
+/************/
+/* CentsToTranspo */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT lastcents;
+    MYFLT curtranspo;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} CentsToTranspo;
+
+static void
+CentsToTranspo_process(CentsToTranspo *self) {
+    int i;
+    MYFLT cents;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        cents = in[i];
+        if (cents != self->lastcents) {
+            self->data[i] = self->curtranspo = MYPOW(2.0, cents / 1200.);
+            self->lastcents = cents;
+        }
+        else
+            self->data[i] = self->curtranspo;
+    }
+}
+
+static void CentsToTranspo_postprocessing_ii(CentsToTranspo *self) { POST_PROCESSING_II };
+static void CentsToTranspo_postprocessing_ai(CentsToTranspo *self) { POST_PROCESSING_AI };
+static void CentsToTranspo_postprocessing_ia(CentsToTranspo *self) { POST_PROCESSING_IA };
+static void CentsToTranspo_postprocessing_aa(CentsToTranspo *self) { POST_PROCESSING_AA };
+static void CentsToTranspo_postprocessing_ireva(CentsToTranspo *self) { POST_PROCESSING_IREVA };
+static void CentsToTranspo_postprocessing_areva(CentsToTranspo *self) { POST_PROCESSING_AREVA };
+static void CentsToTranspo_postprocessing_revai(CentsToTranspo *self) { POST_PROCESSING_REVAI };
+static void CentsToTranspo_postprocessing_revaa(CentsToTranspo *self) { POST_PROCESSING_REVAA };
+static void CentsToTranspo_postprocessing_revareva(CentsToTranspo *self) { POST_PROCESSING_REVAREVA };
+
+static void
+CentsToTranspo_setProcMode(CentsToTranspo *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = CentsToTranspo_process;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = CentsToTranspo_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+CentsToTranspo_compute_next_data_frame(CentsToTranspo *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+CentsToTranspo_traverse(CentsToTranspo *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+CentsToTranspo_clear(CentsToTranspo *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+CentsToTranspo_dealloc(CentsToTranspo* self)
+{
+    free(self->data);
+    CentsToTranspo_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * CentsToTranspo_deleteStream(CentsToTranspo *self) { DELETE_STREAM };
+
+static PyObject *
+CentsToTranspo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    CentsToTranspo *self;
+    self = (CentsToTranspo *)type->tp_alloc(type, 0);
+    
+    self->lastcents = 0.0;
+    self->curtranspo = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, CentsToTranspo_compute_next_data_frame);
+    self->mode_func_ptr = CentsToTranspo_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+CentsToTranspo_init(CentsToTranspo *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * CentsToTranspo_getServer(CentsToTranspo* self) { GET_SERVER };
+static PyObject * CentsToTranspo_getStream(CentsToTranspo* self) { GET_STREAM };
+static PyObject * CentsToTranspo_setMul(CentsToTranspo *self, PyObject *arg) { SET_MUL };	
+static PyObject * CentsToTranspo_setAdd(CentsToTranspo *self, PyObject *arg) { SET_ADD };	
+static PyObject * CentsToTranspo_setSub(CentsToTranspo *self, PyObject *arg) { SET_SUB };	
+static PyObject * CentsToTranspo_setDiv(CentsToTranspo *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * CentsToTranspo_play(CentsToTranspo *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CentsToTranspo_out(CentsToTranspo *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * CentsToTranspo_stop(CentsToTranspo *self) { STOP };
+
+static PyObject * CentsToTranspo_multiply(CentsToTranspo *self, PyObject *arg) { MULTIPLY };
+static PyObject * CentsToTranspo_inplace_multiply(CentsToTranspo *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * CentsToTranspo_add(CentsToTranspo *self, PyObject *arg) { ADD };
+static PyObject * CentsToTranspo_inplace_add(CentsToTranspo *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * CentsToTranspo_sub(CentsToTranspo *self, PyObject *arg) { SUB };
+static PyObject * CentsToTranspo_inplace_sub(CentsToTranspo *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * CentsToTranspo_div(CentsToTranspo *self, PyObject *arg) { DIV };
+static PyObject * CentsToTranspo_inplace_div(CentsToTranspo *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef CentsToTranspo_members[] = {
+    {"server", T_OBJECT_EX, offsetof(CentsToTranspo, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CentsToTranspo, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(CentsToTranspo, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(CentsToTranspo, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(CentsToTranspo, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CentsToTranspo_methods[] = {
+    {"getServer", (PyCFunction)CentsToTranspo_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CentsToTranspo_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)CentsToTranspo_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)CentsToTranspo_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CentsToTranspo_stop, METH_NOARGS, "Stops computing."},
+    {"out", (PyCFunction)CentsToTranspo_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setMul", (PyCFunction)CentsToTranspo_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)CentsToTranspo_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)CentsToTranspo_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)CentsToTranspo_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods CentsToTranspo_as_number = {
+    (binaryfunc)CentsToTranspo_add,                         /*nb_add*/
+    (binaryfunc)CentsToTranspo_sub,                         /*nb_subtract*/
+    (binaryfunc)CentsToTranspo_multiply,                    /*nb_multiply*/
+    (binaryfunc)CentsToTranspo_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)CentsToTranspo_inplace_add,                 /*inplace_add*/
+    (binaryfunc)CentsToTranspo_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)CentsToTranspo_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)CentsToTranspo_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject CentsToTranspoType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.CentsToTranspo_base",                                   /*tp_name*/
+    sizeof(CentsToTranspo),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)CentsToTranspo_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &CentsToTranspo_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "CentsToTranspo objects. Converts cents value to transposition factor.",           /* tp_doc */
+    (traverseproc)CentsToTranspo_traverse,                  /* tp_traverse */
+    (inquiry)CentsToTranspo_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    CentsToTranspo_methods,                                 /* tp_methods */
+    CentsToTranspo_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)CentsToTranspo_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    CentsToTranspo_new,                                     /* tp_new */
+};
+
+/************/
+/* TranspoToCents */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT lasttranspo;
+    MYFLT curcents;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} TranspoToCents;
+
+static void
+TranspoToCents_process(TranspoToCents *self) {
+    int i;
+    MYFLT transpo;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        transpo = in[i];
+        if (transpo != self->lasttranspo) {
+            self->data[i] = self->curcents = 1200.0 * MYLOG2(transpo);
+            self->lasttranspo = transpo;
+        }
+        else
+            self->data[i] = self->curcents;
+    }
+}
+
+static void TranspoToCents_postprocessing_ii(TranspoToCents *self) { POST_PROCESSING_II };
+static void TranspoToCents_postprocessing_ai(TranspoToCents *self) { POST_PROCESSING_AI };
+static void TranspoToCents_postprocessing_ia(TranspoToCents *self) { POST_PROCESSING_IA };
+static void TranspoToCents_postprocessing_aa(TranspoToCents *self) { POST_PROCESSING_AA };
+static void TranspoToCents_postprocessing_ireva(TranspoToCents *self) { POST_PROCESSING_IREVA };
+static void TranspoToCents_postprocessing_areva(TranspoToCents *self) { POST_PROCESSING_AREVA };
+static void TranspoToCents_postprocessing_revai(TranspoToCents *self) { POST_PROCESSING_REVAI };
+static void TranspoToCents_postprocessing_revaa(TranspoToCents *self) { POST_PROCESSING_REVAA };
+static void TranspoToCents_postprocessing_revareva(TranspoToCents *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TranspoToCents_setProcMode(TranspoToCents *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = TranspoToCents_process;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TranspoToCents_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TranspoToCents_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TranspoToCents_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TranspoToCents_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TranspoToCents_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TranspoToCents_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TranspoToCents_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TranspoToCents_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TranspoToCents_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+TranspoToCents_compute_next_data_frame(TranspoToCents *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TranspoToCents_traverse(TranspoToCents *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+TranspoToCents_clear(TranspoToCents *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+TranspoToCents_dealloc(TranspoToCents* self)
+{
+    free(self->data);
+    TranspoToCents_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * TranspoToCents_deleteStream(TranspoToCents *self) { DELETE_STREAM };
+
+static PyObject *
+TranspoToCents_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    TranspoToCents *self;
+    self = (TranspoToCents *)type->tp_alloc(type, 0);
+    
+    self->lasttranspo = 1.0;
+    self->curcents = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TranspoToCents_compute_next_data_frame);
+    self->mode_func_ptr = TranspoToCents_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+TranspoToCents_init(TranspoToCents *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * TranspoToCents_getServer(TranspoToCents* self) { GET_SERVER };
+static PyObject * TranspoToCents_getStream(TranspoToCents* self) { GET_STREAM };
+static PyObject * TranspoToCents_setMul(TranspoToCents *self, PyObject *arg) { SET_MUL };	
+static PyObject * TranspoToCents_setAdd(TranspoToCents *self, PyObject *arg) { SET_ADD };	
+static PyObject * TranspoToCents_setSub(TranspoToCents *self, PyObject *arg) { SET_SUB };	
+static PyObject * TranspoToCents_setDiv(TranspoToCents *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TranspoToCents_play(TranspoToCents *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TranspoToCents_out(TranspoToCents *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TranspoToCents_stop(TranspoToCents *self) { STOP };
+
+static PyObject * TranspoToCents_multiply(TranspoToCents *self, PyObject *arg) { MULTIPLY };
+static PyObject * TranspoToCents_inplace_multiply(TranspoToCents *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TranspoToCents_add(TranspoToCents *self, PyObject *arg) { ADD };
+static PyObject * TranspoToCents_inplace_add(TranspoToCents *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TranspoToCents_sub(TranspoToCents *self, PyObject *arg) { SUB };
+static PyObject * TranspoToCents_inplace_sub(TranspoToCents *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TranspoToCents_div(TranspoToCents *self, PyObject *arg) { DIV };
+static PyObject * TranspoToCents_inplace_div(TranspoToCents *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TranspoToCents_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TranspoToCents, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TranspoToCents, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(TranspoToCents, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(TranspoToCents, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TranspoToCents, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TranspoToCents_methods[] = {
+    {"getServer", (PyCFunction)TranspoToCents_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TranspoToCents_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)TranspoToCents_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)TranspoToCents_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)TranspoToCents_stop, METH_NOARGS, "Stops computing."},
+    {"out", (PyCFunction)TranspoToCents_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setMul", (PyCFunction)TranspoToCents_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TranspoToCents_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TranspoToCents_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TranspoToCents_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TranspoToCents_as_number = {
+    (binaryfunc)TranspoToCents_add,                         /*nb_add*/
+    (binaryfunc)TranspoToCents_sub,                         /*nb_subtract*/
+    (binaryfunc)TranspoToCents_multiply,                    /*nb_multiply*/
+    (binaryfunc)TranspoToCents_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TranspoToCents_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TranspoToCents_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TranspoToCents_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TranspoToCents_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TranspoToCentsType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.TranspoToCents_base",                                   /*tp_name*/
+    sizeof(TranspoToCents),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)TranspoToCents_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &TranspoToCents_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "TranspoToCents objects. Converts transposition factor to cents value.",           /* tp_doc */
+    (traverseproc)TranspoToCents_traverse,                  /* tp_traverse */
+    (inquiry)TranspoToCents_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    TranspoToCents_methods,                                 /* tp_methods */
+    TranspoToCents_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)TranspoToCents_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    TranspoToCents_new,                                     /* tp_new */
+};

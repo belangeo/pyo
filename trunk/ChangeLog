@@ -1,5 +1,10 @@
 2011-10-26 belangeo <belangeo@gmail.com>
 
+    * Added new objects: CentsToTranspo and TranspoToCents. Cents/transposition factor conversions.
+    - rev 747
+
+2011-10-26 belangeo <belangeo@gmail.com>
+
     * Added new object: Scale. Maps an input range of audio values to an output range.
     - rev 746
 
