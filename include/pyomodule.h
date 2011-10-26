@@ -361,6 +361,8 @@ extern PyTypeObject SampHoldType;
 extern PyTypeObject DBToAType;
 extern PyTypeObject AToDBType;
 extern PyTypeObject ScaleType;
+extern PyTypeObject CentsToTranspoType;
+extern PyTypeObject TranspoToCentsType;
 
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
