@@ -1,3 +1,8 @@
+2011-10-26 belangeo <belangeo@gmail.com>
+
+    * Added new object: Scale. Maps an input range of audio values to an output range.
+    - rev 746
+
 2011-10-25 belangeo <belangeo@gmail.com>
 
     * Added new objects: DBToA and AToDB. Amplitude/decibel conversions.

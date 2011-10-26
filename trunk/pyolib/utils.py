@@ -1542,3 +1542,212 @@ class AToDB(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Scale(PyoObject):
+    """
+    Maps an input range of audio values to an output range.
+
+    Scale maps an input range of audio values to an output range. 
+    The ranges can be specified with `min` and `max` reversed for 
+    invert-mapping. If specified, the mapping can also be exponential. 
+    
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    inmin : float or PyoObject, optional
+        Minimum input value. Defaults to 0.
+    inmax : float or PyoObject, optional
+        Maximum input value. Defaults to 1.
+    outmin : float or PyoObject, optional
+        Minimum output value. Defaults to 0.
+    outmax : float or PyoObject, optional
+        Maximum output value. Defaults to 1.
+    exp : float, optional
+        Exponent value, specifies the nature of the scaling curve. 
+        Values between 0 and 1 give a reversed curve.  Defaults to 1.0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setInMin(x) : Replace the `inmin` attribute.
+    setInMax(x) : Replace the `inmax` attribute.
+    setOutMin(x) : Replace the `outmin` attribute.
+    setOutMax(x) : Replace the `outmax` attribute.
+    setExp(x) : Replace the `exp` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    inmin : float or PyoObject. Minimum input value.
+    inmax : float or PyoObject. Maximum input value.
+    outmin : float or PyoObject. Minimum output value.
+    outmax : float or PyoObject. Maximum output value.
+    exp : float or PyoObject. Exponent value (nature of the scaling curve).
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> met = Metro(.125, poly=2).play()
+    >>> rnd = TrigRand(met, min=0, max=1, port=.005)
+    >>> omlf = Sine(.5, mul=700, add=1000)
+    >>> fr = Scale(rnd, inmin=0, inmax=1, outmin=250, outmax=omlf, exp=1)
+    >>> amp = TrigEnv(met, table=HannTable(), dur=.25, mul=.25)
+    >>> out = SineLoop(fr, feedback=.07, mul=amp).out()
+
+    """
+    def __init__(self, input, inmin=0, inmax=1, outmin=0, outmax=1, exp=1, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._inmin = inmin
+        self._inmax = inmax
+        self._outmin = outmin
+        self._outmax = outmax
+        self._exp = exp
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, inmin, inmax, outmin, outmax, exp, mul, add, lmax = convertArgsToLists(self._in_fader, inmin, inmax, outmin, outmax, exp, mul, add)
+        self._base_objs = [Scale_base(wrap(in_fader,i), wrap(inmin,i), wrap(inmax,i), wrap(outmin,i), wrap(outmax,i), wrap(exp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'inmin', 'inmax', 'outmin', 'outmax', 'exp', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInMin(self, x):
+        """
+        Replace the `inmin` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `inmin` attribute.
+
+        """
+        self._inmin = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInMax(self, x):
+        """
+        Replace the `inmax` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `inmax` attribute.
+
+        """
+        self._inmax = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setOutMin(self, x):
+        """
+        Replace the `outmin` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `outmin` attribute.
+
+        """
+        self._outmin = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setOutMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setOutMax(self, x):
+        """
+        Replace the `outmax` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `outmax` attribute.
+
+        """
+        self._outmax = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setOutMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setExp(self, x):
+        """
+        Replace the `exp` attribute.
+
+        Parameters:
+
+        x : float
+            New `exp` attribute.
+
+        """
+        self._exp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 127., 'lin', 'inmin',  self._inmin),
+                          SLMap(0., 127., 'lin', 'inmax',  self._inmax),
+                          SLMap(0., 127., 'lin', 'outmin',  self._outmin),
+                          SLMap(0., 127., 'lin', 'outmax',  self._outmax),
+                          SLMap(1., 10., 'lin', 'exp',  self._exp),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def inmin(self):
+        """float or PyoObject. Minimum input value.""" 
+        return self._inmin
+    @inmin.setter
+    def inmin(self, x): self.setInMin(x)
+
+    @property
+    def inmax(self):
+        """float or PyoObject. Maximum input value.""" 
+        return self._inmax
+    @inmax.setter
+    def inmax(self, x): self.setInMax(x)
+
+    @property
+    def outmin(self):
+        """float or PyoObject. Minimum output value.""" 
+        return self._outmin
+    @outmin.setter
+    def outmin(self, x): self.setOutMin(x)
+
+    @property
+    def outmax(self):
+        """float or PyoObject. Maximum output value."""
+        return self._outmax
+    @outmax.setter
+    def outmax(self, x): self.setOutMax(x)
+
+    @property
+    def exp(self):
+        """float or PyoObject. Exponent value (nature of the scaling curve)."""
+        return self._exp
+    @exp.setter
+    def exp(self, x): self.setExp(x)

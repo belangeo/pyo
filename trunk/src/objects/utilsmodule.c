@@ -3125,3 +3125,630 @@ PyTypeObject AToDBType = {
     0,                                              /* tp_alloc */
     AToDB_new,                                     /* tp_new */
 };
+
+/*********************************************************************************************/
+/* Scale ********************************************************************************/
+/*********************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *inmin;
+    Stream *inmin_stream;
+    PyObject *inmax;
+    Stream *inmax_stream;
+    PyObject *outmin;
+    Stream *outmin_stream;
+    PyObject *outmax;
+    Stream *outmax_stream;
+    PyObject *exp;
+    Stream *exp_stream;
+    int modebuffer[7]; // need at least 2 slots for mul & add 
+} Scale;
+
+static MYFLT
+_scale_clip(MYFLT x, MYFLT min, MYFLT max) {
+    if (x < min)
+        return min;
+    else if (x > max)
+        return max;
+    else
+        return x;
+}
+
+static void
+Scale_generate(Scale *self) {
+    int i, inrev, outrev;
+    MYFLT tmp, inrange, outrange, normin;
+    MYFLT inmin, inmax, outmin, outmax, exp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    if (self->modebuffer[2] == 0)
+        inmin = PyFloat_AS_DOUBLE(self->inmin);
+    else
+        inmin = Stream_getData((Stream *)self->inmin_stream)[0];
+    if (self->modebuffer[3] == 0)
+        inmax = PyFloat_AS_DOUBLE(self->inmax);
+    else
+        inmax = Stream_getData((Stream *)self->inmax_stream)[0];
+    
+    if (inmin < inmax) {
+        inrev = 0;
+    }
+    else {
+        tmp = inmin;
+        inmin = inmax;
+        inmax = tmp;
+        inrev = 1;
+    }
+    inrange = inmax - inmin;
+
+    if (self->modebuffer[4] == 0)
+        outmin = PyFloat_AS_DOUBLE(self->outmin);
+    else
+        outmin = Stream_getData((Stream *)self->outmin_stream)[0];
+    if (self->modebuffer[5] == 0)
+        outmax = PyFloat_AS_DOUBLE(self->outmax);
+    else
+        outmax = Stream_getData((Stream *)self->outmax_stream)[0];
+    
+    if (outmin < outmax) {
+        outrev = 0;
+    }
+    else {
+        tmp = outmin;
+        outmin = outmax;
+        outmax = tmp;
+        outrev = 1;
+    }
+    outrange = outmax - outmin;
+    
+    if (self->modebuffer[6] == 0)
+        exp = PyFloat_AS_DOUBLE(self->exp);
+    else
+        exp = Stream_getData((Stream *)self->exp_stream)[0];
+    if (exp < 0.0)
+        exp = 0.0;
+
+    /* Handle case where input or output range equal 0 */
+    if (inrange == 0.0 || outrange == 0.0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = outmin;
+        }
+    }
+    /* Linear scaling */
+    else if (exp == 1.0) {
+        if (inrev == 0 && outrev == 0) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = (_scale_clip(in[i], inmin, inmax) - inmin) / inrange;
+                self->data[i] = normin * outrange + outmin;
+            }            
+        }
+        else if (inrev == 1 && outrev == 0) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = 1.0 - ((_scale_clip(in[i], inmin, inmax) - inmin) / inrange);
+                self->data[i] = normin * outrange + outmin;
+            }
+        }
+        else if (inrev == 0 && outrev == 1) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = (_scale_clip(in[i], inmin, inmax) - inmin) / inrange;
+                self->data[i] = outmax - (normin * outrange);
+            }
+        }
+        else if (inrev == 1 && outrev == 1) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = 1.0 - ((_scale_clip(in[i], inmin, inmax) - inmin) / inrange);
+                self->data[i] = outmax - (normin * outrange);
+            }
+        }
+    }
+    /* Exponential scaling */
+    else {
+        if (inrev == 0 && outrev == 0) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = MYPOW((_scale_clip(in[i], inmin, inmax) - inmin) / inrange, exp);
+                self->data[i] = normin * outrange + outmin;
+            }            
+        }
+        else if (inrev == 1 && outrev == 0) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = MYPOW(1.0 - ((_scale_clip(in[i], inmin, inmax) - inmin) / inrange), exp);
+                self->data[i] = normin * outrange + outmin;
+            }
+        }
+        else if (inrev == 0 && outrev == 1) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = MYPOW((_scale_clip(in[i], inmin, inmax) - inmin) / inrange, exp);
+                self->data[i] = outmax - (normin * outrange);
+            }
+        }
+        else if (inrev == 1 && outrev == 1) {
+            for (i=0; i<self->bufsize; i++) {
+                normin = MYPOW(1.0 - ((_scale_clip(in[i], inmin, inmax) - inmin) / inrange), exp);
+                self->data[i] = outmax - (normin * outrange);
+            }
+        }
+    }
+}
+
+static void Scale_postprocessing_ii(Scale *self) { POST_PROCESSING_II };
+static void Scale_postprocessing_ai(Scale *self) { POST_PROCESSING_AI };
+static void Scale_postprocessing_ia(Scale *self) { POST_PROCESSING_IA };
+static void Scale_postprocessing_aa(Scale *self) { POST_PROCESSING_AA };
+static void Scale_postprocessing_ireva(Scale *self) { POST_PROCESSING_IREVA };
+static void Scale_postprocessing_areva(Scale *self) { POST_PROCESSING_AREVA };
+static void Scale_postprocessing_revai(Scale *self) { POST_PROCESSING_REVAI };
+static void Scale_postprocessing_revaa(Scale *self) { POST_PROCESSING_REVAA };
+static void Scale_postprocessing_revareva(Scale *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Scale_setProcMode(Scale *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Scale_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Scale_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Scale_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Scale_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Scale_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Scale_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Scale_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Scale_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Scale_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Scale_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Scale_compute_next_data_frame(Scale *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Scale_traverse(Scale *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->inmin);
+    Py_VISIT(self->inmin_stream);
+    Py_VISIT(self->inmax);
+    Py_VISIT(self->inmax_stream);
+    Py_VISIT(self->outmin);
+    Py_VISIT(self->outmin_stream);
+    Py_VISIT(self->outmax);
+    Py_VISIT(self->outmax_stream);
+    Py_VISIT(self->exp);
+    Py_VISIT(self->exp_stream);
+    return 0;
+}
+
+static int 
+Scale_clear(Scale *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->inmin);
+    Py_CLEAR(self->inmin_stream);
+    Py_CLEAR(self->inmax);
+    Py_CLEAR(self->inmax_stream);
+    Py_CLEAR(self->outmin);
+    Py_CLEAR(self->outmin_stream);
+    Py_CLEAR(self->outmax);
+    Py_CLEAR(self->outmax_stream);
+    Py_CLEAR(self->exp);
+    Py_CLEAR(self->exp_stream);
+    return 0;
+}
+
+static void
+Scale_dealloc(Scale* self)
+{
+    free(self->data);
+    Scale_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Scale_deleteStream(Scale *self) { DELETE_STREAM };
+
+static PyObject *
+Scale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Scale *self;
+    self = (Scale *)type->tp_alloc(type, 0);
+    
+    self->inmin = PyFloat_FromDouble(0.0);
+    self->inmax = PyFloat_FromDouble(1.0);
+    self->outmin = PyFloat_FromDouble(0.0);
+    self->outmax = PyFloat_FromDouble(1.0);
+    self->exp = PyFloat_FromDouble(1.0);
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
+    self->modebuffer[5] = 0;
+    self->modebuffer[6] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Scale_compute_next_data_frame);
+    self->mode_func_ptr = Scale_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Scale_init(Scale *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *inmintmp=NULL, *inmaxtmp=NULL, *outmintmp=NULL, *outmaxtmp=NULL, *exptmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "inmin", "inmax", "outmin", "outmax", "exp", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOO", kwlist, &inputtmp, &inmintmp, &inmaxtmp, &outmintmp, &outmaxtmp, &exptmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (inmintmp) {
+        PyObject_CallMethod((PyObject *)self, "setInMin", "O", inmintmp);
+    }
+
+    if (inmaxtmp) {
+        PyObject_CallMethod((PyObject *)self, "setInMax", "O", inmaxtmp);
+    }
+
+    if (outmintmp) {
+        PyObject_CallMethod((PyObject *)self, "setOutMin", "O", outmintmp);
+    }
+
+    if (outmaxtmp) {
+        PyObject_CallMethod((PyObject *)self, "setOutMax", "O", outmaxtmp);
+    }
+
+    if (exptmp) {
+        PyObject_CallMethod((PyObject *)self, "setExp", "O", exptmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Scale_getServer(Scale* self) { GET_SERVER };
+static PyObject * Scale_getStream(Scale* self) { GET_STREAM };
+static PyObject * Scale_setMul(Scale *self, PyObject *arg) { SET_MUL };	
+static PyObject * Scale_setAdd(Scale *self, PyObject *arg) { SET_ADD };	
+static PyObject * Scale_setSub(Scale *self, PyObject *arg) { SET_SUB };	
+static PyObject * Scale_setDiv(Scale *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Scale_play(Scale *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Scale_out(Scale *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Scale_stop(Scale *self) { STOP };
+
+static PyObject * Scale_multiply(Scale *self, PyObject *arg) { MULTIPLY };
+static PyObject * Scale_inplace_multiply(Scale *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Scale_add(Scale *self, PyObject *arg) { ADD };
+static PyObject * Scale_inplace_add(Scale *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Scale_sub(Scale *self, PyObject *arg) { SUB };
+static PyObject * Scale_inplace_sub(Scale *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Scale_div(Scale *self, PyObject *arg) { DIV };
+static PyObject * Scale_inplace_div(Scale *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Scale_setInMin(Scale *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->inmin);
+	if (isNumber == 1) {
+		self->inmin = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->inmin = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->inmin, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->inmin_stream);
+        self->inmin_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scale_setInMax(Scale *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->inmax);
+	if (isNumber == 1) {
+		self->inmax = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->inmax = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->inmax, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->inmax_stream);
+        self->inmax_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scale_setOutMin(Scale *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->outmin);
+	if (isNumber == 1) {
+		self->outmin = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->outmin = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->outmin, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->outmin_stream);
+        self->outmin_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scale_setOutMax(Scale *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->outmax);
+	if (isNumber == 1) {
+		self->outmax = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->outmax = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->outmax, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->outmax_stream);
+        self->outmax_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Scale_setExp(Scale *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->exp);
+	if (isNumber == 1) {
+		self->exp = PyNumber_Float(tmp);
+        self->modebuffer[6] = 0;
+	}
+	else {
+		self->exp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->exp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->exp_stream);
+        self->exp_stream = (Stream *)streamtmp;
+		self->modebuffer[6] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Scale_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Scale, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Scale, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Scale, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(Scale, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Scale, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Scale_methods[] = {
+    {"getServer", (PyCFunction)Scale_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Scale_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Scale_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Scale_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Scale_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Scale_stop, METH_NOARGS, "Stops computing."},
+    {"setInMin", (PyCFunction)Scale_setInMin, METH_O, "Sets input minimum scaling value."},
+    {"setInMax", (PyCFunction)Scale_setInMax, METH_O, "Sets input maximum scaling value."},
+    {"setOutMin", (PyCFunction)Scale_setOutMin, METH_O, "Sets output minimum scaling value."},
+    {"setOutMax", (PyCFunction)Scale_setOutMax, METH_O, "Sets output maximum scaling value."},
+    {"setExp", (PyCFunction)Scale_setExp, METH_O, "Sets exponent factor."},
+    {"setMul", (PyCFunction)Scale_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Scale_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Scale_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Scale_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Scale_as_number = {
+    (binaryfunc)Scale_add,                         /*nb_add*/
+    (binaryfunc)Scale_sub,                         /*nb_subtract*/
+    (binaryfunc)Scale_multiply,                    /*nb_multiply*/
+    (binaryfunc)Scale_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Scale_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Scale_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Scale_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Scale_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject ScaleType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Scale_base",                                   /*tp_name*/
+    sizeof(Scale),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Scale_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Scale_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Scale objects. Scale input values on an arbitrary output scaling range.",           /* tp_doc */
+    (traverseproc)Scale_traverse,                  /* tp_traverse */
+    (inquiry)Scale_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Scale_methods,                                 /* tp_methods */
+    Scale_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Scale_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Scale_new,                                     /* tp_new */
+};

@@ -1801,6 +1801,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&AToDBType);
     PyModule_AddObject(m, "AToDB_base", (PyObject *)&AToDBType);
+
+    if (PyType_Ready(&ScaleType) < 0)
+        return;
+    Py_INCREF(&ScaleType);
+    PyModule_AddObject(m, "Scale_base", (PyObject *)&ScaleType);
     
     if (PyType_Ready(&FFTMainType) < 0)
         return;
