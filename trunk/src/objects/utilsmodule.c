@@ -4328,3 +4328,291 @@ PyTypeObject TranspoToCentsType = {
     0,                                              /* tp_alloc */
     TranspoToCents_new,                                     /* tp_new */
 };
+
+/************/
+/* MToF */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT lastmidi;
+    MYFLT curfreq;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} MToF;
+
+static void
+MToF_process(MToF *self) {
+    int i;
+    MYFLT midi;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        midi = in[i];
+        if (midi != self->lastmidi) {
+            self->data[i] = self->curfreq = 8.1757989156437 * MYPOW(1.0594630943593, midi);
+            self->lastmidi = midi;
+        }
+        else
+            self->data[i] = self->curfreq;
+    }
+}
+
+static void MToF_postprocessing_ii(MToF *self) { POST_PROCESSING_II };
+static void MToF_postprocessing_ai(MToF *self) { POST_PROCESSING_AI };
+static void MToF_postprocessing_ia(MToF *self) { POST_PROCESSING_IA };
+static void MToF_postprocessing_aa(MToF *self) { POST_PROCESSING_AA };
+static void MToF_postprocessing_ireva(MToF *self) { POST_PROCESSING_IREVA };
+static void MToF_postprocessing_areva(MToF *self) { POST_PROCESSING_AREVA };
+static void MToF_postprocessing_revai(MToF *self) { POST_PROCESSING_REVAI };
+static void MToF_postprocessing_revaa(MToF *self) { POST_PROCESSING_REVAA };
+static void MToF_postprocessing_revareva(MToF *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MToF_setProcMode(MToF *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = MToF_process;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = MToF_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = MToF_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = MToF_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = MToF_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = MToF_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = MToF_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = MToF_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = MToF_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = MToF_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+MToF_compute_next_data_frame(MToF *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+MToF_traverse(MToF *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+MToF_clear(MToF *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+MToF_dealloc(MToF* self)
+{
+    free(self->data);
+    MToF_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * MToF_deleteStream(MToF *self) { DELETE_STREAM };
+
+static PyObject *
+MToF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MToF *self;
+    self = (MToF *)type->tp_alloc(type, 0);
+    
+    self->lastmidi = 0;
+    self->curfreq = 8.1757989156437;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MToF_compute_next_data_frame);
+    self->mode_func_ptr = MToF_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+MToF_init(MToF *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * MToF_getServer(MToF* self) { GET_SERVER };
+static PyObject * MToF_getStream(MToF* self) { GET_STREAM };
+static PyObject * MToF_setMul(MToF *self, PyObject *arg) { SET_MUL };	
+static PyObject * MToF_setAdd(MToF *self, PyObject *arg) { SET_ADD };	
+static PyObject * MToF_setSub(MToF *self, PyObject *arg) { SET_SUB };	
+static PyObject * MToF_setDiv(MToF *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * MToF_play(MToF *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MToF_out(MToF *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * MToF_stop(MToF *self) { STOP };
+
+static PyObject * MToF_multiply(MToF *self, PyObject *arg) { MULTIPLY };
+static PyObject * MToF_inplace_multiply(MToF *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MToF_add(MToF *self, PyObject *arg) { ADD };
+static PyObject * MToF_inplace_add(MToF *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MToF_sub(MToF *self, PyObject *arg) { SUB };
+static PyObject * MToF_inplace_sub(MToF *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MToF_div(MToF *self, PyObject *arg) { DIV };
+static PyObject * MToF_inplace_div(MToF *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef MToF_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MToF, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MToF, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MToF, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(MToF, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MToF, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MToF_methods[] = {
+    {"getServer", (PyCFunction)MToF_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MToF_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)MToF_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)MToF_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MToF_stop, METH_NOARGS, "Stops computing."},
+    {"out", (PyCFunction)MToF_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setMul", (PyCFunction)MToF_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)MToF_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)MToF_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)MToF_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MToF_as_number = {
+    (binaryfunc)MToF_add,                         /*nb_add*/
+    (binaryfunc)MToF_sub,                         /*nb_subtract*/
+    (binaryfunc)MToF_multiply,                    /*nb_multiply*/
+    (binaryfunc)MToF_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)MToF_inplace_add,                 /*inplace_add*/
+    (binaryfunc)MToF_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)MToF_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)MToF_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject MToFType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.MToF_base",                                   /*tp_name*/
+    sizeof(MToF),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)MToF_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &MToF_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MToF objects. Converts midi notes to frequency.",           /* tp_doc */
+    (traverseproc)MToF_traverse,                  /* tp_traverse */
+    (inquiry)MToF_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    MToF_methods,                                 /* tp_methods */
+    MToF_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)MToF_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    MToF_new,                                     /* tp_new */
+};
