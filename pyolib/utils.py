@@ -1892,3 +1892,74 @@ class TranspoToCents(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class MToF(PyoObject):
+    """
+    Returns the frequency (Hz) equivalent of a midi note.
+
+    Returns the frequency (Hz) equivalent of a midi note, 
+    60 = 261.62556530066814 Hz.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal, transposition factor.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> met = Metro(.125, poly=2).play()
+    >>> mid = TrigChoice(met, choice=[60, 63, 67, 70], port=.005)
+    >>> hz = MToF(mid)
+    >>> syn = SineLoop(freq=hz, feedback=.07, mul=.2).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [MToF_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)

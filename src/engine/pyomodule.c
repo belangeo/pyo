@@ -1816,6 +1816,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&TranspoToCentsType);
     PyModule_AddObject(m, "TranspoToCents_base", (PyObject *)&TranspoToCentsType);
+
+    if (PyType_Ready(&MToFType) < 0)
+        return;
+    Py_INCREF(&MToFType);
+    PyModule_AddObject(m, "MToF_base", (PyObject *)&MToFType);
     
     if (PyType_Ready(&FFTMainType) < 0)
         return;

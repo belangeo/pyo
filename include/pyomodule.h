@@ -363,6 +363,7 @@ extern PyTypeObject AToDBType;
 extern PyTypeObject ScaleType;
 extern PyTypeObject CentsToTranspoType;
 extern PyTypeObject TranspoToCentsType;
+extern PyTypeObject MToFType;
 
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;

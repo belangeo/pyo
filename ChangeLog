@@ -1,3 +1,8 @@
+2011-10-27 belangeo <belangeo@gmail.com>
+
+    * Added new object: MToF. Midi to frequency conversion.
+    - rev 748
+
 2011-10-26 belangeo <belangeo@gmail.com>
 
     * Added new objects: CentsToTranspo and TranspoToCents. Cents/transposition factor conversions.
