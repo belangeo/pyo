@@ -165,8 +165,14 @@ Stream_getValue(Stream *self) {
     return Py_BuildValue(TYPE_F, self->data[self->bufsize-1]);
 }
 
+static PyObject *
+Stream_getId(Stream *self) {
+    return Py_BuildValue("i", self->sid);
+}
+
 static PyMethodDef Stream_methods[] = {
 {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
+{"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
 {NULL}  /* Sentinel */
 };
 
