@@ -39,11 +39,13 @@ typedef struct {
     PyObject *dur;
     Stream *dur_stream;
     int ngrains;
+    int init;
     MYFLT basedur;
     MYFLT pointerPos;
     MYFLT *startPos;
     MYFLT *gsize;
     MYFLT *gphase;
+    MYFLT *lastppos;
     int modebuffer[5];
 } Granulator;
 
@@ -81,10 +83,11 @@ Granulator_transform_iii(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -143,10 +146,11 @@ Granulator_transform_aii(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -210,9 +214,11 @@ Granulator_transform_iai(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
 
-            if (amp < 0.0001)
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
-
+            }
+            self->lastppos[j] = ppos;
+            
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
             if (index >= 0 && index < size) {
@@ -270,10 +276,11 @@ Granulator_transform_aai(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
                 self->gsize[j] = dur * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -331,10 +338,11 @@ Granulator_transform_iia(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur[i] * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -393,10 +401,11 @@ Granulator_transform_aia(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos;
                 self->gsize[j] = dur[i] * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -454,10 +463,11 @@ Granulator_transform_iaa(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
                 self->gsize[j] = dur[i] * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -516,10 +526,11 @@ Granulator_transform_aaa(Granulator *self) {
             x1 = envlist[ipart+1];
             amp = x + (x1 - x) * fpart;
             
-            if (amp < 0.0001) {
+            if (ppos < self->lastppos[j]) {
                 self->startPos[j] = pos[i];
                 self->gsize[j] = dur[i] * self->sr;
             }
+            self->lastppos[j] = ppos;
             
             // compute sampling
             index = ppos * self->gsize[j] + self->startPos[j];
@@ -659,6 +670,7 @@ Granulator_dealloc(Granulator* self)
     free(self->startPos);   
     free(self->gphase);
     free(self->gsize);
+    free(self->lastppos);
     Granulator_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -735,6 +747,7 @@ Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
     self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
     self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
     self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
+    self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
 
     srand((unsigned)(time(0)));
     for (i=0; i<self->ngrains; i++) {
@@ -743,6 +756,7 @@ Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
             phase = 0.0;
         self->gphase[i] = phase;
         self->startPos[i] = self->gsize[i] = 0.0;
+        self->lastppos[i] = 1.0;
     }
     
     (*self->mode_func_ptr)(self);
@@ -943,6 +957,7 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         self->startPos = (MYFLT *)realloc(self->startPos, self->ngrains * sizeof(MYFLT));
         self->gsize = (MYFLT *)realloc(self->gsize, self->ngrains * sizeof(MYFLT));
         self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
+        self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
         
         srand((unsigned)(time(0)));
         for (i=0; i<self->ngrains; i++) {
@@ -950,7 +965,9 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
             if (phase < 0.0)
                 phase = 0.0;
             self->gphase[i] = phase;
-        }        
+            self->startPos[i] = self->gsize[i] = 0.0;
+            self->lastppos[i] = 1.0;
+        }  
     }    
     
 	Py_INCREF(Py_None);
