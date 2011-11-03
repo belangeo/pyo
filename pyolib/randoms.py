@@ -501,7 +501,7 @@ class Xnoise(PyoObject):
 
     Parameters:
 
-    dist : string of int, optional
+    dist : string or int, optional
         Distribution type. Defaults to 0.
     freq : float or PyoObject, optional
         Polling frequency. Defaults to 1.
