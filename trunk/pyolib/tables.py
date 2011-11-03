@@ -1598,13 +1598,18 @@ class SndTable(PyoTableObject):
             first duration as a float.
         
         """
+        if type(self._path) == ListType:
+            _dur = [1./obj.getRate() for obj in self._base_objs]
+        else:    
+            _dur = 1./self._base_objs[0].getRate()
+
         if all:
-            return self._dur
+            return _dur
         else:
-            if type(self._dur) == ListType:
-                return self._dur[0]
+            if type(_dur) == ListType:
+                return _dur[0]
             else:
-                return self._dur
+                return _dur
 
     @property
     def sound(self):
@@ -1828,4 +1833,5 @@ class DataTable(PyoTableObject):
 
         """
         return self._base_objs[0].getRate()
+
 
