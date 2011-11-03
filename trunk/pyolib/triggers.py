@@ -2044,7 +2044,7 @@ class TrigXnoise(PyoObject):
 
     input : PyoObject
         Audio signal sending triggers.
-    dist : string of int, optional
+    dist : string or int, optional
         Distribution type. Defaults to 0.
     x1 : float or PyoObject, optional
         First parameter. Defaults to 0.5.
