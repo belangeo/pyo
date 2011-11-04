@@ -202,10 +202,11 @@ class Snap(PyoObject):
     
     Snap takes an audio input of floating-point values from 0
     to 127 and output the nearest value in the `choice` parameter. 
-    `choice` must only defined the first octave (0 <= x < 12) 
-    and the object will take care of the input octave range. 
-    According to `scale` parameter, output can be in midi notes, 
-    hertz or transposition factor (centralkey = 60).
+    `choice` can be defined on any number of octaves and the real 
+    snapping values will be automatically expended. The object 
+    will take care of the input octave range. According to `scale` 
+    parameter, output can be in midi notes, hertz or transposition 
+    factor (centralkey = 60).
     
     Parent class: PyoObject
 

@@ -273,6 +273,7 @@ typedef struct {
     Stream *input_stream;
     int scale; // 0 = Midi, 1 = frequency, 2 = transpo
     int chSize;
+    int highbound;
     MYFLT *choice;
     MYFLT value;
     MYFLT last_input;
@@ -306,9 +307,9 @@ Snap_generate(Snap *self) {
         if (in[i] < (self->last_input-0.001) || in[i] > (self->last_input + 0.001)) {
             int oct = 0;
             self->last_input = intmp = in[i];
-            while (intmp >= 12.0) {
+            while (intmp >= self->highbound) {
                 oct++;
-                intmp -= 12.0;
+                intmp -= self->highbound;
             }
             diff = MYFABS(self->choice[0]-intmp);
             pos = 0;
@@ -319,7 +320,7 @@ Snap_generate(Snap *self) {
                     pos = j;
                 }    
             }
-            self->value = self->choice[pos] + (12.0 * oct);
+            self->value = self->choice[pos] + (self->highbound * oct);
             self->value = Snap_convert(self);  
         }
      
@@ -421,6 +422,7 @@ Snap_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->value = self->last_input = 0.;
     self->scale = 0;
+    self->highbound = 12;
     self->modebuffer[0] = 0;
     self->modebuffer[1] = 0;
     
@@ -486,7 +488,8 @@ static PyObject * Snap_inplace_div(Snap *self, PyObject *arg) { INPLACE_DIV };
 static PyObject *
 Snap_setChoice(Snap *self, PyObject *arg)
 {
-    int i;
+    int i, oct;
+    MYFLT max;
 	PyObject *tmp;
 	
 	if (! PyList_Check(arg)) {
@@ -502,6 +505,15 @@ Snap_setChoice(Snap *self, PyObject *arg)
     for (i=0; i<self->chSize; i++) {
         self->choice[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(tmp, i)));
     }
+    
+    max = self->choice[self->chSize-1];
+    
+    oct = 12;
+    while (max >= oct) {
+        oct += 12;
+    }
+    
+    self->highbound = oct;
     
     (*self->mode_func_ptr)(self);
     
