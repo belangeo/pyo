@@ -16,5 +16,8 @@ l.append("PyoMatrixObject")
 l.append("Server")
 
 with open("pyo_keywords.txt", "w") as f:
-    f.write(" ".join(l))
+    for i, word in enumerate(l):
+        if (i % 10) == 0:
+            f.write("\n")
+        f.write(word + " ")
 
