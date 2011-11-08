@@ -1388,6 +1388,7 @@ class SndTable(PyoTableObject):
     insert(path, pos, crossfade, start, stop) : Insert a sound in the 
         table with crossfade.
     getDur(all) : Return the duration of the sound in seconds.
+    getSize(all) : Return the size of the table in samples.
     getRate() : Return the frequency in cps at which the sound will be 
         read at its original pitch.
     
@@ -1610,6 +1611,31 @@ class SndTable(PyoTableObject):
                 return _dur[0]
             else:
                 return _dur
+
+    def getSize(self, all=True):
+        """
+        Return the size of the table in samples.
+
+        Parameters:
+        
+        all : boolean
+            If the table contains more than one sound and `all` is True,
+            returns a list of all sizes. Otherwise, returns only the
+            first size as an int.
+
+        """
+        if type(self._path) == ListType:
+            _size = [obj.getSize() for obj in self._base_objs]
+        else:    
+            _size = self._base_objs[0].getSize()
+
+        if all:
+            return _size
+        else:
+            if type(_size) == ListType:
+                return _size[0]
+            else:
+                return _size
 
     @property
     def sound(self):
