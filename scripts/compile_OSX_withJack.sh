@@ -2,8 +2,10 @@
 
 # Remove build directory if exist
 if cd build; then
-    sudo rm -rf build
+    echo
+    echo "********** Removing older build directory **********"
     cd ..
+    sudo rm -rf build
 fi
 
 echo
