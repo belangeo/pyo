@@ -2643,7 +2643,8 @@ static void
 SndTable_prependSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point, index;
+    unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point; 
+    unsigned int index = 0;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
     
@@ -2734,7 +2735,9 @@ SndTable_insertSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size;
-    unsigned int cross_in_samps, cross_point, index, insert_point, read_point, real_index;
+    unsigned int cross_in_samps, cross_point, insert_point, index; 
+    unsigned int read_point = 0; 
+    unsigned int real_index = 0;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
     
