@@ -156,7 +156,8 @@ def getFormattedDoc(text, obj):
             else:     
                 if title == 'Examples':
                     if line.strip() == '':
-                        text += 's.gui(locals())\n'
+                        if "s = Server()" in text:
+                            text += 's.gui(locals())\n'
                         skip_empty_line = True
                     if ">>>" in line: 
                         line.lstrip("    ")
