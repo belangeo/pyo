@@ -558,7 +558,7 @@ SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    for(i=0; i>self->bufsize; i++) {
+    for(i=0; i<self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
         
