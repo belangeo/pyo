@@ -392,11 +392,16 @@ portmidi_get_default_output(){
 
 /****** Libsndfile utilities ******/
 #define sndinfo_info \
-"\nRetrieve informations about a soundfile.\n\n\
-Prints the infos of the given soundfile to the console and returns a tuple containing:\n (number of frames, duration in seconds, sampling rate, number of channels, file format, sample type).\n\nsndinfo(path, print=False)\n\nParameters:\n\n    \
+"\nRetrieve informations about a soundfile.\n\nsndinfo(path, print=False)\n\n\
+Prints the infos of the given soundfile to the console and returns a tuple containing:\n\n(number of frames, duration in seconds, sampling rate, number of channels, file format, sample type).\n\nsndinfo(path, print=False)\n\nParameters:\n\n    \
 path : string\n        Path of a valid soundfile.\n    \
-print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\n"
-
+print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\nExamples:\n\n    \
+>>> path = SNDS_PATH + '/transparent.aif'\n    \
+>>> print path\n    \
+>>> /usr/lib/python2.7/dist-packages/pyolib/snds/transparent.aif\n    \
+>>> info = sndinfo(path)\n    \
+>>> print info\n    \
+>>> (29877, 0.6774829931972789, 44100.0, 1, 'AIFF', '16 bit int')\n\n"
 
 static PyObject *
 sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -510,7 +515,14 @@ sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaul
         1 : 24 bit int\n    \
         2 : 32 bit int\n    \
         3 : 32 bit float\n    \
-        4 : 64 bit float\n\n"
+        4 : 64 bit float\n\n\
+Examples:\n\n    \
+>>> from random import uniform\n    \
+>>> import os\n    \
+>>> home = os.path.expanduser('~')\n    \
+>>> sr, dur, chnls, path = 44100, 5, 2, os.path.join(home, 'noise.aif')\n    \
+>>> samples = [[uniform(-0.5,0.5) for i in range(sr*dur)] for i in range(chnls)]\n    \
+>>> savefile(samples=samples, path=path, sr=sr, channels=chnls, fileformat=1, sampletype=1)\n\n"
 
 static PyObject *
 savefile(PyObject *self, PyObject *args, PyObject *kwds) {
@@ -590,9 +602,9 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
 /****** Algorithm utilities ******/
 #define reducePoints_info \
 "\nDouglas–Peucker curve reduction algorithm.\n\n\
-This function receives a list of points as input and returns a simplified list by eliminating redundancies.\n\n\
+reducePoints(pointlist, tolerance=0.02)\n\nThis function receives a list of points as input and returns a simplified list by eliminating redundancies.\n\n\
 A point is a tuple (or a list) of two floats, time and value. A list of points looks like: [(0, 0), (0.1, 0.7), (0.2, 0.5), ...]\n\n\
-reducePoints(pointlist, tolerance=0.02)\n\nParameters:\n\n    \
+Parameters:\n\n    \
 pointlist : list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
 tolerance : float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
 
@@ -754,14 +766,94 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 /****** Conversion utilities ******/
+#define midiToHz_info \
+"\nReturns the frequency in Hertz equivalent to the given midi note.\n\nmidiToHz(x)\n\nParameters:\n\n    \
+x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+>>> a = (48, 60, 62, 67, 72)\n    \
+>>> b = midiToHz(a)\n    \
+>>> print b\n    \
+>>> (130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656, 523.2511306013643)\n    \
+>>> a = [48, 60, 62, 67, 72]\n    \
+>>> b = midiToHz(a)\n    \
+>>> print b\n    \
+>>> [130.8127826503271, 261.62556530066814, 293.66476791748823, 391.9954359818656, 523.2511306013643]\n    \
+>>> b = midiToHz(60.0)\n    \
+>>> print b\n    \
+>>> 261.625565301\n\n"
+
 static PyObject *
 midiToHz(PyObject *self, PyObject *arg) {
-    return Py_BuildValue("d", 8.1757989156437 * pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))));
+    int count = 0;
+    int i = 0;
+    double x = 0.0;
+    PyObject *newseq = NULL;
+    if (PyNumber_Check(arg))
+        return Py_BuildValue("d", 8.1757989156437 * pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))));
+    else if (PyList_Check(arg)) {
+        count = PyList_Size(arg);
+        newseq = PyList_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(8.1757989156437 * pow(1.0594630943593, x)));
+        }
+        return newseq;
+    }
+    else if (PyTuple_Check(arg)) {
+        count = PyTuple_Size(arg);
+        newseq = PyTuple_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(8.1757989156437 * pow(1.0594630943593, x)));
+        }
+        return newseq;
+    }
+    else
+        Py_RETURN_NONE;
 }    
+
+#define midiToTranspo_info \
+"\nReturns the transposition factor equivalent to the given midi note (central key = 60).\n\nmidiToTranspo(x)\n\nParameters:\n\n    \
+x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+>>> a = (48, 60, 62, 67, 72)\n    \
+>>> b = midiToTranspo(a)\n    \
+>>> print b\n    \
+>>> (0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281, 2.0000000000001066)\n    \
+>>> a = [48, 60, 62, 67, 72]\n    \
+>>> b = midiToTranspo(a)\n    \
+>>> print b\n    \
+>>> [0.49999999999997335, 1.0, 1.122462048309383, 1.4983070768767281, 2.0000000000001066]\n    \
+>>> b = midiToTranspo(60.0)\n    \
+>>> print b\n    \
+>>> 1.0\n\n"
 
 static PyObject *
 midiToTranspo(PyObject *self, PyObject *arg) {
-    return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))-60.0));
+    int count = 0;
+    int i = 0;
+    double x = 0.0;
+    PyObject *newseq = NULL;
+    if (PyNumber_Check(arg))
+        return Py_BuildValue("d", pow(1.0594630943593, PyFloat_AsDouble(PyNumber_Float(arg))-60.0));
+    else if (PyList_Check(arg)) {
+        count = PyList_Size(arg);
+        newseq = PyList_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x-60.0)));
+        }
+        return newseq;
+    }
+    else if (PyTuple_Check(arg)) {
+        count = PyTuple_Size(arg);
+        newseq = PyTuple_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(pow(1.0594630943593, x-60.0)));
+        }
+        return newseq;
+    }
+    else
+        Py_RETURN_NONE;
 }    
 
 static PyObject *
@@ -797,8 +889,8 @@ static PyMethodDef pyo_functions[] = {
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
-{"midiToHz", (PyCFunction)midiToHz, METH_O, "Returns the frequency in Hertz equivalent to the given midi note."},
-{"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, "Returns the transposition factor equivalent to the given midi note (central key = 60)."},
+{"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
+{"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Returns the number of samples equivalent of the given duration in seconds."},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, "Returns the duration in seconds equivalent to the given number of samples."},
 {NULL, NULL, 0, NULL},
