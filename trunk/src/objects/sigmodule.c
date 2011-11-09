@@ -361,43 +361,57 @@ SigTo_generates_i(SigTo *self) {
     
     if (self->modebuffer[2] == 0) {
         value = PyFloat_AS_DOUBLE(self->value);
-        if (value != self->lastValue) {
-            self->timeCount = 0;
-            self->stepVal = (value - self->currentValue) / self->timeStep;
-            self->lastValue = value;
-        }    
-        
-        for (i=0; i<self->bufsize; i++) {
-            if (self->timeCount == (self->timeStep - 1)) {
-                self->currentValue = value;
-                self->timeCount++;
-            }
-            else if (self->timeCount < self->timeStep) {
-                self->currentValue += self->stepVal;
-                self->timeCount++;
-            }    
-            self->data[i] = self->currentValue;
+        if (self->timeStep <= 0) {
+            for (i=0; i<self->bufsize; i++)
+                self->data[i] = self->currentValue = self->lastValue = value;
         }
-    }
-    else {
-        MYFLT *vals = Stream_getData((Stream *)self->value_stream);        
-        for (i=0; i<self->bufsize; i++) {
-            value = vals[i];
+        else {
             if (value != self->lastValue) {
                 self->timeCount = 0;
                 self->stepVal = (value - self->currentValue) / self->timeStep;
                 self->lastValue = value;
             }    
-            
-            if (self->timeCount == (self->timeStep - 1)) {
-                self->currentValue = value;
-                self->timeCount++;
+        
+            for (i=0; i<self->bufsize; i++) {
+                if (self->timeCount == (self->timeStep - 1)) {
+                    self->currentValue = value;
+                    self->timeCount++;
+                }
+                else if (self->timeCount < self->timeStep) {
+                    self->currentValue += self->stepVal;
+                    self->timeCount++;
+                }    
+                self->data[i] = self->currentValue;
             }
-            else if (self->timeCount < self->timeStep) {
-                self->currentValue += self->stepVal;
-                self->timeCount++;
-            }    
-            self->data[i] = self->currentValue;
+        }
+    }
+    else {
+        MYFLT *vals = Stream_getData((Stream *)self->value_stream);        
+        if (self->timeStep <= 0) {
+            for (i=0; i<self->bufsize; i++) {
+                value = vals[i];
+                self->data[i] = self->currentValue = self->lastValue = value;
+            }
+        }
+        else {
+            for (i=0; i<self->bufsize; i++) {
+                value = vals[i];
+                if (value != self->lastValue) {
+                    self->timeCount = 0;
+                    self->stepVal = (value - self->currentValue) / self->timeStep;
+                    self->lastValue = value;
+                }    
+            
+                if (self->timeCount == (self->timeStep - 1)) {
+                    self->currentValue = value;
+                    self->timeCount++;
+                }
+                else if (self->timeCount < self->timeStep) {
+                    self->currentValue += self->stepVal;
+                    self->timeCount++;
+                }    
+                self->data[i] = self->currentValue;
+            }
         }
     }
 }
