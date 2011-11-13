@@ -1391,6 +1391,7 @@ class SndTable(PyoTableObject):
     getSize(all) : Return the size of the table in samples.
     getRate() : Return the frequency in cps at which the sound will be 
         read at its original pitch.
+    getEnvelope(points) : Return the amplitude envelope of the table.
     
     Attributes:
     
@@ -1636,6 +1637,21 @@ class SndTable(PyoTableObject):
                 return _size[0]
             else:
                 return _size
+                
+    def getEnvelope(self, points):
+        """
+        Return the amplitude envelope of the table.
+        
+        Return a list, of length `chnl`, of lists of length `points` filled 
+        with the amplitude envelope of the table.
+        
+        Parameters:
+        
+        points : int
+            Number of points of the amplitude analysis.
+
+        """
+        return [obj.getEnvelope(points) for obj in self._base_objs]
 
     @property
     def sound(self):
