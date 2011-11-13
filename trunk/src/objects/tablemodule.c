@@ -2938,6 +2938,43 @@ SndTable_getViewTable(SndTable *self) {
     return samples;
 };
 
+static PyObject * 
+SndTable_getEnvelope(SndTable *self, PyObject *arg) { 
+    int i, j, step, points;
+    long count;
+    MYFLT absin, last;
+    PyObject *samples;
+
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isInt = PyInt_Check(arg);
+    
+    if (isInt) {
+        count = 0;
+        points = PyInt_AsLong(arg);
+        step = self->size / points;
+        samples = PyList_New(points);
+        for(i=0; i<points; i++) {
+            last = 0.0;
+            absin = 0.0;
+            for (j=0; j<step; j++) {
+                if (MYFABS(self->data[count++]) > absin)
+                    absin = self->data[count];
+            }
+            last = (absin + last) * 0.5;
+            PyList_SetItem(samples, i, PyFloat_FromDouble(last));
+        }
+        return samples;
+    }
+    else {
+        Py_INCREF(Py_None);
+		return Py_None;
+    }
+};
+
 static PyObject *
 SndTable_setSound(SndTable *self, PyObject *args, PyObject *kwds)
 {    
@@ -3039,6 +3076,7 @@ static PyMethodDef SndTable_methods[] = {
 {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
 {"getViewTable", (PyCFunction)SndTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+{"getEnvelope", (PyCFunction)SndTable_getEnvelope, METH_O, "Returns X points envelope follower of the table."},
 {"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)SndTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"put", (PyCFunction)SndTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
