@@ -526,12 +526,12 @@ extern PyTypeObject FrameAccumType;
     int h = 200; \
     int h2 = h/2; \
     int amp = h2 - 2; \
-    float step = (float)self->size / (float)(w - 1); \
+    float step = (float)self->size / (float)(w); \
     PyObject *samples; \
  \
     samples = PyList_New(w*4); \
     for(i=0; i<w; i++) { \
-        y = self->data[(int)(i*step)-1] * amp + amp + 1; \
+        y = self->data[(int)(i*step)] * amp + amp; \
         PyList_SetItem(samples, i*4, PyInt_FromLong(i)); \
         PyList_SetItem(samples, i*4+1, PyInt_FromLong(h-y)); \
         PyList_SetItem(samples, i*4+2, PyInt_FromLong(i)); \
