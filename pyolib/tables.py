@@ -19,7 +19,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
-from _widgets import createGraphWindow
+from _widgets import createGraphWindow, createSndViewTableWindow
 from types import ListType
 
 ######################################################################
@@ -1652,6 +1652,26 @@ class SndTable(PyoTableObject):
 
         """
         return [obj.getEnvelope(points) for obj in self._base_objs]
+
+    def view(self, title="Sound waveform", wxnoserver=False, mouse_callback=None):
+        """
+        Opens a window showing the contents of the table.
+
+        Parameters:
+
+        title : string, optional
+            Window title. Defaults to "Table waveform". 
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the table window. 
+            Defaults to False.
+        mouse_callback : callable
+            If provided, this function will be called with the mouse 
+            position inside the frame as argument. Defaults to None.
+
+        """
+        createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
 
     @property
     def sound(self):

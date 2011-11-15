@@ -55,6 +55,7 @@ WINDOWS = []
 CTRLWINDOWS = []
 GRAPHWINDOWS = []
 TABLEWINDOWS = []
+SNDTABLEWINDOWS = []
 MATRIXWINDOWS = []
 
 def createRootWindow():
@@ -111,6 +112,14 @@ def wxCreateDelayedTableWindows():
     for win in TABLEWINDOWS:
         if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1])
         else: f = ViewTable_withoutPIL(None, win[0], win[1])
+        f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        f.SetTitle(win[2])
+        f.Show()
+
+def wxCreateDelayedSndTableWindows():
+    for win in SNDTABLEWINDOWS:
+        if WITH_PIL: f = SndViewTable_withPIL(None, win[0], win[1], win[3])
+        else: f = SndViewTable_withoutPIL(None, win[0], win[1], win[3])
         f.SetPosition((random.randint(250,500), random.randint(200,400)))
         f.SetTitle(win[2])
         f.Show()
@@ -191,6 +200,27 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
             f.SetTitle(title)
         else:
             TABLEWINDOWS.append([samples, tableclass, title])    
+
+def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tableclass=None, mouse_callback=None):
+    if not PYO_USE_WX:
+        createRootWindow()
+        win = tkCreateToplevelWindow()
+        if WITH_PIL: f = ViewTable_withPIL(win, obj._base_objs[0].getViewTable())
+        else: f = ViewTable_withoutPIL(win, obj._base_objs[0].getViewTable())
+        win.resizable(False, False)
+        win.title(title)
+    else:
+        if wxnoserver or wx.GetApp() != None:
+            if wx.GetApp() == None:
+                root = createRootWindow()
+            else:
+                root = None    
+            if WITH_PIL: f = SndViewTable_withPIL(None, obj, tableclass, mouse_callback)
+            else: f = SndViewTable_withoutPIL(None, obj, tableclass, mouse_callback)
+            f.Show()
+            f.SetTitle(title)
+        else:
+            SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
         
 def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False):
     if not WITH_PIL: print """The Python Imaging Library is not installed. 
@@ -230,6 +260,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         wx.CallAfter(wxCreateDelayedCtrlWindows)
         wx.CallAfter(wxCreateDelayedGraphWindows)
         wx.CallAfter(wxCreateDelayedTableWindows)
+        wx.CallAfter(wxCreateDelayedSndTableWindows)
         wx.CallAfter(wxCreateDelayedMatrixWindows)
         wx.CallAfter(f.Raise)
     return f, win

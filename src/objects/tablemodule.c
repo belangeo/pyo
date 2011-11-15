@@ -2910,17 +2910,39 @@ static PyObject * SndTable_put(SndTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * SndTable_get(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
 static PyObject * 
-SndTable_getViewTable(SndTable *self) { 
-    int i, j, y;
-    int w = 500;
-    int h = 200;
-    int h2 = h/2;
-    int amp = h2;
+SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) { 
+    int i, j, y, w, h, h2, step;
     int count = 0;
     MYFLT absin;
-    int step = (int)(self->size / (MYFLT)(w - 1));
     PyObject *samples;
+    PyObject *sizetmp = NULL;
 
+    static char *kwlist[] = {"size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|O", kwlist, &sizetmp))
+        return PyInt_FromLong(-1); 
+    
+    if (sizetmp) {
+        if (PyTuple_Check(sizetmp)) {
+            w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
+            h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1));
+        }
+        else if (PyList_Check(sizetmp)) {
+            w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0));
+            h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1));
+        }
+        else {
+            w = 500;
+            h = 200;
+        }
+    }
+    else {
+        w = 500;
+        h = 200;
+    }
+    h2 = h/2;
+    step = (int)(self->size / (MYFLT)(w));
+    
     samples = PyList_New(w*4);
     for(i=0; i<w; i++) {
         absin = 0.0;
@@ -2928,13 +2950,12 @@ SndTable_getViewTable(SndTable *self) {
             if (MYFABS(self->data[count++]) > absin)
                 absin = self->data[count];
         }
-        y = (int)(absin * amp);
+        y = (int)(absin * h2);
         PyList_SetItem(samples, i*4, PyInt_FromLong(i));
         PyList_SetItem(samples, i*4+1, PyInt_FromLong(h2-y));
         PyList_SetItem(samples, i*4+2, PyInt_FromLong(i));
         PyList_SetItem(samples, i*4+3, PyInt_FromLong(h2+y));
     }
-
     return samples;
 };
 
@@ -3074,7 +3095,7 @@ static PyMemberDef SndTable_members[] = {
 static PyMethodDef SndTable_methods[] = {
 {"getServer", (PyCFunction)SndTable_getServer, METH_NOARGS, "Returns server object."},
 {"getTable", (PyCFunction)SndTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)SndTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)SndTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)SndTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"getEnvelope", (PyCFunction)SndTable_getEnvelope, METH_O, "Returns X points envelope follower of the table."},
 {"setData", (PyCFunction)SndTable_setData, METH_O, "Sets the table from samples in a text file."},
