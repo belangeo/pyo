@@ -48,7 +48,8 @@ class NewMatrix(PyoMatrixObject):
     replace() : Replaces the actual matrix.
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read a row at its original pitch.
-
+    genSineTerrain(freq, phase) : Generates a modulated sinusoidal terrain.
+    
     See also: MatrixRec
 
     Examples:
@@ -97,4 +98,20 @@ class NewMatrix(PyoMatrixObject):
         
         """
         return self._base_objs[0].getRate()
+
+    def genSineTerrain(self, freq=1, phase=0.0625):
+        """
+        Generates a modulated sinusoidal terrain.
+
+        Parameters:
+
+        freq : float
+            Frequency of sinusoids used to created the terrain.
+            Defaults to 1.
+        phase : float
+            Phase deviation between rows of the terrain. Should be in
+            the range 0 -> 1. Defaults to 0.0625.
+
+        """
+        [obj.genSineTerrain(freq, phase) for obj in self._base_objs]
 
