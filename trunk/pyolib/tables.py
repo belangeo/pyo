@@ -1392,6 +1392,8 @@ class SndTable(PyoTableObject):
     getRate() : Return the frequency in cps at which the sound will be 
         read at its original pitch.
     getEnvelope(points) : Return the amplitude envelope of the table.
+    view(title, wxnoserver, mouse_callback) : Opens a window showing the 
+        contents of the table.
     
     Attributes:
     
@@ -1668,7 +1670,7 @@ class SndTable(PyoTableObject):
             Defaults to False.
         mouse_callback : callable
             If provided, this function will be called with the mouse 
-            position inside the frame as argument. Defaults to None.
+            position, inside the frame, as argument. Defaults to None.
 
         """
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)

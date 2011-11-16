@@ -378,6 +378,30 @@ NewMatrix_setMatrix(NewMatrix *self, PyObject *value)
     return Py_None;    
 }
 
+static PyObject *
+NewMatrix_genSineTerrain(NewMatrix *self, PyObject *args, PyObject *kwds)
+{
+    int i, j;
+    MYFLT xfreq, xphase, xsize;
+    MYFLT freq = 1;
+    MYFLT phase = 0.0625;
+    static char *kwlist[] = {"freq", "phase", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &freq, &phase))
+        return PyInt_FromLong(-1);
+    
+    xfreq = TWOPI * freq;
+    xsize = 1.0 / self->width;
+    for (i=0; i<self->height; i++) {
+        xphase = MYSIN(i * phase);
+        for (j=0; j<self->width; j++) {
+            self->data[i][j] = MYSIN(xfreq * j * xsize + xphase);
+        }
+    }
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
 static PyMemberDef NewMatrix_members[] = {
 {"server", T_OBJECT_EX, offsetof(NewMatrix, server), 0, "Pyo server."},
 {"matrixstream", T_OBJECT_EX, offsetof(NewMatrix, matrixstream), 0, "Matrix stream object."},
@@ -393,6 +417,7 @@ static PyMethodDef NewMatrix_methods[] = {
 {"setData", (PyCFunction)NewMatrix_setData, METH_O, "Sets the matrix from a list of list of floats (resizes the matrix)."},
 {"normalize", (PyCFunction)NewMatrix_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"blur", (PyCFunction)NewMatrix_blur, METH_NOARGS, "Blur the matrix."},
+{"genSineTerrain", (PyCFunction)NewMatrix_genSineTerrain, METH_VARARGS|METH_KEYWORDS, "Generate a modulated sinusoidal terrain."},
 {"boost", (PyCFunction)NewMatrix_boost, METH_VARARGS|METH_KEYWORDS, "Boost the contrast of the matrix."},
 {"put", (PyCFunction)NewMatrix_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the matrix."},
 {"get", (PyCFunction)NewMatrix_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the matrix."},

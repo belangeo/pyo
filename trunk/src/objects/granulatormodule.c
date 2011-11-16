@@ -751,9 +751,11 @@ Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
 
     srand((unsigned)(time(0)));
     for (i=0; i<self->ngrains; i++) {
-        phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.015));
+        phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
         if (phase < 0.0)
             phase = 0.0;
+        else if (phase >= 1.0)
+            phase -= 1.0;
         self->gphase[i] = phase;
         self->startPos[i] = self->gsize[i] = 0.0;
         self->lastppos[i] = 1.0;
@@ -961,9 +963,11 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         
         srand((unsigned)(time(0)));
         for (i=0; i<self->ngrains; i++) {
-            phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.015));
+            phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
             if (phase < 0.0)
                 phase = 0.0;
+            else if (phase >= 1.0)
+                phase -= 1.0;
             self->gphase[i] = phase;
             self->startPos[i] = self->gsize[i] = 0.0;
             self->lastppos[i] = 1.0;
