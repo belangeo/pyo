@@ -4656,6 +4656,7 @@ TableRead_init(TableRead *self, PyObject *args, PyObject *kwds)
 {
     int i;
     PyObject *tabletmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    MYFLT *tablelist;
     
     static char *kwlist[] = {"table", "freq", "loop", "interp", "mul", "add", NULL};
     
@@ -4683,8 +4684,11 @@ TableRead_init(TableRead *self, PyObject *args, PyObject *kwds)
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
     self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
+    tablelist = TableStream_getData(self->table);
+    
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
+        self->data[i] = tablelist[0];
     }    
     
     (*self->mode_func_ptr)(self);
