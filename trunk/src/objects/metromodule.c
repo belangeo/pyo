@@ -2320,6 +2320,9 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     self->amp_buffer_streams = (MYFLT *)realloc(self->amp_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->dur_buffer_streams = (MYFLT *)realloc(self->dur_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->end_buffer_streams = (MYFLT *)realloc(self->end_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
+    for (i=0; i<(self->poly*self->bufsize); i++) {
+        self->buffer_streams[i] = self->tap_buffer_streams[i] = self->amp_buffer_streams[i] = self->dur_buffer_streams[i] = self->end_buffer_streams[i] = 0.0;
+    }
     self->amplitudes = (MYFLT *)realloc(self->amplitudes, self->poly * sizeof(MYFLT));
     for (i=0; i<self->poly; i++) { 
         self->amplitudes[i] = 0.0;
