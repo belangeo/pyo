@@ -1842,11 +1842,11 @@ typedef struct {
 static MYFLT
 Beater_defineAccent(int n) {
 	if (n == 1)
-		return (MYFLT)((rand() % 15) + 112) / 127.; // 112 -> 127
+		return (MYFLT)((rand() % 10) + 117) / 127.; // 117 -> 127
 	else if (n == 2)
-		return (MYFLT)((rand() % 20) + 70) / 127.; // 70 -> 90
+		return (MYFLT)((rand() % 20) + 60) / 127.; // 60 -> 80
 	else if (n == 3)
-		return (MYFLT)((rand() % 20) + 40) / 127.; // 40 -> 60
+		return (MYFLT)((rand() % 15) + 30) / 127.; // 30 -> 45
     else
         return 0.5;
 }
@@ -2007,7 +2007,7 @@ Beater_calculateDurations(Beater *self) {
     for (i=0; i < (self->tapLength-1); i++) {
 		self->durations[self->tapList[i]] = (self->tapList[i+1] - self->tapList[i]) * self->tapDur - 0.005;
 	}
-	self->durations[self->tapList[self->tapLength-1]] = (self->taps - self->tapList[self->tapLength-1] + self->tapList[0]) * self->tapDur - 0.005;
+	self->durations[self->tapList[self->tapLength-1]] = (self->last_taps - self->tapList[self->tapLength-1] + self->tapList[0]) * self->tapDur - 0.005;
 }
 
 static void
@@ -2034,7 +2034,7 @@ Beater_makePresetActive(Beater *self, int n)
 
 static void
 Beater_generate_i(Beater *self) {
-    int i;
+    int i, j;
     double tm;
     
     tm = PyFloat_AS_DOUBLE(self->time);
@@ -2053,11 +2053,13 @@ Beater_generate_i(Beater *self) {
     for (i=0; i<self->bufsize; i++) {
         self->currentTime += self->sampleToSec;
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
-        self->amp_buffer_streams[i + self->voiceCount * self->bufsize] = self->amplitudes[self->voiceCount];
+        for (j=0; j<self->poly; j++) {
+            self->amp_buffer_streams[i + j * self->bufsize] = self->amplitudes[j];
+        }
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->taps-2))
+            if (self->tapCount == (self->last_taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
@@ -2102,7 +2104,7 @@ Beater_generate_i(Beater *self) {
 static void
 Beater_generate_a(Beater *self) {
     double tm;
-    int i;
+    int i, j;
     
     MYFLT *time = Stream_getData((Stream *)self->time_stream);
 
@@ -2121,11 +2123,13 @@ Beater_generate_a(Beater *self) {
         tm = (double)time[i];
         self->currentTime += self->sampleToSec;
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
-        self->amp_buffer_streams[i + self->voiceCount * self->bufsize] = self->amplitudes[self->voiceCount];
+        for (j=0; j<self->poly; j++) {
+            self->amp_buffer_streams[i + j * self->bufsize] = self->amplitudes[j];
+        }
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->taps-2))
+            if (self->tapCount == (self->last_taps-2))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
