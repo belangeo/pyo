@@ -1527,8 +1527,15 @@ TrigEnv_readframes_i(TrigEnv *self) {
         if (in[i] == 1) {
             MYFLT dur = PyFloat_AS_DOUBLE(self->dur);
             self->current_dur = self->sr * dur;
-            self->inc = (MYFLT)size / self->current_dur;
-            self->active = 1;
+            if (self->current_dur <= 0.0) {
+                self->current_dur = 0.0;
+                self->inc = 0.0;
+                self->active = 0;
+            }
+            else {
+                self->inc = (MYFLT)size / self->current_dur;
+                self->active = 1;
+            }
             self->pointerPos = 0.;
         }
         if (self->active == 1) {
@@ -1560,8 +1567,15 @@ TrigEnv_readframes_a(TrigEnv *self) {
         if (in[i] == 1) {
             MYFLT dur = dur_st[i];
             self->current_dur = self->sr * dur;
-            self->inc = (MYFLT)size / self->current_dur;
-            self->active = 1;
+            if (self->current_dur <= 0.0) {
+                self->current_dur = 0.0;
+                self->inc = 0.0;
+                self->active = 0;
+            }
+            else {
+                self->inc = (MYFLT)size / self->current_dur;
+                self->active = 1;
+            }
             self->pointerPos = 0.;
         }
         if (self->active == 1) {
