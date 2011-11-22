@@ -1714,7 +1714,6 @@ PyTypeObject PrograminType = {
 typedef struct {
     pyo_audio_HEAD
     int *notebuf; /* pitch, velocity, ... */
-    int *latencies; /* latency inside the bufsize for each note */
     int voices;
     int vcount;
     int scale; /* 0 = midi, 1 = hertz, 2 = transpo */
@@ -1782,15 +1781,11 @@ int whichVoice(int *buf, int pitch, int len) {
 void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
 {
     int i, ok, voice, latency;
-    unsigned int curMsTime = Server_getPortTimeTime((Server *)self->server);
-    int oneBufMsTime = (int)(self->bufsize / self->sr * 1000.0);
     
     for (i=0; i<count; i++) {
         int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
         int pitch = Pm_MessageData1(buffer[i].message);
         int velocity = Pm_MessageData2(buffer[i].message);
-        int timestamp = buffer[i].timestamp;
-        //printf("pitch : %i, velocity : %i, timestamp : %i\n", pitch, velocity, timestamp);
 
         if (self->channel == 0) {
             if ((status & 0xF0) == 0x90 || (status & 0xF0) == 0x80)
@@ -1807,44 +1802,25 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
         
         if (ok == 1) {
             if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0 && pitch >= self->first && pitch <= self->last) {
-                //printf("latency : %i ms\n", latency);
                 //printf("%i, %i, %i\n", status, pitch, velocity);
                 voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
                 if (voice != -1) {
-                    latency = curMsTime - 5 - timestamp;
-                    if (latency < 0) 
-                        latency = 0;
-                    else if (latency > oneBufMsTime) 
-                        latency = oneBufMsTime;
                     self->vcount = voice;
                     self->notebuf[voice*2] = pitch;
                     self->notebuf[voice*2+1] = velocity;
-                    self->latencies[voice] = latency;
                 }    
             }    
             else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
-                latency = curMsTime - 5 - timestamp;
-                if (latency < 0) 
-                    latency = 0;
-                else if (latency > oneBufMsTime) 
-                    latency = oneBufMsTime;
                 voice = whichVoice(self->notebuf, pitch, self->voices);
                 self->notebuf[voice*2] = -1;
                 self->notebuf[voice*2+1] = 0.;
-                self->latencies[voice] = latency;
             }
             else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && (status & 0xF0) == 0x80 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
-                latency = curMsTime - 5 - timestamp;
-                if (latency < 0) 
-                    latency = 0;
-                else if (latency > oneBufMsTime) 
-                    latency = oneBufMsTime;
                 voice = whichVoice(self->notebuf, pitch, self->voices);
                 self->notebuf[voice*2] = -1;
                 self->notebuf[voice*2+1] = 0.;
-                self->latencies[voice] = latency;
             }
         }
     }    
@@ -1881,7 +1857,6 @@ MidiNote_dealloc(MidiNote* self)
 {
     free(self->data);
     free(self->notebuf);
-    free(self->latencies);
     MidiNote_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -1924,12 +1899,10 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->notebuf = (int *)realloc(self->notebuf, self->voices * 2 * sizeof(int));
-    self->latencies = (int *)realloc(self->latencies, self->voices * sizeof(int));
 
     for (i=0; i<self->voices; i++) {
         self->notebuf[i*2] = -1;
         self->notebuf[i*2+1] = 0;
-        self->latencies[i] = 0;
     }
 
     self->centralkey = (self->first + self->last) / 2;
@@ -1957,12 +1930,6 @@ MYFLT MidiNote_getValue(MidiNote *self, int voice, int which)
     else if (which == 1)
         val = (MYFLT)midival / 127.;
     return val;
-}
-
-int MidiNote_getLatency(MidiNote *self, int voice)
-{
-    int lat = self->latencies[voice];
-    return (int)MYFLOOR(self->sr * lat * 0.001); 
 }
 
 static PyObject * MidiNote_getServer(MidiNote* self) { GET_SERVER };
@@ -2082,7 +2049,6 @@ typedef struct {
     int modebuffer[2];
     int voice;
     int mode; /* 0 = pitch, 1 = velocity */
-    MYFLT lastval;
 } Notein;
 
 static void Notein_postprocessing_ii(Notein *self) { POST_PROCESSING_II };
@@ -2137,20 +2103,15 @@ Notein_compute_next_data_frame(Notein *self)
 {
     int i;
     MYFLT tmp = MidiNote_getValue(self->handler, self->voice, self->mode);
-    int latency = MidiNote_getLatency(self->handler, self->voice);
     
     if (self->mode == 0 && tmp != -1) {
         for (i=0; i<self->bufsize; i++) {
-            if (i == latency)
-                self->lastval = tmp;
-            self->data[i] = self->lastval;
+            self->data[i] = tmp;
         }    
     } 
     else if (self->mode == 1) {
         for (i=0; i<self->bufsize; i++) {
-            if (i == latency)
-                self->lastval = tmp;
-            self->data[i] = self->lastval;
+            self->data[i] = tmp;
         }         
         (*self->muladd_func_ptr)(self);
     }    
@@ -2191,9 +2152,8 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->voice = 0;
     self->mode = 0;
-    self->lastval = 0.0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Notein_compute_next_data_frame);

@@ -7,7 +7,6 @@ else
 fi
 sudo curl http://www.iact.umontreal.ca/pyo_dep_headers_x86_64/portaudio.h -o "portaudio.h"
 sudo curl http://www.iact.umontreal.ca/pyo_dep_headers_x86_64/portmidi.h -o "portmidi.h"
-sudo curl http://www.iact.umontreal.ca/pyo_dep_headers_x86_64/porttime.h -o "porttime.h"
 sudo curl http://www.iact.umontreal.ca/pyo_dep_headers_x86_64/sndfile.h -o "sndfile.h"
 
 

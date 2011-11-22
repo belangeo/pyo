@@ -126,7 +126,6 @@ extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);    
 extern PmEvent * Server_getMidiEventBuffer(Server *self);    
 extern int Server_getMidiEventCount(Server *self);  
-extern unsigned int Server_getPortTimeTime(Server *self);
 extern PyTypeObject ServerType;    
     
 
