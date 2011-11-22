@@ -250,6 +250,14 @@ class PyoObject(object):
     
     """
     def __init__(self):
+        if not serverCreated():
+            print "\nPYO Error: You must create and boot a Server before creating any audio object.\n"
+            exit()
+        else:
+            if not serverBooted():
+                print "\nPYO Error: The Server must be booted before creating any audio object.\n"
+                exit()
+
         self._target_dict = {}
         self._signal_dict = {}
         self._keep_trace = []
@@ -730,13 +738,19 @@ class PyoTableObject(object):
 
     """
     def __init__(self):
-        pass
+        if not serverCreated():
+            print "\nPYO Error: You must create and boot a Server before creating any audio object.\n"
+            exit()
+        else:
+            if not serverBooted():
+                print "\nPYO Error: The Server must be booted before creating any audio object.\n"
+                exit()
 
     def __getitem__(self, i):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"         
+            print "'i' too large!"
  
     def __len__(self):
         return len(self._base_objs)
@@ -955,13 +969,19 @@ class PyoMatrixObject(object):
 
     """
     def __init__(self):
-        pass
+        if not serverCreated():
+            print "\nPYO Error: You must create and boot a Server before creating any audio object.\n"
+            exit()
+        else:
+            if not serverBooted():
+                print "\nPYO Error: The Server must be booted before creating any audio object.\n"
+                exit()
 
     def __getitem__(self, i):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"         
+            print "'i' too large!"
  
     def __len__(self):
         return len(self._base_objs)

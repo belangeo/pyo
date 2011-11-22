@@ -66,6 +66,7 @@ class HarmTable(PyoTableObject):
 
     """
     def __init__(self, list=[1., 0.], size=8192):
+        PyoTableObject.__init__(self)
         self._list = list
         self._size = size
         self._base_objs = [HarmTable_base(list, size)]
@@ -154,6 +155,7 @@ class SawTable(PyoTableObject):
 
     """
     def __init__(self, order=10, size=8192):
+        PyoTableObject.__init__(self)
         self._order = order
         self._size = size
         list = [1./i for i in range(1,(order+1))]
@@ -242,6 +244,7 @@ class SquareTable(PyoTableObject):
 
     """
     def __init__(self, order=10, size=8192):
+        PyoTableObject.__init__(self)
         self._order = order
         self._size = size
         list = []
@@ -345,6 +348,7 @@ class ChebyTable(PyoTableObject):
 
     """
     def __init__(self, list=[1., 0.], size=8192):
+        PyoTableObject.__init__(self)
         self._list = list
         self._size = size
         self._base_objs = [ChebyTable_base(list, size)]
@@ -427,6 +431,7 @@ class HannTable(PyoTableObject):
 
     """
     def __init__(self, size=8192):
+        PyoTableObject.__init__(self)
         self._size = size
         self._base_objs = [HannTable_base(size)]
 
@@ -499,6 +504,7 @@ class WinTable(PyoTableObject):
 
     """
     def __init__(self, type=2, size=8192):
+        PyoTableObject.__init__(self)
         self._type = type
         self._size = size
         self._base_objs = [WinTable_base(type, size)]
@@ -580,6 +586,7 @@ class ParaTable(PyoTableObject):
 
     """
     def __init__(self, size=8192):
+        PyoTableObject.__init__(self)
         self._size = size
         self._base_objs = [ParaTable_base(size)]
 
@@ -653,6 +660,7 @@ class LinTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        PyoTableObject.__init__(self)
         self._size = size
         self._base_objs = [LinTable_base(list, size)]
 
@@ -810,6 +818,7 @@ class CosTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        PyoTableObject.__init__(self)
         self._size = size
         self._base_objs = [CosTable_base(list, size)]
 
@@ -989,6 +998,7 @@ class CurveTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
+        PyoTableObject.__init__(self)
         self._size = size
         self._tension = tension
         self._bias = bias
@@ -1204,6 +1214,7 @@ class ExpTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
+        PyoTableObject.__init__(self)
         self._size = size
         self._exp = exp
         self._inverse = inverse
@@ -1409,6 +1420,7 @@ class SndTable(PyoTableObject):
 
     """
     def __init__(self, path, chnl=None, start=0, stop=None):
+        PyoTableObject.__init__(self)
         self._size = []
         self._dur = []
         self._base_objs = []
@@ -1733,6 +1745,7 @@ class NewTable(PyoTableObject):
 
     """
     def __init__(self, length, chnls=1, init=None, feedback=0.0):
+        PyoTableObject.__init__(self)
         self._length = length
         self._chnls = chnls
         self._feedback = feedback
@@ -1854,6 +1867,7 @@ class DataTable(PyoTableObject):
 
     """
     def __init__(self, size, chnls=1, init=None):
+        PyoTableObject.__init__(self)
         self._size = size
         self._chnls = chnls
         if init == None:
@@ -1897,5 +1911,4 @@ class DataTable(PyoTableObject):
 
         """
         return self._base_objs[0].getRate()
-
 

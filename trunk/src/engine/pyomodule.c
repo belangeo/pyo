@@ -870,6 +870,33 @@ secToSamps(PyObject *self, PyObject *arg) {
     return Py_BuildValue("i", (int)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
 }                         
 
+/************* Server quieries *************/
+static PyObject *
+serverCreated(PyObject *self) {
+    if (PyServer_get_server() != NULL)
+        Py_RETURN_TRUE;
+    else
+        Py_RETURN_FALSE;
+}
+
+static PyObject *
+serverBooted(PyObject *self) {
+    int boot;
+    PyObject *server;
+    if (PyServer_get_server() != NULL) {
+        server = PyServer_get_server();
+        boot = PyInt_AsLong(PyObject_CallMethod(server, "getIsBooted", NULL));
+        if (boot == 0)
+            Py_RETURN_FALSE;
+        else
+            Py_RETURN_TRUE;
+    }
+    else {
+        printf("'serverBooted' called but there is no server created.\n");
+        Py_RETURN_FALSE;
+    }
+}
+
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
@@ -893,6 +920,8 @@ static PyMethodDef pyo_functions[] = {
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Returns the number of samples equivalent of the given duration in seconds."},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, "Returns the duration in seconds equivalent to the given number of samples."},
+{"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, "Returns True if a Server object is already created, otherwise, returns False."},
+{"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, "Returns True if an already created Server is booted, otherwise, returns False."},
 {NULL, NULL, 0, NULL},
 };
 
