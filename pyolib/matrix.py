@@ -22,7 +22,7 @@ from _maps import *
 
 ######################################################################
 ### Matrix
-######################################################################                                       
+######################################################################
 class NewMatrix(PyoMatrixObject):
     """
     Create a new matrix ready for recording. 
@@ -70,6 +70,7 @@ class NewMatrix(PyoMatrixObject):
 
     """
     def __init__(self, width, height, init=None):
+        PyoMatrixObject.__init__(self)
         self._size = (width, height)
         if init == None:
             self._base_objs = [NewMatrix_base(width, height)]
