@@ -26,7 +26,6 @@
 #include "structmember.h"
 #include "portaudio.h"
 #include "portmidi.h"
-#include "porttime.h"
 #include "sndfile.h"
 #include "streammodule.h"
 #include "pyomodule.h"
@@ -1618,14 +1617,11 @@ Server_pm_init(Server *self)
 {
    /* Initializing MIDI */    
     PmError pmerr;
-    
-    Pt_Start(1, NULL, NULL);
 
     pmerr = Pm_Initialize();
     if (pmerr) {
         Server_warning(self, "PortMidi warning: could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
         self->withPortMidi = 0;
-        Pt_Stop();
         return -1;
     }    
     else {
@@ -1646,7 +1642,6 @@ Server_pm_init(Server *self)
                                  "PortMidi warning: could not open midi input %d (%s): %s\nPortmidi closed\n",
                                  0, info->name, Pm_GetErrorText(pmerr));
                     self->withPortMidi = 0;
-                    Pt_Stop();
                     Pm_Terminate();
                 }    
                 else
@@ -1655,14 +1650,12 @@ Server_pm_init(Server *self)
             else {
                 Server_warning(self, "PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
                 self->withPortMidi = 0;
-                Pt_Stop();
                 Pm_Terminate();
             }    
         }    
         else {
             Server_warning(self, "PortMidi warning: No midi device found!\nPortmidi closed\n");
             self->withPortMidi = 0;
-            Pt_Stop();
             Pm_Terminate();
         }    
     }
@@ -1845,8 +1838,6 @@ Server_stop(Server *self)
     }
     else {
         self->server_stopped = 1;
-        if (self->withPortMidi == 1)
-            Pt_Stop();
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -2042,11 +2033,6 @@ Server_getMidiEventBuffer(Server *self) {
 int
 Server_getMidiEventCount(Server *self) {
     return self->midi_count;
-}
-
-unsigned int
-Server_getPortTimeTime(Server *self) {
-    return Pt_Time();
 }
 
 static PyObject *
