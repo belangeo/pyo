@@ -62,6 +62,7 @@ class Midictl(PyoObject):
     setMinScale(x) : Replace the `minscale` attribute.
     setMaxScale(x) : Replace the `maxscale` attribute.
     setChannel(x) : Replace the `channel` attribute.
+    setValue(x) : Reset audio stream to value in argument.
 
     Attributes:
 
@@ -158,6 +159,19 @@ class Midictl(PyoObject):
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setValue(self, x):
+        """
+        Reset audio stream to value in argument.
+
+        Parameters:
+
+        x : float
+            new current value.
+
+        """
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
