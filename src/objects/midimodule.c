@@ -434,6 +434,27 @@ static PyObject * Midictl_div(Midictl *self, PyObject *arg) { DIV };
 static PyObject * Midictl_inplace_div(Midictl *self, PyObject *arg) { INPLACE_DIV };
 
 static PyObject *
+Midictl_setValue(Midictl *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyNumber_Check(arg);
+    
+	if (isNum == 1) {
+		tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        self->oldValue = self->value = tmp;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
 Midictl_setMinScale(Midictl *self, PyObject *arg)
 {
     int tmp;
@@ -533,6 +554,7 @@ static PyMethodDef Midictl_methods[] = {
     {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
+	{"setValue", (PyCFunction)Midictl_setValue, METH_O, "Resets audio stream to value in argument."},
 	{"setMinScale", (PyCFunction)Midictl_setMinScale, METH_O, "Sets the minimum value of scaling."},
 	{"setMaxScale", (PyCFunction)Midictl_setMaxScale, METH_O, "Sets the maximum value of scaling."},
 	{"setCtlNumber", (PyCFunction)Midictl_setCtlNumber, METH_O, "Sets the controller number."},
