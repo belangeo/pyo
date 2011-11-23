@@ -2301,7 +2301,9 @@ static int
 Beater_init(Beater *self, PyObject *args, PyObject *kwds)
 {
     int i;
+    unsigned int seed;
     PyObject *timetmp=NULL;
+    extern int BEATER_INSTANCES;
     
     static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", NULL};
     
@@ -2317,7 +2319,8 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    srand((unsigned)(time(0)));
+    BEATER_INSTANCES++;
+    Server_generateSeed((Server *)self->server, 1);
     
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));

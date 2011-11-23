@@ -55,7 +55,7 @@ typedef struct {
     jack_port_t **jack_out_ports;
 #endif
 } PyoJackBackendData;
-    
+  
 typedef struct {
     PyObject_HEAD
     PyObject *streams;
@@ -119,6 +119,7 @@ typedef struct {
     /* Properties */
     int verbosity; /* a sum of values to display different levels: 1 = error */
                    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
+    unsigned int globalSeed; /* initial seed for random objects. If -1, objects are seeded with the clock. */
 } Server;
 
 PyObject * PyServer_get_server();
@@ -126,8 +127,8 @@ extern PyObject * Server_removeStream(Server *self, int sid);
 extern MYFLT * Server_getInputBuffer(Server *self);    
 extern PmEvent * Server_getMidiEventBuffer(Server *self);    
 extern int Server_getMidiEventCount(Server *self);  
+extern int Server_generateSeed(Server *self, int oid);
 extern PyTypeObject ServerType;    
-    
 
 #ifdef __cplusplus
 }
