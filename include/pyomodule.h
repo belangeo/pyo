@@ -215,6 +215,7 @@ extern PyTypeObject SelectType;
 extern PyTypeObject ChangeType;
 extern PyTypeObject ThreshType;
 extern PyTypeObject PercentType;
+extern PyTypeObject TimerType;
 
 extern PyTypeObject ScoreType;
 

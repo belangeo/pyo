@@ -6366,3 +6366,309 @@ PyTypeObject PercentType = {
     0,                                              /* tp_alloc */
     Percent_new,                                     /* tp_new */
 };
+
+/*************************/
+/******* Timer ***********/
+/*************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *input2;
+    Stream *input2_stream;
+    unsigned long count;
+    MYFLT lasttime;
+    int started;
+    int modebuffer[3];
+} Timer;
+
+static void
+Timer_generates(Timer *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->started == 1) {
+            self->count++;
+            if (in[i] == 1.0) {
+                self->lasttime = self->count / self->sr;
+                self->started = 0;
+            }
+        }
+        
+        if (in2[i] == 1 && self->started == 0)
+            self->count = 0;
+            self->started = 1;
+        
+        self->data[i] = self->lasttime;
+    } 
+}
+
+static void Timer_postprocessing_ii(Timer *self) { POST_PROCESSING_II };
+static void Timer_postprocessing_ai(Timer *self) { POST_PROCESSING_AI };
+static void Timer_postprocessing_ia(Timer *self) { POST_PROCESSING_IA };
+static void Timer_postprocessing_aa(Timer *self) { POST_PROCESSING_AA };
+static void Timer_postprocessing_ireva(Timer *self) { POST_PROCESSING_IREVA };
+static void Timer_postprocessing_areva(Timer *self) { POST_PROCESSING_AREVA };
+static void Timer_postprocessing_revai(Timer *self) { POST_PROCESSING_REVAI };
+static void Timer_postprocessing_revaa(Timer *self) { POST_PROCESSING_REVAA };
+static void Timer_postprocessing_revareva(Timer *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Timer_setProcMode(Timer *self)
+{    
+    int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Timer_generates;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Timer_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Timer_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Timer_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Timer_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Timer_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Timer_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Timer_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Timer_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Timer_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Timer_compute_next_data_frame(Timer *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Timer_traverse(Timer *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    return 0;
+}
+
+static int 
+Timer_clear(Timer *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    return 0;
+}
+
+static void
+Timer_dealloc(Timer* self)
+{
+    free(self->data);
+    Timer_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Timer_deleteStream(Timer *self) { DELETE_STREAM };
+
+static PyObject *
+Timer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Timer *self;
+    self = (Timer *)type->tp_alloc(type, 0);
+    
+    self->count = 0;
+    self->started = 0;
+    self->lasttime = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Timer_compute_next_data_frame);
+    self->mode_func_ptr = Timer_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Timer_init(Timer *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "input2", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &input2tmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Timer_getServer(Timer* self) { GET_SERVER };
+static PyObject * Timer_getStream(Timer* self) { GET_STREAM };
+static PyObject * Timer_setMul(Timer *self, PyObject *arg) { SET_MUL };	
+static PyObject * Timer_setAdd(Timer *self, PyObject *arg) { SET_ADD };	
+static PyObject * Timer_setSub(Timer *self, PyObject *arg) { SET_SUB };	
+static PyObject * Timer_setDiv(Timer *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Timer_play(Timer *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Timer_stop(Timer *self) { STOP };
+
+static PyObject * Timer_multiply(Timer *self, PyObject *arg) { MULTIPLY };
+static PyObject * Timer_inplace_multiply(Timer *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Timer_add(Timer *self, PyObject *arg) { ADD };
+static PyObject * Timer_inplace_add(Timer *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Timer_sub(Timer *self, PyObject *arg) { SUB };
+static PyObject * Timer_inplace_sub(Timer *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Timer_div(Timer *self, PyObject *arg) { DIV };
+static PyObject * Timer_inplace_div(Timer *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Timer_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Timer, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Timer, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Timer, input), 0, "Stops timer and output time elapsed."},
+    {"input2", T_OBJECT_EX, offsetof(Timer, input2), 0, "Starts timer."},
+    {"mul", T_OBJECT_EX, offsetof(Timer, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Timer, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Timer_methods[] = {
+    {"getServer", (PyCFunction)Timer_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Timer_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Timer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Timer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Timer_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)Timer_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Timer_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Timer_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Timer_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Timer_as_number = {
+    (binaryfunc)Timer_add,                         /*nb_add*/
+    (binaryfunc)Timer_sub,                         /*nb_subtract*/
+    (binaryfunc)Timer_multiply,                    /*nb_multiply*/
+    (binaryfunc)Timer_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Timer_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Timer_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Timer_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Timer_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TimerType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Timer_base",                                   /*tp_name*/
+    sizeof(Timer),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Timer_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Timer_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Timer objects. Returns elapsed time between two triggers.",           /* tp_doc */
+    (traverseproc)Timer_traverse,                  /* tp_traverse */
+    (inquiry)Timer_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Timer_methods,                                 /* tp_methods */
+    Timer_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Timer_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Timer_new,                                     /* tp_new */
+};
