@@ -1842,11 +1842,11 @@ typedef struct {
 static MYFLT
 Beater_defineAccent(int n) {
 	if (n == 1)
-		return (MYFLT)((rand() % 10) + 117) / 127.; // 117 -> 127
+		return (MYFLT)((rand() % 15) + 112) / 127.; // 112 -> 127
 	else if (n == 2)
-		return (MYFLT)((rand() % 20) + 60) / 127.; // 60 -> 80
+		return (MYFLT)((rand() % 20) + 70) / 127.; // 70 -> 90
 	else if (n == 3)
-		return (MYFLT)((rand() % 15) + 30) / 127.; // 30 -> 45
+		return (MYFLT)((rand() % 20) + 40) / 127.; // 40 -> 60
     else
         return 0.5;
 }
