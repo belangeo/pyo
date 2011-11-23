@@ -1,5 +1,10 @@
 2011-11-22 belangeo <belangeo@gmail.com>
 
+    * Added new object: RandDur. Recursive time varying pseudo-random generator.
+    - rev 776
+
+2011-11-22 belangeo <belangeo@gmail.com>
+
     * Added new object: Timer. Reports elpased time between two triggers.
     - rev 772
 

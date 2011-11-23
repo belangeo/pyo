@@ -226,6 +226,7 @@ extern PyTypeObject ExpsegType;
 
 extern PyTypeObject RandiType;
 extern PyTypeObject RandhType;
+extern PyTypeObject RandDurType;
 extern PyTypeObject ChoiceType;
 extern PyTypeObject RandIntType;
 extern PyTypeObject XnoiseType;
