@@ -97,6 +97,10 @@ if sys.version_info[:2] <= (2, 5):
         dur : float, optional
             Duration of the example.
         
+        Examples:
+        
+        >>> example(Sine)
+        
         """
         doc = cls.__doc__.split("Examples:")[1]
         lines = doc.splitlines()
@@ -128,6 +132,10 @@ else:
             Class reference of the desired object example.
         dur : float, optional
             Duration of the example.
+
+        Examples:
+
+        >>> example(Sine)
         
         """
         doc = cls.__doc__.split("Examples:")[1]
@@ -152,9 +160,9 @@ def removeExtraDecimals(x):
     if type(x) == FloatType:
         return "=%.2f" % x
     elif type(x) == StringType:
-        return '="%s"' % x    
+        return '="%s"' % x
     else:
-        return "=" + str(x)    
+        return "=" + str(x)
 
 def class_args(cls):
     """
@@ -169,6 +177,11 @@ def class_args(cls):
     
     cls : PyoObject class
         Class reference of the desired object init line.
+
+    Examples:
+    
+    >>> print class_args(Sine)
+    >>> 'Sine(freq=1000, phase=0, mul=1, add=0)'
 
     """
     name = cls.__name__
@@ -187,6 +200,11 @@ def getVersion():
     The returned tuple for version '0.4.1' will look like :
     
     (0, 4, 1)
+
+    Examples:
+    
+    >>> print getVersion()
+    >>> (0, 5, 1)
 
     """
     major, minor, rev = PYO_VERSION.split('.')
