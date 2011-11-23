@@ -63,6 +63,7 @@ class Server(object):
         processing chain.
     shutdown() : Shut down and clear the server.
     setStartOffset(x) : Set the starting time of the real-time processing.
+    setGlobalSeed(x) : Set the server's global seed used by random objects.
     start() : Start the audio callback loop.
     stop() : Stop the audio callback loop.
     gui(locals, meter, timer) : Show the server's user interface.
@@ -74,6 +75,7 @@ class Server(object):
     getSamplingRate() : Returns the current sampling rate.
     getNchnls() : Returns the current number of channels.
     getBufferSize() : Returns the current buffer size.
+    getGlobalSeed() : Returns the server's global seed.
     getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
     getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
 
@@ -97,7 +99,8 @@ class Server(object):
     verbosity : Control the messages printed by the server. It is a sum of 
         values to display different levels: 1 = error, 2 = message, 
         4 = warning , 8 = debug.
-    startoffset : Starting time of the real-time processing.    
+    startoffset : Starting time of the real-time processing.
+    globalseed : Global seed for random objects. Defaults to 0. 
         
     Examples:
     
@@ -135,6 +138,7 @@ class Server(object):
         self._filename = None
         self._fileformat = 0
         self._sampletype = 0
+        self._globalseed = 0
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname)
 
     def gui(self, locals=None, meter=True, timer=True):
@@ -279,6 +283,20 @@ class Server(object):
         """        
         self._verbosity = x
         self._server.setVerbosity(x)
+
+    def setGlobalSeed(self, x):
+        """
+        Set the server's global seed for random objects.
+
+        Parameters:
+
+        x : int
+            A positive integer that will be used as th seed by random objects.
+            If zero, randoms will be seeded with the system clock current value.
+
+        """        
+        self._globalseed = x
+        self._server.setGlobalSeed(x)
 
     def setStartOffset(self, x):
         """
@@ -456,6 +474,13 @@ class Server(object):
         """
         return self._server.getBufferSize()
 
+    def getGlobalSeed(self):
+        """
+        Return the current global seed.
+
+        """
+        return self._server.getGlobalSeed()
+
     def getIsStarted(self):
         """
         Returns 1 if the server is started, otherwise returns 0.
@@ -495,3 +520,14 @@ class Server(object):
             self.setVerbosity(x)
         else:
             raise Exception("verbosity must be an integer")
+
+    @property
+    def globalseed(self):
+        """int. Server global seed.""" 
+        return self._globalseed
+    @globalseed.setter
+    def globalseed(self, x):
+        if (type(x) == int):
+            self.setGlobalSeed(x)
+        else:
+            raise Exception("global seed must be an integer")

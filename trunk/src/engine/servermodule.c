@@ -1341,6 +1341,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recformat = 0;
     self->rectype = 0;
     self->startoffset = 0.0;
+    self->globalSeed = -1;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1499,6 +1500,45 @@ Server_setDuplex(Server *self, PyObject *arg)
     }
     Py_INCREF(Py_None);
     return Py_None;
+}
+
+static PyObject *
+Server_setGlobalSeed(Server *self, PyObject *arg)
+{
+    unsigned int tmp;
+    
+    if (arg != NULL) {
+        if (PyInt_Check(arg)) {
+            tmp = PyInt_AsLong(arg);
+            if (tmp < 0)
+                self->globalSeed = 0;
+            else
+                self->globalSeed = tmp;
+        }
+        else
+            self->globalSeed = 0;
+    }
+    else
+        self->globalSeed = 0;
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+int
+Server_generateSeed(Server *self, int oid)
+{
+    unsigned int seed;
+    extern int BEATER_INSTANCES;
+    
+    printf("Beater instance : %i\n", BEATER_INSTANCES);
+    seed = self->globalSeed;
+    if (seed > 0)
+        srand(seed);
+    else
+        srand((unsigned)(time(0)));
+
+    return 0;
 }
 
 static PyObject *
@@ -2048,6 +2088,12 @@ Server_getNchnls(Server *self)
 }
 
 static PyObject *
+Server_getGlobalSeed(Server *self)
+{
+    return PyInt_FromLong(self->globalSeed);
+}
+
+static PyObject *
 Server_getBufferSize(Server *self)
 {
     return PyInt_FromLong(self->bufferSize);
@@ -2088,6 +2134,7 @@ static PyMethodDef Server_methods[] = {
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
+    {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
     {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME object."},
@@ -2109,6 +2156,7 @@ static PyMethodDef Server_methods[] = {
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
     {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of channels."},
+    {"getGlobalSeed", (PyCFunction)Server_getGlobalSeed, METH_NOARGS, "Returns the server's global seed."},
     {"getBufferSize", (PyCFunction)Server_getBufferSize, METH_NOARGS, "Returns the server's buffer size."},
     {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, "Returns 1 if the server is booted, otherwise returns 0."},
     {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
