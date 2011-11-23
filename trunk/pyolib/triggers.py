@@ -3131,3 +3131,111 @@ class Between(PyoObject):
         return self._max
     @max.setter
     def max(self, x): self.setMax(x)
+
+class Timer(PyoObject):
+    """
+    Reports elapsed time between two trigs.
+    
+    A trigger in `input2` signal starts an internal timer. The next trigger 
+    in `input` signal stops it and reports the elapsed time between the two 
+    triggers. Useful for filtering triggers that are too close to each other. 
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Trigger signal. Stops the timer and reports elapsed time.
+    input2 : PyoObject
+        Trigger signal. Starts the timer if not already started.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setInput2(x, fadetime) : Replace the `input2` attribute.
+
+    Attributes:
+
+    input : PyoObject. Timer stop signal.
+    input2 : PyoObject. Timer start signal.
+
+    Notes:
+    
+    The `input` signal is evaluated before the `input2` signal, so it's
+    safe to stop and start the timer with the same trigger signal.
+    
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> cl = Cloud(density=20, poly=2).play()
+    >>> ti = Timer(cl, cl)
+    >>> # Minimum waiting time before a new trig
+    >>> cp = Compare(ti, comp=.05, mode=">")
+    >>> trig = cl * cp
+    >>> amp = TrigEnv(trig, table=HannTable(), dur=.05, mul=.4)
+    >>> freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])
+    >>> a = LFO(freq=freq, type=2, mul=amp).out()
+
+    """
+    def __init__(self, input, input2, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(input2)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        self._base_objs = [Timer_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'input2', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInput2(self, x, fadetime=0.05):
+        """
+        Replace the `input2` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input2 = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Timer stop signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoObject. Timer start signal.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)

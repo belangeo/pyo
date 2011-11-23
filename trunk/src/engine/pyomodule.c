@@ -1757,6 +1757,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&PercentType);
     PyModule_AddObject(m, "Percent_base", (PyObject *)&PercentType);
+
+    if (PyType_Ready(&TimerType) < 0)
+        return;
+    Py_INCREF(&TimerType);
+    PyModule_AddObject(m, "Timer_base", (PyObject *)&TimerType);
     
     if (PyType_Ready(&SelectType) < 0)
         return;

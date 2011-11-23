@@ -1,3 +1,23 @@
+2011-11-22 belangeo <belangeo@gmail.com>
+
+    * Added new object: Timer. Reports elpased time between two triggers.
+    - rev 772
+
+2011-11-15 belangeo <belangeo@gmail.com>
+
+    * Added mouse callback to SndTable.view method to allow simple scrubbing.
+    - rev 763
+
+2011-11-09 belangeo <belangeo@gmail.com>
+
+    * midiToHz and midiToTranspo now accept list or tuple in input.
+    - rev 759
+
+2011-11-04 belangeo <belangeo@gmail.com>
+
+    * Snap takes choice on more than one octave.
+    - rev 754
+
 2011-10-27 belangeo <belangeo@gmail.com>
 
     * Added new object: MToF. Midi to frequency conversion.
