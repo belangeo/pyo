@@ -1238,6 +1238,11 @@ init_pyo64(void)
     Py_INCREF(&ChoiceType);
     PyModule_AddObject(m, "Choice_base", (PyObject *)&ChoiceType);
 
+    if (PyType_Ready(&RandDurType) < 0)
+        return;
+    Py_INCREF(&RandDurType);
+    PyModule_AddObject(m, "RandDur_base", (PyObject *)&RandDurType);
+    
     if (PyType_Ready(&XnoiseType) < 0)
         return;
     Py_INCREF(&XnoiseType);

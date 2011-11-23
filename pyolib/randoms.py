@@ -438,6 +438,99 @@ class RandInt(PyoObject):
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
+class RandDur(PyoObject):
+    """
+    Recursive time varying pseudo-random generator.
+
+    RandDur generates a pseudo-random number between `min` and `max` 
+    arguments and uses that number to set the delay time before the next 
+    generation. RandDur will hold the generated value until next generation.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    min : float or PyoObject, optional
+        Minimum value for the random generation. Defaults to 0.
+    max : float or PyoObject, optional
+        Maximum value for the random generation. Defaults to 1.
+
+    Methods:
+
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+
+    min : float or PyoObject. Minimum value.
+    max : float or PyoObject. Maximum value.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> dur = RandDur(min=[.05,0.1], max=[.2,.25])
+    >>> trig = Change(dur)
+    >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)
+    >>> freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])
+    >>> a = LFO(freq=freq, type=2, mul=amp).out()
+
+    """
+    def __init__(self, min=0., max=1., mul=1, add=0):
+        PyoObject.__init__(self)
+        self._min = min
+        self._max = max
+        self._mul = mul
+        self._add = add
+        min, max, mul, add, lmax = convertArgsToLists(min, max, mul, add)
+        self._base_objs = [RandDur_base(wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['min', 'max', 'mul', 'add']
+
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(1., 2., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def min(self): return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+    @property
+    def max(self): return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
+
 class Xnoise(PyoObject):
     """
     X-class pseudo-random generator.
