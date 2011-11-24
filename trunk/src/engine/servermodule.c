@@ -41,14 +41,11 @@ static void Server_process_time(Server *server);
 static inline void Server_process_buffers(Server *server);
 static int Server_start_rec_internal(Server *self, char *filename);
 
-/* random objects count and multiplier to assign different seed to each instance. 
-   Order index in arrays:
-   BEATER_IDENTIFIER, 
- 
-*/
+/* random objects count and multiplier to assign different seed to each instance. */
+#define num_rnd_objs 25
 
-int rnd_objs_count[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int rnd_objs_mult[25] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
+int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int rnd_objs_mult[num_rnd_objs] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
                          2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,2153};
 
 #ifdef USE_COREAUDIO
@@ -1258,6 +1255,7 @@ PyServer_get_server()
 static PyObject *
 Server_shut_down(Server *self)
 {
+    int i;
     int ret = -1;
     if (self->server_booted == 0) {
         Server_error(self, "The Server must be booted!");
@@ -1267,6 +1265,11 @@ Server_shut_down(Server *self)
     if (self->server_started == 1) {
         Server_stop((Server *)self);
     }
+    
+    for (i=0; i<num_rnd_objs; i++) {
+        rnd_objs_count[i] = 0;
+    }
+
     switch (self->audio_be_type) {
         case PyoPortaudio:
             ret = Server_pa_deinit(self);
