@@ -89,7 +89,6 @@ OscBank_setFrequencies(OscBank *self, MYFLT freq, MYFLT spread) {
     MYFLT scl = freq * spread;
     
     if (self->fjit == 1) {
-        srand((unsigned)(time(0)));
         seed = rand();
         for (i=0; i<self->stages; i++) {
             seed = (seed * 15625 + 1) & 0xFFFF;
@@ -518,7 +517,7 @@ OscBank_init(OscBank *self, PyObject *args, PyObject *kwds)
     
     self->amplitude = 1. / self->stages;
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, OSCBANK_ID);
 
     Py_INCREF(self);
     return 0;

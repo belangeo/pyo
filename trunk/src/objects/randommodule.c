@@ -408,7 +408,8 @@ Randi_init(Randi *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, RANDI_ID);
+
     if (self->modebuffer[2] == 0)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
@@ -1027,7 +1028,8 @@ Randh_init(Randh *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, RANDH_ID);
+
     if (self->modebuffer[2] == 0)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
@@ -1472,7 +1474,7 @@ Choice_init(Choice *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, CHOICE_ID);
 
     (*self->mode_func_ptr)(self);
         
@@ -1914,7 +1916,7 @@ RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, RANDINT_ID);
 
     (*self->mode_func_ptr)(self);
         
@@ -2390,7 +2392,8 @@ RandDur_init(RandDur *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, RANDDUR_ID);
+
     if (self->modebuffer[2] == 0)
         mi = PyFloat_AS_DOUBLE(self->min);
     else
@@ -3210,7 +3213,7 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, XNOISE_ID);
     
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -4172,7 +4175,7 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, XNOISEMIDI_ID);
     
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);

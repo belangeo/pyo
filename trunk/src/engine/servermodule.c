@@ -22,6 +22,8 @@
 #include <math.h>
 #include <assert.h>
 #include <stdarg.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include "structmember.h"
 #include "portaudio.h"
@@ -38,6 +40,16 @@ static void Server_process_gui(Server *server);
 static void Server_process_time(Server *server);
 static inline void Server_process_buffers(Server *server);
 static int Server_start_rec_internal(Server *self, char *filename);
+
+/* random objects count and multiplier to assign different seed to each instance. 
+   Order index in arrays:
+   BEATER_IDENTIFIER, 
+ 
+*/
+
+int rnd_objs_count[25] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int rnd_objs_mult[25] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
+                         2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,2153};
 
 #ifdef USE_COREAUDIO
 static int coreaudio_stop_callback(Server *self);
@@ -1341,7 +1353,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->recformat = 0;
     self->rectype = 0;
     self->startoffset = 0.0;
-    self->globalSeed = -1;
+    self->globalSeed = 0;
     Py_XDECREF(my_server);
     Py_XINCREF(self);
     my_server = (Server *)self;
@@ -1528,15 +1540,21 @@ Server_setGlobalSeed(Server *self, PyObject *arg)
 int
 Server_generateSeed(Server *self, int oid)
 {
-    unsigned int seed;
-    extern int BEATER_INSTANCES;
-    
-    printf("Beater instance : %i\n", BEATER_INSTANCES);
-    seed = self->globalSeed;
-    if (seed > 0)
-        srand(seed);
-    else
-        srand((unsigned)(time(0)));
+    int curseed, seed, count, mult;
+    long ltime;
+
+    count = ++rnd_objs_count[oid];
+    mult = rnd_objs_mult[oid];
+
+    if (self->globalSeed > 0) {
+        curseed = self->globalSeed + ((count * mult) % 32768);
+    }
+    else {
+        ltime = time(NULL);
+        seed = (unsigned) (ltime / 2) % 32768;
+        curseed = seed + ((count * mult) % 32768);
+    }
+    srand(curseed);
 
     return 0;
 }

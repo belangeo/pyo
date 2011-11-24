@@ -100,7 +100,7 @@ class Server(object):
         values to display different levels: 1 = error, 2 = message, 
         4 = warning , 8 = debug.
     startoffset : Starting time of the real-time processing.
-    globalseed : Global seed for random objects. Defaults to 0. 
+    globalseed : Global seed used by random objects. Defaults to 0 (means always seed from the system clock). 
         
     Examples:
     
@@ -286,12 +286,12 @@ class Server(object):
 
     def setGlobalSeed(self, x):
         """
-        Set the server's global seed for random objects.
+        Set the server's global seed used by random objects.
 
         Parameters:
 
         x : int
-            A positive integer that will be used as th seed by random objects.
+            A positive integer that will be used as the seed by random objects.
             If zero, randoms will be seeded with the system clock current value.
 
         """        

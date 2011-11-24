@@ -897,8 +897,6 @@ serverBooted(PyObject *self) {
     }
 }
 
-int BEATER_INSTANCES = 0;
-
 static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
