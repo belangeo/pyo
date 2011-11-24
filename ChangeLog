@@ -1,3 +1,8 @@
+2011-11-23 belangeo <belangeo@gmail.com>
+
+    * Added server's attribute : globalseed. An int used as the seed by random objects. Can be changed multiple times inside a script.
+    - rev 778
+
 2011-11-22 belangeo <belangeo@gmail.com>
 
     * Added new object: RandDur. Recursive time varying pseudo-random generator.

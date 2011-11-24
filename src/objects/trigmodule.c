@@ -207,7 +207,8 @@ TrigRandInt_init(TrigRandInt *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, TRIGRANDINT_ID);
+
     if (self->modebuffer[2] == 0)
         ma = PyFloat_AS_DOUBLE(PyNumber_Float(self->max));
     else
@@ -685,7 +686,8 @@ TrigRand_init(TrigRand *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, TRIGRAND_ID);
+
     self->value = self->currentValue = inittmp;
     self->timeStep = (int)(self->time * self->sr);
 
@@ -1097,7 +1099,8 @@ TrigChoice_init(TrigChoice *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, TRIGCHOICE_ID);
+
     self->value = self->currentValue = inittmp;
     self->timeStep = (int)(self->time * self->sr);
     
@@ -4066,7 +4069,7 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TrigXnoise *self;
     self = (TrigXnoise *)type->tp_alloc(type, 0);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, TRIGXNOISE_ID);
     
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -4860,7 +4863,7 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     TrigXnoiseMidi *self;
     self = (TrigXnoiseMidi *)type->tp_alloc(type, 0);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, TRIGXNOISEMIDI_ID);
     
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -6198,7 +6201,7 @@ Percent_init(Percent *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, PERCENT_ID);
 
     (*self->mode_func_ptr)(self);
     

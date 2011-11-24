@@ -119,7 +119,7 @@ typedef struct {
     /* Properties */
     int verbosity; /* a sum of values to display different levels: 1 = error */
                    /* 2 = message, 4 = warning , 8 = debug. Default 7.*/
-    unsigned int globalSeed; /* initial seed for random objects. If -1, objects are seeded with the clock. */
+    int globalSeed; /* initial seed for random objects. If -1, objects are seeded with the clock. */
 } Server;
 
 PyObject * PyServer_get_server();

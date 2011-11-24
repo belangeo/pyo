@@ -401,6 +401,33 @@ extern PyTypeObject FrameAccumType;
 /* random uniform (0.0 -> 1.0) */
 #define RANDOM_UNIFORM rand()/((MYFLT)(RAND_MAX)+1)
 
+/* random objects identifier */
+#define BEATER_ID 0
+#define CLOUD_ID 1
+#define RANDI_ID 2
+#define RANDH_ID 3
+#define CHOICE_ID 4
+#define RANDINT_ID 5
+#define RANDDUR_ID 6
+#define XNOISE_ID 7
+#define XNOISEMIDI_ID 8
+#define TRIGRANDINT_ID 9
+#define TRIGRAND_ID 10
+#define TRIGCHOICE_ID 11
+#define TRIGXNOISE_ID 12
+#define TRIGXNOISEMIDI_ID 13
+#define PERCENT_ID 14
+#define DENORM_ID 15
+#define NOISE_ID 16
+#define PINKNOISE_ID 17
+#define BROWNNOISE_ID 18
+#define LFO_ID 19
+#define OSCBANK_ID 20
+#define SFMARKERSHUFFLER_ID 21
+#define SFMARKERLOOPER_ID 22
+#define GRANULATOR_ID 23
+#define FREEVERB_ID 24
+
 /* object headers */
 #define pyo_audio_HEAD \
     PyObject_HEAD \

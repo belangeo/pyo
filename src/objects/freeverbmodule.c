@@ -682,7 +682,8 @@ Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, FREEVERB_ID);
+    
     rndSamps = (rand()/(MYFLT)(RAND_MAX) * 20 + 10) / DEFAULT_SRATE;
     for(i=0; i<NUM_COMB; i++) {
         nsamps = Freeverb_calc_nsamples((Freeverb *)self, comb_delays[i] + rndSamps);

@@ -1450,7 +1450,7 @@ SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
 
     self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, SFMARKERSHUFFLER_ID);
 
     Py_INCREF(self);
     return 0;
@@ -2226,7 +2226,7 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
     
     self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, SFMARKERLOOPER_ID);
     
     Py_INCREF(self);
     return 0;

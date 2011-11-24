@@ -749,7 +749,8 @@ Granulator_init(Granulator *self, PyObject *args, PyObject *kwds)
     self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
     self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, GRANULATOR_ID);
+    
     for (i=0; i<self->ngrains; i++) {
         phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
         if (phase < 0.0)
@@ -961,7 +962,6 @@ Granulator_setGrains(Granulator *self, PyObject *arg)
         self->gphase = (MYFLT *)realloc(self->gphase, self->ngrains * sizeof(MYFLT));
         self->lastppos = (MYFLT *)realloc(self->lastppos, self->ngrains * sizeof(MYFLT));
         
-        srand((unsigned)(time(0)));
         for (i=0; i<self->ngrains; i++) {
             phase = ((MYFLT)i/self->ngrains) * (1.0 + ((rand()/((MYFLT)(RAND_MAX)+1)*2.0-1.0) * 0.01));
             if (phase < 0.0)

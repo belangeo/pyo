@@ -1169,7 +1169,7 @@ Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, CLOUD_ID);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
        
@@ -2319,8 +2319,7 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    BEATER_INSTANCES++;
-    Server_generateSeed((Server *)self->server, 1);
+    Server_generateSeed((Server *)self->server, BEATER_ID);
     
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
     self->tap_buffer_streams = (MYFLT *)realloc(self->tap_buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));

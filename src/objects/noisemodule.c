@@ -176,7 +176,8 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, NOISE_ID);
+    
     self->seed = rand();
 
     (*self->mode_func_ptr)(self);
@@ -481,7 +482,7 @@ PinkNoise_init(PinkNoise *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, PINKNOISE_ID);
     
     Py_INCREF(self);
     return 0;
@@ -758,7 +759,7 @@ BrownNoise_init(BrownNoise *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, BROWNNOISE_ID);
     
     Py_INCREF(self);
     return 0;

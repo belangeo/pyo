@@ -961,7 +961,8 @@ LFO_init(LFO *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, LFO_ID);
+
     self->sahCurrentValue = self->sahLastValue = rand()/((MYFLT)(RAND_MAX)*0.5) - 1.0;
     
     (*self->mode_func_ptr)(self);

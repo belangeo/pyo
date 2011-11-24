@@ -2419,7 +2419,7 @@ Denorm_init(Denorm *self, PyObject *args, PyObject *kwds)
     Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    srand((unsigned)(time(0)));
+    Server_generateSeed((Server *)self->server, DENORM_ID);
 
     (*self->mode_func_ptr)(self);
     
