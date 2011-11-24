@@ -4068,9 +4068,7 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     TrigXnoise *self;
     self = (TrigXnoise *)type->tp_alloc(type, 0);
-    
-    Server_generateSeed((Server *)self->server, TRIGXNOISE_ID);
-    
+        
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->xx1 = self->xx2 = self->walkerValue = 0.5;
@@ -4079,7 +4077,11 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
     
+    Server_generateSeed((Server *)self->server, TRIGXNOISE_ID);
+
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
     for (i=0; i<2000; i++) {
@@ -4091,7 +4093,6 @@ TrigXnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
     self->loopLen = (rand() % 10) + 3;
     
-    INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigXnoise_compute_next_data_frame);
     self->mode_func_ptr = TrigXnoise_setProcMode;
     return (PyObject *)self;
@@ -4862,9 +4863,7 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     TrigXnoiseMidi *self;
     self = (TrigXnoiseMidi *)type->tp_alloc(type, 0);
-    
-    Server_generateSeed((Server *)self->server, TRIGXNOISEMIDI_ID);
-    
+        
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->xx1 = self->xx2 = self->walkerValue = 0.5;
@@ -4877,7 +4876,11 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
+        
+    INIT_OBJECT_COMMON
     
+    Server_generateSeed((Server *)self->server, TRIGXNOISEMIDI_ID);
+
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
     for (i=0; i<2000; i++) {
@@ -4889,7 +4892,6 @@ TrigXnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
     self->loopLen = (rand() % 10) + 3;
     
-    INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TrigXnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = TrigXnoiseMidi_setProcMode;
     return (PyObject *)self;
