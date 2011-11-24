@@ -2301,9 +2301,7 @@ static int
 Beater_init(Beater *self, PyObject *args, PyObject *kwds)
 {
     int i;
-    unsigned int seed;
     PyObject *timetmp=NULL;
-    extern int BEATER_INSTANCES;
     
     static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", NULL};
     

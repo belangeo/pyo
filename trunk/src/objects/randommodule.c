@@ -3212,8 +3212,6 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
-
-    Server_generateSeed((Server *)self->server, XNOISE_ID);
     
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
@@ -3226,6 +3224,10 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[2] = 0;
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    Server_generateSeed((Server *)self->server, XNOISE_ID);
 
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
@@ -3238,7 +3240,6 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
     self->loopLen = (rand() % 10) + 3;
     
-    INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Xnoise_compute_next_data_frame);
     self->mode_func_ptr = Xnoise_setProcMode;
     return (PyObject *)self;
@@ -4174,9 +4175,7 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
-    
-    Server_generateSeed((Server *)self->server, XNOISEMIDI_ID);
-    
+        
     self->x1 = PyFloat_FromDouble(0.5);
     self->x2 = PyFloat_FromDouble(0.5);
     self->freq = PyFloat_FromDouble(1.);
@@ -4193,6 +4192,10 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 	self->modebuffer[4] = 0;
     
+    INIT_OBJECT_COMMON
+
+    Server_generateSeed((Server *)self->server, XNOISEMIDI_ID);
+
     self->poisson_tab = 0;
     self->lastPoissonX1 = -99.0;
     for (i=0; i<2000; i++) {
@@ -4203,8 +4206,7 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
     self->loopLen = (rand() % 10) + 3;
-
-    INIT_OBJECT_COMMON
+    
     Stream_setFunctionPtr(self->stream, XnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = XnoiseMidi_setProcMode;
     return (PyObject *)self;
