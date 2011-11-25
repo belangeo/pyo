@@ -392,6 +392,8 @@ extern PyTypeObject FrameDeltaMainType;
 extern PyTypeObject FrameDeltaType;
 extern PyTypeObject FrameAccumMainType;
 extern PyTypeObject FrameAccumType;
+extern PyTypeObject VectralMainType;
+extern PyTypeObject VectralType;
 
 /* Constants */
 #define E M_E

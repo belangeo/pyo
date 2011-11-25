@@ -2660,3 +2660,544 @@ PyTypeObject FrameAccumType = {
     0,                         /* tp_alloc */
     FrameAccum_new,                 /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input; 
+    int inputSize;
+    int modebuffer[2];
+    int frameSize; 
+    int overlaps;
+    int hopsize;
+    int count;
+    MYFLT **frameBuffer;
+    MYFLT *buffer_streams;
+} VectralMain;
+
+static void
+VectralMain_generate(VectralMain *self) {
+    int i, j, which, where;
+    MYFLT curMag, lastMag, diff;
+    
+    MYFLT up = 0.5;
+    MYFLT down = 0.01;
+    
+    MYFLT ins[self->overlaps][self->bufsize];
+    for (j=0; j<self->overlaps; j++) {
+        MYFLT *in = Stream_getData((Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(self->input, j), "_getStream", NULL));
+        for (i=0; i<self->bufsize; i++) {
+            ins[j][i] = in[i];
+        }
+    }   
+    for (i=0; i<self->bufsize; i++) {
+        for (j=0; j<self->overlaps; j++) {
+            curMag = ins[j][i];
+            which = j - 1;
+            if (which < 0)
+                which = self->overlaps - 1;
+            where = self->count - self->hopsize;
+            if (where < 0)
+                where += self->frameSize;
+            lastMag = self->frameBuffer[which][where];
+            diff = curMag - lastMag;
+            if (diff < 0.0)
+                curMag = curMag * down + lastMag * (1.0 - down);
+            else if (diff >= 0.0)
+                curMag = curMag * up + lastMag * (1.0 - up);
+            self->frameBuffer[j][self->count] = curMag;            
+            self->buffer_streams[i+j*self->bufsize] = curMag;
+        }
+        self->count++;
+        if (self->count >= self->frameSize)
+            self->count = 0;
+    }
+}
+
+MYFLT *
+VectralMain_getSamplesBuffer(VectralMain *self)
+{
+    return (MYFLT *)self->buffer_streams;
+}    
+
+static void
+VectralMain_setProcMode(VectralMain *self)
+{    
+    self->proc_func_ptr = VectralMain_generate;
+}
+
+static void
+VectralMain_compute_next_data_frame(VectralMain *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+VectralMain_traverse(VectralMain *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    return 0;
+}
+
+static int 
+VectralMain_clear(VectralMain *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    return 0;
+}
+
+static void
+VectralMain_dealloc(VectralMain* self)
+{
+    int i;
+    free(self->data);
+    for (i=0; i<self->overlaps; i++) {
+        free(self->frameBuffer[i]);
+    }
+    free(self->frameBuffer);
+    free(self->buffer_streams);
+    VectralMain_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * VectralMain_deleteStream(VectralMain *self) { DELETE_STREAM };
+
+static PyObject *
+VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    VectralMain *self;
+    self = (VectralMain *)type->tp_alloc(type, 0);
+    
+    self->count = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, VectralMain_compute_next_data_frame);
+    self->mode_func_ptr = VectralMain_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+VectralMain_init(VectralMain *self, PyObject *args, PyObject *kwds)
+{
+    int i, j;
+    PyObject *inputtmp;
+    
+    static char *kwlist[] = {"input", "frameSize", "overlaps", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
+        return -1; 
+    
+    if (inputtmp) {
+        PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->hopsize = self->frameSize / self->overlaps;
+    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+    for(i=0; i<self->overlaps; i++) {
+        self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+        for (j=0; j<self->frameSize; j++) {
+            self->frameBuffer[i][j] = 0.0;
+        }
+    }
+    self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->overlaps * self->bufsize * sizeof(MYFLT));
+    for (i=0; i<(self->overlaps*self->bufsize); i++) {
+        self->buffer_streams[i] = 0.0;
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * VectralMain_getServer(VectralMain* self) { GET_SERVER };
+static PyObject * VectralMain_getStream(VectralMain* self) { GET_STREAM };
+
+static PyObject * VectralMain_play(VectralMain *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * VectralMain_stop(VectralMain *self) { STOP };
+
+static PyObject *
+VectralMain_setInput(VectralMain *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyList_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    self->inputSize = PyList_Size(tmp);
+    Py_INCREF(tmp);
+	Py_XDECREF(self->input);
+    self->input = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
+{    
+    int i, j, tmp;
+    
+    if (PyInt_Check(arg)) { 
+        tmp = PyLong_AsLong(arg);
+        if (isPowerOfTwo(tmp)) {
+            self->frameSize = tmp;
+            self->hopsize = self->frameSize / self->overlaps;
+
+            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+            for(i=0; i<self->overlaps; i++) {
+                self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
+                for (j=0; j<self->frameSize; j++) {
+                    self->frameBuffer[i][j] = 0.0;
+                }
+            }
+            
+            self->count = 0;
+        }
+    }
+    else
+        printf("frameSize must be a power of two!\n");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef VectralMain_members[] = {
+    {"server", T_OBJECT_EX, offsetof(VectralMain, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(VectralMain, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(VectralMain, input), 0, "Phase input object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef VectralMain_methods[] = {
+    {"getServer", (PyCFunction)VectralMain_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)VectralMain_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)VectralMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)VectralMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)VectralMain_stop, METH_NOARGS, "Stops computing."},
+    {"setInput", (PyCFunction)VectralMain_setInput, METH_O, "Sets list of input streams."},
+    {"setFrameSize", (PyCFunction)VectralMain_setFrameSize, METH_O, "Sets frame size."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject VectralMainType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.VectralMain_base",         /*tp_name*/
+    sizeof(VectralMain),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)VectralMain_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "VectralMain objects. Compute the phase difference between successive frames.",           /* tp_doc */
+    (traverseproc)VectralMain_traverse,   /* tp_traverse */
+    (inquiry)VectralMain_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    VectralMain_methods,             /* tp_methods */
+    VectralMain_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)VectralMain_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    VectralMain_new,                 /* tp_new */
+};
+
+/************************************************************************************************/
+/* Vectral streamer object */
+/************************************************************************************************/
+typedef struct {
+    pyo_audio_HEAD
+    VectralMain *mainSplitter;
+    int modebuffer[2];
+    int chnl; // panning order
+} Vectral;
+
+static void Vectral_postprocessing_ii(Vectral *self) { POST_PROCESSING_II };
+static void Vectral_postprocessing_ai(Vectral *self) { POST_PROCESSING_AI };
+static void Vectral_postprocessing_ia(Vectral *self) { POST_PROCESSING_IA };
+static void Vectral_postprocessing_aa(Vectral *self) { POST_PROCESSING_AA };
+static void Vectral_postprocessing_ireva(Vectral *self) { POST_PROCESSING_IREVA };
+static void Vectral_postprocessing_areva(Vectral *self) { POST_PROCESSING_AREVA };
+static void Vectral_postprocessing_revai(Vectral *self) { POST_PROCESSING_REVAI };
+static void Vectral_postprocessing_revaa(Vectral *self) { POST_PROCESSING_REVAA };
+static void Vectral_postprocessing_revareva(Vectral *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Vectral_setProcMode(Vectral *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Vectral_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Vectral_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Vectral_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Vectral_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Vectral_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Vectral_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Vectral_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Vectral_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Vectral_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Vectral_compute_next_data_frame(Vectral *self)
+{
+    int i;
+    MYFLT *tmp;
+    int offset = self->chnl * self->bufsize;
+    tmp = VectralMain_getSamplesBuffer((VectralMain *)self->mainSplitter);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i + offset];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Vectral_traverse(Vectral *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainSplitter);
+    return 0;
+}
+
+static int 
+Vectral_clear(Vectral *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainSplitter);    
+    return 0;
+}
+
+static void
+Vectral_dealloc(Vectral* self)
+{
+    free(self->data);
+    Vectral_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Vectral_deleteStream(Vectral *self) { DELETE_STREAM };
+
+static PyObject *
+Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Vectral *self;
+    self = (Vectral *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Vectral_compute_next_data_frame);
+    self->mode_func_ptr = Vectral_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+Vectral_init(Vectral *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->mainSplitter);
+    Py_INCREF(maintmp);
+    self->mainSplitter = (VectralMain *)maintmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Vectral_getServer(Vectral* self) { GET_SERVER };
+static PyObject * Vectral_getStream(Vectral* self) { GET_STREAM };
+static PyObject * Vectral_setMul(Vectral *self, PyObject *arg) { SET_MUL };	
+static PyObject * Vectral_setAdd(Vectral *self, PyObject *arg) { SET_ADD };	
+static PyObject * Vectral_setSub(Vectral *self, PyObject *arg) { SET_SUB };	
+static PyObject * Vectral_setDiv(Vectral *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Vectral_play(Vectral *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Vectral_out(Vectral *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Vectral_stop(Vectral *self) { STOP };
+
+static PyObject * Vectral_multiply(Vectral *self, PyObject *arg) { MULTIPLY };
+static PyObject * Vectral_inplace_multiply(Vectral *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Vectral_add(Vectral *self, PyObject *arg) { ADD };
+static PyObject * Vectral_inplace_add(Vectral *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Vectral_sub(Vectral *self, PyObject *arg) { SUB };
+static PyObject * Vectral_inplace_sub(Vectral *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Vectral_div(Vectral *self, PyObject *arg) { DIV };
+static PyObject * Vectral_inplace_div(Vectral *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Vectral_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Vectral, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Vectral, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(Vectral, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Vectral, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Vectral_methods[] = {
+    {"getServer", (PyCFunction)Vectral_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Vectral_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Vectral_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Vectral_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Vectral_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)Vectral_setMul, METH_O, "Sets Vectral mul factor."},
+    {"setAdd", (PyCFunction)Vectral_setAdd, METH_O, "Sets Vectral add factor."},
+    {"setSub", (PyCFunction)Vectral_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Vectral_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Vectral_as_number = {
+    (binaryfunc)Vectral_add,                      /*nb_add*/
+    (binaryfunc)Vectral_sub,                 /*nb_subtract*/
+    (binaryfunc)Vectral_multiply,                 /*nb_multiply*/
+    (binaryfunc)Vectral_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Vectral_inplace_add,              /*inplace_add*/
+    (binaryfunc)Vectral_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Vectral_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Vectral_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject VectralType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Vectral_base",         /*tp_name*/
+    sizeof(Vectral),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Vectral_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Vectral_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "Vectral objects. Reads one band from a VectralMain object.",           /* tp_doc */
+    (traverseproc)Vectral_traverse,   /* tp_traverse */
+    (inquiry)Vectral_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Vectral_methods,             /* tp_methods */
+    Vectral_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)Vectral_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    Vectral_new,                 /* tp_new */
+};

@@ -1997,5 +1997,15 @@ init_pyo64(void)
         return;
     Py_INCREF(&FrameAccumMainType);
     PyModule_AddObject(m, "FrameAccumMain_base", (PyObject *)&FrameAccumMainType);
+
+    if (PyType_Ready(&VectralMainType) < 0)
+        return;
+    Py_INCREF(&VectralMainType);
+    PyModule_AddObject(m, "VectralMain_base", (PyObject *)&VectralMainType);
+    
+    if (PyType_Ready(&VectralType) < 0)
+        return;
+    Py_INCREF(&VectralType);
+    PyModule_AddObject(m, "Vectral_base", (PyObject *)&VectralType);
     
 }

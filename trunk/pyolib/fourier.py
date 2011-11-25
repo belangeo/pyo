@@ -1102,3 +1102,150 @@ class FrameAccum(PyoObject):
     @framesize.setter
     def framesize(self, x): self.setFrameSize(x)
 
+class Vectral(PyoObject):
+    """
+    Computes the phase differences between successive frames.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Phase input signal.
+    framesize : int, optional
+        Frame size in samples. Usually the same as the FFT size.
+        Defaults to 1024.
+    overlaps : int, optional
+        Number of overlaps in incomming signal. Usually the same
+        as the FFT overlaps. Defaults to 4.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFrameSize(x) : Replace the `framesize` attribute.
+
+    Attributes:
+
+    input : PyoObject. Phase input signal.
+    framesize : int. Frame size in samples.
+
+    Notes:
+
+    FrameDelta has no `out` method.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> snd = SNDS_PATH + '/transparent.aif'
+    >>> size, hop = 1024, 256
+    >>> nframes = sndinfo(snd)[0] / size
+    >>> a = SfPlayer(snd, mul=.5)
+    >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
+    >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
+    >>> fin = FFT(a, size=size, overlaps=4)
+    >>> pol = CarToPol(fin["real"], fin["imag"])
+    >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
+    >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
+    >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=2))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=1.5))
+    >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
+    >>> car = PolToCar(m_mag_read, accum)
+    >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
+
+    """
+    def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._framesize = framesize
+        self._overlaps = overlaps
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
+        num_of_mains = len(self._in_fader) / self._overlaps
+        self._main_players = []
+        for j in range(num_of_mains):
+            objs_list = []
+            for i in range(len(self._in_fader)):
+                if (i % num_of_mains) == j:
+                    objs_list.append(self._in_fader[i])
+            self._main_players.append(VectralMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+        self._base_objs = []
+        for i in range(lmax):
+            main_player = i % num_of_mains
+            overlap = i / num_of_mains
+            self._base_objs.append(Vectral_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
+
+    def __dir__(self):
+        return ['input', 'framesize', 'mul', 'add']
+
+    def __del__(self):
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        for obj in self._main_players:
+            obj.deleteStream()
+            del obj
+
+    def play(self, dur=0, delay=0):
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._main_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._main_players)]
+        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def stop(self):
+        [obj.stop() for obj in self._main_players]
+        [obj.stop() for obj in self._base_objs]
+        return self
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFrameSize(self, x):
+        """
+        Replace the `framesize` attribute.
+
+        Parameters:
+
+        x : int
+            new `framesize` attribute.
+
+        """
+        self._framesize = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFrameSize(wrap(x,i)) for i, obj in self._main_players]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Phase input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def framesize(self):
+        """PyoObject. Frame size in samples.""" 
+        return self._framesize
+    @framesize.setter
+    def framesize(self, x): self.setFrameSize(x)
