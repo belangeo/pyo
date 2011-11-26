@@ -88,8 +88,8 @@ class FFT(PyoObject):
 
     Notes:
     
-    The out() method is bypassed. FFT's signal can not be sent 
-    to audio outs.
+    FFT has no `out` method. Signal must be converted back to time domain, 
+    with IFFT, before being sent to output.
 
     FFT has no `mul` and `add` attributes.
     
@@ -515,6 +515,11 @@ class CarToPol(PyoObject):
     inreal : PyoObject. Real input signal.
     inimag : PyoObject. Imaginary input signal.
 
+    Notes:
+    
+    CarToPol has no `out` method. Signal must be converted back to time domain, 
+    with IFFT, before being sent to output.
+    
     Examples:
 
     >>> s = Server().boot()
@@ -672,6 +677,11 @@ class PolToCar(PyoObject):
     inmag : PyoObject. Magintude input signal.
     inang : PyoObject. Angle input signal.
 
+    Notes:
+    
+    PolToCar has no `out` method. Signal must be converted back to time domain, 
+    with IFFT, before being sent to output.
+    
     Examples:
 
     >>> s = Server().boot()
@@ -815,7 +825,7 @@ class FrameDelta(PyoObject):
     Parameters:
 
     input : PyoObject
-        Phase input signal.
+        Phase input signal, usually from an FFT analysis.
     framesize : int, optional
         Frame size in samples. Usually the same as the FFT size.
         Defaults to 1024.
@@ -835,7 +845,8 @@ class FrameDelta(PyoObject):
 
     Notes:
 
-    FrameDelta has no `out` method.
+    FrameDelta has no `out` method. Signal must be converted back to time domain, 
+    with IFFT, before being sent to output.
 
     Examples:
 
@@ -934,7 +945,7 @@ class FrameDelta(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in self._main_players]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._main_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -983,7 +994,8 @@ class FrameAccum(PyoObject):
 
     Notes:
 
-    FrameAccum has no `out` method.
+    FrameAccum has no `out` method. Signal must be converted back to time domain, 
+    with IFFT, before being sent to output.
 
     Examples:
 
@@ -1082,7 +1094,7 @@ class FrameAccum(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in self._main_players]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._main_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -1104,66 +1116,82 @@ class FrameAccum(PyoObject):
 
 class Vectral(PyoObject):
     """
-    Computes the phase differences between successive frames.
+    Performs magnitude smoothing between successive frames.
+
+    Vectral applies filter with different coefficients for increasing
+    and decreasing magnitude vectors, bin by bin.
 
     Parent class: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Phase input signal.
+        Magnitude input signal, usually from an FFT analysis.
     framesize : int, optional
         Frame size in samples. Usually the same as the FFT size.
         Defaults to 1024.
     overlaps : int, optional
         Number of overlaps in incomming signal. Usually the same
         as the FFT overlaps. Defaults to 4.
+    up : float or PyoObject, optional
+        Filter coefficient for increasing bins, between 0 and 1.
+        Lower values results in a longer ramp time for bin magnitude.
+        Defaults to 1.
+    down : float or PyoObject, optional
+        Filter coefficient for decreasing bins, between 0 and 1.
+        Lower values results in a longer decay time for bin magnitude.
+        Defaults to 0.7
+    damp : float or PyoObject, optional
+        High frequencies damping factor, between 0 and 1. Lower values
+        mean more damping. Defaults to 0.9.
 
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setFrameSize(x) : Replace the `framesize` attribute.
+    setUp(x) : Replace the `up` attribute.
+    setDown(x) : Replace the `down` attribute.
+    setDamp(x) : Replace the `damp` attribute.
 
     Attributes:
 
     input : PyoObject. Phase input signal.
     framesize : int. Frame size in samples.
+    up : float or PyoObject. Filter coefficient for increasing bins.
+    down : float or PyoObject. Filter coefficient for decreasing bins.
+    damp : float or PyoObject. High frequencies damping factor.
 
     Notes:
 
-    FrameDelta has no `out` method.
+    Vectral has no `out` method. Signal must be converted back to time domain, 
+    with IFFT, before being sent to output.
 
     Examples:
 
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SNDS_PATH + '/transparent.aif'
-    >>> size, hop = 1024, 256
-    >>> nframes = sndinfo(snd)[0] / size
-    >>> a = SfPlayer(snd, mul=.5)
-    >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
-    >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
-    >>> fin = FFT(a, size=size, overlaps=4)
+    >>> size, olaps = 512, 4
+    >>> snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.25)
+    >>> fin = FFT(snd, size=size, overlaps=olaps)
     >>> pol = CarToPol(fin["real"], fin["imag"])
-    >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
-    >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
-    >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=2))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=1.5))
-    >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
-    >>> car = PolToCar(m_mag_read, accum)
-    >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
+    >>> vec = Vectral(pol["mag"], framesize=size, overlaps=olaps, down=.3, damp=.3)
+    >>> car = PolToCar(vec, pol["ang"])
+    >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps).mix(2).out()
 
     """
-    def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
+    def __init__(self, input, framesize=1024, overlaps=4, up=1.0, down=0.7, damp=0.9, mul=1, add=0):
         PyoObject.__init__(self)
         self._input = input
         self._framesize = framesize
         self._overlaps = overlaps
+        self._up = up
+        self._down = down
+        self._damp = damp
         self._mul = mul
         self._add = add
         self._in_fader = InputFader(input)
-        in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
+        in_fader, framesize, overlaps, up, down, damp, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, up, down, damp, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps
         self._main_players = []
         for j in range(num_of_mains):
@@ -1171,7 +1199,7 @@ class Vectral(PyoObject):
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._main_players.append(VectralMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+            self._main_players.append(VectralMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j), wrap(up,j), wrap(down,j), wrap(damp,j)))
         self._base_objs = []
         for i in range(lmax):
             main_player = i % num_of_mains
@@ -1179,7 +1207,7 @@ class Vectral(PyoObject):
             self._base_objs.append(Vectral_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
-        return ['input', 'framesize', 'mul', 'add']
+        return ['input', 'framesize', 'up', 'down', 'damp', 'mul', 'add']
 
     def __del__(self):
         for obj in self._base_objs:
@@ -1230,22 +1258,88 @@ class Vectral(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in self._main_players]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+
+    def setUp(self, x):
+        """
+        Replace the `up` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `up` attribute.
+
+        """
+        self._up = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setUp(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+
+    def setDown(self, x):
+        """
+        Replace the `down` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `down` attribute.
+
+        """
+        self._down = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDown(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+
+    def setDamp(self, x):
+        """
+        Replace the `damp` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `damp` attribute.
+
+        """
+        self._damp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._main_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
+        self._map_list = [SLMap(0., 1., "lin", "up", self._up),
+                          SLMap(0., 1., "lin", "down", self._down),
+                          SLMap(0., 1., "lin", "damp", self._damp),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
-        """PyoObject. Phase input signal.""" 
+        """PyoObject. Magnitude input signal.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def framesize(self):
-        """PyoObject. Frame size in samples.""" 
+        """int. Frame size in samples.""" 
         return self._framesize
     @framesize.setter
     def framesize(self, x): self.setFrameSize(x)
+
+    @property
+    def up(self):
+        """float or PyoObject. Filter coefficient for increasing bins.""" 
+        return self._up
+    @up.setter
+    def up(self, x): self.setUp(x)
+
+    @property
+    def down(self):
+        """float or PyoObject. Filter coefficient for decreasing bins.""" 
+        return self._down
+    @down.setter
+    def down(self, x): self.setDown(x)
+
+    @property
+    def damp(self):
+        """float or PyoObject. High frequencies damping factor.""" 
+        return self._damp
+    @damp.setter
+    def damp(self, x): self.setDamp(x)

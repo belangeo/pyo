@@ -2664,8 +2664,14 @@ PyTypeObject FrameAccumType = {
 typedef struct {
     pyo_audio_HEAD
     PyObject *input; 
+    PyObject *up;
+    Stream *up_stream;
+    PyObject *down;
+    Stream *down_stream;
+    PyObject *damp;
+    Stream *damp_stream;
     int inputSize;
-    int modebuffer[2];
+    int modebuffer[5];
     int frameSize; 
     int overlaps;
     int hopsize;
@@ -2676,11 +2682,40 @@ typedef struct {
 
 static void
 VectralMain_generate(VectralMain *self) {
-    int i, j, which, where;
-    MYFLT curMag, lastMag, diff;
+    int i, j, which, where, bin, halfSize;
+    MYFLT curMag, lastMag, diff, slope, up, down, damp;
     
-    MYFLT up = 0.5;
-    MYFLT down = 0.01;
+    halfSize = self->frameSize / 2;
+    
+    if (self->modebuffer[2] == 0)
+        up = PyFloat_AS_DOUBLE(self->up);
+    else
+        up = Stream_getData((Stream *)self->up_stream)[0];
+    if (up < 0.001)
+        up = 0.001;
+    else if (up > 1.0)
+        up = 1.0;
+    up = MYPOW(up, 4.0);
+
+    if (self->modebuffer[3] == 0)
+        down = PyFloat_AS_DOUBLE(self->down);
+    else
+        down = Stream_getData((Stream *)self->down_stream)[0];
+    if (down < 0.001)
+        down = 0.001;
+    else if (down > 1.0)
+        down = 1.0;
+    down = MYPOW(down, 4.0);
+
+    if (self->modebuffer[4] == 0)
+        damp = PyFloat_AS_DOUBLE(self->damp);
+    else
+        damp = Stream_getData((Stream *)self->damp_stream)[0];
+    if (damp < 0.)
+        damp = 0.;
+    else if (damp > 1.0)
+        damp = 1.0;
+    damp = damp * 0.1 + 0.9;
     
     MYFLT ins[self->overlaps][self->bufsize];
     for (j=0; j<self->overlaps; j++) {
@@ -2691,13 +2726,17 @@ VectralMain_generate(VectralMain *self) {
     }   
     for (i=0; i<self->bufsize; i++) {
         for (j=0; j<self->overlaps; j++) {
-            curMag = ins[j][i];
             which = j - 1;
             if (which < 0)
                 which = self->overlaps - 1;
             where = self->count - self->hopsize;
             if (where < 0)
                 where += self->frameSize;
+            bin = self->count - (self->hopsize * j);
+            if (bin < 0)
+                bin += self->frameSize;
+            slope = MYPOW(damp, (MYFLT)(bin % halfSize));
+            curMag = ins[j][i] * slope;
             lastMag = self->frameBuffer[which][where];
             diff = curMag - lastMag;
             if (diff < 0.0)
@@ -2736,6 +2775,12 @@ VectralMain_traverse(VectralMain *self, visitproc visit, void *arg)
 {
     pyo_VISIT
     Py_VISIT(self->input);
+    Py_VISIT(self->up);    
+    Py_VISIT(self->up_stream);    
+    Py_VISIT(self->down);    
+    Py_VISIT(self->down_stream);    
+    Py_VISIT(self->damp);    
+    Py_VISIT(self->damp_stream);    
     return 0;
 }
 
@@ -2744,6 +2789,12 @@ VectralMain_clear(VectralMain *self)
 {
     pyo_CLEAR
     Py_CLEAR(self->input);
+    Py_CLEAR(self->up);    
+    Py_CLEAR(self->up_stream);    
+    Py_CLEAR(self->down);    
+    Py_CLEAR(self->down_stream);    
+    Py_CLEAR(self->damp);    
+    Py_CLEAR(self->damp_stream);    
     return 0;
 }
 
@@ -2770,7 +2821,15 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     VectralMain *self;
     self = (VectralMain *)type->tp_alloc(type, 0);
     
+    self->up = PyFloat_FromDouble(1.0);
+    self->down = PyFloat_FromDouble(0.7);
+    self->damp = PyFloat_FromDouble(0.9);
     self->count = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, VectralMain_compute_next_data_frame);
@@ -2783,15 +2842,27 @@ static int
 VectralMain_init(VectralMain *self, PyObject *args, PyObject *kwds)
 {
     int i, j;
-    PyObject *inputtmp;
+    PyObject *inputtmp, *uptmp=NULL, *downtmp=NULL, *damptmp=NULL;
     
-    static char *kwlist[] = {"input", "frameSize", "overlaps", NULL};
+    static char *kwlist[] = {"input", "frameSize", "overlaps", "up", "down", "damp", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii|OOO", kwlist, &inputtmp, &self->frameSize, &self->overlaps, &uptmp, &downtmp, &damptmp))
         return -1; 
     
     if (inputtmp) {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
+    }
+
+    if (uptmp) {
+        PyObject_CallMethod((PyObject *)self, "setUp", "O", uptmp);
+    }
+
+    if (downtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDown", "O", downtmp);
+    }
+
+    if (damptmp) {
+        PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
     }
     
     Py_INCREF(self->stream);
@@ -2872,6 +2943,102 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+VectralMain_setUp(VectralMain *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->up);
+	if (isNumber == 1) {
+		self->up = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->up = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->up, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->up_stream);
+        self->up_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+VectralMain_setDown(VectralMain *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->down);
+	if (isNumber == 1) {
+		self->down = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->down = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->down, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->down_stream);
+        self->down_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+VectralMain_setDamp(VectralMain *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->damp);
+	if (isNumber == 1) {
+		self->damp = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->damp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->damp_stream);
+        self->damp_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef VectralMain_members[] = {
     {"server", T_OBJECT_EX, offsetof(VectralMain, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(VectralMain, stream), 0, "Stream object."},
@@ -2887,6 +3054,9 @@ static PyMethodDef VectralMain_methods[] = {
     {"stop", (PyCFunction)VectralMain_stop, METH_NOARGS, "Stops computing."},
     {"setInput", (PyCFunction)VectralMain_setInput, METH_O, "Sets list of input streams."},
     {"setFrameSize", (PyCFunction)VectralMain_setFrameSize, METH_O, "Sets frame size."},
+    {"setUp", (PyCFunction)VectralMain_setUp, METH_O, "Sets clipping upward factor."},
+    {"setDown", (PyCFunction)VectralMain_setDown, METH_O, "Sets clipping downward factor."},
+    {"setDamp", (PyCFunction)VectralMain_setDamp, METH_O, "Sets high frequencies damping factor."},
     {NULL}  /* Sentinel */
 };
 
@@ -2912,7 +3082,7 @@ PyTypeObject VectralMainType = {
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-    "VectralMain objects. Compute the phase difference between successive frames.",           /* tp_doc */
+    "VectralMain objects. Smoothing between successive magnitude FFT frames.",           /* tp_doc */
     (traverseproc)VectralMain_traverse,   /* tp_traverse */
     (inquiry)VectralMain_clear,           /* tp_clear */
     0,		               /* tp_richcompare */
