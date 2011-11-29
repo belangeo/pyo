@@ -52,5 +52,4 @@ TODO before releasing _pyo_ version 1.0.
   * !TrigProb (uses a matrix as a probability distribution (work with !MatrixSetCol))
   * !AttackDetector, !PitchTrack
   * !ExpFader
-  * Iter (triggers iterate over a list of values)
   * !TrigRec, !TrigRead 
