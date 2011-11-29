@@ -1,3 +1,8 @@
+2011-11-29 belangeo <belangeo@gmail.com>
+
+    * Added new object: Iter. Triggers iterate over a list of user-defined values.
+    - rev 784
+
 2011-11-26 belangeo <belangeo@gmail.com>
 
     * Added new object: Vectral. Performs magnitude smoothing between successive frames.

@@ -1602,6 +1602,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&TrigChoiceType);
     PyModule_AddObject(m, "TrigChoice_base", (PyObject *)&TrigChoiceType);
+
+    if (PyType_Ready(&IterType) < 0)
+        return;
+    Py_INCREF(&IterType);
+    PyModule_AddObject(m, "Iter_base", (PyObject *)&IterType);
     
     if (PyType_Ready(&TrigEnvType) < 0)
         return;

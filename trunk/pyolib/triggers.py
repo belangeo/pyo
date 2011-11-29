@@ -3239,3 +3239,110 @@ class Timer(PyoObject):
         return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)
+
+class Iter(PyoObject):
+    """
+    Triggers iterate over a list of values.
+
+    Iter loops over a list of user-defined values. When a trigger is received
+    in `input`, Iter moves up to the next value in the list, with wrap-around. 
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    choice : list of floats
+        Sequence of values over which to iterate.
+    init : float, optional
+        Initial value. Available at initialization time only. 
+        Defaults to 0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setChoice(x) : Replace the `choice` attribute.
+    reset() : Resets the current count to 0.
+
+    Attributes:
+
+    input : PyoObject. Audio trigger signal.
+    choice : list of floats. Possible values.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> l1 = [300, 350, 400, 450, 500, 550]
+    >>> l2 = [300, 350, 450, 500, 550]
+    >>> met = Metro(time=.125).play()
+    >>> it = Iter(met, choice=[l1, l2])
+    >>> si = Sine(freq=it, mul=.3).out()
+
+    """
+    def __init__(self, input, choice, init=0., mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._choice = choice
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, init, mul, add, lmax = convertArgsToLists(self._in_fader, init, mul, add)
+        if type(choice[0]) != ListType:
+            self._base_objs = [Iter_base(wrap(in_fader,i), choice, wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        else:
+            choicelen = len(choice)
+            lmax = max(choicelen, lmax)
+            self._base_objs = [Iter_base(wrap(in_fader,i), wrap(choice,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'choice', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setChoice(self, x):
+        """
+        Replace the `choice` attribute.
+
+        Parameters:
+
+        x : list of floats
+            new `choice` attribute.
+
+        """
+        self._choice = x
+        if type(x[0]) != ListType:
+            [obj.setChoice(self._choice) for i, obj in enumerate(self._base_objs)]
+        else:
+            [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        "Resets the current count to 0."
+        [obj.reset() for obj in self._base_objs]
+        
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def choice(self): return self._choice
+    @choice.setter
+    def choice(self, x): self.setChoice(x)
