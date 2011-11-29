@@ -63,6 +63,7 @@ class Midictl(PyoObject):
     setMaxScale(x) : Replace the `maxscale` attribute.
     setChannel(x) : Replace the `channel` attribute.
     setValue(x) : Reset audio stream to value in argument.
+    setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
 
     Attributes:
 
@@ -172,6 +173,19 @@ class Midictl(PyoObject):
         """
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInterpolation(self, x):
+        """
+        Activate/Deactivate interpolation. Activated by default.
+
+        Parameters:
+
+        x : boolean
+            True activates the interpolation, False deactivates it.
+
+        """
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []

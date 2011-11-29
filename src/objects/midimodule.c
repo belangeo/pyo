@@ -233,6 +233,7 @@ typedef struct {
     pyo_audio_HEAD
     int ctlnumber;
     int channel;
+    int interp;
     MYFLT minscale;
     MYFLT maxscale;
     MYFLT value;
@@ -323,18 +324,25 @@ Midictl_compute_next_data_frame(Midictl *self)
 {   
     PmEvent *tmp;
     int i, count;
+    MYFLT step;
 
     tmp = Server_getMidiEventBuffer((Server *)self->server);
     count = Server_getMidiEventCount((Server *)self->server);
 
     if (count > 0)
         translateMidi((Midictl *)self, tmp, count);
-    MYFLT step = (self->value - self->oldValue) / self->bufsize;
-
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = self->oldValue + step;
-    }  
     
+    if (self->interp == 0) {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->value;
+        }
+    }
+    else {
+        step = (self->value - self->oldValue) / self->bufsize;
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->oldValue + step;
+        }          
+    }
     (*self->muladd_func_ptr)(self);
 }
 
@@ -375,6 +383,7 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->oldValue = 0.;
     self->minscale = 0.;
     self->maxscale = 1.;
+    self->interp = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 
@@ -432,6 +441,32 @@ static PyObject * Midictl_sub(Midictl *self, PyObject *arg) { SUB };
 static PyObject * Midictl_inplace_sub(Midictl *self, PyObject *arg) { INPLACE_SUB };
 static PyObject * Midictl_div(Midictl *self, PyObject *arg) { DIV };
 static PyObject * Midictl_inplace_div(Midictl *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Midictl_setInterpolation(Midictl *self, PyObject *arg)
+{
+    int tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isNum = PyInt_Check(arg);
+    printf("isNum : %i\n", isNum);
+    
+	if (isNum == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp == 0)
+            self->interp = 0;
+        else
+            self->interp = 1;
+	}
+    printf("self->interp : %i\n", self->interp);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
 
 static PyObject *
 Midictl_setValue(Midictl *self, PyObject *arg)
@@ -554,6 +589,7 @@ static PyMethodDef Midictl_methods[] = {
     {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
+	{"setInterpolation", (PyCFunction)Midictl_setInterpolation, METH_O, "Activate/Deactivate interpolation."},
 	{"setValue", (PyCFunction)Midictl_setValue, METH_O, "Resets audio stream to value in argument."},
 	{"setMinScale", (PyCFunction)Midictl_setMinScale, METH_O, "Sets the minimum value of scaling."},
 	{"setMaxScale", (PyCFunction)Midictl_setMaxScale, METH_O, "Sets the maximum value of scaling."},
