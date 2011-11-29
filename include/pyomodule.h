@@ -63,6 +63,7 @@
 #define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
 #define TYPE_O_IFFO "O|iffO"
+#define TYPE_OO_FOO "OO|fOO"
 #define TYPE_OO_FFOO "OO|ffOO"
 #define TYPE_O_IFIOO "O|ifiOO"
 #define TYPE_O_OFOOOO "O|OfOOOO"
@@ -131,6 +132,7 @@
 #define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
 #define TYPE_O_IFFO "O|iddO"
+#define TYPE_OO_FOO "OO|dOO"
 #define TYPE_OO_FFOO "OO|ddOO"
 #define TYPE_O_IFIOO "O|idiOO"
 #define TYPE_O_OFOOOO "O|OdOOOO"
@@ -323,6 +325,7 @@ extern PyTypeObject OscDataReceiveType;
 extern PyTypeObject TrigRandIntType;
 extern PyTypeObject TrigRandType;
 extern PyTypeObject TrigChoiceType;
+extern PyTypeObject IterType;
 extern PyTypeObject TrigEnvType;
 extern PyTypeObject TrigEnvTrigType;
 extern PyTypeObject TrigLinsegType;
