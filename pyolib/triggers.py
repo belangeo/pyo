@@ -3276,9 +3276,11 @@ class Iter(PyoObject):
     >>> s.start()
     >>> l1 = [300, 350, 400, 450, 500, 550]
     >>> l2 = [300, 350, 450, 500, 550]
-    >>> met = Metro(time=.125).play()
+    >>> t = CosTable([(0,0), (50,1), (250,.3), (8191,0)])
+    >>> met = Metro(time=.125, poly=2).play()
+    >>> amp = TrigEnv(met, table=t, dur=.25, mul=.3)
     >>> it = Iter(met, choice=[l1, l2])
-    >>> si = Sine(freq=it, mul=.3).out()
+    >>> si = Sine(freq=it, mul=amp).out()
 
     """
     def __init__(self, input, choice, init=0., mul=1, add=0):
@@ -3331,7 +3333,10 @@ class Iter(PyoObject):
             [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
-        "Resets the current count to 0."
+        """
+        Resets the current count to 0.
+        
+        """
         [obj.reset() for obj in self._base_objs]
         
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
