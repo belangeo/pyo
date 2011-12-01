@@ -639,6 +639,9 @@ class TableRead(PyoObject):
     
     Read sampled sound from a table, with optional looping mode.
     
+    The play() method starts the playback and is not called at the 
+    object creation time.
+    
     Parent class: PyoObject
     
     Parameters:
