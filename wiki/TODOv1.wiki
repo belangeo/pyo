@@ -18,8 +18,6 @@ TODO before releasing _pyo_ version 1.0.
 
 - !MixerGui (matrix for setting dsp graph)
 
-- Editable !TableView. Edit, Zoom, Drag, Scrub and Select Region. Resizable windows.
-
 ----
 
 *Midi*
