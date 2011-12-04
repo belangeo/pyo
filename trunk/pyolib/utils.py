@@ -84,18 +84,22 @@ class Print(PyoObject):
     interval : float, optional
         Interval, in seconds, between each print. Used by method 0.
         Defaults to 0.25.
+    message : str, optional
+        Message to print before the current value. Defaults to "".
 
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setMethod(x) : Replace the `method` attribute.
     setInterval(x) : Replace the `interval` attribute.
+    setMessage(x) : Replace the `message` attribute.
 
     Attributes:
 
     input : PyoObject. Input signal.
     method : int. Controls when a value is printed.
     interval : float. For method 0, interval, in seconds, between each print.
+    message : str. Message to print before the current value.
 
     Notes:
 
@@ -110,20 +114,21 @@ class Print(PyoObject):
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5).out()
     >>> b = Follower(a)
-    >>> p = Print(b, method=0, interval=.1)
+    >>> p = Print(b, method=0, interval=.1, message="RMS")
 
     """
-    def __init__(self, input, method=0, interval=0.25):
+    def __init__(self, input, method=0, interval=0.25, message=""):
         PyoObject.__init__(self)
         self._input = input
         self._method = method
         self._interval = interval
+        self._message = message
         self._in_fader = InputFader(input)
-        in_fader, method, interval, lmax = convertArgsToLists(self._in_fader, method, interval)
-        self._base_objs = [Print_base(wrap(in_fader,i), wrap(method,i), wrap(interval,i)) for i in range(lmax)]
+        in_fader, method, interval, message, lmax = convertArgsToLists(self._in_fader, method, interval, message)
+        self._base_objs = [Print_base(wrap(in_fader,i), wrap(method,i), wrap(interval,i), wrap(message,i)) for i in range(lmax)]
 
     def __dir__(self):
-        return ['input', 'method', 'interval']
+        return ['input', 'method', 'interval', 'message']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -168,6 +173,20 @@ class Print(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterval(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setMessage(self, x):
+        """
+        Replace the `message` attribute.
+
+        Parameters:
+
+        x : str
+            New `message` attribute.
+
+        """
+        self._message = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMessage(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
@@ -195,6 +214,13 @@ class Print(PyoObject):
         return self._interval
     @interval.setter
     def interval(self, x): self.setInterval(x)
+
+    @property
+    def message(self):
+        """str. Message to print before the current value.""" 
+        return self._message
+    @message.setter
+    def message(self, x): self.setMessage(x)
 
 class Snap(PyoObject):
     """
