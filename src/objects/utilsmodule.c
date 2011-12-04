@@ -33,6 +33,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
+    char *message;
     int method; // 0 -> interval, 1 -> change
     MYFLT lastValue;
     MYFLT time;
@@ -48,7 +49,10 @@ Print_process_time(Print *self) {
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= self->time) {
             self->currentTime = 0.0;
-            printf("%f\n", in[i]);
+            if (self->message == NULL || self->message[0] == '\0')
+                printf("%f\n", in[i]);
+            else
+                printf("%s : %f\n", self->message, in[i]);
         }
         self->currentTime += self->sampleToSec;
     }
@@ -63,7 +67,10 @@ Print_process_change(Print *self) {
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval < (self->lastValue-0.00001) || inval > (self->lastValue+0.00001)) {
-            printf("%f\n", inval);
+            if (self->message == NULL || self->message[0] == '\0')
+                printf("%f\n", inval);
+            else
+                printf("%s : %f\n", self->message, inval);
             self->lastValue = inval;
         }
     }    
@@ -145,9 +152,9 @@ Print_init(Print *self, PyObject *args, PyObject *kwds)
 {
     PyObject *inputtmp, *input_streamtmp;
     
-    static char *kwlist[] = {"input", "method", "interval", NULL};
+    static char *kwlist[] = {"input", "method", "interval", "message", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IF, kwlist, &inputtmp, &self->method, &self->time))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFS, kwlist, &inputtmp, &self->method, &self->time, &self->message))
         return -1; 
     
     INIT_INPUT_STREAM
@@ -204,6 +211,24 @@ Print_setInterval(Print *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+Print_setMessage(Print *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isString = PyString_Check(arg);
+	
+	if (isString == 1) {
+		self->message = PyString_AsString(arg);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMemberDef Print_members[] = {
 {"server", T_OBJECT_EX, offsetof(Print, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Print, stream), 0, "Stream object."},
@@ -219,6 +244,7 @@ static PyMethodDef Print_methods[] = {
 {"stop", (PyCFunction)Print_stop, METH_NOARGS, "Stops computing."},
 {"setMethod", (PyCFunction)Print_setMethod, METH_O, "Sets the printing method."},
 {"setInterval", (PyCFunction)Print_setInterval, METH_O, "Sets the time interval."},
+{"setMessage", (PyCFunction)Print_setMessage, METH_O, "Sets the prefix message to print."},
 {NULL}  /* Sentinel */
 };
 
