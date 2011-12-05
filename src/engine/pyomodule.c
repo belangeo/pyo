@@ -765,6 +765,83 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     return pPointsOut;    
 }
 
+#define distanceToSegment_info \
+"\nFind the distance from a point to a line or line segment.\n\n\
+distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function returns the shortest distance from a point to a line segment normalized between 0 and 1.\n\n\
+A point is a tuple (or a list) of two floats, time and value. `p` is the point for which to find the distance from line `p1` to `p2`.\n\n\
+Parameters:\n\n    \
+p : list or tuple\n        Point for which to find the distance.\n    \
+p1 : list or tuple\n        First point of the segment.\n    \
+p2 : list or tuple\n        Second point of the segment.\n    \
+xmin : float\n        Minimum value on the X axis.\n    \
+xmax : float\n        Maximum value on the X axis.\n    \
+ymin : float\n        Minimum value on the Y axis.\n    \
+ymax : float\n        Maximum value on the Y axis.\n    \
+xlog : boolean\n        Set this argument to True if X axis has a logarithmic scaling.\n    \
+ylog : boolean\n        Set this argument to True if Y axis has a logarithmic scaling."
+
+static PyObject *
+distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *p, *p1, *p2, *pf, *pf1, *pf2;
+    MYFLT xscale, yscale, xDelta, yDelta, u;
+    MYFLT xmin = 0.0;
+    MYFLT xmax = 1.0;
+    MYFLT ymin = 0.0;
+    MYFLT ymax = 1.0;
+    int xlog = 0;
+    int ylog = 0;
+    MYFLT xp[2], xp1[2], xp2[2], closest[2];
+    
+    static char *kwlist[] = {"p", "p1", "p2", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_FFFFII, kwlist, &p, &p1, &p2, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
+        return PyInt_FromLong(-1);
+
+    pf = PySequence_Fast(p, NULL);
+    pf1 = PySequence_Fast(p1, NULL);
+    pf2 = PySequence_Fast(p2, NULL);
+    if (xlog == 0) {
+        xscale = xmax - xmin;
+        xp[0] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 0))) / xscale;
+        xp1[0] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 0))) / xscale;
+        xp2[0] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 0))) / xscale;
+    }
+    else {
+        xscale = MYLOG10(xmax / xmin);
+        xp[0] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 0))) / xmin) / xscale;
+        xp1[0] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 0))) / xmin) / xscale;
+        xp2[0] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 0))) / xmin) / xscale;
+    }
+    if (ylog == 0) {
+        yscale = ymax - ymin;
+        xp[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 1))) / yscale;
+        xp1[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 1))) / yscale;
+        xp2[1] = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / yscale;        
+    }
+    else {
+        yscale = MYLOG10(ymax / ymin);
+        xp[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf, 1))) / ymin) / yscale;
+        xp1[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf1, 1))) / ymin) / yscale;
+        xp2[1] = MYLOG10(PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(pf2, 1))) / ymin) / yscale;        
+    }
+
+    xDelta = xp2[0] - xp1[0]; yDelta = xp2[1] - xp1[1];
+    u = ((xp[0] - xp1[0]) * xDelta + (xp[1] - xp1[1]) * yDelta) / (xDelta * xDelta + yDelta * yDelta);
+
+    if (u < 0.0) {
+        closest[0] = xp1[0]; closest[1] = xp1[1];
+    }
+    else if (u > 1.0) {
+        closest[0] = xp2[0]; closest[1] = xp2[1];
+    }
+    else {
+        closest[0] = xp1[0] + u * xDelta; closest[1] = xp1[1] + u * yDelta;
+    }
+
+    return PyFloat_FromDouble(MYSQRT(MYPOW(xp[0] - closest[0], 2.0) + MYPOW(xp[1] - closest[1], 2.0)));
+}
+    
 /****** Conversion utilities ******/
 #define midiToHz_info \
 "\nReturns the frequency in Hertz equivalent to the given midi note.\n\nmidiToHz(x)\n\nParameters:\n\n    \
@@ -916,6 +993,7 @@ static PyMethodDef pyo_functions[] = {
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
+{"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS|METH_KEYWORDS, distanceToSegment_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Returns the number of samples equivalent of the given duration in seconds."},
