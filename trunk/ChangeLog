@@ -1,3 +1,8 @@
+2011-12-05 belangeo <belangeo@gmail.com>
+
+    * Added new function: distanceToSegment. Find the distance from a point to a line or line segment.
+    - rev 790
+
 2011-11-29 belangeo <belangeo@gmail.com>
 
     * Added new object: Iter. Triggers iterate over a list of user-defined values.
