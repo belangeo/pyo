@@ -154,8 +154,7 @@ Dummy_initialize(Dummy *self)
 
 int
 Dummy_init(Dummy *self, PyObject *args, PyObject *kwds)
-{
-    
+{    
     Py_INCREF(self);
     return 0;
 }
@@ -176,6 +175,8 @@ Dummy_setInput(Dummy *self, PyObject *arg)
 
     (*self->mode_func_ptr)(self);
 
+    Dummy_compute_next_data_frame(self);
+    
     Py_INCREF(Py_None);
     return Py_None;
 }
