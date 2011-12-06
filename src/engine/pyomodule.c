@@ -773,12 +773,12 @@ Parameters:\n\n    \
 p : list or tuple\n        Point for which to find the distance.\n    \
 p1 : list or tuple\n        First point of the segment.\n    \
 p2 : list or tuple\n        Second point of the segment.\n    \
-xmin : float\n        Minimum value on the X axis.\n    \
-xmax : float\n        Maximum value on the X axis.\n    \
-ymin : float\n        Minimum value on the Y axis.\n    \
-ymax : float\n        Maximum value on the Y axis.\n    \
-xlog : boolean\n        Set this argument to True if X axis has a logarithmic scaling.\n    \
-ylog : boolean\n        Set this argument to True if Y axis has a logarithmic scaling."
+xmin : float, optional\n        Minimum value on the X axis.\n    \
+xmax : float, optional\n        Maximum value on the X axis.\n    \
+ymin : float, optional\n        Minimum value on the Y axis.\n    \
+ymax : float, optional\n        Maximum value on the Y axis.\n    \
+xlog : boolean, optional\n        Set this argument to True if X axis has a logarithmic scaling.\n    \
+ylog : boolean, optional\n        Set this argument to True if Y axis has a logarithmic scaling."
 
 static PyObject *
 distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
@@ -841,7 +841,143 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
 
     return PyFloat_FromDouble(MYSQRT(MYPOW(xp[0] - closest[0], 2.0) + MYPOW(xp[1] - closest[1], 2.0)));
 }
+
+#define rescale_info \
+"\nScales values inside a specific range to another range.\n\n\
+rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function takes data in the range `xmin` - `xmax` and returns corresponding values in the range `ymin` - `ymax`.\n\n\
+`data` can be either a number or a list. Return value is of the same type as `data` with all values rescaled.\n\n\
+Parameters:\n\n    \
+data : float or list of floats\n        Values to convert.\n    \
+xmin : float, optional\n        Minimum value of the input range.\n    \
+xmax : float, optional\n        Maximum value of the input range.\n    \
+ymin : float, optional\n        Minimum value of the output range.\n    \
+ymax : float, optional\n        Maximum value of the output range.\n    \
+xlog : boolean, optional\n        Set this argument to True if the input range has a logarithmic scaling.\n    \
+ylog : boolean, optional\n        Set this argument to True if the output range has a logarithmic scaling.\n\n\
+Examples:\n\n    \
+>>> a = 0.5\n    \
+>>> b = rescale(a, 0, 1, 20, 20000, False, True)\n    \
+>>> print b\n    \
+>>> 632.453369141\n    \
+>>> a = [0, .2, .4, .6, .8]\n    \
+>>> b = rescale(a, 0, 1, 20, 20000, False, True)\n    \
+>>> print b\n    \
+>>> [20.000001907348633, 79.621009826660156, 316.97738647460938, 1261.91162109375, 5023.7705078125]\n\n"
+
+static PyObject *
+rescale(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *data, *out;
+    MYFLT datascl, curscl, val;
+    MYFLT xmin = 0.0;
+    MYFLT xmax = 1.0;
+    MYFLT ymin = 0.0;
+    MYFLT ymax = 1.0;
+    int xlog = 0;
+    int ylog = 0;
+    int i, cnt;
+    int type; // 0 = float, 1 = list of floats
     
+    static char *kwlist[] = {"data", "xmin", "xmax", "ymin", "ymax", "xlog", "ylog", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFII, kwlist, &data, &xmin, &xmax, &ymin, &ymax, &xlog, &ylog))
+        return PyInt_FromLong(-1);
+
+    if (PyNumber_Check(data))
+        type = 0;
+    else if (PyList_Check(data))
+        type = 1;
+    else
+        Py_RETURN_NONE;
+
+    if (xlog == 0 && ylog == 0) {
+        datascl = xmax - xmin;
+        curscl = ymax - ymin;
+        curscl /= datascl;
+        if (type == 0) {
+            val = PyFloat_AsDouble(PyNumber_Float(data));
+            return Py_BuildValue("d", (val - xmin) * curscl + ymin);
+        }
+        else if (type == 1) {
+            cnt = PyList_Size(data);
+            out = PyList_New(cnt);
+            for (i=0; i<cnt; i++) {
+                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                PyList_SET_ITEM(out, i, PyFloat_FromDouble((val - xmin) * curscl + ymin));
+            }
+            return out;
+        }        
+    }
+    else if (xlog == 0 && ylog == 1) {
+        if (xmin == 0)
+            xmin = 0.000001;
+        datascl = xmax - xmin;
+        curscl = MYLOG10(ymax / ymin);
+        ymin = MYLOG10(ymin);
+        if (type == 0) {
+            val = PyFloat_AsDouble(PyNumber_Float(data));
+            if (val == 0)
+                val = 0.000001;
+            val = (val - xmin) / datascl;
+            return Py_BuildValue("d", MYPOW(10.0, val * curscl + ymin));
+        }
+        else if (type == 1) {
+            cnt = PyList_Size(data);
+            out = PyList_New(cnt);
+            for (i=0; i<cnt; i++) {
+                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                if (val == 0)
+                    val = 0.000001;
+                val = (val - xmin) / datascl;
+                PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
+            }
+            return out;
+        }        
+    }
+    else if (xlog == 1 && ylog == 0) {
+        datascl = MYLOG10(xmax / xmin);
+        curscl = ymax - ymin;
+        if (type == 0) {
+            val = PyFloat_AsDouble(PyNumber_Float(data));
+            val = MYLOG10(val / xmin) / datascl;
+            return Py_BuildValue("d", val * curscl + ymin);
+        }
+        else if (type == 1) {
+            cnt = PyList_Size(data);
+            out = PyList_New(cnt);
+            for (i=0; i<cnt; i++) {
+                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                val = MYLOG10(val / xmin) / datascl;
+                PyList_SET_ITEM(out, i, PyFloat_FromDouble(val * curscl + ymin));
+            }
+            return out;
+        }        
+    }
+    else if (xlog == 1 && ylog == 1) {
+        datascl = MYLOG10(xmax / xmin);
+        curscl = MYLOG10(ymax / ymin);
+        ymin = MYLOG10(ymin);
+        if (type == 0) {
+            val = PyFloat_AsDouble(PyNumber_Float(data));
+            val = MYLOG10(val / xmin) / datascl;
+            return Py_BuildValue("d", MYPOW(10.0, val * curscl + ymin));
+        }
+        else if (type == 1) {
+            cnt = PyList_Size(data);
+            out = PyList_New(cnt);
+            for (i=0; i<cnt; i++) {
+                val = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(data, i)));
+                val = MYLOG10(val / xmin) / datascl;
+                PyList_SET_ITEM(out, i, PyFloat_FromDouble(MYPOW(10.0, val * curscl + ymin)));
+            }
+            return out;
+        }        
+    }
+    else {
+        Py_RETURN_NONE;
+    }
+}
+
 /****** Conversion utilities ******/
 #define midiToHz_info \
 "\nReturns the frequency in Hertz equivalent to the given midi note.\n\nmidiToHz(x)\n\nParameters:\n\n    \
@@ -994,6 +1130,7 @@ static PyMethodDef pyo_functions[] = {
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
 {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS|METH_KEYWORDS, distanceToSegment_info},
+{"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Returns the number of samples equivalent of the given duration in seconds."},
