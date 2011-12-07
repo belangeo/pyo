@@ -358,6 +358,258 @@ class Biquadx(PyoObject):
     @stages.setter
     def stages(self, x): self.setStages(x)
 
+class Biquada(PyoObject):
+    """
+    A general purpose biquadratic digital filter (floating-point arguments).
+
+    A digital biquad filter is a second-order recursive linear filter, containing
+    two poles and two zeros. Biquadi is a "Direct Form 1" implementation of a Biquad 
+    filter:
+
+    y[n] = ( b0*x[n] + b1*x[n-1] + b2*x[n-2] - a1*y[n-1] - a2*y[n-2] ) / a0
+
+    This object is directly controlled via the six coefficients, as floating-point
+    values or audio stream, of the filter. There is no clipping of the values given as 
+    coefficients, so, unless you know what you do, it is recommended to use the Biquad 
+    object, which is controlled with frequency, Q and type arguments.
+
+    The default values of the object give a lowpass filter with a 1000 Hz cutoff frequency.
+
+    Parent class : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to filter.
+    b0 : float or PyoObject, optional
+        Amplitude of the current sample. Defaults to 0.005066.
+    b1 : float or PyoObject, optional
+        Amplitude of the first input sample delayed. Defaults to 0.010132.
+    b2 : float or PyoObject, optional
+        Amplitude of the second input sample delayed. Defaults to 0.005066.
+    a0 : float or PyoObject, optional
+        Overall gain coefficient. Defaults to 1.070997.
+    a1 : float or PyoObject, optional
+        Amplitude of the first output sample delayed. Defaults to -1.979735.
+    a2 : float or PyoObject, optional
+        Amplitude of the second output sample delayed. Defaults to 0.929003.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setB0(x) : Replace the `b0` attribute.
+    setB1(x) : Replace the `b1` attribute.
+    setB2(x) : Replace the `b2` attribute.
+    setA0(x) : Replace the `a0` attribute.
+    setA1(x) : Replace the `a1` attribute.
+    setA2(x) : Replace the `a2` attribute.
+    setCoeffs(b0, b1, b2, a0, a1, a2) : Replace all filter's coefficients.
+
+    Attributes:
+
+    input : PyoObject. Input signal to filter.
+    b0 : float or PyoObject. Amplitude of the current sample.
+    b1 : float or PyoObject. Amplitude of the first input sample delayed.
+    b2 : float or PyoObject. Amplitude of the second input sample delayed.
+    a0 : float or PyoObject. Overall gain coefficient.
+    a1 : float or PyoObject. Amplitude of the first output sample delayed.
+    a2 : float or PyoObject. Amplitude of the second output sample delayed.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.5)
+    >>> lf = Sine(2, mul=.07, add=-1.9)
+    >>> f = Biquada(a, 0.005066, 0.010132, 0.005066, 1.070997, lf, 0.929003).out()
+
+    """
+    def __init__(self, input, b0=0.005066, b1=0.010132, b2=0.005066, a0=1.070997, a1=-1.979735, a2=0.929003, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._b0 = Sig(b0)
+        self._b1 = Sig(b1)
+        self._b2 = Sig(b2)
+        self._a0 = Sig(a0)
+        self._a1 = Sig(a1)
+        self._a2 = Sig(a2)
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, b0, b1, b2, a0, a1, a2, mul, add, lmax = convertArgsToLists(self._in_fader, self._b0, self._b1, self._b2, self._a0, self._a1, self._a2, mul, add)
+        self._base_objs = [Biquada_base(wrap(in_fader,i), wrap(b0,i), wrap(b1,i), wrap(b2,i), wrap(a0,i), wrap(a1,i), wrap(a2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'b0', 'b1', 'b2', 'a0', 'a1', 'a2', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setB0(self, x):
+        """
+        Replace the `b0` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `b0` attribute.
+
+        """
+        self._b0.value = x
+
+    def setB1(self, x):
+        """
+        Replace the `b1` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `b1` attribute.
+
+        """
+        self._b1.value = x
+
+    def setB2(self, x):
+        """
+        Replace the `b2` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `b2` attribute.
+
+        """
+        self._b2.value = x
+
+    def setA0(self, x):
+        """
+        Replace the `a0` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `a0` attribute.
+
+        """
+        self._a0.value = x
+
+    def setA1(self, x):
+        """
+        Replace the `a1` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `a1` attribute.
+
+        """
+        self._a1.value = x
+
+    def setA2(self, x):
+        """
+        Replace the `a2` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `a2` attribute.
+
+        """
+        self._a2.value = x
+
+    def setCoeffs(self, *args, **kwds):
+        """
+        Replace all filter coefficients.
+    
+        Parameters:
+    
+        b0 : float or PyoObject, optional
+            New `b0` attribute.
+        b1 : float or PyoObject, optional
+            New `b1` attribute.
+        b2 : float or PyoObject, optional
+            New `b2` attribute.
+        a0 : float or PyoObject, optional
+            New `a0` attribute.
+        a1 : float or PyoObject, optional
+            New `a1` attribute.
+        a2 : float or PyoObject, optional
+            New `a2` attribute.
+    
+        """
+        for i, val in enumerate(args):
+            attr = getattr(self, ["_b0", "_b1", "_b2", "_a0", "_a1", "_a2"][i])
+            attr.value = val
+        for key in kwds.keys():
+            if hasattr(self, key):
+                attr = getattr(self, "_"+key)
+                attr.value = kwds[key]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def b0(self):
+        """float or PyoObject. b0 coefficient.""" 
+        return self._b0
+    @b0.setter
+    def b0(self, x): self.setB0(x)
+
+    @property
+    def b1(self):
+        """float or PyoObject. b1 coefficient.""" 
+        return self._b1
+    @b1.setter
+    def b1(self, x): self.setB1(x)
+
+    @property
+    def b2(self):
+        """float or PyoObject. b2 coefficient.""" 
+        return self._b2
+    @b2.setter
+    def b2(self, x): self.setB2(x)
+
+    @property
+    def a0(self):
+        """float or PyoObject. a0 coefficient.""" 
+        return self._a0
+    @a0.setter
+    def a0(self, x): self.setA0(x)
+
+    @property
+    def a1(self):
+        """float or PyoObject. a1 coefficient.""" 
+        return self._a1
+    @a1.setter
+    def a1(self, x): self.setA1(x)
+
+    @property
+    def a2(self):
+        """float or PyoObject. a2 coefficient.""" 
+        return self._a2
+    @a2.setter
+    def a2(self, x): self.setA2(x)
+
 class EQ(PyoObject):
     """
     Equalizer filter. 

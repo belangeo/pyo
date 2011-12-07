@@ -1632,6 +1632,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&BiquadxType);
     PyModule_AddObject(m, "Biquadx_base", (PyObject *)&BiquadxType);
+
+    if (PyType_Ready(&BiquadaType) < 0)
+        return;
+    Py_INCREF(&BiquadaType);
+    PyModule_AddObject(m, "Biquada_base", (PyObject *)&BiquadaType);
     
     if (PyType_Ready(&EQType) < 0)
         return;

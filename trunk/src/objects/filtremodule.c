@@ -1289,6 +1289,434 @@ PyTypeObject BiquadxType = {
     Biquadx_new,                                     /* tp_new */
 };
 
+/*** Biquad filter with direct coefficient control ***/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    // coefficients
+    Stream *b0_stream;
+    Stream *b1_stream;
+    Stream *b2_stream;
+    Stream *a0_stream;
+    Stream *a1_stream;
+    Stream *a2_stream;
+    int init;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
+    // sample memories
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
+} Biquada;
+
+static void
+Biquada_filters(Biquada *self) {
+    MYFLT val;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *b0 = Stream_getData((Stream *)self->b0_stream);
+    MYFLT *b1 = Stream_getData((Stream *)self->b1_stream);
+    MYFLT *b2 = Stream_getData((Stream *)self->b2_stream);
+    MYFLT *a0 = Stream_getData((Stream *)self->a0_stream);
+    MYFLT *a1 = Stream_getData((Stream *)self->a1_stream);
+    MYFLT *a2 = Stream_getData((Stream *)self->a2_stream);
+
+    if (self->init == 1) {
+        self->x1 = self->x2 = self->y1 = self->y2 = in[0];
+        self->init = 0;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        val = ( (b0[i] * in[i]) + (b1[i] * self->x1) + (b2[i] * self->x2) - (a1[i] * self->y1) - (a2[i] * self->y2) ) / a0[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+    }
+}
+
+static void Biquada_postprocessing_ii(Biquada *self) { POST_PROCESSING_II };
+static void Biquada_postprocessing_ai(Biquada *self) { POST_PROCESSING_AI };
+static void Biquada_postprocessing_ia(Biquada *self) { POST_PROCESSING_IA };
+static void Biquada_postprocessing_aa(Biquada *self) { POST_PROCESSING_AA };
+static void Biquada_postprocessing_ireva(Biquada *self) { POST_PROCESSING_IREVA };
+static void Biquada_postprocessing_areva(Biquada *self) { POST_PROCESSING_AREVA };
+static void Biquada_postprocessing_revai(Biquada *self) { POST_PROCESSING_REVAI };
+static void Biquada_postprocessing_revaa(Biquada *self) { POST_PROCESSING_REVAA };
+static void Biquada_postprocessing_revareva(Biquada *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Biquada_setProcMode(Biquada *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Biquada_filters;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Biquada_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Biquada_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Biquada_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Biquada_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Biquada_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Biquada_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Biquada_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Biquada_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Biquada_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Biquada_compute_next_data_frame(Biquada *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Biquada_traverse(Biquada *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->b0_stream);
+    Py_VISIT(self->b1_stream);
+    Py_VISIT(self->b2_stream);
+    Py_VISIT(self->a0_stream);
+    Py_VISIT(self->a1_stream);
+    Py_VISIT(self->a2_stream);
+    return 0;
+}
+
+static int 
+Biquada_clear(Biquada *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->b0_stream);
+    Py_CLEAR(self->b1_stream);
+    Py_CLEAR(self->b2_stream);
+    Py_CLEAR(self->a0_stream);
+    Py_CLEAR(self->a1_stream);
+    Py_CLEAR(self->a2_stream);
+    return 0;
+}
+
+static void
+Biquada_dealloc(Biquada* self)
+{
+    free(self->data);
+    Biquada_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Biquada_deleteStream(Biquada *self) { DELETE_STREAM };
+
+static PyObject *
+Biquada_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Biquada *self;
+    self = (Biquada *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    self->init = 1;
+    
+    INIT_OBJECT_COMMON
+    
+    Stream_setFunctionPtr(self->stream, Biquada_compute_next_data_frame);
+    self->mode_func_ptr = Biquada_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Biquada_init(Biquada *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *b0tmp, *b1tmp, *b2tmp, *a0tmp, *a1tmp, *a2tmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "b0", "b1", "b2", "a0", "a1", "a2", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOOOOOOOO", kwlist, &inputtmp, &b0tmp, &b1tmp, &b2tmp, &a0tmp, &a1tmp, &a2tmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+
+    if (b0tmp)
+        PyObject_CallMethod((PyObject *)self, "setB0", "O", b0tmp);
+    if (b1tmp)
+        PyObject_CallMethod((PyObject *)self, "setB1", "O", b1tmp);
+    if (b2tmp)
+        PyObject_CallMethod((PyObject *)self, "setB2", "O", b2tmp);
+    if (a0tmp)
+        PyObject_CallMethod((PyObject *)self, "setA0", "O", a0tmp);
+    if (a1tmp)
+        PyObject_CallMethod((PyObject *)self, "setA1", "O", a1tmp);
+    if (a2tmp)
+        PyObject_CallMethod((PyObject *)self, "setA2", "O", a2tmp);
+    if (multmp)
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    if (addtmp)
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Biquada_getServer(Biquada* self) { GET_SERVER };
+static PyObject * Biquada_getStream(Biquada* self) { GET_STREAM };
+static PyObject * Biquada_setMul(Biquada *self, PyObject *arg) { SET_MUL };	
+static PyObject * Biquada_setAdd(Biquada *self, PyObject *arg) { SET_ADD };	
+static PyObject * Biquada_setSub(Biquada *self, PyObject *arg) { SET_SUB };	
+static PyObject * Biquada_setDiv(Biquada *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Biquada_play(Biquada *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Biquada_out(Biquada *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Biquada_stop(Biquada *self) { STOP };
+
+static PyObject * Biquada_multiply(Biquada *self, PyObject *arg) { MULTIPLY };
+static PyObject * Biquada_inplace_multiply(Biquada *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Biquada_add(Biquada *self, PyObject *arg) { ADD };
+static PyObject * Biquada_inplace_add(Biquada *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Biquada_sub(Biquada *self, PyObject *arg) { SUB };
+static PyObject * Biquada_inplace_sub(Biquada *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Biquada_div(Biquada *self, PyObject *arg) { DIV };
+static PyObject * Biquada_inplace_div(Biquada *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Biquada_setB0(Biquada *self, PyObject *arg)
+{	
+	PyObject *streamtmp;
+
+	if (arg == NULL)
+		Py_RETURN_NONE;
+    
+    streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->b0_stream);
+    self->b0_stream = (Stream *)streamtmp;
+    
+	Py_RETURN_NONE;
+}	
+
+static PyObject *
+Biquada_setB1(Biquada *self, PyObject *arg)
+{	
+	PyObject *streamtmp;
+
+	if (arg == NULL)
+		Py_RETURN_NONE;
+    
+    streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->b1_stream);
+    self->b1_stream = (Stream *)streamtmp;
+    
+	Py_RETURN_NONE;
+}	
+
+static PyObject *
+Biquada_setB2(Biquada *self, PyObject *arg)
+{	
+	PyObject *streamtmp;
+    
+	if (arg == NULL)
+		Py_RETURN_NONE;
+    
+    streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->b2_stream);
+    self->b2_stream = (Stream *)streamtmp;
+    
+	Py_RETURN_NONE;
+}	
+
+static PyObject *
+Biquada_setA0(Biquada *self, PyObject *arg)
+{	
+	PyObject *streamtmp;
+    
+	if (arg == NULL)
+		Py_RETURN_NONE;
+    
+    streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->a0_stream);
+    self->a0_stream = (Stream *)streamtmp;
+    
+	Py_RETURN_NONE;
+}	
+
+static PyObject *
+Biquada_setA1(Biquada *self, PyObject *arg)
+{	
+	PyObject *streamtmp;
+    
+	if (arg == NULL)
+		Py_RETURN_NONE;
+    
+    streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->a1_stream);
+    self->a1_stream = (Stream *)streamtmp;
+    
+	Py_RETURN_NONE;
+}	
+
+static PyObject *
+Biquada_setA2(Biquada *self, PyObject *arg)
+{	
+	PyObject *streamtmp;
+    
+	if (arg == NULL)
+		Py_RETURN_NONE;
+    
+    streamtmp = PyObject_CallMethod((PyObject *)arg, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->a2_stream);
+    self->a2_stream = (Stream *)streamtmp;
+    
+	Py_RETURN_NONE;
+}	
+
+static PyMemberDef Biquada_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Biquada, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Biquada, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Biquada, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(Biquada, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Biquada, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Biquada_methods[] = {
+    {"getServer", (PyCFunction)Biquada_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Biquada_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Biquada_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Biquada_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Biquada_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Biquada_stop, METH_NOARGS, "Stops computing."},
+	{"setB0", (PyCFunction)Biquada_setB0, METH_O, "Sets b0 coefficient."},
+	{"setB1", (PyCFunction)Biquada_setB1, METH_O, "Sets b1 coefficient."},
+	{"setB2", (PyCFunction)Biquada_setB2, METH_O, "Sets b2 coefficient."},
+	{"setA0", (PyCFunction)Biquada_setA0, METH_O, "Sets a0 coefficient."},
+	{"setA1", (PyCFunction)Biquada_setA1, METH_O, "Sets a1 coefficient."},
+	{"setA2", (PyCFunction)Biquada_setA2, METH_O, "Sets a2 coefficient."},
+	{"setMul", (PyCFunction)Biquada_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Biquada_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Biquada_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Biquada_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Biquada_as_number = {
+    (binaryfunc)Biquada_add,                         /*nb_add*/
+    (binaryfunc)Biquada_sub,                         /*nb_subtract*/
+    (binaryfunc)Biquada_multiply,                    /*nb_multiply*/
+    (binaryfunc)Biquada_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Biquada_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Biquada_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Biquada_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Biquada_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject BiquadaType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Biquada_base",                                   /*tp_name*/
+    sizeof(Biquada),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Biquada_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Biquada_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Biquada objects. Generates a biquadratic filter with direct coefficient control.",           /* tp_doc */
+    (traverseproc)Biquada_traverse,                  /* tp_traverse */
+    (inquiry)Biquada_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Biquada_methods,                                 /* tp_methods */
+    Biquada_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Biquada_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Biquada_new,                                     /* tp_new */
+};
+
 /*** Typical EQ filter ***/
 typedef struct {
     pyo_audio_HEAD
