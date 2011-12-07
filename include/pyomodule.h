@@ -51,8 +51,10 @@
 #define TYPE__FFFOO "|fffOO"
 #define TYPE__FFFIOO "|fffiOO"
 #define TYPE__FFFFFOO "|fffffOO"
+#define TYPE__FFFFFF "|ffffff"
 #define TYPE_O_FFFFOO "O|ffffOO"
 #define TYPE_O_FFFFFOO "O|fffffOO"
+#define TYPE_O_FFFFFFOO "O|ffffffOO"
 #define TYPE_OO_F "OO|f"
 #define TYPE_OO_FI "OO|fi"
 #define TYPE_OO_IF "OO|if"
@@ -123,8 +125,10 @@
 #define TYPE__FFFOO "|dddOO"
 #define TYPE__FFFIOO "|dddiOO"
 #define TYPE__FFFFFOO "|dddddOO"
+#define TYPE__FFFFFF "|dddddd"
 #define TYPE_O_FFFFOO "O|ddddOO"
 #define TYPE_O_FFFFFOO "O|dddddOO"
+#define TYPE_O_FFFFFFOO "O|ddddddOO"
 #define TYPE_OO_F "OO|d"
 #define TYPE_OO_FI "OO|di"
 #define TYPE_OO_IF "OO|id"
@@ -240,6 +244,7 @@ extern PyTypeObject XnoiseMidiType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject BiquadxType;
+extern PyTypeObject BiquadaType;
 extern PyTypeObject EQType;
 extern PyTypeObject ToneType;
 extern PyTypeObject DCBlockType;
