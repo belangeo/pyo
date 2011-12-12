@@ -1,3 +1,13 @@
+2011-12-11 belangeo <belangeo@gmail.com>
+
+    * Added removeDC() method to the PyoTableObject.
+    - rev 794
+
+2011-12-07 belangeo <belangeo@gmail.com>
+
+    * Added new object: Biquada. Biquadratric filter controlled with filter's coefficients.
+    - rev 793
+
 2011-12-05 belangeo <belangeo@gmail.com>
 
     * Added new function: distanceToSegment. Find the distance from a point to a line or line segment.

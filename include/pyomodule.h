@@ -587,6 +587,20 @@ extern PyTypeObject VectralType;
  \
     return samples;
 
+/* Table remove DC */
+#define REMOVE_DC \
+    int i; \
+    MYFLT x, y, x1, y1; \
+    x1 = y1 = 0.0; \
+    for (i=0; i<self->size+1; i++) { \
+        x = self->data[i]; \
+        y = x - x1 + 0.995 * y1; \
+        x1 = x; \
+        self->data[i] = y1 = y; \
+    } \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
 /* Normalize */
 #define NORMALIZE \
 	int i; \

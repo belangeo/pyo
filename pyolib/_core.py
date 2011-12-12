@@ -743,6 +743,7 @@ class PyoTableObject(object):
     write(path, oneline) : Writes the content of the table in a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
+    removeDC() : Remove DC offset from the table's data.
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
     
@@ -932,6 +933,14 @@ class PyoTableObject(object):
 
         """
         [obj.normalize() for obj in self._base_objs]
+        return self
+
+    def removeDC(self):
+        """
+        Filter out DC offset from the table's data.
+
+        """
+        [obj.removeDC() for obj in self._base_objs]
         return self
 
     def view(self, title="Table waveform", wxnoserver=False):
