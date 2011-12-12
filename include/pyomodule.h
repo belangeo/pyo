@@ -588,6 +588,20 @@ extern PyTypeObject VectralType;
     return samples;
 
 /* Table remove DC */
+#define REVERSE \
+    int i, j; \
+    MYFLT tmp; \
+    j = self->size; \
+    for (i=0; i<--j; i++) { \
+        tmp = self->data[i]; \
+        self->data[i] = self->data[j]; \
+        self->data[j] = tmp; \
+    } \
+    self->data[self->size] = self->data[0]; \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
+/* Table remove DC */
 #define REMOVE_DC \
     int i; \
     MYFLT x, y, x1, y1; \
