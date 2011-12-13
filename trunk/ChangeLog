@@ -1,5 +1,10 @@
 2011-12-13 belangeo <belangeo@gmail.com>
 
+    * Added upsamp() function. Sampling rate conversion of a soundfile.
+    - rev 797
+
+2011-12-13 belangeo <belangeo@gmail.com>
+
     * Added copy() method to the PyoTableObject.
     - rev 796
 
