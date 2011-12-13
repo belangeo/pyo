@@ -556,6 +556,36 @@ extern PyTypeObject VectralType;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+#define COPY \
+    int i; \
+    MYFLT *tab = TableStream_getData((TableStream *)PyObject_CallMethod((PyObject *)arg, "getTableStream", "")); \
+    for (i=0; i<self->size; i++) { \
+        self->data[i] = tab[i]; \
+    } \
+    self->data[self->size] = self->data[0]; \
+    Py_RETURN_NONE; \
+    
+#define SET_TABLE \
+    int i; \
+    if (arg == NULL) { \
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute."); \
+        return PyInt_FromLong(-1); \
+    } \
+    if (! PyList_Check(arg)) { \
+        PyErr_SetString(PyExc_TypeError, "arg must be a list."); \
+        return PyInt_FromLong(-1); \
+    } \
+    int size = PyList_Size(arg); \
+    if (size != self->size) { \
+        PyErr_SetString(PyExc_TypeError, "New table must be of the same size as actual table."); \
+        return PyInt_FromLong(-1); \
+    } \
+    for(i=0; i<self->size; i++) { \
+        self->data[i] = PyFloat_AS_DOUBLE(PyNumber_Float(PyList_GET_ITEM(arg, i))); \
+    } \
+    self->data[self->size] = self->data[0]; \
+    Py_RETURN_NONE; \
+
 #define GET_TABLE \
     int i; \
     PyObject *samples; \

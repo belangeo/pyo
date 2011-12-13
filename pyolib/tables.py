@@ -24,7 +24,7 @@ from types import ListType
 
 ######################################################################
 ### Tables
-######################################################################                                       
+######################################################################
 class HarmTable(PyoTableObject):
     """
     Harmonic waveform generator.
@@ -981,7 +981,7 @@ class CurveTable(PyoTableObject):
     list : list
         List of tuples [(location, value), ...].
     tension : float
-        Curvature tension.    
+        Curvature tension.
     bias : float
         Curve attraction.
     size : int, optional
@@ -1198,7 +1198,7 @@ class ExpTable(PyoTableObject):
     list : list
         List of tuples [(location, value), ...].
     exp : float
-        Exponent factor.    
+        Exponent factor.
     inverse : boolean
         Inversion of downward slope.
     size : int, optional
@@ -1239,7 +1239,7 @@ class ExpTable(PyoTableObject):
     def setExp(self, x):
         """
         Replace the `exp` attribute.
-                
+        
         Parameters:
         
         x : float
@@ -1252,7 +1252,7 @@ class ExpTable(PyoTableObject):
     def setInverse(self, x):
         """
         Replace the `inverse` attribute.
-                
+        
         Parameters:
         
         x : boolean
@@ -1272,7 +1272,7 @@ class ExpTable(PyoTableObject):
             List of tuples indicating location and value of each points 
             in the table. Location must be integer.
 
-        """      
+        """
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
@@ -1345,28 +1345,25 @@ class ExpTable(PyoTableObject):
         return self._size
     @size.setter
     def size(self, x): self.setSize(x)
-
     @property
     def exp(self):
         """float. Exponent factor.""" 
         return self._exp
     @exp.setter
     def exp(self, x): self.setExp(x)
-
     @property
     def inverse(self):
         """boolean. Inverse factor.""" 
         return self._inverse
     @inverse.setter
     def inverse(self, x): self.setInverse(x)
-
     @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table.""" 
         return self.getPoints()
     @list.setter
     def list(self, x): self.replace(x)
-            
+
 class SndTable(PyoTableObject):
     """
     Transfers data from a soundfile into a function table.
@@ -1419,33 +1416,39 @@ class SndTable(PyoTableObject):
     >>> a = Osc(table=t, freq=t.getRate(), mul=.5).out()
 
     """
-    def __init__(self, path, chnl=None, start=0, stop=None):
+    def __init__(self, path, chnl=None, start=0, stop=None, initchnls=1):
         PyoTableObject.__init__(self)
+        self._path = path
+        self._chnl = chnl
+        self._start = start
+        self._stop = stop
         self._size = []
         self._dur = []
         self._base_objs = []
-        self._path = path
         path, lmax = convertArgsToLists(path)
-        for p in path:
-            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
-            if chnl == None:
-                if stop == None:
-                    self._base_objs.extend([SndTable_base(p, i, start) for i in range(_snd_chnls)])
+        if self._path == None:
+            self._base_objs = [SndTable_base("", 0, 0) for i in range(initchnls)]
+        else:
+            for p in path:
+                _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(p)
+                if chnl == None:
+                    if stop == None:
+                        self._base_objs.extend([SndTable_base(p, i, start) for i in range(_snd_chnls)])
+                    else:
+                        self._base_objs.extend([SndTable_base(p, i, start, stop) for i in range(_snd_chnls)])
                 else:
-                    self._base_objs.extend([SndTable_base(p, i, start, stop) for i in range(_snd_chnls)])
-            else:
-                if stop == None:
-                    self._base_objs.append(SndTable_base(p, chnl, start))
-                else:
-                    self._base_objs.append(SndTable_base(p, chnl, start, stop))
-            self._size.append(self._base_objs[-1].getSize())
-            self._dur.append(self._size[-1] / float(_snd_sr))
-        if lmax == 1:
-            self._size = self._base_objs[-1].getSize()
-            self._dur = self._size / float(_snd_sr)
+                    if stop == None:
+                        self._base_objs.append(SndTable_base(p, chnl, start))
+                    else:
+                        self._base_objs.append(SndTable_base(p, chnl, start, stop))
+                self._size.append(self._base_objs[-1].getSize())
+                self._dur.append(self._size[-1] / float(_snd_sr))
+            if lmax == 1:
+                self._size = self._base_objs[-1].getSize()
+                self._dur = self._size / float(_snd_sr)
 
     def __dir__(self):
-        return ['sound']
+        return ['path', 'chnl', 'start', 'stop']
 
     def setSound(self, path, start=0, stop=None):
         """
@@ -1481,11 +1484,10 @@ class SndTable(PyoTableObject):
                     obj.setSound(p, 0, start)
                 else:
                     obj.setSound(p, 0, start, stop)
-        else:    
+        else:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
-            self._path = path
             if stop == None:
                 [obj.setSound(path, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
@@ -1514,7 +1516,6 @@ class SndTable(PyoTableObject):
             means the end of the file.
 
         """
-        self._path = path
         if type(path) == ListType:
             self._size = []
             self._dur = []
@@ -1525,14 +1526,13 @@ class SndTable(PyoTableObject):
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop == None:
-                    obj.setSound(p, 0, start)
+                    obj.append(p, crossfade, 0, start)
                 else:
-                    obj.setSound(p, 0, start, stop)
-        else:    
+                    obj.append(p, crossfade, 0, start, stop)
+        else:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
-            self._path = path
             if stop == None:
                 [obj.append(path, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
@@ -1567,7 +1567,6 @@ class SndTable(PyoTableObject):
             means the end of the file.
 
         """
-        self._path = path
         if type(path) == ListType:
             self._size = []
             self._dur = []
@@ -1578,14 +1577,13 @@ class SndTable(PyoTableObject):
                 self._size.append(_size)
                 self._dur.append(_dur)
                 if stop == None:
-                    obj.setSound(p, 0, start)
+                    obj.insert(p, pos, crossfade, 0, start)
                 else:
-                    obj.setSound(p, 0, start, stop)
-        else:    
+                    obj.insert(p, pos, crossfade, 0, start, stop)
+        else:
             _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(path)
             self._size = _size
             self._dur = _dur
-            self._path = path
             if stop == None:
                 [obj.insert(path, pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
@@ -1599,7 +1597,7 @@ class SndTable(PyoTableObject):
         """
         if type(self._path) == ListType:
             return [obj.getRate() for obj in self._base_objs]
-        else:    
+        else:
             return self._base_objs[0].getRate()
 
     def getDur(self, all=True):
@@ -1639,9 +1637,9 @@ class SndTable(PyoTableObject):
             first size as an int.
 
         """
-        if type(self._path) == ListType:
+        if len(self._base_objs) > 1:
             _size = [obj.getSize() for obj in self._base_objs]
-        else:    
+        else:
             _size = self._base_objs[0].getSize()
 
         if all:
@@ -1651,7 +1649,7 @@ class SndTable(PyoTableObject):
                 return _size[0]
             else:
                 return _size
-                
+
     def getEnvelope(self, points):
         """
         Return the amplitude envelope of the table.
@@ -1693,6 +1691,30 @@ class SndTable(PyoTableObject):
         return self._path
     @sound.setter
     def sound(self, x): self.setSound(x)
+    @property
+    def path(self):
+        """string. Full path of the sound.""" 
+        return self._path
+    @path.setter
+    def path(self, x): self.setSound(x)
+    @property
+    def chnl(self):
+        """int. Channel to read in.""" 
+        return self._chnl
+    @chnl.setter
+    def chnl(self, x): print "'chnl' attribute is read-only."
+    @property
+    def start(self):
+        """float. Start point, in seconds, to read into the file.""" 
+        return self._start
+    @start.setter
+    def start(self, x): print "'start' attribute is read-only."
+    @property
+    def stop(self):
+        """float. Stop point, in seconds, to read into the file.""" 
+        return self._stop
+    @stop.setter
+    def stop(self, x): print "'stop' attribute is read-only."
 
 class NewTable(PyoTableObject):
     """
@@ -1716,7 +1738,7 @@ class NewTable(PyoTableObject):
     feedback : float, optional
         Amount of old data to mix with a new recording. Defaults to 0.0.
         
-    Methods:    
+    Methods:
     
     getSize() : Returns the length of the table in samples.
     getLength() : Returns the length of the table in seconds.
@@ -1748,6 +1770,7 @@ class NewTable(PyoTableObject):
         PyoTableObject.__init__(self)
         self._length = length
         self._chnls = chnls
+        self._init = init
         self._feedback = feedback
         if init == None:
             self._base_objs = [NewTable_base(length, feedback=feedback) for i in range(chnls)]
@@ -1755,10 +1778,9 @@ class NewTable(PyoTableObject):
             if type(init[0]) != ListType: 
                 init = [init]
             self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
-                    
 
     def __dir__(self):
-        return []
+        return ['length', 'chnls', 'init', 'feedback']
 
     def replace(self, x):
         """
@@ -1818,6 +1840,44 @@ class NewTable(PyoTableObject):
         """
         return self._base_objs[0].getRate()
 
+    def view(self, title="Sound waveform", wxnoserver=False, mouse_callback=None):
+        """
+        Opens a window showing the contents of the table.
+
+        Parameters:
+
+        title : string, optional
+            Window title. Defaults to "Table waveform". 
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the table window. 
+            Defaults to False.
+        mouse_callback : callable
+            If provided, this function will be called with the mouse 
+            position, inside the frame, as argument. Defaults to None.
+
+        """
+        createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
+
+    @property
+    def length(self):
+        """float. Length of the table in seconds.""" 
+        return self._length
+    @length.setter
+    def length(self, x): print "'length' attribute is read-only."
+    @property
+    def chnls(self):
+        """int. Number of channels that will be handled by the table.""" 
+        return self._chnls
+    @chnls.setter
+    def chnls(self, x): print "'chnls' attribute is read-only."
+    @property
+    def init(self):
+        """list of floats. Initial table.""" 
+        return self._init
+    @init.setter
+    def init(self, x): print "'init' attribute is read-only."
     @property
     def feedback(self):
         """float. Amount of old data to mix with a new recording.""" 
@@ -1827,7 +1887,7 @@ class NewTable(PyoTableObject):
 
 class DataTable(PyoTableObject):
     """
-    Create an empty table ready for data recording. 
+    Create an empty table ready for data recording.
 
     See `TableRec` to write samples in the table.
 
@@ -1845,7 +1905,7 @@ class DataTable(PyoTableObject):
         otherwise, the list will be loaded in all tablestreams. 
         Defaults to None.
 
-    Methods:    
+    Methods:
 
     getSize() : Returns the length of the table in samples.
     getRate() : Returns the frequency (cycle per second) to give 
@@ -1870,16 +1930,17 @@ class DataTable(PyoTableObject):
         PyoTableObject.__init__(self)
         self._size = size
         self._chnls = chnls
+        self._init = init
         if init == None:
             self._base_objs = [DataTable_base(size) for i in range(chnls)]
         else:
-            if type(init[0]) != ListType: 
+            if type(init[0]) != ListType:
                 init = [init]
             self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
 
 
     def __dir__(self):
-        return []
+        return ['size', 'chnls', 'init']
 
     def replace(self, x):
         """
@@ -1911,4 +1972,23 @@ class DataTable(PyoTableObject):
 
         """
         return self._base_objs[0].getRate()
+
+    @property
+    def size(self):
+        """int. Length of the table in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): print "'size' attribute is read-only."
+    @property
+    def chnls(self):
+        """int. Number of channels that will be handled by the table.""" 
+        return self._chnls
+    @chnls.setter
+    def chnls(self, x): print "'chnls' attribute is read-only."
+    @property
+    def init(self):
+        """list of floats. Initial table.""" 
+        return self._init
+    @init.setter
+    def init(self, x): print "'init' attribute is read-only."
 

@@ -27,9 +27,11 @@ PYO_VERSION = '0.5.1'
 
 import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
+    import pyo64 as current_pyo
     from _pyo64 import *
     print "pyo version %s (uses double precision)" % PYO_VERSION
 else:    
+    import pyo as current_pyo
     from _pyo import *
     print "pyo version %s (uses single precision)" % PYO_VERSION
     
@@ -745,6 +747,7 @@ class PyoTableObject(object):
     normalize() : Normalize table samples between -1 and 1.
     removeDC() : Remove DC offset from the table's data.
     reverse() : Reverse the table's data.
+    copy() : Returns a deep copy of the object.
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
     
@@ -951,6 +954,28 @@ class PyoTableObject(object):
         """
         [obj.reverse() for obj in self._base_objs]
         return self
+
+    def copy(self):
+        """
+        Returns a deep copy of the object.
+        
+        """
+        args = [getattr(self, att) for att in self.__dir__()]
+        if self.__class__.__name__ == "SndTable":
+            _size = self.getSize()
+            if type(_size) != ListType:
+                _size = [_size]
+
+            _chnls = len(self._base_objs)
+            args[0] = None
+            args.append(_chnls)
+            newtable = getattr(current_pyo, self.__class__.__name__)(*args)
+            [obj.setSize(_size[i%len(_size)]) for i, obj in enumerate(newtable.getBaseObjects())]
+            [obj.copy(self[i]) for i, obj in enumerate(newtable.getBaseObjects())]
+        else:
+            newtable = getattr(current_pyo, self.__class__.__name__)(*args)
+            [obj.copy(self[i]) for i, obj in enumerate(newtable.getBaseObjects())]
+        return newtable
 
     def view(self, title="Table waveform", wxnoserver=False):
         """
