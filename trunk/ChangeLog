@@ -1,3 +1,8 @@
+2011-12-14 belangeo <belangeo@gmail.com>
+
+    * Added downsamp() function. Sampling rate conversion of a soundfile.
+    - rev 798
+
 2011-12-13 belangeo <belangeo@gmail.com>
 
     * Added upsamp() function. Sampling rate conversion of a soundfile.
