@@ -419,7 +419,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     static char *kwlist[] = {"path", "print", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "s|i", kwlist, &pathtmp, &print))
-        return PyInt_FromLong(-1);
+        Py_RETURN_NONE;
 
     path = malloc(strlen(pathtmp)+1);
     strcpy(path, pathtmp);
@@ -429,7 +429,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     sf = sf_open(path, SFM_READ, &info);
     if (sf == NULL) {
         printf("Failed to open the file.\n");
-        return PyInt_FromLong(-1);
+        Py_RETURN_NONE;
     }
     else {
         /* Retrieve file format */
@@ -497,7 +497,6 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
         free(path);
         free(sampletype);
         return sndinfo;
-        
     }
 }    
 
