@@ -811,7 +811,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
 static PyObject *
 downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    int i, j, k;
+    int i, j;
     char *inpath;
     char *outpath;
     SNDFILE *sf;
@@ -1285,6 +1285,7 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
     else {
         Py_RETURN_NONE;
     }
+    Py_RETURN_NONE;
 }
 
 /****** Conversion utilities ******/

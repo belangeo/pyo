@@ -76,7 +76,7 @@ else:
     if build_osx_with_jack_support:
         libraries.append('jack')
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
-                extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
+                extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
        
 setup(  name = "pyo",
         author = "Olivier Belanger",
