@@ -1838,7 +1838,7 @@ int whichVoice(int *buf, int pitch, int len) {
 // Take MIDI events and keep track of notes
 void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
 {
-    int i, ok, voice, latency;
+    int i, ok, voice;
     
     for (i=0; i<count; i++) {
         int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
