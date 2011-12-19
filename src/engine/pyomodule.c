@@ -2275,6 +2275,11 @@ init_pyo64(void)
     Py_INCREF(&SelectorType);
     PyModule_AddObject(m, "Selector_base", (PyObject *)&SelectorType);
 
+    if (PyType_Ready(&VoiceManagerType) < 0)
+        return;
+    Py_INCREF(&VoiceManagerType);
+    PyModule_AddObject(m, "VoiceManager_base", (PyObject *)&VoiceManagerType);
+
     if (PyType_Ready(&MixerType) < 0)
         return;
     Py_INCREF(&MixerType);
