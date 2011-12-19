@@ -369,6 +369,7 @@ extern PyTypeObject PanType;
 extern PyTypeObject SwitcherType;
 extern PyTypeObject SwitchType;
 extern PyTypeObject SelectorType;
+extern PyTypeObject VoiceManagerType;
 extern PyTypeObject MixerType;
 extern PyTypeObject MixerVoiceType;
 

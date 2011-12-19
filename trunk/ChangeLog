@@ -1,3 +1,8 @@
+2011-12-19 belangeo <belangeo@gmail.com>
+
+    * Added new object: VoiceManager. Polyphony voice manager.
+    - rev 802
+
 2011-12-14 belangeo <belangeo@gmail.com>
 
     * Added downsamp() function. Sampling rate conversion of a soundfile.
