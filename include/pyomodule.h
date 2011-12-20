@@ -33,6 +33,7 @@
 #define TYPE__IF "|if"
 #define TYPE__FF "|ff"
 #define TYPE__IFF "|iff"
+#define TYPE__FII "|fii"
 #define TYPE_F_II "f|ii"
 #define TYPE__FFF "|fff"
 #define TYPE_O_F "O|f"
@@ -107,6 +108,7 @@
 #define TYPE__IF "|id"
 #define TYPE__FF "|dd"
 #define TYPE__IFF "|idd"
+#define TYPE__FII "|dii"
 #define TYPE_F_II "d|ii"
 #define TYPE__FFF "|ddd"
 #define TYPE_O_F "O|d"
@@ -241,6 +243,7 @@ extern PyTypeObject ChoiceType;
 extern PyTypeObject RandIntType;
 extern PyTypeObject XnoiseType;
 extern PyTypeObject XnoiseMidiType;
+extern PyTypeObject XnoiseDurType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject BiquadxType;
@@ -306,6 +309,7 @@ extern PyTypeObject InputFaderType;
 extern PyTypeObject HarmTableType;
 extern PyTypeObject ChebyTableType;
 extern PyTypeObject HannTableType;
+extern PyTypeObject SincTableType;
 extern PyTypeObject WinTableType;
 extern PyTypeObject ParaTableType;
 extern PyTypeObject LinTableType;
@@ -444,6 +448,7 @@ extern PyTypeObject VectralType;
 #define SFMARKERLOOPER_ID 22
 #define GRANULATOR_ID 23
 #define FREEVERB_ID 24
+#define XNOISEDUR_ID 25
 
 /* object headers */
 #define pyo_audio_HEAD \

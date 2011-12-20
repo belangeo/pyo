@@ -21,6 +21,7 @@ from _core import *
 from _maps import *
 from _widgets import createGraphWindow, createSndViewTableWindow
 from types import ListType
+from math import pi
 
 ######################################################################
 ### Tables
@@ -451,6 +452,112 @@ class HannTable(PyoTableObject):
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
 
+    @property
+    def size(self): 
+        """int. Table size in samples."""
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+class SincTable(PyoTableObject):
+    """
+    Generates sinc window function. 
+
+    Parent class: PyoTableObject
+
+    Parameters:
+
+    freq : float, optional
+        Frequency, in radians, of the sinc function. Defaults to pi*2.
+    windowed : boolean, optional
+        If True, an hanning window is applied on the sinc function. Defaults to False.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+
+    Methods:
+
+    setFreq(x) : Change the frequency of the sinc function. This will redraw the envelope.
+    setWindowed(x) : Change the windowed flag. This will redraw the envelope.
+    setSize(size) : Change the size of the table. This will redraw the envelope.
+
+    Attributes:
+
+    freq : float
+        Frequency, in radians, of the sinc function.
+    windowed : boolean
+        If True, an hanning window is applied on the sinc function.
+    size : int
+        Table size in samples.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SincTable(freq=math.pi*6, windowed=True)
+    >>> a = Osc(t, freq=200, mul=.3).out()
+
+    """
+    def __init__(self, freq=pi*2, windowed=False, size=8192):
+        PyoTableObject.__init__(self)
+        self._freq = freq
+        self._windowed = windowed
+        self._size = size
+        self._base_objs = [SincTable_base(freq, windowed, size)]
+
+    def __dir__(self):
+        return ['freq', 'windowed', 'size']
+
+    def setFreq(self, x):
+        """
+        Change the frequency of the sinc function. This will redraw the envelope.
+
+        Parameters:
+
+        x : float
+            New frequency in radians.
+
+        """
+        self._freq = x
+        [obj.setFreq(x) for obj in self._base_objs]
+
+    def setWindowed(self, x):
+        """
+        Change the windowed flag. This will redraw the envelope.
+
+        Parameters:
+
+        x : boolean
+            New windowed flag.
+
+        """
+        self._windowed = x
+        [obj.setWindowed(x) for obj in self._base_objs]
+
+    def setSize(self, size):
+        """
+        Change the size of the table. This will redraw the envelope.
+
+        Parameters:
+
+        size : int
+            New table size in samples.
+
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+
+    @property
+    def freq(self): 
+        """float. Frequency of the sinc function."""
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+    @property
+    def windowed(self): 
+        """boolean. Windowed flag."""
+        return self._windowed
+    @windowed.setter
+    def windowed(self, x): self.setWindowed(x)
     @property
     def size(self): 
         """int. Table size in samples."""

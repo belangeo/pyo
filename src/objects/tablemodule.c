@@ -847,6 +847,254 @@ HannTable_new,                 /* tp_new */
 };
 
 /***********************/
+/* SincTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    MYFLT freq;
+    int windowed;
+} SincTable;
+
+static void
+SincTable_generate(SincTable *self) {
+    int i, half, halfMinusOne;
+    MYFLT scl, val;
+    
+    half = self->size / 2;
+    
+    if (self->windowed) {
+        halfMinusOne = half - 1;    
+        for(i=0; i<self->size; i++) {
+            scl = (MYFLT)(i - half) / half * self->freq;
+            if (scl == 0.0)
+                val = 1.0;
+            else
+                val = (MYSIN(scl) / scl);
+            val *= 0.5 + (MYCOS(TWOPI * (i - halfMinusOne) / self->size) * 0.5);
+            self->data[i] = val;
+        }
+    }
+    else {
+        for(i=0; i<self->size; i++) {
+            scl = (MYFLT)(i - half) / half * self->freq;
+            if (scl == 0.0)
+                val = 1.0;
+            else
+                val = (MYSIN(scl) / scl);
+            self->data[i] = val;
+        }        
+    }
+    self->data[self->size] = self->data[0];  
+}
+
+static int
+SincTable_traverse(SincTable *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->server);
+    Py_VISIT(self->tablestream);
+    return 0;
+}
+
+static int 
+SincTable_clear(SincTable *self)
+{
+    Py_CLEAR(self->server);
+    Py_CLEAR(self->tablestream);
+    return 0;
+}
+
+static void
+SincTable_dealloc(SincTable* self)
+{
+    free(self->data);
+    SincTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    SincTable *self;
+    
+    self = (SincTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->size = 8192;
+    self->freq = TWOPI;
+    self->windowed = 0;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    return (PyObject *)self;
+}
+
+static int
+SincTable_init(SincTable *self, PyObject *args, PyObject *kwds)
+{    
+    static char *kwlist[] = {"freq", "windowed", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FII, kwlist, &self->freq, &self->windowed, &self->size))
+        return -1; 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+	TableStream_setData(self->tablestream, self->data);
+    SincTable_generate(self);
+    
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * SincTable_getServer(SincTable* self) { GET_SERVER };
+static PyObject * SincTable_getTableStream(SincTable* self) { GET_TABLE_STREAM };
+static PyObject * SincTable_setData(SincTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * SincTable_normalize(SincTable *self) { NORMALIZE };
+static PyObject * SincTable_removeDC(SincTable *self) { REMOVE_DC };
+static PyObject * SincTable_reverse(SincTable *self) { REVERSE };
+static PyObject * SincTable_copy(SincTable *self, PyObject *arg) { COPY };
+static PyObject * SincTable_setTable(SincTable *self, PyObject *arg) { SET_TABLE };
+static PyObject * SincTable_getTable(SincTable *self) { GET_TABLE };
+static PyObject * SincTable_getViewTable(SincTable *self) { GET_VIEW_TABLE };
+static PyObject * SincTable_put(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * SincTable_get(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+SincTable_setFreq(SincTable *self, PyObject *value)
+{
+    
+    if (! PyNumber_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The freq attribute value must be a number.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->freq = PyFloat_AsDouble(PyNumber_Float(value)); 
+    
+    SincTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+SincTable_setWindowed(SincTable *self, PyObject *value)
+{
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The windowed attribute value must be a boolean.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->windowed = PyInt_AsLong(value); 
+    
+    SincTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+SincTable_setSize(SincTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    self->size = PyInt_AsLong(value); 
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    SincTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+SincTable_getSize(SincTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyMemberDef SincTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(SincTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(SincTable, tablestream), 0, "Table stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef SincTable_methods[] = {
+    {"getServer", (PyCFunction)SincTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)SincTable_copy, METH_O, "Copy data from table given in argument."},
+    {"setTable", (PyCFunction)SincTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)SincTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)SincTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)SincTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)SincTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"removeDC", (PyCFunction)SincTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)SincTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"setSize", (PyCFunction)SincTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)SincTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"setFreq", (PyCFunction)SincTable_setFreq, METH_O, "Sets the frequency, in radians, of the sinc function."},
+    {"setWindowed", (PyCFunction)SincTable_setWindowed, METH_O, "If True, an hanning window is applied on the function."},
+    {"put", (PyCFunction)SincTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)SincTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject SincTableType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.SincTable_base",         /*tp_name*/
+    sizeof(SincTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)SincTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "SincTable objects. Generates a table filled with a sinc function.",  /* tp_doc */
+    (traverseproc)SincTable_traverse,   /* tp_traverse */
+    (inquiry)SincTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    SincTable_methods,             /* tp_methods */
+    SincTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)SincTable_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    SincTable_new,                 /* tp_new */
+};
+
+/***********************/
 /* WinTable structure  */
 /***********************/
 typedef struct {
