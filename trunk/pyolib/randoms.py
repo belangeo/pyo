@@ -965,3 +965,222 @@ class XnoiseMidi(PyoObject):
     def x2(self): return self._x2
     @x2.setter
     def x2(self, x): self.setX2(x)
+
+class XnoiseDur(PyoObject):
+    """
+    Recursive time varying X-class pseudo-random generator.
+
+    Xnoise implements a few of the most common noise distributions.
+    Each distribution generates values in the range 0 to 1, which are
+    then rescaled between `min` and `max` arguments. The object uses 
+    the generated value to set the delay time before the next generation. 
+    XnoiseDur will hold the value until next generation.
+
+    Parent class: PyoObject
+
+    Notes:
+
+    Available distributions are:
+        - uniform
+        - linear minimum
+        - linear maximum
+        - triangular
+        - exponential minimum
+        - exponential maximum
+        - double (bi)exponential
+        - cauchy
+        - weibull
+        - gaussian
+        - poisson
+        - walker (drunk)
+        - loopseg (drunk with looped segments)
+
+    Depending on the distribution, `x1` and `x2` parameters are applied
+    as follow (names as string, or associated number can be used as `dist`
+    parameter):
+        0 - uniform
+            no parameter
+        1 - linear_min 
+            no parameter
+        2 - linear_max
+            no parameter
+        3 - triangle
+            no parameter
+        4 - expon_min
+            x1 : slope {0 = no slope -> 10 = sharp slope}
+        5 - expon_max    
+            x1 : slope {0 = no slope -> 10 = sharp slope}
+        6 - biexpon
+            x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+        7 - cauchy
+            x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+        8 - weibull
+            x1 : mean location {0 -> 1}
+            x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+        9 - gaussian
+            x1 : mean location {0 -> 1}
+            x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+        10 - poisson
+            x1 : gravity center {0 = low values -> 10 = high values}
+            x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+        11 - walker
+            x1 : maximum value {0.1 -> 1}
+            x2 - maximum step {0.1 -> 1}
+        12 - loopseg 
+            x1 : maximum value {0.1 -> 1}
+            x2 - maximum step {0.1 -> 1}
+
+    Parameters:
+
+    dist : string or int, optional
+        Distribution type. Can be the name of the distribution as a string
+        or its associated number. Defaults to 0.
+    min : float or PyoObject, optional
+        Minimum value for the random generation. Defaults to 0.
+    max : float or PyoObject, optional
+        Maximum value for the random generation. Defaults to 1.
+    x1 : float or PyoObject, optional
+        First parameter. Defaults to 0.5.
+    x2 : float or PyoObject, optional
+        Second parameter. Defaults to 0.5.
+
+    Methods:
+
+    setDist(x) : Replace the `dist` attribute.
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+    setX1(x) : Replace the `x1` attribute.
+    setX2(x) : Replace the `x2` attribute.
+
+    Attributes:
+
+    dist : string or int. Distribution type.
+    min : float or PyoObject. Minimum value.
+    max : float or PyoObject. Maximum value.
+    x1 : float or PyoObject. First parameter.
+    x2 : float or PyoObject. Second parameter.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> dur = XnoiseDur(dist="expon_min", min=[.05,0.1], max=[.2,.25], x1=3)
+    >>> trig = Change(dur)
+    >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)
+    >>> freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])
+    >>> a = LFO(freq=freq, type=2, mul=amp).out()
+
+    """
+    def __init__(self, dist=0, min=0., max=1., x1=0.5, x2=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._dist = dist
+        self._min = min
+        self._max = max
+        self._x1 = x1
+        self._x2 = x2
+        self._mul = mul
+        self._add = add
+        dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(dist, min, max, x1, x2, mul, add)
+        for i, t in enumerate(dist):
+            if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
+        self._base_objs = [XnoiseDur_base(wrap(dist,i), wrap(min,i), wrap(max,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['dist', 'min', 'max', 'x1', 'x2', 'mul', 'add']
+
+    def setDist(self, x):
+        """
+        Replace the `dist` attribute.
+
+        Parameters:
+
+        x : int
+            new `dist` attribute.
+
+        """
+        self._dist = x
+        x, lmax = convertArgsToLists(x)
+        for i, t in enumerate(x):
+            if type(t) == StringType: x[i] = XNOISE_DICT.get(t, 0)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setX1(self, x):
+        """
+        Replace the `x1` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `x1` attribute.
+
+        """
+        self._x1 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setX1(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setX2(self, x):
+        """
+        Replace the `x2` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `x2` attribute.
+
+        """
+        self._x2= x
+        x, lmax = convertArgsToLists(x)
+        [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def dist(self): return self._dist
+    @dist.setter
+    def dist(self, x): self.setDist(x)
+    @property
+    def min(self): return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+    @property
+    def max(self): return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
+    @property
+    def x1(self): return self._x1
+    @x1.setter
+    def x1(self, x): self.setX1(x)
+    @property
+    def x2(self): return self._x2
+    @x2.setter
+    def x2(self, x): self.setX2(x)

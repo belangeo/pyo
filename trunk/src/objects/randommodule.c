@@ -4555,3 +4555,832 @@ PyTypeObject XnoiseMidiType = {
     0,                                              /* tp_alloc */
     XnoiseMidi_new,                                     /* tp_new */
 };
+
+/****************/
+/**** XnoiseDur *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *x1;
+    PyObject *x2;
+    PyObject *min;
+    PyObject *max;
+    Stream *x1_stream;
+    Stream *x2_stream;
+    Stream *min_stream;
+    Stream *max_stream;
+    MYFLT (*type_func_ptr)();
+    MYFLT xx1;
+    MYFLT xx2;
+    int type;
+    MYFLT value;
+    MYFLT time;
+    MYFLT inc;
+    MYFLT lastPoissonX1;
+    int poisson_tab;
+    MYFLT poisson_buffer[2000];
+    MYFLT walkerValue;
+    MYFLT loop_buffer[15];
+    int loopChoice;
+    int loopCountPlay;
+    int loopTime;
+    int loopCountRec;
+    int loopLen;
+    int loopStop;
+    int modebuffer[6]; // need at least 2 slots for mul & add 
+} XnoiseDur;
+
+// no parameter
+static MYFLT
+XnoiseDur_uniform(XnoiseDur *self) {
+    return RANDOM_UNIFORM;    
+}
+
+static MYFLT
+XnoiseDur_linear_min(XnoiseDur *self) {
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
+    if (a < b) return a;
+    else return b;
+}
+
+static MYFLT
+XnoiseDur_linear_max(XnoiseDur *self) {
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
+    if (a > b) return a;
+    else return b;
+}
+
+static MYFLT
+XnoiseDur_triangle(XnoiseDur *self) {
+    MYFLT a = RANDOM_UNIFORM;    
+    MYFLT b = RANDOM_UNIFORM;
+    return ((a + b) * 0.5);
+}
+
+// x1 = slope
+static MYFLT
+XnoiseDur_expon_min(XnoiseDur *self) {
+    if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+static MYFLT
+XnoiseDur_expon_max(XnoiseDur *self) {
+    if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = bandwidth
+static MYFLT
+XnoiseDur_biexpon(XnoiseDur *self) {
+    MYFLT polar, val;
+    if (self->xx1 <= 0.0) self->xx1 = 0.00001;
+    MYFLT sum = RANDOM_UNIFORM * 2.0;
+    
+    if (sum > 1.0) {
+        polar = -1;
+        sum = 2.0 - sum;
+    }
+    else
+        polar = 1;
+    
+    val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+static MYFLT
+XnoiseDur_cauchy(XnoiseDur *self) {
+    MYFLT rnd, val, dir;
+    do {
+        rnd = RANDOM_UNIFORM;
+    }
+    while (rnd == 0.5);
+    
+    if (rand() < (RAND_MAX / 2))
+        dir = -1;
+    else
+        dir = 1;
+    
+    val = 0.5 * (MYTAN(rnd) * self->xx1 * dir) + 0.5;
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = locator, x2 = shape
+static MYFLT
+XnoiseDur_weibull(XnoiseDur *self) {
+    MYFLT rnd, val;
+    if (self->xx2 <= 0.0) self->xx2 = 0.00001;
+    
+    rnd = 1.0 / (1.0 - RANDOM_UNIFORM);
+    val = self->xx1 * MYPOW(MYLOG(rnd), (1.0 / self->xx2));
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = locator, x2 = bandwidth
+static MYFLT
+XnoiseDur_gaussian(XnoiseDur *self) {
+    MYFLT rnd, val;
+    
+    rnd = (RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM + RANDOM_UNIFORM);
+    val = (self->xx2 * (rnd - 3.0) * 0.33 + self->xx1);
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = gravity center, x2 = compress/expand
+static MYFLT
+XnoiseDur_poisson(XnoiseDur *self) {
+    int i, j, factorial;
+    long tot;
+    MYFLT val;
+    if (self->xx1 < 0.1) self->xx1 = 0.1;
+    if (self->xx2 < 0.1) self->xx2 = 0.1;
+    
+    if (self->xx1 != self->lastPoissonX1) {
+        self->lastPoissonX1 = self->xx1;
+        self->poisson_tab = 0;
+        factorial = 1;
+        for (i=1; i<12; i++) {
+            factorial *= i;
+            tot = (long)(1000.0 * (MYPOW(2.7182818, -self->xx1) * MYPOW(self->xx1, i) / factorial));
+            for (j=0; j<tot; j++) {
+                self->poisson_buffer[self->poisson_tab] = i;
+                self->poisson_tab++;
+            }
+        }
+    }
+    val = self->poisson_buffer[rand() % self->poisson_tab] / 12.0 * self->xx2;
+    
+    if (val < 0.0) return 0.0;
+    else if (val > 1.0) return 1.0;
+    else return val;
+}
+
+// x1 = max value, x2 = max step
+static MYFLT
+XnoiseDur_walker(XnoiseDur *self) {
+    int modulo, dir;
+    
+    if (self->xx2 < 0.002) self->xx2 = 0.002;
+    
+    modulo = (int)(self->xx2 * 1000.0);
+    dir = rand() % 2;
+    
+    if (dir == 0)
+        self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+    else
+        self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+    
+    if (self->walkerValue > self->xx1)
+        self->walkerValue = self->xx1;
+    if (self->walkerValue < 0.0)
+        self->walkerValue = 0.0;
+    
+    return self->walkerValue;
+}
+
+// x1 = max value, x2 = max step
+static MYFLT
+XnoiseDur_loopseg(XnoiseDur *self) {
+    int modulo, dir;
+    
+    if (self->loopChoice == 0) {
+        
+        self->loopCountPlay = self->loopTime = 0;
+        
+        if (self->xx2 < 0.002) self->xx2 = 0.002;
+        
+        modulo = (int)(self->xx2 * 1000.0);
+        dir = rand() % 2;
+        
+        if (dir == 0)
+            self->walkerValue = self->walkerValue + (((rand() % modulo) - (modulo / 2)) * 0.001);
+        else
+            self->walkerValue = self->walkerValue - (((rand() % modulo) - (modulo / 2)) * 0.001);
+        
+        if (self->walkerValue > self->xx1)
+            self->walkerValue = self->xx1;
+        if (self->walkerValue < 0.0)
+            self->walkerValue = 0.0;
+        
+        self->loop_buffer[self->loopCountRec++] = self->walkerValue;
+        
+        if (self->loopCountRec < self->loopLen)
+            self->loopChoice = 0;
+        else {
+            self->loopChoice = 1;
+            self->loopStop = (rand() % 4) + 1;
+        }
+    }
+    else {
+        self->loopCountRec = 0;
+        
+        self->walkerValue = self->loop_buffer[self->loopCountPlay++];
+        
+        if (self->loopCountPlay < self->loopLen)
+            self->loopChoice = 1;
+        else {
+            self->loopCountPlay = 0;
+            self->loopTime++;
+        }
+        
+        if (self->loopTime == self->loopStop) {
+            self->loopChoice = 0;
+            self->loopLen = (rand() % 10) + 3;
+        }
+    }
+    
+    return self->walkerValue;
+}
+
+static void
+XnoiseDur_generate(XnoiseDur *self) {
+    int i;
+    MYFLT min, max;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->time += self->inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            if (self->modebuffer[2] == 0)
+                self->xx1 = PyFloat_AS_DOUBLE(self->x1);
+            else
+                self->xx1 = Stream_getData((Stream *)self->x1_stream)[i];
+            if (self->modebuffer[3] == 0)
+                self->xx2 = PyFloat_AS_DOUBLE(self->x2);
+            else
+                self->xx2 = Stream_getData((Stream *)self->x2_stream)[i];
+            if (self->modebuffer[4] == 0)
+                min = PyFloat_AS_DOUBLE(self->min);
+            else
+                min = Stream_getData((Stream *)self->min_stream)[i];
+            if (self->modebuffer[5] == 0)
+                max = PyFloat_AS_DOUBLE(self->max);
+            else
+                max = Stream_getData((Stream *)self->max_stream)[i];
+            if (min > max)
+                max = min;
+            self->value = (*self->type_func_ptr)(self) * (max - min) + min;
+            if (self->value == 0.0)
+                self->inc = 0.0;
+            else
+                self->inc = (1.0 / self->value) / self->sr;
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void XnoiseDur_postprocessing_ii(XnoiseDur *self) { POST_PROCESSING_II };
+static void XnoiseDur_postprocessing_ai(XnoiseDur *self) { POST_PROCESSING_AI };
+static void XnoiseDur_postprocessing_ia(XnoiseDur *self) { POST_PROCESSING_IA };
+static void XnoiseDur_postprocessing_aa(XnoiseDur *self) { POST_PROCESSING_AA };
+static void XnoiseDur_postprocessing_ireva(XnoiseDur *self) { POST_PROCESSING_IREVA };
+static void XnoiseDur_postprocessing_areva(XnoiseDur *self) { POST_PROCESSING_AREVA };
+static void XnoiseDur_postprocessing_revai(XnoiseDur *self) { POST_PROCESSING_REVAI };
+static void XnoiseDur_postprocessing_revaa(XnoiseDur *self) { POST_PROCESSING_REVAA };
+static void XnoiseDur_postprocessing_revareva(XnoiseDur *self) { POST_PROCESSING_REVAREVA };
+
+static void
+XnoiseDur_setRandomType(XnoiseDur *self)
+{
+    
+    switch (self->type) {            
+        case 0:
+            self->type_func_ptr = XnoiseDur_uniform;
+            break;
+        case 1:
+            self->type_func_ptr = XnoiseDur_linear_min;
+            break;
+        case 2:
+            self->type_func_ptr = XnoiseDur_linear_max;
+            break;
+        case 3:
+            self->type_func_ptr = XnoiseDur_triangle;
+            break;
+        case 4:
+            self->type_func_ptr = XnoiseDur_expon_min;
+            break;
+        case 5:
+            self->type_func_ptr = XnoiseDur_expon_max;
+            break;
+        case 6:
+            self->type_func_ptr = XnoiseDur_biexpon;
+            break;
+        case 7:
+            self->type_func_ptr = XnoiseDur_cauchy;
+            break;
+        case 8:
+            self->type_func_ptr = XnoiseDur_weibull;
+            break;
+        case 9:
+            self->type_func_ptr = XnoiseDur_gaussian;
+            break;
+        case 10:
+            self->type_func_ptr = XnoiseDur_poisson;
+            break;
+        case 11:
+            self->type_func_ptr = XnoiseDur_walker;
+            break;
+        case 12:
+            self->type_func_ptr = XnoiseDur_loopseg;
+            break;
+    }        
+}
+
+static void
+XnoiseDur_setProcMode(XnoiseDur *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = XnoiseDur_generate;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = XnoiseDur_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = XnoiseDur_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = XnoiseDur_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = XnoiseDur_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = XnoiseDur_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = XnoiseDur_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = XnoiseDur_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = XnoiseDur_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = XnoiseDur_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+XnoiseDur_compute_next_data_frame(XnoiseDur *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+XnoiseDur_traverse(XnoiseDur *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->min);
+    Py_VISIT(self->min_stream);
+    Py_VISIT(self->max);
+    Py_VISIT(self->max_stream);
+    Py_VISIT(self->x1);    
+    Py_VISIT(self->x1_stream);    
+    Py_VISIT(self->x2);    
+    Py_VISIT(self->x2_stream);    
+    return 0;
+}
+
+static int 
+XnoiseDur_clear(XnoiseDur *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->min);
+    Py_CLEAR(self->min_stream);
+    Py_CLEAR(self->max);
+    Py_CLEAR(self->max_stream);
+    Py_CLEAR(self->x1);    
+    Py_CLEAR(self->x1_stream);    
+    Py_CLEAR(self->x2);    
+    Py_CLEAR(self->x2_stream);    
+    return 0;
+}
+
+static void
+XnoiseDur_dealloc(XnoiseDur* self)
+{
+    free(self->data);
+    XnoiseDur_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * XnoiseDur_deleteStream(XnoiseDur *self) { DELETE_STREAM };
+
+static PyObject *
+XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    XnoiseDur *self;
+    self = (XnoiseDur *)type->tp_alloc(type, 0);
+    
+    self->x1 = PyFloat_FromDouble(0.5);
+    self->x2 = PyFloat_FromDouble(0.5);
+    self->min = PyFloat_FromDouble(0.0);
+    self->max = PyFloat_FromDouble(1.0);
+    self->xx1 = self->xx2 = self->walkerValue = 0.5;
+    self->time = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    Server_generateSeed((Server *)self->server, XNOISEDUR_ID);
+    
+    self->poisson_tab = 0;
+    self->lastPoissonX1 = -99.0;
+    for (i=0; i<2000; i++) {
+        self->poisson_buffer[i] = 0.0;
+    }
+    for (i=0; i<15; i++) {
+        self->loop_buffer[i] = 0.0;
+    }
+    self->loopChoice = self->loopCountPlay = self->loopTime = self->loopCountRec = self->loopStop = 0;    
+    self->loopLen = (rand() % 10) + 3;
+    
+    Stream_setFunctionPtr(self->stream, XnoiseDur_compute_next_data_frame);
+    self->mode_func_ptr = XnoiseDur_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+XnoiseDur_init(XnoiseDur *self, PyObject *args, PyObject *kwds)
+{
+    MYFLT mi, ma;
+    PyObject *mintmp=NULL, *maxtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"type", "min", "max", "x1", "x2", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (x1tmp) {
+        PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
+    }
+    
+    if (x2tmp) {
+        PyObject_CallMethod((PyObject *)self, "setX2", "O", x2tmp);
+    }
+    
+    if (mintmp) {
+        PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
+    }
+    
+    if (maxtmp) {
+        PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->modebuffer[2] == 0)
+        mi = PyFloat_AS_DOUBLE(self->min);
+    else
+        mi = Stream_getData((Stream *)self->min_stream)[0];
+    if (self->modebuffer[3] == 0)
+        ma = PyFloat_AS_DOUBLE(self->max);
+    else
+        ma = Stream_getData((Stream *)self->max_stream)[0];
+    
+    self->value = (mi + ma) * 0.5;
+    if (self->value == 0.0)
+        self->inc = 0.0;
+    else
+        self->inc = (1.0 / self->value) / self->sr;
+    
+    XnoiseDur_setRandomType(self);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * XnoiseDur_getServer(XnoiseDur* self) { GET_SERVER };
+static PyObject * XnoiseDur_getStream(XnoiseDur* self) { GET_STREAM };
+static PyObject * XnoiseDur_setMul(XnoiseDur *self, PyObject *arg) { SET_MUL };	
+static PyObject * XnoiseDur_setAdd(XnoiseDur *self, PyObject *arg) { SET_ADD };	
+static PyObject * XnoiseDur_setSub(XnoiseDur *self, PyObject *arg) { SET_SUB };	
+static PyObject * XnoiseDur_setDiv(XnoiseDur *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * XnoiseDur_play(XnoiseDur *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * XnoiseDur_out(XnoiseDur *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * XnoiseDur_stop(XnoiseDur *self) { STOP };
+
+static PyObject * XnoiseDur_multiply(XnoiseDur *self, PyObject *arg) { MULTIPLY };
+static PyObject * XnoiseDur_inplace_multiply(XnoiseDur *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * XnoiseDur_add(XnoiseDur *self, PyObject *arg) { ADD };
+static PyObject * XnoiseDur_inplace_add(XnoiseDur *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * XnoiseDur_sub(XnoiseDur *self, PyObject *arg) { SUB };
+static PyObject * XnoiseDur_inplace_sub(XnoiseDur *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * XnoiseDur_div(XnoiseDur *self, PyObject *arg) { DIV };
+static PyObject * XnoiseDur_inplace_div(XnoiseDur *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+XnoiseDur_setType(XnoiseDur *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyInt_Check(arg);
+	
+	if (isNumber == 1) {
+		self->type = PyInt_AsLong(arg);
+        XnoiseDur_setRandomType(self);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+XnoiseDur_setX1(XnoiseDur *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->x1);
+	if (isNumber == 1) {
+		self->x1 = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->x1 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->x1, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->x1_stream);
+        self->x1_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+XnoiseDur_setX2(XnoiseDur *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->x2);
+	if (isNumber == 1) {
+		self->x2 = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->x2 = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->x2, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->x2_stream);
+        self->x2_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+XnoiseDur_setMin(XnoiseDur *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->min);
+	if (isNumber == 1) {
+		self->min = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->min = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->min, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->min_stream);
+        self->min_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+XnoiseDur_setMax(XnoiseDur *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->max);
+	if (isNumber == 1) {
+		self->max = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->max = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->max, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->max_stream);
+        self->max_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef XnoiseDur_members[] = {
+    {"server", T_OBJECT_EX, offsetof(XnoiseDur, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(XnoiseDur, stream), 0, "Stream object."},
+    {"x1", T_OBJECT_EX, offsetof(XnoiseDur, x1), 0, "first param."},
+    {"x2", T_OBJECT_EX, offsetof(XnoiseDur, x2), 0, "second param."},
+    {"min", T_OBJECT_EX, offsetof(XnoiseDur, min), 0, "Minimum value."},
+    {"max", T_OBJECT_EX, offsetof(XnoiseDur, max), 0, "Maximum value."},
+    {"mul", T_OBJECT_EX, offsetof(XnoiseDur, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(XnoiseDur, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef XnoiseDur_methods[] = {
+    {"getServer", (PyCFunction)XnoiseDur_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)XnoiseDur_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)XnoiseDur_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)XnoiseDur_stop, METH_NOARGS, "Stops computing."},
+    {"setType", (PyCFunction)XnoiseDur_setType, METH_O, "Sets distribution type."},
+    {"setX1", (PyCFunction)XnoiseDur_setX1, METH_O, "Sets first param."},
+    {"setX2", (PyCFunction)XnoiseDur_setX2, METH_O, "Sets second param."},
+    {"setMin", (PyCFunction)XnoiseDur_setMin, METH_O, "Sets minimum value."},
+    {"setMax", (PyCFunction)XnoiseDur_setMax, METH_O, "Sets maximum value."},
+    {"setMul", (PyCFunction)XnoiseDur_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)XnoiseDur_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)XnoiseDur_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)XnoiseDur_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods XnoiseDur_as_number = {
+    (binaryfunc)XnoiseDur_add,                         /*nb_add*/
+    (binaryfunc)XnoiseDur_sub,                         /*nb_subtract*/
+    (binaryfunc)XnoiseDur_multiply,                    /*nb_multiply*/
+    (binaryfunc)XnoiseDur_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)XnoiseDur_inplace_add,                 /*inplace_add*/
+    (binaryfunc)XnoiseDur_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)XnoiseDur_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)XnoiseDur_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject XnoiseDurType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.XnoiseDur_base",                                   /*tp_name*/
+    sizeof(XnoiseDur),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)XnoiseDur_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &XnoiseDur_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "XnoiseDur objects. Generates a random value and uses this value as time base for the next generation.",           /* tp_doc */
+    (traverseproc)XnoiseDur_traverse,                  /* tp_traverse */
+    (inquiry)XnoiseDur_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    XnoiseDur_methods,                                 /* tp_methods */
+    XnoiseDur_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)XnoiseDur_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    XnoiseDur_new,                                     /* tp_new */
+};

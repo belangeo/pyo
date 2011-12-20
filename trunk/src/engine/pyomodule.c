@@ -1579,6 +1579,11 @@ init_pyo64(void)
     Py_INCREF(&HannTableType);
     PyModule_AddObject(m, "HannTable_base", (PyObject *)&HannTableType);
 
+    if (PyType_Ready(&SincTableType) < 0)
+        return;
+    Py_INCREF(&SincTableType);
+    PyModule_AddObject(m, "SincTable_base", (PyObject *)&SincTableType);
+    
     if (PyType_Ready(&WinTableType) < 0)
         return;
     Py_INCREF(&WinTableType);
@@ -1779,6 +1784,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&XnoiseMidiType);
     PyModule_AddObject(m, "XnoiseMidi_base", (PyObject *)&XnoiseMidiType);
+
+    if (PyType_Ready(&XnoiseDurType) < 0)
+        return;
+    Py_INCREF(&XnoiseDurType);
+    PyModule_AddObject(m, "XnoiseDur_base", (PyObject *)&XnoiseDurType);
     
     if (PyType_Ready(&RandIntType) < 0)
         return;
