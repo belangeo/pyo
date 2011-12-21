@@ -1379,18 +1379,106 @@ midiToTranspo(PyObject *self, PyObject *arg) {
         Py_RETURN_NONE;
 }    
 
+#define sampsToSec_info \
+"\nReturns the duration in seconds equivalent to the given number of samples.\n\nsampsToSec(x)\n\nParameters:\n\n    \
+x : int or float\n        Duration in samples. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+>>> a = (64, 128, 256)\n    \
+>>> b = sampsToSec(a)\n    \
+>>> print b\n    \
+>>> (0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194)\n    \
+>>> a = [64, 128, 256]\n    \
+>>> b = sampsToSec(a)\n    \
+>>> print b\n    \
+>>> [0.0014512471655328798, 0.0029024943310657597, 0.0058049886621315194]\n    \
+>>> b = sampsToSec(8192)\n    \
+>>> print b\n    \
+>>> 0.185759637188\n\n"
+
 static PyObject *
 sampsToSec(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
+    if (server == NULL) {
+        printf("Warning: A Server must be booted before calling `sampsToSec` function.\n");
+        Py_RETURN_NONE;
+    }
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
-    return Py_BuildValue("d", PyFloat_AsDouble(PyNumber_Float(arg)) / sr);
+    int count = 0;
+    int i = 0;
+    double x = 0.0;
+    PyObject *newseq = NULL;
+    if (PyNumber_Check(arg))
+        return Py_BuildValue("d", PyFloat_AsDouble(PyNumber_Float(arg)) / sr);
+    else if (PyList_Check(arg)) {
+        count = PyList_Size(arg);
+        newseq = PyList_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            PyList_SET_ITEM(newseq, i, PyFloat_FromDouble(x / sr));
+        }
+        return newseq;
+    }
+    else if (PyTuple_Check(arg)) {
+        count = PyTuple_Size(arg);
+        newseq = PyTuple_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            PyTuple_SET_ITEM(newseq, i, PyFloat_FromDouble(x / sr));
+        }
+        return newseq;
+    }
+    else
+        Py_RETURN_NONE;
 }                         
+
+#define secToSamps_info \
+"\nReturns the number of samples equivalent to the given duration in seconds.\n\nsecToSamps(x)\n\nParameters:\n\n    \
+x : int or float\n        Duration in seconds. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+>>> a = (0.1, 0.25, 0.5, 1)\n    \
+>>> b = secToSamps(a)\n    \
+>>> print b\n    \
+>>> (4410, 11025, 22050, 44100)\n    \
+>>> a = [0.1, 0.25, 0.5, 1]\n    \
+>>> b = secToSamps(a)\n    \
+>>> print b\n    \
+>>> [4410, 11025, 22050, 44100]\n    \
+>>> b = secToSamps(2.5)\n    \
+>>> print b\n    \
+>>> 110250\n\n"
 
 static PyObject *
 secToSamps(PyObject *self, PyObject *arg) {
     PyObject *server = PyServer_get_server();
+    if (server == NULL) {
+        printf("Warning: A Server must be booted before calling `secToSamps` function.\n");
+        Py_RETURN_NONE;
+    }
     double sr = PyFloat_AsDouble(PyObject_CallMethod(server, "getSamplingRate", NULL));
-    return Py_BuildValue("i", (int)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
+    int count = 0;
+    int i = 0;
+    double x = 0.0;
+    PyObject *newseq = NULL;
+    if (PyNumber_Check(arg))
+        return Py_BuildValue("l", (long)(PyFloat_AsDouble(PyNumber_Float(arg)) * sr));
+    else if (PyList_Check(arg)) {
+        count = PyList_Size(arg);
+        newseq = PyList_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(arg, i)));
+            PyList_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
+        }
+        return newseq;
+    }
+    else if (PyTuple_Check(arg)) {
+        count = PyTuple_Size(arg);
+        newseq = PyTuple_New(count);
+        for (i=0; i<count; i++) {
+            x = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(arg, i)));
+            PyTuple_SET_ITEM(newseq, i, PyInt_FromLong((long)(x * sr)));
+        }
+        return newseq;
+    }
+    else
+        Py_RETURN_NONE;
 }                         
 
 /************* Server quieries *************/
@@ -1445,8 +1533,8 @@ static PyMethodDef pyo_functions[] = {
 {"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
-{"sampsToSec", (PyCFunction)sampsToSec, METH_O, "Returns the number of samples equivalent of the given duration in seconds."},
-{"secToSamps", (PyCFunction)secToSamps, METH_O, "Returns the duration in seconds equivalent to the given number of samples."},
+{"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},
+{"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},
 {"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, "Returns True if a Server object is already created, otherwise, returns False."},
 {"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, "Returns True if an already created Server is booted, otherwise, returns False."},
 {NULL, NULL, 0, NULL},
