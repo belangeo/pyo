@@ -4654,3 +4654,312 @@ PyTypeObject MToFType = {
     0,                                              /* tp_alloc */
     MToF_new,                                     /* tp_new */
 };
+
+/************/
+/* MToT */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT centralkey;
+    MYFLT lastmidi;
+    MYFLT curfreq;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} MToT;
+
+static void
+MToT_process(MToT *self) {
+    int i;
+    MYFLT midi;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        midi = in[i];
+        if (midi != self->lastmidi) {
+            self->data[i] = self->curfreq = MYPOW(1.0594630943593, midi - self->centralkey);
+            self->lastmidi = midi;
+        }
+        else
+            self->data[i] = self->curfreq;
+    }
+}
+
+static void MToT_postprocessing_ii(MToT *self) { POST_PROCESSING_II };
+static void MToT_postprocessing_ai(MToT *self) { POST_PROCESSING_AI };
+static void MToT_postprocessing_ia(MToT *self) { POST_PROCESSING_IA };
+static void MToT_postprocessing_aa(MToT *self) { POST_PROCESSING_AA };
+static void MToT_postprocessing_ireva(MToT *self) { POST_PROCESSING_IREVA };
+static void MToT_postprocessing_areva(MToT *self) { POST_PROCESSING_AREVA };
+static void MToT_postprocessing_revai(MToT *self) { POST_PROCESSING_REVAI };
+static void MToT_postprocessing_revaa(MToT *self) { POST_PROCESSING_REVAA };
+static void MToT_postprocessing_revareva(MToT *self) { POST_PROCESSING_REVAREVA };
+
+static void
+MToT_setProcMode(MToT *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = MToT_process;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = MToT_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = MToT_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = MToT_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = MToT_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = MToT_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = MToT_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = MToT_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = MToT_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = MToT_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+MToT_compute_next_data_frame(MToT *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+MToT_traverse(MToT *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+MToT_clear(MToT *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+MToT_dealloc(MToT* self)
+{
+    free(self->data);
+    MToT_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * MToT_deleteStream(MToT *self) { DELETE_STREAM };
+
+static PyObject *
+MToT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MToT *self;
+    self = (MToT *)type->tp_alloc(type, 0);
+    
+    self->centralkey = 60.0;
+    self->lastmidi = 0;
+    self->curfreq = 8.1757989156437;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, MToT_compute_next_data_frame);
+    self->mode_func_ptr = MToT_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+MToT_init(MToT *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "centralkey", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->centralkey, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject *
+MToT_setCentralKey(MToT *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		self->centralkey = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * MToT_getServer(MToT* self) { GET_SERVER };
+static PyObject * MToT_getStream(MToT* self) { GET_STREAM };
+static PyObject * MToT_setMul(MToT *self, PyObject *arg) { SET_MUL };	
+static PyObject * MToT_setAdd(MToT *self, PyObject *arg) { SET_ADD };	
+static PyObject * MToT_setSub(MToT *self, PyObject *arg) { SET_SUB };	
+static PyObject * MToT_setDiv(MToT *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * MToT_play(MToT *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MToT_out(MToT *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * MToT_stop(MToT *self) { STOP };
+
+static PyObject * MToT_multiply(MToT *self, PyObject *arg) { MULTIPLY };
+static PyObject * MToT_inplace_multiply(MToT *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * MToT_add(MToT *self, PyObject *arg) { ADD };
+static PyObject * MToT_inplace_add(MToT *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * MToT_sub(MToT *self, PyObject *arg) { SUB };
+static PyObject * MToT_inplace_sub(MToT *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * MToT_div(MToT *self, PyObject *arg) { DIV };
+static PyObject * MToT_inplace_div(MToT *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef MToT_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MToT, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MToT, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MToT, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(MToT, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(MToT, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MToT_methods[] = {
+    {"getServer", (PyCFunction)MToT_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MToT_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)MToT_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)MToT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MToT_stop, METH_NOARGS, "Stops computing."},
+    {"out", (PyCFunction)MToT_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"setCentralKey", (PyCFunction)MToT_setCentralKey, METH_O, "Sets the central key."},
+    {"setMul", (PyCFunction)MToT_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)MToT_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)MToT_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)MToT_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods MToT_as_number = {
+    (binaryfunc)MToT_add,                         /*nb_add*/
+    (binaryfunc)MToT_sub,                         /*nb_subtract*/
+    (binaryfunc)MToT_multiply,                    /*nb_multiply*/
+    (binaryfunc)MToT_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)MToT_inplace_add,                 /*inplace_add*/
+    (binaryfunc)MToT_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)MToT_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)MToT_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject MToTType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.MToT_base",                                   /*tp_name*/
+    sizeof(MToT),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)MToT_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &MToT_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MToT objects. Converts midi notes to transposition factor.",           /* tp_doc */
+    (traverseproc)MToT_traverse,                  /* tp_traverse */
+    (inquiry)MToT_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    MToT_methods,                                 /* tp_methods */
+    MToT_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)MToT_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    MToT_new,                                     /* tp_new */
+};
