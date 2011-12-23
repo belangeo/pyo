@@ -1922,9 +1922,9 @@ class TranspoToCents(PyoObject):
 
 class MToF(PyoObject):
     """
-    Returns the frequency (Hz) equivalent of a midi note.
+    Returns the frequency (Hz) equivalent to a midi note.
 
-    Returns the frequency (Hz) equivalent of a midi note, 
+    Returns the frequency (Hz) equivalent to a midi note, 
     60 = 261.62556530066814 Hz.
 
     Parent class: PyoObject
@@ -1932,7 +1932,7 @@ class MToF(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal, transposition factor.
+        Input signal as midi note.
 
     Methods:
 
@@ -1990,3 +1990,103 @@ class MToF(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class MToT(PyoObject):
+    """
+    Returns the transposition factor equivalent to a midi note.
+
+    Returns the transposition factor equivalent to a midi note. If the midi
+    note equal the `centralkey` argument, the output is 1.0.
+
+    Parent class: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal as midi note.
+    centralkey : float, optional
+        The midi note that returns a transposition of a factor, 
+        that is to say no transposition. Defaults to 60.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setCentralKey(x) : Replace the `centralkey` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    centralkey : float. The midi note that returns no transposition.
+
+    Examples:
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> tsnd = SndTable(SNDS_PATH+"/accord.aif")
+    >>> tenv = CosTable([(0,0), (300,1), (1000,.5), (8192,0)])
+    >>> met = Metro(.125, poly=2).play()
+    >>> amp = TrigEnv(met, table=tenv, dur=.125, mul=.7)
+    >>> mid = TrigChoice(met, choice=[43, 45, 60, 63], port=.0025)
+    >>> sp = MToT(mid)
+    >>> snd = Osc(tsnd, freq=tsnd.getRate()/sp, mul=amp).out()
+
+    """
+
+    def __init__(self, input, centralkey=60.0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._centralkey = centralkey
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, centralkey, mul, add, lmax = convertArgsToLists(self._in_fader, centralkey, mul, add)
+        self._base_objs = [MToT_base(wrap(in_fader,i), wrap(centralkey,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'centralkey', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setCentralKey(self, x):
+        """
+        Replace the `centralkey` attribute.
+
+        Parameters:
+
+        x : float
+            New `centralkey` attribute.
+
+        """
+        self._centralkey = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCentralKey(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def centralkey(self):
+        """float. The midi note that returns no transposition.""" 
+        return self._centralkey
+    @centralkey.setter
+    def centralkey(self, x): self.setCentralKey(x)

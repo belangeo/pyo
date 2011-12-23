@@ -2592,6 +2592,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&MToFType);
     PyModule_AddObject(m, "MToF_base", (PyObject *)&MToFType);
+
+    if (PyType_Ready(&MToTType) < 0)
+        return;
+    Py_INCREF(&MToTType);
+    PyModule_AddObject(m, "MToT_base", (PyObject *)&MToTType);
     
     if (PyType_Ready(&FFTMainType) < 0)
         return;
