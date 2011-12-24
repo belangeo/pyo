@@ -1151,6 +1151,127 @@ distanceToSegment(PyObject *self, PyObject *args, PyObject *kwds)
     return PyFloat_FromDouble(MYSQRT(MYPOW(xp[0] - closest[0], 2.0) + MYPOW(xp[1] - closest[1], 2.0)));
 }
 
+#define linToCosCurve_info \
+"\nCreates a cosinus interpolated curve from a list of points.\n\n\
+linToCosCurve(data, yrange=[0, 1], totaldur=1, points=1024, log=False)\n\n    \
+A point is a tuple (or a list) of two floats, time and value.\n\nParameters:\n\n    \
+data : list of points\n        Set of points between which will be inserted interpolated segments.\n    \
+yrange : list of 2 floats, optional\n        Minimum and maximum values on the Y axis. Defaults to [0., 1.].\n    \
+totaldur : float, optional\n        X axis duration. Defaults to 1.\n    \
+points : int, optional\n        Number of points in the output list. Defaults to 1024.\n    \
+log : boolean, optional\n        Set this value to True if the Y axis has a logarithmic scale. Defaults to False\n\n\
+Examples:\n\n    \
+>>> s = Server().boot()\n    \
+>>> a = [(0,0), (0.25, 1), (0.33, 1), (1,0)]\n    \
+>>> b = linToCosCurve(a, yrange=[0, 1], totaldur=1, points=8192)\n    \
+>>> t = DataTable(size=len(b), init=[x[1] for x in b])\n    \
+>>> t.view()\n\n"
+
+static PyObject *
+linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *data, *fdata, *out, *inout, *ftup, *yrange=NULL, *fyrange=NULL;
+    int i, j, datasize, steps; 
+    double tmp, x1, x2, y1, y2, mu, ydiff, log10ymin, log10ymax;
+    double *xdata, *ydata, *cxdata, *cydata;
+    double totaldur = 1.0;
+    double ymin = 0.0;
+    double ymax = 1.0;
+    int num = 1024;
+    double inc = 1.0 / num;
+    int log = 0;
+    int count = 0;
+    
+    static char *kwlist[] = {"data", "yrange", "totaldur", "points", "log", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|Odii", kwlist, &data, &yrange, &totaldur, &num, &log))
+        Py_RETURN_NONE;
+    
+    if (yrange) {
+        fyrange = PySequence_Fast(yrange, NULL);
+        ymin = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(fyrange, 0)));
+        ymax = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(fyrange, 1)));
+    }
+    ydiff = ymax - ymin;
+    log10ymin = log10(ymin);
+    log10ymax = log10(ymax);
+    
+    fdata = PySequence_Fast(data, NULL);
+    datasize = PySequence_Size(fdata);
+    xdata = (double *)malloc(datasize * sizeof(double));
+    ydata = (double *)malloc(datasize * sizeof(double));
+    
+    /* acquire data + normalization */
+    if (log == 0) {
+        for (i=0; i<datasize; i++) {
+            ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
+            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 0)));
+            xdata[i] = tmp / totaldur;
+            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 1)));
+            ydata[i] = (tmp - ymin) / ydiff;
+        }
+    }
+    else {
+        for (i=0; i<datasize; i++) {
+            ftup = PySequence_Fast(PySequence_Fast_GET_ITEM(fdata, i), NULL);
+            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 0)));
+            xdata[i] = tmp / totaldur;
+            tmp = PyFloat_AsDouble(PyNumber_Float(PySequence_Fast_GET_ITEM(ftup, 1)));
+            ydata[i] = log10(tmp / ymin) / log10(ymax / ymin);
+        }        
+    }
+
+    cxdata = (double *)malloc((num+5) * sizeof(double));
+    cydata = (double *)malloc((num+5) * sizeof(double));
+    
+    /* generates cos interpolation */
+    for (i=0; i<(datasize-1); i++) {
+        x1 = xdata[i];
+        x2 = xdata[i+1];
+        y1 = ydata[i];
+        y2 = ydata[i+1];
+        steps = (int)((x2 - x1) * num);
+        if (steps <= 0)
+            continue;
+        for (j=0; j<steps; j++) {
+            mu = (1.0 - cos(j / (float)steps * PI)) * 0.5;
+            cxdata[count] = x1 + inc * j;
+            cydata[count++] = y1 + (y2 - y1) * mu;
+        }
+    }
+    cxdata[count] = xdata[datasize-1];
+    cydata[count++] = ydata[datasize-1];
+    
+    /* denormalization */
+    if (log == 0) {
+        for (i=0; i<count; i++) {
+            cxdata[i] *= totaldur;
+            cydata[i] = cydata[i] * ydiff + ymin;
+        }
+    }
+    else {
+        for (i=0; i<count; i++) {
+            cxdata[i] *= totaldur;
+            cydata[i] = pow(10.0, cydata[i] * (log10ymax - log10ymin) + log10ymin);
+        }        
+    }
+
+    /* output Python's list of lists */
+    out = PyList_New(count);
+    for (i=0; i<count; i++) {
+        inout = PyList_New(2);
+        PyList_SET_ITEM(inout, 0, PyFloat_FromDouble(cxdata[i]));
+        PyList_SET_ITEM(inout, 1, PyFloat_FromDouble(cydata[i]));
+        PyList_SET_ITEM(out, i, inout);
+    }
+    
+    free(xdata);
+    free(ydata);
+    free(cxdata);
+    free(cydata);
+    return out;
+}
+
 #define rescale_info \
 "\nScales values inside a specific range to another range.\n\n\
 rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function takes data in the range `xmin` - `xmax` and returns corresponding values in the range `ymin` - `ymax`.\n\n\
@@ -1531,6 +1652,7 @@ static PyMethodDef pyo_functions[] = {
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
 {"distanceToSegment", (PyCFunction)distanceToSegment, METH_VARARGS|METH_KEYWORDS, distanceToSegment_info},
 {"rescale", (PyCFunction)rescale, METH_VARARGS|METH_KEYWORDS, rescale_info},
+{"linToCosCurve", (PyCFunction)linToCosCurve, METH_VARARGS|METH_KEYWORDS, linToCosCurve_info},
 {"midiToHz", (PyCFunction)midiToHz, METH_O, midiToHz_info},
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},

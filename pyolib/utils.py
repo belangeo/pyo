@@ -2005,7 +2005,7 @@ class MToT(PyoObject):
     input : PyoObject
         Input signal as midi note.
     centralkey : float, optional
-        The midi note that returns a transposition of a factor, 
+        The midi note that returns a transposition factor of 1, 
         that is to say no transposition. Defaults to 60.
 
     Methods:
