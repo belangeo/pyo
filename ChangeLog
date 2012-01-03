@@ -1,3 +1,9 @@
+-------------------------------------------------------------------------------------
+
+2012-01-03 belangeo <belangeo@gmail.com>
+
+    * rev 807 - Updated version number, release tag: 0.6.0.
+
 2011-12-22 belangeo <belangeo@gmail.com>
 
     * Added new object: MToT. Midi to transposition factor conversion.

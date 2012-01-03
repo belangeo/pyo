@@ -1,5 +1,8 @@
 from pyo import *
 
+#t = "list from TextMate"
+#t2 = t.split("|")
+
 tree = OBJECTS_TREE
 l = []
 for k1 in tree.keys():
@@ -17,6 +20,8 @@ l.append("Server")
 
 with open("pyo_keywords.txt", "w") as f:
     for i, word in enumerate(l):
+        #if word not in t2:
+        #    print word
         if (i % 10) == 0:
             f.write("\n")
         f.write(word + " ")
