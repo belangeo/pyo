@@ -69,7 +69,7 @@ if sys.platform == "win32":
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
 else:
-    tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.gmtime())
+    tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
     macros.append(('TIMESTAMP', tsrt))
     include_dirs = ['include', '/usr/local/include']
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
@@ -81,7 +81,7 @@ else:
 setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
-        version = "0.5.1",
+        version = "0.6.0",
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
