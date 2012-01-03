@@ -2,7 +2,9 @@
 
 VERSION=`sw_vers -productVersion | sed -e 's/\.//g'`
 
-if [ $VERSION -ge '1060' ]; then
+if [ $VERSION -ge '1070' ]; then
+    echo "Install pyo on OSX 10.7";
+elif [ $VERSION -ge '1060' ]; then
     echo "Install pyo on OSX 10.6";
 else
     echo "Install pyo on OSX 10.5";
@@ -264,7 +266,15 @@ if cd /Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packa
 fi
 
 # Install pyo in the python site-packages builtin directories
-if [ $VERSION -ge '1060' ]; then
+if [ $VERSION -ge '1070' ]; then
+    if cd /Library/Python/2.7/site-packages/; then
+        sudo cp -r /tmp/python27/* .
+    else
+        sudo mkdir -p /Library/Python/2.7/site-packages/
+        cd /Library/Python/2.7/site-packages/
+        sudo cp -r /tmp/python27/* .
+    fi
+elif [ $VERSION -ge '1060' ]; then
     if cd /Library/Python/2.6/site-packages/; then
         sudo cp -r /tmp/python26/* .
     else
@@ -379,7 +389,7 @@ else
     sudo mv /tmp/python27/* .
 fi
 
-# Add /usr/local/lib in .bash_profile if not already done    
+# Add /usr/local/lib in .bash_profile if not already done
 searchString="/usr/local/lib"
 
 if [ -f ~/.bash_profile ]; then
@@ -394,7 +404,7 @@ else
 	echo "export PATH=/usr/local/lib:/usr/local/bin:\$PATH" > ~/.bash_profile;
 fi	
 
-# Add VERSIONER_PYTHON_PREFER_32_BIT in .bash_profile if not already done    
+# Add VERSIONER_PYTHON_PREFER_32_BIT in .bash_profile if not already done
 searchString="VERSIONER_PYTHON_PREFER_32_BIT"
 
 if `cat ~/.bash_profile | grep "${searchString}" 1>/dev/null 2>&1`; then
