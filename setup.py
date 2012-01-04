@@ -67,7 +67,7 @@ if sys.platform == "win32":
     library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo']
     libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo']
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
-                library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes"], define_macros=macros)]
+                library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
 else:
     tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
     macros.append(('TIMESTAMP', tsrt))
