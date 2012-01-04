@@ -37,6 +37,9 @@ sudo curl http://www.iact.umontreal.ca/pyo_deps_x86_64/liblo.7.dylib -o "liblo.7
 sudo curl http://www.iact.umontreal.ca/pyo_deps_x86_64/libportaudio.2.dylib -o "libportaudio.2.dylib"
 sudo curl http://www.iact.umontreal.ca/pyo_deps_x86_64/libportmidi.dylib -o "libportmidi.dylib"
 sudo curl http://www.iact.umontreal.ca/pyo_deps_x86_64/libsndfile.1.dylib -o "libsndfile.1.dylib"
+sudo rm libsndfile.dylib
 sudo ln -s libsndfile.1.dylib libsndfile.dylib
+sudo rm liblo.dylib
 sudo ln -s liblo.7.dylib liblo.dylib
+sudo rm libportaudio.dylib
 sudo ln -s libportaudio.2.dylib libportaudio.dylib

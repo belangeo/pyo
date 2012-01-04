@@ -33,12 +33,13 @@ else
     sudo mkdir /usr/local/lib
     cd /usr/local/lib;
 fi
-sudo curl http://www.iact.umontreal.ca/pyo_deps/liblo.0.6.0.dylib -o "liblo.0.6.0.dylib"
-sudo curl http://www.iact.umontreal.ca/pyo_deps/libportaudio.2.0.0.dylib -o "libportaudio.2.0.0.dylib"
+sudo curl http://www.iact.umontreal.ca/pyo_deps/liblo.0.dylib -o "liblo.0.dylib"
+sudo curl http://www.iact.umontreal.ca/pyo_deps/libportaudio.2.dylib -o "libportaudio.2.dylib"
 sudo curl http://www.iact.umontreal.ca/pyo_deps/libportmidi.dylib -o "libportmidi.dylib"
 sudo curl http://www.iact.umontreal.ca/pyo_deps/libsndfile.1.dylib -o "libsndfile.1.dylib"
+sudo rm libsndfile.dylib
 sudo ln -s libsndfile.1.dylib libsndfile.dylib
-sudo ln -s liblo.0.6.0.dylib liblo.dylib
-sudo ln -s liblo.0.6.0.dylib liblo.0.dylib
-sudo ln -s libportaudio.2.0.0.dylib libportaudio.dylib
-sudo ln -s libportaudio.2.0.0.dylib libportaudio.2.dylib
+sudo rm liblo.dylib
+sudo ln -s liblo.0.dylib liblo.dylib
+sudo rm libportaudio.dylib
+sudo ln -s libportaudio.2.dylib libportaudio.dylib

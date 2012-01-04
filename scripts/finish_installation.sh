@@ -10,91 +10,6 @@ else
     echo "Install pyo on OSX 10.5";
 fi
 
-# Make sure older version are not in the System directories
-if cd /System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5; then
-    if [ -f pyo.py ]; then
-        sudo rm pyo.py;
-    fi    
-    if [ -f pyo64.py ]; then
-        sudo rm pyo64.py;
-    fi
-    if [ -f pyo.pyc ]; then
-        sudo rm pyo.pyc;
-    fi 
-    if [ -f pyo64.pyc ]; then
-        sudo rm pyo64.pyc;
-    fi
-    if [ -f _pyo.so ]; then
-        sudo rm _pyo.so;
-    fi
-    if [ -f _pyo64.so ]; then
-        sudo rm _pyo64.so;
-    fi
-    if [ -d pyolib ]; then
-        sudo rm -rf pyolib/;
-    fi    
-    ls -1 pyo*-info > /dev/null 2>&1
-    if [ "$?" = "0" ]; then
-        sudo rm pyo*-info;
-    fi    
-fi
-
-if cd /System/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6; then
-    if [ -f pyo.py ]; then
-        sudo rm pyo.py;
-    fi    
-    if [ -f pyo64.py ]; then
-        sudo rm pyo64.py;
-    fi
-    if [ -f pyo.pyc ]; then
-        sudo rm pyo.pyc;
-    fi
-    if [ -f pyo64.pyc ]; then
-        sudo rm pyo64.pyc;
-    fi
-    if [ -f _pyo.so ]; then
-        sudo rm _pyo.so;
-    fi
-    if [ -f _pyo64.so ]; then
-        sudo rm _pyo64.so;
-    fi
-    if [ -d pyolib ]; then
-        sudo rm -rf pyolib/;
-    fi    
-    ls -1 pyo*-info > /dev/null 2>&1
-    if [ "$?" = "0" ]; then
-        sudo rm pyo*-info;
-    fi    
-fi
-
-if cd /System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7; then
-    if [ -f pyo.py ]; then
-        sudo rm pyo.py;
-    fi    
-    if [ -f pyo64.py ]; then
-        sudo rm pyo64.py;
-    fi
-    if [ -f pyo.pyc ]; then
-        sudo rm pyo.pyc;
-    fi
-    if [ -f pyo64.pyc ]; then
-        sudo rm pyo64.pyc;
-    fi
-    if [ -f _pyo.so ]; then
-        sudo rm _pyo.so;
-    fi
-    if [ -f _pyo64.so ]; then
-        sudo rm _pyo64.so;
-    fi
-    if [ -d pyolib ]; then
-        sudo rm -rf pyolib/;
-    fi    
-    ls -1 pyo*-info > /dev/null 2>&1
-    if [ "$?" = "0" ]; then
-        sudo rm pyo*-info;
-    fi    
-fi
-
 # Removed older versions in the python site-packages builtin directories
 if cd /Library/Python/2.5/site-packages/; then
     if [ -f pyo.py ]; then
@@ -322,7 +237,7 @@ if cd /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packa
 else
     sudo mkdir -p /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/
     cd /Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/site-packages/
-    sudo mv /tmp/python25/* .    
+    sudo mv /tmp/python25/* .
 fi
 
 if cd /Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/; then
