@@ -797,7 +797,7 @@ class PyoTableObject(object):
         pp += '\n-----------------------------'
         return pp    
 
-    def save(self, path, format=0):
+    def save(self, path, format=0, sampletype=0):
         """
         Writes the content of the table in an audio file.
         
@@ -810,15 +810,16 @@ class PyoTableObject(object):
         path : string
             Full path (including extension) of the new file.
         format : int, optional
-            Format type of the file. Possible formats are:
-                0 : AIFF 32 bits float (Default)
-                1 : WAV 32 bits float
-                2 : AIFF 16 bits int
-                3 : WAV 16 bits int
-                4 : AIFF 24 bits int
-                5 : WAV 24 bits int
-                6 : AIFF 32 bits int
-                7 : WAV 32 bits int
+            Format type of the new file. Defaults to 0. Supported formats are:
+                0 : WAVE - Microsoft WAV format (little endian) {.wav, .wave}
+                1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+        sampletype : int, optional
+            Bit depth encoding of the audio file. Defaults to 0. Supported types are:
+                0 : 16 bit int
+                1 : 24 bit int
+                2 : 32 bit int
+                3 : 32 bit float
+                4 : 64 bit float
 
         """
         sr = int(self._base_objs[0].getServer().getSamplingRate())
@@ -826,7 +827,7 @@ class PyoTableObject(object):
             samples = self._base_objs[0].getTable()
         else:
             samples = [obj.getTable() for i, obj in enumerate(self._base_objs)]
-        savefile(samples, path, sr, len(self._base_objs), format)    
+        savefile(samples, path, sr, len(self._base_objs), format, sampletype)
     
     def write(self, path, oneline=True):
         """
