@@ -11,8 +11,9 @@ Olivier Belanger - 2012
 
 import sys, os, string, inspect, keyword, wx, time
 import wx.stc  as  stc
-from subprocess import Popen, PIPE
+import subprocess
 import wx.aui
+from tempfile import *
 from pyo import OBJECTS_TREE
 
 NAME = 'PyoEd'
@@ -21,6 +22,61 @@ VERSION = '0.1.0'
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
+
+def convert_line_endings(temp, mode):
+        #modes:  0 - Unix, 1 - Mac, 2 - DOS
+        if mode == 0:
+                temp = string.replace(temp, '\r\n', '\n')
+                temp = string.replace(temp, '\r', '\n')
+        elif mode == 1:
+                temp = string.replace(temp, '\r\n', '\r')
+                temp = string.replace(temp, '\n', '\r')
+        elif mode == 2:
+                import re
+                temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
+        return temp
+
+if sys.platform == "darwin":
+    terminal_script = """tell app "Terminal"
+        launch
+        activate
+        do script "clear; cd %s; /usr/local/bin/python %s"
+    end tell
+    """
+    terminal_script_path = os.path.join(TEMP_PATH, "terminal_script.scpt")
+
+    # terminal_server_script = """tell application "Terminal"
+    #     activate
+    #     do script ""
+    # end tell
+    # """
+    # terminal_server_script = convert_line_endings(terminal_server_script, 1)
+    # 
+    # terminal_server_script_path = os.path.join(TEMP_PATH, "terminal_server_script.scpt")
+    # f = open(terminal_server_script_path, "w")
+    # f.write(terminal_server_script)
+    # f.close()
+    # pid = subprocess.Popen(["osascript", terminal_server_script_path]).pid
+    # 
+    # terminal_client_script = """tell application "System Events"
+    #     tell application process "Terminal"
+    #     set frontmost to true
+    #     keystroke "clear; cd %s"
+    #     keystroke return
+    #     keystroke "python %s"
+    #     keystroke return
+    #     end tell
+    # end tell
+    # """
+    # terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
+
+    # terminal_client_script = """tell application "System Events"
+    #     tell application process "Terminal"
+    #     do script "clear; cd %s; /usr/local/bin/python %s"
+    #     end tell
+    # end tell
+    # """
+    # terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
@@ -300,7 +356,15 @@ class MainFrame(wx.Frame):
         path = self.panel.editor.path
         if os.path.isfile(path):
             cwd = os.path.split(path)[0]
-            pid = Popen(["python", self.panel.editor.path], cwd=cwd).pid
+            if sys.platform == "darwin":
+                script = terminal_script % (cwd, self.panel.editor.path)
+                script = convert_line_endings(script, 1)
+                f = open(terminal_script_path, "w")
+                f.write(script)
+                f.close()
+                pid = subprocess.Popen(["osascript", terminal_script_path]).pid
+            else:
+                pid = subprocess.Popen(["python", self.panel.editor.path], cwd=cwd).pid
 
     ### About ###
     def onHelpAbout(self, evt):
@@ -961,12 +1025,13 @@ if __name__ == '__main__':
                 pass
 
     app = wx.PySimpleApp()
+
     X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
     if X < 800: X -= 50
     else: X = 800
     if Y < 700: Y -= 50
     else: Y = 700
-    print u'%s %s by Olivier Bélanger' % (NAME, VERSION)
     frame = MainFrame(None, -1, title='PyoEd Editor', pos=(10,25), size=(X, Y))
     frame.Show()
+
     app.MainLoop()
