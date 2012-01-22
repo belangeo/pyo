@@ -9,7 +9,7 @@ Olivier Belanger - 2012
 
 """
 
-import sys, os, string, inspect, keyword, wx, time
+import sys, os, string, inspect, keyword, wx, time, codecs
 import wx.stc  as  stc
 import subprocess
 import wx.aui
@@ -37,46 +37,48 @@ def convert_line_endings(temp, mode):
         return temp
 
 if sys.platform == "darwin":
-    terminal_script = """tell app "Terminal"
-        launch
+#     # Open a new terminal window on each run
+#     terminal_script = """set my_path to quoted form of POSIX path of "%s"
+# set my_file to quoted form of POSIX path of "%s"
+# tell application "Terminal"
+#     launch
+#     activate
+#     do script "clear; cd " & my_path & "; /usr/local/bin/python " & my_file
+# end tell
+#     """
+#     terminal_script_path = os.path.join(TEMP_PATH, "terminal_script.scpt")
+
+    # Use the same terminal window for each run
+    terminal_server_script = """tell application "Terminal"
         activate
-        do script "clear; cd %s; /usr/local/bin/python %s"
+        do script ""
     end tell
     """
-    terminal_script_path = os.path.join(TEMP_PATH, "terminal_script.scpt")
-
-    # terminal_server_script = """tell application "Terminal"
-    #     activate
-    #     do script ""
-    # end tell
-    # """
-    # terminal_server_script = convert_line_endings(terminal_server_script, 1)
-    # 
-    # terminal_server_script_path = os.path.join(TEMP_PATH, "terminal_server_script.scpt")
-    # f = open(terminal_server_script_path, "w")
-    # f.write(terminal_server_script)
-    # f.close()
-    # pid = subprocess.Popen(["osascript", terminal_server_script_path]).pid
-    # 
-    # terminal_client_script = """tell application "System Events"
-    #     tell application process "Terminal"
-    #     set frontmost to true
-    #     keystroke "clear; cd %s"
-    #     keystroke return
-    #     keystroke "python %s"
-    #     keystroke return
-    #     end tell
-    # end tell
-    # """
-    # terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
-
-    # terminal_client_script = """tell application "System Events"
-    #     tell application process "Terminal"
-    #     do script "clear; cd %s; /usr/local/bin/python %s"
-    #     end tell
-    # end tell
-    # """
-    # terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
+    terminal_server_script = convert_line_endings(terminal_server_script, 1)
+    terminal_server_script_path = os.path.join(TEMP_PATH, "terminal_server_script.scpt")
+    f = open(terminal_server_script_path, "w")
+    f.write(terminal_server_script)
+    f.close()
+    pid = subprocess.Popen(["osascript", terminal_server_script_path]).pid
+    
+    terminal_client_script = """set my_path to quoted form of POSIX path of "%s"
+set my_file to quoted form of POSIX path of "%s"
+tell application "System Events"
+    tell application process "Terminal"
+    set frontmost to true
+    keystroke "clear"
+    keystroke return
+    delay 0.25
+    keystroke "cd " & my_path
+    keystroke return
+    delay 0.25
+    keystroke "python " & my_file
+    keystroke return
+    delay 0.25
+    end tell
+end tell
+    """
+    terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
@@ -357,14 +359,14 @@ class MainFrame(wx.Frame):
         if os.path.isfile(path):
             cwd = os.path.split(path)[0]
             if sys.platform == "darwin":
-                script = terminal_script % (cwd, self.panel.editor.path)
+                script = terminal_client_script % (cwd, path)
                 script = convert_line_endings(script, 1)
-                f = open(terminal_script_path, "w")
+                f = codecs.open(terminal_client_script_path, "w", encoding="utf-8")
                 f.write(script)
                 f.close()
-                pid = subprocess.Popen(["osascript", terminal_script_path]).pid
+                pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
             else:
-                pid = subprocess.Popen(["python", self.panel.editor.path], cwd=cwd).pid
+                pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
     ### About ###
     def onHelpAbout(self, evt):
