@@ -12,7 +12,7 @@ Olivier Belanger - 2012
 import sys, os, string, inspect, keyword, wx, codecs, subprocess
 import wx.stc  as  stc
 import wx.aui
-from pyo import OBJECTS_TREE
+from pyo import *
 
 NAME = 'PyoEd'
 VERSION = '0.1.0'
@@ -46,8 +46,20 @@ if sys.platform == "darwin":
 #     terminal_script_path = os.path.join(TEMP_PATH, "terminal_script.scpt")
 
     # Use the same terminal window for each run
+    terminal_close_server_script = """tell application "Terminal" 
+    close window 1
+end tell
+    """
+    terminal_close_server_script = convert_line_endings(terminal_close_server_script, 1)
+    terminal_close_server_script_path = os.path.join(TEMP_PATH, "terminal_close_server_script.scpt")
+
     terminal_server_script = """tell application "Terminal"
     do script ""
+    set a to get id of front window
+    set custom title of tab 1 of window id a to "PyoEd Output"
+    set the number of columns of window 1 to 80
+    set the number of rows of window 1 to 30
+    set the position of window 1 to {810, 25}
 end tell
     """
     terminal_server_script = convert_line_endings(terminal_server_script, 1)
@@ -199,6 +211,8 @@ class MainFrame(wx.Frame):
         menu2.InsertSeparator(19)
         menu2.Append(140, "Goto line...\tCtrl+L")
         menu2.Append(122, "Find...\tCtrl+F")
+        menu2.InsertSeparator(22)
+        menu2.Append(180, "Show Documentation for Current Object\tCtrl+D")
         self.menuBar.Append(menu2, 'Code')
 
         menu3 = wx.Menu()
@@ -241,6 +255,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.runner, id=104)
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
+        self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.Bind(wx.EVT_MENU, self.openPrefs, prefItem)
         self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -463,6 +478,21 @@ class MainFrame(wx.Frame):
             else:
                 pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
+    def showDoc(self, evt):
+        self.doc_frame = wx.Frame(None, -1, title='pyo documentation', size=(1000, 700))
+        self.doc_panel = HelpWin(self.doc_frame)
+        self.doc_frame.Show()
+        page = None
+        if page:
+            page_count = self.doc_panel.GetPageCount()
+            for i in range(page_count):
+                text = self.doc_panel.GetPageText(i)
+                if text == page:
+                    self.doc_panel.SetSelection(i)
+                    return
+        else:
+            self.doc_panel.SetSelection(0)
+
     def onHelpAbout(self, evt):
         info = wx.AboutDialogInfo()
         info.Name = NAME
@@ -472,7 +502,15 @@ class MainFrame(wx.Frame):
         wx.AboutBox(info)
 
     def OnClose(self, event):
+        try:
+            self.doc_frame.Destroy()
+        except:
+            pass
         self.panel.OnQuit()
+        f = open(terminal_close_server_script_path, "w")
+        f.write(terminal_close_server_script)
+        f.close()
+        pid = subprocess.Popen(["osascript", terminal_close_server_script_path]).pid
         self.Destroy()
 
 class MainPanel(wx.Panel):
@@ -786,7 +824,7 @@ class Editor(stc.StyledTextCtrl):
                     self.SaveFile(self.path)
             else:
                 dlg.Destroy()
-Sine
+
     def OnModified(self):
         if self.GetModify() and not self.saveMark:
             title = self.getTitle()
@@ -1090,6 +1128,150 @@ class ProjectTree(wx.Panel):
             if x in string.digits:
                 event.Veto()
                 return
+
+class HelpWin(wx.Treebook):
+    def __init__(self, parent):
+        wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT)
+
+        self.parent = parent
+
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(103, "Close\tCtrl+W", "Closes front window")
+        #quit_item = menu1.Append(120, "Quit\tCtrl+Q")  
+        #if wx.Platform=="__WXMAC__":
+        #    wx.App.SetMacExitMenuItemId(quit_item.GetId())
+        self.menuBar.Append(menu1, 'File')
+
+        self.parent.SetMenuBar(self.menuBar)
+
+        self.parent.Bind(wx.EVT_MENU, self.close, id=103)
+        self.parent.Bind(wx.EVT_CLOSE, self.close)
+
+        max = 0
+        for key in OBJECTS_TREE.keys():
+            max += (len(OBJECTS_TREE)+1)
+
+        dlg = wx.ProgressDialog("Doc", "    Building manual...    ",
+                               maximum = max, parent=self, style = wx.PD_APP_MODAL)
+        keepGoing = True
+        count = 0
+        win = self.makePanel()
+        self.AddPage(win, "--- pyo documentation ---")
+        for key in sorted(OBJECTS_TREE.keys()):
+            count += 1
+            win = self.makePanel(key)
+            self.AddPage(win, key)
+            for obj in OBJECTS_TREE[key]:
+                count += 1
+                win = self.makePanel(obj)
+                self.AddSubPage(win, obj)
+                if count <= max:
+                    (keepGoing, skip) = dlg.Update(count)
+        dlg.Destroy()
+
+        self.setStyle()
+
+        # This is a workaround for a sizing bug on Mac...
+        wx.FutureCall(100, self.AdjustSize)
+
+    def close(self, evt):
+        self.parent.Hide()
+
+    def AdjustSize(self):
+        self.GetTreeCtrl().InvalidateBestSize()
+        self.SendSizeEvent()
+
+    def makePanel(self, obj=None):
+        panel = wx.Panel(self, -1)
+        if obj != None:
+            try:
+                args = '\n\n' + class_args(eval(obj)) + '\n\n'
+            except:
+                args = obj + ':\n\n'
+            try:
+                text = eval(obj).__doc__
+                methods = self.getMethodsDoc(text, obj)
+                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                panel.win.SetMarginWidth(1, 0)
+                panel.win.SetText(args + text + methods)
+            except:
+                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                panel.win.SetText(args + "\nnot documented yet...")
+        else:
+            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+            panel.win.SetText("pyo documentation")
+        panel.win.SetReadOnly(True)   
+        panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        #_ed_set_style(panel.win, True)
+
+        def OnPanelSize(evt, win=panel.win):
+            win.SetPosition((0,0))
+            win.SetSize(evt.GetSize())
+
+        panel.Bind(wx.EVT_SIZE, OnPanelSize)
+        return panel
+
+    def MouseDown(self, evt):
+        stc = self.GetPage(self.GetSelection()).win
+        pos = stc.PositionFromPoint(evt.GetPosition())
+        start = stc.WordStartPosition(pos, False)
+        end = stc.WordEndPosition(pos, False)
+        word = stc.GetTextRange(start, end)
+
+        page_count = self.GetPageCount()
+        for i in range(page_count):
+            text = self.GetPageText(i)
+            if text == word:
+                self.SetSelection(i)
+                stc.SetCurrentPos(0)
+                break
+        evt.Skip()
+
+    def getMethodsDoc(self, text, obj):
+        _DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details']
+        lines = text.splitlines(True)
+        flag = False
+        methods = ''
+        for line in lines:
+            if flag:
+                if line.strip() == '': continue
+                else:
+                    l = line.lstrip()
+                    ppos = l.find('(')
+                    if ppos != -1:
+                        meth = l[0:ppos]
+                        args = inspect.getargspec(getattr(eval(obj), meth))
+                        args = inspect.formatargspec(*args)
+                        methods += obj + '.' + meth + args + ':\n'
+                        docstr = getattr(eval(obj), meth).__doc__.rstrip()
+                        methods += docstr + '\n\n    '
+
+            if 'Methods:' in line: 
+                flag = True
+                methods += 'Methods details:\n\n    '
+
+            for key in _DOC_KEYWORDS:
+                if key != 'Methods':
+                    if key in line: 
+                        flag = False
+
+        return methods
+
+    def setStyle(self):
+        tree = self.GetTreeCtrl()
+        tree.SetBackgroundColour(STYLES['Default']['background'])
+        root = tree.GetRootItem()
+        tree.SetItemTextColour(root, STYLES['Default']['identifier'])
+        (child, cookie) = tree.GetFirstChild(root)
+        while child.IsOk():
+            tree.SetItemTextColour(child, STYLES['Default']['identifier'])
+            if tree.ItemHasChildren(child):
+                (child2, cookie2) = tree.GetFirstChild(child)
+                while child2.IsOk():
+                    tree.SetItemTextColour(child2, STYLES['Default']['identifier'])
+                    (child2, cookie2) = tree.GetNextChild(child, cookie2)
+            (child, cookie) = tree.GetNextChild(root, cookie)
 
 class MyNotebook(wx.aui.AuiNotebook):
     def __init__(self, parent, size=(0,-1), style=wx.aui.AUI_NB_TAB_FIXED_WIDTH | 
