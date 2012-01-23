@@ -3,22 +3,19 @@
 """
 PyoEd is a simple text editor especially configured to edit pyo audio programs.
 
-You can do absolutely everything you want with this piece of software.
+You can do absolutely everything you want to do with this piece of software.
 
 Olivier Belanger - 2012
 
 """
 
-import sys, os, string, inspect, keyword, wx, time, codecs
+import sys, os, string, inspect, keyword, wx, codecs, subprocess
 import wx.stc  as  stc
-import subprocess
 import wx.aui
-from tempfile import *
 from pyo import OBJECTS_TREE
 
 NAME = 'PyoEd'
 VERSION = '0.1.0'
-
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
@@ -50,9 +47,8 @@ if sys.platform == "darwin":
 
     # Use the same terminal window for each run
     terminal_server_script = """tell application "Terminal"
-        activate
-        do script ""
-    end tell
+    do script ""
+end tell
     """
     terminal_server_script = convert_line_endings(terminal_server_script, 1)
     terminal_server_script_path = os.path.join(TEMP_PATH, "terminal_server_script.scpt")
@@ -75,6 +71,9 @@ tell application "System Events"
     keystroke "python " & my_file
     keystroke return
     delay 0.25
+    end tell
+    tell application process "PyoEd"
+    set frontmost to true
     end tell
 end tell
     """
@@ -130,6 +129,22 @@ class MainFrame(wx.Frame):
 
         self.panel = MainPanel(self, size=size)
 
+        if sys.platform == "darwin":
+            accel = wx.ACCEL_CMD
+        else:
+            accel = wx.ACCEL_CTRL
+        aTable = wx.AcceleratorTable([(accel, ord('1'), 10001),
+                                      (accel, ord('2'), 10002),
+                                      (accel, ord('3'), 10003),
+                                      (accel, ord('4'), 10004),
+                                      (accel, ord('5'), 10005),
+                                      (accel, ord('6'), 10006),
+                                      (accel, ord('7'), 10007),
+                                      (accel, ord('8'), 10008),
+                                      (accel, ord('9'), 10009),
+                                      (accel, ord('0'), 10010)])
+        self.SetAcceleratorTable(aTable)
+        
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(110, "New\tCtrl+N")
@@ -153,17 +168,36 @@ class MainFrame(wx.Frame):
         menu1.Append(101, "Save\tCtrl+S")
         menu1.Append(102, "Save As...\tShift+Ctrl+S")
         menu1.Append(111, "Close\tCtrl+W")
-        menu1.InsertSeparator(8)
+        if sys.platform != "darwin":
+            menu1.InsertSeparator(8)
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
-        menu1.InsertSeparator(10)
-        menu1.Append(129, "Quit\tCtrl+Q")
+        if sys.platform != "darwin":
+            menu1.InsertSeparator(10)
+        quitItem = menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
         self.menuBar.Append(menu1, 'File')
 
         menu2 = wx.Menu()
+        menu2.Append(150, "Undo\tCtrl+Z")
+        menu2.Append(151, "Redo\tShift+Ctrl+Z")
+        menu2.InsertSeparator(2)
+        menu2.Append(163, "Cut\tCtrl+X")
+        menu2.Append(160, "Copy\tCtrl+C")
+        menu2.Append(161, "Paste\tCtrl+V")
+        menu2.Append(162, "Select All\tCtrl+A")
+        menu2.InsertSeparator(7)
+        menu2.Append(132, "Zoom in\tCtrl+=")
+        menu2.Append(133, "Zoom out\tCtrl+-")
+        menu2.InsertSeparator(10)
         menu2.Append(103, "Collapse/Expand\tShift+Ctrl+F")
         menu2.Append(108, "Un/Comment Selection\tCtrl+J")
         menu2.Append(114, "Show AutoCompletion\tCtrl+K")
-        menu2.Append(121, "Insert File Path...\tCtrl+L")
+        menu2.Append(121, "Insert File Path...\tCtrl+P")
+        menu2.InsertSeparator(15)
+        menu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
+        menu2.Append(171, "Convert Selection to Lowercase\tShift+Ctrl+U")
+        menu2.Append(172, "Convert Tabs to Spaces")
+        menu2.InsertSeparator(19)
+        menu2.Append(140, "Goto line...\tCtrl+L")
         menu2.Append(122, "Find...\tCtrl+F")
         self.menuBar.Append(menu2, 'Code')
 
@@ -191,23 +225,32 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.save, id=101)
         self.Bind(wx.EVT_MENU, self.saveas, id=102)
         self.Bind(wx.EVT_MENU, self.delete, id=111)
+        self.Bind(wx.EVT_MENU, self.cut, id=163)
+        self.Bind(wx.EVT_MENU, self.copy, id=160)
+        self.Bind(wx.EVT_MENU, self.paste, id=161)
+        self.Bind(wx.EVT_MENU, self.selectall, id=162)
+        self.Bind(wx.EVT_MENU, self.undo, id=150, id2=151)
+        self.Bind(wx.EVT_MENU, self.zoom, id=132, id2=133)
+        self.Bind(wx.EVT_MENU, self.upperLower, id=170, id2=171)
+        self.Bind(wx.EVT_MENU, self.tabsToSpaces, id=172)
+        self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
         self.Bind(wx.EVT_MENU, self.fold, id=103)
+        self.Bind(wx.EVT_MENU, self.autoComp, id=114)
+        self.Bind(wx.EVT_MENU, self.insertPath, id=121)
+        self.Bind(wx.EVT_MENU, self.showFind, id=122)
         self.Bind(wx.EVT_MENU, self.runner, id=104)
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
         self.Bind(wx.EVT_MENU, self.openPrefs, prefItem)
+        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+        self.Bind(wx.EVT_MENU, self.OnClose, quitItem)
 
         if subId2 > 2000:
             for i in range(2000,subId2):
                 self.Bind(wx.EVT_MENU, self.openRecent, id=i)
         for i in range(500, stId):
             self.Bind(wx.EVT_MENU, self.changeStyle, id=i)
-        self.Bind(wx.EVT_MENU, self.autoComp, id=114)
-        self.Bind(wx.EVT_MENU, self.insertPath, id=121)
-        self.Bind(wx.EVT_MENU, self.showFind, id=122)
-
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-        self.Bind(wx.EVT_MENU, self.OnClose, id=129)
 
         if projectsToOpen:
             for p in projectsToOpen:
@@ -219,6 +262,55 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(f)
 
     ### Editor functions ###
+    def cut(self, evt):
+        self.panel.editor.Cut()
+
+    def copy(self, evt):
+        self.panel.editor.Copy()
+
+    def paste(self, evt):
+        self.panel.editor.Paste()
+
+    def selectall(self, evt):
+        self.panel.editor.SelectAll()
+
+    def upperLower(self, evt):
+        if evt.GetId() == 170:
+            self.panel.editor.UpperCase()
+        else:
+            self.panel.editor.LowerCase()
+
+    def tabsToSpaces(self, evt):
+        self.panel.editor.tabsToSpaces()
+
+    def undo(self, evt):
+        if evt.GetId() == 150:
+            self.panel.editor.Undo()
+        else:
+            self.panel.editor.Redo()
+
+    def zoom(self, evt):
+        if evt.GetId() == 132:
+            self.panel.editor.SetZoom(self.panel.editor.GetZoom() + 1)
+        else:
+            self.panel.editor.SetZoom(self.panel.editor.GetZoom() - 1)
+
+    def gotoLine(self, evt):
+        dlg = wx.TextEntryDialog(self, "Enter a line number:", "Go to Line")
+        val = -1
+        if dlg.ShowModal() == wx.ID_OK:
+            try:
+                val = int(dlg.GetValue())
+            except:
+                val = -1
+            dlg.Destroy()
+        if val != -1:
+            pos = self.panel.editor.FindColumn(val-1, 0)
+            self.panel.editor.SetCurrentPos(pos)
+            self.panel.editor.EnsureVisible(val)
+            self.panel.editor.EnsureCaretVisible()
+            wx.CallAfter(self.panel.editor.SetAnchor, pos)
+
     def OnComment(self, evt):
         self.panel.editor.OnComment()
 
@@ -226,9 +318,8 @@ class MainFrame(wx.Frame):
         self.panel.editor.FoldAll()
 
     def autoComp(self, evt):
-        win = self.FindFocus()
         try:
-            win.showAutoComp()
+            self.panel.editor.showAutoComp()
         except AttributeError:
             pass
 
@@ -254,6 +345,10 @@ class MainFrame(wx.Frame):
             ed = self.panel.notebook.GetPage(i)
             ed.setStyle()
         #self.panel.project.setStyle()
+
+    def onSwitchTabs(self, evt):
+        page = evt.GetId() - 10001
+        self.panel.setPage(page)
 
     ### Open Prefs ang Logs ###
     def openPrefs(self, evt):
@@ -368,7 +463,6 @@ class MainFrame(wx.Frame):
             else:
                 pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
-    ### About ###
     def onHelpAbout(self, evt):
         info = wx.AboutDialogInfo()
         info.Name = NAME
@@ -418,6 +512,11 @@ class MainPanel(wx.Panel):
     def deletePage(self):
         ed = self.notebook.GetPage(self.notebook.GetSelection())
         self.notebook.DeletePage(self.notebook.GetSelection())
+
+    def setPage(self, pageNum):
+        totalNum = self.notebook.GetPageCount()
+        if pageNum < totalNum:
+            self.notebook.SetSelection(pageNum)
 
     def onPageChange(self, event):
         self.editor = self.notebook.GetPage(self.notebook.GetSelection())
@@ -490,10 +589,6 @@ class Editor(stc.StyledTextCtrl):
         self.SetMarginSensitive(2, True)
         self.SetMarginWidth(2, 12)
 
-        self.CmdKeyAssign(ord('B'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMIN)
-        self.CmdKeyAssign(ord('N'), stc.STC_SCMOD_CTRL, stc.STC_CMD_ZOOMOUT)
-        self.CmdKeyAssign(ord('Z'), stc.STC_SCMOD_SHIFT+stc.STC_SCMOD_CTRL, stc.STC_CMD_REDO)
-
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -526,58 +621,59 @@ class Editor(stc.StyledTextCtrl):
         self.Refresh()
 
     def setStyle(self):
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_BOXMINUS, faces['markerfg'], faces['markerbg'])
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_BOXPLUS, faces['markerfg'], faces['markerbg'])
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_VLINE, faces['markerfg'], faces['markerbg'])
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_ARROW, faces['markerfg'], faces['markerbg'])
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, faces['markerfg'], faces['markerbg'])
-        self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
-
         # Global default styles for all languages
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces)
         self.StyleClearAll()  # Reset all to be like the default
 
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
-        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces)
-        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,  "fore:#000000,back:%(bracelight)s,bold" % faces)
-        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,    "fore:#000000,back:%(bracebad)s,bold" % faces)
+        ext = os.path.splitext(self.path)[1].strip(".")
+        if ext in ["py", "c5"]:
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_BOXMINUS, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_BOXPLUS, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_VLINE, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_ARROW, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
 
-        self.SetLexer(stc.STC_LEX_PYTHON)
-        self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(self.wordlist))
+            self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,  "fore:#000000,back:%(bracelight)s,bold" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,    "fore:#000000,back:%(bracebad)s,bold" % faces)
 
-        # Default
-        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
-        # Comments
-        self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % faces)
-        # Number
-        self.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % faces)
-        # String
-        self.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
-        # Single quoted string
-        self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
-        # Keyword
-        self.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % faces)
-        # Triple quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces)
-        # Triple double quotes
-        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces)
-        # Class name definition
-        self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % faces)
-        # Function or method name definition
-        self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % faces)
-        # Operators
-        self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % faces)
-        # Identifiers
-        self.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % faces)
-        # Comment-blocks
-        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces)
+            self.SetLexer(stc.STC_LEX_PYTHON)
+            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(self.wordlist))
+
+            # Default
+            self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
+            # Comments
+            self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % faces)
+            # Number
+            self.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % faces)
+            # String
+            self.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
+            # Single quoted string
+            self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
+            # Keyword
+            self.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % faces)
+            # Triple quotes
+            self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces)
+            # Triple double quotes
+            self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces)
+            # Class name definition
+            self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % faces)
+            # Function or method name definition
+            self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % faces)
+            # Operators
+            self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % faces)
+            # Identifiers
+            self.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % faces)
+            # Comment-blocks
+            self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces)
 
         self.SetCaretForeground(faces['caret'])
         self.SetSelBackground(1, faces['selback'])
 
-    ### Find and Replace ###
     def OnShowFindReplace(self):
         data = wx.FindReplaceData()
         self.findReplace = wx.FindReplaceDialog(self, data, "Find & Replace", wx.FR_REPLACEDIALOG | wx.FR_NOUPDOWN)
@@ -628,6 +724,11 @@ class Editor(stc.StyledTextCtrl):
 
     def OnFindClose(self, evt):
         evt.GetDialog().Destroy()
+
+    def tabsToSpaces(self):
+        text = self.GetText()
+        text = text.replace("\t", "    ")
+        self.SetText(text)
 
     ### Save and Close file ###
     def saveMyFile(self, file):
@@ -685,7 +786,7 @@ class Editor(stc.StyledTextCtrl):
                     self.SaveFile(self.path)
             else:
                 dlg.Destroy()
-
+Sine
     def OnModified(self):
         if self.GetModify() and not self.saveMark:
             title = self.getTitle()
