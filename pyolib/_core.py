@@ -88,7 +88,7 @@ def wrap(arg, i):
 if sys.version_info[:2] <= (2, 5):
     def example(cls, dur=5):
         """
-    Runs the example given in the __doc__ string of the object in argument.
+    Execute the example given in the documentation of the object as an argument.
 
     example(cls, dur=5)
 
@@ -124,7 +124,7 @@ if sys.version_info[:2] <= (2, 5):
 else:
     def example(cls, dur=5):
         """
-    Runs the example given in the __doc__ string of the object in argument.
+    Execute the example given in the documentation of the object as an argument.
 
     example(cls, dur=5)
 
@@ -173,12 +173,12 @@ def class_args(cls):
     class_args(cls)
 
     This function takes a class reference (not an instance of that class) 
-    in input and returns the init line of that class with the default values.
+    as input and returns the init line of that class with the default values.
 
     Parameters:
 
     cls : PyoObject class
-        Class reference of the desired object init line.
+        Class reference of the desired object's init line.
 
     Examples:
 
@@ -195,6 +195,8 @@ def class_args(cls):
 def getVersion():
     """
     Returns the version number of the current pyo installation.
+
+    getVersion()
 
     This function returns the version number of the current pyo
     installation as a 3-ints tuple (major, minor, rev). 

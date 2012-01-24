@@ -41,8 +41,14 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
     }
 }
 
+#define portaudio_count_host_apis_info \
+"\nReturns the number of host apis found by Portaudio.\n\npa_count_host_apis()\n\nExamples:\n\n    \
+>>> c = pa_count_host_apis()\n    \
+>>> print c\n    \
+>>> 1\n\n"
+
 static PyObject *
-portaudio_count_host_api(){
+portaudio_count_host_apis(){
     PaError err;
     PaHostApiIndex numApis; 
 
@@ -59,6 +65,10 @@ portaudio_count_host_api(){
     }
 }
 
+#define portaudio_list_host_apis_info \
+"\nPrints a list of all host apis found by Portaudio.\n\npa_list_host_apis()\n\nExamples:\n\n    \
+>>> pa_list_host_apis()\n    \
+>>> index: 0, id: 5, name: Core Audio, num devices: 6, default in: 0, default out: 2\n\n"
 
 static PyObject*
 portaudio_list_host_apis(){
@@ -86,6 +96,12 @@ portaudio_list_host_apis(){
     Py_RETURN_NONE;
 }
 
+#define portaudio_get_default_host_api_info \
+"\nReturns the index number of Portaudio's default host api.\n\npa_get_default_host_api()\n\nExamples:\n\n    \
+>>> h = pa_get_default_host_api()\n    \
+>>> print h\n    \
+>>> 0\n\n"
+
 static PyObject*
 portaudio_get_default_host_api(){
     PaError err;
@@ -107,6 +123,12 @@ portaudio_get_default_host_api(){
     }
 }
 
+#define portaudio_count_devices_info \
+"\nReturns the number of devices found by Portaudio.\n\npa_count_devices()\n\nExamples:\n\n    \
+>>> c = pa_count_devices()\n    \
+>>> print c\n    \
+>>> 6\n\n"
+
 static PyObject*
 portaudio_count_devices(){
     PaError err;
@@ -125,6 +147,20 @@ portaudio_count_devices(){
     }
 
 }
+
+#define portaudio_list_devices_info \
+"\nPrints a list of all devices found by Portaudio.\n\npa_list_devices()\n\nExamples:\n\n    \
+>>> pa_list_devices()\n    \
+>>> AUDIO devices:\n    \
+>>> 0: IN, name: Built-in Microphone, host api index: 0, default sr: 44100 Hz, latency: 0.001088 s\n    \
+>>> 1: IN, name: Built-in Input, host api index: 0, default sr: 44100 Hz, latency: 0.001088 s\n    \
+>>> 2: OUT, name: Built-in Output, host api index: 0, default sr: 44100 Hz, latency: 0.001088 s\n    \
+>>> 3: IN, name: UA-4FX, host api index: 0, default sr: 44100 Hz, latency: 0.010000 s\n    \
+>>> 3: OUT, name: UA-4FX, host api index: 0, default sr: 44100 Hz, latency: 0.003061 s\n    \
+>>> 4: IN, name: Soundflower (2ch), host api index: 0, default sr: 44100 Hz, latency: 0.010000 s\n    \
+>>> 4: OUT, name: Soundflower (2ch), host api index: 0, default sr: 44100 Hz, latency: 0.000000 s\n    \
+>>> 5: IN, name: Soundflower (16ch), host api index: 0, default sr: 44100 Hz, latency: 0.010000 s\n    \
+>>> 5: OUT, name: Soundflower (16ch), host api index: 0, default sr: 44100 Hz, latency: 0.000000 s\n\n"
 
 static PyObject*
 portaudio_list_devices(){
@@ -158,6 +194,12 @@ portaudio_list_devices(){
     }
     Py_RETURN_NONE;
 }
+
+#define portaudio_get_output_devices_info \
+"\nReturns output devices (device names, device indexes) found by Portaudio.\n\npa_get_output_devices()\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortaudio index of each device.\n\nExamples:\n\n    \
+>>> outs = pa_get_output_devices()\n    \
+>>> print outs\n    \
+>>> (['Built-in Output', 'UA-4FX', 'Soundflower (2ch)', 'Soundflower (16ch)'], [2, 3, 4, 5])\n\n"
 
 static PyObject*
 portaudio_get_output_devices(){
@@ -195,6 +237,13 @@ portaudio_get_output_devices(){
     }
 }
 
+#define portaudio_get_input_devices_info \
+"\nReturns input devices (device names, device indexes) found by Portaudio.\n\npa_get_input_devices()\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortaudio index of each device.\n\nExamples:\n\n    \
+>>> ins = pa_get_input_devices()\n    \
+>>> print ins\n    \
+>>> (['Built-in Microphone', 'Built-in Input', 'UA-4FX', 'Soundflower (2ch)', 'Soundflower (16ch)'],\n    \
+>>> [0, 1, 3, 4, 5])\n\n"
+
 static PyObject*
 portaudio_get_input_devices(){
     PaError err;
@@ -231,6 +280,13 @@ portaudio_get_input_devices(){
     }
 }
 
+#define portaudio_get_default_input_info \
+"\nReturns the index number of Portaudio's default input device.\n\npa_get_default_input()\n\nExamples:\n\n    \
+>>> names, indexes = pa_get_input_devices()\n    \
+>>> name = names[indexes.index(pa_get_default_input())]\n    \
+>>> print name\n    \
+>>> 'Built-in Microphone'\n\n"
+
 static PyObject*
 portaudio_get_default_input(){
     PaError err;
@@ -253,6 +309,13 @@ portaudio_get_default_input(){
     }
 
 }
+
+#define portaudio_get_default_output_info \
+"\nReturns the index number of Portaudio's default output device.\n\npa_get_default_output()\n\nExamples:\n\n    \
+>>> names, indexes = pa_get_output_devices()\n    \
+>>> name = names[indexes.index(pa_get_default_output())]\n    \
+>>> print name\n    \
+>>> 'UA-4FX'\n\n"
 
 static PyObject*
 portaudio_get_default_output(){
@@ -278,12 +341,29 @@ portaudio_get_default_output(){
 }
 
 /****** Portmidi utilities ******/
+#define portmidi_count_devices_info \
+"\nReturns the number of devices found by Portmidi.\n\npm_count_devices()\n\nExamples:\n\n    \
+>>> c = pm_count_devices()\n    \
+>>> print c\n    \
+>>> 6\n\n"
+
 static PyObject *
 portmidi_count_devices(){
     int numDevices;
 	numDevices = Pm_CountDevices();
     return PyInt_FromLong(numDevices);
 }
+
+#define portmidi_list_devices_info \
+"\nPrints a list of all devices found by Portmidi.\n\npm_list_devices()\n\nExamples:\n\n    \
+>>> pm_list_devices()\n    \
+>>> MIDI devices:\n    \
+>>> 0: IN, name: IAC Driver Bus 1, interface: CoreMIDI\n    \
+>>> 1: IN, name: from MaxMSP 1, interface: CoreMIDI\n    \
+>>> 2: IN, name: from MaxMSP 2, interface: CoreMIDI\n    \
+>>> 3: OUT, name: IAC Driver Bus 1, interface: CoreMIDI\n    \
+>>> 4: OUT, name: to MaxMSP 1, interface: CoreMIDI\n    \
+>>> 5: OUT, name: to MaxMSP 2, interface: CoreMIDI\n\n"
 
 static PyObject *
 portmidi_list_devices(){
@@ -301,6 +381,12 @@ portmidi_list_devices(){
     printf("\n");
     Py_RETURN_NONE;
 }
+
+#define portmidi_get_input_devices_info \
+"\nReturns midi input devices (device names, device indexes) found by Portmidi.\n\npm_get_input_devices()\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortmidi index of each device.\n\nExamples:\n\n    \
+>>> ins = pm_get_input_devices()\n    \
+>>> print ins\n    \
+>>> (['IAC Driver Bus 1', 'from MaxMSP 1', 'from MaxMSP 2'], [0, 1, 2])\n\n"
 
 static PyObject*
 portmidi_get_input_devices(){
@@ -329,6 +415,12 @@ portmidi_get_input_devices(){
     return Py_BuildValue("OO", list, list_index);
 }
 
+#define portmidi_get_output_devices_info \
+"\nReturns midi output devices (device names, device indexes) found by Portmidi.\n\npm_get_output_devices()\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortmidi index of each device.\n\nExamples:\n\n    \
+>>> outs = pm_get_output_devices()\n    \
+>>> print outs\n    \
+>>> (['IAC Driver Bus 1', 'to MaxMSP 1', 'to MaxMSP 2'], [3, 4, 5])\n\n"
+
 static PyObject*
 portmidi_get_output_devices(){
 	int n, i;
@@ -356,6 +448,13 @@ portmidi_get_output_devices(){
     return Py_BuildValue("OO", list, list_index);
 }
 
+#define portmidi_get_default_input_info \
+"\nReturns the index number of Portmidi's default input device.\n\npm_get_default_input()\n\nExamples:\n\n    \
+>>> names, indexes = pm_get_input_devices()\n    \
+>>> name = names[indexes.index(pm_get_default_input())]\n    \
+>>> print name\n    \
+>>> 'IAC Driver Bus 1'\n\n"
+
 static PyObject *
 portmidi_get_default_input(){
     PmDeviceID i;
@@ -372,6 +471,13 @@ portmidi_get_default_input(){
 
     return PyInt_FromLong(i);
 }
+
+#define portmidi_get_default_output_info \
+"\nReturns the index number of Portmidi's default output device.\n\npm_get_default_output()\n\nExamples:\n\n    \
+>>> names, indexes = pm_get_output_devices()\n    \
+>>> name = names[indexes.index(pm_get_default_output())]\n    \
+>>> print name\n    \
+>>> 'IAC Driver Bus 1'\n\n"
 
 static PyObject *
 portmidi_get_default_output(){
@@ -393,7 +499,7 @@ portmidi_get_default_output(){
 /****** Libsndfile utilities ******/
 #define sndinfo_info \
 "\nRetrieve informations about a soundfile.\n\nsndinfo(path, print=False)\n\n\
-Prints the infos of the given soundfile to the console and returns a tuple containing:\n\n(number of frames, duration in seconds, sampling rate, number of channels, file format, sample type).\n\nsndinfo(path, print=False)\n\nParameters:\n\n    \
+Prints the infos of the given soundfile to the console and returns a tuple containing:\n\n(number of frames, duration in seconds, sampling rate,\nnumber of channels, file format, sample type).\n\nParameters:\n\n    \
 path : string\n        Path of a valid soundfile.\n    \
 print : boolean, optional\n        If True, sndinfo will print sound infos to the console. Defaults to False.\n\nExamples:\n\n    \
 >>> path = SNDS_PATH + '/transparent.aif'\n    \
@@ -601,7 +707,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
 
 /****** Sampling rate conversions ******/
 #define upsamp_info \
-"\nIncreasing the sampling rate of an audio file.\n\nupsamp(path, outfile, up=4, order=128)\n\nParameters:\n\n    \
+"\nIncreases the sampling rate of an audio file.\n\nupsamp(path, outfile, up=4, order=128)\n\nParameters:\n\n    \
 path : string\n        Full path (including extension) of the audio file to convert.\n    \
 outfile : string\n        Full path (including extension) of the new file.\n    \
 up : int, optional\n        Upsampling factor. Defaults to 4.\n    \
@@ -618,7 +724,7 @@ Examples:\n\n    \
 >>> downsamp(upfile, downfile, 3, 256)\n\n"
 
 #define downsamp_info \
-"\nDecreasing the sampling rate of an audio file.\n\ndownsamp(path, outfile, down=4, order=128)\n\nParameters:\n\n    \
+"\nDecreases the sampling rate of an audio file.\n\ndownsamp(path, outfile, down=4, order=128)\n\nParameters:\n\n    \
 path : string\n        Full path (including extension) of the audio file to convert.\n    \
 outfile : string\n        Full path (including extension) of the new file.\n    \
 down : int, optional\n        Downsampling factor. Defaults to 4.\n    \
@@ -911,8 +1017,9 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 /****** Algorithm utilities ******/
 #define reducePoints_info \
 "\nDouglas–Peucker curve reduction algorithm.\n\n\
-reducePoints(pointlist, tolerance=0.02)\n\nThis function receives a list of points as input and returns a simplified list by eliminating redundancies.\n\n\
-A point is a tuple (or a list) of two floats, time and value. A list of points looks like: [(0, 0), (0.1, 0.7), (0.2, 0.5), ...]\n\n\
+reducePoints(pointlist, tolerance=0.02)\n\nThis function receives a list of points as input and returns a simplified list by\neliminating redundancies.\n\n\
+A point is a tuple (or a list) of two floats, time and value. A list of points looks like:\n\n        \
+[(0, 0), (0.1, 0.7), (0.2, 0.5), ...] \n\n\
 Parameters:\n\n    \
 pointlist : list of lists or list of tuples\n        List of points (time, value) to filter.\n    \
 tolerance : float, optional\n        Normalized distance threshold under which a point is\n        excluded from the list. Defaults to 0.02."
@@ -1076,8 +1183,8 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
 
 #define distanceToSegment_info \
 "\nFind the distance from a point to a line or line segment.\n\n\
-distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function returns the shortest distance from a point to a line segment normalized between 0 and 1.\n\n\
-A point is a tuple (or a list) of two floats, time and value. `p` is the point for which to find the distance from line `p1` to `p2`.\n\n\
+distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function returns the shortest distance from a point to a line segment\nnormalized between 0 and 1.\n\n\
+A point is a tuple (or a list) of two floats, time and value. `p` is the point for which\nto find the distance from line `p1` to `p2`.\n\n\
 Parameters:\n\n    \
 p : list or tuple\n        Point for which to find the distance.\n    \
 p1 : list or tuple\n        First point of the segment.\n    \
@@ -1273,9 +1380,9 @@ linToCosCurve(PyObject *self, PyObject *args, PyObject *kwds)
 }
 
 #define rescale_info \
-"\nScales values inside a specific range to another range.\n\n\
-rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function takes data in the range `xmin` - `xmax` and returns corresponding values in the range `ymin` - `ymax`.\n\n\
-`data` can be either a number or a list. Return value is of the same type as `data` with all values rescaled.\n\n\
+"\nConverts values from an input range to an output range.\n\n\
+rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)\n\nThis function takes data in the range `xmin` - `xmax` and returns corresponding values\nin the range `ymin` - `ymax`.\n\n\
+`data` can be either a number or a list. Return value is of the same type as `data`\nwith all values rescaled.\n\n\
 Parameters:\n\n    \
 data : float or list of floats\n        Values to convert.\n    \
 xmin : float, optional\n        Minimum value of the input range.\n    \
@@ -1411,8 +1518,8 @@ rescale(PyObject *self, PyObject *args, PyObject *kwds)
 
 /****** Conversion utilities ******/
 #define midiToHz_info \
-"\nReturns the frequency in Hertz equivalent to the given midi note.\n\nmidiToHz(x)\n\nParameters:\n\n    \
-x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+"\nConverts a midi note value to frequency in Hertz.\n\nmidiToHz(x)\n\nParameters:\n\n    \
+x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\nExamples:\n\n    \
 >>> a = (48, 60, 62, 67, 72)\n    \
 >>> b = midiToHz(a)\n    \
 >>> print b\n    \
@@ -1456,8 +1563,8 @@ midiToHz(PyObject *self, PyObject *arg) {
 }    
 
 #define midiToTranspo_info \
-"\nReturns the transposition factor equivalent to the given midi note (central key = 60).\n\nmidiToTranspo(x)\n\nParameters:\n\n    \
-x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+"\nConverts a midi note value to transposition factor (central key = 60).\n\nmidiToTranspo(x)\n\nParameters:\n\n    \
+x : int or float\n        Midi note. `x` can be a number, a list or a tuple, otherwise the function returns None.\n\nExamples:\n\n    \
 >>> a = (48, 60, 62, 67, 72)\n    \
 >>> b = midiToTranspo(a)\n    \
 >>> print b\n    \
@@ -1501,7 +1608,7 @@ midiToTranspo(PyObject *self, PyObject *arg) {
 }    
 
 #define sampsToSec_info \
-"\nReturns the duration in seconds equivalent to the given number of samples.\n\nsampsToSec(x)\n\nParameters:\n\n    \
+"\nReturns the duration in seconds equivalent to the number of samples given as an argument.\n\nsampsToSec(x)\n\nParameters:\n\n    \
 x : int or float\n        Duration in samples. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
 >>> a = (64, 128, 256)\n    \
 >>> b = sampsToSec(a)\n    \
@@ -1552,7 +1659,7 @@ sampsToSec(PyObject *self, PyObject *arg) {
 }                         
 
 #define secToSamps_info \
-"\nReturns the number of samples equivalent to the given duration in seconds.\n\nsecToSamps(x)\n\nParameters:\n\n    \
+"\nReturns the number of samples equivalent to the duration in seconds given as an argument.\n\nsecToSamps(x)\n\nParameters:\n\n    \
 x : int or float\n        Duration in seconds. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
 >>> a = (0.1, 0.25, 0.5, 1)\n    \
 >>> b = secToSamps(a)\n    \
@@ -1603,6 +1710,14 @@ secToSamps(PyObject *self, PyObject *arg) {
 }                         
 
 /************* Server quieries *************/
+#define serverCreated_info \
+"\nReturns True if a Server object is already created, otherwise, returns False.\n\nserverCreated()\n\nExamples:\n\n    \
+>>> print serverCreated()\n    \
+>>> False\n    \
+>>> s = Server()\n    \
+>>> print serverCreated()\n    \
+>>> True\n\n"
+
 static PyObject *
 serverCreated(PyObject *self) {
     if (PyServer_get_server() != NULL)
@@ -1610,6 +1725,15 @@ serverCreated(PyObject *self) {
     else
         Py_RETURN_FALSE;
 }
+
+#define serverBooted_info \
+"\nReturns True if an already created Server is booted, otherwise, returns False.\n\nserverBooted()\n\nExamples:\n\n    \
+>>> s = Server()\n    \
+>>> print serverBooted()\n    \
+>>> False\n    \
+>>> s.boot()\n    \
+>>> print serverBooted()\n    \
+>>> True\n\n"
 
 static PyObject *
 serverBooted(PyObject *self) {
@@ -1630,21 +1754,21 @@ serverBooted(PyObject *self) {
 }
 
 static PyMethodDef pyo_functions[] = {
-{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, "Returns the number of devices found by Portaudio."},
-{"pa_count_host_apis", (PyCFunction)portaudio_count_host_api, METH_NOARGS, "Returns the number of host apis found by Portaudio."},
-{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, "Prints a list of all devices found by Portaudio."},
-{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, "\nReturns output devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portaudio index of each device."},
-{"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, "\nReturns input devices (device names, device indexes) found by Portaudio.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portaudio index of each device."},
-{"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, "Prints a list of all host apis found by Portaudio."},
-{"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, "Returns Portaudio default input device."},
-{"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, "Returns Portaudio default host_api."},
-{"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, "Returns Portaudio default output device."},
-{"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, "Returns the number of devices found by Portmidi."},
-{"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, "Prints a list of all devices found by Portmidi."},
-{"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, "\nReturns Midi input devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portmidi index of each device."},
-{"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, "\nReturns Portmidi default input device.\n\n Returns the device id or -1 if no interface was found."},
-{"pm_get_output_devices", (PyCFunction)portmidi_get_output_devices, METH_NOARGS, "\nReturns Midi output devices (device names, device indexes) found by Portmidi.\n\n`device names` is a list of strings and `device indexes` is a list of the actual Portmidi index of each device."},
-{"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, "\nReturns Portmidi default output device.\n\n Returns the device id or -1 if no interface was found."},
+{"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, portaudio_count_devices_info},
+{"pa_count_host_apis", (PyCFunction)portaudio_count_host_apis, METH_NOARGS, portaudio_count_host_apis_info},
+{"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, portaudio_list_devices_info},
+{"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, portaudio_get_output_devices_info},
+{"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, portaudio_get_input_devices_info},
+{"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, portaudio_list_host_apis_info},
+{"pa_get_default_input", (PyCFunction)portaudio_get_default_input, METH_NOARGS, portaudio_get_default_input_info},
+{"pa_get_default_host_api", (PyCFunction)portaudio_get_default_host_api, METH_NOARGS, portaudio_get_default_host_api_info},
+{"pa_get_default_output", (PyCFunction)portaudio_get_default_output, METH_NOARGS, portaudio_get_default_output_info},
+{"pm_count_devices", (PyCFunction)portmidi_count_devices, METH_NOARGS, portmidi_count_devices_info},
+{"pm_list_devices", (PyCFunction)portmidi_list_devices, METH_NOARGS, portmidi_list_devices_info},
+{"pm_get_input_devices", (PyCFunction)portmidi_get_input_devices, METH_NOARGS, portmidi_get_input_devices_info},
+{"pm_get_default_input", (PyCFunction)portmidi_get_default_input, METH_NOARGS, portmidi_get_default_input_info},
+{"pm_get_output_devices", (PyCFunction)portmidi_get_output_devices, METH_NOARGS, portmidi_get_output_devices_info},
+{"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, portmidi_get_default_output_info},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
 {"upsamp", (PyCFunction)upsamp, METH_VARARGS|METH_KEYWORDS, upsamp_info},
@@ -1657,8 +1781,8 @@ static PyMethodDef pyo_functions[] = {
 {"midiToTranspo", (PyCFunction)midiToTranspo, METH_O, midiToTranspo_info},
 {"sampsToSec", (PyCFunction)sampsToSec, METH_O, sampsToSec_info},
 {"secToSamps", (PyCFunction)secToSamps, METH_O, secToSamps_info},
-{"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, "Returns True if a Server object is already created, otherwise, returns False."},
-{"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, "Returns True if an already created Server is booted, otherwise, returns False."},
+{"serverCreated", (PyCFunction)serverCreated, METH_NOARGS, serverCreated_info},
+{"serverBooted", (PyCFunction)serverBooted, METH_NOARGS, serverBooted_info},
 {NULL, NULL, 0, NULL},
 };
 

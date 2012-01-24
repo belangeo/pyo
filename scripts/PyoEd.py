@@ -1190,11 +1190,17 @@ class HelpWin(wx.Treebook):
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
-        menu1.Append(103, "Close\tCtrl+W", "Closes front window")
+        menu1.Append(5003, "Close\tCtrl+W", "Closes front window")
         self.menuBar.Append(menu1, 'File')
+
+        menu2 = wx.Menu()
+        menu2.Append(5010, "Copy\tCtrl+C")
+        self.menuBar.Append(menu2, 'Edit')
+
         self.parent.SetMenuBar(self.menuBar)
 
-        self.parent.Bind(wx.EVT_MENU, self.close, id=103)
+        self.parent.Bind(wx.EVT_MENU, self.copy, id=5010)
+        self.parent.Bind(wx.EVT_MENU, self.close, id=5003)
         self.parent.Bind(wx.EVT_CLOSE, self.close)
 
         headers = ["Server", "PyoObject", "PyoTableObject", "PyoMatrixObject", "Map", "Stream", "TableStream", "functions"]
@@ -1250,6 +1256,9 @@ class HelpWin(wx.Treebook):
         # This is a workaround for a sizing bug on Mac...
         wx.FutureCall(100, self.AdjustSize)
 
+    def copy(self, evt):
+        self.GetPage(self.GetSelection()).win.Copy()
+
     def close(self, evt):
         self.parent.Hide()
 
@@ -1264,7 +1273,7 @@ class HelpWin(wx.Treebook):
                 args = '\n' + class_args(eval(obj)) + '\n'
                 isAnObject = True
             except:
-                args = obj + ':\n\n'
+                args = '\n' + obj + ':\n'
                 if obj in OBJECTS_TREE["functions"]:
                     isAnObject = True
                 else:
@@ -1276,7 +1285,8 @@ class HelpWin(wx.Treebook):
                     inside_examples = False
                     for line in text.splitlines():
                         if inside_examples and line.strip() == "":
-                            text_form += "s.gui(locals())"
+                            if obj not in OBJECTS_TREE["functions"]:
+                                text_form += "s.gui(locals())"
                             inside_examples = False
                         if '>>>' in line or '...' in line:
                             l = line[8:]
