@@ -1,5 +1,5 @@
 """
-Call Python functions from triggers or number counts.
+Call Python functions from triggers or number counts. Useful for event sequencing.
 
 """
 
