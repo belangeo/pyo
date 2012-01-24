@@ -1,5 +1,5 @@
 """
-Objects to modify the dynamic range and sample quality of audio streams.
+Objects to modify the dynamic range and sample quality of audio signals.
 
 """
 

@@ -4,7 +4,7 @@ Fast Fourier Transform.
 A Fast Fourier Transform (FFT) is an efficient algorithm to compute 
 the discrete Fourier transform (DFT) and its inverse (IFFT).
 
-The objects below can be used to perform sound modification in the 
+The objects below can be used to perform sound processing in the 
 spectral domain.
 
 """
