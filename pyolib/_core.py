@@ -88,21 +88,21 @@ def wrap(arg, i):
 if sys.version_info[:2] <= (2, 5):
     def example(cls, dur=5):
         """
-        Runs the example given in the __doc__ string of the object in argument.
-    
-        example(cls, dur=5)
-    
-        Parameters:
-    
-        cls : PyoObject class
-            Class reference of the desired object example.
-        dur : float, optional
-            Duration of the example.
-        
-        Examples:
-        
-        >>> example(Sine)
-        
+    Runs the example given in the __doc__ string of the object in argument.
+
+    example(cls, dur=5)
+
+    Parameters:
+
+    cls : PyoObject class
+        Class reference of the desired object example.
+    dur : float, optional
+        Duration of the example.
+
+    Examples:
+
+    >>> example(Sine)
+
         """
         doc = cls.__doc__.split("Examples:")[1]
         lines = doc.splitlines()
@@ -124,21 +124,21 @@ if sys.version_info[:2] <= (2, 5):
 else:
     def example(cls, dur=5):
         """
-        Runs the example given in the __doc__ string of the object in argument.
-    
-        example(cls, dur=5)
-    
-        Parameters:
-    
-        cls : PyoObject class
-            Class reference of the desired object example.
-        dur : float, optional
-            Duration of the example.
+    Runs the example given in the __doc__ string of the object in argument.
 
-        Examples:
+    example(cls, dur=5)
 
-        >>> example(Sine)
-        
+    Parameters:
+
+    cls : PyoObject class
+        Class reference of the desired object example.
+    dur : float, optional
+        Duration of the example.
+
+    Examples:
+
+    >>> example(Sine)
+
         """
         doc = cls.__doc__.split("Examples:")[1]
         lines = doc.splitlines()
@@ -169,19 +169,19 @@ def removeExtraDecimals(x):
 def class_args(cls):
     """
     Returns the init line of a class reference.
-    
+
     class_args(cls)
-    
+
     This function takes a class reference (not an instance of that class) 
     in input and returns the init line of that class with the default values.
-    
+
     Parameters:
-    
+
     cls : PyoObject class
         Class reference of the desired object init line.
 
     Examples:
-    
+
     >>> print class_args(Sine)
     >>> 'Sine(freq=1000, phase=0, mul=1, add=0)'
 
@@ -200,11 +200,11 @@ def getVersion():
     installation as a 3-ints tuple (major, minor, rev). 
 
     The returned tuple for version '0.4.1' will look like :
-    
+
     (0, 4, 1)
 
     Examples:
-    
+
     >>> print getVersion()
     >>> (0, 5, 1)
 

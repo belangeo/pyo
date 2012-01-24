@@ -134,6 +134,10 @@ styles = STYLES.keys()
 
 for key, value in STYLES[conf['preferedStyle']].items():
     faces[key] = value
+faces2 = faces.copy()
+faces2['size3'] = faces2['size2'] + 4
+for key, value in STYLES['Default'].items():
+    faces2[key] = value
 
 class MainFrame(wx.Frame):
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
@@ -479,7 +483,7 @@ class MainFrame(wx.Frame):
                 pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
     def showDoc(self, evt):
-        self.doc_frame = wx.Frame(None, -1, title='pyo documentation', size=(1000, 700))
+        self.doc_frame = wx.Frame(None, -1, title='pyo documentation', size=(940, 700))
         self.doc_panel = HelpWin(self.doc_frame)
         self.doc_frame.Show()
         page = None
@@ -1129,47 +1133,118 @@ class ProjectTree(wx.Panel):
                 event.Veto()
                 return
 
+_DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'Overview']
+_KEYWORDS_LIST = []
+def _ed_set_style(editor):
+    editor.SetLexer(stc.STC_LEX_PYTHON)
+    editor.SetKeyWords(0, " None True False " + " ".join(_KEYWORDS_LIST))
+    editor.SetKeyWords(1, " ".join(_DOC_KEYWORDS))
+
+    editor.SetMargins(5,5)
+    editor.SetSTCCursor(2)
+    editor.SetIndent(4)
+    editor.SetTabIndents(True)
+    editor.SetTabWidth(4)
+    editor.SetUseTabs(False)
+
+    # Global default styles for all languages
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,  "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces2)
+    editor.StyleClearAll()  # Reset all to be like the default
+
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % faces2)
+    editor.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces2)
+    editor.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces2)
+
+    # Default
+    editor.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces2)
+    # Comments
+    editor.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % faces2)
+    # Number
+    editor.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % faces2)
+    # String
+    editor.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces2)
+    # Single quoted string
+    editor.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces2)
+    # Keyword
+    editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % faces2)
+    editor.StyleSetSpec(stc.STC_P_WORD2, "fore:%(comment)s,face:%(face)s,bold,size:%(size3)d" % faces2)
+    # Triple quotes
+    editor.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces2)
+    # Triple double quotes
+    editor.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces2)
+    # Class name definition
+    editor.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % faces2)
+    # Function or method name definition
+    editor.StyleSetSpec(stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % faces2)
+    # Operators
+    editor.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % faces2)
+    # Identifiers
+    editor.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % faces2)
+    # Comment-blocks
+    editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces2)
+
 class HelpWin(wx.Treebook):
     def __init__(self, parent):
         wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT)
-
         self.parent = parent
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(103, "Close\tCtrl+W", "Closes front window")
-        #quit_item = menu1.Append(120, "Quit\tCtrl+Q")  
-        #if wx.Platform=="__WXMAC__":
-        #    wx.App.SetMacExitMenuItemId(quit_item.GetId())
         self.menuBar.Append(menu1, 'File')
-
         self.parent.SetMenuBar(self.menuBar)
 
         self.parent.Bind(wx.EVT_MENU, self.close, id=103)
         self.parent.Bind(wx.EVT_CLOSE, self.close)
 
-        max = 0
-        for key in OBJECTS_TREE.keys():
-            max += (len(OBJECTS_TREE)+1)
+        headers = ["Server", "PyoObject", "PyoTableObject", "PyoMatrixObject", "Map", "Stream", "TableStream", "functions"]
+        _KEYWORDS_LIST.extend(headers)
+        tree = OBJECTS_TREE
+        max = 1
+        max += len(headers)
+        for k1 in headers:
+            if type(tree[k1]) == type({}):
+                max += len(tree[k1].keys())
+                for k2 in tree[k1].keys():
+                    _KEYWORDS_LIST.extend(tree[k1][k2])
+                    max += len(tree[k1][k2])
+            else:
+                _KEYWORDS_LIST.extend(tree[k1])
+                max += len(tree[k1])
 
-        dlg = wx.ProgressDialog("Doc", "    Building manual...    ",
+        dlg = wx.ProgressDialog("Pyo Documentation", "    Building manual...    ",
                                maximum = max, parent=self, style = wx.PD_APP_MODAL)
         keepGoing = True
         count = 0
         win = self.makePanel()
         self.AddPage(win, "--- pyo documentation ---")
-        for key in sorted(OBJECTS_TREE.keys()):
-            count += 1
-            win = self.makePanel(key)
-            self.AddPage(win, key)
-            for obj in OBJECTS_TREE[key]:
+        for key in headers:
+            if type(OBJECTS_TREE[key]) == type([]):
                 count += 1
-                win = self.makePanel(obj)
-                self.AddSubPage(win, obj)
-                if count <= max:
-                    (keepGoing, skip) = dlg.Update(count)
+                win = self.makePanel(key)
+                self.AddPage(win, key)
+                for obj in OBJECTS_TREE[key]:
+                    count += 1
+                    win = self.makePanel(obj)
+                    self.AddSubPage(win, obj)
+                    if count <= max:
+                        (keepGoing, skip) = dlg.Update(count)
+            else:
+                if key == "PyoObject":
+                    count += 1
+                    win = self.makePanel("PyoObject")
+                    self.AddPage(win, "PyoObject")
+                for key2 in sorted(OBJECTS_TREE[key]):
+                    count += 1
+                    win = self.makePanel("%s" % key2)
+                    self.AddPage(win, "PyoObj - %s" % key2)
+                    for obj in OBJECTS_TREE[key][key2]:
+                        count += 1
+                        win = self.makePanel(obj)
+                        self.AddSubPage(win, obj)
+                        if count <= max:
+                            (keepGoing, skip) = dlg.Update(count)
         dlg.Destroy()
-
         self.setStyle()
 
         # This is a workaround for a sizing bug on Mac...
@@ -1186,24 +1261,74 @@ class HelpWin(wx.Treebook):
         panel = wx.Panel(self, -1)
         if obj != None:
             try:
-                args = '\n\n' + class_args(eval(obj)) + '\n\n'
+                args = '\n' + class_args(eval(obj)) + '\n'
+                isAnObject = True
             except:
                 args = obj + ':\n\n'
-            try:
-                text = eval(obj).__doc__
-                methods = self.getMethodsDoc(text, obj)
+                if obj in OBJECTS_TREE["functions"]:
+                    isAnObject = True
+                else:
+                    isAnObject = False
+            if isAnObject:
+                try:
+                    text = eval(obj).__doc__
+                    text_form = last_line = ""
+                    inside_examples = False
+                    for line in text.splitlines():
+                        if inside_examples and line.strip() == "":
+                            text_form += "s.gui(locals())"
+                            inside_examples = False
+                        if '>>>' in line or '...' in line:
+                            l = line[8:]
+                            if l.strip() != "":
+                                text_form += l + '\n'
+                        else:
+                            if line.startswith("    "):
+                                text_form += line[4:].rstrip() + '\n'
+                            else:
+                                text_form += line.rstrip() + '\n'
+                        if 'Examples' in last_line:
+                            text_form += "from pyo import *\n"
+                            inside_examples = True
+                        last_line = line
+                    methods = self.getMethodsDoc(text, obj)
+                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                    panel.win.SetMarginWidth(1, 0)
+                    panel.win.SetText(args + text_form + methods)
+                except:
+                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                    panel.win.SetText(args + "\nnot documented yet...\n\n")
+            else:
+                try:
+                    text = eval(obj).__doc__
+                except:
+                    text = "\nnot documented yet...\n\n"
+                if obj in OBJECTS_TREE["PyoObject"].keys():
+                    text += "\nOverview:\n"
+                    for o in OBJECTS_TREE["PyoObject"][obj]:
+                        text += o + ": " + self.getDocFirstLine(o)
                 panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
                 panel.win.SetMarginWidth(1, 0)
-                panel.win.SetText(args + text + methods)
-            except:
-                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                panel.win.SetText(args + "\nnot documented yet...")
+                panel.win.SetText(text)
         else:
             panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-            panel.win.SetText("pyo documentation")
-        panel.win.SetReadOnly(True)   
+            panel.win.SetText("""
+pyo is a Python module written in C to help digital signal processing script creation.
+
+pyo is a Python module containing classes for a wide variety of audio signal processing types. 
+With pyo, user will be able to include signal processing chains directly in Python scripts or 
+projects, and to manipulate them in real time through the interpreter. Tools in pyo module 
+offer primitives, like mathematical operations on audio signal, basic signal processing 
+(filters, delays, synthesis generators, etc.), but also complex algorithms to create sound 
+granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound 
+Control), to ease communications between softwares, and MIDI protocol, for generating sound 
+events and controlling process parameters. pyo allows creation of sophisticated signal 
+processing chains with all the benefits of a mature, and wild used, general programming 
+language.
+""")
+        panel.win.SetReadOnly(True)
         panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-        #_ed_set_style(panel.win, True)
+        _ed_set_style(panel.win)
 
         def OnPanelSize(evt, win=panel.win):
             win.SetPosition((0,0))
@@ -1228,8 +1353,25 @@ class HelpWin(wx.Treebook):
                 break
         evt.Skip()
 
+    def getDocFirstLine(self, obj):
+        try:
+            text = eval(obj).__doc__
+            if text == None:
+                text = ''
+        except:
+            text = ''
+
+        if text != '':
+            spl = text.split('\n')
+            if len(spl) == 1:
+                f = spl[0]
+            else:
+                f = spl[1]
+        else:
+            f = text
+        return f.strip() + "\n"
+
     def getMethodsDoc(self, text, obj):
-        _DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details']
         lines = text.splitlines(True)
         flag = False
         methods = ''
@@ -1243,20 +1385,25 @@ class HelpWin(wx.Treebook):
                         meth = l[0:ppos]
                         args = inspect.getargspec(getattr(eval(obj), meth))
                         args = inspect.formatargspec(*args)
+                        args = args.replace('self, ', '')
                         methods += obj + '.' + meth + args + ':\n'
                         docstr = getattr(eval(obj), meth).__doc__.rstrip()
                         methods += docstr + '\n\n    '
 
             if 'Methods:' in line: 
                 flag = True
-                methods += 'Methods details:\n\n    '
+                methods += '    Methods details:\n\n    '
 
             for key in _DOC_KEYWORDS:
                 if key != 'Methods':
                     if key in line: 
                         flag = False
 
-        return methods
+        methods_form = ''
+        if methods != '':
+            for line in methods.splitlines():
+                methods_form += line[4:] + '\n'
+        return methods_form
 
     def setStyle(self):
         tree = self.GetTreeCtrl()
