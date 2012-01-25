@@ -7,6 +7,12 @@ You can do absolutely everything you want to do with this piece of software.
 
 Olivier Belanger - 2012
 
+TODO:
+    - Undo / Redo in Code menu
+    - ZoomIn / ZoomOut in Code Menu
+    - Manula menu
+    - Shortcut to play the example
+
 """
 
 import sys, os, string, inspect, keyword, wx, codecs, subprocess
@@ -511,10 +517,11 @@ class MainFrame(wx.Frame):
         except:
             pass
         self.panel.OnQuit()
-        f = open(terminal_close_server_script_path, "w")
-        f.write(terminal_close_server_script)
-        f.close()
-        pid = subprocess.Popen(["osascript", terminal_close_server_script_path]).pid
+        if sys.platform == "darwin":
+            f = open(terminal_close_server_script_path, "w")
+            f.write(terminal_close_server_script)
+            f.close()
+            pid = subprocess.Popen(["osascript", terminal_close_server_script_path]).pid
         self.Destroy()
 
 class MainPanel(wx.Panel):
