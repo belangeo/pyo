@@ -97,6 +97,59 @@ end tell
     """
     terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
+################## TEMPLATES ##################
+PYO_TEMPLATE = """from pyo import *
+
+s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
+
+
+
+
+s.gui(locals())
+"""
+
+CECILIA5_TEMPLATE = '''class Module(BaseModule):
+    """
+    Module's documentation
+    
+    """
+    def __init__(self):
+        BaseModule.__init__(self)
+        self.snd = self.addSampler("snd")
+        self.out = Mix(self.snd, voices=self.nchnls, mul=self.env)
+
+
+Interface = [
+    csampler(name="snd"),
+    cgraph(name="env", label="Overall Amplitude", func=[(0,1),(1,1)], col="blue"),
+    cpoly()
+]
+'''
+
+ZYNE_TEMPLATE = '''class MySynth(BaseSynth):
+    """
+    Synth's documentation
+
+    """
+    def __init__(self, config):
+        # `mode` handles pitch conversion : 1 for hertz, 2 for transpo, 3 for midi
+        BaseSynth.__init__(self, config, mode=1)
+        self.fm1 = FM(self.pitch, ratio=self.p1, index=self.p2, mul=self.amp*self.panL).mix(1)
+        self.fm2 = FM(self.pitch*0.997, ratio=self.p1, index=self.p2, mul=self.amp*self.panR).mix(1)
+        self.filt1 = Biquad(self.fm1, freq=self.p3, q=1, type=0)
+        self.filt2 = Biquad(self.fm2, freq=self.p3, q=1, type=0)
+        self.out = Mix([self.filt1, self.filt2], voices=2)
+
+
+MODULES = {
+            "MySynth": { "title": "- Generic module -", "synth": MySynth, 
+                    "p1": ["Ratio", 0.5, 0, 10, False, False],
+                    "p2": ["Index", 5, 0, 20, False, False],
+                    "p3": ["LP cutoff", 4000, 100, 15000, False, True]
+                    },
+          }
+'''
+
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
 STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
@@ -125,7 +178,7 @@ STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock'
 
             'Espresso': {'default': '#BDAE9C', 'comment': '#0066FF', 'commentblock': '#0044DD', 'selback': '#5D544F',
                          'number': '#44AA43', 'string': '#2FE420', 'triple': '#049B0A', 'keyword': '#43A8ED',
-                         'class': '#6D79DE', 'function': '#7290D9', 'identifier': '#BDAE9C', 'caret': '#DDDDDD',
+                         'class': '#EE8247', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#DDDDDD',
                          'background': '#2A211C', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
                          'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000'}
                          }
@@ -170,6 +223,11 @@ class MainFrame(wx.Frame):
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(110, "New\tCtrl+N")
+        self.submenu1 = wx.Menu()
+        self.submenu1.Append(98, "Pyo Template")
+        self.submenu1.Append(97, "Cecilia5 Template")
+        self.submenu1.Append(96, "Zyne Template")
+        menu1.AppendMenu(99, "New From Template", self.submenu1)
         menu1.Append(100, "Open\tCtrl+O")
         menu1.Append(112, "Open Project\tShift+Ctrl+O")
         self.submenu2 = wx.Menu()
@@ -186,15 +244,15 @@ class MainFrame(wx.Frame):
                 self.submenu2.Append(subId2, file)
                 subId2 += 1
         menu1.AppendMenu(998, "Open Recent...", self.submenu2)
-        menu1.InsertSeparator(4)
+        menu1.InsertSeparator(5)
         menu1.Append(101, "Save\tCtrl+S")
         menu1.Append(102, "Save As...\tShift+Ctrl+S")
         menu1.Append(111, "Close\tCtrl+W")
         if sys.platform != "darwin":
-            menu1.InsertSeparator(8)
+            menu1.InsertSeparator(9)
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
         if sys.platform != "darwin":
-            menu1.InsertSeparator(10)
+            menu1.InsertSeparator(11)
         quitItem = menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
         self.menuBar.Append(menu1, 'File')
 
@@ -244,6 +302,7 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(self.menuBar)
 
         self.Bind(wx.EVT_MENU, self.new, id=110)
+        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=96, id2=98)
         self.Bind(wx.EVT_MENU, self.open, id=100)
         self.Bind(wx.EVT_MENU, self.openProject, id=112)
         self.Bind(wx.EVT_MENU, self.save, id=101)
@@ -383,6 +442,11 @@ class MainFrame(wx.Frame):
     def new(self, event):
         self.panel.addNewPage()
 
+    def newFromTemplate(self, event):
+        self.panel.addNewPage()
+        temp = {98: PYO_TEMPLATE, 97: CECILIA5_TEMPLATE, 96: ZYNE_TEMPLATE}[event.GetId()]
+        self.panel.editor.SetText(temp)
+
     def newRecent(self, file):
         filename = os.path.join(TEMP_PATH,'.recent.txt')
         try:
@@ -442,7 +506,7 @@ class MainFrame(wx.Frame):
         self.panel.addPage(file[:-1])
 
     def save(self, event):
-        if not self.panel.editor.path:
+        if not self.panel.editor.path or self.panel.editor.path == "Untitled.py":
             self.saveas(None)
         else:
             self.panel.editor.saveMyFile(self.panel.editor.path)
@@ -541,7 +605,9 @@ class MainPanel(wx.Panel):
 
     def addNewPage(self):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        self.notebook.AddPage(editor, "Untitled", True)
+        editor.path = "Untitled.py"
+        editor.setStyle()
+        self.notebook.AddPage(editor, "Untitled.py", True)
         self.editor = editor
 
     def addPage(self, file):
