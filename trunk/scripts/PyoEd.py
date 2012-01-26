@@ -25,6 +25,7 @@ VERSION = '0.1.0'
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
+DOC_PATH = os.path.join(TEMP_PATH, 'doc')
 
 def convert_line_endings(temp, mode):
         #modes:  0 - Unix, 1 - Mac, 2 - DOS
@@ -156,31 +157,31 @@ STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock'
                     'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F',
                     'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
                     'background': '#FFFFFF', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
-                      'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000'},
+                      'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'},
 
            'Custom': {'default': '#FFFFFF', 'comment': '#9FFF9F', 'commentblock': '#7F7F7F', 'selback': '#333333',
                       'number': '#90CB43', 'string': '#FF47D7', 'triple': '#FF3300', 'keyword': '#4A94FF',
                       'class': '#4AF3FF', 'function': '#00E0B6', 'identifier': '#FFFFFF', 'caret': '#DDDDDD',
                       'background': '#000000', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                      'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000'},
+                      'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#222222'},
 
             'Soft': {'default': '#000000', 'comment': '#444444', 'commentblock': '#7F7F7F', 'selback': '#CBCBCB',
                      'number': '#222222', 'string': '#272727', 'triple': '#333333', 'keyword': '#000000',
                      'class': '#666666', 'function': '#555555', 'identifier': '#000000', 'caret': '#222222',
                      'background': '#EFEFEF', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                     'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000'},
+                     'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CDCDCD'},
 
             'Smooth': {'default': '#FFFFFF', 'comment': '#DD0000', 'commentblock': '#AF0000', 'selback': '#555555',
                        'number': '#FFFFFF', 'string': '#00EE00', 'triple': '#00AA00', 'keyword': '#9999FF',
                        'class': '#00FFA2', 'function': '#00FFD5', 'identifier': '#CCCCCC', 'caret': '#EEEEEE',
                        'background': '#222222', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                       'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000'},
+                       'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#333333'},
 
             'Espresso': {'default': '#BDAE9C', 'comment': '#0066FF', 'commentblock': '#0044DD', 'selback': '#5D544F',
                          'number': '#44AA43', 'string': '#2FE420', 'triple': '#049B0A', 'keyword': '#43A8ED',
-                         'class': '#EE8247', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#DDDDDD',
+                         'class': '#E5757B', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#DDDDDD',
                          'background': '#2A211C', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                         'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000'}
+                         'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#3B322D'}
                          }
 if wx.Platform == '__WXMSW__':
     faces = {'face': 'Courier', 'size' : 10, 'size2': 8}
@@ -344,6 +345,8 @@ class MainFrame(wx.Frame):
         if filesToOpen:
             for f in filesToOpen:
                 self.panel.addPage(f)
+
+        wx.CallAfter(self.buildDoc)
 
     ### Editor functions ###
     def cut(self, evt):
@@ -552,11 +555,14 @@ class MainFrame(wx.Frame):
             else:
                 pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
-    def showDoc(self, evt):
+    def buildDoc(self):
         self.doc_frame = wx.Frame(None, -1, title='pyo documentation', size=(940, 700))
         self.doc_panel = HelpWin(self.doc_frame)
-        self.doc_frame.Show()
-        page = None
+
+    def showDoc(self, evt):
+        if not self.doc_frame.IsShown():
+            self.doc_frame.Show()
+        page = self.panel.editor.getWordUnderCaret()
         if page:
             page_count = self.doc_panel.GetPageCount()
             for i in range(page_count):
@@ -564,6 +570,7 @@ class MainFrame(wx.Frame):
                 if text == page:
                     self.doc_panel.SetSelection(i)
                     return
+            self.doc_panel.SetSelection(0)
         else:
             self.doc_panel.SetSelection(0)
 
@@ -694,8 +701,9 @@ class Editor(stc.StyledTextCtrl):
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(5,5)
         self.SetUseAntiAliasing(True)
-        self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
-        self.SetEdgeColumn(1000)
+        self.SetEdgeColour(faces["lineedge"])
+        self.SetEdgeMode(stc.STC_EDGE_LINE)
+        self.SetEdgeColumn(78)
 
         self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(1, 28)
@@ -786,6 +794,7 @@ class Editor(stc.StyledTextCtrl):
             # Comment-blocks
             self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces)
 
+        self.SetEdgeColour(faces["lineedge"])
         self.SetCaretForeground(faces['caret'])
         self.SetSelBackground(1, faces['selback'])
 
@@ -910,14 +919,19 @@ class Editor(stc.StyledTextCtrl):
             self.saveMark = True
 
     ### Editor functions ###
+    def getWordUnderCaret(self):
+        caretPos = self.GetCurrentPos()
+        startpos = self.WordStartPosition(caretPos, True)
+        endpos = self.WordEndPosition(caretPos, True)
+        currentword = self.GetTextRange(startpos, endpos)
+        return currentword
+
     def showAutoComp(self):
         charBefore = None
         caretPos = self.GetCurrentPos()
         if caretPos > 0:
             charBefore = self.GetCharAt(caretPos - 1)
-        startpos = self.WordStartPosition(caretPos, True)
-        endpos = self.WordEndPosition(caretPos, True)
-        currentword = self.GetTextRange(startpos, endpos)
+        currentword = self.getWordUnderCaret()
         if chr(charBefore) in self.alphaStr:
             list = ''
             for word in self.wordlist:
@@ -1291,11 +1305,17 @@ class HelpWin(wx.Treebook):
                 _KEYWORDS_LIST.extend(tree[k1])
                 max += len(tree[k1])
 
+        self.needToParse = False
+        if not os.path.isdir(DOC_PATH):
+            os.mkdir(DOC_PATH)
+            self.needToParse = True
+        
         dlg = wx.ProgressDialog("Pyo Documentation", "    Building manual...    ",
-                               maximum = max, parent=self, style = wx.PD_APP_MODAL)
+                               maximum = max, parent=self, style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
+        dlg.SetSize((300, 100))
         keepGoing = True
         count = 0
-        win = self.makePanel()
+        win = self.makePanel("Index")
         self.AddPage(win, "--- pyo documentation ---")
         for key in headers:
             if type(OBJECTS_TREE[key]) == type([]):
@@ -1341,61 +1361,62 @@ class HelpWin(wx.Treebook):
 
     def makePanel(self, obj=None):
         panel = wx.Panel(self, -1)
-        if obj != None:
-            try:
-                args = '\n' + class_args(eval(obj)) + '\n'
-                isAnObject = True
-            except:
-                args = '\n' + obj + ':\n'
-                if obj in OBJECTS_TREE["functions"]:
+        if self.needToParse:
+            if obj != "Index":
+                try:
+                    args = '\n' + class_args(eval(obj)) + '\n'
                     isAnObject = True
-                else:
-                    isAnObject = False
-            if isAnObject:
-                try:
-                    text = eval(obj).__doc__
-                    text_form = last_line = ""
-                    inside_examples = False
-                    for line in text.splitlines():
-                        if inside_examples and line.strip() == "":
-                            if obj not in OBJECTS_TREE["functions"]:
-                                text_form += "s.gui(locals())"
-                            inside_examples = False
-                        if '>>>' in line or '...' in line:
-                            l = line[8:]
-                            if l.strip() != "":
-                                text_form += l + '\n'
-                        else:
-                            if line.startswith("    "):
-                                text_form += line[4:].rstrip() + '\n'
+                except:
+                    args = '\n' + obj + ':\n'
+                    if obj in OBJECTS_TREE["functions"]:
+                        isAnObject = True
+                    else:
+                        isAnObject = False
+                if isAnObject:
+                    try:
+                        text = eval(obj).__doc__
+                        text_form = last_line = ""
+                        inside_examples = False
+                        for line in text.splitlines():
+                            if inside_examples and line.strip() == "":
+                                if obj not in OBJECTS_TREE["functions"]:
+                                    text_form += "s.gui(locals())"
+                                inside_examples = False
+                            if '>>>' in line or '...' in line:
+                                l = line[8:]
+                                if l.strip() != "":
+                                    text_form += l + '\n'
                             else:
-                                text_form += line.rstrip() + '\n'
-                        if 'Examples' in last_line:
-                            text_form += "from pyo import *\n"
-                            inside_examples = True
-                        last_line = line
-                    methods = self.getMethodsDoc(text, obj)
+                                if line.startswith("    "):
+                                    text_form += line[4:].rstrip() + '\n'
+                                else:
+                                    text_form += line.rstrip() + '\n'
+                            if 'Examples' in last_line:
+                                text_form += "from pyo import *\n"
+                                inside_examples = True
+                            last_line = line
+                        methods = self.getMethodsDoc(text, obj)
+                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                        panel.win.SetText(args + text_form + methods)
+                    except:
+                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                        panel.win.SetText(args + "\nnot documented yet...\n\n")
+                else:
+                    try:
+                        text = eval(obj).__doc__
+                    except:
+                        text = "\nnot documented yet...\n\n"
+                    if obj in OBJECTS_TREE["PyoObject"].keys():
+                        text += "\nOverview:\n"
+                        for o in OBJECTS_TREE["PyoObject"][obj]:
+                            text += o + ": " + self.getDocFirstLine(o)
                     panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                    panel.win.SetMarginWidth(1, 0)
-                    panel.win.SetText(args + text_form + methods)
-                except:
-                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                    panel.win.SetText(args + "\nnot documented yet...\n\n")
+                    panel.win.SetText(text)
             else:
-                try:
-                    text = eval(obj).__doc__
-                except:
-                    text = "\nnot documented yet...\n\n"
-                if obj in OBJECTS_TREE["PyoObject"].keys():
-                    text += "\nOverview:\n"
-                    for o in OBJECTS_TREE["PyoObject"][obj]:
-                        text += o + ": " + self.getDocFirstLine(o)
                 panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                panel.win.SetMarginWidth(1, 0)
-                panel.win.SetText(text)
-        else:
-            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-            panel.win.SetText("""
+                panel.win.SetText("""
+pyo manual version %s
+
 pyo is a Python module written in C to help digital signal processing script creation.
 
 pyo is a Python module containing classes for a wide variety of audio signal processing types. 
@@ -1408,7 +1429,13 @@ Control), to ease communications between softwares, and MIDI protocol, for gener
 events and controlling process parameters. pyo allows creation of sophisticated signal 
 processing chains with all the benefits of a mature, and wild used, general programming 
 language.
-""")
+""" % PYO_VERSION)
+            panel.win.SaveFile(os.path.join(DOC_PATH, obj))
+        else:
+            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+            panel.win.LoadFile(os.path.join(DOC_PATH, obj))
+
+        panel.win.SetMarginWidth(1, 0)
         panel.win.SetReadOnly(True)
         panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
         _ed_set_style(panel.win)
@@ -1426,16 +1453,19 @@ language.
         start = stc.WordStartPosition(pos, False)
         end = stc.WordEndPosition(pos, False)
         word = stc.GetTextRange(start, end)
+        self.getPage(word)
+        evt.Skip()
 
+    def getPage(self, word):
         page_count = self.GetPageCount()
         for i in range(page_count):
             text = self.GetPageText(i)
             if text == word:
                 self.SetSelection(i)
+                stc = self.GetPage(self.GetSelection()).win
                 stc.SetCurrentPos(0)
                 break
-        evt.Skip()
-
+        
     def getDocFirstLine(self, obj):
         try:
             text = eval(obj).__doc__
