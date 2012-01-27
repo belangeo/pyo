@@ -564,15 +564,16 @@ class MainFrame(wx.Frame):
             self.doc_frame.Show()
         page = self.panel.editor.getWordUnderCaret()
         if page:
-            page_count = self.doc_panel.GetPageCount()
-            for i in range(page_count):
-                text = self.doc_panel.GetPageText(i)
-                if text == page:
-                    self.doc_panel.SetSelection(i)
-                    return
-            self.doc_panel.SetSelection(0)
-        else:
-            self.doc_panel.SetSelection(0)
+            self.doc_panel.getPage(page)
+        #     page_count = self.doc_panel.GetPageCount()
+        #     for i in range(page_count):
+        #         text = self.doc_panel.GetPageText(i)
+        #         if text == page:
+        #             self.doc_panel.SetSelection(i)
+        #             return
+        #     self.doc_panel.SetSelection(0)
+        # else:
+        #     self.doc_panel.SetSelection(0)
 
     def onHelpAbout(self, evt):
         info = wx.AboutDialogInfo()
@@ -700,7 +701,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(5,5)
-        self.SetUseAntiAliasing(True)
+        self.SetUseAntiAliasing(False)
         self.SetEdgeColour(faces["lineedge"])
         self.SetEdgeMode(stc.STC_EDGE_LINE)
         self.SetEdgeColumn(78)
@@ -1275,6 +1276,8 @@ class HelpWin(wx.Treebook):
         wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT)
         self.parent = parent
 
+        self.init = True
+        
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
         menu1.Append(5003, "Close\tCtrl+W", "Closes front window")
@@ -1290,10 +1293,12 @@ class HelpWin(wx.Treebook):
         self.parent.Bind(wx.EVT_MENU, self.close, id=5003)
         self.parent.Bind(wx.EVT_CLOSE, self.close)
 
+        self.Bind(wx.EVT_TREEBOOK_PAGE_CHANGED, self.OnPageChanged)
+
         headers = ["Server", "PyoObject", "PyoTableObject", "PyoMatrixObject", "Map", "Stream", "TableStream", "functions"]
         _KEYWORDS_LIST.extend(headers)
         tree = OBJECTS_TREE
-        max = 1
+        max = 0
         max += len(headers)
         for k1 in headers:
             if type(tree[k1]) == type({}):
@@ -1310,13 +1315,12 @@ class HelpWin(wx.Treebook):
             os.mkdir(DOC_PATH)
             self.needToParse = True
         
-        dlg = wx.ProgressDialog("Pyo Documentation", "    Building manual...    ",
-                               maximum = max, parent=self, style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
-        dlg.SetSize((300, 100))
-        keepGoing = True
+        if self.needToParse:
+            dlg = wx.ProgressDialog("Pyo Documentation", "    Building manual...    ",
+                                   maximum = max, parent=self, style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
+            dlg.SetSize((300, 100))
+            keepGoing = True
         count = 0
-        win = self.makePanel("Index")
-        self.AddPage(win, "--- pyo documentation ---")
         for key in headers:
             if type(OBJECTS_TREE[key]) == type([]):
                 count += 1
@@ -1326,28 +1330,51 @@ class HelpWin(wx.Treebook):
                     count += 1
                     win = self.makePanel(obj)
                     self.AddSubPage(win, obj)
-                    if count <= max:
+                    if self.needToParse and count <= max:
                         (keepGoing, skip) = dlg.Update(count)
             else:
                 if key == "PyoObject":
                     count += 1
+                    head = "PyoObj - "
                     win = self.makePanel("PyoObject")
                     self.AddPage(win, "PyoObject")
-                for key2 in sorted(OBJECTS_TREE[key]):
-                    count += 1
-                    win = self.makePanel("%s" % key2)
-                    self.AddPage(win, "PyoObj - %s" % key2)
-                    for obj in OBJECTS_TREE[key][key2]:
+                    for key2 in sorted(OBJECTS_TREE[key]):
+                        count += 1
+                        win = self.makePanel("%s" % key2)
+                        self.AddPage(win, "PyoObj - %s" % key2)
+                        for obj in OBJECTS_TREE[key][key2]:
+                            count += 1
+                            win = self.makePanel(obj)
+                            self.AddSubPage(win, obj)
+                            if self.needToParse and count <= max:
+                                (keepGoing, skip) = dlg.Update(count)
+                else:
+                    count += 2
+                    win = self.makePanel("Map")
+                    self.AddPage(win, "Map")
+                    win = self.makePanel("SLMap")
+                    self.AddPage(win, "SLMap")
+                    for obj in OBJECTS_TREE[key]["SLMap"]:
                         count += 1
                         win = self.makePanel(obj)
                         self.AddSubPage(win, obj)
-                        if count <= max:
+                        if self.needToParse and count <= max:
                             (keepGoing, skip) = dlg.Update(count)
-        dlg.Destroy()
-        self.setStyle()
 
-        # This is a workaround for a sizing bug on Mac...
-        wx.FutureCall(100, self.AdjustSize)
+        if self.needToParse:
+            dlg.Destroy()
+        self.setStyle()
+        self.init = False
+        _KEYWORDS_LIST.append("SLMap")
+
+    def OnPageChanged(self, event):
+        if not self.init:
+            old = event.GetOldSelection()
+            new = event.GetSelection()
+            if new != old:
+                text = self.GetPageText(new)
+                self.getPage(text)
+        event.Skip()
 
     def copy(self, evt):
         self.GetPage(self.GetSelection()).win.Copy()
@@ -1361,90 +1388,66 @@ class HelpWin(wx.Treebook):
 
     def makePanel(self, obj=None):
         panel = wx.Panel(self, -1)
+        panel.isLoad = False
         if self.needToParse:
-            if obj != "Index":
-                try:
-                    args = '\n' + class_args(eval(obj)) + '\n'
+            try:
+                args = '\n' + class_args(eval(obj)) + '\n'
+                isAnObject = True
+            except:
+                args = '\n' + obj + ':\n'
+                if obj in OBJECTS_TREE["functions"]:
                     isAnObject = True
-                except:
-                    args = '\n' + obj + ':\n'
-                    if obj in OBJECTS_TREE["functions"]:
-                        isAnObject = True
-                    else:
-                        isAnObject = False
-                if isAnObject:
-                    try:
-                        text = eval(obj).__doc__
-                        text_form = last_line = ""
-                        inside_examples = False
-                        for line in text.splitlines():
-                            if inside_examples and line.strip() == "":
-                                if obj not in OBJECTS_TREE["functions"]:
-                                    text_form += "s.gui(locals())"
-                                inside_examples = False
-                            if '>>>' in line or '...' in line:
-                                l = line[8:]
-                                if l.strip() != "":
-                                    text_form += l + '\n'
-                            else:
-                                if line.startswith("    "):
-                                    text_form += line[4:].rstrip() + '\n'
-                                else:
-                                    text_form += line.rstrip() + '\n'
-                            if 'Examples' in last_line:
-                                text_form += "from pyo import *\n"
-                                inside_examples = True
-                            last_line = line
-                        methods = self.getMethodsDoc(text, obj)
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                        panel.win.SetText(args + text_form + methods)
-                    except:
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                        panel.win.SetText(args + "\nnot documented yet...\n\n")
                 else:
-                    try:
-                        text = eval(obj).__doc__
-                    except:
-                        text = "\nnot documented yet...\n\n"
-                    if obj in OBJECTS_TREE["PyoObject"].keys():
-                        text += "\nOverview:\n"
-                        for o in OBJECTS_TREE["PyoObject"][obj]:
-                            text += o + ": " + self.getDocFirstLine(o)
+                    isAnObject = False
+            if isAnObject:
+                try:
+                    text = eval(obj).__doc__
+                    text_form = last_line = ""
+                    inside_examples = False
+                    for line in text.splitlines():
+                        if inside_examples and line.strip() == "":
+                            if obj not in OBJECTS_TREE["functions"]:
+                                text_form += "s.gui(locals())"
+                            inside_examples = False
+                        if '>>>' in line or '...' in line:
+                            l = line[8:]
+                            if l.strip() != "":
+                                text_form += l + '\n'
+                        else:
+                            if line.startswith("    "):
+                                text_form += line[4:].rstrip() + '\n'
+                            else:
+                                text_form += line.rstrip() + '\n'
+                        if 'Examples' in last_line:
+                            text_form += "from pyo import *\n"
+                            inside_examples = True
+                        last_line = line
+                    methods = self.getMethodsDoc(text, obj)
                     panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                    panel.win.SetText(text)
+                    panel.win.SetText(args + text_form + methods)
+                except:
+                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                    panel.win.SetText(args + "\nnot documented yet...\n\n")
             else:
+                try:
+                    text = eval(obj).__doc__
+                except:
+                    if obj == "functions":
+                        text = "Miscellaneous functions...\n\n"
+                        text += "\nOverview:\n"
+                        for o in OBJECTS_TREE["functions"]:
+                            text += o + ": " + self.getDocFirstLine(o)
+                    else:
+                        text = "\nnot documented yet...\n\n"
+                if obj in OBJECTS_TREE["PyoObject"].keys():
+                    text += "\nOverview:\n"
+                    for o in OBJECTS_TREE["PyoObject"][obj]:
+                        text += o + ": " + self.getDocFirstLine(o)
+                    obj = "PyoObj - " + obj
                 panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-                panel.win.SetText("""
-pyo manual version %s
+                panel.win.SetText(text)
 
-pyo is a Python module written in C to help digital signal processing script creation.
-
-pyo is a Python module containing classes for a wide variety of audio signal processing types. 
-With pyo, user will be able to include signal processing chains directly in Python scripts or 
-projects, and to manipulate them in real time through the interpreter. Tools in pyo module 
-offer primitives, like mathematical operations on audio signal, basic signal processing 
-(filters, delays, synthesis generators, etc.), but also complex algorithms to create sound 
-granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound 
-Control), to ease communications between softwares, and MIDI protocol, for generating sound 
-events and controlling process parameters. pyo allows creation of sophisticated signal 
-processing chains with all the benefits of a mature, and wild used, general programming 
-language.
-""" % PYO_VERSION)
             panel.win.SaveFile(os.path.join(DOC_PATH, obj))
-        else:
-            panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
-            panel.win.LoadFile(os.path.join(DOC_PATH, obj))
-
-        panel.win.SetMarginWidth(1, 0)
-        panel.win.SetReadOnly(True)
-        panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-        _ed_set_style(panel.win)
-
-        def OnPanelSize(evt, win=panel.win):
-            win.SetPosition((0,0))
-            win.SetSize(evt.GetSize())
-
-        panel.Bind(wx.EVT_SIZE, OnPanelSize)
         return panel
 
     def MouseDown(self, evt):
@@ -1462,10 +1465,24 @@ language.
             text = self.GetPageText(i)
             if text == word:
                 self.SetSelection(i)
-                stc = self.GetPage(self.GetSelection()).win
-                stc.SetCurrentPos(0)
-                break
-        
+                panel = self.GetPage(self.GetSelection())
+                if not panel.isLoad:
+                    panel.isLoad = True
+                    panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize())
+                    panel.win.LoadFile(os.path.join(DOC_PATH, word))
+                    panel.win.SetMarginWidth(1, 0)
+                    panel.win.SetReadOnly(True)
+                    panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+                    _ed_set_style(panel.win)
+                    wx.CallAfter(panel.win.SetAnchor, 0)
+
+                    def OnPanelSize(evt, win=panel.win):
+                        win.SetPosition((0,0))
+                        win.SetSize(evt.GetSize())
+
+                    panel.Bind(wx.EVT_SIZE, OnPanelSize)
+                return
+
     def getDocFirstLine(self, obj):
         try:
             text = eval(obj).__doc__
