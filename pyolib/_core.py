@@ -1213,7 +1213,7 @@ class Mix(PyoObject):
     """
     Mix audio streams to arbitrary number of streams.
     
-    Mix the object's audio streams in `ìnput` into `voices` streams.
+    Mix the object's audio streams in `input` into `voices` streams.
     
     Parent class: PyoObject
 

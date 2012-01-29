@@ -1016,7 +1016,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
 /****** Algorithm utilities ******/
 #define reducePoints_info \
-"\nDouglas–Peucker curve reduction algorithm.\n\n\
+"\nDouglas-Peucker curve reduction algorithm.\n\n\
 reducePoints(pointlist, tolerance=0.02)\n\nThis function receives a list of points as input and returns a simplified list by\neliminating redundancies.\n\n\
 A point is a tuple (or a list) of two floats, time and value. A list of points looks like:\n\n        \
 [(0, 0), (0.1, 0.7), (0.2, 0.5), ...] \n\n\

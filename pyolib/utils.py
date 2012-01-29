@@ -41,7 +41,7 @@ class Clean_objects(threading.Thread):
         
     Methods:
     
-    start() : Starts the thread. The timer begins on this call.    
+    start() : Starts the thread. The timer begins on this call.
 
     Examples:
     
