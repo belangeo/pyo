@@ -99,7 +99,9 @@ end tell
     terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
 ################## TEMPLATES ##################
-PYO_TEMPLATE = """from pyo import *
+PYO_TEMPLATE = """#!/usr/bin/env python
+# encoding: utf-8
+from pyo import *
 
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
 
@@ -179,7 +181,7 @@ STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock'
 
             'Espresso': {'default': '#BDAE9C', 'comment': '#0066FF', 'commentblock': '#0044DD', 'selback': '#5D544F',
                          'number': '#44AA43', 'string': '#2FE420', 'triple': '#049B0A', 'keyword': '#43A8ED',
-                         'class': '#E5757B', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#DDDDDD',
+                         'class': '#E5757B', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#999999',
                          'background': '#2A211C', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
                          'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#3B322D'}
                          }
@@ -556,7 +558,7 @@ class MainFrame(wx.Frame):
                 pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
     def buildDoc(self):
-        self.doc_frame = wx.Frame(None, -1, title='pyo documentation', size=(940, 700))
+        self.doc_frame = ManualFrame()
         self.doc_panel = HelpWin(self.doc_frame)
 
     def showDoc(self, evt):
@@ -565,15 +567,6 @@ class MainFrame(wx.Frame):
         page = self.panel.editor.getWordUnderCaret()
         if page:
             self.doc_panel.getPage(page)
-        #     page_count = self.doc_panel.GetPageCount()
-        #     for i in range(page_count):
-        #         text = self.doc_panel.GetPageText(i)
-        #         if text == page:
-        #             self.doc_panel.SetSelection(i)
-        #             return
-        #     self.doc_panel.SetSelection(0)
-        # else:
-        #     self.doc_panel.SetSelection(0)
 
     def onHelpAbout(self, evt):
         info = wx.AboutDialogInfo()
@@ -1225,7 +1218,7 @@ _DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Me
 _KEYWORDS_LIST = []
 def _ed_set_style(editor):
     editor.SetLexer(stc.STC_LEX_PYTHON)
-    editor.SetKeyWords(0, " None True False " + " ".join(_KEYWORDS_LIST))
+    editor.SetKeyWords(0, " ".join(_KEYWORDS_LIST))
     editor.SetKeyWords(1, " ".join(_DOC_KEYWORDS))
 
     editor.SetMargins(5,5)
@@ -1549,6 +1542,50 @@ class HelpWin(wx.Treebook):
                     tree.SetItemTextColour(child2, STYLES['Default']['identifier'])
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
+
+class ManualFrame(wx.Frame):
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700)):
+        wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
+        self.toolbar = self.CreateToolBar()
+        self.toolbar.SetToolBitmapSize((16,16))  # sets icon size
+
+        # Use wx.ArtProvider for default icons
+        back_ico = wx.ArtProvider.GetBitmap(wx.ART_GO_BACK, wx.ART_FRAME_ICON, (16,16))
+        backTool = self.toolbar.AddSimpleTool(wx.ID_BACKWARD, back_ico, "Back")
+        self.toolbar.EnableTool(wx.ID_BACKWARD, False)
+        self.Bind(wx.EVT_MENU, self.onBack, backTool)
+
+        self.toolbar.AddSeparator()
+
+        forward_ico = wx.ArtProvider.GetBitmap(wx.ART_GO_FORWARD, wx.ART_FRAME_ICON, (16,16))
+        forwardTool = self.toolbar.AddSimpleTool(wx.ID_FORWARD, forward_ico, "Forward")
+        self.toolbar.EnableTool(wx.ID_FORWARD, False)
+        self.Bind(wx.EVT_MENU, self.onForward, forwardTool)
+
+        self.toolbar.AddSeparator()
+
+        home_ico = wx.ArtProvider.GetBitmap(wx.ART_GO_HOME, wx.ART_FRAME_ICON, (16,16))
+        homeTool = self.toolbar.AddSimpleTool(wx.ID_HOME, home_ico, "Go Home")
+        self.toolbar.EnableTool(wx.ID_HOME, True)
+        self.Bind(wx.EVT_MENU, self.onHome, homeTool)
+
+        self.toolbar.AddSeparator()
+
+        exec_ico = wx.ArtProvider.GetBitmap(wx.ART_EXECUTABLE_FILE, wx.ART_FRAME_ICON, (16,16))
+        execTool = self.toolbar.AddSimpleTool(wx.ID_PREVIEW, exec_ico, "Run Example")
+        self.toolbar.EnableTool(wx.ID_PREVIEW, True)
+        self.Bind(wx.EVT_MENU, self.onHome, execTool)
+
+        self.toolbar.Realize()
+
+    def onBack(self, evt):
+        pass
+
+    def onForward(self, evt):
+        pass
+
+    def onHome(self, evt):
+        pass
 
 class MyNotebook(wx.aui.AuiNotebook):
     def __init__(self, parent, size=(0,-1), style=wx.aui.AUI_NB_TAB_FIXED_WIDTH | 

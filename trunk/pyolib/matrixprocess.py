@@ -127,15 +127,32 @@ class MatrixRec(PyoObject):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"         
+            print "'i' too large!"
 
     def play(self, dur=0, delay=0):
+        """
+        Start the recording at the beginning of the matrix.
+        This method is not called automatically at the object creation.
+        
+        Parameters:
+        
+        dur : float, optional
+            Duration, in seconds, of the object's activation. The default is 0
+            and means infinite duration.
+        delay : float, optional
+            Delay, in seconds, before the object's activation. Defaults to 0.
+        
+        """
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def stop(self):
+        """
+        Stop the recording. Otherwise, record through the end of the matrix.
+
+        """
         [obj.stop() for obj in self._base_objs]
         [obj.stop() for obj in self._trig_objs]
         return self

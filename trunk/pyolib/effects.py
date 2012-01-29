@@ -944,7 +944,7 @@ class WGVerb(PyoObject):
     modeling scattering junction of 8 lossless waveguides of equal 
     characteristic impedance.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -966,7 +966,7 @@ class WGVerb(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setFeedback(x) : Replace the `feedback` attribute.
     setCutoff(x) : Replace the `cutoff` attribute.
-    setMix(x) : Replace the `bal` attribute.
+    setBal(x) : Replace the `bal` attribute.
     
     Attributes:
     
