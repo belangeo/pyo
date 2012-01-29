@@ -29,9 +29,9 @@ class Sin(PyoObject):
     """
     Performs a sine function on audio signal.
 
-    Returns the sine of input.
+    Returns the sine of audio signal as input.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -44,15 +44,15 @@ class Sin(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     
     Examples:
     
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> import math
     >>> a = Phasor(500, mul=math.pi*2)
-    >>> b = Sin(a).out()
+    >>> b = Sin(a, mul=.3).mix(2).out()
 
     """
 
@@ -98,9 +98,9 @@ class Cos(PyoObject):
     """
     Performs a cosine function on audio signal.
 
-    Returns the cosine of input.
+    Returns the cosine of audio signal as input.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -113,15 +113,15 @@ class Cos(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> import math
     >>> a = Phasor(500, mul=math.pi*2)
-    >>> b = Cos(a).out()
+    >>> b = Cos(a, mul=.3).mix(2).out()
 
     """
     def __init__(self, input, mul=1, add=0):
@@ -166,9 +166,9 @@ class Tan(PyoObject):
     """
     Performs a tangent function on audio signal.
 
-    Returns the tangent of input.
+    Returns the tangent of audio signal as input.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -185,12 +185,18 @@ class Tan(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(table=t, freq=1, mul=.5, add=.5)
-    >>> b = Tan(a)
-    >>> c = Osc(table=t, freq=100, mul=b).out()
+    >>> # Tangent panning function
+    >>> import math
+    >>> src = Sine(mul=.3)
+    >>> a = Phasor(freq=1, mul=90, add=-45)
+    >>> b = Tan(Abs(a*math.pi/180))
+    >>> b1 = 1.0 - b
+    >>> oL = src * b
+    >>> oR = src * b1
+    >>> oL.out()
+    >>> oR.out(1)
 
     """
     def __init__(self, input, mul=1, add=0):
@@ -233,16 +239,16 @@ class Tan(PyoObject):
 
 class Abs(PyoObject):
     """
-    Performs a absolute function on audio signal.
+    Performs an absolute function on audio signal.
 
-    Returns the absolute value of input.
+    Returns the absolute value of audio signal as input.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal, angle in radians.
+        Input signal to process.
 
     Methods:
 
@@ -254,11 +260,12 @@ class Abs(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
+    >>> # Back-and-Forth playback
     >>> t = SndTable(SNDS_PATH + "/transparent.aif")
     >>> a = Phasor(freq=t.getRate()*0.5, mul=2, add=-1)
-    >>> b = Pointer(table=t, index=Abs(a), mul=0.5).out()
+    >>> b = Pointer(table=t, index=Abs(a), mul=0.5).mix(2).out()
 
     """
 
@@ -304,14 +311,14 @@ class Sqrt(PyoObject):
     """
     Performs a square-root function on audio signal.
 
-    Returns the square-root value of input.
+    Returns the square-root value of audio signal as input.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal, angle in radians.
+        Input signal to process.
 
     Methods:
 
@@ -323,9 +330,10 @@ class Sqrt(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> src = Sine(mul=.5)
+    >>> # Equal-power panning function
+    >>> src = Sine(mul=.3)
     >>> a = Abs(Phasor(freq=1, mul=2, add=-1))
     >>> left = Sqrt(1.0 - a)
     >>> right = Sqrt(a)
@@ -378,15 +386,15 @@ class Log(PyoObject):
     """
     Performs a natural log function on audio signal.
 
-    Returns the natural log value of input. Values less than 0.0
-    return 0.0.
+    Returns the natural log value of of audio signal as input. 
+    Values less than 0.0 return 0.0.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal, angle in radians.
+        Input signal to process.
 
     Methods:
 
@@ -398,11 +406,12 @@ class Log(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> a = RandInt(max=1000, freq=4)
+    # Logarithmic amplitude envelope
+    >>> a = LFO(freq=1, type=3, mul=0.2, add=1.2) # triangle
     >>> b = Log(a)
-    >>> c = Print(input=b, method=1)
+    >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
 
     """
 
@@ -448,15 +457,15 @@ class Log2(PyoObject):
     """
     Performs a base 2 log function on audio signal.
 
-    Returns the base 2 log value of input. Values less than 0.0
-    return 0.0.
+    Returns the base 2 log value of audio signal as input. 
+    Values less than 0.0 return 0.0.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal, angle in radians.
+        Input signal to process.
 
     Methods:
 
@@ -468,11 +477,12 @@ class Log2(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> a = RandInt(max=1000, freq=4)
+    # Logarithmic amplitude envelope
+    >>> a = LFO(freq=1, type=3, mul=0.1, add=1.1) # triangle
     >>> b = Log2(a)
-    >>> c = Print(input=b, method=1)
+    >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
 
     """
 
@@ -518,15 +528,15 @@ class Log10(PyoObject):
     """
     Performs a base 10 log function on audio signal.
 
-    Returns the base 10 log value of input. Values less than 0.0
-    return 0.0.
+    Returns the base 10 log value of audio signal as input. 
+    Values less than 0.0 return 0.0.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal, angle in radians.
+        Input signal to process.
 
     Methods:
 
@@ -538,11 +548,12 @@ class Log10(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> a = RandInt(max=1000, freq=4)
+    # Logarithmic amplitude envelope
+    >>> a = LFO(freq=1, type=3, mul=0.4, add=1.4) # triangle
     >>> b = Log10(a)
-    >>> c = Print(input=b, method=1)
+    >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
 
     """
 
@@ -588,7 +599,7 @@ class Pow(PyoObject):
     """
     Performs a power function on audio signal.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -611,9 +622,10 @@ class Pow(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Phasor(freq=.2, mul=10)
-    >>> b = Pow(10, a)
-    >>> c = Print(input=b, interval=0.1)
+    >>> # Exponential amplitude envelope
+    >>> a = LFO(freq=1, type=3, mul=0.5, add=0.5)
+    >>> b = Pow(Clip(a, 0, 1), 4, mul=.3)
+    >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
 
     """
     def __init__(self, base=10, exponent=1, mul=1, add=0):
@@ -682,6 +694,8 @@ class Atan2(PyoObject):
     using the signs of both arguments to determine the quadrant 
     of the return value.
 
+    Parentclass: PyoObject
+
     Parameters:
 
     b : float or PyoObject, optional
@@ -703,8 +717,8 @@ class Atan2(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> # simple disto
-    >>> a = Sine(freq=200)
+    >>> # Simple distortion
+    >>> a = Sine(freq=[200,200.3])
     >>> lf = Sine(freq=1, mul=.2, add=.2)
     >>> dist = Atan2(a, lf)
     >>> lp = Tone(dist, freq=2000, mul=.1).out()
@@ -772,10 +786,10 @@ class Floor(PyoObject):
     """
     Rounds to largest integral value not greater than audio signal.
 
-    For each samples in the input signal, rounds to largest integral 
+    For each samples in the input signal, rounds to the largest integral 
     value not greater than the sample value.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -792,8 +806,9 @@ class Floor(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
+    >>> # Clipping frequencies
     >>> sweep = Phasor(freq=[1,.67], mul=4)
     >>> flo = Floor(sweep, mul=50, add=200)
     >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()
@@ -842,10 +857,10 @@ class Ceil(PyoObject):
     """
     Rounds to smallest integral value greater than or equal to the input signal.
 
-    For each samples in the input signal, rounds to smallest integral 
+    For each samples in the input signal, rounds to the smallest integral 
     value greater than or equal to the sample value.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -862,8 +877,9 @@ class Ceil(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
+    >>> # Clipping frequencies
     >>> sweep = Phasor(freq=[1,.67], mul=4)
     >>> flo = Ceil(sweep, mul=50, add=200)
     >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()
@@ -915,7 +931,7 @@ class Round(PyoObject):
     For each samples in the input signal, rounds to the nearest integer 
     value of the sample value.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -932,8 +948,9 @@ class Round(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
+    >>> # Clipping frequencies
     >>> sweep = Phasor(freq=[1,.67], mul=4)
     >>> flo = Round(sweep, mul=50, add=200)
     >>> a = SineLoop(freq=flo, feedback=.1, mul=.3).out()

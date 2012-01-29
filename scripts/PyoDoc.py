@@ -34,7 +34,7 @@ pyo is a Python module written in C to help digital signal processing script cre
 
 pyo is a Python module containing classes for a wide variety of audio signal processing types. 
 With pyo, user will be able to include signal processing chains directly in Python scripts or 
-projects, and to manipulate them in real time through the interpreter. Tools in pyo module 
+projects, and to manipulate them in real-time through the interpreter. Tools in pyo module 
 offer primitives, like mathematical operations on audio signal, basic signal processing 
 (filters, delays, synthesis generators, etc.) together with complex algorithms to create 
 granulation and others creative sound manipulations. pyo supports OSC protocol (Open Sound 
@@ -71,10 +71,13 @@ for k1 in _HEADERS:
         _KEYWORDS_LIST.extend(OBJECTS_TREE[k1])
         _NUM_PAGES += len(OBJECTS_TREE[k1])
 
-def _ed_set_style(editor):
+def _ed_set_style(editor, searchKey=None):
     editor.SetLexer(stc.STC_LEX_PYTHON)
     editor.SetKeyWords(0, " ".join(_KEYWORDS_LIST))
-    editor.SetKeyWords(1, " ".join(_DOC_KEYWORDS))
+    if searchKey == None:
+        editor.SetKeyWords(1, " ".join(_DOC_KEYWORDS))
+    else:
+        editor.SetKeyWords(1, " ".join(_DOC_KEYWORDS) + " " + searchKey)
 
     editor.SetMargins(5,5)
     editor.SetSTCCursor(2)
@@ -105,10 +108,24 @@ def _ed_set_style(editor):
     editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces2)
     editor.SetCaretForeground(faces2["background"])
 
+def complete_words_from_str(text, keyword):
+    words = [keyword]
+    text_ori = text
+    text = text.replace("`", " ").replace("'", " ").replace(".", " ").replace(",", " ").replace('"', " ").replace("=", " ").replace("\n", " ").lower()
+    found = text.find(keyword)
+    while found > -1:
+        start = text.rfind(" ", 0, found)
+        end = text.find(" ", found)
+        words.append(text_ori[start:end])
+        found = text.find(keyword, found+1)
+    words = " ".join(words)
+    return words
+
 class ManualPanel(wx.Treebook):
     def __init__(self, parent):
         wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT)
         self.parent = parent
+        self.searchKey = None
         self.Bind(wx.EVT_TREEBOOK_PAGE_CHANGED, self.OnPageChanged)
         self.parse()
 
@@ -119,6 +136,7 @@ class ManualPanel(wx.Treebook):
         self.seq_index = 0
 
     def parse(self):
+        self.searchKey = None
         self.DeleteAllPages()
         self.reset_history()
 
@@ -182,6 +200,7 @@ class ManualPanel(wx.Treebook):
         wx.FutureCall(100, self.AdjustSize)
 
     def parseOnSearchName(self, keyword):
+        self.searchKey = None
         self.DeleteAllPages()
         self.reset_history()
 
@@ -239,6 +258,7 @@ class ManualPanel(wx.Treebook):
         wx.CallAfter(self.AdjustSize)
 
     def parseOnSearchPage(self, keyword):
+        self.searchKey = keyword
         self.DeleteAllPages()
         self.reset_history()
 
@@ -453,7 +473,11 @@ class ManualPanel(wx.Treebook):
                     panel.win.SetMarginWidth(1, 0)
                     panel.win.SetReadOnly(True)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
-                    _ed_set_style(panel.win)
+                    if self.searchKey != None:
+                        words = complete_words_from_str(panel.win.GetText(), self.searchKey)
+                        _ed_set_style(panel.win, words)
+                    else:
+                        _ed_set_style(panel.win)
                     panel.win.SetSelectionEnd(0)
 
                     def OnPanelSize(evt, win=panel.win):

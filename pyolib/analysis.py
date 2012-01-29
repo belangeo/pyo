@@ -36,12 +36,12 @@ class Follower(PyoObject):
     
     Output signal is the continuous mean amplitude of an input signal.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Cutoff frequency of the filter in hertz. Default to 20.
 
@@ -52,7 +52,7 @@ class Follower(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Cutoff frequency of the filter.
 
     Notes:
@@ -64,7 +64,7 @@ class Follower(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.5).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
     >>> fol = Follower(sf, freq=30)
     >>> n = Noise(mul=fol).out(1)
 
@@ -120,7 +120,7 @@ class Follower(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -138,12 +138,12 @@ class Follower2(PyoObject):
 
     Output signal is the continuous mean amplitude of an input signal.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     risetime : float or PyoObject, optional
         Time to reach upward value in seconds. Default to 0.01.
     falltime : float or PyoObject, optional
@@ -157,7 +157,7 @@ class Follower2(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     risetime : float or PyoObject. Time to reach upward value in seconds.
     falltime : float or PyoObject. Time to reach downward value in seconds.
 
@@ -170,7 +170,7 @@ class Follower2(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.5).out()
+    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
     >>> fol2 = Follower2(sf, risetime=0.002, falltime=.1, mul=.5)
     >>> n = Noise(fol2).out(1)
 
@@ -241,7 +241,7 @@ class Follower2(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -267,12 +267,12 @@ class ZCross(PyoObject):
     Output signal is the number of zero-crossing occured during each 
     buffer size, normalized between 0 and 1.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     thresh : float, optional
         Minimum amplitude difference allowed between adjacent samples 
         to be included in the zeros count.
@@ -285,7 +285,7 @@ class ZCross(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     thresh : float. Amplitude difference threshold.
 
     Notes:
@@ -297,9 +297,9 @@ class ZCross(PyoObject):
     
     >>> s = Server(duplex=1).boot()
     >>> s.start()
-    >>> a = Input()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
     >>> b = ZCross(a, thresh=.02)
-    >>> n = Noise(b).out()
+    >>> n = Noise(b).out(1)
 
     """
     def __init__(self, input, thresh=0., mul=1, add=0):
@@ -353,7 +353,7 @@ class ZCross(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
