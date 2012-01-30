@@ -14,7 +14,7 @@ EXAMPLE_PATH = os.path.join(TEMP_PATH, 'manual_example.py')
 STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
                     'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F', 'keyword2': '#007F9F',
                     'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
-                    'background': '#FFFFFF', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
+                    'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
                       'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
 
 if wx.Platform == '__WXMSW__':
@@ -567,10 +567,16 @@ class ManualPanel(wx.Treebook):
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
+gosearchID = 1000
 class ManualFrame(wx.Frame):
     def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700)):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
+
+        aTable = wx.AcceleratorTable([(wx.ACCEL_NORMAL, 47, gosearchID)])
+        self.SetAcceleratorTable(aTable)
+        self.Bind(wx.EVT_MENU, self.setSearchFocus, id=gosearchID)
+
         self.toolbar = self.CreateToolBar()
         self.toolbar.SetToolBitmapSize((16,16))  # sets icon size
 
@@ -602,20 +608,20 @@ class ManualFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onRun, execTool)
 
         self.toolbar.AddSeparator()
-        
+
         self.searchTimer = None
         self.searchScope = "Object's Name"
-        searchMenu = wx.Menu()
-        item = searchMenu.Append(-1, "Search Scope")
+        self.searchMenu = wx.Menu()
+        item = self.searchMenu.Append(-1, "Search Scope")
         item.Enable(False)
         for i, txt in enumerate(["Object's Name", "Manual Pages"]):
             id = i+10
-            searchMenu.Append(id, txt)
+            self.searchMenu.Append(id, txt)
             self.Bind(wx.EVT_MENU, self.onSearchScope, id=id)
 
         self.search = wx.SearchCtrl(self.toolbar, 200, size=(200,-1))
         self.search.ShowCancelButton(True)
-        self.search.SetMenu(searchMenu)
+        self.search.SetMenu(self.searchMenu)
         self.toolbar.AddControl(self.search)
         self.Bind(wx.EVT_TEXT, self.onSearch, id=200)
         self.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchCancel, id=200)
@@ -646,6 +652,9 @@ class ManualFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_CLOSE, self.quit)
 
+    def setSearchFocus(self, evt):
+        self.search.SetFocus()
+
     def onSearch(self, evt):
         if self.searchTimer != None:
             self.searchTimer.Stop()
@@ -653,7 +662,6 @@ class ManualFrame(wx.Frame):
 
     def doSearch(self):
         keyword = self.search.GetValue()
-        print keyword, self.searchScope
         if keyword == "":
             self.doc_panel.parse()
         else:
