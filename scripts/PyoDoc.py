@@ -110,6 +110,7 @@ def _ed_set_style(editor, searchKey=None):
 
 def complete_words_from_str(text, keyword):
     words = [keyword]
+    keyword = keyword.lower()
     text_ori = text
     text = text.replace("`", " ").replace("'", " ").replace(".", " ").replace(",", " ").replace('"', " ").replace("=", " ").replace("\n", " ").lower()
     found = text.find(keyword)
@@ -204,11 +205,12 @@ class ManualPanel(wx.Treebook):
         self.DeleteAllPages()
         self.reset_history()
 
+        keyword = keyword.lower()
         for key in _HEADERS:
             if type(OBJECTS_TREE[key]) == type([]):
                 objs = []
                 for obj in OBJECTS_TREE[key]:
-                    if keyword in obj:
+                    if keyword in obj.lower():
                         objs.append(obj)
                 if objs != []:
                     win = self.makePanel(key)
@@ -221,13 +223,13 @@ class ManualPanel(wx.Treebook):
             else:
                 if key == "PyoObject":
                     head = "PyoObj - "
-                    if keyword in "PyoObject":
+                    if keyword in "pyoobject":
                         win = self.makePanel("PyoObject")
                         self.AddPage(win, "PyoObject")
                     for key2 in sorted(OBJECTS_TREE[key]):
                         objs = []
                         for obj in OBJECTS_TREE[key][key2]:
-                            if keyword in obj:
+                            if keyword in obj.lower():
                                 objs.append(obj)
                         if objs != []:
                             win = self.makePanel("%s" % key2)
@@ -238,12 +240,12 @@ class ManualPanel(wx.Treebook):
                                 self.AddSubPage(win, obj)
                             self.ExpandNode(node, True)
                 else:
-                    if keyword in "Map":
+                    if keyword in "map":
                         win = self.makePanel("Map")
                         self.AddPage(win, "Map")
                     objs = []
                     for obj in OBJECTS_TREE[key]["SLMap"]:
-                        if keyword in obj:
+                        if keyword in obj.lower():
                             objs.append(obj)
                         if objs != []:
                             win = self.makePanel("SLMap")
@@ -262,12 +264,13 @@ class ManualPanel(wx.Treebook):
         self.DeleteAllPages()
         self.reset_history()
 
+        keyword = keyword.lower()
         for key in _HEADERS:
             if type(OBJECTS_TREE[key]) == type([]):
                 objs = []
                 for obj in OBJECTS_TREE[key]:
                     with open(os.path.join(DOC_PATH, obj), "r") as f:
-                        text = f.read()
+                        text = f.read().lower()
                     if keyword in text:
                         objs.append(obj)
                 if objs != []:
@@ -282,7 +285,7 @@ class ManualPanel(wx.Treebook):
                 if key == "PyoObject":
                     head = "PyoObj - "
                     with open(os.path.join(DOC_PATH, "PyoObject"), "r") as f:
-                        text = f.read()
+                        text = f.read().lower()
                     if keyword in text:
                         win = self.makePanel("PyoObject")
                         self.AddPage(win, "PyoObject")
@@ -290,7 +293,7 @@ class ManualPanel(wx.Treebook):
                         objs = []
                         for obj in OBJECTS_TREE[key][key2]:
                             with open(os.path.join(DOC_PATH, obj), "r") as f:
-                                text = f.read()
+                                text = f.read().lower()
                             if keyword in text:
                                 objs.append(obj)
                         if objs != []:
@@ -303,14 +306,14 @@ class ManualPanel(wx.Treebook):
                             self.ExpandNode(node, True)
                 else:
                     with open(os.path.join(DOC_PATH, "Map"), "r") as f:
-                        text = f.read()
+                        text = f.read().lower()
                     if keyword in text:
                         win = self.makePanel("Map")
                         self.AddPage(win, "Map")
                     objs = []
                     for obj in OBJECTS_TREE[key]["SLMap"]:
                         with open(os.path.join(DOC_PATH, obj), "r") as f:
-                            text = f.read()
+                            text = f.read().lower()
                         if keyword in text:
                             objs.append(obj)
                         if objs != []:
@@ -599,7 +602,8 @@ class ManualFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onRun, execTool)
 
         self.toolbar.AddSeparator()
-
+        
+        self.searchTimer = None
         self.searchScope = "Object's Name"
         searchMenu = wx.Menu()
         item = searchMenu.Append(-1, "Search Scope")
@@ -643,7 +647,13 @@ class ManualFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.quit)
 
     def onSearch(self, evt):
-        keyword = evt.GetString()
+        if self.searchTimer != None:
+            self.searchTimer.Stop()
+        self.searchTimer = wx.CallLater(200, self.doSearch)
+
+    def doSearch(self):
+        keyword = self.search.GetValue()
+        print keyword, self.searchScope
         if keyword == "":
             self.doc_panel.parse()
         else:
@@ -651,6 +661,7 @@ class ManualFrame(wx.Frame):
                 self.doc_panel.parseOnSearchName(keyword)
             else:
                 self.doc_panel.parseOnSearchPage(keyword)
+        self.searchTimer = None
 
     def onSearchCancel(self, evt):
         self.search.SetValue("")
