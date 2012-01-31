@@ -35,7 +35,7 @@ class Sine(PyoObject):
     """
     A simple sine wave oscillator.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -138,7 +138,7 @@ class SineLoop(PyoObject):
     The oscillator output, multiplied by `feedback`, is added to the position
     increment and can be used to control the brightness of the oscillator.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -232,7 +232,7 @@ class Phasor(PyoObject):
     
     Output is a periodic ramp from 0 to 1.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -333,7 +333,7 @@ class Input(PyoObject):
     """
     Read from a numbered channel in an external audio signal.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
     
@@ -371,7 +371,7 @@ class Noise(PyoObject):
     """
     A white noise generator.
         
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Methods:
     
@@ -436,7 +436,7 @@ class PinkNoise(PyoObject):
     of first order filters. It is accurate to within +/-0.05dB above 9.2Hz
     (44100Hz sampling rate).
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Examples:
 
@@ -467,7 +467,7 @@ class BrownNoise(PyoObject):
     The spectrum of a brown noise has a power density which decreases 6 dB 
     per octave with increasing frequency (density proportional to 1/f^2).
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Examples:
 
@@ -496,7 +496,7 @@ class FM(PyoObject):
     
     Implements frequency modulation synthesis based on Chowning's algorithm.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -621,7 +621,7 @@ class CrossFM(PyoObject):
     Frequency modulation synthesis where the output of both oscillators
     modulates the frequency of the other one.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -778,7 +778,7 @@ class Blit(PyoObject):
     Impulse train generator with control over the number of harmonics 
     in the spectrum, which gives oscillators with very low aliasing.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -875,7 +875,7 @@ class Rossler(PyoObject):
     system that exhibits chaotic dynamics associated with the fractal properties 
     of the attractor.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -994,7 +994,7 @@ class Lorenz(PyoObject):
     system that exhibits chaotic dynamics associated with the fractal properties 
     of the attractor.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1108,7 +1108,7 @@ class LFO(PyoObject):
     """
     Band-limited Low Frequency Oscillator with different wave shapes.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 

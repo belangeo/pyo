@@ -1215,7 +1215,7 @@ class Mix(PyoObject):
     
     Mix the object's audio streams in `input` into `voices` streams.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1302,7 +1302,7 @@ class Dummy(PyoObject):
     
     The user should never instantiate an object of this class.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1430,7 +1430,7 @@ class Sig(PyoObject):
     """
     Convert numeric value to PyoObject signal.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1447,12 +1447,16 @@ class Sig(PyoObject):
     
     Examples:
     
+    >>> import random
     >>> s = Server().boot()
-    >>> fr = Sig(value=400)
-    >>> p = Port(fr, risetime=1, falltime=1)
-    >>> a = Sine(freq=p, mul=.5).out()
     >>> s.start()
-    >>> fr.value = 800
+    >>> fr = Sig(value=400)
+    >>> p = Port(fr, risetime=0.001, falltime=0.001)
+    >>> a = SineLoop(freq=p, feedback=0.08, mul=.3).out()
+    >>> b = SineLoop(freq=p*1.005, feedback=0.08, mul=.3).out(1)
+    >>> def pick_new_freq():
+    ...     fr.value = random.randrange(300,601,50)
+    >>> pat = Pattern(function=pick_new_freq, time=0.5).play()
 
     """
     def __init__(self, value, mul=1, add=0):
@@ -1499,7 +1503,7 @@ class VarPort(PyoObject):
     current value to the new value. If a callback is provided at `function`,
     it will be called at the end of the line.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

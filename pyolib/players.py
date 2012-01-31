@@ -38,7 +38,7 @@ class SfPlayer(PyoObject):
     takes care of sampling rate conversion to match the Server sampling 
     rate setting.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -138,7 +138,7 @@ class SfPlayer(PyoObject):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"         
+            print "'i' too large!"
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
@@ -310,7 +310,7 @@ class SfMarkerShuffler(PyoObject):
     the samples until it reaches the following marker. Then, it choose 
     another marker and reads from the new position and so on...
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -472,7 +472,7 @@ class SfMarkerLooper(PyoObject):
     in the header of the AIFF file) until it received a new integer 
     in the `mark` attribute.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

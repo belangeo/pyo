@@ -30,7 +30,7 @@ class Pan(PyoObject):
     """
     Cosinus panner with control on the spread factor.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -191,7 +191,7 @@ class SPan(PyoObject):
     """
     Simple equal power panner.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
      
     Parameters:
     
@@ -328,7 +328,7 @@ class Switch(PyoObject):
     between brackets. obj[0] retrieve the first stream, obj[outs-1] the
     last one.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -465,7 +465,7 @@ class Selector(PyoObject):
     Selector takes multiple PyoObjects in input and interpolates between 
     them to generate a single output.
         
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -588,7 +588,7 @@ class VoiceManager(PyoObject):
 
     If there is no free voice, the object outputs -1.0 continuously.
         
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -709,7 +709,7 @@ class Mixer(PyoObject):
     with independant amplitude values per mixing channel and a 
     user defined portamento applied on amplitude changes.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

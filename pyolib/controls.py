@@ -35,7 +35,7 @@ from types import ListType
 
 ######################################################################
 ### Controls
-######################################################################                                       
+######################################################################
 class Fader(PyoObject):
     """
     Fadein - fadeout envelope generator.
@@ -46,7 +46,7 @@ class Fader(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -82,9 +82,11 @@ class Fader(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> f = Fader(fadein=1, fadeout=2, dur=5, mul=.5)
-    >>> a = Noise(mul=f).out()
-    >>> f.play()    
+    >>> f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=.5)
+    >>> a = BrownNoise(mul=f).mix(2).out()
+    >>> def repeat():
+    ...     f.play()
+    >>> pat = Pattern(function=repeat, time=2).play()
     
     """
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
@@ -182,7 +184,7 @@ class Adsr(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -237,9 +239,11 @@ class Adsr(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=5, mul=.5)
-    >>> a = Noise(mul=f).out()
-    >>> f.play()    
+    >>> f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)
+    >>> a = BrownNoise(mul=f).mix(2).out()
+    >>> def repeat():
+    ...     f.play()
+    >>> pat = Pattern(function=repeat, time=2).play()
     
     """
     def __init__(self, attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0):
@@ -376,7 +380,7 @@ class Linseg(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -412,7 +416,7 @@ class Linseg(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
-    >>> a = Sine(freq=l, mul=.5).out()
+    >>> a = Sine(freq=l, mul=.3).mix(2).out()
     >>> # then call:
     >>> l.play()
     
@@ -550,7 +554,7 @@ class Expseg(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -596,7 +600,7 @@ class Expseg(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Expseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
-    >>> a = Sine(freq=l, mul=.5).out()
+    >>> a = Sine(freq=l, mul=.3).mix(2).out()
     >>> # then call:
     >>> l.play()
 
@@ -779,7 +783,7 @@ class SigTo(PyoObject):
     value to the new value. Can be used with PyoObject to apply
     a linear portamento on an audio signal.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -806,11 +810,15 @@ class SigTo(PyoObject):
     
     Examples:
     
+    >>> import random
     >>> s = Server().boot()
-    >>> fr = SigTo(value=400, time=.5, init=400)
-    >>> a = Sine(freq=fr, mul=.5).out()
     >>> s.start()
-    >>> fr.value = 800
+    >>> fr = SigTo(value=200, time=0.5, init=200)
+    >>> a = SineLoop(freq=fr, feedback=0.08, mul=.3).out()
+    >>> b = SineLoop(freq=fr*1.005, feedback=0.08, mul=.3).out(1)
+    >>> def pick_new_freq():
+    ...     fr.value = random.randrange(200,501,50)
+    >>> pat = Pattern(function=pick_new_freq, time=1).play()
 
     """
     def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):

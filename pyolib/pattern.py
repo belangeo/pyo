@@ -32,7 +32,7 @@ class Pattern(PyoObject):
     The play() method starts the pattern timer and is not called 
     at the object creation time.
             
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 
@@ -150,7 +150,7 @@ class Score(PyoObject):
     p2, etc. and then, by passing a counter to a Score object with "p" 
     as `fname` argument. Functions are called without parameters.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -239,7 +239,7 @@ class CallAfter(PyoObject):
     """
     Calls a Python function after a given time.
         
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 

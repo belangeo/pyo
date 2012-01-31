@@ -33,7 +33,7 @@ class HarmTable(PyoTableObject):
     Generates composite waveforms made up of weighted sums 
     of simple sinusoids.
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -124,7 +124,7 @@ class SawTable(PyoTableObject):
     
     Generates sawtooth waveforms made up of fixed number of harmonics.
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -213,7 +213,7 @@ class SquareTable(PyoTableObject):
     
     Generates square waveforms made up of fixed number of harmonics.
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -314,7 +314,7 @@ class ChebyTable(PyoTableObject):
     which, under waveshaping, can be used to split a sinusoid into 
     harmonic partials having a pre-definable spectrum. 
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -405,7 +405,7 @@ class HannTable(PyoTableObject):
     """
     Generates Hanning window function. 
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -463,7 +463,7 @@ class SincTable(PyoTableObject):
     """
     Generates sinc window function. 
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
 
     Parameters:
 
@@ -569,7 +569,7 @@ class WinTable(PyoTableObject):
     """
     Generates different kind of windowing functions. 
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -666,7 +666,7 @@ class ParaTable(PyoTableObject):
     The parabola is a conic section, the intersection of a right circular conical 
     surface and a plane parallel to a generating straight line of that surface.
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
 
     Parameters:
 
@@ -724,7 +724,7 @@ class LinTable(PyoTableObject):
     """
     Construct a table from segments of straight lines in breakpoint fashion.
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -882,7 +882,7 @@ class CosTable(PyoTableObject):
     """
     Construct a table from cosine interpolated segments.
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -1046,7 +1046,7 @@ class CurveTable(PyoTableObject):
     at the known points. The bias is used to twist the curve about the 
     known points.
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -1267,7 +1267,7 @@ class ExpTable(PyoTableObject):
     """
     Construct a table from exponential interpolated segments.
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -1478,7 +1478,7 @@ class SndTable(PyoTableObject):
     If `chnl` is None, the table will contain as many table streams as 
     necessary to read all channels of the loaded sound.
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -1829,7 +1829,7 @@ class NewTable(PyoTableObject):
     
     See `TableRec` to write samples in the table.
     
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
     
     Parameters:
     
@@ -1998,7 +1998,7 @@ class DataTable(PyoTableObject):
 
     See `TableRec` to write samples in the table.
 
-    Parent class: PyoTableObject
+    Parentclass: PyoTableObject
 
     Parameters:
 

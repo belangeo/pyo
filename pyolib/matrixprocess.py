@@ -41,7 +41,7 @@ class MatrixRec(PyoObject):
     Calling the play method again restarts the recording and overwrites 
     previously recorded samples.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -217,7 +217,7 @@ class MatrixPointer(PyoObject):
     """
     Matrix reader with control on the 2D pointer position.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -346,7 +346,7 @@ class MatrixMorph(PyoObject):
     `matrix` object at the beginning of each buffer size. The matrices in the 
     list and the resulting matrix must be equal in size.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

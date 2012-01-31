@@ -145,7 +145,7 @@ class SLMap(Map):
     Derived from Map class, a few parameters are added for sliders 
     initialization.
     
-    Parent class: Map
+    Parentclass: Map
     
     Parameters:
 
@@ -208,7 +208,7 @@ class SLMapFreq(SLMap):
     """
     SLMap with normalized values for a 'freq' slider.
 
-    Parent class: SLMap
+    Parentclass: SLMap
     
     Parameters:
     
@@ -238,7 +238,7 @@ class SLMapMul(SLMap):
     """
     SLMap with normalized values for a 'mul' slider.
 
-    Parent class: SLMap
+    Parentclass: SLMap
     
     Parameters:
     
@@ -268,7 +268,7 @@ class SLMapPhase(SLMap):
     """
     SLMap with normalized values for a 'phase' slider.
 
-    Parent class: SLMap
+    Parentclass: SLMap
     
     Parameters:
     
@@ -298,7 +298,7 @@ class SLMapPan(SLMap):
     """
     SLMap with normalized values for a 'pan' slider.
 
-    Parent class: SLMap
+    Parentclass: SLMap
     
     Parameters:
     
@@ -328,7 +328,7 @@ class SLMapQ(SLMap):
     """
     SLMap with normalized values for a 'q' slider.
 
-    Parent class: SLMap
+    Parentclass: SLMap
     
     Parameters:
     
@@ -358,7 +358,7 @@ class SLMapDur(SLMap):
     """
     SLMap with normalized values for a 'dur' slider.
 
-    Parent class: SLMap
+    Parentclass: SLMap
     
     Parameters:
     

@@ -40,7 +40,7 @@ class Trig(PyoObject):
 
     Trig sends a trigger each time it's play() method is called.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
    
@@ -99,7 +99,7 @@ class Metro(PyoObject):
     The play() method starts the metro and is not called at the object 
     creation time.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 
@@ -192,7 +192,7 @@ class Seq(PyoObject):
     The play() method starts the sequence and is not called at the object 
     creation time.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -334,7 +334,7 @@ class Cloud(PyoObject):
     The play() method starts the Cloud and is not called at the object 
     creation time.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 
@@ -453,7 +453,7 @@ class Beat(PyoObject):
     The play() method starts the Beat and is not called at the object 
     creation time.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -855,7 +855,7 @@ class TrigRandInt(PyoObject):
     0 and `max` values each time it receives a trigger in its `input` 
     parameter. The value is kept until the next trigger.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -955,7 +955,7 @@ class TrigRand(PyoObject):
     values each time it receives a trigger in its `input` parameter. 
     The value is kept until the next trigger.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1097,7 +1097,7 @@ class TrigChoice(PyoObject):
     time it receives a trigger in its `input` parameter. The value 
     is kept until the next trigger.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1220,7 +1220,7 @@ class TrigFunc(PyoObject):
     TrigFunc calls the function given at parameter `function` each 
     time it receives a trigger in its `input` parameter.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1354,7 +1354,7 @@ class TrigEnv(PyoObject):
     TrigEnv starts reading an envelope in `dur` seconds each time it 
     receives a trigger in its `input` parameter.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1547,7 +1547,7 @@ class TrigLinseg(PyoObject):
     TrigLinseg starts reading a break-points line segments each time it 
     receives a trigger in its `input` parameter.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1742,7 +1742,7 @@ class TrigExpseg(PyoObject):
     TrigExpseg starts reading break-points exponential segments each time 
     it receives a trigger in its `input` parameter.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1986,7 +1986,7 @@ class TrigXnoise(PyoObject):
     A new value is generated each time the object receive a trigger 
     in input. Each distribution generates values in the range 0 and 1.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Notes:
 
@@ -2184,7 +2184,7 @@ class TrigXnoiseMidi(PyoObject):
     defined with `mrange` parameter and output can be scaled on midi 
     notes, hertz or transposition factor.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Notes:
 
@@ -2434,7 +2434,7 @@ class Counter(PyoObject):
     count up, down, or up-and-down.
 
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2601,7 +2601,7 @@ class Select(PyoObject):
     and sends a trigger when the input matches `value` parameter. This
     object is especially designed to be used with Counter object.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2702,7 +2702,7 @@ class Change(PyoObject):
     """
     Sends trigger that informs when input value has changed.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2781,7 +2781,7 @@ class Thresh(PyoObject):
     parameter can be used to set the crossing mode, down-up, up-down, or 
     both.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2915,7 +2915,7 @@ class Percent(PyoObject):
     Percent looks at the triggers received in `input` and
     lets them pass `percent` of the time.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -3015,7 +3015,7 @@ class Between(PyoObject):
     Outputs a value of 1.0 if the input signal is greater or egal
     than `min` and less than `max`. Otherwise, outputs a value of 0.0.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -3140,7 +3140,7 @@ class Timer(PyoObject):
     in `input` signal stops it and reports the elapsed time between the two 
     triggers. Useful for filtering triggers that are too close to each other. 
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -3247,7 +3247,7 @@ class Iter(PyoObject):
     Iter loops over a list of user-defined values. When a trigger is received
     in `input`, Iter moves up to the next value in the list, with wrap-around. 
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

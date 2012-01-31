@@ -31,7 +31,7 @@ class Disto(PyoObject):
     
     Apply an arc tangent distortion with controllable drive to the input signal. 
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -153,7 +153,7 @@ class Delay(PyoObject):
     """
     Sweepable recursive delay.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -286,7 +286,7 @@ class SDelay(PyoObject):
     """
     Simple delay without interpolation.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -393,7 +393,7 @@ class Waveguide(PyoObject):
     A waveguide model consisting of one delay-line with a simple 
     lowpass filtering and lagrange interpolation.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -522,7 +522,7 @@ class AllpassWG(PyoObject):
     A waveguide model consisting of one delay-line with a 3-stages recursive
     allpass filter which made the resonances of the waveguide out of tune.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -684,7 +684,7 @@ class Freeverb(PyoObject):
     allpass units in series. Filters on each stream are slightly detuned 
     in order to create multi-channel effects.
         
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -834,7 +834,7 @@ class Convolve(PyoObject):
     """
     Implements filtering using circular convolution.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -1096,7 +1096,7 @@ class Chorus(PyoObject):
     """
     8 modulated delay lines chorus processor.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -1245,7 +1245,7 @@ class Harmonizer(PyoObject):
     """
     Generates harmonizing voices in synchrony with its input.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
