@@ -3,6 +3,7 @@
 import subprocess
 import wx
 import wx.stc  as  stc
+from wx.lib.embeddedimage import PyEmbeddedImage
 from pyo import *
 
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
@@ -26,6 +27,231 @@ else:
 faces2['size3'] = faces2['size2'] + 4
 for key, value in STYLES['Default'].items():
   faces2[key] = value
+
+# ***************** Catalog starts here *******************
+
+catalog = {}
+index = []
+
+#----------------------------------------------------------------------
+next_16_png = PyEmbeddedImage(
+  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADE0lEQVQ4jW2TW2gcBRSGv7ns"
+  "dWazs9tsY8Im2aUGaYOSKBYvbY0iXqFGxaJVbEqFgCCt+OhDbW0FFUm0oiiBGuyLIHip1qZQ"
+  "kvgkImGxdSW2abc1MdlkZ+87M7szs+tDLbXa/+3A+f6Xcz6BG+UQQ4gMIQIiIAAiX/Maqf+u"
+  "CtdNBxlWverYPZ1bEoPtd9CkSYsmNdcgVZhjrvDLTF2ov8rea0XCv+CxrV3b9u24eSdVs0au"
+  "plMza7g0CfgDaEoY0QvHLk9yvvbHbl7hMwDpH3jflq5tbzzft4sLuQwFs4i+qlMvW8iORLay"
+  "RlU2MOw693Xdz1ojO7z6YHaWE2RE3iSRCCf3v9C3i/OrC1h2nUbTplwq88nLRxjf8w7r1Xby"
+  "+TwFiqTL8wz3PkNQDh4FEBHYuz0xrC0Wl7DcOnbLxsbBwaElgOJXeHfnYW4KdVAslKgKBllb"
+  "Z2vnAwk+ZkRUvaGh/sitlMwy1XKV7KUVVjLLVFo1dky8SNEsofoU3nv6MFWzwvTZGaYWTxP2"
+  "rgOBJ+R4KD5Qtio4LZfiWoGxPW+T7Ej877JaIMzUS1/x1OfPMW8s0MAG0MSW0MJyLEzH5Ew2"
+  "fUP4asL+Njb33I7mUwkFFBBANlwDgOPpk+iWzuChe9EiESSPhFeWeeuRg/R3bALg5Lkf+HF5"
+  "ls7uGOuUMADyn9blmdTyr0O6mYeoRMpOIxgSvpLI+OPv0xO+hYrlMn3xFJ+e/YBkfzc+2Q8t"
+  "FyAlIjB5ob7AhljyylcERcSAiITEw31PUjYdvp8/wcRvR0hsitMZjXFbbCM/r/wE8I3EFKn8"
+  "Q6sjg+E7Nb1RoO5pIHtkvLZMrprl99wZvs0cI76xi/VahA1aL3bDYWLu6AyjHJAA3Mfc2Txr"
+  "z26O3eU3BQujZeIP+/jLuMSSfZH2nihtikqyrRfREXn99IFiw208yncUr7nwIQOKpE4PRO/W"
+  "Al4VvaGD3CSqtJGMdNMXTXKuMM8X6S9TlXplN6NXhLrexo/QgP2KJzQSV3u1oCeIV/ZgujWW"
+  "aosZ3cxNAuOMUryK/A0DAUOjoMsrKgAAAABJRU5ErkJggg==")
+index.append('next_16.png')
+catalog['next_16.png'] = next_16_png
+
+#----------------------------------------------------------------------
+next_24_png = PyEmbeddedImage(
+    "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"
+    "QmCC")
+index.append('next_24.png')
+catalog['next_24.png'] = next_24_png
+
+#----------------------------------------------------------------------
+play_16_png = PyEmbeddedImage(
+  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACK0lEQVQ4jZWTQUuUURSGn3Pu"
+  "/e6opM5kjYRUk2mZOWC0KqL8AS1cBBUUOf9Af4LbIJRo0yJs0V4hWhTUuC+SAslSclxESMM0"
+  "6cw4OvN9t8VUSgrZ2b8Pz3sOR7z3nLr6ZFpEh1F9LKpjH2euF9nnKICoGb505QKp7tSIdW65"
+  "79r0yP8BjGW9XAfbTk9vX7ytPT7Vf+Nptv/ms8F9AgxhJHwv1Vgt1mnv6CJ55MSQdU1zZ289"
+  "nxi4/SL+rwqEHkQVL8J6tUYNS2dXN4lDyVFjg+X0nZd71to28IKoIEYRo3iFSm2L5tZ2jp1M"
+  "xVva2qbSmWw2nckO7gKghnoEYhQ1AkbZioSNOnxbr/O1GBLvTHK85+iQi7m5dCY7kR55Fd9R"
+  "QQkjwYtQ2vSUqp4QRQOLa7YYZyhWIkp1S+9AioOH46OIjABYABFDedOzthFhnSFwBusMNjAY"
+  "q4g0dJuadLumGv4AUKFa86hRbNAIBzHbAAWKc0oyEVBZq/B5cZVqpTr+/tHlyR0GShAI9VAx"
+  "gWKdwcUMsWZLR8JxIAaLC3mKhfKsj3zm3cOLud9LbBgg2EBRIoxRrFXaWgOSHY5Cocqn+R85"
+  "H4Zjb+8Pzvx9Rvsrj7WChoILlK5kDB+FfJjPs1ljXNROvr57es//aAC8x1hIxAISccuXlTzl"
+  "Sjgrxmbe3DuT2yu4C9ASEyqVMksLpZwYOzb34Pwu3b1GATx+dmUpR361MO7D8Nx+wwA/Ad9d"
+  "udwSn5Q6AAAAAElFTkSuQmCC")
+index.append('play_16.png')
+catalog['play_16.png'] = play_16_png
+
+#----------------------------------------------------------------------
+play_24_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwY"
+    "AAAABGdBTUEAALGOfPtRkwAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAA"
+    "F2+SX8VGAAAEUUlEQVR42mL4//8/AwybxGw55ZB5+LW8VUUpAxMHNwMVAEAAMSFz+Pj5lbn4"
+    "JUS0rGO7TCKWHhVS9fViZGKjyAKAAEKx4N+//wwfP/9iePv5L4OAlJ6+oV/nZjW3zuVcYgbq"
+    "5FoAEEAoFvxnYGRgZARZ9I/hw+dvDN9//WeS0fOPMAiZc1LOtqaOhVOIn1QLAAIIzQImhv9A"
+    "C0C2MDIxMvz+85fh85dvDExsvPwKZkmNOmGrTonpx4UxsfIQbQFAAKFZgDCcEUYDVfz++5vh"
+    "15+fDDwiimpqro0rNfxnbOeTtzMlxgKAAMIIIgYGqOFAzASygBlEMwH5/xn+/vsFlP/NIK5u"
+    "72EQNvuwqvfEfjY+WTF8FgAEEKYF0CBiALueCWIZyBJmZgZmFqByZqAVf74zMLGysSuahRSY"
+    "JK49JW1VkMTCJcqKzQKAAMJiASRomJghljABDWViZgKz/wIj6Ofv/6DIZ/j47RfD6w9fGRi4"
+    "xOQ13Evn6kct3Cuo6mnDwMiCYgFAAKEmUwZouDMjLPnzj4HhK9DAzz/+gelf/4AWgSIGaCkj"
+    "EP/49Yfh05cfDPxy+ramsTP36UQsmMspoikPMxMggHD64PdfBoZP3/8xfPnxH8wG+YKFlZmB"
+    "lQ0JQ/mMLIxgS77++scqZ+iaZJG65rS4QZwvyEyAAMKwAJjXGL4CDf4MxH+BbGZWRrAhLGAM"
+    "soQJzAaLsUPEWYE0Kwczwy+ghnefvjMIysiLiqo7RAONZAMIIJQAAyZ7hq9f/wJd/B9sAChS"
+    "QZgF6HomoCuZofEBTl1MsBQHKQGYgI7h52Nh4GRnZ3h55+LzR8dm7QaZCRBAqBYAFf4BamAB"
+    "GcwMMZAZbDjE5UwwPjMshUHyDjfQMTxcHAxf3rz6cWHH5FWPjs6a8ff764tAqV8AAYRiAchl"
+    "zMyQzAUyBG4JDAPDHGYBAxCzAfn8vJwMf779YLh5aP2hmzu6Jn9/dWUv0Kj3MDMBAgjFAnDK"
+    "YYJZwAS3EGIBM9hnEN8ADeZjZ2BlZmV4cOHUvcubu6a9u755FdCIp+DEiAQAAgjVB4ywIoIB"
+    "mlyZ4MkVHCxAw3mBBvNyczK8ffL0y4VNkxc+Pj537v9fH6+CggNbRgMIILQggmAGRuSyCJJ0"
+    "2TlYGISFeBh+ff3278yGRXtu7uiY/Ov9nUNA1Z/wFRUAAYQaRFCDGYDlDogCAVCYCwlyMbCz"
+    "sjLcOXng6tUtXVM+3d+/ESj1Ej04sAGAAEKLA3DKgxd6PNxswLDmYvjw5N6bazunzntxYcWi"
+    "/3++3gQlOGKLa4AAYkEXAFbNDOzAjCMiwsPw78enX5e2Lth0/8CkKX++vTgNlP5GaoUDEEAo"
+    "FrCwsDII8/MAU8c/hqcX95y7s7dvwtfnZ7YBpd7BqgtSAUAAoVjw/dPLZ7++PPt7/+is6W+u"
+    "b1rM8O/3A1KCAxsACCAG5GYLEyuXOAMTuyZQnIuBSgAgwABgBVyq5zW6mgAAAABJRU5ErkJg"
+    "gg==")
+index.append('play_24.png')
+catalog['play_24.png'] = play_24_png
+
+#----------------------------------------------------------------------
+previous_16_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADB0lEQVQ4jWWTXWxTdRiHn/M/"
+    "bc9KT7uzQruts6Tr5qjxq3olk2gxwRgvBsMYjQvJuCDDC8Ul3rMlg0RvEDVGwwXzwo9EQlgU"
+    "b4wKMQY1ks1lMXSBuk1kpWvpx+nOac+/Xb2ABLL9rt/nvXoehc2bxEBwAIX9CAxUQGEJwWXe"
+    "ZXrzubIJnghtCx/bHx82BowEGhqKopBzbpM2r/Fz7sdSXq4d5h0ubH0wydmRXYdG93SnWC1n"
+    "KVpFHClxpIPqcWH42+nQ25lZPc8fxSsf8BbjAOo9+NSRR48efTL4NNfXMqxLC7NSxS5aRNsj"
+    "ZNeymKLKHVlid9ezmM3KM7de+G+Z75lTmSSWCD7y9VDsIJn8P8iNBlWzijTrnBg5ziu7D2A1"
+    "a8xm52npkHMK7Ik8x3xxNmW/ZH8mUDj+xsAhVu6s0Gg1qJomjllnamSC3s4YAIuF60itieNq"
+    "UFPrLNv/kurZZ6Aw6vJpemq7FiJXTFOtVHFMhxMjE8TvwUe+eZvpP7/ApaqoQkW4BaLTTWrn"
+    "ICg8L6L+aMysmTRbTcqFMicfgAHOvPoh8r0C9skc1alVxgffJLDhRXWpAIZoKS1kU2I1bH5Z"
+    "ukK5bm5R48F5PW10+PwEvD4AXLWNWmldWsZXs+dwPA57T73MD+MXeSLyOADnFs5zMf0dbW4P"
+    "BStPXubpjoYI60FQQCzbS5fmVxdoKS3QBSVflX1nhvht+S8qdoMX+4YIaB1k5A08vSr9T8WI"
+    "d+5krZYFmBMIZjLNRfpCvSCAgMDU13n9y9e4enOBit2gL5igPaATCgbpNnbw2I4Ei6VrAKcV"
+    "AM9pbXbQtzeZKd1kpXULt9eNr6ERlttJRpKUmznC/QbRSBf9Ri+Z7ApTl9+fZozDAsBR6sO/"
+    "1n4qxTujJIIP33VcV5FdkhueNGqPglf30qM9hLVe56PfP52Duyrfb+Fjkh6hnY37dyVjgQGs"
+    "DRuXS8HY5qenvQtda+PvwgIz6W8vAcOMUdpaI8AnjKJwLOztTqpCoAqBbEluW9kLwOeM3S8R"
+    "4H+CxjLaWnLaLQAAAABJRU5ErkJggg==")
+index.append('previous_16.png')
+catalog['previous_16.png'] = previous_16_png
+
+#----------------------------------------------------------------------
+previous_24_png = PyEmbeddedImage(
+    "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"
+    "BgD9qrwV+ofghAAAAABJRU5ErkJggg==")
+index.append('previous_24.png')
+catalog['previous_24.png'] = previous_24_png
+
+#----------------------------------------------------------------------
+up_16_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB00lEQVQ4jZWSPWhTURiGn/N7"
+    "0yrNHURBFG2sJrSDii6CoEFxcxccBAc7qNS6OYmDiFKR4lA6qIvi4OaiYCFmcXCKXYpOggFx"
+    "EINwm5zcP4d7Caa5Fnvg43A+vvfh5T2f4F9nmSNAI3/VmaVVNCY3E1+vzvv3ji74Y2q8kff+"
+    "A5CLr1Vv+NXyDD/dby5NXfGNtA2WRiGySHy1NucfKk+z0n7P2q8vaDwuTl72bWIbPBqGiELx"
+    "xDQr7Sb9uE9CAgIO+pN0w4AXq886fefq3MoyEUO2c/G7dpNe7IjTiIQUIVKklFT9KVy4zvOP"
+    "Tzuu5+rcoSUGgdXmM9vfmnTjHutxQBAFuMSBgJgIrTTHdhwmCUNefXjZcd1eXXGetbnaTf/E"
+    "zpN87/5AScWB8n5ef31DEAeE9ElEzNk9p6lM7GPclNg2tp3Krkpp9XPrgmCZdGOy948v8uDT"
+    "Ip42eNpiteHc3jqP3z6EiKzC7NbM/hUkwBKplBKjNFYZrDaUTAYhAu4Oz4/uQQRSZACjNdYY"
+    "PGMxSmeATfdgABAYpQYuPJ05IdwCQMkcoDVWm605EDlAKYXOQVqpQoAuBABndp/CM1mAJeOh"
+    "pCwEiJHObdKNXzWoGHgyrPkDdGqej7PMgTEAAAAASUVORK5CYII=")
+index.append('up_16.png')
+catalog['up_16.png'] = up_16_png
+
+#----------------------------------------------------------------------
+up_24_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwY"
+    "AAAABGdBTUEAALGOfPtRkwAAACBjSFJNAAB6JQAAgIMAAPn/AACA6QAAdTAAAOpgAAA6mAAA"
+    "F2+SX8VGAAAEpElEQVR42mJkmMZAGPxnYGBmZo61kLZsPb3uVMuv+b9mMRAJAAKImcGbgIp/"
+    "DAyMTIzREQoxc825bIW41Li97v25/fLf1X9nibEAIIDwWwA0nI2FLTpKMXaeKKM027WPNxlE"
+    "OcSZJEwkPe//JM4SgADCbQHQcHYW9uhY5cR5PP9F2O59fcDAwMrI8PnPZwYhFlEmSWMpzwe/"
+    "7hC0BCCAsFsANTxaOWEex18+tnvfgIazMDD8BUr8+/+P4fOvL0BLRJikjKWBltzFawlAAGFa"
+    "gGQ4+z9etvvfHjIwMjMy/P33l+Ev0PD/DCDMwPAVaIkgqzCTtAnQkp+4LQEIIFQLgIZzsHBE"
+    "x6skz2P9x8N2/+tDBgYmoOH//4DcDnQ92A8M/xlBGGjJb6BPWEWYZIxlPR98A1pyHdMSgABC"
+    "WAAzXDVlHutfbmCwAA1nZgC7GhQsYMgISlIQ5YxAmglo+be/3xlE2MWY5ICW3P8MtOQGqiUA"
+    "AQSxAGp4AtBwtr884GBhZmYCBwUoSP4AffD732+GH/9+MPz4+4Ph57+fYPwLiP8BY+bjz48M"
+    "ghzCTLKGMp4PP95/+e8WwhKAAGJkmMrAwMXMFR0HDBb2v8Aw//6Q4Q/jX4Yvf76CNX76/Ynh"
+    "259vYEsYmICeYmJiYGZkBjuABchmZGQC5RNgSDIyiPOIMTD/+fv3xIwj2b+2/ZoJsgAggJhZ"
+    "wlmy47QT58jzKjO/ZHjN8J/zH8OHXx8Y7r17wHD30wOGr0DDQcHDBDaQmYGFmYWBlQWIgTQT"
+    "MzODGKcIgxSfBIMQLz8DKxsLg5SQNJOQvpDPww/3v/2//f8EQACx/F3zV3wl6/J5f/79+Q90"
+    "xf8///7+4Nfms9KwNDV69ugFAwcrG9BgFiTDmeFsoOMZhHkEGE5vOHLp681vx4DhyfL/Pzie"
+    "mP9//68A9LEoQACx/N/8v+4Tw0eUmOdgZK9ncmA0AgcHEyg4mME0yHCQy1mYITQ4aNiAme/y"
+    "l6PfD3zLwpJK2QACiAVDSBvoAE+gxh+MDCygsAZawgJ0KiszzOUQw0EYFA9gmoWJFUc++wUQ"
+    "QCzohjOkM4ByLSPjPya4y0E0C9jlLHDDWVlYgTQTAxszKzgV4gIAAYSwQAuIUyBFM8MPBnCq"
+    "YIIFERPEJ6xQ17NBI5mVFcIH68EBAAKICUxqAnESwnBg0gaHLyRJQpIjzCJYBIMsYQP7ggWv"
+    "DwACiAVseBwkszH8gor+BSV5UNpmgvuCBZRMwRjoaiakoALy8fkAIIBYGKKgLv+JqL0Y/oCK"
+    "AkYwZoYFFSjCGaG+YEbkBxZG/D4ACCAWkGtBBiJXjxA+KIgghkPiAxpkUAy2hAmSZBnxWAAQ"
+    "QCwMvzHrX3AcoKuE+giEmaAYZhk+ABCAjjpIAgCCYSgahrTF9P5ntTDK1sgNsni/PPcOxJVy"
+    "tw6fjsEWISQkRCsJo1zdWgWmAjfHDdJnWwCxMHzG9MGXn1++P7h66xv7X2ABzfid4SfjT2Co"
+    "MTN8B5rzCSlVgeLhFssthh8/fvxigHgaI7oBAoiRgR1rM4UXGHTyQBY72E//8YYC0DagM/8y"
+    "3Aey0QOcASDAAN0xfmdOgZiqAAAAAElFTkSuQmCC")
+index.append('up_24.png')
+catalog['up_24.png'] = up_24_png
 
 _INTRO_TEXT =   """
 pyo manual version %s
@@ -106,7 +332,7 @@ def _ed_set_style(editor, searchKey=None):
     editor.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % faces2)
     editor.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % faces2)
     editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.SetCaretForeground(faces2["background"])
+    #editor.SetCaretForeground(faces2["background"])
 
 def complete_words_from_str(text, keyword):
     words = [keyword]
@@ -124,7 +350,7 @@ def complete_words_from_str(text, keyword):
 
 class ManualPanel(wx.Treebook):
     def __init__(self, parent):
-        wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT)
+        wx.Treebook.__init__(self, parent, -1, style=wx.BK_DEFAULT | wx.SUNKEN_BORDER)
         self.parent = parent
         self.searchKey = None
         self.Bind(wx.EVT_TREEBOOK_PAGE_CHANGED, self.OnPageChanged)
@@ -387,10 +613,10 @@ class ManualPanel(wx.Treebook):
                                 inside_examples = True
                             last_line = line
                         methods = self.getMethodsDoc(text, obj)
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                         panel.win.SetText(args + text_form + methods)
                     except:
-                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                        panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                         panel.win.SetText(args + "\nnot documented yet...\n\n")
                 else:
                     try:
@@ -408,10 +634,10 @@ class ManualPanel(wx.Treebook):
                         for o in OBJECTS_TREE["PyoObject"][obj]:
                             text += o + ": " + self.getDocFirstLine(o)
                         obj = "PyoObj - " + obj
-                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                    panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                     panel.win.SetText(text)
             else:
-                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600))
+                panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                 panel.win.SetText(_INTRO_TEXT)
 
             panel.win.SaveFile(os.path.join(DOC_PATH, obj))
@@ -471,10 +697,10 @@ class ManualPanel(wx.Treebook):
                 panel = self.GetPage(self.GetSelection())
                 if not panel.isLoad:
                     panel.isLoad = True
-                    panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize())
+                    panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
                     panel.win.LoadFile(os.path.join(DOC_PATH, word))
                     panel.win.SetMarginWidth(1, 0)
-                    panel.win.SetReadOnly(True)
+                    #panel.win.SetReadOnly(True)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
                     if self.searchKey != None:
                         words = complete_words_from_str(panel.win.GetText(), self.searchKey)
@@ -567,43 +793,45 @@ class ManualPanel(wx.Treebook):
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
-gosearchID = 1000
 class ManualFrame(wx.Frame):
     def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700)):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
 
+        gosearchID = 1000
         aTable = wx.AcceleratorTable([(wx.ACCEL_NORMAL, 47, gosearchID)])
         self.SetAcceleratorTable(aTable)
         self.Bind(wx.EVT_MENU, self.setSearchFocus, id=gosearchID)
 
-        self.toolbar = self.CreateToolBar()
-        self.toolbar.SetToolBitmapSize((16,16))  # sets icon size
+        tb_size = 24
 
-        # Use wx.ArtProvider for default icons
-        back_ico = wx.ArtProvider.GetBitmap(wx.ART_GO_BACK, wx.ART_FRAME_ICON, (16,16))
-        backTool = self.toolbar.AddSimpleTool(wx.ID_BACKWARD, back_ico, "Back")
+        self.toolbar = self.CreateToolBar()
+        self.toolbar.SetToolBitmapSize((tb_size, tb_size))  # sets icon size
+
+        back_ico = catalog["previous_%d.png" % tb_size]
+        forward_ico = catalog["next_%d.png" % tb_size]
+        home_ico = catalog["up_%d.png" % tb_size]
+        exec_ico = catalog["play_%d.png" % tb_size]
+
+        backTool = self.toolbar.AddSimpleTool(wx.ID_BACKWARD, back_ico.GetBitmap(), "Back")
         self.toolbar.EnableTool(wx.ID_BACKWARD, False)
         self.Bind(wx.EVT_MENU, self.onBack, backTool)
 
         self.toolbar.AddSeparator()
 
-        forward_ico = wx.ArtProvider.GetBitmap(wx.ART_GO_FORWARD, wx.ART_FRAME_ICON, (16,16))
-        forwardTool = self.toolbar.AddSimpleTool(wx.ID_FORWARD, forward_ico, "Forward")
+        forwardTool = self.toolbar.AddSimpleTool(wx.ID_FORWARD, forward_ico.GetBitmap(), "Forward")
         self.toolbar.EnableTool(wx.ID_FORWARD, False)
         self.Bind(wx.EVT_MENU, self.onForward, forwardTool)
 
         self.toolbar.AddSeparator()
 
-        home_ico = wx.ArtProvider.GetBitmap(wx.ART_GO_HOME, wx.ART_FRAME_ICON, (16,16))
-        homeTool = self.toolbar.AddSimpleTool(wx.ID_HOME, home_ico, "Go Home")
+        homeTool = self.toolbar.AddSimpleTool(wx.ID_HOME, home_ico.GetBitmap(), "Go Home")
         self.toolbar.EnableTool(wx.ID_HOME, True)
         self.Bind(wx.EVT_MENU, self.onHome, homeTool)
 
         self.toolbar.AddSeparator()
 
-        exec_ico = wx.ArtProvider.GetBitmap(wx.ART_EXECUTABLE_FILE, wx.ART_FRAME_ICON, (16,16))
-        execTool = self.toolbar.AddSimpleTool(wx.ID_PREVIEW, exec_ico, "Run Example")
+        execTool = self.toolbar.AddSimpleTool(wx.ID_PREVIEW, exec_ico.GetBitmap(), "Run Example")
         self.toolbar.EnableTool(wx.ID_PREVIEW, True)
         self.Bind(wx.EVT_MENU, self.onRun, execTool)
 
@@ -619,11 +847,12 @@ class ManualFrame(wx.Frame):
             self.searchMenu.Append(id, txt)
             self.Bind(wx.EVT_MENU, self.onSearchScope, id=id)
 
-        self.search = wx.SearchCtrl(self.toolbar, 200, size=(200,-1))
+        self.search = wx.SearchCtrl(self.toolbar, 200, size=(200,-1), style=wx.WANTS_CHARS | wx.TE_PROCESS_ENTER)
         self.search.ShowCancelButton(True)
         self.search.SetMenu(self.searchMenu)
         self.toolbar.AddControl(self.search)
         self.Bind(wx.EVT_TEXT, self.onSearch, id=200)
+        self.Bind(wx.EVT_TEXT_ENTER, self.onSearchEnter, id=200)
         self.Bind(wx.EVT_SEARCHCTRL_CANCEL_BTN, self.onSearchCancel, id=200)
 
         self.toolbar.Realize()
@@ -654,6 +883,9 @@ class ManualFrame(wx.Frame):
 
     def setSearchFocus(self, evt):
         self.search.SetFocus()
+
+    def onSearchEnter(self, evt):
+        self.doc_panel.GetTreeCtrl().SetFocus()
 
     def onSearch(self, evt):
         if self.searchTimer != None:

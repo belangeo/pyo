@@ -2490,7 +2490,7 @@ class IRFM(PyoObject):
         Input signal to filter.
     carrier : float or PyoObject, optional
         Carrier frequency in cycles per second. Defaults to 1000.
-    bw : float or PyoObject, optional
+    ratio : float or PyoObject, optional
         A factor that, when multiplied by the `carrier` parameter, 
         gives the modulator frequency. Defaults to 0.5.
     index : float or PyoObject, optional
