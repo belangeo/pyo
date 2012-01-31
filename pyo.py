@@ -100,7 +100,7 @@ class FreqShift(PyoObject):
     """
     Frequency shifting using single sideband amplitude modulation.
 
-    Shifting frequencies means that the input signal can be "detuned," 
+    Shifting frequencies means that the input signal can be detuned, 
     where the harmonic components of the signal are shifted out of 
     harmonic alignment with each other, e.g. a signal with harmonics at 
     100, 200, 300, 400 and 500 Hz, shifted up by 50 Hz, will have harmonics 
@@ -129,7 +129,7 @@ class FreqShift(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SineLoop(freq=300, feedback=.1, mul=.5)
+    >>> a = SineLoop(freq=300, feedback=.1, mul=.3)
     >>> lf1 = Sine(freq=.04, mul=10)
     >>> lf2 = Sine(freq=.05, mul=10)
     >>> b = FreqShift(a, shift=lf1, mul=.5).out()
@@ -159,7 +159,7 @@ class FreqShift(PyoObject):
             self._base_objs.extend(self._mod_objs[-1].getBaseObjects())
 
     def __dir__(self):
-        return ["input", "shift", "mul", "add"]    
+        return ["input", "shift", "mul", "add"]
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)

@@ -28,13 +28,13 @@ from _maps import *
 class Disto(PyoObject):
     """
     Arc tangent distortion.
-    
+
     Apply an arc tangent distortion with controllable drive to the input signal. 
-    
+
     Parentclass : PyoObject
 
     Parameters:
-    
+
     input : PyoObject
         Input signal to process.
     drive : float or PyoObject, optional
@@ -51,18 +51,18 @@ class Disto(PyoObject):
     setSlope(x) : Replace the `slope` attribute.
 
     Attributes:
-    
-    input : PyoObject. Input signal to filter.
+
+    input : PyoObject. Input signal to process.
     drive : float or PyoObject. Amount of distortion.
     slope : float or PyoObject. Slope of the lowpass filter.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> lfo = Sine(freq=.25, mul=.5, add=.5)
-    >>> d = Disto(a, drive=lfo, slope=.8, mul=.5).out()
+    >>> lfo = Sine(freq=[.2,.25], mul=.5, add=.5)
+    >>> d = Disto(a, drive=lfo, slope=.8, mul=.15).out()
 
     """
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
@@ -152,11 +152,11 @@ class Disto(PyoObject):
 class Delay(PyoObject):
     """
     Sweepable recursive delay.
-    
+
     Parentclass : PyoObject
 
     Parameters:
-    
+
     input : PyoObject
         Input signal to delayed.
     delay : float or PyoObject, optional
@@ -176,18 +176,18 @@ class Delay(PyoObject):
     reset() : Reset the memory buffer to zeros.
 
     Attributes:
-    
+
     input : PyoObject. Input signal to delayed.
     delay : float or PyoObject. Delay time in seconds.
     feedback : float or PyoObject. Amount of output signal sent back 
         into the delay line.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
-    >>> d = Delay(a, delay=.2, feedback=.7, mul=.5).out(1)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.3).mix(2).out()
+    >>> d = Delay(a, delay=[.15,.2], feedback=.5, mul=.4).out()
 
     """
     def __init__(self, input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0):
@@ -212,7 +212,7 @@ class Delay(PyoObject):
         Parameters:
 
         x : PyoObject
-            New signal to process.
+            New signal to delayed.
         fadetime : float, optional
             Crossfade time between old and new input. Defaults to 0.05.
 
@@ -291,7 +291,7 @@ class SDelay(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to be delayed.
+        Input signal to delayed.
     delay : float or PyoObject, optional
         Delay time in seconds. Defaults to 0.25.
     maxdelay : float, optional
@@ -313,8 +313,10 @@ class SDelay(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True).out()
-    >>> d = SDelay(a, delay=.25, mul=.5).out(1)
+    >>> srPeriod = 1. / s.getSamplingRate()
+    >>> dlys = [srPeriod * i * 5 for i in range(1, 7)]
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
+    >>> d = SDelay(a, delay=dlys, mul=.1).out(1)
 
     """
     def __init__(self, input, delay=0.25, maxdelay=1, mul=1, add=0):
@@ -389,16 +391,16 @@ class SDelay(PyoObject):
 class Waveguide(PyoObject):
     """
     Basic waveguide model.
-    
-    A waveguide model consisting of one delay-line with a simple 
+
+    This waveguide model consisting of one delay-line with a simple 
     lowpass filtering and lagrange interpolation.
-    
+
     Parentclass : PyoObject
 
     Parameters:
-    
+
     input : PyoObject
-        Input signal to delayed.
+        Input signal to process.
     freq : float or PyoObject, optional
         Frequency, in cycle per second, of the waveguide (i.e. the inverse 
         of delay time). Defaults to 100.
@@ -414,21 +416,20 @@ class Waveguide(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
     setFreq(x) : Replace the `freq` attribute.
     setDur(x) : Replace the `dur` attribute.
-    
+
     Attributes:
-    
-    input : PyoObject. Input signal to delayed.
+
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Frequency in cycle per second.
     dur : float or PyoObject. Resonance duration in seconds.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = LinTable([(0,0), (2,1), (5,0), (8191,0)])
-    >>> met = Metro().play()
-    >>> pick = TrigEnv(met, table=t, dur=1)
-    >>> w = Waveguide(pick, freq=[200,400], dur=20, minfreq=20, mul=.5).out()
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.98,1.02], loop=True)
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.2)
+    >>> w = Waveguide(gt, freq=[60,120.17,180.31,240.53], dur=20, minfreq=20, mul=.4).out()
 
     """
     def __init__(self, input, freq=100, dur=10, minfreq=20, mul=1, add=0):
@@ -496,7 +497,7 @@ class Waveguide(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -519,7 +520,7 @@ class AllpassWG(PyoObject):
     """
     Out of tune waveguide model with a recursive allpass network.
 
-    A waveguide model consisting of one delay-line with a 3-stages recursive
+    This waveguide model consisting of one delay-line with a 3-stages recursive
     allpass filter which made the resonances of the waveguide out of tune.
 
     Parentclass : PyoObject
@@ -527,7 +528,7 @@ class AllpassWG(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to delayed.
+        Input signal to process.
     freq : float or PyoObject, optional
         Frequency, in cycle per second, of the waveguide (i.e. the inverse 
         of delay time). Defaults to 100.
@@ -550,7 +551,7 @@ class AllpassWG(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to delayed.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Frequency in cycle per second.
     feed : float or PyoObject. Amount of output signal sent back into the delay line.
     detune : float or PyoObject. Depth of the detuning.
@@ -559,13 +560,11 @@ class AllpassWG(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = CurveTable([(0,0.0),(512,0.97),(1024,-0.94),(1536,0.0),(8192,0.0000)])
-    >>> rnd = Randi(min=.97, max=1.03, freq=[.143,.2,.165,.111])
-    >>> src = Osc(t, rnd*74.79, mul=.05)
-    >>> rnd2 = Randi(min=.5, max=1.0, freq=[.13,.22,.155,.171])
-    >>> det = Sig(0.75, mul=rnd2)
-    >>> rnd3 = Randi(min=.95, max=1.05, freq=[.145,.2002,.1055,.071])
-    >>> fx = AllpassWG(src, freq=rnd3*[74.87,75,75.07,75.21], feed=1, detune=det, mul=.25).out()
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.98,1.02], loop=True)
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.2)
+    >>> rnd = Randi(min=.5, max=1.0, freq=[.13,.22,.155,.171])
+    >>> rnd2 = Randi(min=.95, max=1.05, freq=[.145,.2002,.1055,.071])
+    >>> fx = AllpassWG(gt, freq=rnd2*[74.87,75,75.07,75.21], feed=1, detune=rnd, mul=.15).out()
 
     """
     def __init__(self, input, freq=100, feed=0.95, detune=0.5, minfreq=20, mul=1, add=0):
@@ -649,7 +648,7 @@ class AllpassWG(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -678,16 +677,16 @@ class AllpassWG(PyoObject):
 class Freeverb(PyoObject):
     """
     Implementation of Jezar's Freeverb.
-    
+
     Freeverb is a reverb unit generator based on Jezar's public domain 
     C++ sources, composed of eight parallel comb filters, followed by four 
     allpass units in series. Filters on each stream are slightly detuned 
     in order to create multi-channel effects.
-        
+
     Parentclass : PyoObject
 
     Parameters:
-    
+
     input : PyoObject
         Input signal to process.
     size : float or PyoObject, optional
@@ -707,20 +706,20 @@ class Freeverb(PyoObject):
     setSize(x) : Replace the `size` attribute.
     setDamp(x) : Replace the `damp` attribute.
     setBal(x) : Replace the `bal` attribute.
-    
+
     Attributes:
-    
+
     input : PyoObject. Input signal to process.
     size : float or PyoObject. Room size.
     damp : float or PyoObject. High frequency damping.
     bal : float or PyoObject. Balance between wet and dry signal.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> b = Freeverb(a, size=.8, damp=.9, bal=.3).out()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4)
+    >>> b = Freeverb(a, size=[.79,.8], damp=.9, bal=.3).out()
 
     """
     def __init__(self, input, size=.5, damp=.5, bal=.5, mul=1, add=0):
@@ -833,13 +832,16 @@ class Freeverb(PyoObject):
 class Convolve(PyoObject):
     """
     Implements filtering using circular convolution.
- 
+
+    A circular convolution is defined as the integral of the product of two 
+    functions after one is reversed and shifted.
+
     Parentclass: PyoObject
-   
+
     Parameters:
-    
+
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     table : PyoTableObject
         Table containning the impulse response.
     size : int
@@ -855,24 +857,24 @@ class Convolve(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     table : PyoTableObject. Table containning the impulse response.
-    
+
     Notes :
-    
+
     Convolution is very expensive to compute, so the impulse response must
     be kept very short to run in real time.
-    
+
     Usually convolution generates a high amplitude level, take care of the
     `mul` parameter!
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SNDS_PATH + '/transparent.aif'
-    >>> sf = SfPlayer(snd, loop=True, mul=.5).out()
-    >>> a = Convolve(sf, SndTable(SNDS_PATH+'/accord.aif'), size=512, mul=.3).out()
+    >>> sf = SfPlayer(snd, speed=[.999,1], loop=True, mul=.25).out()
+    >>> a = Convolve(sf, SndTable(SNDS_PATH+'/accord.aif'), size=512, mul=.2).out()
 
     """
     def __init__(self, input, table, size, mul=1, add=0):
@@ -939,17 +941,17 @@ class Convolve(PyoObject):
 class WGVerb(PyoObject):
     """
     8 delay line mono FDN reverb.
-    
+
     8 delay line FDN reverb, with feedback matrix based upon physical 
     modeling scattering junction of 8 lossless waveguides of equal 
     characteristic impedance.
-    
+
     Parentclass : PyoObject
 
     Parameters:
-    
+
     input : PyoObject
-        Input signal to reverberated.
+        Input signal to process.
     feedback : float or PyoObject, optional
         Amount of output signal sent back into the delay lines.
         0.6 gives a good small "live" room sound, 0.8 a small hall, 
@@ -967,22 +969,22 @@ class WGVerb(PyoObject):
     setFeedback(x) : Replace the `feedback` attribute.
     setCutoff(x) : Replace the `cutoff` attribute.
     setBal(x) : Replace the `bal` attribute.
-    
+
     Attributes:
-    
-    input : PyoObject. Input signal to delayed.
+
+    input : PyoObject. Input signal to process.
     feedback : float or PyoObject. Amount of output signal sent back 
         into the delay line.
     cutoff : float or PyoObject. Internal lowpass filter cutoff 
         frequency in Hz.
     bal : float or PyoObject. Balance between wet and dry signal.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> d = WGVerb(a, feedback=.75, cutoff=5000, bal=.25, mul=.5).out()
+    >>> d = WGVerb(a, feedback=[.74,.75], cutoff=5000, bal=.25, mul=.3).out()
 
     """
     def __init__(self, input, feedback=0.5, cutoff=5000, bal=0.5, mul=1, add=0):
@@ -1066,7 +1068,7 @@ class WGVerb(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to delayed.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1096,6 +1098,9 @@ class Chorus(PyoObject):
     """
     8 modulated delay lines chorus processor.
 
+    A chorus effect occurs when individual sounds with roughly the same timbre and 
+    nearly (but never exactly) the same pitch converge and are perceived as one.
+    
     Parentclass : PyoObject
 
     Parameters:
@@ -1131,7 +1136,7 @@ class Chorus(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5)
-    >>> chor = Chorus(sf, depth=2, feedback=0.5, bal=0.5).out()
+    >>> chor = Chorus(sf, depth=[1.5,1.6], feedback=0.5, bal=0.5).out()
 
     """
     def __init__(self, input, depth=1, feedback=0.25, bal=0.5, mul=1, add=0):
@@ -1243,19 +1248,19 @@ class Chorus(PyoObject):
 
 class Harmonizer(PyoObject):
     """
-    Generates harmonizing voices in synchrony with its input.
+    Generates harmonizing voices in synchrony with its audio input.
 
     Parentclass : PyoObject
 
     Parameters:
 
     input : PyoObject
-        Input signal.
+        Input signal to process.
     transpo : float or PyoObject, optional
        Transposition factor in semitone. Defaults to -7.0.
     feedback : float or PyoObject, optional
         Amount of output signal sent back into the delay line.
-         Defaults to 0.
+        Defaults to 0.
     winsize : float, optional
         Window size in seconds (max = 1.0). 
         Defaults to 0.1.
@@ -1279,8 +1284,8 @@ class Harmonizer(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5).out(0)
-    >>> harm = Harmonizer(sf, 4).out(1)
+    >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.3).out()
+    >>> harm = Harmonizer(sf, transpo=-5, winsize=0.05).out(1)
 
     """
     def __init__(self, input, transpo=-7.0, feedback=0, winsize=0.1, mul=1, add=0):
