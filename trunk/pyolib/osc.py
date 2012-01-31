@@ -45,7 +45,7 @@ class OscSend(PyoObject):
     computers. Only the first value of each input buffersize will be 
     sent on the OSC port.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -133,7 +133,7 @@ class OscReceive(PyoObject):
     other computers. Get a value at the beginning of each buffersize 
     and fill it's buffer with it.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -238,7 +238,7 @@ class OscDataSend(PyoObject):
     computers. Values are sent on the form of a list containing `types`
     elements.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -340,7 +340,7 @@ class OscDataReceive(PyoObject):
     argument `function` is called with the current address destination in 
     argument followed by a tuple of values.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

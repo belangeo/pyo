@@ -41,7 +41,7 @@ class Midictl(PyoObject):
     Get the current value of a controller and optionally map it 
     inside a specified range.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -219,7 +219,7 @@ class CtlScan(PyoObject):
     a standard python `function`. Useful to implement a MidiLearn
     algorithm.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -332,7 +332,7 @@ class Notein(PyoObject):
     noteon - noteoff streams in the `scale` format (Midi, hertz 
     or transpo).
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
     
@@ -511,7 +511,7 @@ class Bendin(PyoObject):
     Get the current value of the pitch bend controller and optionally 
     maps it inside a specified range.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -644,7 +644,7 @@ class Touchin(PyoObject):
     Get the current value of an after-touch Midi controller and optionally 
     maps it inside a specified range.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -769,7 +769,7 @@ class Programin(PyoObject):
 
     Get the current value of a program change Midi controller.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -849,7 +849,7 @@ class MidiAdsr(PyoObject):
     the real sustain value. A 0 in input (note off) starts the
     release part of the envelope.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1041,7 +1041,7 @@ class MidiDelAdsr(PyoObject):
     peak value and sets the real sustain value. A 0 in input (note off) 
     starts the release part of the envelope.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

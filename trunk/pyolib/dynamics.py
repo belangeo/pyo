@@ -29,7 +29,7 @@ class Clip(PyoObject):
     """
     Clips a signal to a predefined limit.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -153,7 +153,7 @@ class Mirror(PyoObject):
     This object is useful for table indexing or for clipping and
     modeling an audio signal.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -282,7 +282,7 @@ class Wrap(PyoObject):
     This object is useful for table indexing, phase shifting or for 
     clipping and modeling an audio signal.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -414,7 +414,7 @@ class Degrade(PyoObject):
     Degrade takes an audio signal and reduces the sampling rate and/or 
     bit-depth as specified.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
     
@@ -538,7 +538,7 @@ class Compress(PyoObject):
     """
     Reduces the dynamic range of an audio signal.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 
@@ -781,7 +781,7 @@ class Gate(PyoObject):
     from the signal. When the gate is open both the signal and the noise will 
     pass through.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

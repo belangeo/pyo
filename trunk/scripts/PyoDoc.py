@@ -617,7 +617,7 @@ class ManualPanel(wx.Treebook):
                         panel.win.SetText(args + text_form + methods)
                     except:
                         panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
-                        panel.win.SetText(args + "\nnot documented yet...\n\n")
+                        panel.win.SetText(args + "\nNot documented yet...\n\n")
                 else:
                     try:
                         text = eval(obj).__doc__
@@ -628,7 +628,7 @@ class ManualPanel(wx.Treebook):
                             for o in OBJECTS_TREE["functions"]:
                                 text += o + ": " + self.getDocFirstLine(o)
                         else:
-                            text = "\nnot documented yet...\n\n"
+                            text = "\nNot documented yet...\n\n"
                     if obj in OBJECTS_TREE["PyoObject"].keys():
                         text += "\nOverview:\n"
                         for o in OBJECTS_TREE["PyoObject"][obj]:

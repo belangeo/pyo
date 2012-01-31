@@ -29,7 +29,7 @@ class Biquad(PyoObject):
     """
     A sweepable general purpose biquadratic digital filter. 
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
     
     Parameters:
     
@@ -185,7 +185,7 @@ class Biquadx(PyoObject):
     a large number of instances of the Biquad object, It uses less memory 
     and allows filters with sharper cutoff.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -375,7 +375,7 @@ class Biquada(PyoObject):
 
     The default values of the object give a lowpass filter with a 1000 Hz cutoff frequency.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -618,7 +618,7 @@ class EQ(PyoObject):
     provides peak/notch and lowshelf/highshelf filters for building 
     parametric equalizers.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
     
     Parameters:
     
@@ -798,7 +798,7 @@ class Tone(PyoObject):
     """
     A first-order recursive low-pass filter with variable frequency response.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -892,7 +892,7 @@ class Port(PyoObject):
     Perform an exponential portamento on an audio signal with 
     different rising and falling times.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 
@@ -1016,7 +1016,7 @@ class DCBlock(PyoObject):
     """
     Implements the DC blocking filter.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -1087,7 +1087,7 @@ class BandSplit(PyoObject):
     band will then be assigned to an independent audio stream. 
     Useful for multiband processing.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -1235,7 +1235,7 @@ class FourBand(PyoObject):
     stream. The sum of the four bands reproduces the same signal as 
     the `input`. Useful for multiband processing.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1437,7 +1437,7 @@ class Hilbert(PyoObject):
     sine output. The two outputs have a constant phase difference throughout the 
     audio range that corresponds to the phase relationship between cosine and sine waves.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
     
     Parameters:
     
@@ -1595,7 +1595,7 @@ class Allpass(PyoObject):
     filter. This kind of filter is often used in simple digital reverb
     implementations.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -1732,7 +1732,7 @@ class Allpass2(PyoObject):
     of this filter, when added to original sound, creates a notch in
     the spectrum at frequencies that are in phase opposition.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
     
     Parameters:
     
@@ -1858,7 +1858,7 @@ class Phaser(PyoObject):
 
     Phaser implements `num` number of second-order allpass filters.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
 
     Parameters:
 
@@ -2045,7 +2045,7 @@ class IRWinSinc(PyoObject):
     response and sharp roll-off. User can defined the length, in samples,
     of the impulse response, also known as the filter kernel.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2222,7 +2222,7 @@ class IRAverage(PyoObject):
     the filter kernel. This controls the ratio of removed noise vs the fidelity
     of the original step response.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2309,7 +2309,7 @@ class IRPulse(PyoObject):
     parameter defines variations of this pattern. User can defined the length, 
     in samples, of the impulse response, also known as the filter kernel.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2482,7 +2482,7 @@ class IRFM(PyoObject):
     impulse response, also known as the filter kernel. The higher the `order`,
     the narrower the bandwidth around each of the FM components.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

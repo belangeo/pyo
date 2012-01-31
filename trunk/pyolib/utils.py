@@ -71,7 +71,7 @@ class Print(PyoObject):
     """
     Print PyoObject's current value.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -234,7 +234,7 @@ class Snap(PyoObject):
     parameter, output can be in midi notes, hertz or transposition 
     factor (centralkey = 60).
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -356,7 +356,7 @@ class Interp(PyoObject):
     """
     Interpolates between two signals.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -482,7 +482,7 @@ class SampHold(PyoObject):
     to the value of `controlsig`. If `controlsig` equals `value`, the input 
     is sampled and holded until next sampling.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -607,7 +607,7 @@ class Compare(PyoObject):
     between two PyoObjects and outputs 1.0, as audio stream, if the
     comparison is true, otherwise outputs 0.0.
  
-    Parent class: PyoObject
+    Parentclass: PyoObject
    
     Parameters:
     
@@ -737,7 +737,7 @@ class Record(PyoObject):
     `input` parameter must be a valid PyoObject or an addition of 
     PyoObjects, parameters can't be in list format.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -827,7 +827,7 @@ class Denorm(PyoObject):
     Can be used before IIR filters and reverbs to avoid denormalized numbers which may 
     otherwise result in significantly increased CPU usage. 
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -904,7 +904,7 @@ class ControlRec(PyoObject):
     The play() method starts the recording and is not called at the 
     object creation time.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -989,7 +989,7 @@ class ControlRead(PyoObject):
 
     Read sampled sound from a table, with optional looping mode.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1184,7 +1184,7 @@ class NoteinRec(PyoObject):
     The play() method starts the recording and is not called at the 
     object creation time.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1259,7 +1259,7 @@ class NoteinRead(PyoObject):
     """
     Reads Notein values previously stored in text files.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1433,7 +1433,7 @@ class DBToA(PyoObject):
     The `input` values are internally clipped to -120 dB so -120 dB
     returns 0.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1505,7 +1505,7 @@ class AToDB(PyoObject):
     The `input` values are internally clipped to 0.000001 so values
     less than or equal to 0.000001 return -120 dB.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1578,7 +1578,7 @@ class Scale(PyoObject):
     The ranges can be specified with `min` and `max` reversed for 
     invert-mapping. If specified, the mapping can also be exponential. 
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1785,7 +1785,7 @@ class CentsToTranspo(PyoObject):
 
     Returns the transposition factor equivalent of a given cents value, 0 cents = 1.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1855,7 +1855,7 @@ class TranspoToCents(PyoObject):
 
     Returns the cents value equivalent of a transposition factor, 1 = 0 cents.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1927,7 +1927,7 @@ class MToF(PyoObject):
     Returns the frequency (Hz) equivalent to a midi note, 
     60 = 261.62556530066814 Hz.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1998,7 +1998,7 @@ class MToT(PyoObject):
     Returns the transposition factor equivalent to a midi note. If the midi
     note equal the `centralkey` argument, the output is 1.0.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

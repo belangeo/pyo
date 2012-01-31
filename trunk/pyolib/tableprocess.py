@@ -33,7 +33,7 @@ class Osc(PyoObject):
     """
     A simple oscillator reading a waveform table.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -196,7 +196,7 @@ class OscLoop(PyoObject):
     increment and can be used to control the brightness of the oscillator.
     
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -327,7 +327,7 @@ class OscBank(PyoObject):
     The frequencies and amplitudes can be modulated by two random generators 
     with interpolation (each partial have a different set of randoms).
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -642,7 +642,7 @@ class TableRead(PyoObject):
     The play() method starts the playback and is not called at the 
     object creation time.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -858,7 +858,7 @@ class Pulsar(PyoObject):
     to its following silence, but maintain the overall pulsar period. This 
     results in an effect much like a sweeping band-pass filter.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -1064,7 +1064,7 @@ class Pointer(PyoObject):
     """
     Table reader with control on the pointer position.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -1154,7 +1154,7 @@ class TableIndex(PyoObject):
     """
     Table reader by sample position without interpolation.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1253,7 +1253,7 @@ class Lookup(PyoObject):
     scaled between 0 and len(table)-1 and is used as a position
     pointer in the table.  
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
     
@@ -1350,7 +1350,7 @@ class TableRec(PyoObject):
     play method again restarts the recording and overwrites previously
     recorded samples.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1529,7 +1529,7 @@ class TableMorph(PyoObject):
     `table` object at the beginning of each buffer size. The tables in the 
     list and the resulting table must be equal in size.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1665,7 +1665,7 @@ class Granulator(PyoObject):
     """
     Granular synthesis generator.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Parameters:
 
@@ -1905,7 +1905,7 @@ class TrigTableRec(PyoObject):
     Each time a "trigger" is received in the `trig` input, TrigTableRec
     starts the recording into the table until the table is full.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -2084,7 +2084,7 @@ class Looper(PyoObject):
     user-defined pitch, start time, duration and crossfade time. The `mode`
     argument allows the user to choose different looping modes.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 

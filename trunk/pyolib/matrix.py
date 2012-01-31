@@ -32,7 +32,7 @@ class NewMatrix(PyoMatrixObject):
     
     See `MatrixRec` to write samples in the matrix.
     
-    Parent class: PyoMatrixObject
+    Parentclass: PyoMatrixObject
     
     Parameters:
     

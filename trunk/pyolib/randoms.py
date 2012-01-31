@@ -33,7 +33,7 @@ class Randi(PyoObject):
     values at a frequency specified by `freq` parameter. Randi will 
     produce straight-line interpolation between current number and the next.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -147,7 +147,7 @@ class Randh(PyoObject):
     values at a frequency specified by `freq` parameter. Randh will 
     hold generated value until next generation.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -261,7 +261,7 @@ class Choice(PyoObject):
     at a frequency specified by `freq` parameter. Choice will 
     hold choosen value until next generation.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -356,7 +356,7 @@ class RandInt(PyoObject):
     values at a frequency specified by `freq` parameter. RandInt will 
     hold generated value until the next generation.
     
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -446,7 +446,7 @@ class RandDur(PyoObject):
     arguments and uses that number to set the delay time before the next 
     generation. RandDur will hold the generated value until next generation.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -538,7 +538,7 @@ class Xnoise(PyoObject):
     Xnoise implements a few of the most common noise distributions.
     Each distribution generates values in the range 0 and 1.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Notes:
     
@@ -730,7 +730,7 @@ class XnoiseMidi(PyoObject):
     `mrange` parameter and output can be scaled on midi notes, hertz or 
     transposition factor. 
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
     
     Notes:
     
@@ -976,7 +976,7 @@ class XnoiseDur(PyoObject):
     the generated value to set the delay time before the next generation. 
     XnoiseDur will hold the value until next generation.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Notes:
 

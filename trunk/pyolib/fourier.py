@@ -44,7 +44,7 @@ class FFT(PyoObject):
     with zeros. See notes below for an example of how to retrieve 
     each signal component.
     
-    Parent class : PyoObject
+    Parentclass : PyoObject
     
     Parameters:
     
@@ -305,7 +305,7 @@ class IFFT(PyoObject):
     These signals must correspond to `real` and `imaginary` parts
     from an FFT object.
 
-    Parent class : PyoObject
+    Parentclass : PyoObject
     
     Parameters:
     
@@ -496,7 +496,7 @@ class CarToPol(PyoObject):
     """
     Performs the cartesian to polar conversion.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -658,7 +658,7 @@ class PolToCar(PyoObject):
     """
     Performs the polar to cartesian conversion.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -820,7 +820,7 @@ class FrameDelta(PyoObject):
     """
     Computes the phase differences between successive frames.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -969,7 +969,7 @@ class FrameAccum(PyoObject):
     """
     Accumulates the phase differences between successive frames.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
@@ -1121,7 +1121,7 @@ class Vectral(PyoObject):
     Vectral applies filter with different coefficients for increasing
     and decreasing magnitude vectors, bin by bin.
 
-    Parent class: PyoObject
+    Parentclass: PyoObject
 
     Parameters:
 
