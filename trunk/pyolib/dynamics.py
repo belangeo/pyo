@@ -48,7 +48,7 @@ class Clip(PyoObject):
 
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     min : float or PyoObject. Minimum possible value.
     max : float or PyoObject. Maximum possible value.
     
@@ -59,7 +59,7 @@ class Clip(PyoObject):
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> lfoup = Sine(freq=.25, mul=.48, add=.5)
     >>> lfodown = 0 - lfoup
-    >>> c = Clip(a, min=lfodown, max=lfoup, mul=.5).out()
+    >>> c = Clip(a, min=lfodown, max=lfoup, mul=.4).mix(2).out()
 
     """
     def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
@@ -148,7 +148,7 @@ class Clip(PyoObject):
 
 class Mirror(PyoObject):
     """
-    Reflects the signal that exceeds the min and max thresholds.
+    Reflects the signal that exceeds the `min` and `max` thresholds.
 
     This object is useful for table indexing or for clipping and
     modeling an audio signal.
@@ -172,7 +172,7 @@ class Mirror(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     min : float or PyoObject. Minimum possible value.
     max : float or PyoObject. Maximum possible value.
 
@@ -184,11 +184,11 @@ class Mirror(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Sine(freq=[399.1,397.8,404.3,397.5,399.5,402.9,396.1,396.3])
+    >>> a = Sine(freq=[300,301])
     >>> lfmin = Sine(freq=1.5, mul=.25, add=-0.75)
     >>> lfmax = Sine(freq=2, mul=.25, add=0.75)
     >>> b = Mirror(a, min=lfmin, max=lfmax)
-    >>> c = Tone(b, freq=500, mul=.1).out()
+    >>> c = Tone(b, freq=2500, mul=.15).out()
 
     """
     def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
@@ -277,7 +277,7 @@ class Mirror(PyoObject):
 
 class Wrap(PyoObject):
     """
-    Wraps-around the signal that exceeds the min and max thresholds.
+    Wraps-around the signal that exceeds the `min` and `max` thresholds.
 
     This object is useful for table indexing, phase shifting or for 
     clipping and modeling an audio signal.
@@ -301,7 +301,7 @@ class Wrap(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     min : float or PyoObject. Minimum possible value.
     max : float or PyoObject. Maximum possible value.
 
@@ -313,14 +313,15 @@ class Wrap(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
+    >>> Time-varying overlaping envelopes
     >>> env = HannTable()
     >>> lff = Sine(.5, mul=3, add=4)
     >>> ph1 = Phasor(lff)
     >>> ph2 = Wrap(ph1+0.5, min=0, max=1)
-    >>> amp1 = Pointer(env, ph1, mul=.3)
-    >>> amp2 = Pointer(env, ph2, mul=.3)
-    >>> a = SineLoop(300, feedback=.1, mul=amp1).out()
-    >>> b = SineLoop(350, feedback=.1, mul=amp2).out(1)
+    >>> amp1 = Pointer(env, ph1, mul=.25)
+    >>> amp2 = Pointer(env, ph2, mul=.25)
+    >>> a = SineLoop(250, feedback=.1, mul=amp1).out()
+    >>> b = SineLoop(300, feedback=.1, mul=amp2).out(1)
 
     """
     def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
@@ -435,7 +436,7 @@ class Degrade(PyoObject):
 
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     bitdepth : float or PyoObject. Quantization in bits.
     srscale : float or PyoObject. Sampling rate multiplier.
     
@@ -444,10 +445,10 @@ class Degrade(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SquareTable()
-    >>> a = Osc(table=t, freq=100)
+    >>> a = Osc(table=t, freq=[100,101], mul=.5)
     >>> lfo = Sine(freq=.2, mul=6, add=8)
     >>> lfo2 = Sine(freq=.25, mul=.45, add=.55)
-    >>> b = Degrade(a, bitdepth=lfo, srscale=lfo2).out()
+    >>> b = Degrade(a, bitdepth=lfo, srscale=lfo2, mul=.3).out()
     
     """
     def __init__(self, input, bitdepth=16, srscale=1.0, mul=1, add=0):
@@ -537,13 +538,16 @@ class Degrade(PyoObject):
 class Compress(PyoObject):
     """
     Reduces the dynamic range of an audio signal.
-    
+
+    Compress reduces the volume of loud sounds or amplifies quiet sounds by 
+    narrowing or compressing an audio signal's dynamic range.
+
     Parentclass: PyoObject
-    
+
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     thresh : float or PyoObject, optional
         Level, expressed in dB, above which the signal is reduced. 
         Reference level is 0dB. Defaults to -20.
@@ -581,7 +585,7 @@ class Compress(PyoObject):
     
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     thresh : float or PyoObject. Level above which the signal is reduced.
     ratio : float or PyoObject. in/out ratio for signals above the threshold.
     risetime : float or PyoObject. Time to reach upward value in seconds.
@@ -594,7 +598,7 @@ class Compress(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True)
-    >>> b = Compress(a, thresh=-24, ratio=3, risetime=.01, falltime=.2, knee=0.5).out()
+    >>> b = Compress(a, thresh=-24, ratio=6, risetime=.01, falltime=.2, knee=0.5).mix(2).out()
     
     """
     def __init__(self, input, thresh=-20, ratio=2, risetime=0.01, falltime=0.1, lookahead=5.0, knee=0, outputAmp=False, mul=1, add=0):
@@ -724,7 +728,7 @@ class Compress(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -775,9 +779,9 @@ class Gate(PyoObject):
     """
     Allows a signal to pass only when its amplitude is above a set threshold.
 
-    A noise gate is used when the level of the 'signal' is above the level of 
-    the 'noise'. The threshold is set above the level of the 'noise' and so when 
-    there is no 'signal' the gate is closed. A noise gate does not remove noise 
+    A noise gate is used when the level of the signal is below the level of 
+    the noise floor. The threshold is set above the level of the noise and so when 
+    there is no signal the gate is closed. A noise gate does not remove noise 
     from the signal. When the gate is open both the signal and the noise will 
     pass through.
     
@@ -824,7 +828,7 @@ class Gate(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[1,.5], loop=True)
-    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5).out()
+    >>> gt = Gate(sf, thresh=-24, risetime=0.005, falltime=0.01, lookahead=5, mul=.4).out()
 
     """
     def __init__(self, input, thresh=-70, risetime=0.01, falltime=0.05, lookahead=5.0, outputAmp=False, mul=1, add=0):

@@ -31,28 +31,6 @@ for key, value in STYLES['Default'].items():
 # ***************** Catalog starts here *******************
 
 catalog = {}
-index = []
-
-#----------------------------------------------------------------------
-next_16_png = PyEmbeddedImage(
-  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADE0lEQVQ4jW2TW2gcBRSGv7ns"
-  "dWazs9tsY8Im2aUGaYOSKBYvbY0iXqFGxaJVbEqFgCCt+OhDbW0FFUm0oiiBGuyLIHip1qZQ"
-  "kvgkImGxdSW2abc1MdlkZ+87M7szs+tDLbXa/+3A+f6Xcz6BG+UQQ4gMIQIiIAAiX/Maqf+u"
-  "CtdNBxlWverYPZ1bEoPtd9CkSYsmNdcgVZhjrvDLTF2ov8rea0XCv+CxrV3b9u24eSdVs0au"
-  "plMza7g0CfgDaEoY0QvHLk9yvvbHbl7hMwDpH3jflq5tbzzft4sLuQwFs4i+qlMvW8iORLay"
-  "RlU2MOw693Xdz1ojO7z6YHaWE2RE3iSRCCf3v9C3i/OrC1h2nUbTplwq88nLRxjf8w7r1Xby"
-  "+TwFiqTL8wz3PkNQDh4FEBHYuz0xrC0Wl7DcOnbLxsbBwaElgOJXeHfnYW4KdVAslKgKBllb"
-  "Z2vnAwk+ZkRUvaGh/sitlMwy1XKV7KUVVjLLVFo1dky8SNEsofoU3nv6MFWzwvTZGaYWTxP2"
-  "rgOBJ+R4KD5Qtio4LZfiWoGxPW+T7Ej877JaIMzUS1/x1OfPMW8s0MAG0MSW0MJyLEzH5Ew2"
-  "fUP4asL+Njb33I7mUwkFFBBANlwDgOPpk+iWzuChe9EiESSPhFeWeeuRg/R3bALg5Lkf+HF5"
-  "ls7uGOuUMADyn9blmdTyr0O6mYeoRMpOIxgSvpLI+OPv0xO+hYrlMn3xFJ+e/YBkfzc+2Q8t"
-  "FyAlIjB5ob7AhljyylcERcSAiITEw31PUjYdvp8/wcRvR0hsitMZjXFbbCM/r/wE8I3EFKn8"
-  "Q6sjg+E7Nb1RoO5pIHtkvLZMrprl99wZvs0cI76xi/VahA1aL3bDYWLu6AyjHJAA3Mfc2Txr"
-  "z26O3eU3BQujZeIP+/jLuMSSfZH2nihtikqyrRfREXn99IFiw208yncUr7nwIQOKpE4PRO/W"
-  "Al4VvaGD3CSqtJGMdNMXTXKuMM8X6S9TlXplN6NXhLrexo/QgP2KJzQSV3u1oCeIV/ZgujWW"
-  "aosZ3cxNAuOMUryK/A0DAUOjoMsrKgAAAABJRU5ErkJggg==")
-index.append('next_16.png')
-catalog['next_16.png'] = next_16_png
 
 #----------------------------------------------------------------------
 next_24_png = PyEmbeddedImage(
@@ -95,25 +73,7 @@ next_24_png = PyEmbeddedImage(
     "B8QYFFmNWIPELCWdBKWFdHi5+ETZWdmBmYuR4cfP729f3X9x4+Ghh8d+nfy1k+EDwyWgji/Y"
     "jAEIINwWIAAHAxuDBKjgAsfZf7AbfwBL8jdA1jt0F6MDgAADAHKd0AXoRzn5AAAAAElFTkSu"
     "QmCC")
-index.append('next_24.png')
 catalog['next_24.png'] = next_24_png
-
-#----------------------------------------------------------------------
-play_16_png = PyEmbeddedImage(
-  "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACK0lEQVQ4jZWTQUuUURSGn3Pu"
-  "/e6opM5kjYRUk2mZOWC0KqL8AS1cBBUUOf9Af4LbIJRo0yJs0V4hWhTUuC+SAslSclxESMM0"
-  "6cw4OvN9t8VUSgrZ2b8Pz3sOR7z3nLr6ZFpEh1F9LKpjH2euF9nnKICoGb505QKp7tSIdW65"
-  "79r0yP8BjGW9XAfbTk9vX7ytPT7Vf+Nptv/ms8F9AgxhJHwv1Vgt1mnv6CJ55MSQdU1zZ289"
-  "nxi4/SL+rwqEHkQVL8J6tUYNS2dXN4lDyVFjg+X0nZd71to28IKoIEYRo3iFSm2L5tZ2jp1M"
-  "xVva2qbSmWw2nckO7gKghnoEYhQ1AkbZioSNOnxbr/O1GBLvTHK85+iQi7m5dCY7kR55Fd9R"
-  "QQkjwYtQ2vSUqp4QRQOLa7YYZyhWIkp1S+9AioOH46OIjABYABFDedOzthFhnSFwBusMNjAY"
-  "q4g0dJuadLumGv4AUKFa86hRbNAIBzHbAAWKc0oyEVBZq/B5cZVqpTr+/tHlyR0GShAI9VAx"
-  "gWKdwcUMsWZLR8JxIAaLC3mKhfKsj3zm3cOLud9LbBgg2EBRIoxRrFXaWgOSHY5Cocqn+R85"
-  "H4Zjb+8Pzvx9Rvsrj7WChoILlK5kDB+FfJjPs1ljXNROvr57es//aAC8x1hIxAISccuXlTzl"
-  "Sjgrxmbe3DuT2yu4C9ASEyqVMksLpZwYOzb34Pwu3b1GATx+dmUpR361MO7D8Nx+wwA/Ad9d"
-  "udwSn5Q6AAAAAElFTkSuQmCC")
-index.append('play_16.png')
-catalog['play_16.png'] = play_16_png
 
 #----------------------------------------------------------------------
 play_24_png = PyEmbeddedImage(
@@ -141,29 +101,7 @@ play_24_png = PyEmbeddedImage(
     "FrCwsDII8/MAU8c/hqcX95y7s7dvwtfnZ7YBpd7BqgtSAUAAoVjw/dPLZ7++PPt7/+is6W+u"
     "b1rM8O/3A1KCAxsACCAG5GYLEyuXOAMTuyZQnIuBSgAgwABgBVyq5zW6mgAAAABJRU5ErkJg"
     "gg==")
-index.append('play_24.png')
 catalog['play_24.png'] = play_24_png
-
-#----------------------------------------------------------------------
-previous_16_png = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADB0lEQVQ4jWWTXWxTdRiHn/M/"
-    "bc9KT7uzQruts6Tr5qjxq3olk2gxwRgvBsMYjQvJuCDDC8Ul3rMlg0RvEDVGwwXzwo9EQlgU"
-    "b4wKMQY1ks1lMXSBuk1kpWvpx+nOac+/Xb2ABLL9rt/nvXoehc2bxEBwAIX9CAxUQGEJwWXe"
-    "ZXrzubIJnghtCx/bHx82BowEGhqKopBzbpM2r/Fz7sdSXq4d5h0ubH0wydmRXYdG93SnWC1n"
-    "KVpFHClxpIPqcWH42+nQ25lZPc8fxSsf8BbjAOo9+NSRR48efTL4NNfXMqxLC7NSxS5aRNsj"
-    "ZNeymKLKHVlid9ezmM3KM7de+G+Z75lTmSSWCD7y9VDsIJn8P8iNBlWzijTrnBg5ziu7D2A1"
-    "a8xm52npkHMK7Ik8x3xxNmW/ZH8mUDj+xsAhVu6s0Gg1qJomjllnamSC3s4YAIuF60itieNq"
-    "UFPrLNv/kurZZ6Aw6vJpemq7FiJXTFOtVHFMhxMjE8TvwUe+eZvpP7/ApaqoQkW4BaLTTWrn"
-    "ICg8L6L+aMysmTRbTcqFMicfgAHOvPoh8r0C9skc1alVxgffJLDhRXWpAIZoKS1kU2I1bH5Z"
-    "ukK5bm5R48F5PW10+PwEvD4AXLWNWmldWsZXs+dwPA57T73MD+MXeSLyOADnFs5zMf0dbW4P"
-    "BStPXubpjoYI60FQQCzbS5fmVxdoKS3QBSVflX1nhvht+S8qdoMX+4YIaB1k5A08vSr9T8WI"
-    "d+5krZYFmBMIZjLNRfpCvSCAgMDU13n9y9e4enOBit2gL5igPaATCgbpNnbw2I4Ei6VrAKcV"
-    "AM9pbXbQtzeZKd1kpXULt9eNr6ERlttJRpKUmznC/QbRSBf9Ri+Z7ApTl9+fZozDAsBR6sO/"
-    "1n4qxTujJIIP33VcV5FdkhueNGqPglf30qM9hLVe56PfP52Duyrfb+Fjkh6hnY37dyVjgQGs"
-    "DRuXS8HY5qenvQtda+PvwgIz6W8vAcOMUdpaI8AnjKJwLOztTqpCoAqBbEluW9kLwOeM3S8R"
-    "4H+CxjLaWnLaLQAAAABJRU5ErkJggg==")
-index.append('previous_16.png')
-catalog['previous_16.png'] = previous_16_png
 
 #----------------------------------------------------------------------
 previous_24_png = PyEmbeddedImage(
@@ -205,23 +143,7 @@ previous_24_png = PyEmbeddedImage(
     "CzcOzTyy8P/R/0uBWp8iGw4CAAHEiKs1wMDGIMhszuwjpCvsJqgjos/NxSPGwsbMx/qf+fP3"
     "799ev7706vqzM8+O/Dvxbzc0SH5hMwYggHBbgAxYGYAxyMAPZHGB6yNgDgWG3Bsg/wshrQAB"
     "BgD9qrwV+ofghAAAAABJRU5ErkJggg==")
-index.append('previous_24.png')
 catalog['previous_24.png'] = previous_24_png
-
-#----------------------------------------------------------------------
-up_16_png = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB00lEQVQ4jZWSPWhTURiGn/N7"
-    "0yrNHURBFG2sJrSDii6CoEFxcxccBAc7qNS6OYmDiFKR4lA6qIvi4OaiYCFmcXCKXYpOggFx"
-    "EINwm5zcP4d7Caa5Fnvg43A+vvfh5T2f4F9nmSNAI3/VmaVVNCY3E1+vzvv3ji74Y2q8kff+"
-    "A5CLr1Vv+NXyDD/dby5NXfGNtA2WRiGySHy1NucfKk+z0n7P2q8vaDwuTl72bWIbPBqGiELx"
-    "xDQr7Sb9uE9CAgIO+pN0w4AXq886fefq3MoyEUO2c/G7dpNe7IjTiIQUIVKklFT9KVy4zvOP"
-    "Tzuu5+rcoSUGgdXmM9vfmnTjHutxQBAFuMSBgJgIrTTHdhwmCUNefXjZcd1eXXGetbnaTf/E"
-    "zpN87/5AScWB8n5ef31DEAeE9ElEzNk9p6lM7GPclNg2tp3Krkpp9XPrgmCZdGOy948v8uDT"
-    "Ip42eNpiteHc3jqP3z6EiKzC7NbM/hUkwBKplBKjNFYZrDaUTAYhAu4Oz4/uQQRSZACjNdYY"
-    "PGMxSmeATfdgABAYpQYuPJ05IdwCQMkcoDVWm605EDlAKYXOQVqpQoAuBABndp/CM1mAJeOh"
-    "pCwEiJHObdKNXzWoGHgyrPkDdGqej7PMgTEAAAAASUVORK5CYII=")
-index.append('up_16.png')
-catalog['up_16.png'] = up_16_png
 
 #----------------------------------------------------------------------
 up_24_png = PyEmbeddedImage(
@@ -250,7 +172,6 @@ up_24_png = PyEmbeddedImage(
     "tw6fjsEWISQkRCsJo1zdWgWmAjfHDdJnWwCxMHzG9MGXn1++P7h66xv7X2ABzfid4SfjT2Co"
     "MTN8B5rzCSlVgeLhFssthh8/fvxigHgaI7oBAoiRgR1rM4UXGHTyQBY72E//8YYC0DagM/8y"
     "3Aey0QOcASDAAN0xfmdOgZiqAAAAAElFTkSuQmCC")
-index.append('up_24.png')
 catalog['up_24.png'] = up_24_png
 
 _INTRO_TEXT =   """
@@ -314,7 +235,6 @@ def _ed_set_style(editor, searchKey=None):
 
     editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,  "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces2)
     editor.StyleClearAll()
-
     editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % faces2)
     editor.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces2)
     editor.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces2)
@@ -749,8 +669,8 @@ class ManualPanel(wx.Treebook):
                     ppos = l.find('(')
                     if ppos != -1:
                         meth = l[0:ppos]
-                        args = inspect.getargspec(getattr(eval(obj), meth))
-                        args = inspect.formatargspec(*args)
+                        args, varargs, varkw, defaults = inspect.getargspec(getattr(eval(obj), meth))
+                        args = inspect.formatargspec(args, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
                         args = args.replace('self, ', '')
                         methods += obj + '.' + meth + args + ':\n'
                         docstr = getattr(eval(obj), meth).__doc__.rstrip()
