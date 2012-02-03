@@ -82,7 +82,7 @@ class FFT(PyoObject):
 
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     size : int {pow-of-two > 4}. FFT size.
     wintype : int. Shape of the envelope.
 
@@ -104,7 +104,7 @@ class FFT(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(.1).mix(2)
+    >>> a = Noise(.25).mix(2)
     >>> fin = FFT(a, size=1024, overlaps=4, wintype=2)
     >>> t = ExpTable([(0,0),(3,0),(10,1),(20,0),(30,.8),(50,0),(70,.6),(150,0),(512,0)], size=512)
     >>> amp = TableIndex(t, fin["bin"])
@@ -275,7 +275,7 @@ class FFT(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -355,7 +355,7 @@ class IFFT(PyoObject):
     
     The number of streams in `inreal` and `inimag` attributes
     must be egal to the output of the former FFT object. In
-    most case, it will be "channels of processed sound * overlaps".
+    most case, it will be `channels of processed sound` * `overlaps`.
 
     The output of IFFT must be mixed to reconstruct the real
     signal from the overlapped streams. It is left to the user
@@ -366,7 +366,7 @@ class IFFT(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(.1).mix(2)
+    >>> a = Noise(.25).mix(2)
     >>> fin = FFT(a, size=1024, overlaps=4, wintype=2)
     >>> t = ExpTable([(0,0),(3,0),(10,1),(20,0),(30,.8),(50,0),(70,.6),(150,0),(512,0)], size=512)
     >>> amp = TableIndex(t, fin["bin"])
@@ -496,6 +496,14 @@ class CarToPol(PyoObject):
     """
     Performs the cartesian to polar conversion.
 
+    The Cartesian system locates points on a plane by measuring the  horizontal and 
+    vertical distances from an arbitrary origin to a point.  These are usually denoted 
+    as a pair of values (X,Y).
+
+    The Polar system locates the point by measuring the straight line distance, usually 
+    denoted by R, from the origin to the point and the angle of an imaginary line from 
+    the origin to the point measured counterclockwise from the positive X axis.
+
     Parentclass: PyoObject
 
     Parameters:
@@ -517,14 +525,18 @@ class CarToPol(PyoObject):
 
     Notes:
     
+    Polar coordinates can be retrieve by calling :
+    
+    CarToPol['mag'] to retrieve the magnitude part.
+    CarToPol['ang'] to retrieve the angle part.
+
     CarToPol has no `out` method. Signal must be converted back to time domain, 
     with IFFT, before being sent to output.
     
     Examples:
 
     >>> s = Server().boot()
-    >>> s.start()
-    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
+    >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7).mix(2)
     >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
     >>> fin1 = FFT(snd1, size=1024, overlaps=4)
     >>> fin2 = FFT(snd2, size=1024, overlaps=4)
@@ -537,6 +549,7 @@ class CarToPol(PyoObject):
     >>> # converts back to rectangular
     >>> car = PolToCar(mag, pha)
     >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+    >>> s.start()
 
     """
     def __init__(self, inreal, inimag, mul=1, add=0):
@@ -658,6 +671,14 @@ class PolToCar(PyoObject):
     """
     Performs the polar to cartesian conversion.
 
+    The Polar system locates the point by measuring the straight line distance, usually 
+    denoted by R, from the origin to the point and the angle of an imaginary line from 
+    the origin to the point measured counterclockwise from the positive X axis.
+
+    The Cartesian system locates points on a plane by measuring the  horizontal and 
+    vertical distances from an arbitrary origin to a point.  These are usually denoted 
+    as a pair of values (X,Y).
+
     Parentclass: PyoObject
 
     Parameters:
@@ -678,15 +699,19 @@ class PolToCar(PyoObject):
     inang : PyoObject. Angle input signal.
 
     Notes:
+
+    Cartesians coordinates can be retrieve by calling :
     
+    PolToCar['real'] to retrieve the real part.
+    CarToPol['imag'] to retrieve the imaginary part.
+
     PolToCar has no `out` method. Signal must be converted back to time domain, 
     with IFFT, before being sent to output.
-    
+
     Examples:
 
     >>> s = Server().boot()
-    >>> s.start()
-    >>> snd1 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.7).mix(2)
+    >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7).mix(2)
     >>> snd2 = FM(carrier=[75,100,125,150], ratio=[.499,.5,.501,.502], index=20, mul=.1).mix(2)
     >>> fin1 = FFT(snd1, size=1024, overlaps=4)
     >>> fin2 = FFT(snd2, size=1024, overlaps=4)
@@ -699,6 +724,7 @@ class PolToCar(PyoObject):
     >>> # converts back to rectangular
     >>> car = PolToCar(mag, pha)
     >>> fout = IFFT(car["real"], car["imag"], size=1024, overlaps=4).mix(2).out()
+    >>> s.start()
 
     """
     def __init__(self, inmag, inang, mul=1, add=0):
@@ -820,6 +846,16 @@ class FrameDelta(PyoObject):
     """
     Computes the phase differences between successive frames.
 
+    The difference between the phase values of successive FFT frames for a given bin 
+    determines the exact frequency of the energy centered in that bin. This is often 
+    known as the phase difference (and sometimes also referred to as phase derivative 
+    or instantaneous frequency if it’s been subjected to a few additional calculations).
+
+    In order to reconstruct a plausible playback of re-ordered FFT frames, we need to 
+    calculate the phase difference between successive frames and use it to construct a 
+    `running phase` (by simply summing the successive differences with FrameAccum) for 
+    the output FFT frames.
+
     Parentclass: PyoObject
 
     Parameters:
@@ -855,7 +891,7 @@ class FrameDelta(PyoObject):
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> size, hop = 1024, 256
     >>> nframes = sndinfo(snd)[0] / size
-    >>> a = SfPlayer(snd, mul=.5)
+    >>> a = SfPlayer(snd, mul=.3)
     >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> fin = FFT(a, size=size, overlaps=4)
@@ -863,11 +899,12 @@ class FrameDelta(PyoObject):
     >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
     >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
     >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=2))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=1.5))
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=0.51))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=0.5))
     >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
     >>> car = PolToCar(m_mag_read, accum)
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
+    >>> right = Delay(fout, delay=0.013).out(1)
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
@@ -969,6 +1006,16 @@ class FrameAccum(PyoObject):
     """
     Accumulates the phase differences between successive frames.
 
+    The difference between the phase values of successive FFT frames for a given bin 
+    determines the exact frequency of the energy centered in that bin. This is often 
+    known as the phase difference (and sometimes also referred to as phase derivative 
+    or instantaneous frequency if it’s been subjected to a few additional calculations).
+
+    In order to reconstruct a plausible playback of re-ordered FFT frames, we need to 
+    calculate the phase difference between successive frames, with FrameDelta, and use 
+    it to construct a `running phase` (by simply summing the successive differences) for 
+    the output FFT frames.
+
     Parentclass: PyoObject
 
     Parameters:
@@ -1004,7 +1051,7 @@ class FrameAccum(PyoObject):
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> size, hop = 1024, 256
     >>> nframes = sndinfo(snd)[0] / size
-    >>> a = SfPlayer(snd, mul=.5)
+    >>> a = SfPlayer(snd, mul=.3)
     >>> m_mag = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> m_pha = [NewMatrix(width=size, height=nframes) for i in range(4)]
     >>> fin = FFT(a, size=size, overlaps=4)
@@ -1012,11 +1059,12 @@ class FrameAccum(PyoObject):
     >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
     >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
     >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=2))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=1.5))
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=0.51))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=0.5))
     >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
     >>> car = PolToCar(m_mag_read, accum)
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
+    >>> right = Delay(fout, delay=0.013).out(1)
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
@@ -1169,15 +1217,15 @@ class Vectral(PyoObject):
     Examples:
 
     >>> s = Server().boot()
-    >>> s.start()
-    >>> snd = SNDS_PATH + '/transparent.aif'
-    >>> size, olaps = 512, 4
-    >>> snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.25)
+    >>> snd = SNDS_PATH + '/accord.aif'
+    >>> size, olaps = 1024, 4
+    >>> snd = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3)
     >>> fin = FFT(snd, size=size, overlaps=olaps)
     >>> pol = CarToPol(fin["real"], fin["imag"])
-    >>> vec = Vectral(pol["mag"], framesize=size, overlaps=olaps, down=.3, damp=.3)
+    >>> vec = Vectral(pol["mag"], framesize=size, overlaps=olaps, down=.2, damp=.6)
     >>> car = PolToCar(vec, pol["ang"])
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps).mix(2).out()
+    >>> s.start()
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, up=1.0, down=0.7, damp=0.9, mul=1, add=0):
