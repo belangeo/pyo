@@ -34,7 +34,7 @@ class Biquad(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Cutoff or center frequency of the filter. Defaults to 1000.
     q : float or PyoObject, optional
@@ -57,7 +57,7 @@ class Biquad(PyoObject):
     
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Cutoff or center frequency of the filter.
     q : float or PyoObject. Q of the filter.
     type : int. Filter type.
@@ -66,8 +66,8 @@ class Biquad(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.5)
-    >>> lfo = Sine(freq=.25, mul=1000, add=1000)
+    >>> a = Noise(mul=.7)
+    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1000)
     >>> f = Biquad(a, freq=lfo, q=5, type=2).out()
 
     """
@@ -150,7 +150,7 @@ class Biquad(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -190,7 +190,7 @@ class Biquadx(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Cutoff or center frequency of the filter. Defaults to 1000.
     q : float or PyoObject, optional
@@ -216,7 +216,7 @@ class Biquadx(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Cutoff or center frequency of the filter.
     q : float or PyoObject. Q of the filter.
     type : int. Filter type.
@@ -226,8 +226,8 @@ class Biquadx(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.5)
-    >>> lfo = Sine(freq=.25, mul=1000, add=1000)
+    >>> a = Noise(mul=.7)
+    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = Biquadx(a, freq=lfo, q=5, type=2).out()
 
     """
@@ -325,7 +325,7 @@ class Biquadx(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -380,7 +380,7 @@ class Biquada(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     b0 : float or PyoObject, optional
         Amplitude of the current sample. Defaults to 0.005066.
     b1 : float or PyoObject, optional
@@ -407,7 +407,7 @@ class Biquada(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     b0 : float or PyoObject. Amplitude of the current sample.
     b1 : float or PyoObject. Amplitude of the first input sample delayed.
     b2 : float or PyoObject. Amplitude of the second input sample delayed.
@@ -419,8 +419,8 @@ class Biquada(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.5)
-    >>> lf = Sine(2, mul=.07, add=-1.9)
+    >>> a = Noise(mul=.7)
+    >>> lf = Sine([1.5, 2], mul=.07, add=-1.9)
     >>> f = Biquada(a, 0.005066, 0.010132, 0.005066, 1.070997, lf, 0.929003).out()
 
     """
@@ -563,7 +563,7 @@ class Biquada(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -623,7 +623,7 @@ class EQ(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Cutoff or center frequency of the filter. Defaults to 1000.
     q : float or PyoObject, optional
@@ -648,7 +648,7 @@ class EQ(PyoObject):
     
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Cutoff or center frequency of the filter.
     q : float or PyoObject. Q of the filter.
     boost : float or PyoObject. Boost of the filter at center frequency.
@@ -658,10 +658,10 @@ class EQ(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> amp = Fader(1, 1, mul=.3).play()
-    >>> src = Noise(amp)
+    >>> amp = Fader(1, 1, mul=.15).play()
+    >>> src = PinkNoise(amp)
     >>> fr = Sine(.2, 0, 500, 1500)
-    >>> boo = Sine(4, 0, 6)
+    >>> boo = Sine([4, 4], 0, 6)
     >>> out = EQ(src, freq=fr, q=1, boost=boo, type=0).out()
 
     """
@@ -761,7 +761,7 @@ class EQ(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -803,7 +803,7 @@ class Tone(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Cutoff frequency of the filter in hertz. Default to 1000.
 
@@ -814,15 +814,16 @@ class Tone(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Cutoff frequency of the filter.
     
     Examples:
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> n = Noise(.5)
-    >>> f = Tone(n, 500).out()
+    >>> n = Noise(.3)
+    >>> lf = Sine(freq=.2, mul=800, add=1000)
+    >>> f = Tone(n, lf).mix(2).out()
 
     """
     def __init__(self, input, freq=1000, mul=1, add=0):
@@ -873,7 +874,7 @@ class Tone(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -897,7 +898,7 @@ class Port(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     risetime : float or PyoObject, optional
         Time to reach upward value in seconds. Defaults to 0.05.
     falltime : float or PyoObject, optional
@@ -914,19 +915,21 @@ class Port(PyoObject):
     
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     risetime : float or PyoObject. Time to reach upward value in seconds.
     falltime : float or PyoObject. Time to reach downward value in seconds.
      
     Examples:
     
+    >>> from random import uniform
     >>> s = Server().boot()
     >>> s.start()
     >>> x = Sig(value=500)
     >>> p = Port(x, risetime=.1, falltime=1)
-    >>> a = Sine(freq=p, mul=.5).out()
-    >>> x.value = 1000
-    >>> x.value = 600
+    >>> a = Sine(freq=[p, p*1.01], mul=.2).out()
+    >>> def new_freq():
+    ...     x.value = uniform(400, 800)
+    >>> pat = Pattern(function=new_freq, time=1).play()
     
     """
     def __init__(self, input, risetime=0.05, falltime=0.05, init=0, mul=1, add=0):
@@ -993,7 +996,7 @@ class Port(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1021,7 +1024,7 @@ class DCBlock(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
 
     Methods:
 
@@ -1029,14 +1032,14 @@ class DCBlock(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     
     Examples:
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> n = Noise(.05)
-    >>> w = Delay(n, delay=0.01, feedback=.995, mul=.5)
+    >>> n = Noise(.01)
+    >>> w = Delay(n, delay=[0.02, 0.01], feedback=.995, mul=.5)
     >>> f = DCBlock(w).out()
 
     """
@@ -1073,7 +1076,7 @@ class DCBlock(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1092,7 +1095,7 @@ class BandSplit(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     num : int, optional
         Number of frequency bands created. Available at initialization 
         time only. Defaults to 6.
@@ -1113,7 +1116,7 @@ class BandSplit(PyoObject):
     
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     q : float or PyoObject. Q of the filters.
     
     Examples:
@@ -1121,7 +1124,7 @@ class BandSplit(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> lfos = Sine(freq=[.3,.4,.5,.6,.7,.8], mul=.5, add=.5)
-    >>> n = Noise(.5)
+    >>> n = PinkNoise(.5)
     >>> a = BandSplit(n, num=6, min=250, max=4000, q=5, mul=lfos).out()
 
     """
@@ -1213,7 +1216,7 @@ class BandSplit(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1240,7 +1243,7 @@ class FourBand(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq1 : float or PyoObject, optional
         First crossover frequency. First band will contain signal
         from 0 Hz to `freq1` Hz. Defaults to 150.
@@ -1262,7 +1265,7 @@ class FourBand(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq1 : float or PyoObject. First crossover frequency.
     freq2 : float or PyoObject. Second crossover frequency.
     freq3 : float or PyoObject. Third crossover frequency.
@@ -1272,7 +1275,7 @@ class FourBand(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> lfos = Sine(freq=[.3,.4,.5,.6], mul=.5, add=.5)
-    >>> n = BrownNoise(.5)
+    >>> n = PinkNoise(.3)
     >>> a = FourBand(n, freq1=250, freq2=1000, freq3=2500, mul=lfos).out()
 
     """
@@ -1394,7 +1397,7 @@ class FourBand(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1442,7 +1445,7 @@ class Hilbert(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
 
     Methods:
     
@@ -1452,7 +1455,7 @@ class Hilbert(PyoObject):
 
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     
     Notes:
     
@@ -1466,12 +1469,12 @@ class Hilbert(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True).out(0)
+    >>> a = SfPlayer(SNDS_PATH + "/accord.aif", loop=True, mul=0.5).out(0)
     >>> b = Hilbert(a)
     >>> quad = Sine([250, 500], [0, .25])
     >>> mod1 = b['real'] * quad[0]
     >>> mod2 = b['imag'] * quad[1]
-    >>> up = mod1 - mod2
+    >>> up = (mod1 - mod2) * 0.7
     >>> down = mod1 + mod2
     >>> up.out(1)
 
@@ -1582,7 +1585,7 @@ class Hilbert(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -1737,7 +1740,7 @@ class Allpass2(PyoObject):
     Parameters:
     
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Center frequency of the filter. Defaults to 1000.
     bw : float or PyoObject, optional
@@ -1751,7 +1754,7 @@ class Allpass2(PyoObject):
     
     Attributes:
     
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Center frequency of the filter.
     bw : float or PyoObject. Bandwidth of the filter.
     
@@ -1760,7 +1763,7 @@ class Allpass2(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> # 3 STAGES PHASER
-    >>> a = Noise(.025).mix(2).out()
+    >>> a = BrownNoise(.025).mix(2).out()
     >>> blfo = Sine(freq=.1, mul=250, add=500)
     >>> b = Allpass2(a, freq=blfo, bw=125).out()
     >>> clfo = Sine(freq=.14, mul=500, add=1000)
@@ -1863,7 +1866,7 @@ class Phaser(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Center frequency of the first notch. Defaults to 1000.
     spread : float or PyoObject, optional
@@ -1888,7 +1891,7 @@ class Phaser(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Center frequency of the first notch.
     spread : float or PyoObject. Spreading factor for upper notch frequencies.
     q : float or PyoObject. Q factor of the filter.
@@ -1898,11 +1901,11 @@ class Phaser(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> fade = Fader(fadein=.1, mul=.1).play()
-    >>> a = Noise(fade).out()
-    >>> lf1 = Sine(freq=.1, mul=100, add=250)
-    >>> lf2 = Sine(freq=.15, mul=.4, add=1.5)
-    >>> b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=.5).out(1)
+    >>> fade = Fader(fadein=.1, mul=.07).play()
+    >>> a = Noise(fade).mix(2).out()
+    >>> lf1 = Sine(freq=[.1, .15], mul=100, add=250)
+    >>> lf2 = Sine(freq=[.18, .15], mul=.4, add=1.5)
+    >>> b = Phaser(a, freq=lf1, spread=lf2, q=1, num=20, mul=.5).out(0)
 
     """
     def __init__(self, input, freq=1000, spread=1.1, q=10, feedback=0, num=8, mul=1, add=0):
@@ -2003,7 +2006,7 @@ class Phaser(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -2050,7 +2053,7 @@ class IRWinSinc(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Frequency cutoff for lowpass and highpass and center frequency for
         bandjrect and bandpass filters, expressed in Hertz. Defaults to 1000.
@@ -2078,7 +2081,7 @@ class IRWinSinc(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Cutoff or center frequency, in Hz, of the filter.
     bw : float or PyoObject. Bandwidth, in Hz, for bandreject and bandpass filters.
     type : int. Filter type {0 = lowpass, 1 = highpass, 2 = bandreject, 3 = bandpass}.
@@ -2095,9 +2098,9 @@ class IRWinSinc(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(.5)
-    >>> lfr = Sine(.2, mul=2000, add=3500)
-    >>> lbw = Sine(.25, mul=1000, add=1500)
+    >>> a = Noise(.3)
+    >>> lfr = Sine([.15, .2], mul=2000, add=3500)
+    >>> lbw = Sine([.3, .25], mul=1000, add=1500)
     >>> b = IRWinSinc(a, freq=lfr, bw=lbw, type=3, order=256).out()
 
     """
@@ -2185,7 +2188,7 @@ class IRWinSinc(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -2215,7 +2218,7 @@ class IRAverage(PyoObject):
     """
     Moving average filter using circular convolution.
 
-    IRAverqge uses circular convolution to implement an average filter. This
+    IRAverage uses circular convolution to implement an average filter. This
     filter is designed to reduce the noise in the input signal while keeping
     as much as possible the step response of the original signal. User can 
     defined the length, in samples, of the impulse response, also known as 
@@ -2227,7 +2230,7 @@ class IRAverage(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     order : int {even number}, optional
         Length, in samples, of the filter kernel used for convolution. Available 
         at initialization time only. This value must be even. A high order will
@@ -2241,7 +2244,7 @@ class IRAverage(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
 
     Notes :
 
@@ -2253,8 +2256,8 @@ class IRAverage(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> nz = Noise(.05)
-    >>> a = Sine(400, mul=.5, add=nz)
-    >>> b = IRAverage(a, order=32).out()
+    >>> a = Sine([300, 400], mul=.25, add=nz)
+    >>> b = IRAverage(a, order=128).out()
 
     """
     def __init__(self, input, order=256, mul=1, add=0):
@@ -2294,7 +2297,7 @@ class IRAverage(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -2314,7 +2317,7 @@ class IRPulse(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     freq : float or PyoObject, optional
         Fundamental frequency of the spikes in the filter's spectrum, expressed 
         in Hertz. Defaults to 500.
@@ -2342,7 +2345,7 @@ class IRPulse(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     freq : float or PyoObject. Fundamental frequency of the spikes.
     bw : float or PyoObject. Frequency of the comb's first notch.
     type : int. Filter type {0 = pulse, 1 = pulse_lp, 2 = pulse_odd, 3 = pulse_odd_lp}.
@@ -2360,7 +2363,7 @@ class IRPulse(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Noise(.5)
-    >>> b = IRPulse(a, freq=250, bw=2500, type=3, order=256).out()
+    >>> b = IRPulse(a, freq=[245, 250], bw=2500, type=3, order=256).out()
 
     """
     def __init__(self, input, freq=500, bw=2500, type=0, order=256, mul=1, add=0):
@@ -2433,7 +2436,11 @@ class IRPulse(PyoObject):
 
         x : int
             New `type` attribute. 
-            0 = lowpass, 1 = highpass, 2 = bandreject, 3 = bandpass
+            Filter type. Four possible values :
+                0 = Pulse & comb (default)
+                1 = Pulse & comb & lowpass
+                2 = Pulse (odd harmonics) & comb
+                3 = Pulse (odd harmonics) & comb & lowpass
 
         """
         self._type = x
@@ -2447,7 +2454,7 @@ class IRPulse(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -2468,7 +2475,7 @@ class IRPulse(PyoObject):
 
     @property
     def type(self):
-        """int. Filter type {0 = lowpass, 1 = highpass, 2 = bandreject, 3 = bandpass}.""" 
+        """int. Filter type {0 = pulse, 1 = pulse_lp, 2 = pulse_odd, 3 = pulse_odd_lp}.""" 
         return self._type
     @type.setter
     def type(self, x): self.setType(x)
@@ -2487,7 +2494,7 @@ class IRFM(PyoObject):
     Parameters:
 
     input : PyoObject
-        Input signal to filter.
+        Input signal to process.
     carrier : float or PyoObject, optional
         Carrier frequency in cycles per second. Defaults to 1000.
     ratio : float or PyoObject, optional
@@ -2511,7 +2518,7 @@ class IRFM(PyoObject):
 
     Attributes:
 
-    input : PyoObject. Input signal to filter.
+    input : PyoObject. Input signal to process.
     carrier : float or PyoObject. Carrier frequency in Hz.
     ratio : float or PyoObject. Modulator/carrier ratio.
     index : float or PyoObject.The modulation index.
@@ -2528,8 +2535,8 @@ class IRFM(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> nz = Noise(.5)
-    >>> lf = Sine(freq=.25, mul=.125, add=.5)
+    >>> nz = Noise(.7)
+    >>> lf = Sine(freq=[.2, .25], mul=.125, add=.5)
     >>> b = IRFM(nz, carrier=3500, ratio=lf, index=3, order=256).out()
 
     """
@@ -2617,7 +2624,7 @@ class IRFM(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
