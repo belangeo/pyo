@@ -1212,9 +1212,10 @@ class PyoMatrixObject(object):
 class Mix(PyoObject):
     """
     Mix audio streams to arbitrary number of streams.
-    
-    Mix the object's audio streams in `input` into `voices` streams.
-    
+
+    Mix the object's audio streams as `input` argument into `voices` 
+    streams.
+
     Parentclass: PyoObject
 
     Parameters:
@@ -1227,21 +1228,21 @@ class Mix(PyoObject):
         streams. Defaults to 1.
 
     Notes:
-    
+
     The mix method of PyoObject creates and returns a new Mix object
     with mixed streams of the object that called the method. User
     don't have to instantiate this class directly. These two calls
     are identical:
-    
+
     >>> b = a.mix()
     >>> b = Mix(a)
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.01)
-    >>> b = Mix(a).out()
+    >>> a = Sine([random.uniform(400,600) for i in range(50)], mul=.02)
+    >>> b = Mix(a, voices=2).out()
     >>> print len(a)
     50
     >>> print len(b)
@@ -1299,9 +1300,9 @@ class Mix(PyoObject):
 class Dummy(PyoObject):
     """
     Dummy object used to perform arithmetics on PyoObject.
-    
+
     The user should never instantiate an object of this class.
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -1311,7 +1312,7 @@ class Dummy(PyoObject):
         getBaseObjects().
 
     Notes:
-    
+
     Multiplication, addition, division and substraction don't changed
     the PyoObject on which the operation is performed. A dummy object
     is created, which is just a copy of the audio Streams of the object,
@@ -1329,14 +1330,14 @@ class Dummy(PyoObject):
     <pyolib._core.Dummy object at 0x11fd710>
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> m = Metro().play()
-    >>> p = TrigRand(m, 250, 400)
-    >>> a = Sine(p, mul=.25).out()
-    >>> b = Sine(p*1.25, mul=.25).out()
-    >>> c = Sine(p*1.5, mul=.25).out()
+    >>> m = Metro(time=0.25).play()
+    >>> p = TrigChoice(m, choice=[midiToHz(n) for n in [60,62,65,67,69]])
+    >>> a = SineLoop(p, feedback=.05, mul=.1).mix(2).out()
+    >>> b = SineLoop(p*1.253, feedback=.05, mul=.06).mix(2).out()
+    >>> c = SineLoop(p*1.497, feedback=.05, mul=.03).mix(2).out()
     
     """
     def __init__(self, objs_list):
@@ -1365,7 +1366,7 @@ class InputFader(PyoObject):
     Audio streams crossfader.
 
     Parameters:
-    
+
     input : PyoObject
         Input signal.
 
@@ -1374,25 +1375,25 @@ class InputFader(PyoObject):
     setInput(x, fadetime) : Replace the `input` attribute.
 
     Attributes:
-    
+
     input : PyoObject. Input signal.
 
     Notes:
-    
-    The setInput method, on object with `input` attribute, uses 
-    an InputFader object to performs crossfade between the old and the 
-    new `input` of an object. 
-    
+
+    The setInput method, available to object with `input` attribute, 
+    uses an InputFader object internally to perform crossfade between 
+    the old and the new audio input assigned to the object. 
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Sine(450, mul=.5)
-    >>> b = Sine(650, mul=.5)
+    >>> a = SineLoop([449,450], feedback=0.05, mul=.2)
+    >>> b = SineLoop([650,651], feedback=0.05, mul=.2)
     >>> c = InputFader(a).out()
-    >>> # to created a crossfade, calls:
-    >>> c.setInput(b, 20)
-    
+    >>> # to created a crossfade, assign a new audio input:
+    >>> c.setInput(b, fadetime=5)
+
     """
     def __init__(self, input):
         PyoObject.__init__(self)
@@ -1493,15 +1494,15 @@ class Sig(PyoObject):
         """float or PyoObject. Numerical value to convert.""" 
         return self._value
     @value.setter
-    def value(self, x): self.setValue(x)    
+    def value(self, x): self.setValue(x)
 
 class VarPort(PyoObject):
     """
     Convert numeric value to PyoObject signal with portamento.
 
     When `value` attribute is changed, a smoothed ramp is applied from the
-    current value to the new value. If a callback is provided at `function`,
-    it will be called at the end of the line.
+    current value to the new value. If a callback is provided as `function`
+    argument, it will be called at the end of the line.
 
     Parentclass: PyoObject
 
@@ -1542,8 +1543,8 @@ class VarPort(PyoObject):
     ...     print "end of line"
     ...     print arg
     .... 
-    >>> fr = VarPort(value=800, time=2, init=400, function=callback, arg="YEP!")
-    >>> a = Sine(freq=fr, mul=.5).out()
+    >>> fr = VarPort(value=500, time=2, init=250, function=callback, arg="YEP!")
+    >>> a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=.2).out()
 
     """
     def __init__(self, value, time=0.025, init=0.0, function=None, arg=None, mul=1, add=0):
@@ -1595,7 +1596,7 @@ class VarPort(PyoObject):
         """float. Numerical value to convert.""" 
         return self._value
     @value.setter
-    def value(self, x): self.setValue(x)    
+    def value(self, x): self.setValue(x)
 
     @property
     def time(self):
