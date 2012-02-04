@@ -30,7 +30,7 @@ from _maps import *
 
 ######################################################################
 ### Sources
-######################################################################                                       
+######################################################################
 class Sine(PyoObject):
     """
     A simple sine wave oscillator.
@@ -42,7 +42,7 @@ class Sine(PyoObject):
     freq : float or PyoObject, optional
         Frequency in cycles per second. Defaults to 1000.
     phase : float or PyoObject, optional
-        Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1).
         Defaults to 0.
         
     Methods:
@@ -62,7 +62,7 @@ class Sine(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sine = Sine(freq=500).out()
+    >>> sine = Sine(freq=[400,500], mul=.2).out()
     
     """
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
@@ -164,8 +164,8 @@ class SineLoop(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfo = Sine(.1, 0, .1, .1)
-    >>> a = SineLoop(freq=400, feedback=lfo).out()
+    >>> lfo = Sine(.25, 0, .1, .1)
+    >>> a = SineLoop(freq=[400,500], feedback=lfo, mul=.2).out()
 
     """
     def __init__(self, freq=1000, feedback=0, mul=1, add=0):
@@ -228,7 +228,7 @@ class SineLoop(PyoObject):
 
 class Phasor(PyoObject):
     """
-    A simple phase incrementor. 
+    A simple phase incrementor.
     
     Output is a periodic ramp from 0 to 1.
  
@@ -259,8 +259,8 @@ class Phasor(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> f = Phasor(freq=1, mul=1000, add=500)
-    >>> sine = Sine(freq=f).out()   
+    >>> f = Phasor(freq=[1, 1.5], mul=1000, add=500)
+    >>> sine = Sine(freq=f, mul=.2).out()
     
     """
     def __init__(self, freq=100, phase=0, mul=1, add=0):
@@ -348,11 +348,11 @@ class Input(PyoObject):
     
     >>> s = Server(duplex=1).boot()
     >>> s.start()
-    >>> a = Input(chnl=0)
-    >>> b = Delay(a, delay=.25, feedback=.5, mul=.5).out()   
+    >>> a = Input(chnl=0, mul=.7)
+    >>> b = Delay(a, delay=.25, feedback=.5, mul=.5).out()
     
     """
-    def __init__(self, chnl=0, mul=1, add=0):                
+    def __init__(self, chnl=0, mul=1, add=0):
         PyoObject.__init__(self)
         self._chnl = chnl
         self._mul = mul
@@ -385,11 +385,10 @@ class Noise(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise()
-    >>> b = Biquad(a, freq=1000, q=5, type=0).out()    
+    >>> a = Noise(.1).mix(2).out()
         
     """
-    def __init__(self, mul=1, add=0):                
+    def __init__(self, mul=1, add=0):
         PyoObject.__init__(self)
         self._type = 0
         self._mul = mul
@@ -442,11 +441,10 @@ class PinkNoise(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = PinkNoise()
-    >>> b = Biquad(a, freq=1000, q=5, type=0).out()    
+    >>> a = PinkNoise(.1).mix(2).out()
 
     """
-    def __init__(self, mul=1, add=0):                
+    def __init__(self, mul=1, add=0):
         PyoObject.__init__(self)
         self._mul = mul
         self._add = add
@@ -473,10 +471,10 @@ class BrownNoise(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = BrownNoise(.3).out()
+    >>> a = BrownNoise(.1).mix(2).out()
 
     """
-    def __init__(self, mul=1, add=0):                
+    def __init__(self, mul=1, add=0):
         PyoObject.__init__(self)
         self._mul = mul
         self._add = add
@@ -525,10 +523,10 @@ class FM(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> ind = LinTable([(0,20), (200,5), (1000,2), (8191,1)])
+    >>> ind = LinTable([(0,3), (20,40), (300,10), (1000,5), (8191,3)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
-    >>> f = FM(carrier=[250.5,250], ratio=.2499, index=tr, mul=.5).out()
+    >>> f = FM(carrier=[251,250], ratio=[.2498,.2503], index=tr, mul=.2).out()
     
     """
     def __init__(self, carrier=100, ratio=0.5, index=5, mul=1, add=0):
@@ -616,7 +614,7 @@ class FM(PyoObject):
 
 class CrossFM(PyoObject):
     """
-    A cross frequency modulation generator.
+    Cross frequency modulation generator.
 
     Frequency modulation synthesis where the output of both oscillators
     modulates the frequency of the other one.
@@ -662,7 +660,7 @@ class CrossFM(PyoObject):
     >>> ind = LinTable([(0,20), (200,5), (1000,2), (8191,1)])
     >>> m = Metro(4).play()
     >>> tr = TrigEnv(m, table=ind, dur=4)
-    >>> f = CrossFM(carrier=[250.5,250], ratio=[.2499,.2502], ind1=tr, ind2=tr, mul=.3).out()
+    >>> f = CrossFM(carrier=[250.5,250], ratio=[.2499,.2502], ind1=tr, ind2=tr, mul=.2).out()
 
     """
     def __init__(self, carrier=100, ratio=0.5, ind1=2, ind2=2, mul=1, add=0):
@@ -802,8 +800,8 @@ class Blit(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> lfo = Sine(freq=4, mul=.02, add=1)
-    >>> a = Blit(freq=[100, 99]*lfo, harms=45, mul=.3)
-    >>> lp = Tone(a, 1000).out()
+    >>> lf2 = Sine(freq=.25, mul=10, add=30)
+    >>> a = Blit(freq=[100, 99.7]*lfo, harms=lf2, mul=.3).out()
 
     """
     def __init__(self, freq=100, harms=40, mul=1, add=0):
@@ -910,8 +908,8 @@ class Rossler(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Rossler(pitch=.003, stereo=True, mul=.15, add=.15)
-    >>> b = Rossler(pitch=[.4,.38], mul=a).out()
+    >>> a = Rossler(pitch=.003, stereo=True, mul=.2, add=.2)
+    >>> b = Rossler(pitch=[.5,.48], mul=a).out()
 
     """
     def __init__(self, pitch=0.25, chaos=0.5, stereo=False, mul=1, add=0):
@@ -1148,7 +1146,7 @@ class LFO(PyoObject):
     >>> lf = Sine([.31,.34], mul=15, add=20)
     >>> lf2 = LFO([.43,.41], sharp=.7, type=2, mul=.4, add=.4)
     >>> a = LFO(freq=lf, sharp=lf2, type=7, mul=100, add=300)
-    >>> b = SineLoop(freq=a, feedback = 0.12, mul=.3).out()
+    >>> b = SineLoop(freq=a, feedback=0.12, mul=.2).out()
 
     """
     def __init__(self, freq=100, sharp=0.5, type=0, mul=1, add=0):
