@@ -33,14 +33,14 @@ from types import SliceType
 class MatrixRec(PyoObject):
     """
     MatrixRec is for writing samples into a previously created NewMatrix.
-     
+
     See `NewMatrix` to create an empty matrix.
 
     The play method is not called at the object creation time. It starts
     the recording into the matrix, row after row, until the matrix is full. 
     Calling the play method again restarts the recording and overwrites 
     previously recorded samples.
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -55,7 +55,7 @@ class MatrixRec(PyoObject):
     delay : int, optional
         Delay time, in samples, before the recording begins. 
         Available at initialization time only. Defaults to 0.
-    
+
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
@@ -65,24 +65,24 @@ class MatrixRec(PyoObject):
         end of the matrix.
 
     Attributes:
-    
+
     input : PyoObject. Audio signal to write in the matrix.
     matrix : PyoMatrixObject. The matrix where to write samples.
-    
+
     Notes:
 
     The out() method is bypassed. MatrixRec returns no signal.
-    
+
     MatrixRec has no `mul` and `add` attributes.
-    
+
     MatrixRec will sends a trigger signal at the end of the recording. 
     User can retreive the trigger streams by calling obj['trig']. See
     `TableRec` documentation for an example.
 
     See also: NewMatrix
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> SIZE = 256
@@ -93,10 +93,10 @@ class MatrixRec(PyoObject):
     >>> rec = MatrixRec(aa, mm, 0).play()
     >>> lfx = Sine(.1, 0, .24, .25)
     >>> lfy = Sine(.15, 0, .124, .25)
-    >>> x = Sine(1000, 0, lfx, .5)
-    >>> y = Sine(1.5, 0, lfy, .5)
-    >>> c = MatrixPointer(mm, x, y, .5).out()
-    
+    >>> x = Sine([500,501], 0, lfx, .5)
+    >>> y = Sine([10.5,10], 0, lfy, .5)
+    >>> c = MatrixPointer(mm, x, y, .2).out()
+
     """
     def __init__(self, input, matrix, fadetime=0, delay=0):
         PyoObject.__init__(self)
@@ -133,15 +133,15 @@ class MatrixRec(PyoObject):
         """
         Start the recording at the beginning of the matrix.
         This method is not called automatically at the object creation.
-        
+
         Parameters:
-        
+
         dur : float, optional
             Duration, in seconds, of the object's activation. The default is 0
             and means infinite duration.
         delay : float, optional
             Delay, in seconds, before the object's activation. Defaults to 0.
-        
+
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
@@ -216,18 +216,18 @@ class MatrixRec(PyoObject):
 class MatrixPointer(PyoObject):
     """
     Matrix reader with control on the 2D pointer position.
-    
+
     Parentclass: PyoObject
-    
+
     Parameters:
-    
+
     matrix : PyoMatrixObject
         Matrix containing the waveform samples.
     x : PyoObject
         Normalized X position in the matrix between 0 and 1.
     y : PyoObject
         Normalized Y position in the matrix between 0 and 1.
-        
+
     Methods:
 
     setMatrix(x) : Replace the `matrix` attribute.
@@ -235,13 +235,13 @@ class MatrixPointer(PyoObject):
     setY(x) : Replace the `y` attribute
 
     Attributes:
-    
+
     matrix : PyoMatrixObject. Matrix containing the waveform samples.
     x : PyoObject. X pointer position in the matrix.
     y : PyoObject. Y pointer position in the matrix.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> SIZE = 256
@@ -252,9 +252,9 @@ class MatrixPointer(PyoObject):
     >>> rec = MatrixRec(aa, mm, 0).play()
     >>> lfx = Sine(.1, 0, .24, .25)
     >>> lfy = Sine(.15, 0, .124, .25)
-    >>> x = Sine(1000, 0, lfx, .5)
-    >>> y = Sine(1.5, 0, lfy, .5)
-    >>> c = MatrixPointer(mm, x, y, .5).out()
+    >>> x = Sine([500,501], 0, lfx, .5)
+    >>> y = Sine([10.5,10], 0, lfy, .5)
+    >>> c = MatrixPointer(mm, x, y, .2).out()
 
     """
     def __init__(self, matrix, x, y, mul=1, add=0):
@@ -380,19 +380,16 @@ class MatrixMorph(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> import math
-    >>> def terrain(size=256, freq=3, phase=16):
-    ...     xfreq = 2 * math.pi * freq
-    ...     return [[math.sin(xfreq * (j/float(size)) + math.sin(i/float(phase))) for j in range(size)] for i in range(size)]
-    ...
-    >>> m1 = NewMatrix(256, 256, terrain(256, 1, 4)).normalize()
-    >>> m2 = NewMatrix(256, 256, terrain(256, 2, 8)).normalize()
+    >>> m1 = NewMatrix(256, 256)
+    >>> m1.genSineTerrain(1, 4)
+    >>> m2 = NewMatrix(256, 256)
+    >>> m2.genSineTerrain(2, 8)
     >>> mm = NewMatrix(256, 256)
-    >>> inter = Sine(1, 0, .5, .5)
+    >>> inter = Sine(.2, 0, .5, .5)
     >>> morph = MatrixMorph(inter, mm, [m1,m2])
-    >>> x = Sine([99,100], 0, .45, .5)
-    >>> y = Sine([99,100], 0, .45, .5)
-    >>> a = MatrixPointer(mm, x, y, mul=.25).out()
+    >>> x = Sine([49,50], 0, .45, .5)
+    >>> y = Sine([49.49,50.5], 0, .45, .5)
+    >>> c = MatrixPointer(mm, x, y, .2).out()
 
     """
     def __init__(self, input, matrix, sources):
