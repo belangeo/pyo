@@ -695,6 +695,8 @@ class ManualPanel(wx.Treebook):
         stc = self.GetPage(self.GetSelection()).win
         start = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Examples:")) + 1
         end = stc.LineFromPosition(stc.FindText(0, stc.GetLength(), "Methods details:")) - 1
+        if end <= 0:
+            end = stc.GetLineCount() - 1
         text = stc.GetTextRange(stc.PositionFromLine(start), stc.PositionFromLine(end))
         return text
 
