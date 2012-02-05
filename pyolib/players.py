@@ -54,10 +54,10 @@ class SfPlayer(PyoObject):
     loop : bool, optional
         If set to True, sound will play in loop. Defaults to False.
     offset : float, optional 
-        Time in seconds of input sound to be skipped, assuming speed=1. 
+        Time in seconds of input sound to be skipped, assuming speed = 1. 
         Defaults to 0.
     interp : int, optional
-        Choice of the interpolation method. Defaults to 2.
+        Interpolation type. Defaults to 2.
             1 : no interpolation
             2 : linear
             3 : cosinus
@@ -65,7 +65,8 @@ class SfPlayer(PyoObject):
         
     Methods:
     
-    setSound(path) : Replace the `sound` attribute.
+    setPath(path) : Replace the `path` attribute.
+    setSound(path) : Replace the `path` attribute.
     setSpeed(x) : Replace the `speed` attribute.
     setLoop(x) : Replace the `loop` attribute.
     setOffset(x) : Replace the `offset` attribute.
@@ -73,7 +74,8 @@ class SfPlayer(PyoObject):
     
     Attributes:
     
-    sound : path, Full path of the sound.
+    path : string, Full path of the sound.
+    sound : alias to the `path` attribute.
     speed : float or PyoObject, Transposition factor.
     loop : bool, Looping mode.
     offset : float, Time, in seconds, of the first sample to read.
@@ -83,7 +85,7 @@ class SfPlayer(PyoObject):
     
     SfPlayer will sends a trigger signal at the end of the playback if 
     loop is off or any time it wraps around if loop is on. User can 
-    retreive the trigger streams by calling obj['trig']:
+    retrieve the trigger streams by calling obj['trig']:
     
     >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif").out()
     >>> trig = TrigRand(sf['trig'])
@@ -93,12 +95,12 @@ class SfPlayer(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SNDS_PATH + "/transparent.aif"
-    >>> sf = SfPlayer(snd, speed=.75, loop=True).out()
+    >>> sf = SfPlayer(snd, speed=[.75,.8], loop=True, mul=.3).out()
     
     """
     def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self)
-        self._sound = path
+        self._path = path
         self._speed = speed
         self._loop = loop
         self._offset = offset
@@ -117,7 +119,7 @@ class SfPlayer(PyoObject):
                 self._trig_objs.append(SfPlayTrig_base(self._base_players[-1], j))
 
     def __dir__(self):
-        return ['sound', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
+        return ['path', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
 
     def __del__(self):
         for obj in self._trig_objs:
@@ -166,7 +168,7 @@ class SfPlayer(PyoObject):
         [obj.stop() for obj in self._trig_objs]
         return self
         
-    def setSound(self, path):
+    def setPath(self, path):
         """
         Sets a new sound to read.
         
@@ -195,9 +197,24 @@ class SfPlayer(PyoObject):
             print "Soundfile must contains exactly %d channels." % curNchnls
             return
     
-        self._sound = path
+        self._path = path
         path, lmax = convertArgsToLists(path)
         [obj.setSound(wrap(path,i)) for i, obj in enumerate(self._base_players)]
+
+    def setSound(self, path):
+        """
+        Sets a new sound to read.
+        
+        The number of channels of the new sound must match those 
+        of the sound loaded at initialization time.
+        
+        Parameters:
+        
+        path : string
+            Full path of the new sound.
+
+        """
+        self.setPath(path)
 
     def setSpeed(self, x):
         """
@@ -260,13 +277,20 @@ class SfPlayer(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def path(self): 
+        """string. Full path of the sound."""
+        return self._path
+    @path.setter
+    def path(self, x): self.setPath(x)
           
     @property
     def sound(self): 
-        """string. Full path of the sound."""
-        return self._sound
+        """string. Alias to the `path` attribute."""
+        return self._path
     @sound.setter
-    def sound(self, x): self.setSound(x)
+    def sound(self, x): self.setPath(x)
     
     @property
     def speed(self): 
@@ -346,7 +370,7 @@ class SfMarkerShuffler(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfMarkerShuffler(SNDS_PATH + "/transparent.aif", speed=1).out()
+    >>> sf = SfMarkerShuffler(SNDS_PATH + "/transparent.aif", speed=[1,1], mul=.3).out()
     
     """
     def __init__(self, path, speed=1, interp=2, mul=1, add=0):
@@ -512,7 +536,7 @@ class SfMarkerLooper(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfMarkerLooper(SNDS_PATH + '/transparent.aif').out()
+    >>> a = SfMarkerLooper(SNDS_PATH + '/transparent.aif', speed=[.999,1], mul=.3).out()
     >>> rnd = RandInt(len(a.getMarkers()), 2)
     >>> a.mark = rnd
 
