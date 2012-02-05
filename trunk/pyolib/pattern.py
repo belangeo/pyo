@@ -37,7 +37,7 @@ class Pattern(PyoObject):
     Parameters:
 
     function : Python function
-        Function to be called.
+        Python function to be called periodically.
     time : float or PyoObject, optional
         Time, in seconds, between each call. Default to 1.
         
@@ -62,10 +62,10 @@ class Pattern(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(table=t, freq=250, mul=.5).out()
+    >>> a = Osc(table=t, freq=[250,251], mul=.2).out()
     >>> def pat():
-    ...     a.freq = random.randint(200, 400)
-    ...    
+    ...     f = random.randrange(200, 401, 25)
+    ...     a.freq = [f, f+1]
     >>> p = Pattern(pat, .125)
     >>> p.play()
     
@@ -128,9 +128,12 @@ class Pattern(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
          
     @property
-    def function(self): return self._function
+    def function(self):
+        """Python function. Function to be called.""" 
+        return self._function
     @function.setter
-    def function(self, x): self.setFunction(x)   
+    def function(self, x): 
+        self.setFunction(x)   
     @property
     def time(self):
         """float or PyoObject. Time, in seconds, between each call.""" 
@@ -159,7 +162,7 @@ class Score(PyoObject):
         before calling its function again.
     fname : string, optional
         Name of the functions to be called. Defaults to "event_", meaning
-        that the object will call the function "event_0", "event_1", "event_2" 
+        that the object will call the function "event_0", "event_1", "event_2",
         and so on... Available at initialization time only.
     
     Methods:
@@ -168,7 +171,7 @@ class Score(PyoObject):
 
     Attributes:
     
-    input : PyoObject. Audio signal.
+    input : PyoObject. Audio signal sending integer numbers.
 
     Notes:
 
@@ -183,11 +186,15 @@ class Score(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
+    >>> a = SineLoop(freq=[200,300,400,500], feedback=0.05, mul=.1).out()
+    >>> def event_0():
+    ...     a.freq=[200,300,400,500]
+    >>> def event_1():
+    ...     a.freq=[300,400,450,600]
+    >>> def event_2():
+    ...     a.freq=[150,375,450,525]
     >>> m = Metro(1).play()
-    >>> c = Counter(m, min=0, max=2)
-    >>> def event_0(): print "event 0"
-    >>> def event_1(): print "event 1"
-    >>> def event_2(): print "event 2"
+    >>> c = Counter(m, min=0, max=3)
     >>> sc = Score(c)
     
     """
@@ -244,6 +251,7 @@ class CallAfter(PyoObject):
     Parameters:
 
     function : Python function
+        Python callable execute after `time` seconds.
     time : float, optional
         Time, in seconds, before the call. Default to 1.
     arg : any Python object, optional
@@ -261,12 +269,13 @@ class CallAfter(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> print "just started"
+    >>> # Start an oscillator with a frequency of 250 Hz
+    >>> syn = SineLoop(freq=[250,251], feedback=.07, mul=.2).out()
     >>> def callback(arg):
-    ...     print arg
-    ...
-    >>> a = CallAfter(callback, 2, "YEP!")
-    
+    ...     # Change the oscillator's frequency to 300 Hz after 2 seconds
+    ...     syn.freq = arg
+    >>> a = CallAfter(callback, 2, [300,301])
+
     """
     def __init__(self, function, time=1, arg=None):
         PyoObject.__init__(self)
