@@ -31,9 +31,9 @@ class Pan(PyoObject):
     Cosinus panner with control on the spread factor.
 
     Parentclass: PyoObject
-    
+
     Parameters:
-    
+
     input : PyoObject
         Input signal to process.
     outs : int, optional
@@ -46,23 +46,23 @@ class Pan(PyoObject):
         between 0 and 1. Defaults to 0.5.
  
     Methods:
-    
+
     setInput(x, fadetime) : Replace the `input` attribute.
     setPan(x) : Replace the `pan` attribute.
     setSpread(x) : Replace the `spread` attribute.
 
     Attributes:
-    
+
     input : PyoObject. Input signal to process.
     pan : float or PyoObject. Position of the sound on the panning circle.
     spread : float or PyoObject. Amount of sound leaking to the 
-        surrounding channels. 
+        surrounding channels.
 
     Examples:
-    
+
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
-    >>> a = Noise(mul=.5)
+    >>> a = Noise(mul=.2)
     >>> lfo = Sine(freq=1, mul=.5, add=.5)
     >>> p = Pan(a, outs=2, pan=lfo).out()
     
@@ -190,11 +190,11 @@ class Pan(PyoObject):
 class SPan(PyoObject):
     """
     Simple equal power panner.
-    
+
     Parentclass: PyoObject
-     
+
     Parameters:
-    
+
     input : PyoObject
         Input signal to process.
     outs : int, optional
@@ -204,20 +204,20 @@ class SPan(PyoObject):
         Defaults to 0.5.
 
     Methods:
-    
+
     setInput(x, fadetime) : Replace the `input` attribute.
     setPan(x) : Replace the `pan` attribute.
 
     Attributes:
-    
+
     input : PyoObject. Input signal to process.
     pan : float or PyoObject. Position of the sound on the panning circle.
 
     Examples:
-    
+
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
-    >>> a = Noise(mul=.5)
+    >>> a = Noise(mul=.2)
     >>> lfo = Sine(freq=1, mul=.5, add=.5)
     >>> p = SPan(a, outs=2, pan=lfo).out()
 
@@ -323,11 +323,11 @@ class Switch(PyoObject):
     Audio switcher.
 
     Switch takes an audio input and interpolates between multiple outputs.
-    
+
     User can retrieve the different streams by calling the output number
     between brackets. obj[0] retrieve the first stream, obj[outs-1] the
     last one.
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -337,7 +337,7 @@ class Switch(PyoObject):
     outs : int, optional
         Number of outputs. Defaults to 2.
     voice : float or PyoObject
-        Voice position pointer, between 0 and outs-1. 
+        Voice position pointer, between 0 and (outs-1) / len(input). 
         Defaults to 0.
 
     Methods:
@@ -354,12 +354,12 @@ class Switch(PyoObject):
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
-    >>> lf = Sine(freq=.25, mul=1.5, add=1.5)
-    >>> b = Switch(a, outs=3, voice=lf)
-    >>> c = WGVerb(b[0], feedback=.8).out()
-    >>> d = Disto(b[1], mul=.1).out()
-    >>> e = Delay(b[2], delay=.2, feedback=.6).out()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=.3)
+    >>> lf = Sine(freq=.25, mul=1, add=1)
+    >>> b = Switch(a, outs=6, voice=lf)
+    >>> c = WGVerb(b[0:2], feedback=.8).out()
+    >>> d = Disto(b[2:4], drive=.9, mul=.1).out()
+    >>> e = Delay(b[4:6], delay=.2, feedback=.6).out()
 
     """
     def __init__(self, input, outs=2, voice=0., mul=1, add=0):
@@ -461,10 +461,10 @@ class Switch(PyoObject):
 class Selector(PyoObject):
     """
     Audio selector.
-    
+
     Selector takes multiple PyoObjects in input and interpolates between 
     them to generate a single output.
-        
+
     Parentclass: PyoObject
 
     Parameters:
@@ -474,27 +474,27 @@ class Selector(PyoObject):
     voice : float or PyoObject, optional
         Voice position pointer, between 0 and len(inputs)-1. 
         Defaults to 0.
-    
+
     Methods:
 
     setInputs(x) : Replace the `inputs` attribute.
     setVoice(x) : Replace the `voice` attribute.
 
     Attributes:
-    
+
     inputs : list of PyoObject. Audio objects to interpolate from.
     voice : float or PyoObject. Voice position pointer.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", speed=[.999,1], loop=True, mul=.3)
     >>> b = Noise(mul=.1)
-    >>> c = SfPlayer(SNDS_PATH + "/accord.aif", loop=True)
+    >>> c = SfPlayer(SNDS_PATH + "/accord.aif", speed=[.999,1], loop=True, mul=.5)
     >>> lf = Sine(freq=.1, add=1)
     >>> d = Selector(inputs=[a,b,c], voice=lf).out()
-    
+
     """
     def __init__(self, inputs, voice=0., mul=1, add=0):
         PyoObject.__init__(self)
@@ -575,7 +575,7 @@ class Selector(PyoObject):
 class VoiceManager(PyoObject):
     """
     Polyphony voice manager.
-    
+
     A trigger in input ask the object for a voice number and the object returns
     the first free one. The voice number is then disable until a trig comes at
     the same position in the list of triggers given at the argument `triggers`.
@@ -587,7 +587,7 @@ class VoiceManager(PyoObject):
     of the trigger list.
 
     If there is no free voice, the object outputs -1.0 continuously.
-        
+
     Parentclass: PyoObject
 
     Parameters:
@@ -598,19 +598,19 @@ class VoiceManager(PyoObject):
         List of mono PyoObject sending triggers. Can be a multi-streams
         PyoObject but not a mix of both. Ordering in the list corresponds
         to voice numbers. Defaults to None.
-    
+
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setTriggers(x) : Replace the `triggers` attribute.
 
     Attributes:
-    
+
     input : PyoObject. Trigger stream asking for new voice numbers.
     triggers : list of PyoObject. Trigger streams enabling voices.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> env = CosTable([(0,0),(100,1),(500,.5),(8192,0)])
@@ -618,7 +618,7 @@ class VoiceManager(PyoObject):
     >>> vm = VoiceManager(Change(delta))
     >>> sel = Select(vm, value=[0,1,2,3])
     >>> pit = TrigChoice(sel, choice=[midiToHz(x) for x in [60,63,67,70,72]])
-    >>> amp = TrigEnv(sel, table=env, dur=.5, mul=.3)
+    >>> amp = TrigEnv(sel, table=env, dur=.5, mul=.25)
     >>> synth1 = SineLoop(pit, feedback=.07, mul=amp).out()
     >>> vm.setTriggers(amp["trig"])
     
@@ -747,9 +747,9 @@ class Mixer(PyoObject):
     >>> a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.2)
     >>> b = FM(carrier=200, ratio=[.5013,.4998], index=6, mul=.2)
     >>> mm = Mixer(outs=3, chnls=2, time=.025)
-    >>> fx1 = Disto(mm[0], drive=.9, slope=.9, mul=.2).out()
-    >>> fx2 = Freeverb(mm[1], size=.8, damp=.8).out()
-    >>> fx3 = Harmonizer(mm[2], transpo=1, feedback=.75).out()
+    >>> fx1 = Disto(mm[0], drive=.9, slope=.9, mul=.1).out()
+    >>> fx2 = Freeverb(mm[1], size=.8, damp=.8, mul=.5).out()
+    >>> fx3 = Harmonizer(mm[2], transpo=1, feedback=.75, mul=.5).out()
     >>> mm.addInput(0, a)
     >>> mm.addInput(1, b)
     >>> mm.setAmp(0,0,.5)

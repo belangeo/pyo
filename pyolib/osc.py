@@ -36,19 +36,19 @@ from _maps import *
 
 ######################################################################
 ### Open Sound Control
-######################################################################                                       
+######################################################################
 class OscSend(PyoObject):
     """
     Sends values over a network via the Open Sound Control protocol.
-    
+
     Uses the OSC protocol to share values to other softwares or other 
     computers. Only the first value of each input buffersize will be 
     sent on the OSC port.
-    
+
     Parentclass: PyoObject
-    
+
     Parameters:
-    
+
     input : PyoObject
         Input signal.
     port : int
@@ -76,11 +76,11 @@ class OscSend(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Sine(freq=[1,1.5], mul=100, add=[600, 1000])
-    >>> b = OscSend(a, port=10000, address=['/pit1','/pit2'])
+    >>> a = Sine(freq=[1,1.5], mul=[100,.1], add=[600, .1])
+    >>> b = OscSend(a, port=10001, address=['/pitch','/amp'])
     
     """
-    def __init__(self, input, port, address, host="127.0.0.1"):    
+    def __init__(self, input, port, address, host="127.0.0.1"):
         PyoObject.__init__(self)
         self._input = input
         self._in_fader = InputFader(input)
@@ -93,7 +93,7 @@ class OscSend(PyoObject):
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
-        
+
         Parameters:
 
         x : PyoObject
@@ -128,15 +128,15 @@ class OscSend(PyoObject):
 class OscReceive(PyoObject):
     """
     Receives values over a network via the Open Sound Control protocol.
-    
+
     Uses the OSC protocol to receive values from other softwares or 
     other computers. Get a value at the beginning of each buffersize 
     and fill it's buffer with it.
 
     Parentclass: PyoObject
-    
+
     Parameters:
-    
+
     port : int
         Port on which values are received. Sender should output on 
         the same port.
@@ -150,7 +150,7 @@ class OscReceive(PyoObject):
         buffer as a float.
 
     Notes:
-    
+
     Audio streams are accessed with the `address` string parameter. 
     The user should call :
 
@@ -160,15 +160,15 @@ class OscReceive(PyoObject):
     to audio outs.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = OscReceive(port=10001, address=['/pitch', '/amp'])
-    >>> b = Sine(freq=a['/pitch'], mul=a['/amp']).out()
+    >>> b = Sine(freq=a['/pitch'], mul=a['/amp']).mix(2).out()
 
     """
 
-    def __init__(self, port, address, mul=1, add=0):    
+    def __init__(self, port, address, mul=1, add=0):
         PyoObject.__init__(self)
         self._mul = mul
         self._add = add
@@ -194,17 +194,17 @@ class OscReceive(PyoObject):
         elif i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"         
+            print "'i' too large!"
     
     def get(self, identifier=None, all=False):
         """
         Return the first sample of the current buffer as a float.
-        
+
         Can be used to convert audio stream to usable Python data.
-        
+
         Address as string must be given to `identifier` to specify
         which stream to get value from.
-        
+
         Parameters:
 
             identifier : string
@@ -216,7 +216,7 @@ class OscReceive(PyoObject):
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
-                 
+
         """
         if not all:
             return self._base_objs[self._address.index(identifier)]._getStream().getValue()
@@ -385,7 +385,7 @@ class OscDataReceive(PyoObject):
 
     """
 
-    def __init__(self, port, address, function, mul=1, add=0):    
+    def __init__(self, port, address, function, mul=1, add=0):
         PyoObject.__init__(self)
         self._port = port
         self._address = address
