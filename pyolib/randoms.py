@@ -60,9 +60,10 @@ class Randi(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> rnd = Randi(400, 600, 4)
-    >>> a = Sine(rnd, mul=.5).out()
-    
+    >>> freq = Randi(500, 3000, 4)
+    >>> noze = Noise().mix(2)
+    >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
+   
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
         PyoObject.__init__(self)
@@ -174,8 +175,9 @@ class Randh(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> rnd = Randh(400, 600, 4)
-    >>> a = Sine(rnd, mul=.5).out()
+    >>> freq = Randh(500, 3000, 4)
+    >>> noze = Noise().mix(2)
+    >>> a = Biquad(noze, freq=freq, q=5, type=2, mul=.5).out()
     
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
@@ -284,8 +286,9 @@ class Choice(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> rnd = Choice([200,300,400,500,600], 4)
-    >>> a = Sine(rnd, mul=.5).out()
+    >>> freqs = midiToHz([60,62,64,65,67,69,71,72])
+    >>> rnd = Choice(choice=freqs, freq=[3,4])
+    >>> a = SineLoop(rnd, feedback=0.05, mul=.2).out()
     
     """
     def __init__(self, choice, freq=1., mul=1, add=0):
@@ -379,8 +382,9 @@ class RandInt(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> rnd = RandInt(10, 5, 100, 500)
-    >>> a = Sine(rnd, mul=.5).out()
+    >>> freq = RandInt(max=10, freq=5, mul=100, add=500)
+    >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
+    >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
     
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
@@ -469,10 +473,11 @@ class RandDur(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> dur = RandDur(min=[.05,0.1], max=[.2,.25])
+    >>> dur = RandDur(min=[.05,0.1], max=[.4,.5])
     >>> trig = Change(dur)
     >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)
-    >>> freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])
+    >>> freqs = midiToHz([60,63,67,70,72])
+    >>> freq = TrigChoice(trig, choice=freqs)
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
 
     """
@@ -622,8 +627,9 @@ class Xnoise(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> lfo = Phasor(.1, 0, .5, .15)
-    >>> a = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)
-    >>> b = Sine(a, mul=.3).out()
+    >>> freq = Xnoise(dist=12, freq=8, x1=1, x2=lfo, mul=1000, add=500)
+    >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
+    >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
@@ -825,8 +831,9 @@ class XnoiseMidi(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Phasor(.1, 0, .5, 0)
-    >>> a = XnoiseMidi('loopseg', freq=8, x1=1, x2=l, scale=1, mrange=(60,96))
-    >>> b = Sine(a, mul=.3).out()
+    >>> freq = XnoiseMidi('loopseg', freq=8, x1=1, x2=l, scale=1, mrange=(60,96))
+    >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
+    >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
@@ -1064,10 +1071,11 @@ class XnoiseDur(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> dur = XnoiseDur(dist="expon_min", min=[.05,0.1], max=[.2,.25], x1=3)
+    >>> dur = XnoiseDur(dist="expon_min", min=[.05,0.1], max=[.4,.5], x1=3)
     >>> trig = Change(dur)
     >>> amp = TrigEnv(trig, table=HannTable(), dur=dur, mul=.2)
-    >>> freq = TrigChoice(trig, choice=[100,150,200,250,300,350,400])
+    >>> freqs = midiToHz([60,63,67,70,72])
+    >>> freq = TrigChoice(trig, choice=freqs)
     >>> a = LFO(freq=freq, type=2, mul=amp).out()
 
     """
