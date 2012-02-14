@@ -6,27 +6,29 @@ import wx.stc  as  stc
 from wx.lib.embeddedimage import PyEmbeddedImage
 from pyo import *
 
+DOC_AS_SINGLE_APP = False
+
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 DOC_PATH = os.path.join(TEMP_PATH, 'doc')
-EXAMPLE_PATH = os.path.join(TEMP_PATH, 'manual_example.py')
+DOC_EXAMPLE_PATH = os.path.join(TEMP_PATH, 'manual_example.py')
 
-STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
+DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
                     'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F', 'keyword2': '#007F9F',
                     'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
                     'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
                       'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
 
 if wx.Platform == '__WXMSW__':
-  faces2 = {'face': 'Courier', 'size' : 10, 'size2': 8}
+  DOC_FACES = {'face': 'Courier', 'size' : 10, 'size2': 8}
 elif wx.Platform == '__WXMAC__':
-  faces2 = {'face': 'Monaco', 'size' : 12, 'size2': 9}
+  DOC_FACES = {'face': 'Monaco', 'size' : 12, 'size2': 9}
 else:
-  faces2 = {'face': 'Courier New', 'size' : 8, 'size2': 7}
-faces2['size3'] = faces2['size2'] + 4
-for key, value in STYLES['Default'].items():
-  faces2[key] = value
+  DOC_FACES = {'face': 'Courier New', 'size' : 8, 'size2': 7}
+DOC_FACES['size3'] = DOC_FACES['size2'] + 4
+for key, value in DOC_STYLES['Default'].items():
+  DOC_FACES[key] = value
 
 # ***************** Catalog starts here *******************
 
@@ -233,26 +235,26 @@ def _ed_set_style(editor, searchKey=None):
     editor.SetTabWidth(4)
     editor.SetUseTabs(False)
 
-    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,  "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces2)
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,  "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % DOC_FACES)
     editor.StyleClearAll()
-    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces2)
-    editor.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces2)
-    editor.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_WORD2, "fore:%(keyword2)s,face:%(face)s,bold,size:%(size3)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % faces2)
-    editor.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % faces2)
-    editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces2)
-    #editor.SetCaretForeground(faces2["background"])
+    editor.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_WORD2, "fore:%(keyword2)s,face:%(face)s,bold,size:%(size3)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % DOC_FACES)
+    #editor.SetCaretForeground(DOC_FACES["background"])
 
 def complete_words_from_str(text, keyword):
     words = [keyword]
@@ -702,16 +704,16 @@ class ManualPanel(wx.Treebook):
 
     def setStyle(self):
         tree = self.GetTreeCtrl()
-        tree.SetBackgroundColour(STYLES['Default']['background'])
+        tree.SetBackgroundColour(DOC_STYLES['Default']['background'])
         root = tree.GetRootItem()
-        tree.SetItemTextColour(root, STYLES['Default']['identifier'])
+        tree.SetItemTextColour(root, DOC_STYLES['Default']['identifier'])
         (child, cookie) = tree.GetFirstChild(root)
         while child.IsOk():
-            tree.SetItemTextColour(child, STYLES['Default']['identifier'])
+            tree.SetItemTextColour(child, DOC_STYLES['Default']['identifier'])
             if tree.ItemHasChildren(child):
                 (child2, cookie2) = tree.GetFirstChild(child)
                 while child2.IsOk():
-                    tree.SetItemTextColour(child2, STYLES['Default']['identifier'])
+                    tree.SetItemTextColour(child2, DOC_STYLES['Default']['identifier'])
                     (child2, cookie2) = tree.GetNextChild(child, cookie2)
             (child, cookie) = tree.GetNextChild(root, cookie)
 
@@ -789,7 +791,10 @@ class ManualFrame(wx.Frame):
         menu1 = wx.Menu()
         menu1.Append(100, "Run Example\tCtrl+R")
         menu1.AppendSeparator()
-        menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
+        if DOC_AS_SINGLE_APP:
+            menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
+        else:
+            menu1.Append(99, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'Action')
 
         menu2 = wx.Menu()
@@ -800,8 +805,12 @@ class ManualFrame(wx.Frame):
 
         self.Bind(wx.EVT_MENU, self.onRun, id=100)
         self.Bind(wx.EVT_MENU, self.copy, id=101)
-        self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
-        self.Bind(wx.EVT_CLOSE, self.quit)
+        if DOC_AS_SINGLE_APP:
+            self.Bind(wx.EVT_MENU, self.quit, id=wx.ID_EXIT)
+            self.Bind(wx.EVT_CLOSE, self.quit)
+        else:
+            self.Bind(wx.EVT_MENU, self.close, id=99)
+            self.Bind(wx.EVT_CLOSE, self.close)
 
     def setSearchFocus(self, evt):
         self.search.SetFocus()
@@ -841,6 +850,9 @@ class ManualFrame(wx.Frame):
     def quit(self, evt):
         self.Destroy()
 
+    def close(self, evt):
+        self.Hide()
+
     def setTitle(self, page):
         self.SetTitle('Pyo Documentation - %s' % page)
 
@@ -865,12 +877,13 @@ class ManualFrame(wx.Frame):
         obj = self.doc_panel.GetPageText(self.doc_panel.GetSelection())
         self.status.SetStatusText('Running "%s" example...' % obj, 0)
         text = self.doc_panel.getExampleScript()
-        with open(EXAMPLE_PATH, "w") as f:
+        with open(DOC_EXAMPLE_PATH, "w") as f:
             f.write(text)
-        pid = subprocess.Popen(["python", EXAMPLE_PATH], cwd=TEMP_PATH, shell=False).pid
+        pid = subprocess.Popen(["python", DOC_EXAMPLE_PATH], cwd=TEMP_PATH, shell=False).pid
         wx.FutureCall(8000, self.status.SetStatusText, "", 0)
 
 if __name__ == "__main__":
+    DOC_AS_SINGLE_APP = True
     app = wx.PySimpleApp()
     doc_frame = ManualFrame()
     doc_frame.Show()
