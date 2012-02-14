@@ -849,7 +849,7 @@ class FrameDelta(PyoObject):
     The difference between the phase values of successive FFT frames for a given bin 
     determines the exact frequency of the energy centered in that bin. This is often 
     known as the phase difference (and sometimes also referred to as phase derivative 
-    or instantaneous frequency if it’s been subjected to a few additional calculations).
+    or instantaneous frequency if it's been subjected to a few additional calculations).
 
     In order to reconstruct a plausible playback of re-ordered FFT frames, we need to 
     calculate the phase difference between successive frames and use it to construct a 
@@ -1009,7 +1009,7 @@ class FrameAccum(PyoObject):
     The difference between the phase values of successive FFT frames for a given bin 
     determines the exact frequency of the energy centered in that bin. This is often 
     known as the phase difference (and sometimes also referred to as phase derivative 
-    or instantaneous frequency if it’s been subjected to a few additional calculations).
+    or instantaneous frequency if it's been subjected to a few additional calculations).
 
     In order to reconstruct a plausible playback of re-ordered FFT frames, we need to 
     calculate the phase difference between successive frames, with FrameDelta, and use 
