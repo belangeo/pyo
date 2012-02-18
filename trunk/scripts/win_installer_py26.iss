@@ -21,6 +21,7 @@ OutputBaseFilename=pyo_0.6.0_py2.6_setup
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
+ChangesEnvironment=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -45,7 +46,25 @@ Source: "C:\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples"; Flags: ignor
 Source: "C:\pyo\scripts\README-win32-py26.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[Registry]
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "C:\Python26;{olddata}"; Check: NeedsAddPath('C:\Python26')
 
+[Code]
+function NeedsAddPath(Param: string): boolean;
+var
+  OrigPath: string;
+begin
+  if not RegQueryStringValue(HKEY_LOCAL_MACHINE,
+    'SYSTEM\CurrentControlSet\Control\Session Manager\Environment',
+    'Path', OrigPath)
+  then begin
+    Result := True;
+    exit;
+  end;
+  // look for the path with leading and trailing semicolon
+  // Pos() returns 0 if not found
+  Result := Pos(';' + Param + ';', ';' + OrigPath + ';') = 0;
+end;
 
 
 
