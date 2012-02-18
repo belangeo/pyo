@@ -72,8 +72,8 @@ class Osc(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = HarmTable([1,0,.33,0,.2,0,.143])
-    >>> a = Osc(table=t, freq=100).out()   
+    >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111,0,.091])
+    >>> a = Osc(table=t, freq=[100,99.2], mul=.2).out()
      
     """
     def __init__(self, table, freq=1000, phase=0, interp=2, mul=1, add=0):
@@ -316,17 +316,17 @@ class OscLoop(PyoObject):
 class OscBank(PyoObject):
     """
     Any number of oscillators reading a waveform table.
-    
+
     OscBank mixes the output of any number of oscillators. The frequencies
     of each oscillator is controlled with two parameters, the base frequency 
     `freq` and a coefficient of expansion `spread`. Frequencies are computed 
     with the following formula (`n` is the order of the partial):
-    
+
     f_n = freq + freq * spread * n
 
     The frequencies and amplitudes can be modulated by two random generators 
     with interpolation (each partial have a different set of randoms).
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -397,7 +397,7 @@ class OscBank(PyoObject):
     See also: Osc
 
     Notes:
-    
+
     Altough parameters can be audio signals, values are sampled only once 
     per buffer size. To avoid artefacts, it is recommended to keep variations
     at low rate (< 20 Hz).
@@ -408,9 +408,9 @@ class OscBank(PyoObject):
     >>> s.start()
     >>> ta = HarmTable([1,.3,.2])
     >>> tb = HarmTable([1])
-    >>> f = Fader(fadein=.1, fadeout=.5, dur=4).play()
+    >>> f = Fader(fadein=.1).play()
     >>> a = OscBank(ta,100,spread=0,frndf=.25,frnda=.01,num=[10,10],fjit=True,mul=f*0.5).out()
-    >>> b = OscBank(tb,250,spread=.25,slope=.8,arndf=4,arnda=1,num=[10,10],mul=f*0.5).out()
+    >>> b = OscBank(tb,250,spread=.25,slope=.8,arndf=4,arnda=1,num=[10,10],mul=f*0.4).out()
 
     """
     def __init__(self, table, freq=100, spread=1, slope=.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False, mul=1, add=0):
@@ -636,16 +636,16 @@ class OscBank(PyoObject):
 class TableRead(PyoObject):
     """
     Simple waveform table reader.
-    
+
     Read sampled sound from a table, with optional looping mode.
-    
+
     The play() method starts the playback and is not called at the 
     object creation time.
-    
+
     Parentclass: PyoObject
-    
+
     Parameters:
-    
+
     table : PyoTableObject
         Table containing the waveform samples.
     freq : float or PyoObject, optional
@@ -659,7 +659,7 @@ class TableRead(PyoObject):
             2 : linear
             3 : cosinus
             4 : cubic
-        
+
     Methods:
 
     setTable(x) : Replace the `table` attribute.
@@ -669,30 +669,31 @@ class TableRead(PyoObject):
     reset() : Resets current phase to 0.
 
     Attributes:
-    
+
     table : PyoTableObject. Table containing the waveform samples.
     freq : float or PyoObject, Frequency in cycles per second.
     loop : int, Looping mode.
     interp : int {1, 2, 3, 4}, Interpolation method.
 
     Notes:
-    
+
     TableRead will sends a trigger signal at the end of the playback if 
     loop is off or any time it wraps around if loop is on. User can 
     retreive the trigger streams by calling obj['trig']:
-    
+
     >>> tabr = TableRead(SNDS_PATH + "/transparent.aif").out()
     >>> trig = TrigRand(tab['trig'])
-    
+
     See also: Osc
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> snd = SndTable(SNDS_PATH + '/transparent.aif')
-    >>> a = TableRead(table=snd, freq=snd.getRate(), loop=0).out()   
-     
+    >>> freq = snd.getRate()
+    >>> a = TableRead(table=snd, freq=[freq,freq*.99], loop=True, mul=.3).out()   
+
     """
     def __init__(self, table, freq=1, loop=0, interp=2, mul=1, add=0):
         PyoObject.__init__(self)
@@ -850,7 +851,7 @@ class TableRead(PyoObject):
 class Pulsar(PyoObject):
     """
     Pulsar synthesis oscillator.
-    
+
     Pulsar synthesis produces a train of sound particles called pulsars 
     that can make rhythms or tones, depending on the fundamental frequency 
     of the train. Varying the `frac` parameter changes the portion of the
@@ -861,7 +862,7 @@ class Pulsar(PyoObject):
     Parentclass: PyoObject
     
     Parameters:
-    
+
     table : PyoTableObject
         Table containing the waveform samples.
     env : PyoTableObject
@@ -880,7 +881,7 @@ class Pulsar(PyoObject):
             2 : linear
             3 : cosinus
             4 : cubic
-        
+
     Methods:
 
     setTable(x) : Replace the `table` attribute.
@@ -898,17 +899,17 @@ class Pulsar(PyoObject):
     frac : float or PyoObject, Fraction of the period assigned to waveform.
     phase : float or PyoObject, Phase of sampling (0 -> 1).
     interp : int {1, 2, 3, 4}, Interpolation method.
-    
+
     See also: Osc
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> w = HarmTable([1,0,.33,0,2,0,.143,0,.111])
     >>> e = HannTable()
-    >>> lfo = Sine(.15, mul=.2, add=.5)
-    >>> a = Pulsar(table=w, env=e, freq=80, frac=lfo, mul=.25).out()
+    >>> lfo = Sine([.1,.15], mul=.2, add=.5)
+    >>> a = Pulsar(table=w, env=e, freq=80, frac=lfo, mul=.08).out()
      
     """
     def __init__(self, table, env, freq=100, frac=0.5, phase=0, interp=2, mul=1, add=0):
@@ -1063,33 +1064,34 @@ class Pulsar(PyoObject):
 class Pointer(PyoObject):
     """
     Table reader with control on the pointer position.
-    
+
     Parentclass: PyoObject
-    
+
     Parameters:
-    
+
     table : PyoTableObject
         Table containing the waveform samples.
     index : PyoObject
         Normalized position in the table between 0 and 1.
-        
+
     Methods:
 
     setTable(x) : Replace the `table` attribute.
     setIndex(x) : Replace the `index` attribute.
 
     Attributes:
-    
+
     table : PyoTableObject. Table containing the waveform samples.
     index : PyoObject. Pointer position in the table.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SndTable(SNDS_PATH + '/transparent.aif')
-    >>> p = Phasor(freq=t.getRate())
-    >>> a = Pointer(table=t, index=p).out()
+    >>> freq = t.getRate()
+    >>> p = Phasor(freq=[freq*0.5, freq*0.45])
+    >>> a = Pointer(table=t, index=p, mul=.3).out()
 
     """
     def __init__(self, table, index, mul=1, add=0):
@@ -1180,10 +1182,10 @@ class TableIndex(PyoObject):
     >>> s.start()
     >>> import random
     >>> notes = [midiToHz(random.randint(60,84)) for i in range(10)]
-    >>> tab = NewTable(length=10/s.getSamplingRate(), init=notes)
-    >>> ind = RandInt(10, 8)
+    >>> tab = DataTable(size=10, init=notes)
+    >>> ind = RandInt(10, [4,8])
     >>> pit = TableIndex(tab, ind)
-    >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.5).out()
+    >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.2).out()
 
     """
     def __init__(self, table, index, mul=1, add=0):
@@ -1275,10 +1277,10 @@ class Lookup(PyoObject):
     
     >>> s = Server().boot()
     >>> s.start()
-    >>> lfo = Sine(freq=[.15,.2], mul=.45, add=.5)
+    >>> lfo = Sine(freq=[.15,.2], mul=.2, add=.25)
     >>> a = Sine(freq=[100,150], mul=lfo)
     >>> t = CosTable([(0,-1),(3072,-0.85),(4096,0),(5520,.85),(8192,1)])
-    >>> b = Lookup(table=t, index=a, mul=1.-lfo).out()
+    >>> b = Lookup(table=t, index=a, mul=.5-lfo).out()
 
     """
     def __init__(self, table, index, mul=1, add=0):
@@ -1342,14 +1344,14 @@ class Lookup(PyoObject):
 class TableRec(PyoObject):
     """
     TableRec is for writing samples into a previously created NewTable.
-     
+
     See `NewTable` to create an empty table.
 
     The play method is not called at the object creation time. It starts
     the recording into the table until the table is full. Calling the 
     play method again restarts the recording and overwrites previously
     recorded samples.
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -1361,7 +1363,7 @@ class TableRec(PyoObject):
     fadetime : float, optional
         Fade time at the beginning and the end of the recording 
         in seconds. Defaults to 0.
-    
+
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
@@ -1371,39 +1373,40 @@ class TableRec(PyoObject):
         end of the table.
 
     Attributes:
-    
+
     input : PyoObject. Audio signal to write in the table.
     table : PyoTableObject. The table where to write samples.
-    
+
     Notes:
 
     The out() method is bypassed. TableRec returns no signal.
-    
+
     TableRec has no `mul` and `add` attributes.
-    
+
     TableRec will sends a trigger signal at the end of the recording. 
     User can retrieve the trigger streams by calling obj['trig']. In
     this example, the recorded table will be read automatically after
     a recording:
-    
+
     >>> a = Input(0)
     >>> t = NewTable(length=1, chnls=1)
     >>> rec = TableRec(a, table=t, fadetime=0.01)
     >>> tr = TrigEnv(rec['trig'], table=t, dur=1).out()
 
     See also: NewTable, TrigTableRec
-    
+
     Examples:
-    
+
     >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> t = NewTable(length=2, chnls=1)
     >>> a = Input(0)
     >>> b = TableRec(a, t, .01)
-    >>> c = Osc(t, [t.getRate(), t.getRate()*.99]).out()
+    >>> freq = t.getRate()
+    >>> c = Osc(t, [freq, freq*.99], mul=.3).out()
     >>> # to record in the empty table, call:
     >>> # b.play()
-    
+
     """
     def __init__(self, input, table, fadetime=0):
         PyoObject.__init__(self)
@@ -1523,12 +1526,12 @@ class TableRec(PyoObject):
 class TableMorph(PyoObject):
     """
     Morphs between multiple PyoTableObjects.
-     
+
     Uses an index into a list of PyoTableObjects to morph between adjacent 
     tables in the list. The resulting morphed function is written into the 
     `table` object at the beginning of each buffer size. The tables in the 
     list and the resulting table must be equal in size.
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -1540,7 +1543,7 @@ class TableMorph(PyoObject):
         The table where to write morphed waveform.
     sources : list of PyoTableObject
         List of tables to interpolate from.
-    
+
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
@@ -1548,28 +1551,28 @@ class TableMorph(PyoObject):
     setSources(x) : Replace the `sources` attribute.
 
     Attributes:
-    
+
     input : PyoObject. Morphing index between 0 and 1.
     table : NewTable. The table where to write samples.
     sources : list of PyoTableObject. List of tables to interpolate from.
-    
+
     Notes:
 
     The out() method is bypassed. TableMorph returns no signal.
-    
+
     TableMorph has no `mul` and `add` attributes.
- 
+
     Examples:
-    
+
     >>> s = Server(duplex=1).boot()
     >>> s.start()
-    >>> t1 = HarmTable([1,.5,.33,.25,.2,.167,.143,.125,.111])
-    >>> t2 = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
+    >>> t1 = HarmTable([1,.5,.33,.25,.2,.167,.143,.125,.111,.1,.091])
+    >>> t2 = HarmTable([1,0,.33,0,.2,0,.143,0,.111,0,.091])
     >>> t3 = NewTable(length=8192./s.getSamplingRate(), chnls=1)
     >>> lfo = Sine(.25, 0, .5, .5)
     >>> mor = TableMorph(lfo, t3, [t1,t2])
-    >>> osc = Osc(t3, freq=200, mul=.5).out()
-    
+    >>> osc = Osc(t3, freq=[199.5,200], mul=.08).out()
+
     """
     def __init__(self, input, table, sources):
         PyoObject.__init__(self)
@@ -2163,7 +2166,7 @@ class Looper(PyoObject):
     >>> pit = Choice(choice=[.5,.75,1,1.25,1.5], freq=[3,4])
     >>> start = Phasor(freq=.2, mul=tab.getDur())
     >>> dur = Choice(choice=[.0625,.125,.125,.25,.33], freq=4)
-    >>> a = Looper(table=tab, pitch=pit, start=start, dur=dur, startfromloop=True, mul=.5).out()
+    >>> a = Looper(table=tab, pitch=pit, start=start, dur=dur, startfromloop=True, mul=.25).out()
 
     """
     def __init__(self, table, pitch=1, start=0, dur=1., xfade=20, mode=1, xfadeshape=0, startfromloop=False, interp=2, autosmooth=False, mul=1, add=0):
