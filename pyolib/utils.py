@@ -30,27 +30,27 @@ import threading, time
 class Clean_objects(threading.Thread):
     """
     Stops and deletes PyoObjects after a given time.
-    
+
     Parameters:
-    
+
     time : float
         Time, in seconds, to wait before calling stop on the given 
         objects and deleting them.
     *args : PyoObject(s)
         Objects to delete.
-        
+
     Methods:
-    
+
     start() : Starts the thread. The timer begins on this call.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = Noise(mul=.5).out()
-    >>> b = Fader(fadein=.1, fadeout=1, dur=5).play()
-    >>> c = Biquad(a, freq=1000, q=2, mul=b).out()
-    >>> dump = Clean_objects(time=6, a, b, c)
+    >>> a = Noise(mul=.5).mix(2)
+    >>> b = Fader(fadein=.5, fadeout=1, dur=5).play()
+    >>> c = Biquad(a, freq=500, q=2, mul=b).out()
+    >>> dump = Clean_objects(6, a, b, c)
     >>> dump.start()
     
     """
@@ -70,11 +70,11 @@ class Clean_objects(threading.Thread):
 class Print(PyoObject):
     """
     Print PyoObject's current value.
- 
+
     Parentclass: PyoObject
-   
+
     Parameters:
-    
+
     input : PyoObject
         Input signal to filter.
     method : int {0, 1}, optional
@@ -105,14 +105,14 @@ class Print(PyoObject):
 
     The out() method is bypassed. Print's signal can not be sent to 
     audio outs.
-    
+
     Print has no `mul` and `add` attributes.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.5).out()
+    >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True, mul=.3).out()
     >>> b = Follower(a)
     >>> p = Print(b, method=0, interval=.1, message="RMS")
 
@@ -225,7 +225,7 @@ class Print(PyoObject):
 class Snap(PyoObject):
     """
     Snap input values on a user's defined midi scale.
-    
+
     Snap takes an audio input of floating-point values from 0
     to 127 and output the nearest value in the `choice` parameter. 
     `choice` can be defined on any number of octaves and the real 
@@ -233,7 +233,7 @@ class Snap(PyoObject):
     will take care of the input octave range. According to `scale` 
     parameter, output can be in midi notes, hertz or transposition 
     factor (centralkey = 60).
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -246,7 +246,7 @@ class Snap(PyoObject):
         Pitch output format. 0 = MIDI, 1 = Hertz, 2 = transpo. 
         In the transpo mode, the central key (the key where there 
         is no transposition) is 60. Defaults to 0.
- 
+
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
@@ -254,19 +254,19 @@ class Snap(PyoObject):
     setScale(x) : Replace the `scale` attribute.
 
     Attributes:
-    
+
     input : PyoObject. Audio signal to transform.
     choice : list of floats. Possible values.
     scale : int. Output format.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> wav = SquareTable()
     >>> env = CosTable([(0,0), (100,1), (500,.3), (8191,0)])
     >>> met = Metro(.125, 8).play()
-    >>> amp = TrigEnv(met, table=env, mul=.1)
+    >>> amp = TrigEnv(met, table=env, mul=.2)
     >>> pit = TrigXnoiseMidi(met, dist=4, x1=20, mrange=(48,84))
     >>> hertz = Snap(pit, choice=[0,2,3,5,7,8,10], scale=1)
     >>> a = Osc(table=wav, freq=hertz, phase=0, mul=amp).out()
@@ -355,11 +355,11 @@ class Snap(PyoObject):
 class Interp(PyoObject):
     """
     Interpolates between two signals.
- 
+
     Parentclass: PyoObject
-   
+
     Parameters:
-    
+
     input : PyoObject
         First input signal.
     input2 : PyoObject
@@ -379,13 +379,13 @@ class Interp(PyoObject):
     input : PyoObject. First input signal.
     input2 : PyoObject. Second input signal.
     interp : float or PyoObject. Averaging value.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=1, loop=True, mul=.5)
-    >>> sf2 = SfPlayer(SNDS_PATH + '/transparent.aif', speed=1, loop=True, mul=.5)
+    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=[.99,1], loop=True, mul=.3)
+    >>> sf2 = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.99,1], loop=True, mul=.3)
     >>> lfo = Osc(table=SquareTable(20), freq=5, mul=.5, add=.5)
     >>> a = Interp(sf, sf2, lfo).out()
 
@@ -477,15 +477,15 @@ class Interp(PyoObject):
 class SampHold(PyoObject):
     """
     Performs a sample-and-hold operation on its input. 
- 
+
     SampHold performs a sample-and-hold operation on its input according 
     to the value of `controlsig`. If `controlsig` equals `value`, the input 
     is sampled and holded until next sampling.
-    
+
     Parentclass: PyoObject
-   
+
     Parameters:
-    
+
     input : PyoObject
         Input signal.
     controlsig : PyoObject
@@ -504,15 +504,15 @@ class SampHold(PyoObject):
     input : PyoObject. Input signal.
     controlsig : PyoObject. Controls when to sample the signal.
     value : float or PyoObject. Targeted value.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Noise(500,1000)
-    >>> b = Sine(4)
+    >>> b = Sine([3,4])
     >>> c = SampHold(input=a, controlsig=b, value=0)
-    >>> d = Sine(c, mul=.3).out()
+    >>> d = Sine(c, mul=.2).out()
 
     """
     def __init__(self, input, controlsig, value=0.0, mul=1, add=0):
@@ -602,15 +602,15 @@ class SampHold(PyoObject):
 class Compare(PyoObject):
     """
     Comparison object.
-    
+
     Compare evaluates a comparison between a PyoObject and a number or
     between two PyoObjects and outputs 1.0, as audio stream, if the
     comparison is true, otherwise outputs 0.0.
- 
+
     Parentclass: PyoObject
-   
+
     Parameters:
-    
+
     input : PyoObject
         Input signal.
     comp : float or PyoObject
@@ -630,17 +630,17 @@ class Compare(PyoObject):
     input : PyoObject. Input signal.
     comp : float or PyoObject. Comparison signal.
     mode : string. Comparison operator.
-    
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> a = SineLoop(freq=200, feedback=.1)
-    >>> b = SineLoop(freq=150, feedback=.1)
+    >>> a = SineLoop(freq=[199,200], feedback=.1, mul=.2)
+    >>> b = SineLoop(freq=[149,150], feedback=.1, mul=.2)
     >>> ph = Phasor(freq=1)
     >>> ch = Compare(input=ph, comp=0.5, mode="<=")
-    >>> out = Selector(inputs=[a,b], voice=Port(ch), mul=.5).out()
-    
+    >>> out = Selector(inputs=[a,b], voice=Port(ch)).out()
+
     """
     def __init__(self, input, comp, mode="<", mul=1, add=0):
         PyoObject.__init__(self)
@@ -766,19 +766,19 @@ class Record(PyoObject):
         Number of bufferSize to wait before writing samples to disk.
         High buffering uses more memory but improves performance.
         Defaults to 4.
-        
+
     Notes:
-    
+
     All parameters can only be set at intialization time.    
 
     The `stop` method must be called on the object to close the file 
     properly.
-    
+
     The out() method is bypassed. Record's signal can not be sent to 
     audio outs.
-    
+
     Record has no `mul` and `add` attributes.
-        
+
     Examples:
 
     >>> s = Server().boot()
@@ -789,6 +789,7 @@ class Record(PyoObject):
     >>> amp = Fader(fadein=.05, fadeout=2, dur=4, mul=.05).play()
     >>> osc = Osc(t, freq=[uniform(350,360) for i in range(10)], mul=amp).out()
     >>> home = os.path.expanduser('~')
+    >>> # Records an audio file called "example_synth.aif" in the home folder
     >>> rec = Record(osc, filename=home+"/example_synth.aif", fileformat=1, sampletype=1)
     >>> clean = Clean_objects(4.5, rec)
     >>> clean.start()
@@ -846,8 +847,8 @@ class Denorm(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> amp = Linseg([(0,0),(2,1),(4,0)]).play()
-    >>> a = Sine(freq=1000, mul=0.01*amp)
+    >>> amp = Linseg([(0,0),(2,1),(4,0)], loop=True).play()
+    >>> a = Sine(freq=[800,1000], mul=0.01*amp)
     >>> den = Denorm(a)
     >>> rev = Freeverb(den, size=.9).out()
 
@@ -923,9 +924,9 @@ class ControlRec(PyoObject):
         won't stop until the end of the performance. If greater than
         0.0, the `stop` method is automatically called at the end of
         the recording.
-        
+
     Methods:
-    
+
     write() : Writes values in a text file on the disk.
 
     Notes:
@@ -946,10 +947,15 @@ class ControlRec(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> rnds = Randi(freq=[1,2])
+    >>> rnds = Randi(freq=[1,2], min=200, max=400)
+    >>> sines = SineLoop(freq=rnds, feedback=.05, mul=.2).out()
     >>> home = os.path.expanduser('~')
     >>> rec = ControlRec(rnds, home+"/test", rate=100, dur=4).play()
     >>> # call rec.write() to save "test_000" and "test_001" in the home directory.
+    >>> def write_files():
+    ...     sines.mul = 0
+    ...     rec.write()
+    >>> call = CallAfter(function=write_files, time=4.5)
 
     """
     def __init__(self, input, filename, rate=1000, dur=0.0):
@@ -1043,8 +1049,9 @@ class ControlRead(PyoObject):
     >>> s.start()
     >>> home = os.path.expanduser('~')
     >>> # assuming "test_xxx" exists in the user directory
+    >>> # run ControlRec's example to generate the files
     >>> rnds = ControlRead(home+"/test", rate=100, loop=True)
-    >>> sines = SineLoop(freq=rnds, feedback=.05, mul=.2).out()
+    >>> sines = SineLoop(freq=rnds, feedback=.05, mul=.15).out()
 
     """
     def __init__(self, filename, rate=1000, loop=False, interp=2, mul=1, add=0):
@@ -1450,12 +1457,12 @@ class DBToA(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
-    >>> # amplitude modulation 6 dB around -12 dB
-    >>> db = Sine(1, mul=6, add=-12)
+    >>> # amplitude modulation 6 dB around -18 dB
+    >>> db = Sine(freq=1, phase=[0,.5], mul=6, add=-18)
     >>> amp = DBToA(db)
-    >>> b = SineLoop(freq=400, feedback=.1, mul=amp).out()
+    >>> b = SineLoop(freq=[350,400], feedback=.1, mul=amp).out()
 
     """
 
@@ -1522,12 +1529,12 @@ class AToDB(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> # amplitude modulation of a notch around 1000 Hz, from -120 db to 0dB
-    >>> amp = Sine(1, mul=.5, add=.5)
+    >>> amp = Sine([1,1.5], mul=.5, add=.5)
     >>> db = AToDB(amp)
-    >>> a = PinkNoise(.25)
+    >>> a = PinkNoise(.2)
     >>> b = EQ(a, freq=1000, q=2, boost=db).out()
 
     """
@@ -1577,7 +1584,7 @@ class Scale(PyoObject):
     Scale maps an input range of audio values to an output range. 
     The ranges can be specified with `min` and `max` reversed for 
     invert-mapping. If specified, the mapping can also be exponential. 
-    
+
     Parentclass: PyoObject
 
     Parameters:
@@ -1622,7 +1629,7 @@ class Scale(PyoObject):
     >>> rnd = TrigRand(met, min=0, max=1, port=.005)
     >>> omlf = Sine(.5, mul=700, add=1000)
     >>> fr = Scale(rnd, inmin=0, inmax=1, outmin=250, outmax=omlf, exp=1)
-    >>> amp = TrigEnv(met, table=HannTable(), dur=.25, mul=.25)
+    >>> amp = TrigEnv(met, table=HannTable(), dur=.25, mul=.2)
     >>> out = SineLoop(fr, feedback=.07, mul=amp).out()
 
     """
@@ -1802,12 +1809,12 @@ class CentsToTranspo(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> met = Metro(.125, poly=2).play()
     >>> cts = TrigRandInt(met, max=12, mul=100)
     >>> trans = CentsToTranspo(cts)
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, speed=trans, mul=.5).out()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, speed=trans, mul=.25).out()
 
     """
 
@@ -1872,12 +1879,12 @@ class TranspoToCents(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> met = Metro(.125, poly=2).play()
     >>> trans = TrigChoice(met, choice=[.25,.5,.5,.75,1,1.25,1.5])
     >>> semi = TranspoToCents(trans, mul=0.01)
-    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5).out()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.3).out()
     >>> harm = Harmonizer(sf, transpo=semi).out()
 
     """
@@ -1944,7 +1951,7 @@ class MToF(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> met = Metro(.125, poly=2).play()
     >>> mid = TrigChoice(met, choice=[60, 63, 67, 70], port=.005)
@@ -2020,12 +2027,12 @@ class MToT(PyoObject):
 
     Examples:
 
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> tsnd = SndTable(SNDS_PATH+"/accord.aif")
-    >>> tenv = CosTable([(0,0), (300,1), (1000,.5), (8192,0)])
+    >>> tenv = CosTable([(0,0), (100,1), (1000,.5), (8192,0)])
     >>> met = Metro(.125, poly=2).play()
-    >>> amp = TrigEnv(met, table=tenv, dur=.125, mul=.7)
+    >>> amp = TrigEnv(met, table=tenv, dur=.25, mul=.7)
     >>> mid = TrigChoice(met, choice=[43, 45, 60, 63], port=.0025)
     >>> sp = MToT(mid)
     >>> snd = Osc(tsnd, freq=tsnd.getRate()/sp, mul=amp).out()
@@ -2090,3 +2097,127 @@ class MToT(PyoObject):
         return self._centralkey
     @centralkey.setter
     def centralkey(self, x): self.setCentralKey(x)
+
+class Between(PyoObject):
+    """
+    Informs when an input signal is contained in a specified range.
+
+    Outputs a value of 1.0 if the input signal is greater or egal
+    than `min` and less than `max`. Otherwise, outputs a value of 0.0.
+
+    Parentclass : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    min : float or PyoObject, optional
+        Minimum range value. Defaults to 0.
+    max : float or PyoObject, optional
+        Maximum range value. Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    min : float or PyoObject. Minimum range value.
+    max : float or PyoObject. Maximum range value.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> ph = Phasor(freq=[7,8])
+    >>> tr = Between(ph, min=0, max=.25)
+    >>> amp = Port(tr, risetime=0.002, falltime=0.002, mul=.2)
+    >>> a = SineLoop(freq=[245,250], feedback=.1, mul=amp).out()
+
+    """
+    def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._min = min
+        self._max = max
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
+        self._base_objs = [Between_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'min', 'max', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(0., 1., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def min(self):
+        """float or PyoObject. Minimum range value.""" 
+        return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+
+    @property
+    def max(self):
+        """float or PyoObject. Maximum range value.""" 
+        return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
