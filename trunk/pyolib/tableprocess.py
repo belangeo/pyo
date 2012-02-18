@@ -1952,7 +1952,7 @@ class TrigTableRec(PyoObject):
     >>> snd = SNDS_PATH + '/transparent.aif'
     >>> dur = sndinfo(snd)[1]
     >>> t = NewTable(length=dur)
-    >>> src = SfPlayer(snd, mul=.5).out()
+    >>> src = SfPlayer(snd, mul=.3).out()
     >>> trec = TrigTableRec(src, trig=Trig().play(), table=t)
     >>> rep = TrigEnv(trec["trig"], table=t, dur=dur).out(1)
 
