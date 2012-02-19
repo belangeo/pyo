@@ -286,7 +286,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
         'Stream': [], 
         'TableStream': []}
 
-DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also']
+DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']
 
 SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
 DEMOS_PATH = SNDS_PATH

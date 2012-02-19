@@ -147,8 +147,8 @@ def getFormattedDoc(text, obj):
             words = line_tmp.split(',')
             for word in words:
                 text += '\\htmladdnormallink{%s}{%s.html} ' % (word, word)
-        elif 'Parent class' in line:
-            text +=  '\n\\begin{large} Parent class : \\end{large}'
+        elif 'Parentclass' in line:
+            text +=  '\n\\begin{large} {\\bf Parentclass} : \\end{large}'
             text += '\\htmladdnormallink{%s}{%s.html}\n' % (line.split(':')[1].strip(), line.split(':')[1].strip())
         else:
             if skip_empty_line:
