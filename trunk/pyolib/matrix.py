@@ -25,48 +25,45 @@ from _maps import *
 ######################################################################
 class NewMatrix(PyoMatrixObject):
     """
-    Create a new matrix ready for recording. 
+    Create a new matrix ready for recording.
 
     Optionally, the matrix can be filled with the contents of the 
-    `init` parameter. 
-    
+    `init` parameter.
+
     See `MatrixRec` to write samples in the matrix.
-    
+
     Parentclass: PyoMatrixObject
-    
+
     Parameters:
-    
+
     width : int
         Desired matrix width in samples.
     height : int
         Desired matrix height in samples.
     init : list of list of floats, optional
         Initial matrix. Defaults to None.
-        
-    Methods:    
-    
+
+    Methods:
+
     replace() : Replaces the actual matrix.
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read a row at its original pitch.
     genSineTerrain(freq, phase) : Generates a modulated sinusoidal terrain.
-    
+
     See also: MatrixRec
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> SIZE = 256
     >>> mm = NewMatrix(SIZE, SIZE)
-    >>> fmind = Sine(.2, 0, 2, 2.5)
-    >>> fmrat = Sine(.33, 0, .05, .5)
-    >>> aa = FM(carrier=250, ratio=fmrat, index=fmind)
-    >>> rec = MatrixRec(aa, mm, 0).play()
+    >>> mm.genSineTerrain(freq=2, phase=16)
     >>> lfw = Sine([.1,.11], 0, .124, .25)
     >>> lfh = Sine([.15,.16], 0, .124, .25)
-    >>> w = Sine(10, 0, lfw, .5)
-    >>> h = Sine(1.5, 0, lfh, .5)
-    >>> c = MatrixPointer(mm, w, h, mul=.3).out()
+    >>> w = Sine(100, 0, lfw, .5)
+    >>> h = Sine(10.5, 0, lfh, .5)
+    >>> c = MatrixPointer(mm, w, h, mul=.2).out()
 
     """
     def __init__(self, width, height, init=None):
