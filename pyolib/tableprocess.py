@@ -1402,8 +1402,9 @@ class TableRec(PyoObject):
     >>> t = NewTable(length=2, chnls=1)
     >>> a = Input(0)
     >>> b = TableRec(a, t, .01)
+    >>> amp = Iter(b["trig"], [.5])
     >>> freq = t.getRate()
-    >>> c = Osc(t, [freq, freq*.99], mul=.3).out()
+    >>> c = Osc(t, [freq, freq*.99], mul=amp).out()
     >>> # to record in the empty table, call:
     >>> # b.play()
 
