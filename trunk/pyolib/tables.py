@@ -29,41 +29,41 @@ from math import pi
 class HarmTable(PyoTableObject):
     """
     Harmonic waveform generator.
-    
+
     Generates composite waveforms made up of weighted sums 
     of simple sinusoids.
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. 
         Defaults to [1].
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table. This will erase the 
         previously drawn waveform.
     replace(list) : Redraw the waveform according to the new `list` 
         parameter.
-    
+
     Attributes:
-    
+
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers.
     size : int, optional
         Table size in samples.
-        
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # Square wave up to 9th harmonic
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Osc(table=t, freq=200, mul=.5).out()
+    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
     def __init__(self, list=[1., 0.], size=8192):
@@ -121,38 +121,38 @@ class HarmTable(PyoTableObject):
 class SawTable(PyoTableObject):
     """
     Sawtooth waveform generator.
-    
+
     Generates sawtooth waveforms made up of fixed number of harmonics.
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     order : int, optional
         Number of harmonics sawtooth is made of. 
         Defaults to 10.
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setOrder(x) : Change the `order` attribute and redraw the waveform.
     setSize(size) : Change the size of the table. This will erase the 
         previously drawn waveform.
-    
+
     Attributes:
-    
+
     order : int, optional
         Number of harmonics sawtooth is made of.
     size : int, optional
         Table size in samples.
-        
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = SawTable()
-    >>> a = Osc(table=t, freq=200, mul=.5).out()
+    >>> t = SawTable(order=12).normalize()
+    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
     def __init__(self, order=10, size=8192):
@@ -210,38 +210,38 @@ class SawTable(PyoTableObject):
 class SquareTable(PyoTableObject):
     """
     Square waveform generator.
-    
+
     Generates square waveforms made up of fixed number of harmonics.
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     order : int, optional
         Number of harmonics square waveform is made of. The waveform will 
         contains `order` odd harmonics. Defaults to 10.
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setOrder(x) : Change the `order` attribute and redraw the waveform.
     setSize(size) : Change the size of the table. This will erase the 
         previously drawn waveform.
-    
+
     Attributes:
-    
+
     order : int, optional
         Number of harmonics square waveform is made of.
     size : int, optional
         Table size in samples.
-        
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
-    >>> t = SquareTable()
-    >>> a = Osc(table=t, freq=200, mul=.5).out()
+    >>> t = SquareTable(order=15).normalize()
+    >>> a = Osc(table=t, freq=[199,200], mul=.2).out()
 
     """
     def __init__(self, order=10, size=8192):
@@ -308,44 +308,45 @@ class SquareTable(PyoTableObject):
 
 class ChebyTable(PyoTableObject):
     """
-    Chebyshev polynomials of the first kind. 
-    
+    Chebyshev polynomials of the first kind.
+
     Uses Chebyshev coefficients to generate stored polynomial functions 
     which, under waveshaping, can be used to split a sinusoid into 
     harmonic partials having a pre-definable spectrum. 
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     list : list, optional
         Relative strengths of partials numbers 1,2,3, ..., 12 that will 
         result when a sinusoid of amplitude 1 is waveshaped using this 
         function table. Up to 12 partials can be specified. Defaults to [1].
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table. This will erase the 
         previously drawn waveform.
     replace(list) : Redraw the waveform according to the new `list` 
         parameter.
-    
+
     Attributes:
-    
+
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers.
     size : int, optional
         Table size in samples.
-        
+
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> t = ChebyTable([1,0,.33,0,.2,0,.143,0,.111])
-    >>> a = Sine(freq=100)
-    >>> b = Lookup(table=t, index=a, mul=.5).out()
+    >>> lfo = Sine(freq=.25, mul=0.45, add=0.5)
+    >>> a = Sine(freq=[200,201], mul=lfo)
+    >>> b = Lookup(table=t, index=a, mul=1-lfo).out()
 
     """
     def __init__(self, list=[1., 0.], size=8192):
@@ -404,31 +405,31 @@ class ChebyTable(PyoTableObject):
 class HannTable(PyoTableObject):
     """
     Generates Hanning window function. 
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table. This will redraw the envelope.
-    
+
     Attributes:
-    
+
     size : int
         Table size in samples.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # Hanning envelope
     >>> t = HannTable()
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> a = Osc(table=t, freq=2, mul=.2)
+    >>> b = Sine(freq=[299,300], mul=a).out()
 
     """
     def __init__(self, size=8192):
@@ -491,10 +492,11 @@ class SincTable(PyoTableObject):
 
     Examples:
 
+    >>> import math
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SincTable(freq=math.pi*6, windowed=True)
-    >>> a = Osc(t, freq=200, mul=.3).out()
+    >>> a = Osc(t, freq=[199,200], mul=.2).out()
 
     """
     def __init__(self, freq=pi*2, windowed=False, size=8192):
@@ -568,11 +570,11 @@ class SincTable(PyoTableObject):
 class WinTable(PyoTableObject):
     """
     Generates different kind of windowing functions. 
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     type : int, optional
         Windowing function. Defaults to 2.
         Possible choices are:
@@ -587,27 +589,27 @@ class WinTable(PyoTableObject):
             8 : Sine (half-sine window)
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setType(x) : Sets the windowing function.
     setSize(size) : Change the size of the table. This will redraw the envelope.
 
     Attributes:
-   
+  
     type : int
         Windowing function.
     size : int
         Table size in samples.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # Triangular envelope
-    >>> t = WinTable(3)
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> t = WinTable(type=3)
+    >>> a = Osc(table=t, freq=2, mul=.2)
+    >>> b = SineLoop(freq=[199,200], feedback=0.05, mul=a).out()
 
     """
     def __init__(self, type=2, size=8192):
@@ -688,8 +690,8 @@ class ParaTable(PyoTableObject):
     >>> s.start()
     >>> # Parabola envelope
     >>> t = ParaTable()
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> a = Osc(table=t, freq=2, mul=.2)
+    >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
     def __init__(self, size=8192):
@@ -725,9 +727,9 @@ class LinTable(PyoTableObject):
     Construct a table from segments of straight lines in breakpoint fashion.
 
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     list : list, optional
         List of tuples indicating location and value of each points 
         in the table. The default, [(0,0.), (8191, 1.)], creates a 
@@ -735,9 +737,9 @@ class LinTable(PyoTableObject):
         table (size - 1). Location must be an integer.
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
@@ -745,25 +747,25 @@ class LinTable(PyoTableObject):
         the shape of the envelope.
 
     Notes:
-    
+
     Locations in the list must be in increasing order. If the last value 
     is less than size, the rest of the table will be filled with zeros. 
-    
+
     Attributes:
-    
+
     list : list
         List of tuples [(location, value), ...].
     size : int, optional
         Table size in samples.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # Sharp attack envelope
     >>> t = LinTable([(0,0), (100,1), (1000,.25), (8191,0)])
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
@@ -883,9 +885,9 @@ class CosTable(PyoTableObject):
     Construct a table from cosine interpolated segments.
 
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     list : list, optional
         List of tuples indicating location and value of each points 
         in the table. The default, [(0,0.), (8191, 1.)], creates a 
@@ -893,9 +895,9 @@ class CosTable(PyoTableObject):
         table (size - 1). Location must be an integer.
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
@@ -903,25 +905,25 @@ class CosTable(PyoTableObject):
         the shape of the envelope.
 
     Notes:
-    
+
     Locations in the list must be in increasing order. If the last value 
     is less than size, the rest of the table will be filled with zeros. 
-    
+
     Attributes:
-    
+
     list : list
         List of tuples [(location, value), ...].
     size : int, optional
         Table size in samples.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> # Sharp attack envelope
     >>> t = CosTable([(0,0), (100,1), (1000,.25), (8191,0)])
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
@@ -1039,7 +1041,7 @@ class CosTable(PyoTableObject):
 class CurveTable(PyoTableObject):
     """
     Construct a table from curve interpolated segments.
-    
+
     CurveTable uses Hermite interpolation (sort of cubic interpolation)
     to calculate each points of the curve. This algorithm allows tension
     and biasing controls. Tension can be used to tighten up the curvature 
@@ -1047,9 +1049,9 @@ class CurveTable(PyoTableObject):
     known points.
 
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     list : list, optional
         List of tuples indicating location and value of each points 
         in the table. The default, [(0,0.), (8191, 1.)], creates a 
@@ -1064,9 +1066,9 @@ class CurveTable(PyoTableObject):
         the second point. Defaults to 0.
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table and rescale the envelope.
     setTension(x) : Replace the `tension` attribute.
     setTension(x) : Replace the `bias` attribute.
@@ -1074,17 +1076,17 @@ class CurveTable(PyoTableObject):
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
-    
+
     Notes:
-    
+
     Locations in the list must be in increasing order. If the last value 
     is less than size, the rest of the table will be filled with zeros.
-    
+
     High tension or bias values can create unstable or very loud table,
     use normalize method to keep the curve between -1 and 1.
-    
+
     Attributes:
-    
+
     list : list
         List of tuples [(location, value), ...].
     tension : float
@@ -1095,13 +1097,13 @@ class CurveTable(PyoTableObject):
         Table size in samples.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> t = CurveTable([(0,0),(2048,.5),(4096,.2),(6144,.5),(8192,0)], 0, 20)
     >>> t.normalize()
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> b = SineLoop(freq=[299,300], feedback=0.05, mul=a).out()
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
@@ -1266,11 +1268,11 @@ class CurveTable(PyoTableObject):
 class ExpTable(PyoTableObject):
     """
     Construct a table from exponential interpolated segments.
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     list : list, optional
         List of tuples indicating location and value of each points 
         in the table. The default, [(0,0.), (8192, 1.)], creates a 
@@ -1284,9 +1286,9 @@ class ExpTable(PyoTableObject):
         biexponential curves. Defaults to True.
     size : int, optional
         Table size in samples. Defaults to 8192.
-        
+
     Methods:
-    
+
     setSize(size) : Change the size of the table and rescale the envelope.
     setExp(x) : Replace the `exp` attribute.
     setInverse(x) : Replace the `inverse` attribute.
@@ -1296,12 +1298,12 @@ class ExpTable(PyoTableObject):
         the shape of the envelope.
 
     Notes:
-    
+
     Locations in the list must be in increasing order. If the last value 
     is less than size, the rest of the table will be filled with zeros.
-    
+
     Attributes:
-    
+
     list : list
         List of tuples [(location, value), ...].
     exp : float
@@ -1312,12 +1314,12 @@ class ExpTable(PyoTableObject):
         Table size in samples.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> t = ExpTable([(0,0),(4096,1),(8192,0)], exp=5, inverse=True)
-    >>> a = Osc(table=t, freq=2, mul=.5)
-    >>> b = Sine(freq=500, mul=a).out()
+    >>> a = Osc(table=t, freq=2, mul=.3)
+    >>> b = Sine(freq=[299,300], mul=a).out()
 
     """
     def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
@@ -1474,14 +1476,14 @@ class ExpTable(PyoTableObject):
 class SndTable(PyoTableObject):
     """
     Transfers data from a soundfile into a function table.
-    
+
     If `chnl` is None, the table will contain as many table streams as 
     necessary to read all channels of the loaded sound.
 
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     path : string
         Full path name of the sound.
     chnl : int, optional
@@ -1509,18 +1511,19 @@ class SndTable(PyoTableObject):
     getEnvelope(points) : Return the amplitude envelope of the table.
     view(title, wxnoserver, mouse_callback) : Opens a window showing the 
         contents of the table.
-    
+
     Attributes:
-    
+
     sound : Sound path loaded in the table.
 
     Examples:
-    
+
     >>> s = Server().boot()
     >>> s.start()
     >>> snd_path = SNDS_PATH + '/transparent.aif'
     >>> t = SndTable(snd_path)
-    >>> a = Osc(table=t, freq=t.getRate(), mul=.5).out()
+    >>> freq = t.getRate()
+    >>> a = Osc(table=t, freq=[freq, freq*.995], mul=.3).out()
 
     """
     def __init__(self, path, chnl=None, start=0, stop=None, initchnls=1):
@@ -1826,13 +1829,13 @@ class SndTable(PyoTableObject):
 class NewTable(PyoTableObject):
     """
     Create an empty table ready for recording. 
-    
+
     See `TableRec` to write samples in the table.
-    
+
     Parentclass: PyoTableObject
-    
+
     Parameters:
-    
+
     length : float
         Length of the table in seconds.
     chnls : int, optional
@@ -1844,9 +1847,9 @@ class NewTable(PyoTableObject):
         Defaults to None.
     feedback : float, optional
         Amount of old data to mix with a new recording. Defaults to 0.0.
-        
+
     Methods:
-    
+
     getSize() : Returns the length of the table in samples.
     getLength() : Returns the length of the table in seconds.
     getDur() : Returns the length of the table in seconds.
@@ -1856,19 +1859,21 @@ class NewTable(PyoTableObject):
     setFeedback() : Replace the `feedback` attribute.
 
     Attributes:
-    
+
     feedback : float. Amount of old data to mix with a new recording.
-    
+
     See also: DataTable, TableRec
 
     Examples:
-    
+
     >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> t = NewTable(length=2, chnls=1)
     >>> a = Input(0)
     >>> b = TableRec(a, t, .01)
-    >>> c = Osc(table=t, freq=[t.getRate(), t.getRate()*.99]).out()
+    >>> amp = Iter(b["trig"], [.5])
+    >>> freq = t.getRate()
+    >>> c = Osc(table=t, freq=[freq, freq*.99], mul=amp).out()
     >>> # to record in the empty table, call:
     >>> # b.play()
 
@@ -2026,11 +2031,11 @@ class DataTable(PyoTableObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> import random
-    >>> notes = [midiToHz(random.randint(60,84)) for i in range(10)]
+    >>> notes = [midiToHz(random.randint(48,72)) for i in range(10)]
     >>> tab = DataTable(size=10, init=notes)
     >>> ind = RandInt(10, 8)
     >>> pit = TableIndex(tab, ind)
-    >>> a = SineLoop(freq=pit, feedback = 0.05, mul=.5).out()
+    >>> a = SineLoop(freq=[pit,pit*0.99], feedback = 0.07, mul=.2).out()
 
     """
     def __init__(self, size, chnls=1, init=None):
