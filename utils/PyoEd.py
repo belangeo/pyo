@@ -7,12 +7,6 @@ You can do absolutely everything you want to do with this piece of software.
 
 Olivier Belanger - 2012
 
-TODO:
-    - Undo / Redo in Code menu
-    - ZoomIn / ZoomOut in Code Menu
-    - Manula menu
-    - Shortcut to play the example
-
 """
 
 import sys, os, string, inspect, keyword, wx, codecs, subprocess
@@ -29,31 +23,20 @@ if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 
 def convert_line_endings(temp, mode):
-        #modes:  0 - Unix, 1 - Mac, 2 - DOS
-        if mode == 0:
-                temp = string.replace(temp, '\r\n', '\n')
-                temp = string.replace(temp, '\r', '\n')
-        elif mode == 1:
-                temp = string.replace(temp, '\r\n', '\r')
-                temp = string.replace(temp, '\n', '\r')
-        elif mode == 2:
-                import re
-                temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
-        return temp
+    #modes:  0 - Unix, 1 - Mac, 2 - DOS
+    if mode == 0:
+        temp = string.replace(temp, '\r\n', '\n')
+        temp = string.replace(temp, '\r', '\n')
+    elif mode == 1:
+        temp = string.replace(temp, '\r\n', '\r')
+        temp = string.replace(temp, '\n', '\r')
+    elif mode == 2:
+        import re
+        temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
+    return temp
 
 if '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
-#     # Open a new terminal window on each run
-#     terminal_script = """set my_path to quoted form of POSIX path of "%s"
-# set my_file to quoted form of POSIX path of "%s"
-# tell application "Terminal"
-#     launch
-#     activate
-#     do script "clear; cd " & my_path & "; /usr/local/bin/python " & my_file
-# end tell
-#     """
-#     terminal_script_path = os.path.join(TEMP_PATH, "terminal_script.scpt")
-
     # Use the same terminal window for each run
     terminal_close_server_script = """tell application "Terminal" 
     close window 1
@@ -65,7 +48,9 @@ end tell
     terminal_server_script = """tell application "Terminal"
     do script ""
     set a to get id of front window
+    set custom title of window id a to "PyoEd Output"
     set custom title of tab 1 of window id a to "PyoEd Output"
+    set current settings of first window to settings set "Homebrew"
     set the number of columns of window 1 to 80
     set the number of rows of window 1 to 30
     set the position of window 1 to {810, 25}
@@ -154,6 +139,24 @@ MODULES = {
                     },
           }
 '''
+
+################## BUILTIN COMPLETION ##################
+DEF_COMP = ''' fname():
+    """Doc string for fname function."""
+    pass
+'''
+
+CLASS_COMP = ''' Cname:
+    """Doc string for Cname class."""
+    def __init__(self):
+        """Doc string for __init__ function."""
+        pass
+'''
+
+FOR_COMP = """ i in range(10):
+    print i
+"""
+BUILTINS_DICT = {"def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP}
 
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
@@ -250,9 +253,10 @@ class MainFrame(wx.Frame):
                 subId2 += 1
         menu1.AppendMenu(998, "Open Recent...", self.submenu2)
         menu1.InsertSeparator(5)
+        menu1.Append(111, "Close\tCtrl+W")
+        menu1.Append(113, "Close All Tabs\tShift+Ctrl+W")
         menu1.Append(101, "Save\tCtrl+S")
         menu1.Append(102, "Save As...\tShift+Ctrl+S")
-        menu1.Append(111, "Close\tCtrl+W")
         if sys.platform != "darwin":
             menu1.InsertSeparator(9)
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
@@ -286,6 +290,7 @@ class MainFrame(wx.Frame):
         menu2.Append(122, "Find...\tCtrl+F")
         menu2.InsertSeparator(22)
         menu2.Append(180, "Show Documentation for Current Object\tCtrl+D")
+        menu2.Append(200, "Insert Pyo Object's Default Arguments\tCtrl+I")
         self.menuBar.Append(menu2, 'Code')
 
         menu3 = wx.Menu()
@@ -314,6 +319,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.save, id=101)
         self.Bind(wx.EVT_MENU, self.saveas, id=102)
         self.Bind(wx.EVT_MENU, self.delete, id=111)
+        self.Bind(wx.EVT_MENU, self.deleteAll, id=113)
         self.Bind(wx.EVT_MENU, self.cut, id=163)
         self.Bind(wx.EVT_MENU, self.copy, id=160)
         self.Bind(wx.EVT_MENU, self.paste, id=161)
@@ -332,6 +338,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
+        self.Bind(wx.EVT_MENU, self.insertDefArgs, id=200)
         self.Bind(wx.EVT_MENU, self.openPrefs, prefItem)
         self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -416,6 +423,9 @@ class MainFrame(wx.Frame):
         except AttributeError:
             pass
 
+    def insertDefArgs(self, evt):
+        self.panel.editor.insertDefArgs()
+
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
 
@@ -487,7 +497,7 @@ class MainFrame(wx.Frame):
                 subId2 += 1
 
     def open(self, event):
-        dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.getcwd(),
+        dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.path.expanduser("~"),
             defaultFile="", style=wx.OPEN | wx.MULTIPLE)
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -498,7 +508,7 @@ class MainFrame(wx.Frame):
         dlg.Destroy()
 
     def openProject(self, event):
-        dlg = wx.DirDialog(self, message="Choose a project folder", defaultPath=os.getcwd(),
+        dlg = wx.DirDialog(self, message="Choose a project file", defaultPath=os.path.expanduser("~"),
                            style=wx.DD_DEFAULT_STYLE)
 
         if dlg.ShowModal() == wx.ID_OK:
@@ -544,6 +554,13 @@ class MainFrame(wx.Frame):
             self.panel.deletePage()
         else:
             pass
+
+    def deleteAll(self, event):
+        count = self.panel.notebook.GetPageCount()
+        while count > 0:
+            count -= 1
+            self.panel.setPage(count)
+            self.delete(None)
 
     ### Run actions ###
     def runner(self, event):
@@ -593,7 +610,7 @@ class MainFrame(wx.Frame):
             f = open(terminal_close_server_script_path, "w")
             f.write(terminal_close_server_script)
             f.close()
-            pid = subprocess.Popen(["osascript", terminal_close_server_script_path]).pid
+            subprocess.Popen(["osascript", terminal_close_server_script_path])
         self.Destroy()
 
 class MainPanel(wx.Panel):
@@ -666,7 +683,7 @@ class MainPanel(wx.Panel):
             ed.Close()
 
 class Editor(stc.StyledTextCtrl):
-    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER,
+    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER | wx.WANTS_CHARS,
                  setTitle=None, getTitle=None):
         stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
 
@@ -713,6 +730,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetMarginSensitive(2, True)
         self.SetMarginWidth(2, 12)
 
+        self.Bind(wx.EVT_KEY_DOWN, self.OnChar)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -927,6 +945,47 @@ class Editor(stc.StyledTextCtrl):
                     list = list + word + ' '
             if list:
                 self.AutoCompShow(len(currentword), list)
+
+    def insertDefArgs(self):
+        charBefore = None
+        caretPos = self.GetCurrentPos()
+        if caretPos > 0:
+            charBefore = self.GetCharAt(caretPos - 1)
+        currentword = self.getWordUnderCaret()
+        if chr(charBefore) in self.alphaStr:
+            list = ''
+            for word in self.wordlist:
+                if word == currentword:
+                    pos = self.WordEndPosition(caretPos, True)
+                    self.InsertText(pos, class_args(eval(word)).replace(word, ""))
+                    break
+
+    def formatBuiltinComp(self, text, indent=0):
+        lines = text.splitlines(True)
+        text = lines[0]
+        for i in range(1, len(lines)):
+            text += " "*indent + lines[i]
+        return text, len(text)
+        
+    def checkForBuiltinComp(self):
+        text, pos = self.GetCurLine()
+        if text.strip() in BUILTINS_DICT.keys():
+            print text, pos
+            self.DeleteBack()
+            pos = self.GetCurrentPos()
+            while self.GetCharAt(pos-1) == 32:
+                self.DeleteBack()
+                pos = self.GetCurrentPos()
+            indent = self.GetLineIndentation(self.GetCurrentLine())
+            text, tlen = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
+            self.InsertText(pos, text)
+            self.SetCurrentPos(self.GetCurrentPos() + tlen)
+            wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+
+    def OnChar(self, evt):
+        if evt.GetKeyCode() == wx.WXK_TAB:
+            wx.CallAfter(self.checkForBuiltinComp)
+        evt.Skip()
 
     def OnUpdateUI(self, evt):
         # check for matching braces

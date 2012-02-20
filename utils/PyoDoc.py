@@ -30,6 +30,28 @@ DOC_FACES['size3'] = DOC_FACES['size2'] + 4
 for key, value in DOC_STYLES['Default'].items():
   DOC_FACES[key] = value
 
+terminal_client_script = """set my_path to quoted form of POSIX path of "%s"
+set my_file to quoted form of POSIX path of "%s"
+tell application "System Events"
+tell application process "Terminal"
+    set frontmost to true
+    keystroke "clear"
+    keystroke return
+    delay 0.25
+    keystroke "cd " & my_path
+    keystroke return
+    delay 0.25
+    keystroke "python " & my_file
+    keystroke return
+    delay 0.25
+    end tell
+    tell application process "PyoEd"
+    set frontmost to true
+    end tell
+end tell
+"""
+terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
+
 # ***************** Catalog starts here *******************
 
 catalog = {}
@@ -879,7 +901,13 @@ class ManualFrame(wx.Frame):
         text = self.doc_panel.getExampleScript()
         with open(DOC_EXAMPLE_PATH, "w") as f:
             f.write(text)
-        pid = subprocess.Popen(["python", DOC_EXAMPLE_PATH], cwd=TEMP_PATH, shell=False).pid
+        if not DOC_AS_SINGLE_APP:
+            f = open(terminal_client_script_path, "w")
+            f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH))
+            f.close()
+            pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
+        else:
+            pid = subprocess.Popen(["python", DOC_EXAMPLE_PATH], cwd=TEMP_PATH, shell=False).pid
         wx.FutureCall(8000, self.status.SetStatusText, "", 0)
 
 if __name__ == "__main__":
