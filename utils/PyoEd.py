@@ -140,23 +140,56 @@ MODULES = {
           }
 '''
 
-################## BUILTIN COMPLETION ##################
-DEF_COMP = ''' fname():
+################## BUILTIN KEYWORDS COMPLETION ##################
+FROM_COMP = ''' `module` import *
+'''
+
+EXEC_COMP = ''' "`expression`" in self.locals
+'''
+
+RAISE_COMP = ''' Exception("`An exception occurred...`")
+'''
+
+TRY_COMP = ''':
+    `expression`
+except:
+    print "Ouch!"
+'''
+
+IF_COMP = ''' `expression`:
+    pass
+elif:
+    pass
+else:
+    pass
+'''
+
+DEF_COMP = ''' `fname`():
     """Doc string for fname function."""
     pass
 '''
 
-CLASS_COMP = ''' Cname:
+CLASS_COMP = ''' `Cname`:
     """Doc string for Cname class."""
     def __init__(self):
         """Doc string for __init__ function."""
         pass
 '''
 
-FOR_COMP = """ i in range(10):
+FOR_COMP = """ i in range(`10`):
     print i
 """
-BUILTINS_DICT = {"def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP}
+
+WHILE_COMP = """ i > 0:
+    i -= 1
+    print i
+"""
+
+ASSERT_COMP = ''' `expression` > 0, "expression should be positive"
+'''
+
+BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP,
+                "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
 
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
@@ -290,7 +323,6 @@ class MainFrame(wx.Frame):
         menu2.Append(122, "Find...\tCtrl+F")
         menu2.InsertSeparator(22)
         menu2.Append(180, "Show Documentation for Current Object\tCtrl+D")
-        menu2.Append(200, "Insert Pyo Object's Default Arguments\tCtrl+I")
         self.menuBar.Append(menu2, 'Code')
 
         menu3 = wx.Menu()
@@ -338,7 +370,6 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
-        self.Bind(wx.EVT_MENU, self.insertDefArgs, id=200)
         self.Bind(wx.EVT_MENU, self.openPrefs, prefItem)
         self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -422,9 +453,6 @@ class MainFrame(wx.Frame):
             self.panel.editor.showAutoComp()
         except AttributeError:
             pass
-
-    def insertDefArgs(self, evt):
-        self.panel.editor.insertDefArgs()
 
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
@@ -730,7 +758,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetMarginSensitive(2, True)
         self.SetMarginWidth(2, 12)
 
-        self.Bind(wx.EVT_KEY_DOWN, self.OnChar)
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
@@ -946,45 +974,58 @@ class Editor(stc.StyledTextCtrl):
             if list:
                 self.AutoCompShow(len(currentword), list)
 
-    def insertDefArgs(self):
-        charBefore = None
-        caretPos = self.GetCurrentPos()
-        if caretPos > 0:
-            charBefore = self.GetCharAt(caretPos - 1)
-        currentword = self.getWordUnderCaret()
-        if chr(charBefore) in self.alphaStr:
-            list = ''
-            for word in self.wordlist:
-                if word == currentword:
-                    pos = self.WordEndPosition(caretPos, True)
-                    self.InsertText(pos, class_args(eval(word)).replace(word, ""))
-                    break
+    def insertDefArgs(self, currentword):
+        for word in self.wordlist:
+            if word == currentword:
+                pos = self.GetCurrentPos()
+                while self.GetCharAt(pos-1) == 32:
+                    self.DeleteBack()
+                    pos = self.GetCurrentPos()
+                self.InsertText(pos, class_args(eval(word)).replace(word, ""))
+                self.SetCurrentPos(self.GetCurrentPos() + 1)
+                break
 
     def formatBuiltinComp(self, text, indent=0):
+        anchors = [-1, -1]
+        a1 = text.find("`")
+        if a1 != -1:
+            anchors[0] = a1
+            a2 = text.rfind("`")
+            if a2 != -1:
+                anchors[1] = a2 - 1
+            text = text.replace("`", "")
         lines = text.splitlines(True)
         text = lines[0]
+        #print self.GetCurrentPos(), anchors[0], self.PositionFromLine(self.GetCurrentLine()), len(text[0]), indent
+        if (self.GetCurrentPos() + anchors[0] - self.PositionFromLine(self.GetCurrentLine())) > len(text[0]):
+            anchors = [anchors[0]+indent, anchors[1]+indent]
         for i in range(1, len(lines)):
             text += " "*indent + lines[i]
-        return text, len(text)
-        
+        return text, len(text), anchors
+
     def checkForBuiltinComp(self):
         text, pos = self.GetCurLine()
         if text.strip() in BUILTINS_DICT.keys():
-            print text, pos
             self.DeleteBack()
             pos = self.GetCurrentPos()
             while self.GetCharAt(pos-1) == 32:
                 self.DeleteBack()
                 pos = self.GetCurrentPos()
             indent = self.GetLineIndentation(self.GetCurrentLine())
-            text, tlen = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
+            text, tlen, anchors = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
             self.InsertText(pos, text)
-            self.SetCurrentPos(self.GetCurrentPos() + tlen)
-            wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+            if anchors == [-1, -1]:
+                self.SetCurrentPos(self.GetCurrentPos() + tlen)
+                wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+            else:
+                #print [anchors[0]+self.GetCurrentPos(), anchors[1]+self.GetCurrentPos()]
+                wx.CallAfter(self.SetSelection, anchors[0]+self.GetCurrentPos(), anchors[1]+self.GetCurrentPos())
 
-    def OnChar(self, evt):
+    def OnKeyDown(self, evt):
         if evt.GetKeyCode() == wx.WXK_TAB:
+            currentword = self.getWordUnderCaret()
             wx.CallAfter(self.checkForBuiltinComp)
+            wx.CallAfter(self.insertDefArgs, currentword)
         evt.Skip()
 
     def OnUpdateUI(self, evt):
