@@ -141,55 +141,45 @@ MODULES = {
 '''
 
 ################## BUILTIN KEYWORDS COMPLETION ##################
-FROM_COMP = ''' `module` import *
+FROM_COMP = ''' `module` import `*`
 '''
-
-EXEC_COMP = ''' "`expression`" in self.locals
+EXEC_COMP = ''' "`expression`" in `self.locals`
 '''
-
 RAISE_COMP = ''' Exception("`An exception occurred...`")
 '''
-
 TRY_COMP = ''':
     `expression`
 except:
-    print "Ouch!"
+    `print "Ouch!"`
 '''
-
-IF_COMP = ''' `expression`:
-    pass
-elif:
-    pass
+IF_COMP = ''' `expression1`:
+    `pass`
+elif `expression2`:
+    `pass`
 else:
-    pass
+    `pass`
 '''
-
 DEF_COMP = ''' `fname`():
-    """Doc string for fname function."""
-    pass
+    `"""Doc string for fname function."""`
+    `pass`
 '''
-
 CLASS_COMP = ''' `Cname`:
-    """Doc string for Cname class."""
+    `"""Doc string for Cname class."""`
     def __init__(self):
-        """Doc string for __init__ function."""
-        pass
+        `"""Doc string for __init__ function."""`
+        `pass`
 '''
-
 FOR_COMP = """ i in range(`10`):
-    print i
+    `print i`
 """
-
-WHILE_COMP = """ i > 0:
-    i -= 1
-    print i
+WHILE_COMP = """ `i` `>` `0`:
+    `i -= 1`
+    `print i`
 """
-
-ASSERT_COMP = ''' `expression` > 0, "expression should be positive"
+ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 '''
-
-BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, "for": FOR_COMP,
-                "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
+BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, 
+                "for": FOR_COMP, "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
 
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
@@ -727,6 +717,11 @@ class Editor(stc.StyledTextCtrl):
         self.saveMark = False
         self.inside = False
         self.anchor1 = self.anchor2 = 0
+        self.args_buffer = []
+        self.snip_buffer = []
+        self.args_line_number = [0,0]
+        self.quit_navigate_args = False
+        self.quit_navigate_snip = False
 
         self.alphaStr = string.lowercase + string.uppercase + '0123456789'
 
@@ -739,6 +734,8 @@ class Editor(stc.StyledTextCtrl):
         self.SetTabWidth(4)
         self.SetUseTabs(False)
         self.SetViewWhiteSpace(False)
+
+        self.AutoCompSetChooseSingle(True)
 
         self.SetEOLMode(wx.stc.STC_EOL_LF)
         self.SetViewEOL(False)
@@ -953,6 +950,13 @@ class Editor(stc.StyledTextCtrl):
             self.saveMark = True
 
     ### Editor functions ###
+    def deleteBackWhiteSpaces(self):
+        count = self.GetCurrentPos()
+        while self.GetCharAt(self.GetCurrentPos()-1) == 32:
+            self.DeleteBack()
+        count -= self.GetCurrentPos()
+        return count
+
     def getWordUnderCaret(self):
         caretPos = self.GetCurrentPos()
         startpos = self.WordStartPosition(caretPos, True)
@@ -961,71 +965,134 @@ class Editor(stc.StyledTextCtrl):
         return currentword
 
     def showAutoComp(self):
-        charBefore = None
+        ws = self.deleteBackWhiteSpaces()
+        charBefore = " "
         caretPos = self.GetCurrentPos()
         if caretPos > 0:
-            charBefore = self.GetCharAt(caretPos - 1)
+            charBefore = self.GetTextRange(caretPos - 1, caretPos)
         currentword = self.getWordUnderCaret()
-        if chr(charBefore) in self.alphaStr:
+        if charBefore in self.alphaStr:
             list = ''
             for word in self.wordlist:
                 if word.startswith(currentword) and word != currentword:
                     list = list + word + ' '
             if list:
                 self.AutoCompShow(len(currentword), list)
+            else:
+                self.AddText(" "*ws)
+        else:
+            self.AddText(" "*ws)
 
     def insertDefArgs(self, currentword):
         for word in self.wordlist:
             if word == currentword:
-                pos = self.GetCurrentPos()
-                while self.GetCharAt(pos-1) == 32:
-                    self.DeleteBack()
-                    pos = self.GetCurrentPos()
-                self.InsertText(pos, class_args(eval(word)).replace(word, ""))
-                self.SetCurrentPos(self.GetCurrentPos() + 1)
+                self.deleteBackWhiteSpaces()
+                text = class_args(eval(word)).replace(word, "")
+                self.args_buffer = text.replace("(", "").replace(")", "").split(",")
+                self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+1]
+                self.InsertText(self.GetCurrentPos(), text)
+                self.selection = self.GetSelectedText()
+                wx.CallAfter(self.navigateArgs)
                 break
 
+    def navigateArgs(self):
+        self.deleteBackWhiteSpaces()
+        if self.selection != "":
+            self.AddText(self.selection)
+        arg = self.args_buffer.pop(0)
+        if len(self.args_buffer) == 0:
+            self.quit_navigate_args = True
+        if "=" in arg:
+            search = arg.split("=")[1].strip()
+        else:
+            search = arg
+        self.SearchAnchor()
+        self.SearchNext(stc.STC_FIND_MATCHCASE, search)
+
+    def quitNavigateArgs(self):
+        self.deleteBackWhiteSpaces()
+        if self.selection != "":
+            self.AddText(self.selection)
+        pos = self.GetLineEndPosition(self.GetCurrentLine()) + 1
+        self.SetCurrentPos(pos)
+        wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+
     def formatBuiltinComp(self, text, indent=0):
-        anchors = [-1, -1]
-        a1 = text.find("`")
-        if a1 != -1:
-            anchors[0] = a1
-            a2 = text.rfind("`")
+        self.snip_buffer = []
+        a1 = text.find("`", 0)
+        while a1 != -1:
+            a2 = text.find("`", a1+1)
             if a2 != -1:
-                anchors[1] = a2 - 1
-            text = text.replace("`", "")
+                self.snip_buffer.append(text[a1+1:a2])
+                print a1, a2
+            a1 = text.find("`", a2+1)
+        text = text.replace("`", "")
         lines = text.splitlines(True)
         text = lines[0]
-        #print self.GetCurrentPos(), anchors[0], self.PositionFromLine(self.GetCurrentLine()), len(text[0]), indent
-        if (self.GetCurrentPos() + anchors[0] - self.PositionFromLine(self.GetCurrentLine())) > len(text[0]):
-            anchors = [anchors[0]+indent, anchors[1]+indent]
         for i in range(1, len(lines)):
             text += " "*indent + lines[i]
-        return text, len(text), anchors
+        return text, len(text)
 
     def checkForBuiltinComp(self):
         text, pos = self.GetCurLine()
         if text.strip() in BUILTINS_DICT.keys():
-            self.DeleteBack()
-            pos = self.GetCurrentPos()
-            while self.GetCharAt(pos-1) == 32:
-                self.DeleteBack()
-                pos = self.GetCurrentPos()
+            self.deleteBackWhiteSpaces()
             indent = self.GetLineIndentation(self.GetCurrentLine())
-            text, tlen, anchors = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
-            self.InsertText(pos, text)
-            if anchors == [-1, -1]:
-                self.SetCurrentPos(self.GetCurrentPos() + tlen)
-                wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+            text, tlen = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
+            self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+len(text.splitlines())]
+            self.InsertText(self.GetCurrentPos(), text)
+            if len(self.snip_buffer) == 0:
+                pos = self.GetCurrentPos() + len(text) + 1
+                self.SetCurrentPos(pos)
+                wx.CallAfter(self.SetAnchor, self.GetCurrentPos())                
             else:
-                #print [anchors[0]+self.GetCurrentPos(), anchors[1]+self.GetCurrentPos()]
-                wx.CallAfter(self.SetSelection, anchors[0]+self.GetCurrentPos(), anchors[1]+self.GetCurrentPos())
+                self.selection = self.GetSelectedText()
+                pos = self.GetSelectionStart()
+                wx.CallAfter(self.navigateSnips, pos)
+
+    def navigateSnips(self, pos):
+        if self.selection != "":
+            while self.GetCurrentPos() > pos:
+                self.DeleteBack()
+            self.AddText(self.selection)
+        arg = self.snip_buffer.pop(0)
+        if len(self.snip_buffer) == 0:
+            self.quit_navigate_snip = True
+        self.SearchAnchor()
+        self.SearchNext(stc.STC_FIND_MATCHCASE, arg)
+
+    def quitNavigateSnips(self, pos):
+        if self.selection != "":
+            while self.GetCurrentPos() > pos:
+                self.DeleteBack()
+            self.AddText(self.selection)
+        pos = self.GetLineEndPosition(self.args_line_number[1]) + 1
+        self.SetCurrentPos(pos)
+        wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
     def OnKeyDown(self, evt):
         if evt.GetKeyCode() == wx.WXK_TAB:
             currentword = self.getWordUnderCaret()
+            currentline = self.GetCurrentLine()
             wx.CallAfter(self.checkForBuiltinComp)
             wx.CallAfter(self.insertDefArgs, currentword)
+            #wx.CallAfter(self.showAutoComp)
+            if len(self.args_buffer) > 0 and currentline in range(*self.args_line_number):
+                self.selection = self.GetSelectedText()
+                wx.CallAfter(self.navigateArgs)
+            elif self.quit_navigate_args and currentline in range(*self.args_line_number):
+                self.quit_navigate_args = False
+                self.selection = self.GetSelectedText()
+                wx.CallAfter(self.quitNavigateArgs)
+            elif len(self.snip_buffer) > 0 and currentline in range(*self.args_line_number):
+                self.selection = self.GetSelectedText()
+                pos = self.GetSelectionStart()
+                wx.CallAfter(self.navigateSnips, pos)
+            elif self.quit_navigate_snip and currentline in range(*self.args_line_number):
+                self.quit_navigate_snip = False
+                self.selection = self.GetSelectedText()
+                pos = self.GetSelectionStart()
+                wx.CallAfter(self.quitNavigateSnips, pos)
         evt.Skip()
 
     def OnUpdateUI(self, evt):
@@ -1057,6 +1124,11 @@ class Editor(stc.StyledTextCtrl):
             self.BraceBadLight(braceAtCaret)
         else:
             self.BraceHighlight(braceAtCaret, braceOpposite)
+
+        if self.GetCurrentLine() not in range(*self.args_line_number):
+            self.args_line_number = [0,0]
+            self.args_buffer = []
+            self.quit_navigate_args = False
 
         self.checkScrollbar()
         self.OnModified()
