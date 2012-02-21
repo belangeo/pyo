@@ -688,7 +688,7 @@ class MainFrame(wx.Frame):
                 pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
     def buildDoc(self):
-        self.doc_frame = ManualFrame()
+        self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED)
 
     def showDoc(self, evt):
         if not self.doc_frame.IsShown():

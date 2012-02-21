@@ -740,10 +740,11 @@ class ManualPanel(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class ManualFrame(wx.Frame):
-    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700)):
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700), osx_app_bundled=False):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
 
+        self.osx_app_bundled = osx_app_bundled
         gosearchID = 1000
         aTable = wx.AcceleratorTable([(wx.ACCEL_NORMAL, 47, gosearchID)])
         self.SetAcceleratorTable(aTable)
@@ -901,7 +902,7 @@ class ManualFrame(wx.Frame):
         text = self.doc_panel.getExampleScript()
         with open(DOC_EXAMPLE_PATH, "w") as f:
             f.write(text)
-        if not DOC_AS_SINGLE_APP:
+        if not DOC_AS_SINGLE_APP and self.osx_app_bundled:
             f = open(terminal_client_script_path, "w")
             f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH))
             f.close()
