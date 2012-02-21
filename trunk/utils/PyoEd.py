@@ -140,6 +140,51 @@ MODULES = {
           }
 '''
 
+WXPYTHON_TEMPLATE = '''#!/usr/bin/env python
+# encoding: utf-8
+import wx
+from pyo import *
+
+s = Server().boot()
+
+class MyFrame(wx.Frame):
+    def __init__(self, parent, title, pos, size):
+        wx.Frame.__init__(self, parent, -1, title, pos, size)
+        self.panel = wx.Panel(self)
+        self.panel.SetBackgroundColour("#DDDDDD")
+
+        self.freqPort = SigTo(value=250, time=0.05, init=250)
+        self.sine = Sine(freq=self.freqPort, mul=0.3).mix(2).out()
+
+        self.onOffText = wx.StaticText(self.panel, id=-1, label="Audio", 
+                                       pos=(28,10), size=wx.DefaultSize)
+        self.onOff = wx.ToggleButton(self.panel, id=-1, label="on / off", 
+                                     pos=(10,28), size=wx.DefaultSize)
+        self.onOff.Bind(wx.EVT_TOGGLEBUTTON, self.handleAudio)
+
+        self.frTxt = wx.StaticText(self.panel, id=-1, label="Freq: 250.00", 
+                                      pos=(140,60), size=(250,50))
+        self.freq = wx.Slider(self.panel, id=-1, value=25000, minValue=5000, 
+                              maxValue=1000000, pos=(140,82), size=(250,50))
+        self.freq.Bind(wx.EVT_SLIDER, self.changeFreq)
+        
+    def handleAudio(self, evt):
+        if evt.GetInt() == 1:
+            s.start()
+        else:
+            s.stop()
+
+    def changeFreq(self, evt):
+        x = evt.GetInt() * 0.01
+        self.frTxt.SetLabel("Freq: %.2f" % x)
+        self.freqPort.value = x
+        
+app = wx.PySimpleApp()
+mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
+mainFrame.Show()
+app.MainLoop()
+'''
+
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
 '''
@@ -258,6 +303,7 @@ class MainFrame(wx.Frame):
         self.submenu1.Append(98, "Pyo Template")
         self.submenu1.Append(97, "Cecilia5 Template")
         self.submenu1.Append(96, "Zyne Template")
+        self.submenu1.Append(95, "WxPython Template")
         menu1.AppendMenu(99, "New From Template", self.submenu1)
         menu1.Append(100, "Open\tCtrl+O")
         menu1.Append(112, "Open Project\tShift+Ctrl+O")
@@ -335,7 +381,7 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(self.menuBar)
 
         self.Bind(wx.EVT_MENU, self.new, id=110)
-        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=96, id2=98)
+        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
         self.Bind(wx.EVT_MENU, self.open, id=100)
         self.Bind(wx.EVT_MENU, self.openProject, id=112)
         self.Bind(wx.EVT_MENU, self.save, id=101)
@@ -481,7 +527,7 @@ class MainFrame(wx.Frame):
 
     def newFromTemplate(self, event):
         self.panel.addNewPage()
-        temp = {98: PYO_TEMPLATE, 97: CECILIA5_TEMPLATE, 96: ZYNE_TEMPLATE}[event.GetId()]
+        temp = {98: PYO_TEMPLATE, 97: CECILIA5_TEMPLATE, 96: ZYNE_TEMPLATE, 95: WXPYTHON_TEMPLATE}[event.GetId()]
         self.panel.editor.SetText(temp)
 
     def newRecent(self, file):
@@ -1066,7 +1112,7 @@ class Editor(stc.StyledTextCtrl):
             while self.GetCurrentPos() > pos:
                 self.DeleteBack()
             self.AddText(self.selection)
-        pos = self.GetLineEndPosition(self.args_line_number[1]) + 1
+        pos = self.PositionFromLine(self.args_line_number[1])
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
