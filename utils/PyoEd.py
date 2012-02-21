@@ -9,11 +9,19 @@ Olivier Belanger - 2012
 
 """
 
-import sys, os, string, inspect, keyword, wx, codecs, subprocess
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
+from types import UnicodeType
 import wx.stc  as  stc
 import wx.aui
 from pyo import *
 from PyoDoc import ManualFrame
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
+PLATFORM = sys.platform
+DEFAULT_ENCODING = sys.getdefaultencoding()
+ENCODING = sys.getfilesystemencoding()
 
 APP_NAME = 'PyoEd'
 APP_VERSION = '0.1.0'
@@ -34,6 +42,42 @@ def convert_line_endings(temp, mode):
         import re
         temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
     return temp
+
+def ensureNFD(unistr):
+    if PLATFORM in ['linux2', 'win32']:
+        encodings = [DEFAULT_ENCODING, ENCODING,
+                     'cp1252', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    else:
+        encodings = [DEFAULT_ENCODING, ENCODING,
+                     'macroman', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    decstr = unistr
+    if type(decstr) != UnicodeType:
+        for encoding in encodings:
+            try:
+                decstr = decstr.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+            except:
+                decstr = "UnableToDecodeString"
+                print "Unicode encoding not in a recognized format..."
+                break
+    if decstr == "UnableToDecodeString":
+        return unistr
+    else:
+        return unicodedata.normalize(format, decstr)
+
+def toSysEncoding(unistr):
+    try:
+        if PLATFORM == "win32":
+            unistr = unistr.encode(ENCODING)
+        else:
+            unistr = unicode(unistr)
+    except:
+        pass
+    return unistr
 
 if '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
@@ -310,9 +354,9 @@ class MainFrame(wx.Frame):
         self.submenu2 = wx.Menu()
         subId2 = 2000
         recentFiles = []
-        filename = os.path.join(TEMP_PATH,'.recent.txt')
+        filename = ensureNFD(os.path.join(TEMP_PATH,'.recent.txt'))
         if os.path.isfile(filename):
-            f = open(filename, "r")
+            f = codecs.open(filename, "r", encoding="utf-8")
             for line in f.readlines():
                 recentFiles.append(line)
             f.close()
@@ -498,7 +542,7 @@ class MainFrame(wx.Frame):
                             defaultFile="", style=wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPaths()
-            text = str(path[0])
+            text = ensureNFD(path[0])
             self.panel.editor.ReplaceSelection("'" + text + "'")
         dlg.Destroy()
 
@@ -531,15 +575,15 @@ class MainFrame(wx.Frame):
         self.panel.editor.SetText(temp)
 
     def newRecent(self, file):
-        filename = os.path.join(TEMP_PATH,'.recent.txt')
+        filename = ensureNFD(os.path.join(TEMP_PATH,'.recent.txt'))
         try:
-            f = open(filename, "r")
+            f = codecs.open(filename, "r", encoding="utf-8")
             lines = [line[:-1] for line in f.readlines()]
             f.close()
         except:
             lines = []
         if not file in lines:
-            f = open(filename, "w")
+            f = codecs.open(filename, "w", encoding="utf-8")
             lines.insert(0, file)
             if len(lines) > 10:
                 lines = lines[0:10]
@@ -549,7 +593,7 @@ class MainFrame(wx.Frame):
 
         subId2 = 2000
         recentFiles = []
-        f = open(filename, "r")
+        f = codecs.open(filename, "r", encoding="utf-8")
         for line in f.readlines():
             recentFiles.append(line)
         f.close()
@@ -557,7 +601,7 @@ class MainFrame(wx.Frame):
             for item in self.submenu2.GetMenuItems():
                 self.submenu2.DeleteItem(item)
             for file in recentFiles:
-                self.submenu2.Append(subId2, file)
+                self.submenu2.Append(subId2, toSysEncoding(file))
                 subId2 += 1
 
     def open(self, event):
@@ -567,8 +611,9 @@ class MainFrame(wx.Frame):
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPaths()
             for file in path:
-                self.panel.addPage(file)
-                self.newRecent(file)
+                filename = ensureNFD(file)
+                self.panel.addPage(filename)
+                self.newRecent(filename)
         dlg.Destroy()
 
     def openProject(self, event):
@@ -586,7 +631,7 @@ class MainFrame(wx.Frame):
         menu = self.GetMenuBar()
         id = event.GetId()
         file = menu.FindItemById(id).GetLabel()
-        self.panel.addPage(file[:-1])
+        self.panel.addPage(ensureNFD(file[:-1]))
 
     def save(self, event):
         if not self.panel.editor.path or self.panel.editor.path == "Untitled.py":
@@ -600,7 +645,7 @@ class MainFrame(wx.Frame):
             defaultFile="", style=wx.SAVE)
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPath()
+            path = ensureNFD(dlg.GetPath())
             self.panel.editor.path = path
             self.panel.editor.setStyle()
             self.panel.editor.SetCurrentPos(0)
@@ -629,7 +674,7 @@ class MainFrame(wx.Frame):
     ### Run actions ###
     def runner(self, event):
         # Need to determine which python to use...
-        path = self.panel.editor.path
+        path = ensureNFD(self.panel.editor.path)
         if os.path.isfile(path):
             cwd = os.path.split(path)[0]
             if OSX_APP_BUNDLED:
@@ -703,8 +748,14 @@ class MainPanel(wx.Panel):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         label = os.path.split(file)[1].split('.')[0]
         self.notebook.AddPage(editor, label, True)
-        editor.LoadFile(file)
+        f = codecs.open(file, "r", encoding="utf-8")
+        text = f.read()
+        f.close()
+        editor.SetText(ensureNFD(text))
+        #editor.LoadFile(file)
         editor.path = file
+        editor.saveMark = True
+        editor.SetSavePoint()
         editor.setStyle()
         self.editor = editor
         self.SetTitle(file)
