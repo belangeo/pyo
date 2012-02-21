@@ -30,6 +30,15 @@ TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 
+# Need to handle example path for bundled apps
+if "PyoEd.app" in os.getcwd():
+    EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
+else:
+    EXAMPLE_PATH = os.path.join(os.getcwd(), "../examples")
+EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
+EXAMPLE_FOLDERS.append("FFT")
+EXAMPLE_FOLDERS.sort()
+
 def convert_line_endings(temp, mode):
     #modes:  0 - Unix, 1 - Mac, 2 - DOS
     if mode == 0:
@@ -417,6 +426,17 @@ class MainFrame(wx.Frame):
             stId += 1
         self.menuBar.Append(menu5, 'Styles')
 
+        menu6 = wx.Menu()
+        exId = 5000
+        for folder in EXAMPLE_FOLDERS:
+            menu = wx.Menu(title=folder.lower())
+            for ex in [exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "."]:
+                menu.Append(exId, ex)
+                exId += 1
+            menu6.AppendMenu(-1, folder, menu)
+            exId += 1
+        self.menuBar.Append(menu6, "Pyo Examples")
+
         menu = wx.Menu()
         helpItem = menu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
         menu.Append(190, "Show Documentation Frame\tShift+Ctrl+D")
@@ -428,6 +448,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
         self.Bind(wx.EVT_MENU, self.open, id=100)
         self.Bind(wx.EVT_MENU, self.openProject, id=112)
+        self.Bind(wx.EVT_MENU, self.openExample, id=5000, id2=exId)
         self.Bind(wx.EVT_MENU, self.save, id=101)
         self.Bind(wx.EVT_MENU, self.saveas, id=102)
         self.Bind(wx.EVT_MENU, self.delete, id=111)
@@ -615,6 +636,15 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(filename)
                 self.newRecent(filename)
         dlg.Destroy()
+
+    def openExample(self, event):
+        id = event.GetId()
+        menu = event.GetEventObject()
+        item = menu.FindItemById(id)
+        filename = item.GetLabel()
+        folder = menu.GetTitle()
+        path = os.path.join(EXAMPLE_PATH, folder, filename)
+        self.panel.addPage(ensureNFD(path))
 
     def openProject(self, event):
         dlg = wx.DirDialog(self, message="Choose a project file", defaultPath=os.path.expanduser("~"),
