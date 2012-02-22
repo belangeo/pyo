@@ -24,14 +24,14 @@ DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
 
 APP_NAME = 'PyoEd'
-APP_VERSION = '0.1.0'
+APP_VERSION = '0.6.1'
 OSX_APP_BUNDLED = False
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
+TEMP_FILE = os.path.join(TEMP_PATH, 'pyoed_tempfile.py')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 
-# Need to handle example path for bundled apps
-if "PyoEd.app" in os.getcwd():
+if '/%s.app' % APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
 else:
     EXAMPLE_PATH = os.path.join(os.getcwd(), "../examples")
@@ -279,6 +279,22 @@ ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, 
                 "for": FOR_COMP, "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
 
+############## Pyo keywords ##############
+tree = OBJECTS_TREE
+PYO_WORDLIST = []
+for k1 in tree.keys():
+    if type(tree[k1]) == type({}):
+        for k2 in tree[k1].keys():
+            for val in tree[k1][k2]:
+                PYO_WORDLIST.append(val)
+    else:
+        for val in tree[k1]:
+            PYO_WORDLIST.append(val)
+PYO_WORDLIST.append("PyoObject")
+PYO_WORDLIST.append("PyoTableObject")
+PYO_WORDLIST.append("PyoMatrixObject")
+PYO_WORDLIST.append("Server")
+
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
 conf = {"preferedStyle": "Espresso"}
 STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
@@ -310,7 +326,7 @@ STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock'
                          'class': '#E5757B', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#999999',
                          'background': '#2A211C', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
                          'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#3B322D'}
-                         }
+        }
 if wx.Platform == '__WXMSW__':
     faces = {'face': 'Courier', 'size' : 10, 'size2': 8}
 elif wx.Platform == '__WXMAC__':
@@ -416,6 +432,7 @@ class MainFrame(wx.Frame):
 
         menu3 = wx.Menu()
         menu3.Append(104, "Run\tCtrl+R")
+        menu3.Append(105, "Run Selection\tShift+Ctrl+R")
         self.menuBar.Append(menu3, 'Process')
 
         menu5 = wx.Menu()
@@ -467,6 +484,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.insertPath, id=121)
         self.Bind(wx.EVT_MENU, self.showFind, id=122)
         self.Bind(wx.EVT_MENU, self.runner, id=104)
+        self.Bind(wx.EVT_MENU, self.runSelection, id=105)
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
@@ -702,21 +720,37 @@ class MainFrame(wx.Frame):
             self.delete(None)
 
     ### Run actions ###
+    def run(self, path, cwd):
+        if OSX_APP_BUNDLED:
+            script = terminal_client_script % (cwd, path)
+            script = convert_line_endings(script, 1)
+            f = codecs.open(terminal_client_script_path, "w", encoding="utf-8")
+            f.write(script)
+            f.close()
+            pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
+        else:
+            pid = subprocess.Popen(["python", path], cwd=cwd).pid
+
     def runner(self, event):
         # Need to determine which python to use...
         path = ensureNFD(self.panel.editor.path)
         if os.path.isfile(path):
             cwd = os.path.split(path)[0]
-            if OSX_APP_BUNDLED:
-                script = terminal_client_script % (cwd, path)
-                script = convert_line_endings(script, 1)
-                f = codecs.open(terminal_client_script_path, "w", encoding="utf-8")
-                f.write(script)
-                f.close()
-                pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
-            else:
-                pid = subprocess.Popen(["python", path], cwd=cwd).pid
+            self.run(path, cwd)
+        else:
+            text = self.panel.editor.GetTextUTF8()
+            if text != "":
+                with open(TEMP_FILE, "w") as f:
+                    f.write(text)
+                self.run(TEMP_FILE, os.path.expanduser("~"))
 
+    def runSelection(self, event):
+        text = self.panel.editor.GetSelectedTextUTF8()
+        if text != "":
+            with open(TEMP_FILE, "w") as f:
+                f.write(text)
+            self.run(TEMP_FILE, os.path.expanduser("~"))
+        
     def buildDoc(self):
         self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED)
 
@@ -782,7 +816,6 @@ class MainPanel(wx.Panel):
         text = f.read()
         f.close()
         editor.SetText(ensureNFD(text))
-        #editor.LoadFile(file)
         editor.path = file
         editor.saveMark = True
         editor.SetSavePoint()
@@ -861,9 +894,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetTabWidth(4)
         self.SetUseTabs(False)
         self.SetViewWhiteSpace(False)
-
         self.AutoCompSetChooseSingle(True)
-
         self.SetEOLMode(wx.stc.STC_EOL_LF)
         self.SetViewEOL(False)
 
@@ -892,21 +923,6 @@ class Editor(stc.StyledTextCtrl):
         self.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFind)
         self.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
 
-        tree = OBJECTS_TREE
-        self.wordlist = []
-        for k1 in tree.keys():
-            if type(tree[k1]) == type({}):
-                for k2 in tree[k1].keys():
-                    for val in tree[k1][k2]:
-                        self.wordlist.append(val)
-            else:
-                for val in tree[k1]:
-                    self.wordlist.append(val)
-        self.wordlist.append("PyoObject")
-        self.wordlist.append("PyoTableObject")
-        self.wordlist.append("PyoMatrixObject")
-        self.wordlist.append("Server")
-
         self.EmptyUndoBuffer()
         self.SetFocus()
         self.setStyle()
@@ -921,22 +937,22 @@ class Editor(stc.StyledTextCtrl):
 
         ext = os.path.splitext(self.path)[1].strip(".")
         if ext in ["py", "c5"]:
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN,    stc.STC_MARK_BOXMINUS, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER,        stc.STC_MARK_BOXPLUS, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB,     stc.STC_MARK_VLINE, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL,    stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND,     stc.STC_MARK_ARROW, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, faces['markerfg'], faces['markerbg'])
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, faces['markerfg'], faces['markerbg'])
             self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
 
-            self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,  "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces)
             self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,  "fore:#000000,back:%(bracelight)s,bold" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,    "fore:#000000,back:%(bracebad)s,bold" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:%(bracelight)s,bold" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:%(bracebad)s,bold" % faces)
 
             self.SetLexer(stc.STC_LEX_PYTHON)
-            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(self.wordlist))
+            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(PYO_WORDLIST))
 
             self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
             self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % faces)
@@ -1022,12 +1038,14 @@ class Editor(stc.StyledTextCtrl):
         if self.GetModify():
             if not self.path: f = "Untitled"
             else: f = self.path
-            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 'Warning!', wx.YES | wx.NO | wx.CANCEL)
+            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
+                                   'Warning!', wx.YES | wx.NO | wx.CANCEL)
             but = dlg.ShowModal()
             if but == wx.ID_YES:
                 dlg.Destroy()
                 if not self.path:
-                    dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(), defaultFile="", style=wx.SAVE)
+                    dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(), 
+                                         defaultFile="", style=wx.SAVE)
                     dlg2.SetFilterIndex(0)
                     if dlg2.ShowModal() == wx.ID_OK:
                         path = dlg2.GetPath()
@@ -1052,12 +1070,13 @@ class Editor(stc.StyledTextCtrl):
         if self.GetModify():
             if not self.path: f = "Untitled"
             else: f = self.path
-            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 'Warning!', wx.YES | wx.NO)
+            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
+                                   'Warning!', wx.YES | wx.NO)
             if dlg.ShowModal() == wx.ID_YES:
                 dlg.Destroy()
                 if not self.path:
                     dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(),
-                        defaultFile="", style=wx.SAVE)
+                                         defaultFile="", style=wx.SAVE)
                     dlg2.SetFilterIndex(0)
 
                     if dlg2.ShowModal() == wx.ID_OK:
@@ -1100,7 +1119,7 @@ class Editor(stc.StyledTextCtrl):
         currentword = self.getWordUnderCaret()
         if charBefore in self.alphaStr:
             list = ''
-            for word in self.wordlist:
+            for word in PYO_WORDLIST:
                 if word.startswith(currentword) and word != currentword:
                     list = list + word + ' '
             if list:
@@ -1111,7 +1130,7 @@ class Editor(stc.StyledTextCtrl):
             self.AddText(" "*ws)
 
     def insertDefArgs(self, currentword):
-        for word in self.wordlist:
+        for word in PYO_WORDLIST:
             if word == currentword:
                 self.deleteBackWhiteSpaces()
                 text = class_args(eval(word)).replace(word, "")
@@ -1275,8 +1294,8 @@ class Editor(stc.StyledTextCtrl):
         selStartPos, selEndPos = self.GetSelection()
         self.firstLine = self.LineFromPosition(selStartPos)
         self.endLine = self.LineFromPosition(selEndPos)
-        commentStr = '#'
 
+        commentStr = '#'
         for i in range(self.firstLine, self.endLine+1):
             lineLen = len(self.GetLine(i))
             pos = self.PositionFromLine(i)
@@ -1544,7 +1563,6 @@ if __name__ == '__main__':
                 pass
 
     app = wx.PySimpleApp()
-
     X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
     if X < 800: X -= 50
     else: X = 800
@@ -1552,5 +1570,4 @@ if __name__ == '__main__':
     else: Y = 700
     frame = MainFrame(None, -1, title='PyoEd Editor', pos=(10,25), size=(X, Y))
     frame.Show()
-
     app.MainLoop()
