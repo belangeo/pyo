@@ -276,7 +276,6 @@ def _ed_set_style(editor, searchKey=None):
     editor.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % DOC_FACES)
     editor.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % DOC_FACES)
     editor.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % DOC_FACES)
-    #editor.SetCaretForeground(DOC_FACES["background"])
 
 def complete_words_from_str(text, keyword):
     words = [keyword]
