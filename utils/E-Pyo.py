@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # encoding: utf-8
 """
-PyoEd is a simple text editor especially configured to edit pyo audio programs.
+E-Pyo is a simple text editor especially configured to edit pyo audio programs.
 
 You can do absolutely everything you want to do with this piece of software.
 
@@ -23,7 +23,7 @@ PLATFORM = sys.platform
 DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
 
-APP_NAME = 'PyoEd'
+APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
 OSX_APP_BUNDLED = False
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
@@ -101,8 +101,8 @@ end tell
     terminal_server_script = """tell application "Terminal"
     do script ""
     set a to get id of front window
-    set custom title of window id a to "PyoEd Output"
-    set custom title of tab 1 of window id a to "PyoEd Output"
+    set custom title of window id a to "E-Pyo Output"
+    set custom title of tab 1 of window id a to "E-Pyo Output"
     set current settings of first window to settings set "Homebrew"
     set the number of columns of window 1 to 80
     set the number of rows of window 1 to 30
@@ -131,7 +131,7 @@ tell application "System Events"
     keystroke return
     delay 0.25
     end tell
-    tell application process "PyoEd"
+    tell application process "E-Pyo"
     set frontmost to true
     end tell
 end tell
@@ -770,7 +770,7 @@ class MainFrame(wx.Frame):
         info.Name = APP_NAME
         info.Version = APP_VERSION
         info.Copyright = u"(C) 2012 Olivier Bélanger"
-        info.Description = "PyoEd is a simple text editor especially configured to edit pyo audio programs.\n\n"
+        info.Description = "E-Pyo is a simple text editor especially configured to edit pyo audio programs.\n\n"
         wx.AboutBox(info)
 
     def OnClose(self, event):
@@ -840,9 +840,9 @@ class MainPanel(wx.Panel):
         self.editor = self.notebook.GetPage(self.notebook.GetSelection())
         if not self.editor.path:
             if self.editor.GetModify():
-                self.SetTitle("*** PyoEd Editor ***")
+                self.SetTitle("*** E-Pyo Editor ***")
             else:
-                self.SetTitle("PyoEd Editor")
+                self.SetTitle("E-Pyo Editor")
         else:
             if self.editor.GetModify():
                 self.SetTitle('*** ' + self.editor.path + ' ***')
@@ -1568,6 +1568,6 @@ if __name__ == '__main__':
     else: X = 800
     if Y < 700: Y -= 50
     else: Y = 700
-    frame = MainFrame(None, -1, title='PyoEd Editor', pos=(10,25), size=(X, Y))
+    frame = MainFrame(None, -1, title='E-Pyo Editor', pos=(10,25), size=(X, Y))
     frame.Show()
     app.MainLoop()
