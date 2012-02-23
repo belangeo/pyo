@@ -444,20 +444,20 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(menu5, 'Styles')
 
         menu6 = wx.Menu()
-        exId = 5000
+        exId = 1000
         for folder in EXAMPLE_FOLDERS:
-            menu = wx.Menu(title=folder.lower())
-            for ex in [exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "."]:
-                menu.Append(exId, ex)
+            exmenu = wx.Menu(title=folder.lower())
+            for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "."]):
+                exmenu.Append(exId, ex)
                 exId += 1
-            menu6.AppendMenu(-1, folder, menu)
+            menu6.AppendMenu(-1, folder, exmenu)
             exId += 1
         self.menuBar.Append(menu6, "Pyo Examples")
 
-        menu = wx.Menu()
-        helpItem = menu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
-        menu.Append(190, "Show Documentation Frame\tShift+Ctrl+D")
-        self.menuBar.Append(menu, '&Help')
+        helpmenu = wx.Menu()
+        helpItem = helpmenu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
+        helpmenu.Append(190, "Show Documentation Frame\tShift+Ctrl+D")
+        self.menuBar.Append(helpmenu, '&Help')
 
         self.SetMenuBar(self.menuBar)
 
@@ -465,7 +465,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
         self.Bind(wx.EVT_MENU, self.open, id=100)
         self.Bind(wx.EVT_MENU, self.openProject, id=112)
-        self.Bind(wx.EVT_MENU, self.openExample, id=5000, id2=exId)
+        self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=exId)
         self.Bind(wx.EVT_MENU, self.save, id=101)
         self.Bind(wx.EVT_MENU, self.saveas, id=102)
         self.Bind(wx.EVT_MENU, self.delete, id=111)
@@ -606,6 +606,7 @@ class MainFrame(wx.Frame):
 
     ### New / Open / Save / Delete ###
     def new(self, event):
+        print "caca"
         self.panel.addNewPage()
 
     def newFromTemplate(self, event):
