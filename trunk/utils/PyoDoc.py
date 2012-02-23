@@ -45,7 +45,7 @@ tell application process "Terminal"
     keystroke return
     delay 0.25
     end tell
-    tell application process "PyoEd"
+    tell application process "E-Pyo"
     set frontmost to true
     end tell
 end tell
