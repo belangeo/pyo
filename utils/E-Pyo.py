@@ -9,7 +9,7 @@ Olivier Belanger - 2012
 
 """
 
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, ast
 from types import UnicodeType
 import wx.stc  as  stc
 import wx.aui
@@ -38,6 +38,15 @@ else:
 EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
 EXAMPLE_FOLDERS.append("FFT")
 EXAMPLE_FOLDERS.sort()
+
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+    old = sys.stdout
+    if stdout is None:
+        stdout = StringIO.StringIO()
+    sys.stdout = stdout
+    yield stdout
+    sys.stdout = old
 
 def convert_line_endings(temp, mode):
     #modes:  0 - Unix, 1 - Mac, 2 - DOS
@@ -347,6 +356,8 @@ class MainFrame(wx.Frame):
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
         wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
+        self.Bind(wx.EVT_CLOSE, self.OnClose)
+
         self.panel = MainPanel(self, size=size)
 
         if sys.platform == "darwin":
@@ -364,20 +375,26 @@ class MainFrame(wx.Frame):
                                       (accel, ord('9'), 10009),
                                       (accel, ord('0'), 10010)])
         self.SetAcceleratorTable(aTable)
-        
+        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
+
         self.menuBar = wx.MenuBar()
+
         menu1 = wx.Menu()
         menu1.Append(wx.ID_NEW, "New\tCtrl+N")
+        self.Bind(wx.EVT_MENU, self.new, id=wx.ID_NEW)
         self.submenu1 = wx.Menu()
         self.submenu1.Append(98, "Pyo Template")
         self.submenu1.Append(97, "Cecilia5 Template")
         self.submenu1.Append(96, "Zyne Template")
         self.submenu1.Append(95, "WxPython Template")
         menu1.AppendMenu(99, "New From Template", self.submenu1)
+        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
         menu1.Append(wx.ID_OPEN, "Open\tCtrl+O")
+        self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
         menu1.Append(112, "Open Project\tShift+Ctrl+O")
+        self.Bind(wx.EVT_MENU, self.openProject, id=112)
         self.submenu2 = wx.Menu()
-        subId2 = 2000
+        ID_OPEN_RECENT = 2000
         recentFiles = []
         filename = ensureNFD(os.path.join(TEMP_PATH,'.recent.txt'))
         if os.path.isfile(filename):
@@ -387,118 +404,116 @@ class MainFrame(wx.Frame):
             f.close()
         if recentFiles:
             for file in recentFiles:
-                self.submenu2.Append(subId2, file)
-                subId2 += 1
-        menu1.AppendMenu(998, "Open Recent...", self.submenu2)
-        menu1.InsertSeparator(5)
+                self.submenu2.Append(ID_OPEN_RECENT, file)
+                ID_OPEN_RECENT += 1
+        if ID_OPEN_RECENT > 2000:
+            for i in range(2000, ID_OPEN_RECENT):
+                self.Bind(wx.EVT_MENU, self.openRecent, id=i)
+        menu1.AppendMenu(1999, "Open Recent...", self.submenu2)
+        menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
+        self.Bind(wx.EVT_MENU, self.delete, id=wx.ID_CLOSE)
         menu1.Append(wx.ID_CLOSE_ALL, "Close All Tabs\tShift+Ctrl+W")
+        self.Bind(wx.EVT_MENU, self.deleteAll, id=wx.ID_CLOSE_ALL)
         menu1.Append(wx.ID_SAVE, "Save\tCtrl+S")
+        self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
         menu1.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
+        self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
         if sys.platform != "darwin":
-            menu1.InsertSeparator(9)
+            menu1.AppendSeparator()
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
+        self.Bind(wx.EVT_MENU, self.openPrefs, prefItem)
         if sys.platform != "darwin":
-            menu1.InsertSeparator(11)
+            menu1.AppendSeparator()
         quitItem = menu1.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
+        self.Bind(wx.EVT_MENU, self.OnClose, quitItem)
         self.menuBar.Append(menu1, 'File')
 
         menu2 = wx.Menu()
         menu2.Append(wx.ID_UNDO, "Undo\tCtrl+Z")
         menu2.Append(wx.ID_REDO, "Redo\tShift+Ctrl+Z")
-        menu2.InsertSeparator(2)
+        self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO, id2=wx.ID_REDO)
+        menu2.AppendSeparator()
         menu2.Append(wx.ID_CUT, "Cut\tCtrl+X")
+        self.Bind(wx.EVT_MENU, self.cut, id=wx.ID_CUT)
         menu2.Append(wx.ID_COPY, "Copy\tCtrl+C")
+        self.Bind(wx.EVT_MENU, self.copy, id=wx.ID_COPY)
         menu2.Append(wx.ID_PASTE, "Paste\tCtrl+V")
+        self.Bind(wx.EVT_MENU, self.paste, id=wx.ID_PASTE)
         menu2.Append(wx.ID_SELECTALL, "Select All\tCtrl+A")
-        menu2.InsertSeparator(7)
+        self.Bind(wx.EVT_MENU, self.selectall, id=wx.ID_SELECTALL)
+        menu2.AppendSeparator()
         menu2.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
         menu2.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
-        menu2.InsertSeparator(10)
+        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
+        menu2.Append(130, "Show Invisibles", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.showInvisibles, id=130)
+        menu2.Append(131, "Remove Trailing White Space")
+        self.Bind(wx.EVT_MENU, self.removeTrailingWhiteSpace, id=131)
+        menu2.AppendSeparator()
         menu2.Append(103, "Collapse/Expand\tShift+Ctrl+F")
+        self.Bind(wx.EVT_MENU, self.fold, id=103)
         menu2.Append(108, "Un/Comment Selection\tCtrl+J")
+        self.Bind(wx.EVT_MENU, self.OnComment, id=108)
         menu2.Append(114, "Show AutoCompletion\tCtrl+K")
+        self.Bind(wx.EVT_MENU, self.autoComp, id=114)
         menu2.Append(121, "Insert File Path...\tCtrl+P")
-        menu2.InsertSeparator(15)
+        self.Bind(wx.EVT_MENU, self.insertPath, id=121)
+        menu2.AppendSeparator()
         menu2.Append(170, "Convert Selection to Uppercase\tCtrl+U")
         menu2.Append(171, "Convert Selection to Lowercase\tShift+Ctrl+U")
+        self.Bind(wx.EVT_MENU, self.upperLower, id=170, id2=171)
         menu2.Append(172, "Convert Tabs to Spaces")
-        menu2.InsertSeparator(19)
+        self.Bind(wx.EVT_MENU, self.tabsToSpaces, id=172)
+        menu2.AppendSeparator()
         menu2.Append(140, "Goto line...\tCtrl+L")
+        self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
         menu2.Append(wx.ID_FIND, "Find...\tCtrl+F")
-        menu2.InsertSeparator(22)
+        self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
+        menu2.AppendSeparator()
         menu2.Append(180, "Show Documentation for Current Object\tCtrl+D")
+        self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.menuBar.Append(menu2, 'Code')
 
         menu3 = wx.Menu()
         menu3.Append(104, "Run\tCtrl+R")
+        self.Bind(wx.EVT_MENU, self.runner, id=104)
         menu3.Append(105, "Run Selection\tShift+Ctrl+R")
+        self.Bind(wx.EVT_MENU, self.runSelection, id=105)
+        menu3.Append(106, "Execute Line/Selection as Python\tCtrl+E")
+        self.Bind(wx.EVT_MENU, self.execSelection, id=106)
         self.menuBar.Append(menu3, 'Process')
 
         menu5 = wx.Menu()
-        stId = 500
+        ID_STYLE = 500
         for st in styles:
-            menu5.Append(stId, st, "", wx.ITEM_RADIO)
-            if st == conf['preferedStyle']: menu5.Check(stId, True)
-            stId += 1
+            menu5.Append(ID_STYLE, st, "", wx.ITEM_RADIO)
+            if st == conf['preferedStyle']: menu5.Check(ID_STYLE, True)
+            ID_STYLE += 1
         self.menuBar.Append(menu5, 'Styles')
+        for i in range(500, ID_STYLE):
+            self.Bind(wx.EVT_MENU, self.changeStyle, id=i)
 
         menu6 = wx.Menu()
-        exId = 1000
+        ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
             exmenu = wx.Menu(title=folder.lower())
             for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "."]):
-                exmenu.Append(exId, ex)
-                exId += 1
+                exmenu.Append(ID_EXAMPLE, ex)
+                ID_EXAMPLE += 1
             menu6.AppendMenu(-1, folder, exmenu)
-            exId += 1
+            ID_EXAMPLE += 1
+        self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=ID_EXAMPLE)
         self.menuBar.Append(menu6, "Pyo Examples")
 
         helpmenu = wx.Menu()
         helpItem = helpmenu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
+        self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         helpmenu.Append(190, "Show Documentation Frame\tShift+Ctrl+D")
+        self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
         self.menuBar.Append(helpmenu, '&Help')
 
         self.SetMenuBar(self.menuBar)
-
-        self.Bind(wx.EVT_MENU, self.new, id=wx.ID_NEW)
-        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
-        self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
-        self.Bind(wx.EVT_MENU, self.openProject, id=112)
-        self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=exId)
-        self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
-        self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
-        self.Bind(wx.EVT_MENU, self.delete, id=wx.ID_CLOSE)
-        self.Bind(wx.EVT_MENU, self.deleteAll, id=wx.ID_CLOSE_ALL)
-        self.Bind(wx.EVT_MENU, self.cut, id=wx.ID_CUT)
-        self.Bind(wx.EVT_MENU, self.copy, id=wx.ID_COPY)
-        self.Bind(wx.EVT_MENU, self.paste, id=wx.ID_COPY)
-        self.Bind(wx.EVT_MENU, self.selectall, id=wx.ID_SELECTALL)
-        self.Bind(wx.EVT_MENU, self.undo, id=wx.ID_UNDO, id2=wx.ID_REDO)
-        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
-        self.Bind(wx.EVT_MENU, self.upperLower, id=170, id2=171)
-        self.Bind(wx.EVT_MENU, self.tabsToSpaces, id=172)
-        self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
-        self.Bind(wx.EVT_MENU, self.fold, id=103)
-        self.Bind(wx.EVT_MENU, self.autoComp, id=114)
-        self.Bind(wx.EVT_MENU, self.insertPath, id=121)
-        self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
-        self.Bind(wx.EVT_MENU, self.runner, id=104)
-        self.Bind(wx.EVT_MENU, self.runSelection, id=105)
-        self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
-        self.Bind(wx.EVT_MENU, self.OnComment, id=108)
-        self.Bind(wx.EVT_MENU, self.showDoc, id=180)
-        self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
-        self.Bind(wx.EVT_MENU, self.openPrefs, prefItem)
-        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
-        self.Bind(wx.EVT_CLOSE, self.OnClose)
-        self.Bind(wx.EVT_MENU, self.OnClose, quitItem)
-
-        if subId2 > 2000:
-            for i in range(2000,subId2):
-                self.Bind(wx.EVT_MENU, self.openRecent, id=i)
-        for i in range(500, stId):
-            self.Bind(wx.EVT_MENU, self.changeStyle, id=i)
 
         if projectsToOpen:
             for p in projectsToOpen:
@@ -544,6 +559,12 @@ class MainFrame(wx.Frame):
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() + 1)
         else:
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() - 1)
+
+    def showInvisibles(self, evt):
+        self.panel.editor.showInvisibles(evt.GetInt())
+
+    def removeTrailingWhiteSpace(self, evt):
+        self.panel.editor.removeTrailingWhiteSpace()
 
     def gotoLine(self, evt):
         dlg = wx.TextEntryDialog(self, "Enter a line number:", "Go to Line")
@@ -606,7 +627,6 @@ class MainFrame(wx.Frame):
 
     ### New / Open / Save / Delete ###
     def new(self, event):
-        print "caca"
         self.panel.addNewPage()
 
     def newFromTemplate(self, event):
@@ -751,7 +771,25 @@ class MainFrame(wx.Frame):
             with open(TEMP_FILE, "w") as f:
                 f.write(text)
             self.run(TEMP_FILE, os.path.expanduser("~"))
-        
+
+    def execSelection(self, event):
+        text = self.panel.editor.GetSelectedTextUTF8()
+        if text == "":
+            pos = self.panel.editor.GetCurrentPos()
+            line = self.panel.editor.LineFromPosition(pos)
+            text = self.panel.editor.GetLineUTF8(line)
+            if not text.startswith("print"):
+                text = "print " + text
+        else:
+            pos = self.panel.editor.GetSelectionEnd()
+        line = self.panel.editor.LineFromPosition(pos)
+        pos = self.panel.editor.GetLineEndPosition(line)
+        self.panel.editor.SetCurrentPos(pos)
+        self.panel.editor.AddText("\n")
+        with stdoutIO() as s:
+            exec text
+        self.panel.editor.AddText(s.getvalue())
+
     def buildDoc(self):
         self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED)
 
@@ -894,8 +932,8 @@ class Editor(stc.StyledTextCtrl):
         self.SetTabIndents(True)
         self.SetTabWidth(4)
         self.SetUseTabs(False)
-        self.SetViewWhiteSpace(False)
         self.AutoCompSetChooseSingle(True)
+        self.SetViewWhiteSpace(False)
         self.SetEOLMode(wx.stc.STC_EOL_LF)
         self.SetViewEOL(False)
 
@@ -1023,6 +1061,15 @@ class Editor(stc.StyledTextCtrl):
 
     def OnFindClose(self, evt):
         evt.GetDialog().Destroy()
+
+    def showInvisibles(self, x):
+        self.SetViewWhiteSpace(x)
+
+    def removeTrailingWhiteSpace(self):
+        text = self.GetText()
+        lines = [line.rstrip() for line in text.splitlines(False)]
+        text= "\n".join(lines)
+        self.SetText(text)
 
     def tabsToSpaces(self):
         text = self.GetText()
@@ -1191,7 +1238,7 @@ class Editor(stc.StyledTextCtrl):
             if len(self.snip_buffer) == 0:
                 pos = self.GetCurrentPos() + len(text) + 1
                 self.SetCurrentPos(pos)
-                wx.CallAfter(self.SetAnchor, self.GetCurrentPos())                
+                wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
             else:
                 self.selection = self.GetSelectedText()
                 pos = self.GetSelectionStart()
@@ -1217,8 +1264,16 @@ class Editor(stc.StyledTextCtrl):
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
+    def processReturn(self):
+        prevline = self.GetCurrentLine() - 1
+        if self.GetLineUTF8(prevline).strip().endswith(":"):
+            indent = self.GetLineIndentation(prevline)
+            self.AddText(" "*(indent+4))
+
     def OnKeyDown(self, evt):
-        if evt.GetKeyCode() == wx.WXK_TAB:
+        if evt.GetKeyCode() == wx.WXK_RETURN:
+            wx.CallAfter(self.processReturn)
+        elif evt.GetKeyCode() == wx.WXK_TAB:
             currentword = self.getWordUnderCaret()
             currentline = self.GetCurrentLine()
             wx.CallAfter(self.checkForBuiltinComp)
