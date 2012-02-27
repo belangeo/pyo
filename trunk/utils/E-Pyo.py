@@ -294,25 +294,139 @@ BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_C
 catalog = {}
 
 #----------------------------------------------------------------------
-new_file_png = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAzBJREFU"
-    "eJyslc9PE0EUx7+zu0VUKlJpiKgk4EVMVIxBueiBRC94EEhIRBON8eaRAPFP4GDi0T9AiXjy"
-    "QKJBjULggMbEH4lREzSW/hBEakt/7e7sjG+2WCu0axudy76dzHuf977v7Y6BosUY26FpWgMq"
-    "W1wIEZFSeh4yil86OjoeDw8Pd/p8PihHArr7pexMJuNMT0/fm5iYuJZOp+MVAdrb2wP9/f2g"
-    "Kv4KoKV3d3ef7+rq2j86Ono6Ho8n/wpQzlIIyHUbRUFL2Qo0MDBw3DCMyaGhoR6CrHkC1BIq"
-    "gAKpTIvApWz3PCXU29t70rKsyZGRkZ5kMpnyBFRTgTprcw7Vs76+vlPRaPTW2NjYRdM0y0uk"
-    "Mipk6t0Dt1exaFQ1HJxAPT1nBxcWFh6Mj4/f+TVdmyWqAuD3+2FQ9pFIBKFQiCAOoyG5TtN1"
-    "JxwO/3sFyq4hQHNzM+rq6lxfQzdqg8FG/DeA6oeCBAIBdz+Xzf6hyCaJHMfJj2uFgI2wfIK/"
-    "5+yfK9hoK//i38cmQDUVqLO2sAv7uqYXEiwrUTUVzH2YwfziFI1r3q9Ob8KFE1fLA9wK1kus"
-    "BJDIrqK2MQHBsuCOjWzCoCf3lkgoiShAuaBCUoXr/pYwoW2ngJoNxm3IFIdlW5pkchf1OUHn"
-    "+AaJ8k1mHoCXn57j1dIcdB+QEivY2eTQ0HAImyOzZRm3X91sbexm33YHA4OxJ6t3N1SQb5wX"
-    "4Ht6BcauZejbTTRstSC3UBU6B3IWtGAMazVfsPeYw5K5ehZ7ulp6irwAkiRyJMmBHD3pH8R+"
-    "wNSSyIgMshb1waTJyml03dW7UlYtkeMIStZEai0Cy4rDsZNgPgFuUjS+FZowoEuNpoTJEk1W"
-    "AbgnoHnHPsSXj2Cnfhix7ALW9sxQBXTPcA3bvh1Em+z8/ODZw6Of34VSEGU+NC9Aa2Mr2oJt"
-    "rv344yReJGZgUbJMSDTYDThz4Jy4f+NRIvE2vXlM0+nULF3gToV3MskiWgSvqXVQAyY1OBb7"
-    "Sv7zpmkVYv4BmJ2du3Lp8uXaPKBwcZW1TX+uxX8Ifqb53Ya+WXoRmnr/eiW8GC7E/AkAAP//"
-    "AwBL25csqXt4LgAAAABJRU5ErkJggg==")
-catalog['new_file.png'] = new_file_png
+close_panel_icon_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAA29JREFU"
+    "eJzcVclrE1EcfvPem8zQRRNrumQS6lYRFYLUgxZBccWToODeoIKiCC4HL/UfKPTgxVBsD1Lc"
+    "ULSYUlxA8KaiVDGut5auMdWkaTozmeW98TdxoTRNerEXB14mZN77vt/3/b7fhDqOg+bzovOK"
+    "/n8SCIKQv3swDofKygLjudzTSdvmRc7LtbK8GztOT8IwmLtpZk+LKfA2+v29B1esCD7v7488"
+    "Gh29Yc4CXuXxvGpuaAgzTbt7Z3DwyJhlsTkVQOXrALznUmNjsJZztHTJklZu25ln37/3apz/"
+    "USLXyHL05KpV4Z2Vlcik9ICkKInrIyMXXRElCZZVVKw5unJlHtzUNOTDOBAJhWLwKPIkmXSV"
+    "5Ct3wbeUlSEhm0UY9m5dsGDTkK5j2MdKEiR1/e6LgYG65fX1LRVgFYHD1YSgE4rSijiffK9p"
+    "e1xbdpWXIwTgonvIceLfLOvsF1Wd26KUZVkPhofbEGPp/YrS6YOm27aNFglCoLm29uEOStFq"
+    "SULCxASyGHNDEe9nrCk6Nqa+nZqaCTd7k3OQhFgi0QWJ8B2tq2up4NxLLQst1nVUA3c7l0PO"
+    "b/ABjE9FVVXtAztneycUnYMpzq3uRCKvZK/H01mZySAbwCEEiMPChHwYIKSpPZtVX7uERXBK"
+    "DhookV9OTjZt8PvRWlCFAVgGixyXgNLFfZxv+2QYvQBebE5KEsiLRPHVgVAovAzkMyBwK3d+"
+    "L5GQuh2SFBtiLPIok5ltTkoSyDWSFD0B4FsAHKVSSIIkcUI+UlEMUoy9rpJ6+O1CVVUrISTz"
+    "eGJi+pyUJMhXfhzAN6oqctJpxN0kQUMHwfPPnB/aDj2pAQIBlkJp4Hx1dQzsi8R+/LgxJ0FA"
+    "kvYdVpTwZogch8rFX02Nj1B6ql3T1K+m2ZXwen1nfL4Wvyh6yz0e1ABKLodC56Bnt9CMfhQQ"
+    "wOB0k0ymz8hmGwVQbBMSH4LKO3RdffMrLda9dLqNYJw+4/d3loMKLIpooSBEKymd26Jhw9Bv"
+    "M7ZZkqRr6xlbM0LI6Q7DUN8axt8ounNyP5XqAu99l4LBYxLGbVdHR2/2jI8X+F1A4M76kG2r"
+    "1x2neVCWadw0rXemWZDzLMzJzWSyTXOcK1QQ7G4AnyrscSHBtPe5+8UqOFF42e5HV5GH/+Ff"
+    "5r++fgIAAP//AwDHcZZetNGOQQAAAABJRU5ErkJggg==")
+catalog['close_panel_icon.png'] = close_panel_icon_png
+
+#----------------------------------------------------------------------
+file_add_icon_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABDBJREFU"
+    "eJyMVV1IHFcU/mZ29ifZXbNutMbUxgSaJooiURT1IVQKUvpSpNifvEiwr6GB5kEoNIVSDAmS"
+    "UmglkFCaH2xIU6k15MG0EmkwQpq4lfiTmG5rR+Ouu2bH/d/Zmem9E2c7M7trc4bD3pl77vfd"
+    "891zz3L4z5hNfzGzw4q96EEHerkGrsFqszLpRHpa9skXMIZvsQQRCsDpltRUVFR86vF41BdF"
+    "UcAwTMExNb6Eb5Helva1HWpD+yvt8Ng8CCQCLeO7x1t8Fb6PpJ+lLszgkZ5g28cnTrzX3d2t"
+    "gqkPy+SAn397bpOrkzg2fQwddR1oq2zGNtGOStvLKLHZUdV0BGXestpb3lvD8lX5kJ4ANqsN"
+    "drtDBWM3wc0upAWcenQKZdVlqCh1YT07j+rMa3hjTye+njuJDfcG9lfuwez+3bX8Yb7XQEA3"
+    "y7JsUXBqd1bvwJf1ocF5EOHMHGxEsnjMRbVDPO5H3LGKsAg4PXaQM/rQRGDcOasBb46p/lOh"
+    "uxAdIpJ/J7BrZwvcHINy16skhEW5WAss78CujIiNZ7OAF/UGAnp8rA6QIdlo2tOxLEkIZ8Nq"
+    "adRbGnHy8FdqHMtYwLEcjrb2EQwFyUwSt3+6j6f2MPIyyIHqMtBcIV7KlarFPJEaw/s321Fu"
+    "A5pcb6K39TN88UsPlpQFrKYV/Mk9pnFPjAQaSSEnxBYy3+hsgjVqRcgVwfz2CDJOIrVco+48"
+    "6FjAPw4fnsSAWJIEhzCqJ1C0emdMEuXOwmJBW3krGoINuCfew0oEkAnQwR0SUlKK7FxWwQNp"
+    "QLJgGb/hUr5EOkCzRNSrXqrCcf44+mJ94DM8lgjJtcgYJoOvYzH+GAJJU3IigFl8gh+MF009"
+    "3KISbbrD4UBnbSfS99M4J5/DjHcGK8kIVrIRMG4GLocb7AT7ufCN8CM2kDIS6CQqdg+o0XbS"
+    "1dKFAwsHMMVPYS41h7gSR2m2FPXkufHwxu+jwmiUxhaU6P8I6LikpATNjc2oq6lDNBqFKIqk"
+    "C9jhdrvx4OYDUYs1ZrC52CyVYU73y3GcSkRBtSZoKGvyLe+iaT1bD7yVZbNZSOQCyrKc67qS"
+    "rOQIX0gi/Zw2pgBUllQqRXpQHMlkUiUCa5ngl5dXCkrE6Ii2MgpOd06BA8EggoEg0pkMnM7t"
+    "fwwPD39we/zXpwUJtLTM38yEVA6687W1EHh+Gfv2VoP8o4W/HxrquXD+/ArNpnAGuu5ZSB7t"
+    "nUqRSCQQXFtTL6PX6/3rypXL7549++W0IAiGzeRVkV4qDdyckZZBLBZD2U7v/MWL3711+vQZ"
+    "f5DIZVYhTyLNi5k2LxESq9W6ODIy8s7g4KB/fX294Do9QTIUCl31+/158uizoSAZUj2hZxHh"
+    "2vXrZ4YuX1qkF62Y6Qnm+/v7jwwMDBQNNmdBKkfOiuKWsf8CAAD//wMAHNbcbWLj1ggAAAAA"
+    "SUVORK5CYII=")
+catalog['file_add_icon.png'] = file_add_icon_png
+
+#----------------------------------------------------------------------
+file_delete_icon_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABEZJREFU"
+    "eJyMVG1MW1UYfm57b1vogNLSdbotdJNkyAp+TOrYogZd4uJ+6GaYyg81auLHj7lEEpdFjfqH"
+    "ZQTHDxP2g5m5jbC5MJQxZthgmWEMo5IOEBCJMNPC1hbsJy29H/Wcjou3X7i3edNzz8fzvO9z"
+    "3vOy+M+YZb8v0wLcZuDN54G3trDsIxqWZRZjMcctSWq5Apz8G+DjZB+rOPOwxWL5zGAwJD7i"
+    "8TgYhsk4plbgdD75oihaH62qwsadO6El58J37tgf7OuzW4aHP7wointHgD+VBDkf1dW9UlNT"
+    "kwBL/FTMCvC9uXs2NzCAWwcOwPZsNdZtr4RazSIuxZFrtaKwthbGoqKtxt7ejnOS9LiSABpO"
+    "A61WlwBTLYOn+pLPh8kjR1BsMaGgYjM463oEfr0GVpAQFbQwVFXDcPs2SsbGtj7tcr2dRECD"
+    "ValUWcET0ff3QxoZxppntkAw58G8aw8i8QhcV87ioVfrYCp/AjO9PcjXamEF3kkhSI5cJQMv"
+    "j6n+84ODyJV4aKJ/IHS1AaM6DmUvvQtDRRVyjGvxc9NhxG+0At4wjIAtiYBen0oByJBsZO3p"
+    "WBJFCPPz0KjpFh4GjRdj3V/hAfsemDeVYOJ6D4K/nMRGUxjhBVJpATBpGayAKjKQPU6cKyyE"
+    "IABLQcAfMsH2fhMK11kwN9yLku1Pgd//CULtX4DJiVLIv5IJZJJMTohJ4NBv24agioXHJWD9"
+    "6++h2P4cpr77GJHJVojVn6Ns7wcYGh+Eb/AH+IGLSoK4XO9MikQrd6FWw7xjBzzlFRAcQ3B+"
+    "cwL8jAOC60esKRTh/f5TBB0D8PVcRdSD2RvA6XSJFICpElFfu2EDnAcPInzoEJZ+n8WM8xI0"
+    "ZsBXQM6Taop1XQAzC/e4iMPngckkAmSTR+E6nQ5lu3djKBYDd/w4dKOjiExFESbHOSKyLleP"
+    "fr3qy68DgQsBIJpMoJAo2zugRtuJfd8+TJaWwnnzJqLj45DCYfBGUpjl5Rjp7v7N39UVpHsz"
+    "SvR/BHScn5+PxyorUWqzIRgMgud50gW0yMvLw2WHg5f3JmewfDhVqqQ1xT/LsgkiCio3waSy"
+    "JnNpD03u2Urg1Uwgj0IkD1CSpJWuK5LGJxPel0TKNXlMAags0Si5YKJ/JBJJEEGl/snpcs1m"
+    "lIhREK1mFJxGToHvut1w33VjiVSVXp873NHR8dr1a31zGQnktFLnUgmpHDRyj8cLp9OFTdZi"
+    "cBpu/mxb2xsnWlpmaTaZM1B0z0zyyN9UisXFRbg9nsRjNBqNM62tZ/YfO9bk8Pv9ScGkVZFS"
+    "Khk8NSM5g1AohCKTceLUqW9fOHq0YdpN5EpVIU0i2bOZvC4SEo7jpjo7O19ubm6eXlhYyHhO"
+    "SRDxer3npqen0+RRZkNBYqR6vP/4/Ofb2xvazpyeog8tmykJJurr62sbGxuzbk7NglSOJPD8"
+    "qnv/BQAA//8DAPE93uTkTcJiAAAAAElFTkSuQmCC")
+catalog['file_delete_icon.png'] = file_delete_icon_png
+
+#----------------------------------------------------------------------
+folder_add_icon_png = PyEmbeddedImage(
+    "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")
+catalog['folder_add_icon.png'] = folder_add_icon_png
+
+#----------------------------------------------------------------------
+folder_delete_icon_png = PyEmbeddedImage(
+    "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"
+    "Mnw5AAAAAElFTkSuQmCC")
+catalog['folder_delete_icon.png'] = folder_delete_icon_png
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -1495,30 +1609,39 @@ class ProjectTree(wx.Panel):
     """Project panel"""
     def __init__(self, parent, mainPanel, size):
         wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
-        self.SetMinSize((150, -1))
+        self.SetMinSize((162, -1))
         self.mainPanel = mainPanel
 
         self.projectDict = {}
         self.edititem = None
         self.itempath = None
 
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        #titleBox = wx.BoxSizer(wx.HORIZONTAL)
-        #self.title = GenStaticText(self, -1, label="Project", size=(size[0]-20, 20))
-        #self.close = GenStaticText(self, -1, label="X", size=(20, 20))
-        #titleBox.Add(self.title, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.LEFT, 5)
-        #titleBox.Add(self.close, 0, wx.ALIGN_RIGHT, 0)
-        #self.sizer.Add(titleBox, 0, wx.EXPAND|wx.TOP, 5)
-        
         tsize = (24, 24)
+        file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
+        file_delete_bmp = catalog['file_delete_icon.png'].GetBitmap()
+        folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
+        folder_delete_bmp = catalog['folder_delete_icon.png'].GetBitmap()
+        close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
+
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+
+        toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         tb = wx.ToolBar(self, -1, size=(-1,36))
-        self.ToolBar = tb
         tb.SetToolBitmapSize(tsize)
-        new_bmp = catalog['new_file.png'].GetBitmap()
-        tb.AddLabelTool(10, "New File", new_bmp, shortHelp="New File")
-        # New Folder, Close
+        tb.AddLabelTool(10, "Add File", file_add_bmp, shortHelp="Add File")
+        tb.AddLabelTool(11, "Delete File", file_delete_bmp, shortHelp="Delete File")
+        tb.AddLabelTool(12, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
+        tb.AddLabelTool(13, "Delete Folder", folder_delete_bmp, shortHelp="Delete Folder")
         tb.Realize()
-        self.sizer.Add(tb, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_LEFT | wx.EXPAND, 2)
+        toolbarbox.Add(tb, 1, wx.LEFT | wx.RIGHT | wx.ALIGN_LEFT | wx.EXPAND, 2)
+
+        tb2 = wx.ToolBar(self, -1, size=(-1,36))
+        tb2.SetToolBitmapSize(tsize)
+        tb2.AddLabelTool(14, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        tb2.Realize()
+        toolbarbox.Add(tb2, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_RIGHT, 2)
+
+        self.sizer.Add(toolbarbox, 0, wx.EXPAND)
         
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
 
