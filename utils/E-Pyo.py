@@ -8,10 +8,11 @@ You can do absolutely everything you want to do with this piece of software.
 Olivier Belanger - 2012
 
 """
-
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, ast
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO
 from types import UnicodeType
+from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.stc  as  stc
+from wx.lib.stattext import GenStaticText
 import wx.aui
 from pyo import *
 from PyoDoc import ManualFrame
@@ -26,8 +27,8 @@ ENCODING = sys.getfilesystemencoding()
 APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
 OSX_APP_BUNDLED = False
-TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
-TEMP_FILE = os.path.join(TEMP_PATH, 'pyoed_tempfile.py')
+TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
+TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 
@@ -288,6 +289,31 @@ ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, 
                 "for": FOR_COMP, "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
 
+# ***************** Catalog starts here *******************
+
+catalog = {}
+
+#----------------------------------------------------------------------
+new_file_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAzBJREFU"
+    "eJyslc9PE0EUx7+zu0VUKlJpiKgk4EVMVIxBueiBRC94EEhIRBON8eaRAPFP4GDi0T9AiXjy"
+    "QKJBjULggMbEH4lREzSW/hBEakt/7e7sjG+2WCu0axudy76dzHuf977v7Y6BosUY26FpWgMq"
+    "W1wIEZFSeh4yil86OjoeDw8Pd/p8PihHArr7pexMJuNMT0/fm5iYuJZOp+MVAdrb2wP9/f2g"
+    "Kv4KoKV3d3ef7+rq2j86Ono6Ho8n/wpQzlIIyHUbRUFL2Qo0MDBw3DCMyaGhoR6CrHkC1BIq"
+    "gAKpTIvApWz3PCXU29t70rKsyZGRkZ5kMpnyBFRTgTprcw7Vs76+vlPRaPTW2NjYRdM0y0uk"
+    "Mipk6t0Dt1exaFQ1HJxAPT1nBxcWFh6Mj4/f+TVdmyWqAuD3+2FQ9pFIBKFQiCAOoyG5TtN1"
+    "JxwO/3sFyq4hQHNzM+rq6lxfQzdqg8FG/DeA6oeCBAIBdz+Xzf6hyCaJHMfJj2uFgI2wfIK/"
+    "5+yfK9hoK//i38cmQDUVqLO2sAv7uqYXEiwrUTUVzH2YwfziFI1r3q9Ob8KFE1fLA9wK1kus"
+    "BJDIrqK2MQHBsuCOjWzCoCf3lkgoiShAuaBCUoXr/pYwoW2ngJoNxm3IFIdlW5pkchf1OUHn"
+    "+AaJ8k1mHoCXn57j1dIcdB+QEivY2eTQ0HAImyOzZRm3X91sbexm33YHA4OxJ6t3N1SQb5wX"
+    "4Ht6BcauZejbTTRstSC3UBU6B3IWtGAMazVfsPeYw5K5ehZ7ulp6irwAkiRyJMmBHD3pH8R+"
+    "wNSSyIgMshb1waTJyml03dW7UlYtkeMIStZEai0Cy4rDsZNgPgFuUjS+FZowoEuNpoTJEk1W"
+    "AbgnoHnHPsSXj2Cnfhix7ALW9sxQBXTPcA3bvh1Em+z8/ODZw6Of34VSEGU+NC9Aa2Mr2oJt"
+    "rv344yReJGZgUbJMSDTYDThz4Jy4f+NRIvE2vXlM0+nULF3gToV3MskiWgSvqXVQAyY1OBb7"
+    "Sv7zpmkVYv4BmJ2du3Lp8uXaPKBwcZW1TX+uxX8Ifqb53Ya+WXoRmnr/eiW8GC7E/AkAAP//"
+    "AwBL25csqXt4LgAAAABJRU5ErkJggg==")
+catalog['new_file.png'] = new_file_png
+
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
 PYO_WORDLIST = []
@@ -305,12 +331,12 @@ PYO_WORDLIST.append("PyoMatrixObject")
 PYO_WORDLIST.append("Server")
 
 # Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
-conf = {"preferedStyle": "Espresso"}
-STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentblock': '#7F7F7F', 'selback': '#CCCCCC',
-                    'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F',
-                    'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
+conf = {"preferedStyle": "Default"}
+STYLES = {'Default': {'default': '#000000', 'comment': '#0066FF', 'commentblock': '#0066FF', 'selback': "#C0DFFF",
+                    'number': '#0000CD', 'string': '#036A07', 'triple': '#038A07', 'keyword': '#0000FF',
+                    'class': '#000097', 'function': '#0000A2', 'identifier': '#000000', 'caret': '#000000',
                     'background': '#FFFFFF', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
-                      'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'},
+                      'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#DDDDDD'},
 
            'Custom': {'default': '#FFFFFF', 'comment': '#9FFF9F', 'commentblock': '#7F7F7F', 'selback': '#333333',
                       'number': '#90CB43', 'string': '#FF47D7', 'triple': '#FF3300', 'keyword': '#4A94FF',
@@ -391,8 +417,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
         menu1.Append(wx.ID_OPEN, "Open\tCtrl+O")
         self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
-        menu1.Append(112, "Open Project\tShift+Ctrl+O")
-        self.Bind(wx.EVT_MENU, self.openProject, id=112)
+        menu1.Append(112, "Open Folder\tShift+Ctrl+O")
+        self.Bind(wx.EVT_MENU, self.openFolder, id=112)
         self.submenu2 = wx.Menu()
         ID_OPEN_RECENT = 2000
         recentFiles = []
@@ -412,13 +438,21 @@ class MainFrame(wx.Frame):
         menu1.AppendMenu(1999, "Open Recent...", self.submenu2)
         menu1.AppendSeparator()
         menu1.Append(wx.ID_CLOSE, "Close\tCtrl+W")
-        self.Bind(wx.EVT_MENU, self.delete, id=wx.ID_CLOSE)
+        self.Bind(wx.EVT_MENU, self.close, id=wx.ID_CLOSE)
         menu1.Append(wx.ID_CLOSE_ALL, "Close All Tabs\tShift+Ctrl+W")
-        self.Bind(wx.EVT_MENU, self.deleteAll, id=wx.ID_CLOSE_ALL)
+        self.Bind(wx.EVT_MENU, self.closeAll, id=wx.ID_CLOSE_ALL)
         menu1.Append(wx.ID_SAVE, "Save\tCtrl+S")
         self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
         menu1.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
         self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
+        menu1.AppendSeparator()
+        menu1.Append(300, "New Project\tShift+Ctrl+N")
+        menu1.Append(302, "Save Project\tShift+Alt+Ctrl+S")
+        menu1.Append(303, "Save Project As...")
+        #menu1.Append(304, "Add to Project")
+        #menu1.Append(305, "Add All to Project")
+        self.showProjItem = menu1.Append(50, "Show Project Panel")
+        self.Bind(wx.EVT_MENU, self.showHideProject, id=50)
         if sys.platform != "darwin":
             menu1.AppendSeparator()
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
@@ -515,9 +549,9 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(self.menuBar)
 
-        if projectsToOpen:
-            for p in projectsToOpen:
-                self.panel.project.loadProject(p)
+        if foldersToOpen:
+            for p in foldersToOpen:
+                self.panel.project.loadFolder(p)
                 sys.path.append(p)
 
         if filesToOpen:
@@ -615,7 +649,7 @@ class MainFrame(wx.Frame):
         for i in range(self.panel.notebook.GetPageCount()):
             ed = self.panel.notebook.GetPage(i)
             ed.setStyle()
-        #self.panel.project.setStyle()
+        self.panel.project.setStyle()
 
     def onSwitchTabs(self, evt):
         page = evt.GetId() - 10001
@@ -624,6 +658,23 @@ class MainFrame(wx.Frame):
     ### Open Prefs ang Logs ###
     def openPrefs(self, evt):
         pass
+
+    def showHideProject(self, evt):
+        state = self.showProjItem.GetItemLabel() == "Show Project Panel"
+        if state:
+            self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
+            self.showProjItem.SetItemLabel("Hide Project Panel")
+        else:
+            self.panel.splitter.Unsplit(self.panel.project)
+            self.showProjItem.SetItemLabel("Show Project Panel")
+
+    def showProjectTree(self, state):
+        if state:
+            self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
+            self.showProjItem.SetItemLabel("Hide Project Panel")
+        else:
+            self.panel.splitter.Unsplit(self.panel.project)
+            self.showProjItem.SetItemLabel("Show Project Panel")
 
     ### New / Open / Save / Delete ###
     def new(self, event):
@@ -650,24 +701,23 @@ class MainFrame(wx.Frame):
             for line in lines:
                 f.write(line + '\n')
             f.close()
-
         subId2 = 2000
-        recentFiles = []
-        f = codecs.open(filename, "r", encoding="utf-8")
-        for line in f.readlines():
-            recentFiles.append(line)
-        f.close()
-        if recentFiles:
+        if lines != []:
             for item in self.submenu2.GetMenuItems():
                 self.submenu2.DeleteItem(item)
-            for file in recentFiles:
-                self.submenu2.Append(subId2, toSysEncoding(file))
+            for file in lines:
+                self.submenu2.Append(subId2, toSysEncoding(file + '\n'))
                 subId2 += 1
 
-    def open(self, event):
-        dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.path.expanduser("~"),
-            defaultFile="", style=wx.OPEN | wx.MULTIPLE)
+    def openRecent(self, event):
+        menu = self.GetMenuBar()
+        id = event.GetId()
+        file = menu.FindItemById(id).GetLabel()
+        self.panel.addPage(ensureNFD(file[:-1]))
 
+    def open(self, event):
+        dlg = wx.FileDialog(self, message="Choose a file", 
+            defaultDir=os.path.expanduser("~"), defaultFile="", style=wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPaths()
             for file in path:
@@ -685,33 +735,30 @@ class MainFrame(wx.Frame):
         path = os.path.join(EXAMPLE_PATH, folder, filename)
         self.panel.addPage(ensureNFD(path))
 
-    def openProject(self, event):
-        dlg = wx.DirDialog(self, message="Choose a project file", defaultPath=os.path.expanduser("~"),
-                           style=wx.DD_DEFAULT_STYLE)
-
+    def openFolder(self, event):
+        dlg = wx.DirDialog(self, message="Choose a folder", 
+            defaultPath=os.path.expanduser("~"), style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.folder = path
-            self.panel.project.loadProject(self.folder)
+            self.panel.project.loadFolder(self.folder)
             sys.path.append(path)
         dlg.Destroy()
 
-    def openRecent(self, event):
-        menu = self.GetMenuBar()
-        id = event.GetId()
-        file = menu.FindItemById(id).GetLabel()
-        self.panel.addPage(ensureNFD(file[:-1]))
-
     def save(self, event):
-        if not self.panel.editor.path or self.panel.editor.path == "Untitled.py":
+        path = self.panel.editor.path
+        if not path or path == "Untitled.py":
             self.saveas(None)
         else:
-            self.panel.editor.saveMyFile(self.panel.editor.path)
-            self.SetTitle(self.panel.editor.path)
+            self.panel.editor.saveMyFile(path)
+            self.SetTitle(path)
+            tab = self.panel.notebook.GetSelection()
+            self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
 
     def saveas(self, event):
-        dlg = wx.FileDialog(self, message="Save file as ...", defaultDir=os.path.expanduser('~'),
-            defaultFile="", style=wx.SAVE)
+        deffile = os.path.split(self.panel.editor.path)[1]
+        dlg = wx.FileDialog(self, message="Save file as ...", 
+            defaultDir=os.path.expanduser('~'), defaultFile=deffile, style=wx.SAVE)
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
@@ -721,33 +768,33 @@ class MainFrame(wx.Frame):
             self.panel.editor.AddText(" ")
             self.panel.editor.DeleteBackNotLine()
             self.panel.editor.saveMyFile(path)
-            self.SetTitle(self.panel.editor.path)
-            self.panel.notebook.SetPageText(self.panel.notebook.GetSelection(), os.path.split(path)[1])
+            self.SetTitle(path)
+            tab = self.panel.notebook.GetSelection()
+            self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
             self.newRecent(path)
         dlg.Destroy()
 
-    def delete(self, event):
+    def close(self, event):
         action = self.panel.editor.close()
         if action == 'delete':
             self.panel.deletePage()
         else:
             pass
 
-    def deleteAll(self, event):
+    def closeAll(self, event):
         count = self.panel.notebook.GetPageCount()
         while count > 0:
             count -= 1
             self.panel.setPage(count)
-            self.delete(None)
+            self.close(None)
 
     ### Run actions ###
     def run(self, path, cwd):
         if OSX_APP_BUNDLED:
             script = terminal_client_script % (cwd, path)
             script = convert_line_endings(script, 1)
-            f = codecs.open(terminal_client_script_path, "w", encoding="utf-8")
-            f.write(script)
-            f.close()
+            with codecs.open(terminal_client_script_path, "w", encoding="utf-8") as f:
+                f.write(script)
             pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
         else:
             pid = subprocess.Popen(["python", path], cwd=cwd).pid
@@ -796,9 +843,9 @@ class MainFrame(wx.Frame):
     def showDoc(self, evt):
         if not self.doc_frame.IsShown():
             self.doc_frame.Show()
-        page = self.panel.editor.getWordUnderCaret()
-        if page:
-            self.doc_frame.doc_panel.getPage(page)
+        word = self.panel.editor.getWordUnderCaret()
+        if word:
+            self.doc_frame.doc_panel.getPage(word)
 
     def showDocFrame(self, evt):
         if not self.doc_frame.IsShown():
@@ -819,9 +866,8 @@ class MainFrame(wx.Frame):
             pass
         self.panel.OnQuit()
         if OSX_APP_BUNDLED:
-            f = open(terminal_close_server_script_path, "w")
-            f.write(terminal_close_server_script)
-            f.close()
+            with open(terminal_close_server_script_path, "w") as f:
+                f.write(terminal_close_server_script)
             subprocess.Popen(["osascript", terminal_close_server_script_path])
         self.Destroy()
 
@@ -832,9 +878,16 @@ class MainPanel(wx.Panel):
         self.mainFrame = parent
         mainBox = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.notebook = MyNotebook(self)
+        self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE)
+        
+        self.project = ProjectTree(self.splitter, self, (175, 1000))
+        self.notebook = MyNotebook(self.splitter)
         self.editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        mainBox.Add(self.notebook, 1, wx.EXPAND)
+        
+        self.splitter.SplitVertically(self.project, self.notebook, 175)
+        self.splitter.Unsplit(self.project)
+        
+        mainBox.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(mainBox)
 
         self.Bind(wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onPageChange)
@@ -851,9 +904,8 @@ class MainPanel(wx.Panel):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         label = os.path.split(file)[1].split('.')[0]
         self.notebook.AddPage(editor, label, True)
-        f = codecs.open(file, "r", encoding="utf-8")
-        text = f.read()
-        f.close()
+        with codecs.open(file, "r", encoding="utf-8") as f:
+            text = f.read()
         editor.SetText(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
@@ -994,7 +1046,7 @@ class Editor(stc.StyledTextCtrl):
             self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(PYO_WORDLIST))
 
             self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,size:%(size)d" % faces)
+            self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,italic,size:%(size)d" % faces)
             self.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % faces)
             self.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
             self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
@@ -1117,7 +1169,7 @@ class Editor(stc.StyledTextCtrl):
     def OnClose(self, event):
         if self.GetModify():
             if not self.path: f = "Untitled"
-            else: f = self.path
+            else: f = os.path.split(self.path)[1]
             dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
                                    'Warning!', wx.YES | wx.NO)
             if dlg.ShowModal() == wx.ID_YES:
@@ -1137,10 +1189,13 @@ class Editor(stc.StyledTextCtrl):
                 dlg.Destroy()
 
     def OnModified(self):
-        if self.GetModify() and not self.saveMark:
-            title = self.getTitle()
+        title = self.getTitle()
+        if self.GetModify() and not "***" in title:
             str = '*** ' + title + ' ***'
             self.setTitle(str)
+            tab = self.panel.GetSelection()
+            tabtitle = self.panel.GetPageText(tab)
+            self.panel.SetPageText(tab, "*" + tabtitle)
             self.saveMark = True
 
     ### Editor functions ###
@@ -1278,7 +1333,7 @@ class Editor(stc.StyledTextCtrl):
             currentline = self.GetCurrentLine()
             wx.CallAfter(self.checkForBuiltinComp)
             wx.CallAfter(self.insertDefArgs, currentword)
-            #wx.CallAfter(self.showAutoComp)
+            wx.CallAfter(self.showAutoComp)
             if len(self.args_buffer) > 0 and currentline in range(*self.args_line_number):
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
@@ -1350,14 +1405,12 @@ class Editor(stc.StyledTextCtrl):
         selStartPos, selEndPos = self.GetSelection()
         self.firstLine = self.LineFromPosition(selStartPos)
         self.endLine = self.LineFromPosition(selEndPos)
-
-        commentStr = '#'
         for i in range(self.firstLine, self.endLine+1):
             lineLen = len(self.GetLine(i))
             pos = self.PositionFromLine(i)
-            if self.GetTextRange(pos,pos+1) != commentStr and lineLen > 2:
-                self.InsertText(pos, commentStr)
-            elif self.GetTextRange(pos,pos+1) == commentStr:
+            if self.GetTextRange(pos,pos+1) != '#' and lineLen > 2:
+                self.InsertText(pos, '#')
+            elif self.GetTextRange(pos,pos+1) == '#':
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
 
@@ -1444,23 +1497,45 @@ class Editor(stc.StyledTextCtrl):
         return line
 
 class ProjectTree(wx.Panel):
-    """Projects panel"""
+    """Project panel"""
     def __init__(self, parent, mainPanel, size):
-        wx.Panel.__init__(self, parent, -1, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
-
+        wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
+        self.SetMinSize((150, -1))
         self.mainPanel = mainPanel
 
         self.projectDict = {}
+        self.projectName = None
+        self.edititem = None
+        self.itempath = None
 
-        size = size[0], size[1]
-        self.tree = wx.TreeCtrl(self, -1, (0, 0), size,
-                               wx.TR_DEFAULT_STYLE | wx.TR_HIDE_ROOT | wx.SUNKEN_BORDER | wx.EXPAND)
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+        titleBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.title = GenStaticText(self, -1, label="Project", size=(size[0]-20, 20))
+        self.close = GenStaticText(self, -1, label="X", size=(20, 20))
+        titleBox.Add(self.title, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.LEFT, 5)
+        titleBox.Add(self.close, 0, wx.ALIGN_RIGHT, 0)
+        self.sizer.Add(titleBox, 0, wx.EXPAND|wx.TOP, 5)
+        
+        tsize = (24, 24)
+        tb = wx.ToolBar( self, -1 )
+        self.ToolBar = tb
+        tb.SetToolBitmapSize(tsize)
+        new_bmp = catalog['new_file.png'].GetBitmap()
+        #new_bmp =  wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, tsize)
+        tb.AddLabelTool(10, "New", new_bmp, shortHelp="New")
+        tb.Realize()
+        self.sizer.Add(tb, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 4)
+        
+        self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
 
         if wx.Platform == '__WXMAC__':
             self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=faces['face']))
         else:
             self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=faces['face']))
         self.tree.SetBackgroundColour(faces['background'])
+
+        self.sizer.Add(self.tree, 1, wx.EXPAND)
+        self.SetSizer(self.sizer)
 
         isz = (12,12)
         self.il = wx.ImageList(isz[0], isz[1])
@@ -1472,21 +1547,25 @@ class ProjectTree(wx.Panel):
         self.tree.SetSpacing(12)
         self.tree.SetIndent(6)
 
-        self.root = self.tree.AddRoot("Projects")
+        self.root = self.tree.AddRoot("Project")
         self.tree.SetPyData(self.root, None)
         self.tree.SetItemImage(self.root, self.fldridx, wx.TreeItemIcon_Normal)
         self.tree.SetItemImage(self.root, self.fldropenidx, wx.TreeItemIcon_Expanded)
         self.tree.SetItemTextColour(self.root, faces['identifier'])
 
-        self.Bind(wx.EVT_TREE_BEGIN_LABEL_EDIT, self.OnBeginEdit, self.tree)
-        self.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit, self.tree)
+        self.close.Bind(wx.EVT_LEFT_DOWN, self.onCloseProjectPanel)
+        self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
+        self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
+        self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
+
+    def onCloseProjectPanel(self, evt):
+        self.mainPanel.mainFrame.showProjectTree(False)
 
     def setStyle(self):
         if not self.tree.IsEmpty():
             self.tree.SetBackgroundColour(faces['background'])
             self.tree.SetItemTextColour(self.root, faces['identifier'])
             (child, cookie) = self.tree.GetFirstChild(self.root)
-
             while child.IsOk():
                 self.tree.SetItemTextColour(child, faces['identifier'])
                 if self.tree.ItemHasChildren(child):
@@ -1497,26 +1576,26 @@ class ProjectTree(wx.Panel):
                             (ssubchild, ssubcookie) = self.tree.GetFirstChild(subchild)
                             while ssubchild.IsOk():
                                 self.tree.SetItemTextColour(ssubchild, faces['identifier'])
-                                (ssubchild, ssubcookie) = self.tree.GetNextChild(subchild, ssubcookie)
                                 if self.tree.ItemHasChildren(ssubchild):
+                                    (sssubchild, sssubcookie) = self.tree.GetNextChild(ssubchild, ssubcookie)
                                     while sssubchild.IsOk():
                                         self.tree.SetItemTextColour(sssubchild, faces['identifier'])
                                         (sssubchild, sssubcookie) = self.tree.GetNextChild(ssubchild, sssubcookie)
-                            (sssubchild, sssubcookie) = self.tree.GetFirstChild(ssubchild)
+                                (ssubchild, ssubcookie) = self.tree.GetNextChild(subchild, ssubcookie)
                         (subchild, subcookie) = self.tree.GetNextChild(child, subcookie)
                 (child, cookie) = self.tree.GetNextChild(self.root, cookie)
 
-    def loadProject(self, dirPath):
-        projectName = os.path.split(dirPath)[1]
-
-        self.projectDict[projectName] = dirPath
-
+    def loadFolder(self, dirPath):
+        folderName = os.path.split(dirPath)[1]
+        self.title.SetLabel("*Project")
+        self.projectDict[folderName] = dirPath
         projectDir = {}
+        self.mainPanel.mainFrame.showProjectTree(True)
 
         for root, dirs, files in os.walk(dirPath):
             if os.path.split(root)[1][0] != '.':
                 if root == dirPath:
-                    child = self.tree.AppendItem(self.root, projectName)
+                    child = self.tree.AppendItem(self.root, folderName)
                     self.tree.SetPyData(child, None)
                     self.tree.SetItemImage(child, self.fldridx, wx.TreeItemIcon_Normal)
                     self.tree.SetItemImage(child, self.fldropenidx, wx.TreeItemIcon_Expanded)
@@ -1562,25 +1641,49 @@ class ProjectTree(wx.Panel):
         self.tree.SortChildren(self.root)
         self.tree.SortChildren(child)
 
-    def OnBeginEdit(self, event):
-        # show how to prevent edit...
-        item = event.GetItem()
+    def OnRightDown(self, event):
+        pt = event.GetPosition();
+        self.edititem, flags = self.tree.HitTest(pt)
+        item = self.edititem
         if item:
-            wx.Bell()
-            # Lets just see what's visible of its children
-            cookie = 0
-            root = event.GetItem()
-            (child, cookie) = self.tree.GetFirstChild(root)
-            while child.IsOk():
-                (child, cookie) = self.tree.GetNextChild(root, cookie)
-            event.Veto()
+            itemlist = []
+            while self.tree.GetItemText(item) not in self.projectDict.keys():
+                itemlist.insert(0, self.tree.GetItemText(item))
+                item = self.tree.GetItemParent(item)
+            itemlist.insert(0, self.projectDict[self.tree.GetItemText(item)])
+            self.itempath = os.path.join(*itemlist)
+            self.tree.EditLabel(self.edititem)
 
     def OnEndEdit(self, event):
-        # show how to reject edit, we'll not allow any digits
-        for x in event.GetLabel():
-            if x in string.digits:
-                event.Veto()
-                return
+        if self.edititem:
+            newitem = event.GetLabel()
+            head, tail = os.path.split(self.itempath)
+            newpath = os.path.join(head, newitem)
+            os.rename(self.itempath, newpath)
+            #print self.itempath
+            #print newpath
+        self.edititem = None
+        self.itempath = None
+
+    def OnLeftDClick(self, event):
+        pt = event.GetPosition()
+        item, flags = self.tree.HitTest(pt)
+        if item:
+            hasChild = self.tree.ItemHasChildren(item)
+            if not hasChild:
+                parent = None
+                ritem = item
+                while self.tree.GetItemParent(ritem) != self.tree.GetRootItem():
+                    ritem = self.tree.GetItemParent(ritem)
+                    parent = self.tree.GetItemText(ritem)
+                dirPath = self.projectDict[parent]
+                for root, dirs, files in os.walk(dirPath):
+                    if files:
+                        for file in files:
+                            if file == self.tree.GetItemText(item):
+                                path = os.path.join(root, file)
+                self.mainPanel.addPage(path)
+        event.Skip()
 
 class MyNotebook(wx.aui.AuiNotebook):
     def __init__(self, parent, size=(0,-1), style=wx.aui.AUI_NB_TAB_FIXED_WIDTH | 
@@ -1598,7 +1701,7 @@ class MyFileDropTarget(wx.FileDropTarget):
     def OnDropFiles(self, x, y, filenames):
         for file in filenames:
             if os.path.isdir(file):
-                self.window.GetTopLevelParent().panel.project.loadProject(file)
+                self.window.GetTopLevelParent().panel.project.loadFolder(file)
                 sys.path.append(file)
             elif os.path.isfile(file):
                 self.window.GetTopLevelParent().panel.addPage(file)
@@ -1607,12 +1710,12 @@ class MyFileDropTarget(wx.FileDropTarget):
 
 if __name__ == '__main__':
     filesToOpen = []
-    projectsToOpen = []
+    foldersToOpen = []
     if len(sys.argv) > 1:
         for f in sys.argv[1:]:
             if os.path.isdir(f):
                 if f[-1] == '/': f = f[:-1]
-                projectsToOpen.append(f)
+                foldersToOpen.append(f)
             elif os.path.isfile(f):
                 filesToOpen.append(f)
             else:

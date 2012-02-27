@@ -8,7 +8,7 @@ from pyo import *
 
 DOC_AS_SINGLE_APP = False
 
-TEMP_PATH = os.path.join(os.path.expanduser('~'), '.pyoed')
+TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 DOC_PATH = os.path.join(TEMP_PATH, 'doc')
