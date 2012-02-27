@@ -446,13 +446,8 @@ class MainFrame(wx.Frame):
         menu1.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
         self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
         menu1.AppendSeparator()
-        menu1.Append(300, "New Project\tShift+Ctrl+N")
-        menu1.Append(302, "Save Project\tShift+Alt+Ctrl+S")
-        menu1.Append(303, "Save Project As...")
-        #menu1.Append(304, "Add to Project")
-        #menu1.Append(305, "Add All to Project")
-        self.showProjItem = menu1.Append(50, "Show Project Panel")
-        self.Bind(wx.EVT_MENU, self.showHideProject, id=50)
+        self.showProjItem = menu1.Append(50, "Show Folder Panel")
+        self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
         if sys.platform != "darwin":
             menu1.AppendSeparator()
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
@@ -659,22 +654,22 @@ class MainFrame(wx.Frame):
     def openPrefs(self, evt):
         pass
 
-    def showHideProject(self, evt):
-        state = self.showProjItem.GetItemLabel() == "Show Project Panel"
+    def showHideFolderPanel(self, evt):
+        state = self.showProjItem.GetItemLabel() == "Show Folder Panel"
         if state:
             self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
-            self.showProjItem.SetItemLabel("Hide Project Panel")
+            self.showProjItem.SetItemLabel("Hide Folder Panel")
         else:
             self.panel.splitter.Unsplit(self.panel.project)
-            self.showProjItem.SetItemLabel("Show Project Panel")
+            self.showProjItem.SetItemLabel("Show Folder Panel")
 
     def showProjectTree(self, state):
         if state:
             self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
-            self.showProjItem.SetItemLabel("Hide Project Panel")
+            self.showProjItem.SetItemLabel("Hide Folder Panel")
         else:
             self.panel.splitter.Unsplit(self.panel.project)
-            self.showProjItem.SetItemLabel("Show Project Panel")
+            self.showProjItem.SetItemLabel("Show Folder Panel")
 
     ### New / Open / Save / Delete ###
     def new(self, event):
@@ -1504,27 +1499,26 @@ class ProjectTree(wx.Panel):
         self.mainPanel = mainPanel
 
         self.projectDict = {}
-        self.projectName = None
         self.edititem = None
         self.itempath = None
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
-        titleBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.title = GenStaticText(self, -1, label="Project", size=(size[0]-20, 20))
-        self.close = GenStaticText(self, -1, label="X", size=(20, 20))
-        titleBox.Add(self.title, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.LEFT, 5)
-        titleBox.Add(self.close, 0, wx.ALIGN_RIGHT, 0)
-        self.sizer.Add(titleBox, 0, wx.EXPAND|wx.TOP, 5)
+        #titleBox = wx.BoxSizer(wx.HORIZONTAL)
+        #self.title = GenStaticText(self, -1, label="Project", size=(size[0]-20, 20))
+        #self.close = GenStaticText(self, -1, label="X", size=(20, 20))
+        #titleBox.Add(self.title, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.LEFT, 5)
+        #titleBox.Add(self.close, 0, wx.ALIGN_RIGHT, 0)
+        #self.sizer.Add(titleBox, 0, wx.EXPAND|wx.TOP, 5)
         
         tsize = (24, 24)
-        tb = wx.ToolBar( self, -1 )
+        tb = wx.ToolBar(self, -1, size=(-1,36))
         self.ToolBar = tb
         tb.SetToolBitmapSize(tsize)
         new_bmp = catalog['new_file.png'].GetBitmap()
-        #new_bmp =  wx.ArtProvider.GetBitmap(wx.ART_NEW, wx.ART_TOOLBAR, tsize)
-        tb.AddLabelTool(10, "New", new_bmp, shortHelp="New")
+        tb.AddLabelTool(10, "New File", new_bmp, shortHelp="New File")
+        # New Folder, Close
         tb.Realize()
-        self.sizer.Add(tb, 0, wx.ALL | wx.ALIGN_LEFT | wx.EXPAND, 4)
+        self.sizer.Add(tb, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_LEFT | wx.EXPAND, 2)
         
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
 
@@ -1553,7 +1547,7 @@ class ProjectTree(wx.Panel):
         self.tree.SetItemImage(self.root, self.fldropenidx, wx.TreeItemIcon_Expanded)
         self.tree.SetItemTextColour(self.root, faces['identifier'])
 
-        self.close.Bind(wx.EVT_LEFT_DOWN, self.onCloseProjectPanel)
+        #self.close.Bind(wx.EVT_LEFT_DOWN, self.onCloseProjectPanel)
         self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
         self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
@@ -1587,7 +1581,6 @@ class ProjectTree(wx.Panel):
 
     def loadFolder(self, dirPath):
         folderName = os.path.split(dirPath)[1]
-        self.title.SetLabel("*Project")
         self.projectDict[folderName] = dirPath
         projectDir = {}
         self.mainPanel.mainFrame.showProjectTree(True)
