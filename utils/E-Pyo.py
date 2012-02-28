@@ -342,32 +342,6 @@ file_add_icon_png = PyEmbeddedImage(
 catalog['file_add_icon.png'] = file_add_icon_png
 
 #----------------------------------------------------------------------
-file_delete_icon_png = PyEmbeddedImage(
-    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABEZJREFU"
-    "eJyMVG1MW1UYfm57b1vogNLSdbotdJNkyAp+TOrYogZd4uJ+6GaYyg81auLHj7lEEpdFjfqH"
-    "ZQTHDxP2g5m5jbC5MJQxZthgmWEMo5IOEBCJMNPC1hbsJy29H/Wcjou3X7i3edNzz8fzvO9z"
-    "3vOy+M+YZb8v0wLcZuDN54G3trDsIxqWZRZjMcctSWq5Apz8G+DjZB+rOPOwxWL5zGAwJD7i"
-    "8TgYhsk4plbgdD75oihaH62qwsadO6El58J37tgf7OuzW4aHP7wointHgD+VBDkf1dW9UlNT"
-    "kwBL/FTMCvC9uXs2NzCAWwcOwPZsNdZtr4RazSIuxZFrtaKwthbGoqKtxt7ejnOS9LiSABpO"
-    "A61WlwBTLYOn+pLPh8kjR1BsMaGgYjM463oEfr0GVpAQFbQwVFXDcPs2SsbGtj7tcr2dRECD"
-    "ValUWcET0ff3QxoZxppntkAw58G8aw8i8QhcV87ioVfrYCp/AjO9PcjXamEF3kkhSI5cJQMv"
-    "j6n+84ODyJV4aKJ/IHS1AaM6DmUvvQtDRRVyjGvxc9NhxG+0At4wjIAtiYBen0oByJBsZO3p"
-    "WBJFCPPz0KjpFh4GjRdj3V/hAfsemDeVYOJ6D4K/nMRGUxjhBVJpATBpGayAKjKQPU6cKyyE"
-    "IABLQcAfMsH2fhMK11kwN9yLku1Pgd//CULtX4DJiVLIv5IJZJJMTohJ4NBv24agioXHJWD9"
-    "6++h2P4cpr77GJHJVojVn6Ns7wcYGh+Eb/AH+IGLSoK4XO9MikQrd6FWw7xjBzzlFRAcQ3B+"
-    "cwL8jAOC60esKRTh/f5TBB0D8PVcRdSD2RvA6XSJFICpElFfu2EDnAcPInzoEJZ+n8WM8xI0"
-    "ZsBXQM6Taop1XQAzC/e4iMPngckkAmSTR+E6nQ5lu3djKBYDd/w4dKOjiExFESbHOSKyLleP"
-    "fr3qy68DgQsBIJpMoJAo2zugRtuJfd8+TJaWwnnzJqLj45DCYfBGUpjl5Rjp7v7N39UVpHsz"
-    "SvR/BHScn5+PxyorUWqzIRgMgud50gW0yMvLw2WHg5f3JmewfDhVqqQ1xT/LsgkiCio3waSy"
-    "JnNpD03u2Urg1Uwgj0IkD1CSpJWuK5LGJxPel0TKNXlMAags0Si5YKJ/JBJJEEGl/snpcs1m"
-    "lIhREK1mFJxGToHvut1w33VjiVSVXp873NHR8dr1a31zGQnktFLnUgmpHDRyj8cLp9OFTdZi"
-    "cBpu/mxb2xsnWlpmaTaZM1B0z0zyyN9UisXFRbg9nsRjNBqNM62tZ/YfO9bk8Pv9ScGkVZFS"
-    "Khk8NSM5g1AohCKTceLUqW9fOHq0YdpN5EpVIU0i2bOZvC4SEo7jpjo7O19ubm6eXlhYyHhO"
-    "SRDxer3npqen0+RRZkNBYqR6vP/4/Ofb2xvazpyeog8tmykJJurr62sbGxuzbk7NglSOJPD8"
-    "qnv/BQAA//8DAPE93uTkTcJiAAAAAElFTkSuQmCC")
-catalog['file_delete_icon.png'] = file_delete_icon_png
-
-#----------------------------------------------------------------------
 folder_add_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABShJREFU"
     "eJykVW1sU1UYfu5H721vv7t1DFbXDZmb2UR0QNAYJTELkR9AJBKJ8SMx0R8mZiRojAkJMUSj"
@@ -397,36 +371,8 @@ folder_add_icon_png = PyEmbeddedImage(
     "P36+7719TjKZnJPvXwAAAP//AwDmNHbvm7mEowAAAABJRU5ErkJggg==")
 catalog['folder_add_icon.png'] = folder_add_icon_png
 
-#----------------------------------------------------------------------
-folder_delete_icon_png = PyEmbeddedImage(
-    "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"
-    "Mnw5AAAAAElFTkSuQmCC")
-catalog['folder_delete_icon.png'] = folder_delete_icon_png
+############## allowed extensions ##############
+ALLOWED_EXT = ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"]
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -989,7 +935,7 @@ class MainPanel(wx.Panel):
 
         self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE)
         
-        self.project = ProjectTree(self.splitter, self, (175, 1000))
+        self.project = ProjectTree(self.splitter, self, (-1, -1))
         self.notebook = MyNotebook(self.splitter)
         self.editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         
@@ -1609,18 +1555,17 @@ class ProjectTree(wx.Panel):
     """Project panel"""
     def __init__(self, parent, mainPanel, size):
         wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
-        self.SetMinSize((162, -1))
+        self.SetMinSize((150, -1))
         self.mainPanel = mainPanel
 
         self.projectDict = {}
         self.edititem = None
         self.itempath = None
+        self.scope = None
 
         tsize = (24, 24)
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
-        file_delete_bmp = catalog['file_delete_icon.png'].GetBitmap()
         folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
-        folder_delete_bmp = catalog['folder_delete_icon.png'].GetBitmap()
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
@@ -1629,17 +1574,18 @@ class ProjectTree(wx.Panel):
         tb = wx.ToolBar(self, -1, size=(-1,36))
         tb.SetToolBitmapSize(tsize)
         tb.AddLabelTool(10, "Add File", file_add_bmp, shortHelp="Add File")
-        tb.AddLabelTool(11, "Delete File", file_delete_bmp, shortHelp="Delete File")
-        tb.AddLabelTool(12, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
-        tb.AddLabelTool(13, "Delete Folder", folder_delete_bmp, shortHelp="Delete Folder")
+        tb.AddLabelTool(11, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
         tb.Realize()
-        toolbarbox.Add(tb, 1, wx.LEFT | wx.RIGHT | wx.ALIGN_LEFT | wx.EXPAND, 2)
+        toolbarbox.Add(tb, 1, wx.LEFT | wx.RIGHT | wx.ALIGN_LEFT | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1, size=(-1,36))
         tb2.SetToolBitmapSize(tsize)
-        tb2.AddLabelTool(14, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
-        toolbarbox.Add(tb2, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_RIGHT, 2)
+        toolbarbox.Add(tb2, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_RIGHT, 0)
+
+        wx.EVT_TOOL(self, 10, self.onAddFile)
+        wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
         
@@ -1670,10 +1616,31 @@ class ProjectTree(wx.Panel):
         self.tree.SetItemImage(self.root, self.fldropenidx, wx.TreeItemIcon_Expanded)
         self.tree.SetItemTextColour(self.root, faces['identifier'])
 
-        #self.close.Bind(wx.EVT_LEFT_DOWN, self.onCloseProjectPanel)
         self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
+        self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftClick)
         self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
+
+    def onAddFile(self, evt):
+        treeItemId = self.tree.GetSelection()
+        if self.selected != None:
+            for dirPath in self.projectDict.keys():
+                for root, dirs, files in os.walk(self.projectDict[dirPath]):
+                    if self.selected == os.path.split(root)[1]:
+                        self.scope = root
+                        break
+                    elif self.selected in dirs:
+                        self.scope = os.path.join(root, self.selected)
+                        break
+                    elif self.selected in files:
+                        self.scope = root
+                        treeItemId = self.tree.GetItemParent(treeItemId)
+                        break
+            self.edititem = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
+            self.tree.SetItemTextColour(self.edititem, faces['identifier'])
+            self.tree.EditLabel(self.edititem)
+        else:
+            print "No scope where to create the file."
 
     def onCloseProjectPanel(self, evt):
         self.mainPanel.mainFrame.showProjectTree(False)
@@ -1707,53 +1674,36 @@ class ProjectTree(wx.Panel):
         self.projectDict[folderName] = dirPath
         projectDir = {}
         self.mainPanel.mainFrame.showProjectTree(True)
-
         for root, dirs, files in os.walk(dirPath):
             if os.path.split(root)[1][0] != '.':
                 if root == dirPath:
-                    child = self.tree.AppendItem(self.root, folderName)
-                    self.tree.SetPyData(child, None)
-                    self.tree.SetItemImage(child, self.fldridx, wx.TreeItemIcon_Normal)
-                    self.tree.SetItemImage(child, self.fldropenidx, wx.TreeItemIcon_Expanded)
+                    child = self.tree.AppendItem(self.root, folderName, self.fldridx, self.fldropenidx, None)
                     self.tree.SetItemTextColour(child, faces['identifier'])
                     if dirs:
                         ddirs = [dir for dir in dirs if dir[0] != '.']
-                        for dir in ddirs:
-                            subfol = self.tree.AppendItem(child, "%s" % dir)
+                        for dir in sorted(ddirs):
+                            subfol = self.tree.AppendItem(child, "%s" % dir, self.fldridx, self.fldropenidx, None)
                             projectDir[dir] = subfol
-                            self.tree.SetPyData(subfol, None)
-                            self.tree.SetItemImage(subfol, self.fldridx, wx.TreeItemIcon_Normal)
-                            self.tree.SetItemImage(subfol, self.fldropenidx, wx.TreeItemIcon_Expanded)
                             self.tree.SetItemTextColour(subfol, faces['identifier'])
                     if files:
-                        ffiles = [file for file in files if file[0] != '.' and file[-3:] != 'pyc']
-                        for file in ffiles:
-                            item = self.tree.AppendItem(child, "%s" % file)
-                            self.tree.SetPyData(item, None)
-                            self.tree.SetItemImage(item, self.fileidx, wx.TreeItemIcon_Normal)
-                            self.tree.SetItemImage(item, self.fileidx, wx.TreeItemIcon_Selected)
+                        ffiles = [file for file in files if file[0] != '.' and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
+                        for file in sorted(ffiles):
+                            item = self.tree.AppendItem(child, "%s" % file, self.fileidx, self.fileidx, None)
                             self.tree.SetItemTextColour(item, faces['identifier'])
                 else:
                     if os.path.split(root)[1] in projectDir.keys():
                         parent = projectDir[os.path.split(root)[1]]
                         if dirs:
                             ddirs = [dir for dir in dirs if dir[0] != '.']
-                            for dir in ddirs:
-                                subfol = self.tree.AppendItem(parent, "%s" % dir)
+                            for dir in sorted(ddirs):
+                                subfol = self.tree.AppendItem(parent, "%s" % dir, self.fldridx, self.fldropenidx, None)
                                 projectDir[dir] = subfol
-                                self.tree.SetPyData(subfol, None)
-                                self.tree.SetItemImage(subfol, self.fldridx, wx.TreeItemIcon_Normal)
-                                self.tree.SetItemImage(subfol, self.fldropenidx, wx.TreeItemIcon_Expanded)  
                                 self.tree.SetItemTextColour(subfol, faces['identifier'])
                         if files:
-                            ffiles = [file for file in files if file[0] != '.' and file[-3:] != 'pyc']
-                            for file in ffiles:
-                                item = self.tree.AppendItem(parent, "%s" % file)
-                                self.tree.SetPyData(item, None)
-                                self.tree.SetItemImage(item, self.fileidx, wx.TreeItemIcon_Normal)
-                                self.tree.SetItemImage(item, self.fileidx, wx.TreeItemIcon_Selected)
+                            ffiles = [file for file in files if file[0] != '.' and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
+                            for file in sorted(ffiles):
+                                item = self.tree.AppendItem(parent, "%s" % file, self.fileidx, self.fileidx, None)
                                 self.tree.SetItemTextColour(item, faces['identifier'])
-
         self.tree.SortChildren(self.root)
         self.tree.SortChildren(child)
 
@@ -1771,15 +1721,30 @@ class ProjectTree(wx.Panel):
             self.tree.EditLabel(self.edititem)
 
     def OnEndEdit(self, event):
-        if self.edititem:
+        if self.edititem and self.itempath:
             newitem = event.GetLabel()
             head, tail = os.path.split(self.itempath)
             newpath = os.path.join(head, newitem)
             os.rename(self.itempath, newpath)
-            #print self.itempath
-            #print newpath
+        elif self.edititem and self.scope:
+            newitem = event.GetLabel()
+            newpath = os.path.join(self.scope, newitem)
+            print newpath
+            f = open(newpath, "w")
+            f.close()
         self.edititem = None
         self.itempath = None
+        self.scope = None
+
+    def OnLeftClick(self, event):
+        pt = event.GetPosition()
+        item, flags = self.tree.HitTest(pt)
+        if not item:
+            self.tree.UnselectAll()
+            self.selected = None
+        else:
+            self.selected = self.tree.GetItemText(item)
+        event.Skip()
 
     def OnLeftDClick(self, event):
         pt = event.GetPosition()
