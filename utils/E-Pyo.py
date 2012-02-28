@@ -1586,6 +1586,7 @@ class ProjectTree(wx.Panel):
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
         wx.EVT_TOOL(self, TOOL_ADD_FILE_ID, self.onAddFile)
+        wx.EVT_TOOL(self, TOOL_ADD_FOLDER_ID, self.onAddFolder)
         wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
@@ -1682,6 +1683,9 @@ class ProjectTree(wx.Panel):
                 txtctrl.SelectAll()
             else:
                 self.tree.EditLabel(self.edititem)                
+
+    def onAddFolder(self, evt):
+        treeItemId = self.tree.GetSelection()
 
     def onCloseProjectPanel(self, evt):
         self.mainPanel.mainFrame.showProjectTree(False)
