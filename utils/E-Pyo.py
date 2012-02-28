@@ -1638,7 +1638,15 @@ class ProjectTree(wx.Panel):
                         break
             self.edititem = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
             self.tree.SetItemTextColour(self.edititem, faces['identifier'])
-            self.tree.EditLabel(self.edititem)
+            self.tree.SelectItem(self.edititem)
+            if PLATFORM == "darwin":
+                self.tree.ScrollTo(self.edititem)
+                self.tree.EditLabel(self.edititem)
+                txtctrl = self.tree.GetEditControl()
+                txtctrl.SetSize((self.GetSize()[0], 22))
+                txtctrl.SelectAll()
+            else:
+                self.tree.EditLabel(self.edititem)                
         else:
             print "No scope where to create the file."
 
