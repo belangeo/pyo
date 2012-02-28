@@ -1561,7 +1561,8 @@ class ProjectTree(wx.Panel):
         self.mainPanel = mainPanel
 
         self.projectDict = {}
-        self.edititem = self.itempath = self.scope = None
+        self.selected = None
+        self.edititem = self.editfolder = self.itempath = self.scope = None
 
         tsize = (24, 24)
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
@@ -1585,8 +1586,8 @@ class ProjectTree(wx.Panel):
         tb2.Realize()
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
-        wx.EVT_TOOL(self, TOOL_ADD_FILE_ID, self.onAddFile)
-        wx.EVT_TOOL(self, TOOL_ADD_FOLDER_ID, self.onAddFolder)
+        wx.EVT_TOOL(self, TOOL_ADD_FILE_ID, self.onAdd)
+        wx.EVT_TOOL(self, TOOL_ADD_FOLDER_ID, self.onAdd)
         wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
@@ -1658,7 +1659,8 @@ class ProjectTree(wx.Panel):
         self.tree.SortChildren(self.root)
         self.tree.SortChildren(child)
 
-    def onAddFile(self, evt):
+    def onAdd(self, evt):
+        id = evt.GetId()
         treeItemId = self.tree.GetSelection()
         if self.selected != None:
             for dirPath in self.projectDict.keys():
@@ -1673,22 +1675,34 @@ class ProjectTree(wx.Panel):
                         self.scope = root
                         treeItemId = self.tree.GetItemParent(treeItemId)
                         break
-            self.edititem = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
-            self.tree.SetItemTextColour(self.edititem, faces['identifier'])
-            if PLATFORM == "darwin":
-                self.tree.ScrollTo(self.edititem)
-                self.tree.EditLabel(self.edititem)
-                txtctrl = self.tree.GetEditControl()
-                txtctrl.SetSize((self.GetSize()[0], 22))
-                txtctrl.SelectAll()
+                if self.scope != None:
+                    break
+        elif self.selected == None and id == TOOL_ADD_FOLDER_ID:
+            dlg = wx.DirDialog(self, "Choose a directory where to save your folder:",
+                              defaultPath=os.path.expanduser("~"), style=wx.DD_DEFAULT_STYLE)
+            if dlg.ShowModal() == wx.ID_OK:
+                self.scope = dlg.GetPath()
+                dlg.Destroy()
             else:
-                self.tree.EditLabel(self.edititem)                
-
-    def onAddFolder(self, evt):
-        treeItemId = self.tree.GetSelection()
-
-    def onCloseProjectPanel(self, evt):
-        self.mainPanel.mainFrame.showProjectTree(False)
+                dlg.Destroy()
+                return
+            treeItemId = self.tree.GetRootItem()
+        if id == TOOL_ADD_FILE_ID:
+            item = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
+            self.edititem = item
+        else:
+            item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx, self.fldropenidx, None)
+            self.editfolder = item
+        self.tree.SetItemTextColour(item, faces['identifier'])
+        self.tree.EnsureVisible(item)
+        if PLATFORM == "darwin":
+            self.tree.ScrollTo(item)
+            self.tree.EditLabel(item)
+            txtctrl = self.tree.GetEditControl()
+            txtctrl.SetSize((self.GetSize()[0], 22))
+            txtctrl.SelectAll()
+        else:
+            self.tree.EditLabel(item)
 
     def setStyle(self):
         def set_item_style(root_item, colour):
@@ -1735,7 +1749,16 @@ class ProjectTree(wx.Panel):
             f = open(newpath, "w")
             f.close()
             self.mainPanel.addPage(newpath)
-        self.edititem = self.itempath = self.scope = None
+        elif self.editfolder and self.scope:
+            newitem = event.GetLabel()
+            if not newitem:
+                newitem = "Untitled"
+                wx.CallAfter(self.tree.SetItemText, self.editfolder, newitem)
+            newpath = os.path.join(self.scope, newitem)
+            os.mkdir(newpath)
+            if self.selected == None:
+                self.projectDict[newitem] = self.scope
+        self.edititem = self.editfolder = self.itempath = self.scope = None
 
     def OnLeftClick(self, event):
         pt = event.GetPosition()
@@ -1781,6 +1804,9 @@ class ProjectTree(wx.Panel):
         self.tree.UnselectAll()
         self.selected = None
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
+
+    def onCloseProjectPanel(self, evt):
+       self.mainPanel.mainFrame.showProjectTree(False)
 
 class MyNotebook(wx.aui.AuiNotebook):
     def __init__(self, parent, size=(0,-1), style=wx.aui.AUI_NB_TAB_FIXED_WIDTH | 
