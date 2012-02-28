@@ -1551,6 +1551,8 @@ class Editor(stc.StyledTextCtrl):
                 line = line + 1
         return line
 
+TOOL_ADD_FILE_ID = 10
+TOOL_ADD_FOLDER_ID = 11
 class ProjectTree(wx.Panel):
     """Project panel"""
     def __init__(self, parent, mainPanel, size):
@@ -1559,9 +1561,7 @@ class ProjectTree(wx.Panel):
         self.mainPanel = mainPanel
 
         self.projectDict = {}
-        self.edititem = None
-        self.itempath = None
-        self.scope = None
+        self.edititem = self.itempath = self.scope = None
 
         tsize = (24, 24)
         file_add_bmp = catalog['file_add_icon.png'].GetBitmap()
@@ -1571,31 +1571,32 @@ class ProjectTree(wx.Panel):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        tb = wx.ToolBar(self, -1, size=(-1,36))
-        tb.SetToolBitmapSize(tsize)
-        tb.AddLabelTool(10, "Add File", file_add_bmp, shortHelp="Add File")
-        tb.AddLabelTool(11, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
-        tb.Realize()
-        toolbarbox.Add(tb, 1, wx.LEFT | wx.RIGHT | wx.ALIGN_LEFT | wx.EXPAND, 0)
+        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar.AddLabelTool(TOOL_ADD_FILE_ID, "Add File", file_add_bmp, shortHelp="Add File")
+        self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
+        self.toolbar.AddLabelTool(TOOL_ADD_FOLDER_ID, "Add Folder", folder_add_bmp, shortHelp="Add Folder")
+        self.toolbar.Realize()
+        toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1, size=(-1,36))
         tb2.SetToolBitmapSize(tsize)
         tb2.AddLabelTool(15, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
-        toolbarbox.Add(tb2, 0, wx.LEFT | wx.RIGHT | wx.ALIGN_RIGHT, 0)
+        toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
 
-        wx.EVT_TOOL(self, 10, self.onAddFile)
+        wx.EVT_TOOL(self, TOOL_ADD_FILE_ID, self.onAddFile)
         wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
         
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
+        self.tree.SetBackgroundColour(faces['background'])
 
         if wx.Platform == '__WXMAC__':
             self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=faces['face']))
         else:
             self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=faces['face']))
-        self.tree.SetBackgroundColour(faces['background'])
 
         self.sizer.Add(self.tree, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
@@ -1610,72 +1611,13 @@ class ProjectTree(wx.Panel):
         self.tree.SetSpacing(12)
         self.tree.SetIndent(6)
 
-        self.root = self.tree.AddRoot("Project")
-        self.tree.SetPyData(self.root, None)
-        self.tree.SetItemImage(self.root, self.fldridx, wx.TreeItemIcon_Normal)
-        self.tree.SetItemImage(self.root, self.fldropenidx, wx.TreeItemIcon_Expanded)
+        self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, self.fldropenidx, None)
         self.tree.SetItemTextColour(self.root, faces['identifier'])
 
         self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftClick)
         self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
-
-    def onAddFile(self, evt):
-        treeItemId = self.tree.GetSelection()
-        if self.selected != None:
-            for dirPath in self.projectDict.keys():
-                for root, dirs, files in os.walk(self.projectDict[dirPath]):
-                    if self.selected == os.path.split(root)[1]:
-                        self.scope = root
-                        break
-                    elif self.selected in dirs:
-                        self.scope = os.path.join(root, self.selected)
-                        break
-                    elif self.selected in files:
-                        self.scope = root
-                        treeItemId = self.tree.GetItemParent(treeItemId)
-                        break
-            self.edititem = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
-            self.tree.SetItemTextColour(self.edititem, faces['identifier'])
-            self.tree.SelectItem(self.edititem)
-            if PLATFORM == "darwin":
-                self.tree.ScrollTo(self.edititem)
-                self.tree.EditLabel(self.edititem)
-                txtctrl = self.tree.GetEditControl()
-                txtctrl.SetSize((self.GetSize()[0], 22))
-                txtctrl.SelectAll()
-            else:
-                self.tree.EditLabel(self.edititem)                
-        else:
-            print "No scope where to create the file."
-
-    def onCloseProjectPanel(self, evt):
-        self.mainPanel.mainFrame.showProjectTree(False)
-
-    def setStyle(self):
-        if not self.tree.IsEmpty():
-            self.tree.SetBackgroundColour(faces['background'])
-            self.tree.SetItemTextColour(self.root, faces['identifier'])
-            (child, cookie) = self.tree.GetFirstChild(self.root)
-            while child.IsOk():
-                self.tree.SetItemTextColour(child, faces['identifier'])
-                if self.tree.ItemHasChildren(child):
-                    (subchild, subcookie) = self.tree.GetFirstChild(child)
-                    while subchild.IsOk():
-                        self.tree.SetItemTextColour(subchild, faces['identifier'])
-                        if self.tree.ItemHasChildren(subchild):
-                            (ssubchild, ssubcookie) = self.tree.GetFirstChild(subchild)
-                            while ssubchild.IsOk():
-                                self.tree.SetItemTextColour(ssubchild, faces['identifier'])
-                                if self.tree.ItemHasChildren(ssubchild):
-                                    (sssubchild, sssubcookie) = self.tree.GetNextChild(ssubchild, ssubcookie)
-                                    while sssubchild.IsOk():
-                                        self.tree.SetItemTextColour(sssubchild, faces['identifier'])
-                                        (sssubchild, sssubcookie) = self.tree.GetNextChild(ssubchild, sssubcookie)
-                                (ssubchild, ssubcookie) = self.tree.GetNextChild(subchild, ssubcookie)
-                        (subchild, subcookie) = self.tree.GetNextChild(child, subcookie)
-                (child, cookie) = self.tree.GetNextChild(self.root, cookie)
 
     def loadFolder(self, dirPath):
         folderName = os.path.split(dirPath)[1]
@@ -1715,6 +1657,49 @@ class ProjectTree(wx.Panel):
         self.tree.SortChildren(self.root)
         self.tree.SortChildren(child)
 
+    def onAddFile(self, evt):
+        treeItemId = self.tree.GetSelection()
+        if self.selected != None:
+            for dirPath in self.projectDict.keys():
+                for root, dirs, files in os.walk(self.projectDict[dirPath]):
+                    if self.selected == os.path.split(root)[1]:
+                        self.scope = root
+                        break
+                    elif self.selected in dirs:
+                        self.scope = os.path.join(root, self.selected)
+                        break
+                    elif self.selected in files:
+                        self.scope = root
+                        treeItemId = self.tree.GetItemParent(treeItemId)
+                        break
+            self.edititem = self.tree.AppendItem(treeItemId, "Untitled", self.fileidx, self.fileidx, None)
+            self.tree.SetItemTextColour(self.edititem, faces['identifier'])
+            if PLATFORM == "darwin":
+                self.tree.ScrollTo(self.edititem)
+                self.tree.EditLabel(self.edititem)
+                txtctrl = self.tree.GetEditControl()
+                txtctrl.SetSize((self.GetSize()[0], 22))
+                txtctrl.SelectAll()
+            else:
+                self.tree.EditLabel(self.edititem)                
+
+    def onCloseProjectPanel(self, evt):
+        self.mainPanel.mainFrame.showProjectTree(False)
+
+    def setStyle(self):
+        def set_item_style(root_item, colour):
+            self.tree.SetItemTextColour(root_item, colour)
+            item, cookie = self.tree.GetFirstChild(root_item)
+            while item.IsOk():
+                self.tree.SetItemTextColour(item, colour)
+                if self.tree.ItemHasChildren(item):
+                    set_item_style(item, colour)
+                item, cookie = self.tree.GetNextChild(root_item, cookie)
+
+        if not self.tree.IsEmpty():
+            self.tree.SetBackgroundColour(faces['background'])
+            set_item_style(self.tree.GetRootItem(), faces['identifier'])
+
     def OnRightDown(self, event):
         pt = event.GetPosition();
         self.edititem, flags = self.tree.HitTest(pt)
@@ -1726,53 +1711,72 @@ class ProjectTree(wx.Panel):
                 item = self.tree.GetItemParent(item)
             itemlist.insert(0, self.projectDict[self.tree.GetItemText(item)])
             self.itempath = os.path.join(*itemlist)
+            self.select(self.edititem)
             self.tree.EditLabel(self.edititem)
+        else:
+            self.unselect()
 
     def OnEndEdit(self, event):
         if self.edititem and self.itempath:
-            newitem = event.GetLabel()
+            self.select(self.edititem)
             head, tail = os.path.split(self.itempath)
-            newpath = os.path.join(head, newitem)
+            newpath = os.path.join(head, self.selected)
             os.rename(self.itempath, newpath)
         elif self.edititem and self.scope:
             newitem = event.GetLabel()
+            if not newitem:
+                newitem = "Untitled"
+                wx.CallAfter(self.tree.SetItemText, self.edititem, newitem)
             newpath = os.path.join(self.scope, newitem)
-            print newpath
             f = open(newpath, "w")
             f.close()
-        self.edititem = None
-        self.itempath = None
-        self.scope = None
+            self.mainPanel.addPage(newpath)
+        self.edititem = self.itempath = self.scope = None
 
     def OnLeftClick(self, event):
         pt = event.GetPosition()
         item, flags = self.tree.HitTest(pt)
-        if not item:
-            self.tree.UnselectAll()
-            self.selected = None
+        if item:
+            self.select(item)
         else:
-            self.selected = self.tree.GetItemText(item)
+            self.unselect()
         event.Skip()
 
     def OnLeftDClick(self, event):
         pt = event.GetPosition()
         item, flags = self.tree.HitTest(pt)
         if item:
-            hasChild = self.tree.ItemHasChildren(item)
-            if not hasChild:
-                parent = None
-                ritem = item
-                while self.tree.GetItemParent(ritem) != self.tree.GetRootItem():
-                    ritem = self.tree.GetItemParent(ritem)
-                    parent = self.tree.GetItemText(ritem)
-                dirPath = self.projectDict[parent]
-                for root, dirs, files in os.walk(dirPath):
-                    if files:
-                        for file in files:
-                            if file == self.tree.GetItemText(item):
-                                path = os.path.join(root, file)
-                self.mainPanel.addPage(path)
+            self.select(item)
+            self.openPage(item)
+        else:
+            self.unselect()
         event.Skip()
+
+    def openPage(self, item):
+        hasChild = self.tree.ItemHasChildren(item)
+        if not hasChild:
+            parent = None
+            ritem = item
+            while self.tree.GetItemParent(ritem) != self.tree.GetRootItem():
+                ritem = self.tree.GetItemParent(ritem)
+                parent = self.tree.GetItemText(ritem)
+            dirPath = self.projectDict[parent]
+            for root, dirs, files in os.walk(dirPath):
+                if files:
+                    for file in files:
+                        if file == self.tree.GetItemText(item):
+                            path = os.path.join(root, file)
+            self.mainPanel.addPage(path)
+
+    def select(self, item):
+        self.tree.SelectItem(item)
+        self.selected = self.tree.GetItemText(item)
+        self.toolbar.EnableTool(TOOL_ADD_FILE_ID, True)
+
+    def unselect(self):
+        self.tree.UnselectAll()
+        self.selected = None
+        self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
 
 class MyNotebook(wx.aui.AuiNotebook):
     def __init__(self, parent, size=(0,-1), style=wx.aui.AUI_NB_TAB_FIXED_WIDTH | 
