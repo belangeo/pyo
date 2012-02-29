@@ -12,8 +12,7 @@ import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, c
 from types import UnicodeType
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.stc  as  stc
-from wx.lib.stattext import GenStaticText
-import wx.aui
+import FlatNotebook as FNB
 from pyo import *
 from PyoDoc import ManualFrame
 
@@ -928,16 +927,19 @@ class MainFrame(wx.Frame):
 
 class MainPanel(wx.Panel):
     def __init__(self, parent, size=(1200,800), style=wx.SUNKEN_BORDER):
-        wx.Panel.__init__(self, parent, size=(1200,800), style=wx.SUNKEN_BORDER)
+        wx.Panel.__init__(self, parent, size=size, style=wx.SUNKEN_BORDER)
 
+        self.new_inc = 0
         self.mainFrame = parent
         mainBox = wx.BoxSizer(wx.HORIZONTAL)
 
         self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE)
-        
+
         self.project = ProjectTree(self.splitter, self, (-1, -1))
-        self.notebook = MyNotebook(self.splitter)
-        self.editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
+        self.notebook = FNB.FlatNotebook(self.splitter, size=(0,-1), 
+                        style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST)
+        self.addNewPage()
+        self.editor = None
         
         self.splitter.SplitVertically(self.project, self.notebook, 175)
         self.splitter.Unsplit(self.project)
@@ -945,14 +947,15 @@ class MainPanel(wx.Panel):
         mainBox.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(mainBox)
 
-        self.Bind(wx.aui.EVT_AUINOTEBOOK_PAGE_CHANGED, self.onPageChange)
-        self.Bind(wx.aui.EVT_AUINOTEBOOK_PAGE_CLOSE, self.onClosePage)
+        self.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
 
     def addNewPage(self):
+        title = "Untitled-%i.py" % self.new_inc
+        self.new_inc += 1
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
-        editor.path = "Untitled.py"
+        editor.path = title
         editor.setStyle()
-        self.notebook.AddPage(editor, "Untitled.py", True)
+        self.notebook.AddPage(editor, title, True)
         self.editor = editor
 
     def addPage(self, file):
@@ -969,13 +972,12 @@ class MainPanel(wx.Panel):
         self.editor = editor
         self.SetTitle(file)
 
-    def onClosePage(self, evt):
-        ed = self.notebook.GetPage(self.notebook.GetSelection())
-        ed.Close()
-
     def deletePage(self):
-        ed = self.notebook.GetPage(self.notebook.GetSelection())
-        self.notebook.DeletePage(self.notebook.GetSelection())
+        select = self.notebook.GetSelection()
+        ed = self.notebook.GetPage(select)
+        self.notebook.DeletePage(select)
+        if self.notebook.GetPageCount() == 0:
+            self.addNewPage()
 
     def setPage(self, pageNum):
         totalNum = self.notebook.GetPageCount()
@@ -1807,14 +1809,6 @@ class ProjectTree(wx.Panel):
 
     def onCloseProjectPanel(self, evt):
        self.mainPanel.mainFrame.showProjectTree(False)
-
-class MyNotebook(wx.aui.AuiNotebook):
-    def __init__(self, parent, size=(0,-1), style=wx.aui.AUI_NB_TAB_FIXED_WIDTH | 
-                                            wx.aui.AUI_NB_CLOSE_ON_ALL_TABS | 
-                                            wx.aui.AUI_NB_SCROLL_BUTTONS | wx.SUNKEN_BORDER):
-        wx.aui.AuiNotebook.__init__(self, parent, size=size, style=style)
-        dt = MyFileDropTarget(self)
-        self.SetDropTarget(dt)
 
 class MyFileDropTarget(wx.FileDropTarget):
     def __init__(self, window):
