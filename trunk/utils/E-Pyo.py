@@ -443,6 +443,7 @@ class MainFrame(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
+        self.pastingList = []
         self.panel = MainPanel(self, size=size)
 
         if sys.platform == "darwin":
@@ -526,8 +527,12 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.cut, id=wx.ID_CUT)
         menu2.Append(wx.ID_COPY, "Copy\tCtrl+C")
         self.Bind(wx.EVT_MENU, self.copy, id=wx.ID_COPY)
+        menu2.Append(200, "Add to Copy List\tShift+Ctrl+C")
+        self.Bind(wx.EVT_MENU, self.listCopy, id=200)
         menu2.Append(wx.ID_PASTE, "Paste\tCtrl+V")
         self.Bind(wx.EVT_MENU, self.paste, id=wx.ID_PASTE)
+        menu2.Append(201, "Show List to Paste\tShift+Ctrl+V")
+        self.Bind(wx.EVT_MENU, self.listPaste, id=201)
         menu2.Append(wx.ID_SELECTALL, "Select All\tCtrl+A")
         self.Bind(wx.EVT_MENU, self.selectall, id=wx.ID_SELECTALL)
         menu2.AppendSeparator()
@@ -621,8 +626,15 @@ class MainFrame(wx.Frame):
     def copy(self, evt):
         self.panel.editor.Copy()
 
+    def listCopy(self, evt):
+        text = self.panel.editor.GetSelectedTextUTF8()
+        self.pastingList.append(text)
+
     def paste(self, evt):
         self.panel.editor.Paste()
+
+    def listPaste(self, evt):
+        self.panel.editor.listPaste(self.pastingList)
 
     def selectall(self, evt):
         self.panel.editor.SelectAll()
@@ -801,7 +813,7 @@ class MainFrame(wx.Frame):
 
     def save(self, event):
         path = self.panel.editor.path
-        if not path or path == "Untitled.py":
+        if not path or "Untitled-" in path:
             self.saveas(None)
         else:
             self.panel.editor.saveMyFile(path)
@@ -937,9 +949,8 @@ class MainPanel(wx.Panel):
 
         self.project = ProjectTree(self.splitter, self, (-1, -1))
         self.notebook = FNB.FlatNotebook(self.splitter, size=(0,-1), 
-                        style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST)
+                        style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
-        self.editor = None
         
         self.splitter.SplitVertically(self.project, self.notebook, 175)
         self.splitter.Unsplit(self.project)
@@ -1256,6 +1267,22 @@ class Editor(stc.StyledTextCtrl):
             self.saveMark = True
 
     ### Editor functions ###
+    def listPaste(self, pastingList):
+        if pastingList != []:
+            self.popupmenu = wx.Menu()
+            for item in pastingList:
+                item = self.popupmenu.Append(-1, item)
+                self.Bind(wx.EVT_MENU, self.onPasteFromList, item)
+            self.PopupMenu(self.popupmenu)
+            self.popupmenu.Destroy()
+
+    def onPasteFromList(self, evt):
+        item = self.popupmenu.FindItemById(evt.GetId())
+        text = item.GetText()
+        self.InsertText(self.GetCurrentPos(), text)
+        self.SetCurrentPos(self.GetCurrentPos() + len(text))
+        wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+
     def deleteBackWhiteSpaces(self):
         count = self.GetCurrentPos()
         while self.GetCharAt(self.GetCurrentPos()-1) == 32:
