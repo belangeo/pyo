@@ -3,7 +3,7 @@
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
 
-You can do absolutely everything you want to do with this piece of software.
+You can do absolutely everything you want to with this piece of software.
 
 Olivier Belanger - 2012
 
@@ -38,6 +38,13 @@ else:
 EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
 EXAMPLE_FOLDERS.append("FFT")
 EXAMPLE_FOLDERS.sort()
+SNIPPETS_PATH = os.path.join(TEMP_PATH, 'snippets')
+if not os.path.isdir(SNIPPETS_PATH):
+    os.mkdir(SNIPPETS_PATH)
+for rep in ['Audio', 'Control', 'Interface', 'Utilities']:
+    if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
+        os.mkdir(os.path.join(SNIPPETS_PATH, rep))
+SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
@@ -99,7 +106,6 @@ def toSysEncoding(unistr):
 
 if '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
-    # Use the same terminal window for each run
     terminal_close_server_script = """tell application "Terminal" 
     close window 1
 end tell
@@ -148,6 +154,10 @@ end tell
     terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
 ################## TEMPLATES ##################
+HEADER_TEMPLATE = """#!/usr/bin/env python
+# encoding: utf-8
+"""
+
 PYO_TEMPLATE = """#!/usr/bin/env python
 # encoding: utf-8
 from pyo import *
@@ -246,6 +256,8 @@ mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
 mainFrame.Show()
 app.MainLoop()
 '''
+TEMPLATE_NAMES = {94: "Header", 95: "Pyo", 96: "Cecilia5", 97: "Zyne", 98: "WxPython"}
+TEMPLATE_DICT = {94: HEADER_TEMPLATE, 95: PYO_TEMPLATE, 96: CECILIA5_TEMPLATE, 97: ZYNE_TEMPLATE, 98: WXPYTHON_TEMPLATE}
 
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
@@ -370,6 +382,31 @@ folder_add_icon_png = PyEmbeddedImage(
     "P36+7719TjKZnJPvXwAAAP//AwDmNHbvm7mEowAAAABJRU5ErkJggg==")
 catalog['folder_add_icon.png'] = folder_add_icon_png
 
+file_delete_icon_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABEZJREFU"
+    "eJyMVG1MW1UYfm57b1vogNLSdbotdJNkyAp+TOrYogZd4uJ+6GaYyg81auLHj7lEEpdFjfqH"
+    "ZQTHDxP2g5m5jbC5MJQxZthgmWEMo5IOEBCJMNPC1hbsJy29H/Wcjou3X7i3edNzz8fzvO9z"
+    "3vOy+M+YZb8v0wLcZuDN54G3trDsIxqWZRZjMcctSWq5Apz8G+DjZB+rOPOwxWL5zGAwJD7i"
+    "8TgYhsk4plbgdD75oihaH62qwsadO6El58J37tgf7OuzW4aHP7wointHgD+VBDkf1dW9UlNT"
+    "kwBL/FTMCvC9uXs2NzCAWwcOwPZsNdZtr4RazSIuxZFrtaKwthbGoqKtxt7ejnOS9LiSABpO"
+    "A61WlwBTLYOn+pLPh8kjR1BsMaGgYjM463oEfr0GVpAQFbQwVFXDcPs2SsbGtj7tcr2dRECD"
+    "ValUWcET0ff3QxoZxppntkAw58G8aw8i8QhcV87ioVfrYCp/AjO9PcjXamEF3kkhSI5cJQMv"
+    "j6n+84ODyJV4aKJ/IHS1AaM6DmUvvQtDRRVyjGvxc9NhxG+0At4wjIAtiYBen0oByJBsZO3p"
+    "WBJFCPPz0KjpFh4GjRdj3V/hAfsemDeVYOJ6D4K/nMRGUxjhBVJpATBpGayAKjKQPU6cKyyE"
+    "IABLQcAfMsH2fhMK11kwN9yLku1Pgd//CULtX4DJiVLIv5IJZJJMTohJ4NBv24agioXHJWD9"
+    "6++h2P4cpr77GJHJVojVn6Ns7wcYGh+Eb/AH+IGLSoK4XO9MikQrd6FWw7xjBzzlFRAcQ3B+"
+    "cwL8jAOC60esKRTh/f5TBB0D8PVcRdSD2RvA6XSJFICpElFfu2EDnAcPInzoEJZ+n8WM8xI0"
+    "ZsBXQM6Taop1XQAzC/e4iMPngckkAmSTR+E6nQ5lu3djKBYDd/w4dKOjiExFESbHOSKyLleP"
+    "fr3qy68DgQsBIJpMoJAo2zugRtuJfd8+TJaWwnnzJqLj45DCYfBGUpjl5Rjp7v7N39UVpHsz"
+    "SvR/BHScn5+PxyorUWqzIRgMgud50gW0yMvLw2WHg5f3JmewfDhVqqQ1xT/LsgkiCio3waSy"
+    "JnNpD03u2Urg1Uwgj0IkD1CSpJWuK5LGJxPel0TKNXlMAags0Si5YKJ/JBJJEEGl/snpcs1m"
+    "lIhREK1mFJxGToHvut1w33VjiVSVXp873NHR8dr1a31zGQnktFLnUgmpHDRyj8cLp9OFTdZi"
+    "cBpu/mxb2xsnWlpmaTaZM1B0z0zyyN9UisXFRbg9nsRjNBqNM62tZ/YfO9bk8Pv9ScGkVZFS"
+    "Khk8NSM5g1AohCKTceLUqW9fOHq0YdpN5EpVIU0i2bOZvC4SEo7jpjo7O19ubm6eXlhYyHhO"
+    "SRDxer3npqen0+RRZkNBYqR6vP/4/Ofb2xvazpyeog8tmykJJurr62sbGxuzbk7NglSOJPD8"
+    "qnv/BQAA//8DAPE93uTkTcJiAAAAAElFTkSuQmCC")
+catalog['file_delete_icon.png'] = file_delete_icon_png
+
 ############## allowed extensions ##############
 ALLOWED_EXT = ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"]
 
@@ -437,31 +474,369 @@ faces2['size3'] = faces2['size2'] + 4
 for key, value in STYLES['Default'].items():
     faces2[key] = value
 
+snip_faces = {}
+if wx.Platform == '__WXMSW__':
+    snip_faces['face'] = 'Courier'
+    snip_faces['size'] = 10
+elif wx.Platform == '__WXMAC__':
+    snip_faces['face'] = 'Monaco'
+    snip_faces['size'] = 12
+else:
+    snip_faces['face'] = 'Courier New'
+    snip_faces['size'] = 8
+
+SNIPPET_DEL_FILE_ID = 30
+SNIPPET_ADD_FOLDER_ID = 31
+class SnippetTree(wx.Panel):
+    def __init__(self, parent, size):
+        wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
+        self.SetMinSize((100, -1))
+
+        self.selected = None
+
+        tsize = (24, 24)
+        file_add_bmp = catalog['file_delete_icon.png'].GetBitmap()
+        folder_add_bmp = catalog['folder_add_icon.png'].GetBitmap()
+
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+
+        toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar.AddLabelTool(SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category")
+        self.toolbar.AddLabelTool(SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category")
+        self.toolbar.EnableTool(SNIPPET_DEL_FILE_ID, False)
+        self.toolbar.Realize()
+        toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
+
+        wx.EVT_TOOL(self, SNIPPET_ADD_FOLDER_ID, self.onAdd)
+        wx.EVT_TOOL(self, SNIPPET_DEL_FILE_ID, self.onDelete)
+
+        self.sizer.Add(toolbarbox, 0, wx.EXPAND)
+
+        self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
+
+        if wx.Platform == '__WXMAC__':
+            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=snip_faces['face']))
+        else:
+            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=snip_faces['face']))
+
+        self.sizer.Add(self.tree, 1, wx.EXPAND)
+        self.SetSizer(self.sizer)
+
+        isz = (12,12)
+        self.il = wx.ImageList(isz[0], isz[1])
+        self.fldridx     = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_FOLDER,      wx.ART_OTHER, isz))
+        self.fldropenidx = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_FILE_OPEN,   wx.ART_OTHER, isz))
+        self.fileidx     = self.il.Add(wx.ArtProvider_GetBitmap(wx.ART_NORMAL_FILE, wx.ART_OTHER, isz))
+
+        self.tree.SetImageList(self.il)
+        self.tree.SetSpacing(12)
+        self.tree.SetIndent(6)
+
+        self.root = self.tree.AddRoot("EPyo_Snippet_tree", self.fldridx, self.fldropenidx, None)
+
+        self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftClick)
+        self.tree.Bind(wx.EVT_LEFT_DCLICK, self.OnLeftDClick)
+
+        self.load()
+
+    def load(self):
+        categories = [d for d in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, d)) and d[0] != "."]
+        for category in categories:
+            child = self.tree.AppendItem(self.root, category, self.fldridx, self.fldropenidx, None)
+            files = [f for f in os.listdir(os.path.join(SNIPPETS_PATH, category)) if f[0] != "."]
+            for file in files:
+                item = self.tree.AppendItem(child, file, self.fileidx, self.fileidx, None)
+            self.tree.SortChildren(child)
+        self.tree.SortChildren(self.root)
+
+    def addItem(self, name, category):
+        child, cookie = self.tree.GetFirstChild(self.root)
+        while child.IsOk():
+            if self.tree.GetItemText(child) == category:
+                break
+            child, cookie = self.tree.GetNextChild(self.root, cookie)
+        subchild, subcookie = self.tree.GetFirstChild(child)
+        while subchild.IsOk():
+            if self.tree.GetItemText(subchild) == name:
+                return
+            subchild, subcookie = self.tree.GetNextChild(child, subcookie)
+        item = self.tree.AppendItem(child, name, self.fileidx, self.fileidx, None)
+        self.tree.SortChildren(child)
+        self.tree.SortChildren(self.root)
+
+    def onAdd(self, evt):
+        dlg = wx.TextEntryDialog(self, "Enter the Category's name:", 'New Category')
+        dlg.CenterOnParent()
+        if dlg.ShowModal() == wx.ID_OK:
+            name = dlg.GetValue()
+            if name != "" and name not in os.listdir(SNIPPETS_PATH):
+                os.mkdir(os.path.join(SNIPPETS_PATH, name))
+                child = self.tree.AppendItem(self.root, name, self.fldridx, self.fldropenidx, None)
+                self.tree.SortChildren(self.root)
+                SNIPPETS_CATEGORIES.append(name)
+
+    def onDelete(self, evt):
+        item = self.tree.GetSelection()
+        if item.IsOk():
+            name = self.tree.GetItemText(item)
+            if self.tree.GetItemParent(item) == self.tree.GetRootItem():
+                files = os.listdir(os.path.join(SNIPPETS_PATH, name))
+                for file in files:
+                    os.remove(os.path.join(SNIPPETS_PATH, name, file))
+                os.rmdir(os.path.join(SNIPPETS_PATH, name))
+                if self.tree.ItemHasChildren(item):
+                    self.tree.DeleteChildren(item)
+            else:
+                category = self.tree.GetItemText(self.tree.GetItemParent(item))
+                os.remove(os.path.join(SNIPPETS_PATH, category, name))
+            self.tree.Delete(item)
+            self.GetParent().GetParent().GetParent().reloadSnippetMenu()
+
+    def OnLeftClick(self, event):
+        pt = event.GetPosition()
+        item, flags = self.tree.HitTest(pt)
+        if item:
+            self.select(item)
+        else:
+            self.unselect()
+        event.Skip()
+
+    def OnLeftDClick(self, event):
+        pt = event.GetPosition()
+        item, flags = self.tree.HitTest(pt)
+        if item:
+            self.select(item)
+            self.openPage(item)
+        else:
+            self.unselect()
+        event.Skip()
+
+    def openPage(self, item):
+        if self.tree.GetItemParent(item) != self.tree.GetRootItem():
+            name = self.tree.GetItemText(item)
+            ritem = self.tree.GetItemParent(item)
+            category = self.tree.GetItemText(ritem)
+        self.GetParent().GetParent().onLoad(name, category)
+
+    def select(self, item):
+        self.tree.SelectItem(item)
+        self.selected = self.tree.GetItemText(item)
+        self.toolbar.EnableTool(SNIPPET_DEL_FILE_ID, True)
+
+    def unselect(self):
+        self.tree.UnselectAll()
+        self.selected = None
+        self.toolbar.EnableTool(SNIPPET_DEL_FILE_ID, False)
+
+class SnippetEditor(stc.StyledTextCtrl):
+    def __init__(self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.SUNKEN_BORDER):
+        stc.StyledTextCtrl.__init__(self, parent, id, pos, size, style)
+        self.SetViewWhiteSpace(False)
+        self.SetIndent(4)
+        self.SetBackSpaceUnIndents(True)
+        self.SetTabIndents(True)
+        self.SetTabWidth(4)
+        self.SetUseTabs(False)
+        self.SetViewWhiteSpace(False)
+        self.SetEOLMode(wx.stc.STC_EOL_LF)
+        self.SetViewEOL(False)
+        self.SetMarginWidth(1, 0)
+        self.SetLexer(stc.STC_LEX_PYTHON)
+        self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(PYO_WORDLIST))
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:#000000,face:%(face)s,size:%(size)d,back:#FFFFFF" % snip_faces)
+        self.StyleClearAll()
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:#000000,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:#000000,face:%(face)s" % snip_faces)
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:#AABBDD,bold" % snip_faces)
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:#DD0000,bold" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:#000000,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:#0066FF,face:%(face)s,italic,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_NUMBER, "fore:#0000CD,face:%(face)s,bold,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_STRING, "fore:#036A07,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:#036A07,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_WORD, "fore:#0000FF,face:%(face)s,bold,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:#038A07,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:#038A07,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:#000097,face:%(face)s,bold,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:#0000A2,face:%(face)s,bold,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_OPERATOR, "fore:#000000,face:%(face)s,bold,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:#000000,face:%(face)s,size:%(size)d" % snip_faces)
+        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:#0066FF,face:%(face)s,size:%(size)d" % snip_faces)
+        self.SetSelBackground(1, "#C0DFFF")
+        self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
+
+    def OnUpdateUI(self, evt):
+        if self.GetSelectedText():
+            self.GetParent().GetParent().GetParent().tagButton.Enable()
+        else:
+            self.GetParent().GetParent().GetParent().tagButton.Enable(False)
+
+class SnippetFrame(wx.Frame):
+    def __init__(self, parent, title, pos, size):
+        wx.Frame.__init__(self, parent, -1, title, pos, size)
+        self.parent = parent
+
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(250, "Close\tCtrl+W")
+        self.menuBar.Append(menu1, 'File')
+        self.SetMenuBar(self.menuBar)
+
+        self.Bind(wx.EVT_MENU, self.close, id=250)
+        self.Bind(wx.EVT_CLOSE, self.close)
+
+        self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
+
+        self.snippet_tree = SnippetTree(self.splitter, (-1, -1))
+
+        self.panel = wx.Panel(self.splitter)
+        self.panel.SetBackgroundColour("#DDDDDD")
+
+        self.splitter.SplitVertically(self.snippet_tree, self.panel, 150)
+
+        self.box = wx.BoxSizer(wx.VERTICAL)
+
+        self.category_name = ""
+        self.snippet_name = ""
+
+        toolbarBox = wx.BoxSizer(wx.HORIZONTAL)
+
+        self.toolbar = wx.ToolBar(self.panel, -1, size=(-1,40))
+
+        saveButton = wx.Button(self.toolbar, wx.ID_ANY, label="Save Snippet")
+        self.toolbar.AddControl(saveButton)
+        self.Bind(wx.EVT_BUTTON, self.onSave, id=saveButton.GetId())
+
+        toolbarBox.Add(self.toolbar, 1, wx.ALIGN_LEFT|wx.EXPAND|wx.LEFT, 5)
+
+        toolbar2 = wx.ToolBar(self.panel, -1, size=(-1,40))
+        self.tagButton = wx.Button(toolbar2, wx.ID_ANY, label="Tag Selection")
+        X = self.tagButton.GetSize()[0]
+        toolbar2.SetSize((X+8, 40))
+        toolbar2.AddControl(self.tagButton)
+        self.Bind(wx.EVT_BUTTON, self.onTagSelection, id=self.tagButton.GetId())
+        toolbar2.Realize()
+
+        toolbarBox.Add(toolbar2, 0, wx.ALIGN_RIGHT|wx.RIGHT, 5)
+
+        self.box.Add(toolbarBox, 0, wx.EXPAND|wx.ALL, 5)
+
+        self.entry = SnippetEditor(self.panel)
+        self.box.Add(self.entry, 1, wx.EXPAND|wx.ALL, 10)
+
+        activateBox = wx.BoxSizer(wx.HORIZONTAL)
+        activateLabel = wx.StaticText(self.panel, wx.ID_ANY, label="Activation :")
+        activateBox.Add(activateLabel, 0, wx.LEFT|wx.TOP, 10)
+
+        self.short = wx.TextCtrl(self.panel, wx.ID_ANY, size=(170,-1))
+        activateBox.Add(self.short, 1, wx.EXPAND|wx.ALL, 8)
+        self.short.SetValue("Type your shortcut...")
+        self.short.SetForegroundColour("#AAAAAA")
+        self.short.Bind(wx.EVT_KEY_DOWN, self.onKey)
+        self.short.Bind(wx.EVT_LEFT_DOWN, self.onShortLeftClick)
+        self.short.Bind(wx.EVT_KILL_FOCUS, self.onShortLooseFocus)
+        self.box.Add(activateBox, 0, wx.EXPAND)
+
+        self.panel.SetSizer(self.box)
+
+    def close(self, evt):
+        self.Hide()
+
+    def onTagSelection(self, evt):
+        select = self.entry.GetSelection()
+        if select:
+            self.entry.InsertText(select[1], "`")
+            self.entry.InsertText(select[0], "`")
+
+    def onLoad(self, name, category):
+        if os.path.isfile(os.path.join(SNIPPETS_PATH, category, name)):
+            self.snippet_name = name
+            self.category_name = category
+            with open(os.path.join(SNIPPETS_PATH, self.category_name, self.snippet_name), "r") as f:
+                text = f.read()
+            exec text in locals()
+            self.entry.SetText(snippet["value"])
+            if snippet["shortcut"]:
+                self.short.SetValue(snippet["shortcut"])
+                self.short.SetForegroundColour("#000000")
+            else:
+                self.short.SetValue("Type your shortcut...")
+                self.short.SetForegroundColour("#AAAAAA")
+
+    def onSave(self, evt):
+        dlg = wx.SingleChoiceDialog(self, 'Choose the Snippet Category', 
+                                    'Snippet Category', SNIPPETS_CATEGORIES, wx.OK)
+        dlg.CenterOnParent()
+        if dlg.ShowModal() == wx.ID_OK:
+            category = dlg.GetStringSelection()
+        dlg.Destroy()
+
+        dlg = wx.TextEntryDialog(self, "Enter the Snippet's name:", 'Save Snippet', self.snippet_name)
+        dlg.CenterOnParent()
+        if dlg.ShowModal() == wx.ID_OK:
+            name = dlg.GetValue()
+            if name != "":
+                self.category_name = category
+                self.snippet_name = name
+                short = self.short.GetValue()
+                if short == "Type your shortcut...":
+                    short = ""
+                dic = {"value": self.entry.GetText(),
+                        "shortcut": short}
+                with open(os.path.join(SNIPPETS_PATH, category, name), "w") as f:
+                    f.write("snippet = " + str(dic))
+                self.snippet_tree.addItem(name, category)
+                self.parent.reloadSnippetMenu()
+        dlg.Destroy()
+
+    def onShortLooseFocus(self, evt):
+        short = self.short.GetValue()
+        if short == "":
+            self.short.SetValue("Type your shortcut...")
+            self.short.SetForegroundColour("#AAAAAA")
+
+    def onShortLeftClick(self, evt):
+        self.short.SetValue("")
+        evt.Skip()
+
+    def onKey(self, evt):
+        key = evt.GetKeyCode()
+        if key < 256 and key != wx.WXK_TAB:
+            id = evt.GetEventObject().GetId()
+            txt = ""
+            accel = 0
+            if evt.ShiftDown():
+                txt += "Shift-"
+            if evt.ControlDown():
+                if sys.platform == "darwin":
+                    txt += "XCtrl-"
+                else:
+                    txt += "Ctrl-"
+            if evt.AltDown():
+                txt += "Alt-"
+            if sys.platform == "darwin" and evt.CmdDown():
+                txt += "Ctrl-"
+            if txt == "":
+                return
+            txt += chr(key).upper()
+            self.short.SetValue(txt)
+            self.short.SetForegroundColour("#000000")
+            self.entry.SetFocus()
+        else:
+            evt.Skip()
+
 class MainFrame(wx.Frame):
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
         wx.Frame.__init__(self, parent, ID, title, pos, size, style)
 
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
+        self.snippet_frame = SnippetFrame(self, title='Snippet Editor', pos=(25,25), size=(700,450))
+
         self.pastingList = []
         self.panel = MainPanel(self, size=size)
-
-        if sys.platform == "darwin":
-            accel = wx.ACCEL_CMD
-        else:
-            accel = wx.ACCEL_CTRL
-        aTable = wx.AcceleratorTable([(accel, ord('1'), 10001),
-                                      (accel, ord('2'), 10002),
-                                      (accel, ord('3'), 10003),
-                                      (accel, ord('4'), 10004),
-                                      (accel, ord('5'), 10005),
-                                      (accel, ord('6'), 10006),
-                                      (accel, ord('7'), 10007),
-                                      (accel, ord('8'), 10008),
-                                      (accel, ord('9'), 10009),
-                                      (accel, ord('0'), 10010)])
-        self.SetAcceleratorTable(aTable)
-        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10010)
 
         self.menuBar = wx.MenuBar()
 
@@ -469,12 +844,10 @@ class MainFrame(wx.Frame):
         menu1.Append(wx.ID_NEW, "New\tCtrl+N")
         self.Bind(wx.EVT_MENU, self.new, id=wx.ID_NEW)
         self.submenu1 = wx.Menu()
-        self.submenu1.Append(98, "Pyo Template")
-        self.submenu1.Append(97, "Cecilia5 Template")
-        self.submenu1.Append(96, "Zyne Template")
-        self.submenu1.Append(95, "WxPython Template")
+        for key, name in sorted(TEMPLATE_NAMES.items()):
+            self.submenu1.Append(key, "%s Template" % name)
         menu1.AppendMenu(99, "New From Template", self.submenu1)
-        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=95, id2=98)
+        self.Bind(wx.EVT_MENU, self.newFromTemplate, id=min(TEMPLATE_NAMES.keys()), id2=max(TEMPLATE_NAMES.keys()))
         menu1.Append(wx.ID_OPEN, "Open\tCtrl+O")
         self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
         menu1.Append(112, "Open Folder\tShift+Ctrl+O")
@@ -505,9 +878,6 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
         menu1.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
         self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
-        menu1.AppendSeparator()
-        self.showProjItem = menu1.Append(50, "Show Folder Panel")
-        self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
         if sys.platform != "darwin":
             menu1.AppendSeparator()
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
@@ -527,18 +897,20 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.cut, id=wx.ID_CUT)
         menu2.Append(wx.ID_COPY, "Copy\tCtrl+C")
         self.Bind(wx.EVT_MENU, self.copy, id=wx.ID_COPY)
-        menu2.Append(200, "Add to Copy List\tShift+Ctrl+C")
-        self.Bind(wx.EVT_MENU, self.listCopy, id=200)
         menu2.Append(wx.ID_PASTE, "Paste\tCtrl+V")
         self.Bind(wx.EVT_MENU, self.paste, id=wx.ID_PASTE)
-        menu2.Append(201, "Show List to Paste\tShift+Ctrl+V")
-        self.Bind(wx.EVT_MENU, self.listPaste, id=201)
         menu2.Append(wx.ID_SELECTALL, "Select All\tCtrl+A")
         self.Bind(wx.EVT_MENU, self.selectall, id=wx.ID_SELECTALL)
         menu2.AppendSeparator()
-        menu2.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
-        menu2.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
-        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
+        menu2.Append(200, "Add to Pasting List\tShift+Ctrl+C")
+        self.Bind(wx.EVT_MENU, self.listCopy, id=200)
+        menu2.Append(201, "Paste From List\tShift+Ctrl+V")
+        self.Bind(wx.EVT_MENU, self.listPaste, id=201)
+        menu2.Append(202, "Save Pasting List")
+        self.Bind(wx.EVT_MENU, self.saveListPaste, id=202)
+        menu2.Append(203, "Load Pasting List")
+        self.Bind(wx.EVT_MENU, self.loadListPaste, id=203)        
+        menu2.AppendSeparator()
         menu2.Append(130, "Show Invisibles", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.showInvisibles, id=130)
         menu2.Append(131, "Remove Trailing White Space")
@@ -561,11 +933,8 @@ class MainFrame(wx.Frame):
         menu2.AppendSeparator()
         menu2.Append(140, "Goto line...\tCtrl+L")
         self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
-        menu2.Append(wx.ID_FIND, "Find...\tCtrl+F")
+        menu2.Append(wx.ID_FIND, "Find/Replace\tCtrl+F")
         self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
-        menu2.AppendSeparator()
-        menu2.Append(180, "Show Documentation for Current Object\tCtrl+D")
-        self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.menuBar.Append(menu2, 'Code')
 
         menu3 = wx.Menu()
@@ -577,6 +946,20 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.execSelection, id=106)
         self.menuBar.Append(menu3, 'Process')
 
+        menu4 = wx.Menu()
+        menu4.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
+        menu4.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
+        self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
+        menu4.AppendSeparator()
+        self.showProjItem = menu4.Append(50, "Open Folder Panel")
+        self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
+        menu4.AppendSeparator()
+        menu4.Append(190, "Open Documentation Frame\tShift+Ctrl+D")
+        self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
+        menu4.Append(180, "Open Documentation for Current Object\tCtrl+D")
+        self.Bind(wx.EVT_MENU, self.showDoc, id=180)
+        self.menuBar.Append(menu4, 'View')
+
         menu5 = wx.Menu()
         ID_STYLE = 500
         for st in styles:
@@ -587,11 +970,15 @@ class MainFrame(wx.Frame):
         for i in range(500, ID_STYLE):
             self.Bind(wx.EVT_MENU, self.changeStyle, id=i)
 
+        self.menu7 = wx.Menu()
+        self.makeSnippetMenu()
+        self.menuBar.Append(self.menu7, "Snippets")
+        
         menu6 = wx.Menu()
         ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
             exmenu = wx.Menu(title=folder.lower())
-            for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "."]):
+            for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "." and not exp.endswith("pyc")]):
                 exmenu.Append(ID_EXAMPLE, ex)
                 ID_EXAMPLE += 1
             menu6.AppendMenu(-1, folder, exmenu)
@@ -599,11 +986,21 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=ID_EXAMPLE)
         self.menuBar.Append(menu6, "Pyo Examples")
 
+        if sys.platform == "darwin":
+            accel = wx.ACCEL_CMD
+        else:
+            accel = wx.ACCEL_CTRL
+        windowMenu = wx.Menu()
+        aEntry = wx.AcceleratorEntry(accel, wx.WXK_RIGHT, 10001)
+        windowMenu.Append(10001, 'Switch Tabs Forward\t%s' % aEntry.ToString())
+        aEntry = wx.AcceleratorEntry(accel, wx.WXK_LEFT, 10002)
+        windowMenu.Append(10002, 'Switch Tabs Backward\t%s' % aEntry.ToString())
+        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
+        self.menuBar.Append(windowMenu, '&Window')
+
         helpmenu = wx.Menu()
         helpItem = helpmenu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
-        helpmenu.Append(190, "Show Documentation Frame\tShift+Ctrl+D")
-        self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
         self.menuBar.Append(helpmenu, '&Help')
 
         self.SetMenuBar(self.menuBar)
@@ -618,6 +1015,55 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(f)
 
         wx.CallAfter(self.buildDoc)
+
+    def reloadSnippetMenu(self):
+        items = self.menu7.GetMenuItems()
+        for item in items:
+            self.menu7.DeleteItem(item)
+        self.makeSnippetMenu()
+
+    def makeSnippetMenu(self):
+        itemId = 30000
+        for cat in SNIPPETS_CATEGORIES:
+            submenu = wx.Menu(title=cat)
+            files = [f for f in os.listdir(os.path.join(SNIPPETS_PATH, cat))]
+            for file in files:
+                with open(os.path.join(SNIPPETS_PATH, cat, file), "r") as f:
+                    text = f.read()
+                exec text in locals()
+                short = snippet["shortcut"]
+                accel = 0
+                if "Shift" in short:
+                    accel |= wx.ACCEL_SHIFT
+                    short = short.replace("Shift", "")
+                if "XCtrl" in short:
+                    accel |= wx.ACCEL_CTRL
+                    short = short.replace("XCtrl", "")
+                if "Ctrl" in short:
+                    if PLATFORM == "darwin":
+                        accel |= wx.ACCEL_CMD
+                    else:
+                        accel |= wx.ACCEL_CTRL
+                    short = short.replace("Ctrl", "")
+                if "Alt" in short:
+                    accel |= wx.ACCEL_ALT
+                    short = short.replace("Alt", "")
+                if accel == 0:
+                    accel = wx.ACCEL_NORMAL
+                short = short.replace("-", "")
+                if short != "":
+                    accel_tuple = wx.AcceleratorEntry(accel, ord(short), itemId)
+                    short = accel_tuple.ToString()
+                    submenu.Append(itemId, "%s\t%s" % (file, short))
+                else:
+                    submenu.Append(itemId, file)
+                self.Bind(wx.EVT_MENU, self.insertSnippet, id=itemId)
+                itemId += 1
+            self.menu7.AppendMenu(itemId, cat, submenu)
+            itemId += 1
+        self.menu7.AppendSeparator()
+        self.menu7.Append(51, "Open Snippet Editor")
+        self.Bind(wx.EVT_MENU, self.showSnippetEditor, id=51)
 
     ### Editor functions ###
     def cut(self, evt):
@@ -635,6 +1081,26 @@ class MainFrame(wx.Frame):
 
     def listPaste(self, evt):
         self.panel.editor.listPaste(self.pastingList)
+
+    def saveListPaste(self, evt):
+        if self.pastingList != []:
+            dlg = wx.FileDialog(self, message="Save file as ...", 
+                defaultDir=os.path.expanduser('~'), style=wx.SAVE)
+            if dlg.ShowModal() == wx.ID_OK:
+                path = ensureNFD(dlg.GetPath())
+                with open(path, "w") as f:
+                    for line in self.pastingList:
+                        if not line.endswith("\n"):
+                            line = line + "\n"
+                        f.write(line)
+
+    def loadListPaste(self, evt):
+        dlg = wx.FileDialog(self, message="Choose a file", 
+            defaultDir=os.path.expanduser("~"), style=wx.OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            with open(path, "r") as f:
+                self.pastingList = f.readlines()
 
     def selectall(self, evt):
         self.panel.editor.SelectAll()
@@ -706,6 +1172,16 @@ class MainFrame(wx.Frame):
             self.panel.editor.ReplaceSelection("'" + text + "'")
         dlg.Destroy()
 
+    def insertSnippet(self, evt):
+        obj = evt.GetEventObject()
+        name = obj.GetLabelText(evt.GetId())
+        category = obj.GetTitle()
+        with open(os.path.join(SNIPPETS_PATH, category, name), "r") as f:
+            text = f.read()
+        exec text in locals()
+        snip = snippet["value"]
+        self.panel.editor.insertSnippet(snip)
+
     def changeStyle(self, evt):
         menu = self.GetMenuBar()
         id = evt.GetId()
@@ -718,29 +1194,35 @@ class MainFrame(wx.Frame):
         self.panel.project.setStyle()
 
     def onSwitchTabs(self, evt):
-        page = evt.GetId() - 10001
-        self.panel.setPage(page)
+        if evt.GetId() == 10001:
+            forward = True
+        else:
+            forward = False
+        self.panel.notebook.AdvanceSelection(forward)
 
     ### Open Prefs ang Logs ###
     def openPrefs(self, evt):
         pass
 
     def showHideFolderPanel(self, evt):
-        state = self.showProjItem.GetItemLabel() == "Show Folder Panel"
+        state = self.showProjItem.GetItemLabel() == "Open Folder Panel"
         if state:
             self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
-            self.showProjItem.SetItemLabel("Hide Folder Panel")
+            self.showProjItem.SetItemLabel("Close Folder Panel")
         else:
             self.panel.splitter.Unsplit(self.panel.project)
-            self.showProjItem.SetItemLabel("Show Folder Panel")
+            self.showProjItem.SetItemLabel("Open Folder Panel")
+
+    def showSnippetEditor(self, evt):
+        self.snippet_frame.Show()
 
     def showProjectTree(self, state):
         if state:
             self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
-            self.showProjItem.SetItemLabel("Hide Folder Panel")
+            self.showProjItem.SetItemLabel("Close Folder Panel")
         else:
             self.panel.splitter.Unsplit(self.panel.project)
-            self.showProjItem.SetItemLabel("Show Folder Panel")
+            self.showProjItem.SetItemLabel("Open Folder Panel")
 
     ### New / Open / Save / Delete ###
     def new(self, event):
@@ -748,7 +1230,7 @@ class MainFrame(wx.Frame):
 
     def newFromTemplate(self, event):
         self.panel.addNewPage()
-        temp = {98: PYO_TEMPLATE, 97: CECILIA5_TEMPLATE, 96: ZYNE_TEMPLATE, 95: WXPYTHON_TEMPLATE}[event.GetId()]
+        temp = TEMPLATE_DICT[event.GetId()]
         self.panel.editor.SetText(temp)
 
     def newRecent(self, file):
@@ -856,6 +1338,7 @@ class MainFrame(wx.Frame):
 
     ### Run actions ###
     def run(self, path, cwd):
+        # Need to determine which python to use...
         if OSX_APP_BUNDLED:
             script = terminal_client_script % (cwd, path)
             script = convert_line_endings(script, 1)
@@ -866,7 +1349,6 @@ class MainFrame(wx.Frame):
             pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
     def runner(self, event):
-        # Need to determine which python to use...
         path = ensureNFD(self.panel.editor.path)
         if os.path.isfile(path):
             cwd = os.path.split(path)[0]
@@ -922,14 +1404,14 @@ class MainFrame(wx.Frame):
         info.Name = APP_NAME
         info.Version = APP_VERSION
         info.Copyright = u"(C) 2012 Olivier Bélanger"
-        info.Description = "E-Pyo is a simple text editor especially configured to edit pyo audio programs.\n\n"
+        info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         wx.AboutBox(info)
 
     def OnClose(self, event):
-        try:
+        if self.snippet_frame.IsShown():
+            self.snippet_frame.Destroy()
+        if self.doc_frame.IsShown():
             self.doc_frame.Destroy()
-        except:
-            pass
         self.panel.OnQuit()
         if OSX_APP_BUNDLED:
             with open(terminal_close_server_script_path, "w") as f:
@@ -945,7 +1427,7 @@ class MainPanel(wx.Panel):
         self.mainFrame = parent
         mainBox = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE)
+        self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
 
         self.project = ProjectTree(self.splitter, self, (-1, -1))
         self.notebook = FNB.FlatNotebook(self.splitter, size=(0,-1), 
@@ -1056,6 +1538,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetViewWhiteSpace(False)
         self.SetEOLMode(wx.stc.STC_EOL_LF)
         self.SetViewEOL(False)
+        self.SetPasteConvertEndings(True)
 
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
@@ -1091,7 +1574,7 @@ class Editor(stc.StyledTextCtrl):
 
     def setStyle(self):
         # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT,     "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces)
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces)
         self.StyleClearAll()  # Reset all to be like the default
 
         ext = os.path.splitext(self.path)[1].strip(".")
@@ -1184,6 +1667,7 @@ class Editor(stc.StyledTextCtrl):
 
     def showInvisibles(self, x):
         self.SetViewWhiteSpace(x)
+        self.SetViewEOL(x)
 
     def removeTrailingWhiteSpace(self):
         text = self.GetText()
@@ -1307,7 +1791,7 @@ class Editor(stc.StyledTextCtrl):
         if charBefore in self.alphaStr:
             list = ''
             for word in PYO_WORDLIST:
-                if word.startswith(currentword) and word != currentword:
+                if word.startswith(currentword) and word != currentword and word != "class_args":
                     list = list + word + ' '
             if list:
                 self.AutoCompShow(len(currentword), list)
@@ -1357,7 +1841,6 @@ class Editor(stc.StyledTextCtrl):
             a2 = text.find("`", a1+1)
             if a2 != -1:
                 self.snip_buffer.append(text[a1+1:a2])
-                print a1, a2
             a1 = text.find("`", a2+1)
         text = text.replace("`", "")
         lines = text.splitlines(True)
@@ -1383,11 +1866,27 @@ class Editor(stc.StyledTextCtrl):
                 pos = self.GetSelectionStart()
                 wx.CallAfter(self.navigateSnips, pos)
 
+    def insertSnippet(self, text):
+        indent = self.GetLineIndentation(self.GetCurrentLine())
+        text, tlen = self.formatBuiltinComp(text, indent)
+        self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+len(text.splitlines())]
+        self.InsertText(self.GetCurrentPos(), text)
+        if len(self.snip_buffer) == 0:
+            pos = self.GetCurrentPos() + len(text) + 1
+            self.SetCurrentPos(pos)
+            wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
+        else:
+            self.selection = self.GetSelectedText()
+            pos = self.GetSelectionStart()
+            wx.CallAfter(self.navigateSnips, pos)
+
     def navigateSnips(self, pos):
         if self.selection != "":
             while self.GetCurrentPos() > pos:
                 self.DeleteBack()
             self.AddText(self.selection)
+            if chr(self.GetCharAt(self.GetCurrentPos())) == "=":
+                self.AddText(" ")
         arg = self.snip_buffer.pop(0)
         if len(self.snip_buffer) == 0:
             self.quit_navigate_snip = True
