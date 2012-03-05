@@ -1408,10 +1408,14 @@ class MainFrame(wx.Frame):
         wx.AboutBox(info)
 
     def OnClose(self, event):
-        if self.snippet_frame.IsShown():
+        try:
             self.snippet_frame.Destroy()
-        if self.doc_frame.IsShown():
+        except:
+            pass
+        try:
             self.doc_frame.Destroy()
+        except:
+            pass
         self.panel.OnQuit()
         if OSX_APP_BUNDLED:
             with open(terminal_close_server_script_path, "w") as f:
@@ -1868,7 +1872,7 @@ class Editor(stc.StyledTextCtrl):
 
     def insertSnippet(self, text):
         indent = self.GetLineIndentation(self.GetCurrentLine())
-        text, tlen = self.formatBuiltinComp(text, indent)
+        text, tlen = self.formatBuiltinComp(text, 0)
         self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+len(text.splitlines())]
         self.InsertText(self.GetCurrentPos(), text)
         if len(self.snip_buffer) == 0:
