@@ -1799,10 +1799,13 @@ class Editor(stc.StyledTextCtrl):
                     list = list + word + ' '
             if list:
                 self.AutoCompShow(len(currentword), list)
+                return True
             else:
                 self.AddText(" "*ws)
+                return False
         else:
             self.AddText(" "*ws)
+            return False
 
     def insertDefArgs(self, currentword):
         for word in PYO_WORDLIST:
@@ -1912,15 +1915,20 @@ class Editor(stc.StyledTextCtrl):
             indent = self.GetLineIndentation(prevline)
             self.AddText(" "*(indent+4))
 
+    def processTab(self, currentword, autoCompActive):
+        autoCompOn = self.showAutoComp()
+        if not autoCompOn and not autoCompActive:
+            self.checkForBuiltinComp()
+            self.insertDefArgs(currentword)
+
     def OnKeyDown(self, evt):
+        # Fixed order of operations here...
         if evt.GetKeyCode() == wx.WXK_RETURN:
             wx.CallAfter(self.processReturn)
         elif evt.GetKeyCode() == wx.WXK_TAB:
+            autoCompActive =  self.AutoCompActive()
             currentword = self.getWordUnderCaret()
             currentline = self.GetCurrentLine()
-            wx.CallAfter(self.checkForBuiltinComp)
-            wx.CallAfter(self.insertDefArgs, currentword)
-            wx.CallAfter(self.showAutoComp)
             if len(self.args_buffer) > 0 and currentline in range(*self.args_line_number):
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
@@ -1937,6 +1945,8 @@ class Editor(stc.StyledTextCtrl):
                 self.selection = self.GetSelectedText()
                 pos = self.GetSelectionStart()
                 wx.CallAfter(self.quitNavigateSnips, pos)
+            else:
+                wx.CallAfter(self.processTab, currentword, autoCompActive)
         evt.Skip()
 
     def OnUpdateUI(self, evt):
