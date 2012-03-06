@@ -8,7 +8,7 @@ You can do absolutely everything you want to with this piece of software.
 Olivier Belanger - 2012
 
 """
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil
 from types import UnicodeType
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.stc  as  stc
@@ -38,13 +38,22 @@ else:
 EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
 EXAMPLE_FOLDERS.append("FFT")
 EXAMPLE_FOLDERS.sort()
+
+SNIPPET_BUILTIN_CATEGORIES = ['Audio', 'Control', 'Interface', 'Utilities']
 SNIPPETS_PATH = os.path.join(TEMP_PATH, 'snippets')
 if not os.path.isdir(SNIPPETS_PATH):
     os.mkdir(SNIPPETS_PATH)
-for rep in ['Audio', 'Control', 'Interface', 'Utilities']:
+for rep in SNIPPET_BUILTIN_CATEGORIES:
     if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
         os.mkdir(os.path.join(SNIPPETS_PATH, rep))
+        files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
+        for file in files:
+            shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
+
+################## Builtin Snippets ##################
+if not os.path.isfile(os.path.join(SNIPPETS_PATH, 'Audio', 'SoundPlayer')):
+    pass
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
