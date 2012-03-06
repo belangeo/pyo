@@ -1,0 +1,1 @@
+snippet = {'shortcut': u'Shift-Alt-2', 'value': u'oscfade = Fader(fadein=`0.05`, fadeout=`1`, dur=`0`, mul=`0.2`).play()\ntable = HarmTable([`1,0,0,.3,0,0,.2,0,0,.1,0,0,.05`])\noscil = Osc(table, freq=`[150,151]`, mul=oscfade).out()\n'}
