@@ -8,9 +8,11 @@ You can do absolutely everything you want to with this piece of software.
 Olivier Belanger - 2012
 
 """
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint
 from types import UnicodeType
 from wx.lib.embeddedimage import PyEmbeddedImage
+import wx.lib.colourselect as csel
+import  wx.lib.scrolledpanel as scrolled
 import wx.stc  as  stc
 import FlatNotebook as FNB
 from pyo import *
@@ -19,6 +21,7 @@ from PyoDoc import ManualFrame
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+################## SETUP ##################
 PLATFORM = sys.platform
 DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
@@ -50,11 +53,17 @@ for rep in SNIPPET_BUILTIN_CATEGORIES:
         for file in files:
             shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
+SNIPPET_DEL_FILE_ID = 30
+SNIPPET_ADD_FOLDER_ID = 31
 
-################## Builtin Snippets ##################
-if not os.path.isfile(os.path.join(SNIPPETS_PATH, 'Audio', 'SoundPlayer')):
-    pass
+STYLES_PATH = os.path.join(TEMP_PATH, "styles")
+if not os.path.isdir(STYLES_PATH):
+    os.mkdir(STYLES_PATH)
+    files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
+    for file in files:
+        shutil.copy(os.path.join(os.getcwd(), "styles", file), os.path.join(STYLES_PATH, file))
 
+################## Utility Functions ##################
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
     old = sys.stdout
@@ -113,6 +122,12 @@ def toSysEncoding(unistr):
         pass
     return unistr
 
+def hex_to_rgb(value):
+    value = value.lstrip('#')
+    lv = len(value)
+    return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
+
+################## AppleScript for Mac bundle ##################
 if '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
     terminal_close_server_script = """tell application "Terminal" 
@@ -309,10 +324,8 @@ ASSERT_COMP = ''' `expression` `>` `0`, "`expression should be positive`"
 BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_COMP, "class": CLASS_COMP, 
                 "for": FOR_COMP, "while": WHILE_COMP, "exec": EXEC_COMP, "raise": RAISE_COMP, "assert": ASSERT_COMP}
 
-# ***************** Catalog starts here *******************
-
+################## Interface Bitmaps ##################
 catalog = {}
-
 #----------------------------------------------------------------------
 close_panel_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAA29JREFU"
@@ -416,7 +429,7 @@ file_delete_icon_png = PyEmbeddedImage(
     "qnv/BQAA//8DAPE93uTkTcJiAAAAAElFTkSuQmCC")
 catalog['file_delete_icon.png'] = file_delete_icon_png
 
-############## allowed extensions ##############
+############## Allowed Extensions ##############
 ALLOWED_EXT = ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"]
 
 ############## Pyo keywords ##############
@@ -435,67 +448,428 @@ PYO_WORDLIST.append("PyoTableObject")
 PYO_WORDLIST.append("PyoMatrixObject")
 PYO_WORDLIST.append("Server")
 
-# Bitstream Vera Sans Mono, Corbel, Monaco, Envy Code R, MonteCarlo, Courier New
-conf = {"preferedStyle": "Default"}
-STYLES = {'Default': {'default': '#000000', 'comment': '#0066FF', 'commentblock': '#0066FF', 'selback': "#C0DFFF",
-                    'number': '#0000CD', 'string': '#036A07', 'triple': '#038A07', 'keyword': '#0000FF',
-                    'class': '#000097', 'function': '#0000A2', 'identifier': '#000000', 'caret': '#000000',
-                    'background': '#FFFFFF', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
-                      'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#DDDDDD'},
-
-           'Custom': {'default': '#FFFFFF', 'comment': '#9FFF9F', 'commentblock': '#7F7F7F', 'selback': '#333333',
-                      'number': '#90CB43', 'string': '#FF47D7', 'triple': '#FF3300', 'keyword': '#4A94FF',
-                      'class': '#4AF3FF', 'function': '#00E0B6', 'identifier': '#FFFFFF', 'caret': '#DDDDDD',
-                      'background': '#000000', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                      'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#222222'},
-
-            'Soft': {'default': '#000000', 'comment': '#444444', 'commentblock': '#7F7F7F', 'selback': '#CBCBCB',
-                     'number': '#222222', 'string': '#272727', 'triple': '#333333', 'keyword': '#000000',
-                     'class': '#666666', 'function': '#555555', 'identifier': '#000000', 'caret': '#222222',
-                     'background': '#EFEFEF', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                     'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CDCDCD'},
-
-            'Smooth': {'default': '#FFFFFF', 'comment': '#DD0000', 'commentblock': '#AF0000', 'selback': '#555555',
-                       'number': '#FFFFFF', 'string': '#00EE00', 'triple': '#00AA00', 'keyword': '#9999FF',
-                       'class': '#00FFA2', 'function': '#00FFD5', 'identifier': '#CCCCCC', 'caret': '#EEEEEE',
-                       'background': '#222222', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                       'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#333333'},
-
-            'Espresso': {'default': '#BDAE9C', 'comment': '#0066FF', 'commentblock': '#0044DD', 'selback': '#5D544F',
-                         'number': '#44AA43', 'string': '#2FE420', 'triple': '#049B0A', 'keyword': '#43A8ED',
-                         'class': '#E5757B', 'function': '#FF9358', 'identifier': '#BDAE9C', 'caret': '#999999',
-                         'background': '#2A211C', 'linenumber': '#111111', 'marginback': '#AFAFAF', 'markerfg': '#DDDDDD',
-                         'markerbg': '#404040', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#3B322D'}
-        }
+############## Styles Constants ##############
 if wx.Platform == '__WXMSW__':
-    faces = {'face': 'Courier', 'size' : 10, 'size2': 8}
+    FONT_SIZE = 10
+    FONT_SIZE2 = 8
+    DEFAULT_FONT_FACE = 'Courier'
 elif wx.Platform == '__WXMAC__':
-    faces = {'face': 'Monaco', 'size' : 12, 'size2': 9}
+    FONT_SIZE = 12
+    FONT_SIZE2 = 9
+    DEFAULT_FONT_FACE = 'Monaco'
 else:
-    faces = {'face': 'Courier New', 'size' : 8, 'size2': 7}
+    FONT_SIZE = 8
+    FONT_SIZE2 = 7
+    DEFAULT_FONT_FACE = 'Courier New'
 
-styles = STYLES.keys()
 
-for key, value in STYLES[conf['preferedStyle']].items():
-    faces[key] = value
-faces2 = faces.copy()
-faces2['size3'] = faces2['size2'] + 4
-for key, value in STYLES['Default'].items():
-    faces2[key] = value
+STYLES_GENERALS = ['default', 'background', 'selback', 'caret']
+STYLES_TEXT_COMP = ['comment', 'commentblock', 'number', 'operator', 'string', 'triple', 'keyword', 'pyokeyword', 
+                'class', 'function', 'linenumber']
+STYLES_INTER_COMP = ['marginback', 'foldmarginback', 'markerfg', 'markerbg', 'bracelight', 'bracebad', 'lineedge']
+STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 'selback': 'Selection', 'caret': 'Caret',
+        'comment': 'Comment', 'commentblock': 'Comment Block', 'number': 'Number', 'string': 'String', 
+        'triple': 'Triple String', 'keyword': 'Python Keyword', 'pyokeyword': 'Pyo Keyword', 'class': 'Class Name', 
+        'function': 'Function Name', 'linenumber': 'Line Number', 'operator': 'Operator', 'foldmarginback': 'Folding Margin Background',
+        'marginback': 'Number Margin Background', 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background', 
+        'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch', 'lineedge': 'Line Edge'}
 
-snip_faces = {}
-if wx.Platform == '__WXMSW__':
-    snip_faces['face'] = 'Courier'
-    snip_faces['size'] = 10
-elif wx.Platform == '__WXMAC__':
-    snip_faces['face'] = 'Monaco'
-    snip_faces['size'] = 12
-else:
-    snip_faces['face'] = 'Courier New'
-    snip_faces['size'] = 8
+STYLES = {'default': {'colour': '#000000', 'bold': 0, 'italic': 0, 'underline': 0}, 
+        'comment': {'colour': '#0066FF', 'bold': 0, 'italic': 1, 'underline': 0}, 
+        'commentblock': {'colour': '#AA66FF', 'bold': 0, 'italic': 1, 'underline': 0}, 
+        'number': {'colour': '#0000CD', 'bold': 1, 'italic': 0, 'underline': 0}, 
+        'operator': {'colour': '#000000', 'bold': 1, 'italic': 0, 'underline': 0},
+        'string': {'colour': '#036A07', 'bold': 0, 'italic': 0, 'underline': 0}, 
+        'triple': {'colour': '#03BA07', 'bold': 0, 'italic': 0, 'underline': 0}, 
+        'keyword': {'colour': '#0000FF', 'bold': 1, 'italic': 0, 'underline': 0}, 
+        'pyokeyword': {'colour': '#5555FF', 'bold': 1, 'italic': 0, 'underline': 0},
+        'class': {'colour': '#000097', 'bold': 1, 'italic': 0, 'underline': 0}, 
+        'function': {'colour': '#0000A2', 'bold': 1, 'italic': 0, 'underline': 0}, 
+        'linenumber': {'colour': '#000000', 'bold': 0, 'italic': 0, 'underline': 0}, 
+        'caret': {'colour': '#000000'},
+        'selback': {'colour': "#C0DFFF"}, 
+        'background': {'colour': '#FFFFFF'}, 
+        'marginback': {'colour': '#B0B0B0'}, 
+        'foldmarginback': {'colour': '#D0D0D0'}, 
+        'markerfg': {'colour': '#CCCCCC'},
+        'markerbg': {'colour': '#000000'}, 
+        'bracelight': {'colour': '#AABBDD'}, 
+        'bracebad': {'colour': '#DD0000'}, 
+        'lineedge': {'colour': '#DDDDDD'},
+        'face': DEFAULT_FONT_FACE,
+        'size': FONT_SIZE,
+        'size2': FONT_SIZE2}
 
-SNIPPET_DEL_FILE_ID = 30
-SNIPPET_ADD_FOLDER_ID = 31
+STYLES_PREVIEW_TEXT = '''# Comment
+## Comment block
+from pyo import *
+class Bidule:
+    """
+    Tripe string.
+    """
+    def __init__(self):
+        "Single string"
+        self.osc = Sine(freq=100, mul=0.2)
+'''
+
+snip_faces = {'face': DEFAULT_FONT_FACE, 'size': FONT_SIZE}
+
+class EditorPreview(stc.StyledTextCtrl):
+    def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.SUNKEN_BORDER | wx.WANTS_CHARS):
+        stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
+
+        self.SetSTCCursor(2)
+        self.panel = parent
+
+        self.Colourise(0, -1)
+        self.SetCurrentPos(0)
+
+        self.SetText(STYLES_PREVIEW_TEXT)
+
+        self.SetIndent(4)
+        self.SetBackSpaceUnIndents(True)
+        self.SetTabIndents(True)
+        self.SetTabWidth(4)
+        self.SetUseTabs(False)
+        self.SetEOLMode(wx.stc.STC_EOL_LF)
+        self.SetUseHorizontalScrollBar(False)
+        self.SetReadOnly(True)
+        self.SetProperty("fold", "1")
+        self.SetProperty("tab.timmy.whinge.level", "1")
+        self.SetMargins(5,5)
+        self.SetUseAntiAliasing(True)
+        self.SetEdgeColour(STYLES["lineedge"]['colour'])
+        self.SetEdgeMode(stc.STC_EDGE_LINE)
+        self.SetEdgeColumn(60)
+        self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
+        self.SetMarginWidth(1, 28)
+        self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
+        self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
+        self.SetMarginSensitive(2, True)
+        self.SetMarginWidth(2, 12)
+
+        self.setStyle()
+
+        wx.CallAfter(self.SetAnchor, 0)
+        self.Refresh()
+
+    def setStyle(self):
+        def buildStyle(forekey, backkey=None, smallsize=False):
+            if smallsize:
+                st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size2'])
+            else:
+                st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size'])
+            if backkey:
+                st += ",back:%s" % STYLES[backkey]['colour']
+            if STYLES[forekey].has_key('bold'):
+                if STYLES[forekey]['bold']:
+                    st += ",bold"
+                if STYLES[forekey]['italic']:
+                    st += ",italic"
+                if STYLES[forekey]['underline']:
+                    st += ",underline"
+            return st
+
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
+        self.StyleClearAll()  # Reset all to be like the default
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default'))
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, buildStyle('default', 'bracelight') + ",bold")
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, buildStyle('default', 'bracebad') + ",bold")
+        self.SetLexer(stc.STC_LEX_PYTHON)
+        self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
+        self.SetKeyWords(1, " ".join(PYO_WORDLIST))
+        self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
+        self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle('comment'))
+        self.StyleSetSpec(stc.STC_P_NUMBER, buildStyle('number'))
+        self.StyleSetSpec(stc.STC_P_STRING, buildStyle('string'))
+        self.StyleSetSpec(stc.STC_P_CHARACTER, buildStyle('string'))
+        self.StyleSetSpec(stc.STC_P_WORD, buildStyle('keyword'))
+        self.StyleSetSpec(stc.STC_P_WORD2, buildStyle('pyokeyword'))
+        self.StyleSetSpec(stc.STC_P_TRIPLE, buildStyle('triple'))
+        self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, buildStyle('triple'))
+        self.StyleSetSpec(stc.STC_P_CLASSNAME, buildStyle('class'))
+        self.StyleSetSpec(stc.STC_P_DEFNAME, buildStyle('function'))
+        self.StyleSetSpec(stc.STC_P_OPERATOR, buildStyle('operator'))
+        self.StyleSetSpec(stc.STC_P_IDENTIFIER, buildStyle('default'))
+        self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, buildStyle('commentblock'))
+        self.SetEdgeColour(STYLES["lineedge"]['colour'])
+        self.SetCaretForeground(STYLES['caret']['colour'])
+        self.SetSelBackground(1, STYLES['selback']['colour'])
+        self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
+        self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
+        self.SetEdgeColumn(60)
+
+class ComponentPanel(scrolled.ScrolledPanel):
+    def __init__(self, parent, size):
+        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0), size=size, style=wx.SUNKEN_BORDER)
+        self.SetBackgroundColour("#FFFFFF")
+        self.buttonRefs = {}
+        self.bTogRefs = {}
+        self.iTogRefs = {}
+        self.uTogRefs = {}
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        for component in STYLES_TEXT_COMP:
+            box = wx.BoxSizer(wx.HORIZONTAL)
+            label = wx.StaticText(self, wx.ID_ANY, label=STYLES_LABELS[component])
+            box.Add(label, 1, wx.EXPAND|wx.TOP|wx.LEFT, 3)
+            btog = wx.ToggleButton(self, wx.ID_ANY, label="B", size=(20,20))
+            btog.SetValue(STYLES[component]['bold'])
+            box.Add(btog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            btog.Bind(wx.EVT_TOGGLEBUTTON, self.OnBToggleButton)
+            self.bTogRefs[btog] = component          
+            itog = wx.ToggleButton(self, wx.ID_ANY, label="I", size=(20,20))
+            itog.SetValue(STYLES[component]['italic'])
+            box.Add(itog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)            
+            itog.Bind(wx.EVT_TOGGLEBUTTON, self.OnIToggleButton)
+            self.iTogRefs[itog] = component          
+            utog = wx.ToggleButton(self, wx.ID_ANY, label="U", size=(20,20))
+            utog.SetValue(STYLES[component]['underline'])
+            box.Add(utog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)  
+            utog.Bind(wx.EVT_TOGGLEBUTTON, self.OnUToggleButton)
+            self.uTogRefs[utog] = component          
+            box.AddSpacer(20)          
+            selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]['colour']), size=(20,20))
+            box.Add(selector, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
+            self.buttonRefs[selector] = component
+            mainSizer.Add(box, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+            mainSizer.Add(wx.StaticLine(self), 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 1)
+
+        for component in STYLES_INTER_COMP:
+            box = wx.BoxSizer(wx.HORIZONTAL)
+            label = wx.StaticText(self, wx.ID_ANY, label=STYLES_LABELS[component])
+            box.Add(label, 1, wx.EXPAND|wx.TOP|wx.LEFT, 3)
+            selector = csel.ColourSelect(self, -1, "", hex_to_rgb(STYLES[component]['colour']), size=(20,20))
+            box.Add(selector, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
+            selector.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
+            self.buttonRefs[selector] = component
+            mainSizer.Add(box, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+            if component != STYLES_INTER_COMP[-1]:
+                mainSizer.Add(wx.StaticLine(self), 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 1)
+
+        self.SetSizer(mainSizer)
+        self.SetAutoLayout(1)
+        self.SetupScrolling()
+        h = label.GetSize()[1]+6
+        num_rows = len(STYLES_TEXT_COMP) + len(STYLES_INTER_COMP)
+        self.SetMaxSize((-1, h*num_rows))
+
+    def reset(self):
+        for but, name in self.buttonRefs.items():
+            but.SetColour(hex_to_rgb(STYLES[name]['colour']))
+        for tog, name in self.bTogRefs.items():
+            tog.SetValue(STYLES[name]['bold'])
+        for tog, name in self.iTogRefs.items():
+            tog.SetValue(STYLES[name]['italic'])
+        for tog, name in self.uTogRefs.items():
+            tog.SetValue(STYLES[name]['underline'])
+
+    def OnSelectColour(self, event):
+        col = wx.Colour(*event.GetValue())
+        col = col.GetAsString(wx.C2S_HTML_SYNTAX)
+        key = self.buttonRefs[event.GetEventObject()]
+        STYLES[key]['colour'] = col
+        self.GetParent().GetParent().editorPreview.setStyle()
+
+    def OnBToggleButton(self, event):
+        value = event.GetInt()
+        key = self.bTogRefs[event.GetEventObject()]
+        STYLES[key]['bold'] = value
+        self.GetParent().GetParent().editorPreview.setStyle()
+
+    def OnIToggleButton(self, event):
+        value = event.GetInt()
+        key = self.iTogRefs[event.GetEventObject()]
+        STYLES[key]['italic'] = value
+        self.GetParent().GetParent().editorPreview.setStyle()
+
+    def OnUToggleButton(self, event):
+        value = event.GetInt()
+        key = self.uTogRefs[event.GetEventObject()]
+        STYLES[key]['underline'] = value
+        self.GetParent().GetParent().editorPreview.setStyle()
+
+class ColourEditor(wx.Frame):
+    def __init__(self, parent, title, pos, size):
+        wx.Frame.__init__(self, parent, -1, title, pos, size)
+        self.SetMinSize((500,550))
+        self.SetMaxSize((500,-1))
+
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(350, "Close\tCtrl+W")
+        self.menuBar.Append(menu1, 'File')
+        self.SetMenuBar(self.menuBar)
+
+        self.Bind(wx.EVT_MENU, self.close, id=350)
+        self.Bind(wx.EVT_CLOSE, self.close)
+
+        self.cur_style = ""
+
+        toolbar = self.CreateToolBar()
+        saveButton = wx.Button(toolbar, wx.ID_ANY, label="Save Style")
+        saveButton.Bind(wx.EVT_BUTTON, self.OnSave)
+        toolbar.AddControl(saveButton)
+        toolbar.AddSeparator()
+        toolbar.AddControl(wx.StaticText(toolbar, wx.ID_ANY, label="Edit Style:"))
+        choices = [f for f in os.listdir(STYLES_PATH) if f[0] != "."]
+        self.choiceMenu = wx.Choice(toolbar, wx.ID_ANY, choices=choices)
+        self.choiceMenu.SetStringSelection("Default")
+        self.choiceMenu.Bind(wx.EVT_CHOICE, self.OnStyleChoice)
+        toolbar.AddControl(self.choiceMenu)
+        toolbar.AddSeparator()
+        deleteButton = wx.Button(toolbar, wx.ID_ANY, label="Delete Style")
+        deleteButton.Bind(wx.EVT_BUTTON, self.OnDelete)
+        toolbar.AddControl(deleteButton)
+        toolbar.Realize()
+
+        self.panel = wx.Panel(self)
+        self.panel.SetAutoLayout(True)
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.panel.SetSizer(mainSizer)
+
+        enum = wx.FontEnumerator()
+        enum.EnumerateFacenames(fixedWidthOnly=True)
+        facelist = enum.GetFacenames()
+        facelist.sort()
+
+        buttonData = [  (STYLES_GENERALS[0], STYLES['default']['colour'], (50, 20), STYLES_LABELS['default']),
+                        (STYLES_GENERALS[1], STYLES['background']['colour'], (50, 20), STYLES_LABELS['background']),
+                        (STYLES_GENERALS[2], STYLES['selback']['colour'], (50, 20), STYLES_LABELS['selback']),
+                        (STYLES_GENERALS[3], STYLES['caret']['colour'], (50, 20), STYLES_LABELS['caret']) ]
+
+        self.buttonRefs = {}
+
+        section1Sizer = wx.BoxSizer(wx.HORIZONTAL)
+        buttonSizer1 = wx.FlexGridSizer(1, 2, 25, 5)
+        for name, color, size, label in buttonData[:2]:
+            b = csel.ColourSelect(self.panel, -1, "", hex_to_rgb(color), size=size)
+            b.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
+            self.buttonRefs[b] = name
+            buttonSizer1.AddMany([(wx.StaticText(self.panel, -1, label+":"), 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL),
+                                (b, 0, wx.LEFT|wx.RIGHT, 5)])
+        section1Sizer.Add(buttonSizer1, 0, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_LEFT, 10)
+        section1Sizer.AddSpacer(110)
+        buttonSizer2 = wx.FlexGridSizer(1, 2, 25, 5)
+        for name, color, size, label in buttonData[2:4]:
+            b = csel.ColourSelect(self.panel, -1, "", hex_to_rgb(color), size=size)
+            b.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
+            self.buttonRefs[b] = name
+            buttonSizer2.AddMany([(wx.StaticText(self.panel, -1, label+":"), 0, wx.ALIGN_RIGHT|wx.ALIGN_CENTER_VERTICAL),
+                                (b, 0, wx.LEFT|wx.RIGHT, 5)])
+        section1Sizer.Add(buttonSizer2, 0, wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_RIGHT, 10)
+        mainSizer.Add(section1Sizer, 0, wx.LEFT|wx.RIGHT|wx.TOP, 10)
+
+        self.components = ComponentPanel(self.panel, size=(480, 100))
+        mainSizer.Add(self.components, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM, 10)
+
+        mainSizer.Add(wx.StaticLine(self.panel), 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+        
+        faceBox = wx.BoxSizer(wx.HORIZONTAL)
+        faceLabel = wx.StaticText(self.panel, wx.ID_ANY, "Font Face:")
+        faceBox.Add(faceLabel, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5)
+        self.facePopup = wx.ComboBox(self.panel, wx.ID_ANY, "Monaco", size=(250, -1), choices=facelist, style=wx.CB_READONLY)
+        faceBox.Add(self.facePopup, 1, wx.ALL|wx.EXPAND, 5)
+        self.faceView = wx.StaticText(self.panel, wx.ID_ANY, "Monaco")
+        self.font = self.faceView.GetFont()
+        self.font.SetFaceName("Monaco")
+        self.faceView.SetFont(self.font)
+        faceBox.Add(self.faceView, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5)
+        self.facePopup.Bind(wx.EVT_COMBOBOX, self.OnFaceSelected)
+        mainSizer.Add(faceBox, 0, wx.ALL|wx.EXPAND, 10)
+
+        mainSizer.Add(wx.StaticLine(self.panel), 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+
+        mainSizer.Add(wx.StaticText(self.panel, wx.ID_ANY, label="Preview"), 0, wx.TOP|wx.CENTER, 10)
+        self.editorPreview = EditorPreview(self.panel, wx.ID_ANY, size=(400, 180))
+        mainSizer.Add(self.editorPreview, 0, wx.ALL|wx.EXPAND, 10)
+
+        self.panel.Layout()
+
+    def setCurrentStyle(self, st):
+        self.cur_style = st
+        self.choiceMenu.SetStringSelection(st)
+        self.editorPreview.setStyle()
+
+    def close(self, evt):
+        self.Hide()
+        if self.cur_style != "":
+            self.GetParent().setStyle(self.cur_style)
+
+    def OnDelete(self, event):
+        if self.cur_style != "":
+            os.remove(os.path.join(STYLES_PATH, self.cur_style))
+        choices = [f for f in os.listdir(STYLES_PATH) if f[0] != "."]
+        self.choiceMenu.SetItems(choices)
+        self.choiceMenu.SetSelection(0)
+        evt = wx.CommandEvent(10006, self.choiceMenu.GetId())
+        evt.SetInt(0)
+        evt.SetString(choices[0])
+        self.choiceMenu.ProcessEvent(evt)
+        self.GetParent().rebuildStyleMenu()
+
+    def OnSave(self, event):
+        dlg = wx.TextEntryDialog(self, "Enter the Style's name:", 'Save Style')
+        dlg.CenterOnParent()
+        if dlg.ShowModal() == wx.ID_OK:
+            name = dlg.GetValue()
+            if name != "":
+                self.cur_style = name
+                with open(os.path.join(STYLES_PATH, name), "w") as f:
+                    texttosave = pprint.pformat(STYLES, width=120)
+                    f.write("style = " + texttosave)
+                choices = [f for f in os.listdir(STYLES_PATH) if f[0] != "."]
+                self.choiceMenu.SetItems(choices)
+                self.choiceMenu.SetStringSelection(name)
+                self.GetParent().rebuildStyleMenu()
+
+    def OnStyleChoice(self, event):
+        global STYLES
+        stl = event.GetString()
+        self.cur_style = stl
+        with open(os.path.join(STYLES_PATH, stl)) as f:
+            text = f.read()
+        exec text in locals()
+        STYLES = copy.deepcopy(style)
+        if not STYLES.has_key('face'):
+            STYLES['face'] = DEFAULT_FONT_FACE
+        if not STYLES.has_key('size'):
+            STYLES['size'] = FONT_SIZE
+        if not STYLES.has_key('size2'):
+            STYLES['size2'] = FONT_SIZE2
+        self.editorPreview.setStyle()
+        for but, name in self.buttonRefs.items():
+            but.SetColour(hex_to_rgb(STYLES[name]['colour']))
+        self.facePopup.SetStringSelection(STYLES['face'])
+        self.font.SetFaceName(STYLES['face'])
+        self.faceView.SetFont(self.font)
+        self.faceView.SetLabel(STYLES['face'])
+        self.components.reset()
+
+    def OnFaceSelected(self, event):
+        face = event.GetString()
+        self.font.SetFaceName(face)
+        self.faceView.SetFont(self.font)
+        self.faceView.SetLabel(face)
+        STYLES['face'] = face
+        self.editorPreview.setStyle()
+
+    def OnSelectColour(self, event):
+        col = wx.Colour(*event.GetValue())
+        col = col.GetAsString(wx.C2S_HTML_SYNTAX)
+        key = self.buttonRefs[event.GetEventObject()]
+        STYLES[key]['colour'] = col
+        self.editorPreview.setStyle()
+
 class SnippetTree(wx.Panel):
     def __init__(self, parent, size):
         wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
@@ -679,8 +1053,10 @@ class SnippetEditor(stc.StyledTextCtrl):
     def OnUpdateUI(self, evt):
         if self.GetSelectedText():
             self.GetParent().GetParent().GetParent().tagButton.Enable()
+            self.GetParent().GetParent().GetParent().tagItem.Enable()
         else:
             self.GetParent().GetParent().GetParent().tagButton.Enable(False)
+            self.GetParent().GetParent().GetParent().tagItem.Enable(False)
 
 class SnippetFrame(wx.Frame):
     def __init__(self, parent, title, pos, size):
@@ -689,10 +1065,13 @@ class SnippetFrame(wx.Frame):
 
         self.menuBar = wx.MenuBar()
         menu1 = wx.Menu()
+        self.tagItem = menu1.Append(249, "Tag Selection\tCtrl+T")
+        menu1.AppendSeparator()
         menu1.Append(250, "Close\tCtrl+W")
         self.menuBar.Append(menu1, 'File')
         self.SetMenuBar(self.menuBar)
 
+        self.Bind(wx.EVT_MENU, self.onTagSelection, id=249)
         self.Bind(wx.EVT_MENU, self.close, id=250)
         self.Bind(wx.EVT_CLOSE, self.close)
 
@@ -843,6 +1222,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
         self.snippet_frame = SnippetFrame(self, title='Snippet Editor', pos=(25,25), size=(700,450))
+        self.style_frame = ColourEditor(self, title='Style Editor', pos=(100,100), size=(500,550))
 
         self.pastingList = []
         self.panel = MainPanel(self, size=size)
@@ -969,13 +1349,16 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.menuBar.Append(menu4, 'View')
 
-        menu5 = wx.Menu()
+        self.menu5 = wx.Menu()
         ID_STYLE = 500
-        for st in styles:
-            menu5.Append(ID_STYLE, st, "", wx.ITEM_RADIO)
-            if st == conf['preferedStyle']: menu5.Check(ID_STYLE, True)
+        for st in [f for f in os.listdir(STYLES_PATH) if f[0] != "."]:
+            self.menu5.Append(ID_STYLE, st, "", wx.ITEM_RADIO)
+            if st == "Default": self.menu5.Check(ID_STYLE, True)
             ID_STYLE += 1
-        self.menuBar.Append(menu5, 'Styles')
+        self.menu5.AppendSeparator()
+        self.menu5.Append(499, "Open Style Editor")
+        self.Bind(wx.EVT_MENU, self.openStyleEditor, id=499)
+        self.menuBar.Append(self.menu5, 'Styles')
         for i in range(500, ID_STYLE):
             self.Bind(wx.EVT_MENU, self.changeStyle, id=i)
 
@@ -1024,6 +1407,20 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(f)
 
         wx.CallAfter(self.buildDoc)
+
+    def rebuildStyleMenu(self):
+        items = self.menu5.GetMenuItems()
+        for item in items:
+            self.menu5.DeleteItem(item)
+        ID_STYLE = 500
+        for st in [f for f in os.listdir(STYLES_PATH) if f[0] != "."]:
+            self.menu5.Append(ID_STYLE, st, "", wx.ITEM_RADIO)
+            ID_STYLE += 1
+        self.menu5.AppendSeparator()
+        self.menu5.Append(499, "Open Style Editor")
+        self.Bind(wx.EVT_MENU, self.openStyleEditor, id=499)
+        for i in range(500, ID_STYLE):
+            self.Bind(wx.EVT_MENU, self.changeStyle, id=i)
 
     def reloadSnippetMenu(self):
         items = self.menu7.GetMenuItems()
@@ -1191,16 +1588,40 @@ class MainFrame(wx.Frame):
         snip = snippet["value"]
         self.panel.editor.insertSnippet(snip)
 
+    def openStyleEditor(self, evt):
+        self.style_frame.Show()
+
     def changeStyle(self, evt):
         menu = self.GetMenuBar()
         id = evt.GetId()
         st = menu.FindItemById(id).GetLabel()
-        for key, value in STYLES[st].items():
-            faces[key] = value
+        self.setStyle(st, fromMenu=True)
+        self.style_frame.setCurrentStyle(st)
+        
+    def setStyle(self, st, fromMenu=False):
+        global STYLES
+        with open(os.path.join(STYLES_PATH, st)) as f:
+            text = f.read()
+        exec text in locals()
+        STYLES = copy.deepcopy(style)
+        if not STYLES.has_key('face'):
+            STYLES['face'] = DEFAULT_FONT_FACE
+        if not STYLES.has_key('size'):
+            STYLES['size'] = FONT_SIZE
+        if not STYLES.has_key('size2'):
+            STYLES['size2'] = FONT_SIZE2
+
         for i in range(self.panel.notebook.GetPageCount()):
             ed = self.panel.notebook.GetPage(i)
             ed.setStyle()
         self.panel.project.setStyle()
+
+        if not fromMenu:
+            itemList = self.menu5.GetMenuItems()
+            for item in itemList:
+                if self.menu5.GetLabelText(item.GetId()) == st:
+                    self.menu5.Check(item.GetId(), True)
+                    break
 
     def onSwitchTabs(self, evt):
         if evt.GetId() == 10001:
@@ -1556,8 +1977,8 @@ class Editor(stc.StyledTextCtrl):
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
         self.SetMargins(5,5)
-        self.SetUseAntiAliasing(False)
-        self.SetEdgeColour(faces["lineedge"])
+        self.SetUseAntiAliasing(True)
+        self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetEdgeMode(stc.STC_EDGE_LINE)
         self.SetEdgeColumn(78)
 
@@ -1586,46 +2007,64 @@ class Editor(stc.StyledTextCtrl):
         self.Refresh()
 
     def setStyle(self):
-        # Global default styles for all languages
-        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d,back:%(background)s" % faces)
+        def buildStyle(forekey, backkey=None, smallsize=False):
+            if smallsize:
+                st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size2'])
+            else:
+                st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size'])
+            if backkey:
+                st += ",back:%s" % STYLES[backkey]['colour']
+            if STYLES[forekey].has_key('bold'):
+                if STYLES[forekey]['bold']:
+                    st += ",bold"
+                if STYLES[forekey]['italic']:
+                    st += ",italic"
+                if STYLES[forekey]['underline']:
+                    st += ",underline"
+            return st
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
         self.StyleClearAll()  # Reset all to be like the default
 
         ext = os.path.splitext(self.path)[1].strip(".")
         if ext in ["py", "c5"]:
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, faces['markerfg'], faces['markerbg'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, faces['markerfg'], faces['markerbg'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
 
-            self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, "fore:%(linenumber)s,back:%(marginback)s,face:%(face)s,size:%(size2)d" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, "fore:%(default)s,face:%(face)s" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, "fore:#000000,back:%(bracelight)s,bold" % faces)
-            self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, "fore:#000000,back:%(bracebad)s,bold" % faces)
+            self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
+            self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
+            self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, buildStyle('default', 'bracelight') + ",bold")
+            self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, buildStyle('default', 'bracebad') + ",bold")
 
             self.SetLexer(stc.STC_LEX_PYTHON)
-            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False " + " ".join(PYO_WORDLIST))
+            self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
+            self.SetKeyWords(1, " ".join(PYO_WORDLIST))
 
-            self.StyleSetSpec(stc.STC_P_DEFAULT, "fore:%(default)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_COMMENTLINE, "fore:%(comment)s,face:%(face)s,italic,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_NUMBER, "fore:%(number)s,face:%(face)s,bold,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_STRING, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_CHARACTER, "fore:%(string)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_WORD, "fore:%(keyword)s,face:%(face)s,bold,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_TRIPLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, "fore:%(triple)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_CLASSNAME, "fore:%(class)s,face:%(face)s,bold,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_DEFNAME, "fore:%(function)s,face:%(face)s,bold,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_OPERATOR, "bold,size:%(size)d,face:%(face)s" % faces)
-            self.StyleSetSpec(stc.STC_P_IDENTIFIER, "fore:%(identifier)s,face:%(face)s,size:%(size)d" % faces)
-            self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, "fore:%(commentblock)s,face:%(face)s,size:%(size)d" % faces)
+            self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_P_NUMBER, buildStyle('number'))
+            self.StyleSetSpec(stc.STC_P_STRING, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_P_CHARACTER, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_P_WORD, buildStyle('keyword'))
+            self.StyleSetSpec(stc.STC_P_WORD2, buildStyle('pyokeyword'))
+            self.StyleSetSpec(stc.STC_P_TRIPLE, buildStyle('triple'))
+            self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE, buildStyle('triple'))
+            self.StyleSetSpec(stc.STC_P_CLASSNAME, buildStyle('class'))
+            self.StyleSetSpec(stc.STC_P_DEFNAME, buildStyle('function'))
+            self.StyleSetSpec(stc.STC_P_OPERATOR, buildStyle('operator'))
+            self.StyleSetSpec(stc.STC_P_IDENTIFIER, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, buildStyle('commentblock'))
 
-        self.SetEdgeColour(faces["lineedge"])
-        self.SetCaretForeground(faces['caret'])
-        self.SetSelBackground(1, faces['selback'])
+        self.SetEdgeColour(STYLES["lineedge"]['colour'])
+        self.SetCaretForeground(STYLES['caret']['colour'])
+        self.SetSelBackground(1, STYLES['selback']['colour'])
+        self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
+        self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
 
     def OnShowFindReplace(self):
         data = wx.FindReplaceData()
@@ -2144,12 +2583,12 @@ class ProjectTree(wx.Panel):
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
         
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
-        self.tree.SetBackgroundColour(faces['background'])
+        self.tree.SetBackgroundColour(STYLES['background']['colour'])
 
         if wx.Platform == '__WXMAC__':
-            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=faces['face']))
+            self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
         else:
-            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=faces['face']))
+            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
 
         self.sizer.Add(self.tree, 1, wx.EXPAND)
         self.SetSizer(self.sizer)
@@ -2165,7 +2604,7 @@ class ProjectTree(wx.Panel):
         self.tree.SetIndent(6)
 
         self.root = self.tree.AddRoot("EPyo_Project_tree", self.fldridx, self.fldropenidx, None)
-        self.tree.SetItemTextColour(self.root, faces['identifier'])
+        self.tree.SetItemTextColour(self.root, STYLES['default']['colour'])
 
         self.tree.Bind(wx.EVT_TREE_END_LABEL_EDIT, self.OnEndEdit)
         self.tree.Bind(wx.EVT_RIGHT_DOWN, self.OnRightDown)
@@ -2181,18 +2620,18 @@ class ProjectTree(wx.Panel):
             if os.path.split(root)[1][0] != '.':
                 if root == dirPath:
                     child = self.tree.AppendItem(self.root, folderName, self.fldridx, self.fldropenidx, None)
-                    self.tree.SetItemTextColour(child, faces['identifier'])
+                    self.tree.SetItemTextColour(child, STYLES['default']['colour'])
                     if dirs:
                         ddirs = [dir for dir in dirs if dir[0] != '.']
                         for dir in sorted(ddirs):
                             subfol = self.tree.AppendItem(child, "%s" % dir, self.fldridx, self.fldropenidx, None)
                             projectDir[dir] = subfol
-                            self.tree.SetItemTextColour(subfol, faces['identifier'])
+                            self.tree.SetItemTextColour(subfol, STYLES['default']['colour'])
                     if files:
                         ffiles = [file for file in files if file[0] != '.' and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
                         for file in sorted(ffiles):
                             item = self.tree.AppendItem(child, "%s" % file, self.fileidx, self.fileidx, None)
-                            self.tree.SetItemTextColour(item, faces['identifier'])
+                            self.tree.SetItemTextColour(item, STYLES['default']['colour'])
                 else:
                     if os.path.split(root)[1] in projectDir.keys():
                         parent = projectDir[os.path.split(root)[1]]
@@ -2201,12 +2640,12 @@ class ProjectTree(wx.Panel):
                             for dir in sorted(ddirs):
                                 subfol = self.tree.AppendItem(parent, "%s" % dir, self.fldridx, self.fldropenidx, None)
                                 projectDir[dir] = subfol
-                                self.tree.SetItemTextColour(subfol, faces['identifier'])
+                                self.tree.SetItemTextColour(subfol, STYLES['default']['colour'])
                         if files:
                             ffiles = [file for file in files if file[0] != '.' and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
                             for file in sorted(ffiles):
                                 item = self.tree.AppendItem(parent, "%s" % file, self.fileidx, self.fileidx, None)
-                                self.tree.SetItemTextColour(item, faces['identifier'])
+                                self.tree.SetItemTextColour(item, STYLES['default']['colour'])
         self.tree.SortChildren(self.root)
         self.tree.SortChildren(child)
 
@@ -2244,7 +2683,7 @@ class ProjectTree(wx.Panel):
         else:
             item = self.tree.AppendItem(treeItemId, "Untitled", self.fldridx, self.fldropenidx, None)
             self.editfolder = item
-        self.tree.SetItemTextColour(item, faces['identifier'])
+        self.tree.SetItemTextColour(item, STYLES['default']['colour'])
         self.tree.EnsureVisible(item)
         if PLATFORM == "darwin":
             self.tree.ScrollTo(item)
@@ -2266,8 +2705,8 @@ class ProjectTree(wx.Panel):
                 item, cookie = self.tree.GetNextChild(root_item, cookie)
 
         if not self.tree.IsEmpty():
-            self.tree.SetBackgroundColour(faces['background'])
-            set_item_style(self.tree.GetRootItem(), faces['identifier'])
+            self.tree.SetBackgroundColour(STYLES['background']['colour'])
+            set_item_style(self.tree.GetRootItem(), STYLES['default']['colour'])
 
     def OnRightDown(self, event):
         pt = event.GetPosition();
