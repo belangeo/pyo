@@ -13,6 +13,7 @@ from types import UnicodeType
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
 import  wx.lib.scrolledpanel as scrolled
+import wx.combo
 import wx.stc  as  stc
 import FlatNotebook as FNB
 from pyo import *
@@ -1215,6 +1216,137 @@ class SnippetFrame(wx.Frame):
         else:
             evt.Skip()
 
+class FileSelectorCombo(wx.combo.ComboCtrl):
+    def __init__(self, *args, **kw):
+        wx.combo.ComboCtrl.__init__(self, *args, **kw)
+        w, h = 12, 14
+        bmp = wx.EmptyBitmap(w,h)
+        dc = wx.MemoryDC(bmp)
+
+        # clear to a specific background colour
+        bgcolor = wx.Colour(255,254,255)
+        dc.SetBackground(wx.Brush(bgcolor))
+        dc.Clear()
+
+        # draw the label onto the bitmap
+        dc.SetBrush(wx.Brush("#444444"))
+        dc.SetPen(wx.Pen("#444444"))
+        dc.DrawPolygon([wx.Point(4,h/2-2), wx.Point(w/2,2), wx.Point(w-4,h/2-2)])
+        dc.DrawPolygon([wx.Point(4,h/2+2), wx.Point(w/2,h-2), wx.Point(w-4,h/2+2)])
+        del dc
+
+        # now apply a mask using the bgcolor
+        bmp.SetMaskColour(bgcolor)
+        self.SetButtonBitmaps(bmp, True)
+
+class TreeCtrlComboPopup(wx.combo.ComboPopup):
+    def Init(self):
+        self.value = None
+        self.curitem = None
+
+    def Create(self, parent):
+        self.tree = wx.TreeCtrl(parent, style=wx.TR_HIDE_ROOT
+                                |wx.TR_HAS_BUTTONS
+                                |wx.TR_SINGLE
+                                |wx.TR_LINES_AT_ROOT
+                                |wx.SIMPLE_BORDER)
+        font, psize = self.tree.GetFont(), self.tree.GetFont().GetPointSize()
+        font.SetPointSize(psize-2)
+        self.tree.SetFont(font)
+        self.tree.Bind(wx.EVT_MOTION, self.OnMotion)
+        self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+
+    def GetControl(self):
+        return self.tree
+
+    def GetStringValue(self):
+        if self.value:
+            return self.tree.GetItemText(self.value)
+        return ""
+
+    def OnPopup(self):
+        self.tree.DeleteAllItems()
+        editor = self.GetCombo().GetParent().GetParent().panel.editor
+        count = editor.GetLineCount()
+        for i in range(count):
+            text = editor.GetLineUTF8(i)
+            if text.startswith("class "):
+                text = text.replace("class ", "")
+                text = text[0:text.find(":")]
+                if len(text) > 50:
+                    text = text[:50] + "...)"
+                item = self.AddItem(text, None, wx.TreeItemData(i))
+            elif text.startswith("def "):
+                text = text.replace("def ", "")
+                text = text[0:text.find(":")]
+                if len(text) > 50:
+                    text = text[:50] + "...)"
+                item = self.AddItem(text, None, wx.TreeItemData(i))
+            elif text.lstrip().startswith("def "):
+                indent = editor.GetLineIndentation(i)
+                text = text.lstrip().replace("def ", "")
+                text = " "*indent + text[0:text.find(":")]
+                if len(text) > 50:
+                    text = text[:50] + "...)"
+                item = self.AddItem(text, None, wx.TreeItemData(i))
+        self.tree.SetSize((400, 500))
+        if self.value:
+            self.tree.EnsureVisible(self.value)
+            self.tree.SelectItem(self.value)
+
+    def SetStringValue(self, value):
+        root = self.tree.GetRootItem()
+        if not root:
+            return
+        found = self.FindItem(root, value)
+        if found:
+            self.value = found
+            self.tree.SelectItem(found)
+
+    def GetAdjustedSize(self, minWidth, prefHeight, maxHeight):
+        return wx.Size(minWidth, min(200, maxHeight))
+
+    def FindItem(self, parentItem, text):
+        item, cookie = self.tree.GetFirstChild(parentItem)
+        while item:
+            if self.tree.GetItemText(item) == text:
+                return item
+            if self.tree.ItemHasChildren(item):
+                item = self.FindItem(item, text)
+            item, cookie = self.tree.GetNextChild(parentItem, cookie)
+        return wx.TreeItemId();
+
+    def AddItem(self, value, parent=None, data=None):
+        if not parent:
+            root = self.tree.GetRootItem()
+            if not root:
+                root = self.tree.AddRoot("<hidden root>")
+            parent = root
+        item = self.tree.AppendItem(parent, value, data=data)
+        return item
+
+    def OnMotion(self, evt):
+        # have the selection follow the mouse, like in a real combobox
+        item, flags = self.tree.HitTest(evt.GetPosition())
+        if item and flags & wx.TREE_HITTEST_ONITEMLABEL:
+            self.tree.SelectItem(item)
+            self.curitem = item
+        evt.Skip()
+
+    def OnLeftDown(self, evt):
+        item, flags = self.tree.HitTest(evt.GetPosition())
+        if item and flags & wx.TREE_HITTEST_ONITEMLABEL:
+            self.curitem = item
+            self.value = item
+            self.Dismiss()
+            editor = self.GetCombo().GetParent().GetParent().panel.editor
+            pos = editor.PositionFromLine(self.tree.GetPyData(item))
+            editor.SetCurrentPos(pos)
+            editor.EnsureCaretVisible()
+            editor.SetAnchor(editor.GetCurrentPos())
+            wx.CallAfter(editor.SetFocus)
+        evt.Skip()
+
 class MainFrame(wx.Frame):
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE):
         wx.Frame.__init__(self, parent, ID, title, pos, size, style)
@@ -1305,7 +1437,7 @@ class MainFrame(wx.Frame):
         menu2.Append(131, "Remove Trailing White Space")
         self.Bind(wx.EVT_MENU, self.removeTrailingWhiteSpace, id=131)
         menu2.AppendSeparator()
-        menu2.Append(103, "Collapse/Expand\tShift+Ctrl+F")
+        menu2.Append(103, "Collapse/Expand\tCtrl+I")
         self.Bind(wx.EVT_MENU, self.fold, id=103)
         menu2.Append(108, "Un/Comment Selection\tCtrl+J")
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
@@ -1322,7 +1454,11 @@ class MainFrame(wx.Frame):
         menu2.AppendSeparator()
         menu2.Append(140, "Goto line...\tCtrl+L")
         self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
-        menu2.Append(wx.ID_FIND, "Find/Replace\tCtrl+F")
+        menu2.Append(141, "Quick Search\tCtrl+F")
+        self.Bind(wx.EVT_MENU, self.quickSearch, id=141)
+        menu2.Append(142, "Search Again...\tCtrl+G")
+        self.Bind(wx.EVT_MENU, self.searchAgain, id=142)        
+        menu2.Append(wx.ID_FIND, "Find/Replace\tShift+Ctrl+F")
         self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
         self.menuBar.Append(menu2, 'Code')
 
@@ -1397,6 +1533,20 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(self.menuBar)
 
+        self.status = self.CreateStatusBar()
+        self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
+        self.status.SetFieldsCount(3)
+        self.status.SetStatusWidths([100,-1,-2])
+        self.status.SetStatusText("Quick Search:", 0)
+        self.field1X, field1Y = self.status.GetTextExtent("Quick Search:")
+        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,-1), style=wx.TE_PROCESS_ENTER)
+        self.status_search.Bind(wx.EVT_TEXT_ENTER, self.onQuickSearchEnter)
+
+        self.cc = FileSelectorCombo(self.status, size=(250, -1), style=wx.CB_READONLY)
+        self.tcp = TreeCtrlComboPopup()
+        self.cc.SetPopupControl(self.tcp)
+        self.Reposition()
+
         if foldersToOpen:
             for p in foldersToOpen:
                 self.panel.project.loadFolder(p)
@@ -1407,6 +1557,15 @@ class MainFrame(wx.Frame):
                 self.panel.addPage(f)
 
         wx.CallAfter(self.buildDoc)
+
+    def Reposition(self):
+        self.status_search.SetPosition((self.field1X+10, -1))
+        rect = self.status.GetFieldRect(2)
+        if rect.x+2 > self.field1X+160:
+            self.cc.SetPosition((rect.x+2, rect.y-5))
+
+    def StatusOnSize(self, evt):
+        self.Reposition()
 
     def rebuildStyleMenu(self):
         items = self.menu5.GetMenuItems()
@@ -1483,7 +1642,10 @@ class MainFrame(wx.Frame):
         self.pastingList.append(text)
 
     def paste(self, evt):
-        self.panel.editor.Paste()
+        if self.FindFocus() == self.status_search:
+            self.status_search.Paste()
+        else:
+            self.panel.editor.Paste()
 
     def listPaste(self, evt):
         self.panel.editor.listPaste(self.pastingList)
@@ -1568,6 +1730,18 @@ class MainFrame(wx.Frame):
 
     def showFind(self, evt):
         self.panel.editor.OnShowFindReplace()
+
+    def quickSearch(self, evt):
+        self.status_search.SetFocus()
+
+    def onQuickSearchEnter(self, evt):
+        str = self.status_search.GetValue()
+        self.panel.editor.SetFocus()
+        self.panel.editor.OnQuickSearch(str)
+
+    def searchAgain(self, evt):
+        str = self.status_search.GetValue()
+        self.panel.editor.OnQuickSearch(str)
 
     def insertPath(self, evt):
         dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.getcwd(),
@@ -2066,6 +2240,18 @@ class Editor(stc.StyledTextCtrl):
         self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
         self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
 
+    def OnQuickSearch(self, str):
+        if self.GetSelection() != (0,0):
+            self.SetSelection(self.GetSelectionEnd()-1, self.GetSelectionEnd())
+        self.SearchAnchor()
+        res = self.SearchNext(stc.STC_FIND_MATCHCASE, str)
+        if res == -1:
+            self.SetCurrentPos(0)
+            self.SetAnchor(0)
+            self.SearchAnchor()
+            res = self.SearchNext(stc.STC_FIND_MATCHCASE, str)
+        self.EnsureCaretVisible()
+
     def OnShowFindReplace(self):
         data = wx.FindReplaceData()
         self.findReplace = wx.FindReplaceDialog(self, data, "Find & Replace", wx.FR_REPLACEDIALOG | wx.FR_NOUPDOWN)
@@ -2073,6 +2259,9 @@ class Editor(stc.StyledTextCtrl):
         self.findReplace.Show(True)
 
     def OnFind(self, evt):
+        print evt
+        print evt.GetEventType()
+        print evt.GetFlags()
         map = { wx.wxEVT_COMMAND_FIND : "FIND",
                 wx.wxEVT_COMMAND_FIND_NEXT : "FIND_NEXT",
                 wx.wxEVT_COMMAND_FIND_REPLACE : "REPLACE",
@@ -2369,9 +2558,20 @@ class Editor(stc.StyledTextCtrl):
             self.checkForBuiltinComp()
             self.insertDefArgs(currentword)
 
+    def onShowTip(self):
+        currentword = self.getWordUnderCaret()
+        try:
+            text = class_args(eval(currentword)).replace(currentword, "")
+            self.CallTipShow(self.GetCurrentPos(), text)
+        except:
+            pass
+
     def OnKeyDown(self, evt):
-        # Fixed order of operations here...
-        if evt.GetKeyCode() == wx.WXK_RETURN:
+        if evt.GetKeyCode() == wx.WXK_RETURN and evt.ShiftDown():
+            self.onShowTip()
+            evt.StopPropagation()
+            return
+        elif evt.GetKeyCode() == wx.WXK_RETURN:
             wx.CallAfter(self.processReturn)
         elif evt.GetKeyCode() == wx.WXK_TAB:
             autoCompActive =  self.AutoCompActive()
