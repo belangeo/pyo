@@ -26,6 +26,7 @@ sys.setdefaultencoding("utf-8")
 PLATFORM = sys.platform
 DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
+ENCODING_LIST = ["utf_8", "latin_1", "mac_roman", "cp1252", "cp1250", "utf_16"]
 
 APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
@@ -2063,8 +2064,14 @@ class MainPanel(wx.Panel):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         label = os.path.split(file)[1].split('.')[0]
         self.notebook.AddPage(editor, label, True)
-        with codecs.open(file, "r", encoding="utf-8") as f:
-            text = f.read()
+        text = ""
+        for enc in ENCODING_LIST:
+            try:
+                with codecs.open(file, "r", encoding=enc) as f:
+                    text = f.read()
+                break
+            except:
+                continue
         editor.SetText(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
