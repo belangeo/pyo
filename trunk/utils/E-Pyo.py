@@ -547,14 +547,24 @@ class EditorPreview(stc.StyledTextCtrl):
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetEdgeMode(stc.STC_EDGE_LINE)
         self.SetEdgeColumn(60)
+        self.SetMarginType(0, stc.STC_MARGIN_SYMBOL)
+        self.SetMarginWidth(0, 12)
+        self.SetMarginMask(0, ~wx.stc.STC_MASK_FOLDERS)
+        self.SetMarginSensitive(0, True)
+        
         self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(1, 28)
+        self.SetMarginMask(1, 0)
+        self.SetMarginSensitive(1, False)
+        
         self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
+        self.SetMarginWidth(2, 12)
         self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(2, True)
-        self.SetMarginWidth(2, 12)
 
         self.setStyle()
+
+        self.MarkerAdd(2, 0)
 
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
@@ -578,6 +588,7 @@ class EditorPreview(stc.StyledTextCtrl):
 
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
         self.StyleClearAll()  # Reset all to be like the default
+        self.MarkerDefine(0, stc.STC_MARK_SHORTARROW, STYLES['markerbg']['colour'], STYLES['markerbg']['colour'])
         self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
         self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
         self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
@@ -1097,7 +1108,7 @@ class SnippetFrame(wx.Frame):
 
         toolbarBox = wx.BoxSizer(wx.HORIZONTAL)
 
-        self.toolbar = wx.ToolBar(self.panel, -1, size=(-1,40))
+        self.toolbar = wx.ToolBar(self.panel, -1)
 
         saveButton = wx.Button(self.toolbar, wx.ID_ANY, label="Save Snippet")
         self.toolbar.AddControl(saveButton)
@@ -1105,7 +1116,7 @@ class SnippetFrame(wx.Frame):
 
         toolbarBox.Add(self.toolbar, 1, wx.ALIGN_LEFT|wx.EXPAND|wx.LEFT, 5)
 
-        toolbar2 = wx.ToolBar(self.panel, -1, size=(-1,40))
+        toolbar2 = wx.ToolBar(self.panel, -1)
         self.tagButton = wx.Button(toolbar2, wx.ID_ANY, label="Tag Selection")
         X = self.tagButton.GetSize()[0]
         toolbar2.SetSize((X+8, 40))
@@ -1549,10 +1560,10 @@ class MainFrame(wx.Frame):
         self.status.SetStatusWidths([100,-1,-2])
         self.status.SetStatusText("Quick Search:", 0)
         self.field1X, field1Y = self.status.GetTextExtent("Quick Search:")
-        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,-1), style=wx.TE_PROCESS_ENTER)
+        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,20), style=wx.TE_PROCESS_ENTER)
         self.status_search.Bind(wx.EVT_TEXT_ENTER, self.onQuickSearchEnter)
 
-        self.cc = FileSelectorCombo(self.status, size=(250, -1), style=wx.CB_READONLY)
+        self.cc = FileSelectorCombo(self.status, size=(250, 21), style=wx.CB_READONLY)
         self.tcp = TreeCtrlComboPopup()
         self.cc.SetPopupControl(self.tcp)
         self.Reposition()
@@ -1569,10 +1580,15 @@ class MainFrame(wx.Frame):
         wx.CallAfter(self.buildDoc)
 
     def Reposition(self):
-        self.status_search.SetPosition((self.field1X+10, -1))
+        if PLATFORM == "darwin":
+            yoff = 5
+        else:
+            yoff = 0
         rect = self.status.GetFieldRect(2)
-        if rect.x+2 > self.field1X+160:
-            self.cc.SetPosition((rect.x+2, rect.y-5))
+        self.status_search.SetPosition((self.field1X+10, rect.y+1))
+        rect = self.status.GetFieldRect(2)
+        if rect.x > self.field1X+160:
+            self.cc.SetPosition((rect.x, rect.y-yoff))
 
     def StatusOnSize(self, evt):
         self.Reposition()
@@ -2723,17 +2739,16 @@ class Editor(stc.StyledTextCtrl):
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
-            print self.markers_dict
             # Manage markers
             lineClicked = self.LineFromPosition(evt.GetPosition())
-            if evt.GetShift():
+            if evt.GetControl():
                 for items in self.markers_dict.items():
                     if items[1][0] == lineClicked:
                         handle = items[0]
                         del self.markers_dict[handle]
                         self.MarkerDelete(lineClicked, 0)
                         break
-            elif evt.GetAlt():
+            elif evt.GetShift():
                 for items in self.markers_dict.items():
                     if items[1][0] == lineClicked:
                         handle = items[0]
@@ -2750,6 +2765,7 @@ class Editor(stc.StyledTextCtrl):
                         return
                 handle = self.MarkerAdd(lineClicked, 0)
                 self.markers_dict[handle] = [lineClicked, ""]
+            print self.markers_dict
         elif evt.GetMargin() == 2:
             # Fold and unfold as needed
             if evt.GetShift() and evt.GetControl():
