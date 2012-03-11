@@ -2935,7 +2935,7 @@ class ProjectTree(wx.Panel):
         if self.edititem and self.itempath:
             self.select(self.edititem)
             head, tail = os.path.split(self.itempath)
-            newpath = os.path.join(head, self.selected)
+            newpath = os.path.join(head, event.GetLabel())
             os.rename(self.itempath, newpath)
         elif self.edititem and self.scope:
             newitem = event.GetLabel()
