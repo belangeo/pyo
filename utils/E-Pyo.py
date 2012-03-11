@@ -1564,10 +1564,10 @@ class MainFrame(wx.Frame):
         self.status = self.CreateStatusBar()
         self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
         self.status.SetFieldsCount(3)
-        self.status.SetStatusWidths([100,-1,-2])
-        self.status.SetStatusText("Quick Search:", 0)
         self.field1X, field1Y = self.status.GetTextExtent("Quick Search:")
-        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,sth), style=wx.TE_PROCESS_ENTER|wx.NO_BORDER)
+        self.status.SetStatusWidths([self.field1X+9,-1,-2])
+        self.status.SetStatusText("Quick Search:", 0)
+        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,sth), style=wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER)
         self.status_search.Bind(wx.EVT_TEXT_ENTER, self.onQuickSearchEnter)
 
         self.cc = FileSelectorCombo(self.status, size=(250, cch), style=wx.CB_READONLY)
@@ -1593,8 +1593,8 @@ class MainFrame(wx.Frame):
         else:
             yoff1 = 1
             yoff2 = 0
-        rect = self.status.GetFieldRect(2)
-        self.status_search.SetPosition((self.field1X+10, rect.y+yoff1))
+        rect = self.status.GetFieldRect(1)
+        self.status_search.SetPosition((self.field1X+12, rect.y+yoff1))
         rect = self.status.GetFieldRect(2)
         if rect.x > self.field1X+160:
             self.cc.SetPosition((rect.x, rect.y+yoff2))
