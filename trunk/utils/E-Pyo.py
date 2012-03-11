@@ -1437,12 +1437,10 @@ class MainFrame(wx.Frame):
         menu2.Append(202, "Save Pasting List")
         self.Bind(wx.EVT_MENU, self.saveListPaste, id=202)
         menu2.Append(203, "Load Pasting List")
-        self.Bind(wx.EVT_MENU, self.loadListPaste, id=203)        
+        self.Bind(wx.EVT_MENU, self.loadListPaste, id=203)
         menu2.AppendSeparator()
-        menu2.Append(130, "Show Invisibles", kind=wx.ITEM_CHECK)
-        self.Bind(wx.EVT_MENU, self.showInvisibles, id=130)
-        menu2.Append(131, "Remove Trailing White Space")
-        self.Bind(wx.EVT_MENU, self.removeTrailingWhiteSpace, id=131)
+        menu2.Append(107, "Remove Trailing White Space")
+        self.Bind(wx.EVT_MENU, self.removeTrailingWhiteSpace, id=107)
         menu2.AppendSeparator()
         menu2.Append(103, "Collapse/Expand\tCtrl+I")
         self.Bind(wx.EVT_MENU, self.fold, id=103)
@@ -1482,6 +1480,11 @@ class MainFrame(wx.Frame):
         menu4.Append(wx.ID_ZOOM_IN, "Zoom in\tCtrl+=")
         menu4.Append(wx.ID_ZOOM_OUT, "Zoom out\tCtrl+-")
         self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
+        menu4.AppendSeparator()
+        menu4.Append(130, "Show Invisibles", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.showInvisibles, id=130)
+        menu4.Append(131, "Show Edge Line", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.showEdge, id=131)
         menu4.AppendSeparator()
         self.showProjItem = menu4.Append(50, "Open Folder Panel")
         self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
@@ -1703,6 +1706,9 @@ class MainFrame(wx.Frame):
 
     def showInvisibles(self, evt):
         self.panel.editor.showInvisibles(evt.GetInt())
+
+    def showEdge(self, evt):
+        self.panel.editor.showEdge(evt.GetInt())
 
     def removeTrailingWhiteSpace(self, evt):
         self.panel.editor.removeTrailingWhiteSpace()
@@ -2171,6 +2177,7 @@ class Editor(stc.StyledTextCtrl):
         self.args_line_number = [0,0]
         self.quit_navigate_args = False
         self.quit_navigate_snip = False
+        self.markers_dict = {}
 
         self.alphaStr = string.lowercase + string.uppercase + '0123456789'
 
@@ -2186,6 +2193,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetViewWhiteSpace(False)
         self.SetEOLMode(wx.stc.STC_EOL_LF)
         self.SetViewEOL(False)
+        self.SetEdgeMode(stc.STC_EDGE_NONE)
         self.SetPasteConvertEndings(True)
 
         self.SetProperty("fold", "1")
@@ -2193,7 +2201,6 @@ class Editor(stc.StyledTextCtrl):
         self.SetMargins(5, 5)
         self.SetUseAntiAliasing(True)
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
-        self.SetEdgeMode(stc.STC_EDGE_LINE)
         self.SetEdgeColumn(78)
 
         self.SetMarginType(0, stc.STC_MARGIN_SYMBOL)
@@ -2359,6 +2366,12 @@ class Editor(stc.StyledTextCtrl):
         self.SetViewWhiteSpace(x)
         self.SetViewEOL(x)
 
+    def showEdge(self, x):
+        if x:
+            self.SetEdgeMode(stc.STC_EDGE_LINE)
+        else:
+            self.SetEdgeMode(stc.STC_EDGE_NONE)
+        
     def removeTrailingWhiteSpace(self):
         text = self.GetText()
         lines = [line.rstrip() for line in text.splitlines(False)]
@@ -2710,14 +2723,33 @@ class Editor(stc.StyledTextCtrl):
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
+            print self.markers_dict
             # Manage markers
             lineClicked = self.LineFromPosition(evt.GetPosition())
             if evt.GetShift():
-                self.MarkerDelete(lineClicked, 0)
+                for items in self.markers_dict.items():
+                    if items[1][0] == lineClicked:
+                        handle = items[0]
+                        del self.markers_dict[handle]
+                        self.MarkerDelete(lineClicked, 0)
+                        break
+            elif evt.GetAlt():
+                for items in self.markers_dict.items():
+                    if items[1][0] == lineClicked:
+                        handle = items[0]
+                        comment = ""
+                        dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
+                        if dlg.ShowModal() == wx.ID_OK:
+                            comment = dlg.GetValue()
+                        dlg.Destroy()
+                        self.markers_dict[handle][1] = comment
+                        break
             else:
-                # check if there is already a marker at that line
+                for item in self.markers_dict.values():
+                    if item[0] == lineClicked:
+                        return
                 handle = self.MarkerAdd(lineClicked, 0)
-                print "Marker handle = ", handle
+                self.markers_dict[handle] = [lineClicked, ""]
         elif evt.GetMargin() == 2:
             # Fold and unfold as needed
             if evt.GetShift() and evt.GetControl():
