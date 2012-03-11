@@ -27,6 +27,10 @@ PLATFORM = sys.platform
 DEFAULT_ENCODING = sys.getdefaultencoding()
 ENCODING = sys.getfilesystemencoding()
 ENCODING_LIST = ["utf_8", "latin_1", "mac_roman", "cp1252", "cp1250", "utf_16"]
+ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252', 'latin-1': 'latin_1', 
+                'mac-roman': 'mac_roman', 'utf-8': 'utf_8', 'utf-16': 'utf_16', 'utf-16 (Big Endian)': 'utf_16_be', 
+                'utf-16 (Little Endian)': 'utf_16_le', 'utf-32': 'utf_32', 'utf-32 (Big Endian)': 
+                'utf_32_be', 'utf-32 (Little Endian)': 'utf_32_le'}
 
 APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
@@ -1372,6 +1376,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.newFromTemplate, id=min(TEMPLATE_NAMES.keys()), id2=max(TEMPLATE_NAMES.keys()))
         menu1.Append(wx.ID_OPEN, "Open\tCtrl+O")
         self.Bind(wx.EVT_MENU, self.open, id=wx.ID_OPEN)
+        menu1.Append(160, "Open With Encoding")
+        self.Bind(wx.EVT_MENU, self.openWithEncoding, id=160)
         menu1.Append(112, "Open Folder\tShift+Ctrl+O")
         self.Bind(wx.EVT_MENU, self.openFolder, id=112)
         self.submenu2 = wx.Menu()
@@ -1879,6 +1885,29 @@ class MainFrame(wx.Frame):
                 self.newRecent(filename)
         dlg.Destroy()
 
+    def openWithEncoding(self, event):
+        ok = False
+        dlg = wx.SingleChoiceDialog(self, 'Choose the encoding:', 'Encoding',
+                sorted(ENCODING_DICT.keys()), wx.CHOICEDLG_STYLE)
+        dlg.SetSize((-1, 370))
+        if dlg.ShowModal() == wx.ID_OK:
+            encoding = ENCODING_DICT[dlg.GetStringSelection()]
+            ok = True
+        dlg.Destroy()
+
+        if not ok:
+            return
+
+        dlg = wx.FileDialog(self, message="Choose a file", 
+            defaultDir=os.path.expanduser("~"), defaultFile="", style=wx.OPEN | wx.MULTIPLE)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPaths()
+            for file in path:
+                filename = ensureNFD(file)
+                self.panel.addPage(filename, encoding=encoding)
+                self.newRecent(filename)
+        dlg.Destroy()
+
     def openExample(self, event):
         id = event.GetId()
         menu = event.GetEventObject()
@@ -2060,18 +2089,22 @@ class MainPanel(wx.Panel):
         self.notebook.AddPage(editor, title, True)
         self.editor = editor
 
-    def addPage(self, file):
+    def addPage(self, file, encoding=None):
         editor = Editor(self.notebook, -1, size=(0, -1), setTitle=self.SetTitle, getTitle=self.GetTitle)
         label = os.path.split(file)[1].split('.')[0]
         self.notebook.AddPage(editor, label, True)
         text = ""
-        for enc in ENCODING_LIST:
-            try:
-                with codecs.open(file, "r", encoding=enc) as f:
-                    text = f.read()
-                break
-            except:
-                continue
+        if encoding != None:
+            with codecs.open(file, "r", encoding=encoding) as f:
+                text = f.read()
+        else:
+            for enc in ENCODING_LIST:
+                try:
+                    with codecs.open(file, "r", encoding=enc) as f:
+                        text = f.read()
+                    break
+                except:
+                    continue
         editor.SetText(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
@@ -2157,18 +2190,26 @@ class Editor(stc.StyledTextCtrl):
 
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
-        self.SetMargins(5,5)
+        self.SetMargins(5, 5)
         self.SetUseAntiAliasing(True)
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetEdgeMode(stc.STC_EDGE_LINE)
         self.SetEdgeColumn(78)
 
+        self.SetMarginType(0, stc.STC_MARGIN_SYMBOL)
+        self.SetMarginWidth(0, 12)
+        self.SetMarginMask(0, ~wx.stc.STC_MASK_FOLDERS)
+        self.SetMarginSensitive(0, True)
+        
         self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(1, 28)
+        self.SetMarginMask(1, 0)
+        self.SetMarginSensitive(1, False)
+        
         self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
+        self.SetMarginWidth(2, 12)
         self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(2, True)
-        self.SetMarginWidth(2, 12)
 
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
@@ -2208,6 +2249,7 @@ class Editor(stc.StyledTextCtrl):
 
         ext = os.path.splitext(self.path)[1].strip(".")
         if ext in ["py", "c5"]:
+            self.MarkerDefine(0, stc.STC_MARK_SHORTARROW, STYLES['markerbg']['colour'], STYLES['markerbg']['colour'])
             self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
             self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
             self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
@@ -2667,8 +2709,17 @@ class Editor(stc.StyledTextCtrl):
                 self.DelWordLeft()
 
     def OnMarginClick(self, evt):
-        # fold and unfold as needed
-        if evt.GetMargin() == 2:
+        if evt.GetMargin() == 0:
+            # Manage markers
+            lineClicked = self.LineFromPosition(evt.GetPosition())
+            if evt.GetShift():
+                self.MarkerDelete(lineClicked, 0)
+            else:
+                # check if there is already a marker at that line
+                handle = self.MarkerAdd(lineClicked, 0)
+                print "Marker handle = ", handle
+        elif evt.GetMargin() == 2:
+            # Fold and unfold as needed
             if evt.GetShift() and evt.GetControl():
                 self.FoldAll()
             else:
