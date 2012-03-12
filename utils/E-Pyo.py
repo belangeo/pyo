@@ -1473,7 +1473,7 @@ class MainFrame(wx.Frame):
         menu2.Append(141, "Quick Search\tCtrl+F")
         self.Bind(wx.EVT_MENU, self.quickSearch, id=141)
         menu2.Append(142, "Search Again...\tCtrl+G")
-        self.Bind(wx.EVT_MENU, self.searchAgain, id=142)        
+        self.Bind(wx.EVT_MENU, self.searchAgain, id=142)
         menu2.Append(wx.ID_FIND, "Find/Replace\tShift+Ctrl+F")
         self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
         self.menuBar.Append(menu2, 'Code')
@@ -1522,7 +1522,26 @@ class MainFrame(wx.Frame):
         self.menu7 = wx.Menu()
         self.makeSnippetMenu()
         self.menuBar.Append(self.menu7, "Snippets")
-        
+
+        if sys.platform == "darwin":
+            accel = wx.ACCEL_CMD
+        else:
+            accel = wx.ACCEL_CTRL
+
+        menu8 = wx.Menu()
+        menu8.Append(600, "Add Marker to Current Line\tShift+Ctrl+M")
+        self.Bind(wx.EVT_MENU, self.addMarker, id=600)
+        menu8.Append(601, "Delete Current Line Marker\tShift+Ctrl+K")
+        self.Bind(wx.EVT_MENU, self.deleteMarker, id=601)
+        aEntry = wx.AcceleratorEntry(accel|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
+        menu8.Append(602, 'Navigate Markers Upward\t%s' % aEntry.ToString())
+        aEntry = wx.AcceleratorEntry(accel|wx.ACCEL_SHIFT, wx.WXK_DOWN, 603)
+        menu8.Append(603, 'Navigate Markers Downward\t%s' % aEntry.ToString())
+        self.Bind(wx.EVT_MENU, self.navigateMarkers, id=602, id2=603)
+        menu8.AppendSeparator()
+        menu8.Append(604, "Open Markers Panel")
+        self.menuBar.Append(menu8, "Markers")
+
         menu6 = wx.Menu()
         ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
@@ -1535,15 +1554,11 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=ID_EXAMPLE)
         self.menuBar.Append(menu6, "Pyo Examples")
 
-        if sys.platform == "darwin":
-            accel = wx.ACCEL_CMD
-        else:
-            accel = wx.ACCEL_CTRL
         windowMenu = wx.Menu()
         aEntry = wx.AcceleratorEntry(accel, wx.WXK_RIGHT, 10001)
-        windowMenu.Append(10001, 'Switch Tabs Forward\t%s' % aEntry.ToString())
+        windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
         aEntry = wx.AcceleratorEntry(accel, wx.WXK_LEFT, 10002)
-        windowMenu.Append(10002, 'Switch Tabs Backward\t%s' % aEntry.ToString())
+        windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
         self.menuBar.Append(windowMenu, '&Window')
 
@@ -1739,6 +1754,21 @@ class MainFrame(wx.Frame):
 
     def removeTrailingWhiteSpace(self, evt):
         self.panel.editor.removeTrailingWhiteSpace()
+
+    def addMarker(self, evt):
+        line = self.panel.editor.GetCurrentLine()
+        self.panel.editor.addMarker(line)
+        self.panel.editor.addMarkerComment(line)
+
+    def deleteMarker(self, evt):
+        line = self.panel.editor.GetCurrentLine()
+        self.panel.editor.deleteMarker(line)
+
+    def navigateMarkers(self, evt):
+        if evt.GetId() == 602:
+            self.panel.editor.navigateMarkers(down=False)
+        else:
+            self.panel.editor.navigateMarkers(down=True)
 
     def gotoLine(self, evt):
         dlg = wx.TextEntryDialog(self, "Enter a line number:", "Go to Line")
@@ -2205,6 +2235,7 @@ class Editor(stc.StyledTextCtrl):
         self.quit_navigate_args = False
         self.quit_navigate_snip = False
         self.markers_dict = {}
+        self.current_marker = -1
 
         self.alphaStr = string.lowercase + string.uppercase + '0123456789'
 
@@ -2655,8 +2686,28 @@ class Editor(stc.StyledTextCtrl):
         except:
             pass
 
+    def navigateMarkers(self, down=True):
+        if self.markers_dict != {}:
+            llen = len(self.markers_dict)
+            keys = sorted(self.markers_dict.keys())
+            if down:
+                self.current_marker += 1
+            else:
+                self.current_marker -= 1
+            if self.current_marker < 0:
+                self.current_marker = llen - 1
+            elif self.current_marker >= llen:
+                self.current_marker = 0
+            self.GotoLine(keys[self.current_marker])
+
     def OnKeyDown(self, evt):
-        if evt.GetKeyCode() == wx.WXK_RETURN and evt.ShiftDown():
+        if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and evt.CmdDown():
+            evt.StopPropagation()
+            return
+        elif evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and evt.ControlDown():
+            evt.StopPropagation()
+            return
+        elif evt.GetKeyCode() == wx.WXK_RETURN and evt.ShiftDown():
             self.onShowTip()
             evt.StopPropagation()
             return
@@ -2748,37 +2799,39 @@ class Editor(stc.StyledTextCtrl):
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
 
+    def addMarker(self, line):
+        if line not in self.markers_dict.keys():
+            self.MarkerAdd(line, 0)
+            self.markers_dict[line] = ""
+
+    def deleteMarker(self, line):
+        if line in self.markers_dict.keys():
+            del self.markers_dict[line]
+            self.MarkerDelete(line, 0)
+
+    def addMarkerComment(self, line):
+        if line in self.markers_dict.keys():
+            comment = ""
+            dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
+            if dlg.ShowModal() == wx.ID_OK:
+                comment = dlg.GetValue()
+            dlg.Destroy()
+            self.markers_dict[line] = comment
+
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
-            # Manage markers
-            lineClicked = self.LineFromPosition(evt.GetPosition())
-            if evt.GetControl():
-                for items in self.markers_dict.items():
-                    if items[1][0] == lineClicked:
-                        handle = items[0]
-                        del self.markers_dict[handle]
-                        self.MarkerDelete(lineClicked, 0)
-                        break
-            elif evt.GetShift():
-                for items in self.markers_dict.items():
-                    if items[1][0] == lineClicked:
-                        handle = items[0]
-                        comment = ""
-                        dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
-                        if dlg.ShowModal() == wx.ID_OK:
-                            comment = dlg.GetValue()
-                        dlg.Destroy()
-                        self.markers_dict[handle][1] = comment
-                        break
+            if PLATFORM == "darwin":
+                modif = evt.GetAlt
             else:
-                for item in self.markers_dict.values():
-                    if item[0] == lineClicked:
-                        return
-                handle = self.MarkerAdd(lineClicked, 0)
-                self.markers_dict[handle] = [lineClicked, ""]
-            print self.markers_dict
+                modif = evt.GetControl
+            lineClicked = self.LineFromPosition(evt.GetPosition())
+            if modif():
+                self.deleteMarker(lineClicked)
+            elif evt.GetShift():
+                self.addMarkerComment(lineClicked)
+            else:
+                self.addMarker(lineClicked)
         elif evt.GetMargin() == 2:
-            # Fold and unfold as needed
             if evt.GetShift() and evt.GetControl():
                 self.FoldAll()
             else:
