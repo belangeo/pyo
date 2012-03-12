@@ -1555,9 +1555,11 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(self.menuBar)
 
         if PLATFORM == "darwin":
+            ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
             sth = 17
             cch = -1
         else:
+            ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
             sth = 20
             cch = 21
 
@@ -1567,7 +1569,7 @@ class MainFrame(wx.Frame):
         self.field1X, field1Y = self.status.GetTextExtent("Quick Search:")
         self.status.SetStatusWidths([self.field1X+9,-1,-2])
         self.status.SetStatusText("Quick Search:", 0)
-        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,sth), style=wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER)
+        self.status_search = wx.TextCtrl(self.status, wx.ID_ANY, size=(150,sth), style=ststyle)
         self.status_search.Bind(wx.EVT_TEXT_ENTER, self.onQuickSearchEnter)
 
         self.cc = FileSelectorCombo(self.status, size=(250, cch), style=wx.CB_READONLY)
