@@ -242,7 +242,7 @@ MODULES = {
           }
 '''
 
-WXPYTHON_TEMPLATE = '''#!/usr/bin/env python
+AUDIO_INTERFACE_TEMPLATE = '''#!/usr/bin/env python
 # encoding: utf-8
 import wx
 from pyo import *
@@ -286,8 +286,27 @@ mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
 mainFrame.Show()
 app.MainLoop()
 '''
-TEMPLATE_NAMES = {94: "Header", 95: "Pyo", 96: "Cecilia5", 97: "Zyne", 98: "WxPython"}
-TEMPLATE_DICT = {94: HEADER_TEMPLATE, 95: PYO_TEMPLATE, 96: CECILIA5_TEMPLATE, 97: ZYNE_TEMPLATE, 98: WXPYTHON_TEMPLATE}
+
+WXPYTHON_TEMPLATE = '''#!/usr/bin/env python
+# encoding: utf-8
+import wx
+
+class MyFrame(wx.Frame):
+    def __init__(self, parent, title, pos, size):
+        wx.Frame.__init__(self, parent, -1, title, pos, size)
+        self.panel = wx.Panel(self)
+        self.panel.SetBackgroundColour("#DDDDDD")
+
+
+if __name__ == "__main__":
+    app = wx.PySimpleApp()
+    mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
+    mainFrame.Show()
+    app.MainLoop()
+'''
+TEMPLATE_NAMES = {93: "Header", 94: "Pyo", 95: "WxPython", 96: "Cecilia5", 97: "Zyne", 98: "Audio Interface"}
+TEMPLATE_DICT = {93: HEADER_TEMPLATE, 94: PYO_TEMPLATE, 95: WXPYTHON_TEMPLATE, 96: CECILIA5_TEMPLATE, 
+                97: ZYNE_TEMPLATE, 98: AUDIO_INTERFACE_TEMPLATE}
 
 ################## BUILTIN KEYWORDS COMPLETION ##################
 FROM_COMP = ''' `module` import `*`
@@ -332,7 +351,6 @@ BUILTINS_DICT = {"from": FROM_COMP, "try": TRY_COMP, "if": IF_COMP, "def": DEF_C
 
 ################## Interface Bitmaps ##################
 catalog = {}
-#----------------------------------------------------------------------
 close_panel_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAA29JREFU"
     "eJzcVclrE1EcfvPem8zQRRNrumQS6lYRFYLUgxZBccWToODeoIKiCC4HL/UfKPTgxVBsD1Lc"
@@ -354,7 +372,6 @@ close_panel_icon_png = PyEmbeddedImage(
     "5r++fgIAAP//AwDHcZZetNGOQQAAAABJRU5ErkJggg==")
 catalog['close_panel_icon.png'] = close_panel_icon_png
 
-#----------------------------------------------------------------------
 file_add_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABDBJREFU"
     "eJyMVV1IHFcU/mZ29ifZXbNutMbUxgSaJooiURT1IVQKUvpSpNifvEiwr6GB5kEoNIVSDAmS"
@@ -380,7 +397,6 @@ file_add_icon_png = PyEmbeddedImage(
     "SUVORK5CYII=")
 catalog['file_add_icon.png'] = file_add_icon_png
 
-#----------------------------------------------------------------------
 folder_add_icon_png = PyEmbeddedImage(
     "iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAABShJREFU"
     "eJykVW1sU1UYfu5H721vv7t1DFbXDZmb2UR0QNAYJTELkR9AJBKJ8SMx0R8mZiRojAkJMUSj"
@@ -434,6 +450,70 @@ file_delete_icon_png = PyEmbeddedImage(
     "SRDxer3npqen0+RRZkNBYqR6vP/4/Ofb2xvazpyeog8tmykJJurr62sbGxuzbk7NglSOJPD8"
     "qnv/BQAA//8DAPE93uTkTcJiAAAAAElFTkSuQmCC")
 catalog['file_delete_icon.png'] = file_delete_icon_png
+
+left_arrow_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAppJREFU"
+    "eJzsVFtLVFEUXnvObS5NTSRqFzANDHNC6sGXCKdA6qEL0T+I3opepJeCegjDl8goKLqAQb2n"
+    "JVpBvoR0I6zUQLSxcsYZnWluOueyz967dc6MkYSV5GMbPtY++6zz7W/t9e0jwwoP+T/hb4fH"
+    "4wkKIQqIlSFsaN7V2bQ7YvTdvXU2M5PI/jMhCQTVluOnjoVbDx55dP1y+5v+7juWXjQWEVZv"
+    "aTxfsaEuQiQPwA9IQCTi1IhzjKSE6vpww7TJgKzbtL61rf1afeRw27Pbl058HXnbJzgrEdbs"
+    "iDRubzkaIZoK4NWAIIRPxSiD0BQADckVCQRuRBiHmG4DmDYQg4NS11S79/SV3k/PH/cO9XSd"
+    "ySc+f5BzRQti6Xn8EBP9uHtAgLAFEJu7EZgCRBMlQmcNFYJBkZCC0C0gpkQC2/Yc2FmxdX90"
+    "sOecPJEowJfhaQCfBhD0A6wOIDCu8iJwzY/KfahUxvIpkukUoIiYMxE6QL7oRplLslKzLyxT"
+    "tADlqITjAThucCyx4IoFe4gynByGE1S6ALQSaASmzJncTWO+2CWrlaGMEt4cdxrhNgQThIcA"
+    "0U0QBqr4VgCCbAI35YoUMipDfrfjMgFVApMkM/dZKn+VW8YYS08UZVtRLnCft9NVgIdOLIZn"
+    "h6W54OXI3HJJUOuAqrWHVI+gUjzdzydnb3DDfMHyiSyLDmDHXmLps/EpPv6+VBpHArd8h8Au"
+    "zXETsLi7pm6syvmTa0bYx3gHy+tPxXwuxSYHGR9/go3Klo396gHA6+6/Mraobb7HrZMXha5H"
+    "eWzYZKMPQWSi+IL/dFOch6Wv5uJBzQGeitr0XbcQ8SFUT39JWdbVo9OjFJJjaOy5JXOW9/ui"
+    "xh9TVvx/+B0AAP//AwDd4UcxPpGF3gAAAABJRU5ErkJggg==")
+catalog['left_arrow.png'] = left_arrow_png
+
+left_arrow_png = PyEmbeddedImage(
+    "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAppJREFU"
+    "eJzsVFtLVFEUXnvObS5NTSRqFzANDHNC6sGXCKdA6qEL0T+I3opepJeCegjDl8goKLqAQb2n"
+    "JVpBvoR0I6zUQLSxcsYZnWluOueyz967dc6MkYSV5GMbPtY++6zz7W/t9e0jwwoP+T/hb4fH"
+    "4wkKIQqIlSFsaN7V2bQ7YvTdvXU2M5PI/jMhCQTVluOnjoVbDx55dP1y+5v+7juWXjQWEVZv"
+    "aTxfsaEuQiQPwA9IQCTi1IhzjKSE6vpww7TJgKzbtL61rf1afeRw27Pbl058HXnbJzgrEdbs"
+    "iDRubzkaIZoK4NWAIIRPxSiD0BQADckVCQRuRBiHmG4DmDYQg4NS11S79/SV3k/PH/cO9XSd"
+    "ySc+f5BzRQti6Xn8EBP9uHtAgLAFEJu7EZgCRBMlQmcNFYJBkZCC0C0gpkQC2/Yc2FmxdX90"
+    "sOecPJEowJfhaQCfBhD0A6wOIDCu8iJwzY/KfahUxvIpkukUoIiYMxE6QL7oRplLslKzLyxT"
+    "tADlqITjAThucCyx4IoFe4gynByGE1S6ALQSaASmzJncTWO+2CWrlaGMEt4cdxrhNgQThIcA"
+    "0U0QBqr4VgCCbAI35YoUMipDfrfjMgFVApMkM/dZKn+VW8YYS08UZVtRLnCft9NVgIdOLIZn"
+    "h6W54OXI3HJJUOuAqrWHVI+gUjzdzydnb3DDfMHyiSyLDmDHXmLps/EpPv6+VBpHArd8h8Au"
+    "zXETsLi7pm6syvmTa0bYx3gHy+tPxXwuxSYHGR9/go3Klo396gHA6+6/Mraobb7HrZMXha5H"
+    "eWzYZKMPQWSi+IL/dFOch6Wv5uJBzQGeitr0XbcQ8SFUT39JWdbVo9OjFJJjaOy5JXOW9/ui"
+    "xh9TVvx/+B0AAP//AwDd4UcxPpGF3gAAAABJRU5ErkJggg==")
+catalog['left_arrow.png'] = left_arrow_png
+
+delete_all_markers_png = PyEmbeddedImage(
+    "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"
+    "Mnw5AAAAAElFTkSuQmCC")
+catalog['delete_all_markers.png'] = delete_all_markers_png
 
 ############## Allowed Extensions ##############
 ALLOWED_EXT = ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"]
@@ -1162,7 +1242,7 @@ class SnippetFrame(wx.Frame):
             with open(os.path.join(SNIPPETS_PATH, self.category_name, self.snippet_name), "r") as f:
                 text = f.read()
             exec text in locals()
-            self.entry.SetText(snippet["value"])
+            self.entry.SetTextUTF8(snippet["value"])
             if snippet["shortcut"]:
                 self.short.SetValue(snippet["shortcut"])
                 self.short.SetForegroundColour("#000000")
@@ -1188,7 +1268,7 @@ class SnippetFrame(wx.Frame):
                 short = self.short.GetValue()
                 if short == "Type your shortcut...":
                     short = ""
-                dic = {"value": self.entry.GetText(),
+                dic = {"value": self.entry.GetTextUTF8(),
                         "shortcut": short}
                 with open(os.path.join(SNIPPETS_PATH, category, name), "w") as f:
                     f.write("snippet = " + str(dic))
@@ -1499,6 +1579,8 @@ class MainFrame(wx.Frame):
         menu4.AppendSeparator()
         self.showProjItem = menu4.Append(50, "Open Folder Panel")
         self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
+        self.showMarkItem = menu4.Append(49, "Open Markers Panel")
+        self.Bind(wx.EVT_MENU, self.showHideMarkersPanel, id=49)
         menu4.AppendSeparator()
         menu4.Append(190, "Open Documentation Frame\tShift+Ctrl+D")
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
@@ -1533,13 +1615,14 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.addMarker, id=600)
         menu8.Append(601, "Delete Current Line Marker\tShift+Ctrl+K")
         self.Bind(wx.EVT_MENU, self.deleteMarker, id=601)
+        menu8.Append(604, "Delete All Markers")
+        self.Bind(wx.EVT_MENU, self.deleteAllMarkers, id=604)
+        menu8.AppendSeparator()
         aEntry = wx.AcceleratorEntry(accel|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
         menu8.Append(602, 'Navigate Markers Upward\t%s' % aEntry.ToString())
         aEntry = wx.AcceleratorEntry(accel|wx.ACCEL_SHIFT, wx.WXK_DOWN, 603)
         menu8.Append(603, 'Navigate Markers Downward\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.navigateMarkers, id=602, id2=603)
-        menu8.AppendSeparator()
-        menu8.Append(604, "Open Markers Panel")
         self.menuBar.Append(menu8, "Markers")
 
         menu6 = wx.Menu()
@@ -1764,6 +1847,9 @@ class MainFrame(wx.Frame):
         line = self.panel.editor.GetCurrentLine()
         self.panel.editor.deleteMarker(line)
 
+    def deleteAllMarkers(self, evt):
+        self.panel.editor.deleteAllMarkers()
+
     def navigateMarkers(self, evt):
         if evt.GetId() == 602:
             self.panel.editor.navigateMarkers(down=False)
@@ -1859,6 +1945,7 @@ class MainFrame(wx.Frame):
             ed = self.panel.notebook.GetPage(i)
             ed.setStyle()
         self.panel.project.setStyle()
+        self.panel.markers.scroll.setStyle()
 
         if not fromMenu:
             itemList = self.menu5.GetMenuItems()
@@ -1878,25 +1965,57 @@ class MainFrame(wx.Frame):
     def openPrefs(self, evt):
         pass
 
-    def showHideFolderPanel(self, evt):
-        state = self.showProjItem.GetItemLabel() == "Open Folder Panel"
-        if state:
-            self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
-            self.showProjItem.SetItemLabel("Close Folder Panel")
-        else:
-            self.panel.splitter.Unsplit(self.panel.project)
-            self.showProjItem.SetItemLabel("Open Folder Panel")
-
     def showSnippetEditor(self, evt):
         self.snippet_frame.Show()
 
+    def showHideFolderPanel(self, evt):
+        state = self.showProjItem.GetItemLabel() == "Open Folder Panel"
+        self.showProjectTree(state)
+
+    def showHideMarkersPanel(self, evt):
+        state = self.showMarkItem.GetItemLabel() == "Open Markers Panel"
+        self.showMarkersPanel(state)
+
     def showProjectTree(self, state):
         if state:
-            self.panel.splitter.SplitVertically(self.panel.project, self.panel.notebook, 175)
+            if self.panel.project.IsShownOnScreen():
+                return
+            if not self.panel.splitter.IsSplit():
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.notebook, 175)
+                h = self.panel.GetSize()[1]
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+                self.panel.left_splitter.Unsplit(self.panel.markers)
+            else:
+                h = self.panel.GetSize()[1]
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
             self.showProjItem.SetItemLabel("Close Folder Panel")
         else:
-            self.panel.splitter.Unsplit(self.panel.project)
+            if self.panel.markers.IsShown():
+                self.panel.left_splitter.Unsplit(self.panel.project)
+            else:
+                self.panel.splitter.Unsplit(self.panel.left_splitter)
             self.showProjItem.SetItemLabel("Open Folder Panel")
+
+    def showMarkersPanel(self, state):
+        if state:
+            if self.panel.markers.IsShownOnScreen():
+                return
+            if not self.panel.splitter.IsSplit():
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.notebook, 175)
+                h = self.panel.GetSize()[1]
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+                self.panel.left_splitter.Unsplit(self.panel.project)
+            else:
+                h = self.panel.GetSize()[1]
+                self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
+            self.showMarkItem.SetItemLabel("Close Markers Panel")
+        else:
+            if self.panel.project.IsShown():
+                self.panel.left_splitter.Unsplit(self.panel.markers)
+            else:
+                self.panel.splitter.Unsplit(self.panel.left_splitter)
+            self.showMarkItem.SetItemLabel("Open Markers Panel")
+
 
     ### New / Open / Save / Delete ###
     def new(self, event):
@@ -1905,7 +2024,7 @@ class MainFrame(wx.Frame):
     def newFromTemplate(self, event):
         self.panel.addNewPage()
         temp = TEMPLATE_DICT[event.GetId()]
-        self.panel.editor.SetText(temp)
+        self.panel.editor.SetTextUTF8(temp)
 
     def newRecent(self, file):
         filename = ensureNFD(os.path.join(TEMP_PATH,'.recent.txt'))
@@ -2129,15 +2248,20 @@ class MainPanel(wx.Panel):
         mainBox = wx.BoxSizer(wx.HORIZONTAL)
 
         self.splitter = wx.SplitterWindow(self, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
+        self.splitter.SetMinimumPaneSize(150)
 
-        self.project = ProjectTree(self.splitter, self, (-1, -1))
+        self.left_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
+
+        self.project = ProjectTree(self.left_splitter, self, (-1, -1))
+        self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
+
         self.notebook = FNB.FlatNotebook(self.splitter, size=(0,-1), 
                         style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
-        
-        self.splitter.SplitVertically(self.project, self.notebook, 175)
-        self.splitter.Unsplit(self.project)
-        
+
+        self.splitter.SplitVertically(self.left_splitter, self.notebook, 175)
+        self.splitter.Unsplit(self.left_splitter)
+
         mainBox.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(mainBox)
 
@@ -2168,7 +2292,7 @@ class MainPanel(wx.Panel):
                     break
                 except:
                     continue
-        editor.SetText(ensureNFD(text))
+        editor.SetTextUTF8(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
         editor.SetSavePoint()
@@ -2178,7 +2302,6 @@ class MainPanel(wx.Panel):
 
     def deletePage(self):
         select = self.notebook.GetSelection()
-        ed = self.notebook.GetPage(select)
         self.notebook.DeletePage(select)
         if self.notebook.GetPageCount() == 0:
             self.addNewPage()
@@ -2189,6 +2312,7 @@ class MainPanel(wx.Panel):
             self.notebook.SetSelection(pageNum)
 
     def onPageChange(self, event):
+        self.markers.setDict({})
         self.editor = self.notebook.GetPage(self.notebook.GetSelection())
         if not self.editor.path:
             if self.editor.GetModify():
@@ -2200,6 +2324,7 @@ class MainPanel(wx.Panel):
                 self.SetTitle('*** ' + self.editor.path + ' ***')
             else:
                 self.SetTitle(self.editor.path)
+        self.markers.setDict(self.editor.markers_dict)
 
     def SetTitle(self, title):
         self.mainFrame.SetTitle(title)
@@ -2253,6 +2378,7 @@ class Editor(stc.StyledTextCtrl):
         self.SetViewEOL(False)
         self.SetEdgeMode(stc.STC_EDGE_NONE)
         self.SetPasteConvertEndings(True)
+        self.SetControlCharSymbol(32)
 
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
@@ -2325,7 +2451,7 @@ class Editor(stc.StyledTextCtrl):
 
             self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
             self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
-            self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default') + ",size:5")
             self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, buildStyle('default', 'bracelight') + ",bold")
             self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, buildStyle('default', 'bracebad') + ",bold")
 
@@ -2431,15 +2557,15 @@ class Editor(stc.StyledTextCtrl):
             self.SetEdgeMode(stc.STC_EDGE_NONE)
         
     def removeTrailingWhiteSpace(self):
-        text = self.GetText()
+        text = self.GetTextUTF8()
         lines = [line.rstrip() for line in text.splitlines(False)]
         text= "\n".join(lines)
-        self.SetText(text)
+        self.SetTextUTF8(text)
 
     def tabsToSpaces(self):
-        text = self.GetText()
+        text = self.GetTextUTF8()
         text = text.replace("\t", "    ")
-        self.SetText(text)
+        self.SetTextUTF8(text)
 
     ### Save and Close file ###
     def saveMyFile(self, file):
@@ -2523,7 +2649,7 @@ class Editor(stc.StyledTextCtrl):
 
     def onPasteFromList(self, evt):
         item = self.popupmenu.FindItemById(evt.GetId())
-        text = item.GetText()
+        text = item.GetTextUTF8()
         self.InsertText(self.GetCurrentPos(), text)
         self.SetCurrentPos(self.GetCurrentPos() + len(text))
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
@@ -2539,7 +2665,7 @@ class Editor(stc.StyledTextCtrl):
         caretPos = self.GetCurrentPos()
         startpos = self.WordStartPosition(caretPos, True)
         endpos = self.WordEndPosition(caretPos, True)
-        currentword = self.GetTextRange(startpos, endpos)
+        currentword = self.GetTextRangeUTF8(startpos, endpos)
         return currentword
 
     def showAutoComp(self):
@@ -2547,7 +2673,7 @@ class Editor(stc.StyledTextCtrl):
         charBefore = " "
         caretPos = self.GetCurrentPos()
         if caretPos > 0:
-            charBefore = self.GetTextRange(caretPos - 1, caretPos)
+            charBefore = self.GetTextRangeUTF8(caretPos - 1, caretPos)
         currentword = self.getWordUnderCaret()
         if charBefore in self.alphaStr:
             list = ''
@@ -2699,6 +2825,7 @@ class Editor(stc.StyledTextCtrl):
             elif self.current_marker >= llen:
                 self.current_marker = 0
             self.GotoLine(keys[self.current_marker])
+            self.GetParent().GetParent().GetParent().markers.setSelected(self.current_marker)
 
     def OnKeyDown(self, evt):
         if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and evt.CmdDown():
@@ -2772,6 +2899,11 @@ class Editor(stc.StyledTextCtrl):
             self.args_buffer = []
             self.quit_navigate_args = False
 
+        # if self.endOfLine:
+        #     for i in range(self.GetLineCount()):
+        #         pos = self.GetLineEndPosition(i)
+        #         if self.GetCharAt(pos-1) != 172:
+        #             self.InsertTextUTF8(pos, "¬")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()
@@ -2793,9 +2925,9 @@ class Editor(stc.StyledTextCtrl):
         for i in range(self.firstLine, self.endLine+1):
             lineLen = len(self.GetLine(i))
             pos = self.PositionFromLine(i)
-            if self.GetTextRange(pos,pos+1) != '#' and lineLen > 2:
+            if self.GetTextRangeUTF8(pos,pos+1) != '#' and lineLen > 2:
                 self.InsertText(pos, '#')
-            elif self.GetTextRange(pos,pos+1) == '#':
+            elif self.GetTextRangeUTF8(pos,pos+1) == '#':
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
 
@@ -2803,11 +2935,21 @@ class Editor(stc.StyledTextCtrl):
         if line not in self.markers_dict.keys():
             self.MarkerAdd(line, 0)
             self.markers_dict[line] = ""
+            self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+            return True
+        else:
+            return False
 
     def deleteMarker(self, line):
         if line in self.markers_dict.keys():
             del self.markers_dict[line]
             self.MarkerDelete(line, 0)
+            self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+
+    def deleteAllMarkers(self):
+        self.markers_dict = {}
+        self.MarkerDeleteAll(0)
+        self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def addMarkerComment(self, line):
         if line in self.markers_dict.keys():
@@ -2815,8 +2957,12 @@ class Editor(stc.StyledTextCtrl):
             dlg = wx.TextEntryDialog(self, 'Enter a comment for that marker:', 'Marker Comment')
             if dlg.ShowModal() == wx.ID_OK:
                 comment = dlg.GetValue()
-            dlg.Destroy()
+                dlg.Destroy()
+            else:
+                dlg.Destroy()
+                return
             self.markers_dict[line] = comment
+            self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:
@@ -2830,7 +2976,9 @@ class Editor(stc.StyledTextCtrl):
             elif evt.GetShift():
                 self.addMarkerComment(lineClicked)
             else:
-                self.addMarker(lineClicked)
+                ok = self.addMarker(lineClicked)
+                if ok:
+                    self.addMarkerComment(lineClicked)
         elif evt.GetMargin() == 2:
             if evt.GetShift() and evt.GetControl():
                 self.FoldAll()
@@ -2951,7 +3099,7 @@ class ProjectTree(wx.Panel):
         wx.EVT_TOOL(self, 15, self.onCloseProjectPanel)
 
         self.sizer.Add(toolbarbox, 0, wx.EXPAND)
-        
+
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
         self.tree.SetBackgroundColour(STYLES['background']['colour'])
 
@@ -3166,7 +3314,124 @@ class ProjectTree(wx.Panel):
         self.toolbar.EnableTool(TOOL_ADD_FILE_ID, False)
 
     def onCloseProjectPanel(self, evt):
-       self.mainPanel.mainFrame.showProjectTree(False)
+        self.mainPanel.mainFrame.showProjectTree(False)
+
+
+class MarkersListScroll(scrolled.ScrolledPanel):
+    def __init__(self, parent, id=-1, pos=(25,25), size=(500,400)):
+        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0), size=size, style=wx.SUNKEN_BORDER)
+        self.parent = parent
+        self.SetBackgroundColour(STYLES['background']['colour'])
+        self.arrow_bit = catalog['left_arrow.png'].GetBitmap()
+        self.row_dict = {}
+
+        self.box = wx.FlexGridSizer(0, 3, 0, 5)
+
+        self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+        self.selected = None
+
+        if wx.Platform == '__WXMAC__':
+            self.font = wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
+        else:
+            self.font = wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
+
+        self.SetSizer(self.box)
+        self.SetAutoLayout(1)
+        self.SetupScrolling()
+
+    def setDict(self, dic):
+        self.row_dict = dic
+        self.box.Clear(True)
+        for i, key in enumerate(sorted(self.row_dict.keys())):
+            label = wx.StaticBitmap(self, wx.ID_ANY)
+            label.SetBitmap(self.arrow_bit)
+            self.box.Add(label, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 2, userData=(i,key))
+            line = wx.StaticText(self, wx.ID_ANY, label=str(key+1))
+            line.SetFont(self.font)
+            self.box.Add(line, 0, wx.ALIGN_LEFT|wx.TOP|wx.LEFT, 2, userData=(i,key))
+            comment = wx.StaticText(self, wx.ID_ANY, label=self.row_dict[key])
+            comment.SetFont(self.font)
+            self.box.Add(comment, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.TOP|wx.LEFT, 2, userData=(i,key))
+            self.box.Layout()
+            label.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+            line.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+            comment.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+
+    def OnLeftDown(self, evt):
+        self.selected = None
+        evtobj = evt.GetEventObject()
+        for item in self.box.GetChildren():
+            obj = item.GetWindow()
+            if obj == evtobj:
+                self.selected = item.GetUserData()[0]
+                self.parent.mainPanel.editor.GotoLine(item.GetUserData()[1])
+                break
+        self.setColour()
+
+    def setColour(self):
+        for item in self.box.GetChildren():
+            obj = item.GetWindow()
+            data = item.GetUserData()[0]
+            if self.selected == data:
+                obj.SetForegroundColour(STYLES['comment']['colour'])
+            else:
+                obj.SetForegroundColour(STYLES['default']['colour'])
+
+    def setStyle(self):
+        self.SetBackgroundColour(STYLES['background']['colour'])
+        self.setColour()
+
+    def setSelected(self, mark):
+        self.selected = mark
+        self.setColour()
+
+TOOL_DELETE_ALL_MARKERS_ID = 12
+class MarkersPanel(wx.Panel):
+    def __init__(self, parent, mainPanel, size=(175,400)):
+        wx.Panel.__init__(self, parent, wx.ID_ANY, size=size, style=wx.SUNKEN_BORDER)
+        self.mainPanel = mainPanel
+
+        tsize = (24, 24)
+        delete_all_markers = catalog['delete_all_markers.png'].GetBitmap()
+        close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
+
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+
+        toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar.AddLabelTool(TOOL_DELETE_ALL_MARKERS_ID, "Delete All Markers", delete_all_markers, shortHelp="Delete All Markers")
+        self.toolbar.Realize()
+        toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.EXPAND, 0)
+
+        tb2 = wx.ToolBar(self, -1, size=(-1,36))
+        tb2.SetToolBitmapSize(tsize)
+        tb2.AddLabelTool(16, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        tb2.Realize()
+        toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
+
+        wx.EVT_TOOL(self, TOOL_DELETE_ALL_MARKERS_ID, self.onDeleteAll)
+        wx.EVT_TOOL(self, 16, self.onCloseMarkersPanel)
+
+        self.sizer.Add(toolbarbox, 0, wx.EXPAND)
+
+        self.scroll = MarkersListScroll(self, size=(-1, -1))
+        self.sizer.Add(self.scroll, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.BOTTOM, 0)
+
+        self.SetSizer(self.sizer)
+
+    def setSelected(self, mark):
+        self.scroll.setSelected(mark)
+
+    def setDict(self, dic):
+        self.row_dict = copy.deepcopy(dic)
+        self.scroll.setDict(dic)
+
+    def onDeleteAll(self, evt):
+        self.mainPanel.mainFrame.deleteAllMarkers(evt)
+
+    def onCloseMarkersPanel(self, evt):
+        self.mainPanel.mainFrame.showMarkersPanel(False)
 
 class MyFileDropTarget(wx.FileDropTarget):
     def __init__(self, window):
