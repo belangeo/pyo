@@ -1436,10 +1436,10 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
             self.value = item
             self.Dismiss()
             editor = self.GetCombo().GetParent().GetParent().panel.editor
-            pos = editor.PositionFromLine(self.tree.GetPyData(item))
-            editor.SetCurrentPos(pos)
-            editor.EnsureCaretVisible()
-            editor.SetAnchor(editor.GetCurrentPos())
+            line = self.tree.GetPyData(item)
+            editor.GotoLine(line)
+            halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+            editor.ScrollToLine(line - halfNumLinesOnScreen)
             wx.CallAfter(editor.SetFocus)
         evt.Skip()
 
@@ -1889,6 +1889,7 @@ class MainFrame(wx.Frame):
 
     def quickSearch(self, evt):
         self.status_search.SetFocus()
+        self.status_search.SelectAll()
 
     def onQuickSearchEnter(self, evt):
         str = self.status_search.GetValue()
@@ -2292,7 +2293,7 @@ class MainPanel(wx.Panel):
                     break
                 except:
                     continue
-        editor.SetTextUTF8(ensureNFD(text))
+        editor.SetText(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
         editor.SetSavePoint()
@@ -2490,7 +2491,9 @@ class Editor(stc.StyledTextCtrl):
             self.SetAnchor(0)
             self.SearchAnchor()
             res = self.SearchNext(stc.STC_FIND_MATCHCASE, str)
-        self.EnsureCaretVisible()
+        line = self.GetCurrentLine()
+        halfNumLinesOnScreen = self.LinesOnScreen() / 2
+        self.ScrollToLine(line - halfNumLinesOnScreen)
 
     def OnShowFindReplace(self):
         data = wx.FindReplaceData()
@@ -2824,7 +2827,10 @@ class Editor(stc.StyledTextCtrl):
                 self.current_marker = llen - 1
             elif self.current_marker >= llen:
                 self.current_marker = 0
-            self.GotoLine(keys[self.current_marker])
+            line = keys[self.current_marker]
+            self.GotoLine(line)
+            halfNumLinesOnScreen = self.LinesOnScreen() / 2
+            self.ScrollToLine(line - halfNumLinesOnScreen)
             self.GetParent().GetParent().GetParent().markers.setSelected(self.current_marker)
 
     def OnKeyDown(self, evt):
@@ -3364,7 +3370,11 @@ class MarkersListScroll(scrolled.ScrolledPanel):
             obj = item.GetWindow()
             if obj == evtobj:
                 self.selected = item.GetUserData()[0]
-                self.parent.mainPanel.editor.GotoLine(item.GetUserData()[1])
+                editor = self.parent.mainPanel.editor
+                line = item.GetUserData()[1]
+                editor.GotoLine(line)
+                halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+                editor.ScrollToLine(line - halfNumLinesOnScreen)
                 break
         self.setColour()
 
