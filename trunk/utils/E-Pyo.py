@@ -1552,8 +1552,11 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
         menu2.Append(141, "Quick Search\tCtrl+F")
         self.Bind(wx.EVT_MENU, self.quickSearch, id=141)
-        menu2.Append(142, "Search Again...\tCtrl+G")
-        self.Bind(wx.EVT_MENU, self.searchAgain, id=142)
+        menu2.Append(142, "Quick Search Word Under Caret\tShift+Ctrl+8")
+        self.Bind(wx.EVT_MENU, self.quickSearchWordUnderCaret, id=142)
+        menu2.Append(143, "Search Again Next...\tCtrl+G")
+        menu2.Append(144, "Search Again Previous...\tShift+Ctrl+G")
+        self.Bind(wx.EVT_MENU, self.searchAgain, id=143, id2=144)
         menu2.Append(wx.ID_FIND, "Find/Replace\tShift+Ctrl+F")
         self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
         self.menuBar.Append(menu2, 'Code')
@@ -1891,14 +1894,23 @@ class MainFrame(wx.Frame):
         self.status_search.SetFocus()
         self.status_search.SelectAll()
 
+    def quickSearchWordUnderCaret(self, evt):
+        word = self.panel.editor.getWordUnderCaret()
+        self.status_search.SetValue(word)
+        self.onQuickSearchEnter(None)
+        
     def onQuickSearchEnter(self, evt):
         str = self.status_search.GetValue()
         self.panel.editor.SetFocus()
         self.panel.editor.OnQuickSearch(str)
 
     def searchAgain(self, evt):
+        if evt.GetId() == 143:
+            next = True
+        else:
+            next = False
         str = self.status_search.GetValue()
-        self.panel.editor.OnQuickSearch(str)
+        self.panel.editor.OnQuickSearch(str, next)
 
     def insertPath(self, evt):
         dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.getcwd(),
@@ -2481,16 +2493,26 @@ class Editor(stc.StyledTextCtrl):
         self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
         self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
 
-    def OnQuickSearch(self, str):
+    def OnQuickSearch(self, str, next=True):
         if self.GetSelection() != (0,0):
             self.SetSelection(self.GetSelectionEnd()-1, self.GetSelectionEnd())
         self.SearchAnchor()
-        res = self.SearchNext(stc.STC_FIND_MATCHCASE, str)
-        if res == -1:
-            self.SetCurrentPos(0)
-            self.SetAnchor(0)
-            self.SearchAnchor()
+        if next:
             res = self.SearchNext(stc.STC_FIND_MATCHCASE, str)
+        else:
+            res = self.SearchPrev(stc.STC_FIND_MATCHCASE, str)
+        if res == -1:
+            if next:
+                self.SetCurrentPos(0)
+                self.SetAnchor(0)
+                self.SearchAnchor()
+                res = self.SearchNext(stc.STC_FIND_MATCHCASE, str)
+            else:
+                pos = self.GetTextLength()
+                self.SetCurrentPos(pos)
+                self.SetAnchor(pos)
+                self.SearchAnchor()
+                res = self.SearchPrev(stc.STC_FIND_MATCHCASE, str)
         line = self.GetCurrentLine()
         halfNumLinesOnScreen = self.LinesOnScreen() / 2
         self.ScrollToLine(line - halfNumLinesOnScreen)
@@ -3331,7 +3353,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
         self.arrow_bit = catalog['left_arrow.png'].GetBitmap()
         self.row_dict = {}
 
-        self.box = wx.FlexGridSizer(0, 3, 0, 5)
+        self.box = wx.FlexGridSizer(0, 3, 0, 10)
 
         self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
         self.selected = None
@@ -3354,10 +3376,10 @@ class MarkersListScroll(scrolled.ScrolledPanel):
             self.box.Add(label, 0, wx.LEFT|wx.ALIGN_CENTER_VERTICAL, 2, userData=(i,key))
             line = wx.StaticText(self, wx.ID_ANY, label=str(key+1))
             line.SetFont(self.font)
-            self.box.Add(line, 0, wx.ALIGN_LEFT|wx.TOP|wx.LEFT, 2, userData=(i,key))
+            self.box.Add(line, 0, wx.ALIGN_LEFT|wx.TOP, 3, userData=(i,key))
             comment = wx.StaticText(self, wx.ID_ANY, label=self.row_dict[key])
             comment.SetFont(self.font)
-            self.box.Add(comment, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.TOP|wx.LEFT, 2, userData=(i,key))
+            self.box.Add(comment, 1, wx.EXPAND|wx.ALIGN_LEFT|wx.TOP, 3, userData=(i,key))
             self.box.Layout()
             label.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
             line.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
