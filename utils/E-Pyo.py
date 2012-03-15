@@ -1594,9 +1594,9 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(self.menu7, "Snippets")
 
         if sys.platform == "darwin":
-            accel = wx.ACCEL_CMD
+            accel_ctrl = wx.ACCEL_CMD
         else:
-            accel = wx.ACCEL_CTRL
+            accel_ctrl = wx.ACCEL_CTRL
 
         menu8 = wx.Menu()
         menu8.Append(600, "Add Marker to Current Line\tShift+Ctrl+M")
@@ -1606,9 +1606,9 @@ class MainFrame(wx.Frame):
         menu8.Append(604, "Delete All Markers")
         self.Bind(wx.EVT_MENU, self.deleteAllMarkers, id=604)
         menu8.AppendSeparator()
-        aEntry = wx.AcceleratorEntry(accel|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
+        aEntry = wx.AcceleratorEntry(accel_ctrl|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
         menu8.Append(602, 'Navigate Markers Upward\t%s' % aEntry.ToString())
-        aEntry = wx.AcceleratorEntry(accel|wx.ACCEL_SHIFT, wx.WXK_DOWN, 603)
+        aEntry = wx.AcceleratorEntry(accel_ctrl|wx.ACCEL_SHIFT, wx.WXK_DOWN, 603)
         menu8.Append(603, 'Navigate Markers Downward\t%s' % aEntry.ToString())
         self.Bind(wx.EVT_MENU, self.navigateMarkers, id=602, id2=603)
         self.menuBar.Append(menu8, "Markers")
@@ -1626,11 +1626,12 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(menu6, "Pyo Examples")
 
         windowMenu = wx.Menu()
-        aEntry = wx.AcceleratorEntry(accel, wx.WXK_RIGHT, 10001)
-        windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
-        aEntry = wx.AcceleratorEntry(accel, wx.WXK_LEFT, 10002)
-        windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
-        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
+        # Need other shortcuts for Tabs Navigation
+        # aEntry = wx.AcceleratorEntry(accel, wx.WXK_RIGHT, 10001)
+        # windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
+        # aEntry = wx.AcceleratorEntry(accel, wx.WXK_LEFT, 10002)
+        # windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
+        # self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
         self.menuBar.Append(windowMenu, '&Window')
 
         helpmenu = wx.Menu()
@@ -2413,6 +2414,10 @@ class Editor(stc.StyledTextCtrl):
         self.SetFocus()
         self.setStyle()
 
+        # Remove unwanted KeyCommands
+        self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_ALT)
+        self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_ALT)
+
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
 
@@ -2886,16 +2891,53 @@ class Editor(stc.StyledTextCtrl):
             self.GetParent().GetParent().GetParent().markers.setSelected(self.current_marker)
 
     def OnKeyDown(self, evt):
-        if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and evt.CmdDown():
+        if PLATFORM == "darwin":
+            ControlDown = evt.CmdDown
+        else:
+            ControlDown = evt.ControlDown
+
+        # Stop rpopagation on markers navigation --- Shift+Ctrl+Arrows up/down
+        if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and ControlDown():
             evt.StopPropagation()
             return
-        elif evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and evt.ControlDown():
-            evt.StopPropagation()
-            return
+        # Stop propagation on Tip Show of pyo keyword --- Shift+Return
         elif evt.GetKeyCode() == wx.WXK_RETURN and evt.ShiftDown():
             self.onShowTip()
             evt.StopPropagation()
             return
+
+        # Move and/or Select one word left or right --- (Shift+)Alt+Arrows left/right
+        elif evt.GetKeyCode() == wx.WXK_LEFT and evt.AltDown() and evt.ShiftDown():
+            self.CmdKeyExecute(stc.STC_CMD_WORDLEFTEXTEND)
+        elif evt.GetKeyCode() == wx.WXK_LEFT and evt.AltDown():
+            self.CmdKeyExecute(stc.STC_CMD_WORDLEFT)
+        elif evt.GetKeyCode() == wx.WXK_RIGHT and evt.AltDown() and evt.ShiftDown():
+            self.CmdKeyExecute(stc.STC_CMD_WORDRIGHTEXTEND)
+        elif evt.GetKeyCode() == wx.WXK_RIGHT and evt.AltDown():
+            self.CmdKeyExecute(stc.STC_CMD_WORDRIGHT)
+
+        # Move and/or Select one line left or right --- (Shift+)Ctrl+Arrows left/right
+        elif evt.GetKeyCode() == wx.WXK_LEFT and ControlDown() and evt.ShiftDown():
+            self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT)
+            self.CmdKeyExecute(stc.STC_CMD_HOMEDISPLAYEXTEND)
+            evt.StopPropagation()
+            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT, stc.STC_CMD_CHARLEFTEXTEND)
+        elif evt.GetKeyCode() == wx.WXK_LEFT and ControlDown():
+            self.CmdKeyClear(stc.STC_KEY_LEFT, 0)
+            self.CmdKeyExecute(stc.STC_CMD_HOMEDISPLAY)
+            evt.StopPropagation()
+            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_LEFT, 0, stc.STC_CMD_CHARLEFT)
+        elif evt.GetKeyCode() == wx.WXK_RIGHT and ControlDown() and evt.ShiftDown():
+            self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT)
+            self.CmdKeyExecute(stc.STC_CMD_LINEENDEXTEND)
+            evt.StopPropagation()
+            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT, stc.STC_CMD_CHARRIGHTEXTEND)
+        elif evt.GetKeyCode() == wx.WXK_RIGHT and ControlDown():
+            self.CmdKeyClear(stc.STC_KEY_RIGHT, 0)
+            self.CmdKeyExecute(stc.STC_CMD_LINEEND)
+            evt.StopPropagation()
+            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_RIGHT, 0, stc.STC_CMD_CHARRIGHT)
+
         elif evt.GetKeyCode() == wx.WXK_RETURN:
             wx.CallAfter(self.processReturn)
         elif evt.GetKeyCode() == wx.WXK_TAB:
