@@ -68,6 +68,9 @@ if not os.path.isdir(STYLES_PATH):
     files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
     for file in files:
         shutil.copy(os.path.join(os.getcwd(), "styles", file), os.path.join(STYLES_PATH, file))
+DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
+if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
+    shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
 
 ################## Utility Functions ##################
 @contextlib.contextmanager
@@ -560,31 +563,13 @@ STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 'selback':
         'marginback': 'Number Margin Background', 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background', 
         'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch', 'lineedge': 'Line Edge'}
 
-STYLES = {'default': {'colour': '#000000', 'bold': 0, 'italic': 0, 'underline': 0}, 
-        'comment': {'colour': '#0066FF', 'bold': 0, 'italic': 1, 'underline': 0}, 
-        'commentblock': {'colour': '#AA66FF', 'bold': 0, 'italic': 1, 'underline': 0}, 
-        'number': {'colour': '#0000CD', 'bold': 1, 'italic': 0, 'underline': 0}, 
-        'operator': {'colour': '#000000', 'bold': 1, 'italic': 0, 'underline': 0},
-        'string': {'colour': '#036A07', 'bold': 0, 'italic': 0, 'underline': 0}, 
-        'triple': {'colour': '#03BA07', 'bold': 0, 'italic': 0, 'underline': 0}, 
-        'keyword': {'colour': '#0000FF', 'bold': 1, 'italic': 0, 'underline': 0}, 
-        'pyokeyword': {'colour': '#5555FF', 'bold': 1, 'italic': 0, 'underline': 0},
-        'class': {'colour': '#000097', 'bold': 1, 'italic': 0, 'underline': 0}, 
-        'function': {'colour': '#0000A2', 'bold': 1, 'italic': 0, 'underline': 0}, 
-        'linenumber': {'colour': '#000000', 'bold': 0, 'italic': 0, 'underline': 0}, 
-        'caret': {'colour': '#000000'},
-        'selback': {'colour': "#C0DFFF"}, 
-        'background': {'colour': '#FFFFFF'}, 
-        'marginback': {'colour': '#B0B0B0'}, 
-        'foldmarginback': {'colour': '#D0D0D0'}, 
-        'markerfg': {'colour': '#CCCCCC'},
-        'markerbg': {'colour': '#000000'}, 
-        'bracelight': {'colour': '#AABBDD'}, 
-        'bracebad': {'colour': '#DD0000'}, 
-        'lineedge': {'colour': '#DDDDDD'},
-        'face': DEFAULT_FONT_FACE,
-        'size': FONT_SIZE,
-        'size2': FONT_SIZE2}
+with open(DEFAULT_STYLE) as f:
+    text = f.read()
+exec text in locals()
+STYLES = copy.deepcopy(style)
+STYLES['face'] = DEFAULT_FONT_FACE
+STYLES['size'] = FONT_SIZE
+STYLES['size2'] = FONT_SIZE2
 
 STYLES_PREVIEW_TEXT = '''# Comment
 ## Comment block
@@ -2553,9 +2538,6 @@ class Editor(stc.StyledTextCtrl):
         self.findReplace.Show(True)
 
     def OnFind(self, evt):
-        print evt
-        print evt.GetEventType()
-        print evt.GetFlags()
         map = { wx.wxEVT_COMMAND_FIND : "FIND",
                 wx.wxEVT_COMMAND_FIND_NEXT : "FIND_NEXT",
                 wx.wxEVT_COMMAND_FIND_REPLACE : "REPLACE",
@@ -3405,6 +3387,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
 
         self.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
         self.selected = None
+        self.selected2 = None
 
         if wx.Platform == '__WXMAC__':
             self.font = wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face'])
@@ -3434,17 +3417,28 @@ class MarkersListScroll(scrolled.ScrolledPanel):
             comment.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
 
     def OnLeftDown(self, evt):
-        self.selected = None
         evtobj = evt.GetEventObject()
+        editor = self.parent.mainPanel.editor
+        if not evt.ShiftDown():
+            self.selected = None
+            self.selected2 = None
         for item in self.box.GetChildren():
             obj = item.GetWindow()
             if obj == evtobj:
-                self.selected = item.GetUserData()[0]
-                editor = self.parent.mainPanel.editor
-                line = item.GetUserData()[1]
-                editor.GotoLine(line)
-                halfNumLinesOnScreen = editor.LinesOnScreen() / 2
-                editor.ScrollToLine(line - halfNumLinesOnScreen)
+                if not evt.ShiftDown() or self.selected == None:
+                    self.selected = item.GetUserData()[0]
+                    line = item.GetUserData()[1]
+                    editor.GotoLine(line)
+                    halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+                    editor.ScrollToLine(line - halfNumLinesOnScreen)
+                else:
+                    line = sorted(self.row_dict.keys())[self.selected]
+                    self.selected2 = item.GetUserData()[0]
+                    line2 = item.GetUserData()[1]
+                    editor.GotoLine(line)
+                    halfNumLinesOnScreen = editor.LinesOnScreen() / 2
+                    editor.ScrollToLine(line - halfNumLinesOnScreen)
+                    editor.SetSelection(editor.PositionFromLine(line), editor.PositionFromLine(line2+1))
                 break
         self.setColour()
 
@@ -3452,7 +3446,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
         for item in self.box.GetChildren():
             obj = item.GetWindow()
             data = item.GetUserData()[0]
-            if self.selected == data:
+            if self.selected == data or self.selected2 == data:
                 obj.SetForegroundColour(STYLES['comment']['colour'])
             else:
                 obj.SetForegroundColour(STYLES['default']['colour'])
@@ -3463,6 +3457,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
 
     def setSelected(self, mark):
         self.selected = mark
+        self.selected2 = None
         self.setColour()
 
 TOOL_DELETE_ALL_MARKERS_ID = 12
