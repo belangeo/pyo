@@ -1232,14 +1232,14 @@ class SnippetFrame(wx.Frame):
     def onTagSelection(self, evt):
         select = self.entry.GetSelection()
         if select:
-            self.entry.InsertText(select[1], "`")
-            self.entry.InsertText(select[0], "`")
+            self.entry.insertText(select[1], "`")
+            self.entry.insertText(select[0], "`")
 
     def onLoad(self, name, category):
         if os.path.isfile(os.path.join(SNIPPETS_PATH, category, name)):
             self.snippet_name = name
             self.category_name = category
-            with open(os.path.join(SNIPPETS_PATH, self.category_name, self.snippet_name), "r") as f:
+            with codecs.open(os.path.join(SNIPPETS_PATH, self.category_name, self.snippet_name), "r", encoding="utf-8") as f:
                 text = f.read()
             exec text in locals()
             self.entry.SetTextUTF8(snippet["value"])
@@ -1268,10 +1268,8 @@ class SnippetFrame(wx.Frame):
                 short = self.short.GetValue()
                 if short == "Type your shortcut...":
                     short = ""
-                dic = {"value": self.entry.GetTextUTF8(),
-                        "shortcut": short}
-                with open(os.path.join(SNIPPETS_PATH, category, name), "w") as f:
-                    f.write("snippet = " + str(dic))
+                with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "w", encoding="utf-8") as f:
+                    f.write("snippet = {'value': '" + self.entry.GetTextUTF8() + "', 'shortcut': '" + short + "'}")
                 self.snippet_tree.addItem(name, category)
                 self.parent.reloadSnippetMenu()
         dlg.Destroy()
@@ -1291,7 +1289,6 @@ class SnippetFrame(wx.Frame):
         if key < 256 and key != wx.WXK_TAB:
             id = evt.GetEventObject().GetId()
             txt = ""
-            accel = 0
             if evt.ShiftDown():
                 txt += "Shift-"
             if evt.ControlDown():
@@ -1305,7 +1302,10 @@ class SnippetFrame(wx.Frame):
                 txt += "Ctrl-"
             if txt == "":
                 return
-            txt += chr(key).upper()
+            ch = chr(key)
+            if ch in string.lowercase:
+                ch = ch.upper()
+            txt += ch
             self.short.SetValue(txt)
             self.short.SetForegroundColour("#000000")
             self.entry.SetFocus()
@@ -1777,7 +1777,7 @@ class MainFrame(wx.Frame):
 
     def listCopy(self, evt):
         text = self.panel.editor.GetSelectedTextUTF8()
-        self.pastingList.append(text)
+        self.pastingList.append(toSysEncoding(text))
 
     def paste(self, evt):
         if self.FindFocus() == self.status_search:
@@ -1925,11 +1925,10 @@ class MainFrame(wx.Frame):
         obj = evt.GetEventObject()
         name = obj.GetLabelText(evt.GetId())
         category = obj.GetTitle()
-        with open(os.path.join(SNIPPETS_PATH, category, name), "r") as f:
+        with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "r", encoding="utf-8") as f:
             text = f.read()
         exec text in locals()
-        snip = snippet["value"]
-        self.panel.editor.insertSnippet(snip)
+        self.panel.editor.insertSnippet(snippet["value"])
 
     def openStyleEditor(self, evt):
         self.style_frame.Show()
@@ -2037,7 +2036,7 @@ class MainFrame(wx.Frame):
     def newFromTemplate(self, event):
         self.panel.addNewPage()
         temp = TEMPLATE_DICT[event.GetId()]
-        self.panel.editor.SetTextUTF8(temp)
+        self.panel.editor.setText(temp)
 
     def newRecent(self, file):
         filename = ensureNFD(os.path.join(TEMP_PATH,'.recent.txt'))
@@ -2142,7 +2141,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.path = path
             self.panel.editor.setStyle()
             self.panel.editor.SetCurrentPos(0)
-            self.panel.editor.AddText(" ")
+            self.panel.editor.addText(" ")
             self.panel.editor.DeleteBackNotLine()
             self.panel.editor.saveMyFile(path)
             self.SetTitle(path)
@@ -2209,10 +2208,10 @@ class MainFrame(wx.Frame):
         line = self.panel.editor.LineFromPosition(pos)
         pos = self.panel.editor.GetLineEndPosition(line)
         self.panel.editor.SetCurrentPos(pos)
-        self.panel.editor.AddText("\n")
+        self.panel.editor.addText("\n")
         with stdoutIO() as s:
             exec text
-        self.panel.editor.AddText(s.getvalue())
+        self.panel.editor.addText(s.getvalue())
 
     def buildDoc(self):
         self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED)
@@ -2305,7 +2304,7 @@ class MainPanel(wx.Panel):
                     break
                 except:
                     continue
-        editor.SetText(ensureNFD(text))
+        editor.setText(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
         editor.SetSavePoint()
@@ -2404,12 +2403,12 @@ class Editor(stc.StyledTextCtrl):
         self.SetMarginWidth(0, 12)
         self.SetMarginMask(0, ~wx.stc.STC_MASK_FOLDERS)
         self.SetMarginSensitive(0, True)
-        
+
         self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
         self.SetMarginWidth(1, 28)
         self.SetMarginMask(1, 0)
         self.SetMarginSensitive(1, False)
-        
+
         self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
         self.SetMarginWidth(2, 12)
         self.SetMarginMask(2, stc.STC_MASK_FOLDERS)
@@ -2451,27 +2450,25 @@ class Editor(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
         self.StyleClearAll()  # Reset all to be like the default
 
+        self.MarkerDefine(0, stc.STC_MARK_SHORTARROW, STYLES['markerbg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default') + ",size:5")
+        self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, buildStyle('default', 'bracelight') + ",bold")
+        self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, buildStyle('default', 'bracebad') + ",bold")
+
         ext = os.path.splitext(self.path)[1].strip(".")
-        if ext in ["py", "c5"]:
-            self.MarkerDefine(0, stc.STC_MARK_SHORTARROW, STYLES['markerbg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPEN, stc.STC_MARK_BOXMINUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDER, stc.STC_MARK_BOXPLUS, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERSUB, stc.STC_MARK_VLINE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEREND, stc.STC_MARK_ARROW, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDEROPENMID, stc.STC_MARK_ARROWDOWN, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-            self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL, stc.STC_MARK_LCORNERCURVE, STYLES['markerfg']['colour'], STYLES['markerbg']['colour'])
-
-            self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
-            self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
-            self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default') + ",size:5")
-            self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT, buildStyle('default', 'bracelight') + ",bold")
-            self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, buildStyle('default', 'bracebad') + ",bold")
-
+        if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
             self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
             self.SetKeyWords(1, " ".join(PYO_WORDLIST))
-
             self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTLINE, buildStyle('comment'))
             self.StyleSetSpec(stc.STC_P_NUMBER, buildStyle('number'))
@@ -2486,6 +2483,38 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_P_OPERATOR, buildStyle('operator'))
             self.StyleSetSpec(stc.STC_P_IDENTIFIER, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, buildStyle('commentblock'))
+        elif ext in ["c", "cc", "cpp", "cxx", "cs", "h", "hh", "hpp", "hxx"]:
+            self.SetLexer(stc.STC_LEX_CPP)
+            self.SetKeyWords(0, "auto break case char const continue default do double else enum extern float for goto if int long \
+            register return short signed sizeof static struct switch typedef union unsigned void volatile while ")
+            self.StyleSetSpec(stc.STC_C_DEFAULT, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_C_COMMENT, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_COMMENTDOC, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_COMMENTLINE, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_COMMENTLINEDOC, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_C_NUMBER, buildStyle('number'))
+            self.StyleSetSpec(stc.STC_C_STRING, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_C_CHARACTER, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_C_WORD, buildStyle('keyword'))
+            self.StyleSetSpec(stc.STC_C_OPERATOR, buildStyle('operator'))
+            self.StyleSetSpec(stc.STC_C_IDENTIFIER, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('commentblock'))
+        elif ext == "sh":
+            self.SetLexer(stc.STC_LEX_BASH)
+            self.SetKeyWords(0, "! [[ ]] case do done elif else esac fi for function if in select then time until while { } \
+            alias bg bind break builtin caller cd command compgen complete compopt continue declare dirs disown echo enable \
+            eval exec exit export fc fg getopts hash help history jobs kill let local logout mapfile popd printf pushd pwd \
+            read readarray readonly return set shift shopt source suspend test times trap type typeset ulimit umask unalias unset wait")
+            self.StyleSetSpec(stc.STC_SH_DEFAULT, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_SH_COMMENTLINE, buildStyle('comment'))
+            self.StyleSetSpec(stc.STC_SH_NUMBER, buildStyle('number'))
+            self.StyleSetSpec(stc.STC_SH_STRING, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_SH_CHARACTER, buildStyle('string'))
+            self.StyleSetSpec(stc.STC_SH_WORD, buildStyle('keyword'))
+            self.StyleSetSpec(stc.STC_SH_OPERATOR, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_SH_IDENTIFIER, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_SH_PARAM, buildStyle('default'))
+            self.StyleSetSpec(stc.STC_SH_SCALAR, buildStyle('function'))
 
         self.SetEdgeColour(STYLES["lineedge"]['colour'])
         self.SetCaretForeground(STYLES['caret']['colour'])
@@ -2585,12 +2614,12 @@ class Editor(stc.StyledTextCtrl):
         text = self.GetTextUTF8()
         lines = [line.rstrip() for line in text.splitlines(False)]
         text= "\n".join(lines)
-        self.SetTextUTF8(text)
+        self.setText(text)
 
     def tabsToSpaces(self):
         text = self.GetTextUTF8()
         text = text.replace("\t", "    ")
-        self.SetTextUTF8(text)
+        self.setText(text)
 
     ### Save and Close file ###
     def saveMyFile(self, file):
@@ -2662,6 +2691,25 @@ class Editor(stc.StyledTextCtrl):
             self.panel.SetPageText(tab, "*" + tabtitle)
             self.saveMark = True
 
+    ### Text Methods ###
+    def addText(self, text):
+        try:
+            self.AddTextUTF8(text)
+        except:
+            self.AddText(text)
+
+    def insertText(self, pos, text):
+        try:
+            self.InsertTextUTF8(pos, text)
+        except:
+            self.InsertText(pos, text)
+
+    def setText(self, text):
+        try:
+            self.SetTextUTF8(text)
+        except:
+            self.SetText(text)
+
     ### Editor functions ###
     def listPaste(self, pastingList):
         if pastingList != []:
@@ -2669,13 +2717,13 @@ class Editor(stc.StyledTextCtrl):
             for item in pastingList:
                 item = self.popupmenu.Append(-1, item)
                 self.Bind(wx.EVT_MENU, self.onPasteFromList, item)
-            self.PopupMenu(self.popupmenu)
+            self.PopupMenu(self.popupmenu, self.PointFromPosition(self.GetCurrentPos()))
             self.popupmenu.Destroy()
 
     def onPasteFromList(self, evt):
         item = self.popupmenu.FindItemById(evt.GetId())
-        text = item.GetTextUTF8()
-        self.InsertText(self.GetCurrentPos(), text)
+        text = item.GetText()
+        self.insertText(self.GetCurrentPos(), text)
         self.SetCurrentPos(self.GetCurrentPos() + len(text))
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
@@ -2709,10 +2757,10 @@ class Editor(stc.StyledTextCtrl):
                 self.AutoCompShow(len(currentword), list)
                 return True
             else:
-                self.AddText(" "*ws)
+                self.addText(" "*ws)
                 return False
         else:
-            self.AddText(" "*ws)
+            self.addText(" "*ws)
             return False
 
     def insertDefArgs(self, currentword):
@@ -2722,7 +2770,7 @@ class Editor(stc.StyledTextCtrl):
                 text = class_args(eval(word)).replace(word, "")
                 self.args_buffer = text.replace("(", "").replace(")", "").split(",")
                 self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+1]
-                self.InsertText(self.GetCurrentPos(), text)
+                self.insertText(self.GetCurrentPos(), text)
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
                 break
@@ -2730,7 +2778,7 @@ class Editor(stc.StyledTextCtrl):
     def navigateArgs(self):
         self.deleteBackWhiteSpaces()
         if self.selection != "":
-            self.AddText(self.selection)
+            self.addText(self.selection)
         arg = self.args_buffer.pop(0)
         if len(self.args_buffer) == 0:
             self.quit_navigate_args = True
@@ -2744,7 +2792,7 @@ class Editor(stc.StyledTextCtrl):
     def quitNavigateArgs(self):
         self.deleteBackWhiteSpaces()
         if self.selection != "":
-            self.AddText(self.selection)
+            self.addText(self.selection)
         pos = self.GetLineEndPosition(self.GetCurrentLine()) + 1
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
@@ -2755,7 +2803,7 @@ class Editor(stc.StyledTextCtrl):
         while a1 != -1:
             a2 = text.find("`", a1+1)
             if a2 != -1:
-                self.snip_buffer.append(text[a1+1:a2])
+                self.snip_buffer.append(ensureNFD(text[a1+1:a2]))
             a1 = text.find("`", a2+1)
         text = text.replace("`", "")
         lines = text.splitlines(True)
@@ -2771,7 +2819,7 @@ class Editor(stc.StyledTextCtrl):
             indent = self.GetLineIndentation(self.GetCurrentLine())
             text, tlen = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
             self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+len(text.splitlines())]
-            self.InsertText(self.GetCurrentPos(), text)
+            self.insertText(self.GetCurrentPos(), text)
             if len(self.snip_buffer) == 0:
                 pos = self.GetCurrentPos() + len(text) + 1
                 self.SetCurrentPos(pos)
@@ -2785,13 +2833,13 @@ class Editor(stc.StyledTextCtrl):
         indent = self.GetLineIndentation(self.GetCurrentLine())
         text, tlen = self.formatBuiltinComp(text, 0)
         self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+len(text.splitlines())]
-        self.InsertText(self.GetCurrentPos(), text)
+        self.insertText(self.GetCurrentPos(), text)
         if len(self.snip_buffer) == 0:
             pos = self.GetCurrentPos() + len(text) + 1
             self.SetCurrentPos(pos)
             wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
         else:
-            self.selection = self.GetSelectedText()
+            self.selection = self.GetSelectedTextUTF8()
             pos = self.GetSelectionStart()
             wx.CallAfter(self.navigateSnips, pos)
 
@@ -2799,9 +2847,9 @@ class Editor(stc.StyledTextCtrl):
         if self.selection != "":
             while self.GetCurrentPos() > pos:
                 self.DeleteBack()
-            self.AddText(self.selection)
+            self.addText(self.selection)
             if chr(self.GetCharAt(self.GetCurrentPos())) == "=":
-                self.AddText(" ")
+                self.addText(" ")
         arg = self.snip_buffer.pop(0)
         if len(self.snip_buffer) == 0:
             self.quit_navigate_snip = True
@@ -2812,7 +2860,7 @@ class Editor(stc.StyledTextCtrl):
         if self.selection != "":
             while self.GetCurrentPos() > pos:
                 self.DeleteBack()
-            self.AddText(self.selection)
+            self.addText(self.selection)
         pos = self.PositionFromLine(self.args_line_number[1])
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
@@ -2821,7 +2869,7 @@ class Editor(stc.StyledTextCtrl):
         prevline = self.GetCurrentLine() - 1
         if self.GetLineUTF8(prevline).strip().endswith(":"):
             indent = self.GetLineIndentation(prevline)
-            self.AddText(" "*(indent+4))
+            self.addText(" "*(indent+4))
 
     def processTab(self, currentword, autoCompActive):
         autoCompOn = self.showAutoComp()
@@ -2954,7 +3002,7 @@ class Editor(stc.StyledTextCtrl):
             lineLen = len(self.GetLine(i))
             pos = self.PositionFromLine(i)
             if self.GetTextRangeUTF8(pos,pos+1) != '#' and lineLen > 2:
-                self.InsertText(pos, '#')
+                self.insertText(pos, '#')
             elif self.GetTextRangeUTF8(pos,pos+1) == '#':
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
