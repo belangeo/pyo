@@ -7,7 +7,24 @@
 	<key>CFBundleDisplayName</key>
 	<string>E-Pyo</string>
 	<key>CFBundleDocumentTypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>TEXT</string>
+			</array>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>py</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleTypeIconFile</key>
+			<string>E-PyoIconDoc.icns</string>
+			<key>LSIsAppleDefaultForType</key>
+			<false/>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>E-Pyo</string>
 	<key>CFBundleIconFile</key>
