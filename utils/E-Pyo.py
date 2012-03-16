@@ -10,9 +10,11 @@ Olivier Belanger - 2012
 """
 import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint
 from types import UnicodeType
+from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
-import  wx.lib.scrolledpanel as scrolled
+import wx.lib.scrolledpanel as scrolled
+import wx.lib.dialogs
 import wx.combo
 import wx.stc  as  stc
 import FlatNotebook as FNB
@@ -518,6 +520,41 @@ delete_all_markers_png = PyEmbeddedImage(
     "Mnw5AAAAAElFTkSuQmCC")
 catalog['delete_all_markers.png'] = delete_all_markers_png
 
+############## Editor Key Commands Dict ##############
+KEY_COMMANDS = {
+"01. DOWN ARROW": "Move caret down one line",
+"02. Shift + DOWN ARROW": "Move caret down one line extending selection to new caret position",
+"03. UP ARROW": "Move caret up one line",
+"04. Shift + UP ARROW": "Move caret up one line extending selection to new caret position",
+"05. LEFT ARROW": "Move caret left one character",
+"06. Shift + LEFT ARROW": "Move caret left one character extending selection to new caret position",
+"07. RIGHT ARROW": "Move caret right one character",
+"08. Shift + RIGHT ARROW": "Move caret right one character extending selection to new caret position",
+"09. Alt + LEFT ARROW": "Move caret left one word",
+"10. Alt + Shift + LEFT ARROW": "Move caret left one word extending selection to new caret position",
+"11. Alt + RIGHT ARROW": "Move caret right one word",
+"12. Alt + Shift + RIGHT ARROW": "Move caret right one word extending selection to new caret position",
+"13. Ctrl/Cmd + LEFT ARROW": "Move caret to first position on display line",
+"14. Ctrl/Cmd + Shift + LEFT ARROW": "Move caret to first position on display line extending selection to new caret position",
+"15. Ctrl/Cmd + RIGHT ARROW": "Move caret to last position on line",
+"16. Ctrl/Cmd + Shift + RIGHT ARROW": "Move caret to last position on line extending selection to new caret position",
+"17. PRIOR": "Move caret one page up",
+"18. Shift + PRIOR": "Move caret one page up extending selection to new caret position",
+"19. NEXT": "Move caret one page down",
+"20. Shift + NEXT": "Move caret one page down extending selection to new caret position",
+"21. ESCAPE": "Cancel any modes such as call tip or auto-completion list display",
+"22. Alt + BACK": "Delete the word to the left of the caret",
+"23. Alt + Shift + BACK": "Delete the word to the right of the caret",
+"24. Ctrl/Cmd + BACK": "Delete back from the current position to the start of the line",
+"25. Ctrl/Cmd + Shift + BACK": "Delete forwards from the current position to the end of the line",
+"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after a complete pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet.",
+"27. Shift + TAB": "Dedent the selected lines",
+"28. Alt + 'C'": "Line Copy",
+"29. Alt + 'D'": "Line Duplicate",
+"30. Alt + 'X'": "Line Cut",
+"31. Alt + 'V'": "Line Paste"
+}
+
 ############## Allowed Extensions ##############
 ALLOWED_EXT = ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"]
 
@@ -584,6 +621,37 @@ class Bidule:
 '''
 
 snip_faces = {'face': DEFAULT_FONT_FACE, 'size': FONT_SIZE}
+
+class KeyCommandsFrame(wx.Frame):
+    def __init__(self, parent):
+        wx.Frame.__init__(self, parent, wx.ID_ANY, title="Editor Key Commands List", size=(650,550))
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(351, "Close\tCtrl+W")
+        self.menuBar.Append(menu1, 'File')
+        self.SetMenuBar(self.menuBar)
+
+        self.Bind(wx.EVT_MENU, self.close, id=351)
+        self.Bind(wx.EVT_CLOSE, self.close)
+        panel = scrolled.ScrolledPanel(self)
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        box = wx.FlexGridSizer(len(KEY_COMMANDS), 2, 15, 15)
+        if PLATFORM == "darwin": accel = "Cmd"
+        else: accel = "Ctrl"
+        for key, value in sorted(KEY_COMMANDS.items()):
+            short = key.replace("Ctrl/Cmd", accel)
+            command = wx.StaticText(panel, wx.ID_ANY, label=short)
+            box.Add(command, 0, wx.ALIGN_LEFT)
+            action = wx.StaticText(panel, wx.ID_ANY, label=wordwrap(value, 350, wx.ClientDC(self)))
+            box.Add(action, 1, wx.ALIGN_LEFT)
+
+        mainSizer.Add(box, 1, wx.ALL, 15)
+        panel.SetSizer(mainSizer)
+        panel.SetAutoLayout(1)
+        panel.SetupScrolling()
+
+    def close(self, evt):
+        self.Hide()
 
 class EditorPreview(stc.StyledTextCtrl):
     def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.SUNKEN_BORDER | wx.WANTS_CHARS):
@@ -1436,6 +1504,7 @@ class MainFrame(wx.Frame):
 
         self.snippet_frame = SnippetFrame(self, title='Snippet Editor', pos=(25,25), size=(700,450))
         self.style_frame = ColourEditor(self, title='Style Editor', pos=(100,100), size=(500,550))
+        self.keyCommandsFrame = KeyCommandsFrame(self)
 
         self.pastingList = []
         self.panel = MainPanel(self, size=size)
@@ -1626,17 +1695,18 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(menu6, "Pyo Examples")
 
         windowMenu = wx.Menu()
-        # Need other shortcuts for Tabs Navigation
-        # aEntry = wx.AcceleratorEntry(accel, wx.WXK_RIGHT, 10001)
-        # windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
-        # aEntry = wx.AcceleratorEntry(accel, wx.WXK_LEFT, 10002)
-        # windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
-        # self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, wx.WXK_TAB, 10001)
+        windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
+        aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL|wx.ACCEL_SHIFT, wx.WXK_TAB, 10002)
+        windowMenu.Append(10002, 'Navigate Tabs Backward\t%s' % aEntry.ToString())
+        self.Bind(wx.EVT_MENU, self.onSwitchTabs, id=10001, id2=10002)
         self.menuBar.Append(windowMenu, '&Window')
 
         helpmenu = wx.Menu()
         helpItem = helpmenu.Append(wx.ID_ABOUT, '&About %s %s' % (APP_NAME, APP_VERSION), 'wxPython RULES!!!')
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
+        helpmenu.Append(999, 'Show Editor Key Commands')
+        self.Bind(wx.EVT_MENU, self.onShowEditorKeyCommands, id=999)
         self.menuBar.Append(helpmenu, '&Help')
 
         self.SetMenuBar(self.menuBar)
@@ -2213,6 +2283,11 @@ class MainFrame(wx.Frame):
         if not self.doc_frame.IsShown():
             self.doc_frame.Show()
 
+    def onShowEditorKeyCommands(self, evt):
+        if not self.keyCommandsFrame.IsShown():
+            self.keyCommandsFrame.CenterOnParent()
+            self.keyCommandsFrame.Show()
+        
     def onHelpAbout(self, evt):
         info = wx.AboutDialogInfo()
         info.Name = APP_NAME
@@ -2228,6 +2303,10 @@ class MainFrame(wx.Frame):
             pass
         try:
             self.doc_frame.Destroy()
+        except:
+            pass
+        try:
+            self.keyCommandsFrame.Destroy()
         except:
             pass
         self.panel.OnQuit()
@@ -2415,8 +2494,52 @@ class Editor(stc.StyledTextCtrl):
         self.setStyle()
 
         # Remove unwanted KeyCommands
+        self.CmdKeyClear(stc.STC_KEY_UP, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_DOWN, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_ALT)
+        self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_ALT)
         self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_ALT)
         self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_ALT)
+        self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_HOME, 0)
+        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_ALT)
+        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_ALT | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_END, 0)
+        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_ALT)
+        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_ALT | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_DELETE, 0)
+        self.CmdKeyClear(stc.STC_KEY_DELETE, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_ALT)
+        self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_INSERT, 0)
+        self.CmdKeyClear(stc.STC_KEY_INSERT, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_INSERT, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('Z'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('Y'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('X'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('C'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('V'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('A'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('L'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('T'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('U'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('L'), stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(ord('U'), stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_RETURN, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_ADD, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_SUBTRACT, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_DIVIDE, stc.STC_SCMOD_CTRL)
 
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
@@ -2896,15 +3019,14 @@ class Editor(stc.StyledTextCtrl):
         else:
             ControlDown = evt.ControlDown
 
-        # Stop rpopagation on markers navigation --- Shift+Ctrl+Arrows up/down
+        propagate = True
+        # Stop propagation on markers navigation --- Shift+Ctrl+Arrows up/down
         if evt.GetKeyCode() in [wx.WXK_DOWN,wx.WXK_UP] and evt.ShiftDown() and ControlDown():
-            evt.StopPropagation()
-            return
+            propagate = False
         # Stop propagation on Tip Show of pyo keyword --- Shift+Return
         elif evt.GetKeyCode() == wx.WXK_RETURN and evt.ShiftDown():
             self.onShowTip()
-            evt.StopPropagation()
-            return
+            propagate = False
 
         # Move and/or Select one word left or right --- (Shift+)Alt+Arrows left/right
         elif evt.GetKeyCode() == wx.WXK_LEFT and evt.AltDown() and evt.ShiftDown():
@@ -2918,28 +3040,53 @@ class Editor(stc.StyledTextCtrl):
 
         # Move and/or Select one line left or right --- (Shift+)Ctrl+Arrows left/right
         elif evt.GetKeyCode() == wx.WXK_LEFT and ControlDown() and evt.ShiftDown():
-            self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT)
             self.CmdKeyExecute(stc.STC_CMD_HOMEDISPLAYEXTEND)
-            evt.StopPropagation()
-            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT, stc.STC_CMD_CHARLEFTEXTEND)
+            propagate = False
         elif evt.GetKeyCode() == wx.WXK_LEFT and ControlDown():
-            self.CmdKeyClear(stc.STC_KEY_LEFT, 0)
             self.CmdKeyExecute(stc.STC_CMD_HOMEDISPLAY)
-            evt.StopPropagation()
-            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_LEFT, 0, stc.STC_CMD_CHARLEFT)
+            propagate = False
         elif evt.GetKeyCode() == wx.WXK_RIGHT and ControlDown() and evt.ShiftDown():
-            self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT)
             self.CmdKeyExecute(stc.STC_CMD_LINEENDEXTEND)
-            evt.StopPropagation()
-            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT, stc.STC_CMD_CHARRIGHTEXTEND)
+            propagate = False
         elif evt.GetKeyCode() == wx.WXK_RIGHT and ControlDown():
-            self.CmdKeyClear(stc.STC_KEY_RIGHT, 0)
             self.CmdKeyExecute(stc.STC_CMD_LINEEND)
-            evt.StopPropagation()
-            wx.CallAfter(self.CmdKeyAssign, stc.STC_KEY_RIGHT, 0, stc.STC_CMD_CHARRIGHT)
+            propagate = False
 
+        # Delete the word to the right of the caret --- Shift+Alt+BACK
+        elif evt.GetKeyCode() == wx.WXK_BACK and evt.AltDown() and evt.ShiftDown():
+            self.DelWordRight()
+            propagate = False
+        # Delete the word to the left of the caret --- Alt+BACK
+        elif evt.GetKeyCode() == wx.WXK_BACK and evt.AltDown():
+            self.DelWordLeft()
+            propagate = False
+
+        # Delete the line to the right of the caret --- Shift+Ctrl+BACK
+        elif evt.GetKeyCode() == wx.WXK_BACK and ControlDown() and evt.ShiftDown():
+            self.DelLineRight()
+            propagate = False
+        # Delete the line to the left of the caret --- Ctrl+BACK
+        elif evt.GetKeyCode() == wx.WXK_BACK and ControlDown():
+            self.DelLineLeft()
+            propagate = False
+
+        # Copy / Duplicate / Cut / Paste Line --- Alt+'C', Alt+'D', Alt+'C', Alt+'V'
+        elif evt.GetKeyCode() in [ord('X'), ord('D'), ord('C'), ord('V')] and evt.AltDown():
+            if evt.GetKeyCode() == ord('C'):
+                self.LineCopy()
+            elif evt.GetKeyCode() == ord('D'):
+                self.LineDuplicate()
+            elif evt.GetKeyCode() == ord('X'):
+                self.LineCut()
+            elif evt.GetKeyCode() == ord('V'):
+                self.GotoPos(self.PositionFromLine(self.GetCurrentLine()))
+                self.Paste()
+            propagate = False
+
+        # Process Return key --- automatic indentation
         elif evt.GetKeyCode() == wx.WXK_RETURN:
             wx.CallAfter(self.processReturn)
+        # Process Tab key --- AutoCompletion, Insert object's args, snippet for builtin keywords
         elif evt.GetKeyCode() == wx.WXK_TAB:
             autoCompActive =  self.AutoCompActive()
             currentword = self.getWordUnderCaret()
@@ -2962,7 +3109,11 @@ class Editor(stc.StyledTextCtrl):
                 wx.CallAfter(self.quitNavigateSnips, pos)
             else:
                 wx.CallAfter(self.processTab, currentword, autoCompActive)
-        evt.Skip()
+
+        if propagate:
+            evt.Skip()
+        else:
+            evt.StopPropagation()
 
     def OnUpdateUI(self, evt):
         # check for matching braces
