@@ -556,7 +556,7 @@ KEY_COMMANDS = {
 "23. Alt + Shift + BACK": "Delete the word to the right of the caret",
 "24. Ctrl/Cmd + BACK": "Delete back from the current position to the start of the line",
 "25. Ctrl/Cmd + Shift + BACK": "Delete forwards from the current position to the end of the line",
-"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after a complete pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet.",
+"26. TAB": "If selection is empty or all on one line replace the selection with a tab character. If more than one line selected, indent the lines. In the middle of a word, trig the AutoCompletion of pyo keywords. Just after a complete pyo keyword, insert its default arguments. Just after a complete python builtin keyword, insert a default structure snippet. Just after a variable name, representing a pyo object, followed by a dot, trig the AutoCompletion of the object's attributes.",
 "27. Shift + TAB": "Dedent the selected lines",
 "28. Alt + 'C'": "Line Copy",
 "29. Alt + 'D'": "Line Duplicate",
@@ -1660,7 +1660,7 @@ class MainFrame(wx.Frame):
         menu4.AppendSeparator()
         menu4.Append(190, "Open Documentation Frame\tShift+Ctrl+D")
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
-        menu4.Append(180, "Open Documentation for Current Object\tCtrl+D")
+        menu4.Append(180, "Open Documentation for Pyo Object Under Caret\tCtrl+D")
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
         self.menuBar.Append(menu4, 'View')
 
@@ -2512,6 +2512,7 @@ class Editor(stc.StyledTextCtrl):
         self.quit_navigate_snip = False
         self.markers_dict = {}
         self.current_marker = -1
+        self.objs_attr_dict = {}
 
         self.alphaStr = string.lowercase + string.uppercase + '0123456789'
 
@@ -3076,17 +3077,53 @@ class Editor(stc.StyledTextCtrl):
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
+    def checkForAttributes(self, charat, pos):
+        currentword = ""
+        while charat == ord("."):
+            startpos = self.WordStartPosition(pos-2, True)
+            endpos = self.WordEndPosition(pos-2, True)
+            currentword = "%s.%s" % (self.GetTextRangeUTF8(startpos, endpos), currentword)
+            pos = startpos - 1
+            charat = self.GetCharAt(pos)
+        if currentword != "":
+            ws = self.deleteBackWhiteSpaces()
+            currentword = currentword[:-1]
+            if currentword in self.objs_attr_dict.keys():
+                pyokeyword = self.objs_attr_dict[currentword]
+                list = " ".join([word for word in dir(eval(pyokeyword)) if not word.startswith("_")])
+                if list:
+                    self.AutoCompShow(0, list)
+                    return True
+                else:
+                    self.addText(" "*ws)
+                    return False
+            else:
+                self.addText(" "*ws)
+                return False
+        else:
+            return False
+
     def processReturn(self):
         prevline = self.GetCurrentLine() - 1
+        text = self.GetLineUTF8(prevline).replace(" ", "")
+        egpos = text.find("=")
+        brpos = text.find("(")
+        if egpos != -1 and brpos != -1:
+            if egpos < brpos:
+                name = text[:egpos]
+                obj = text[egpos+1:brpos]
+                if obj in PYO_WORDLIST:
+                    self.objs_attr_dict[name] = obj
         if self.GetLineUTF8(prevline).strip().endswith(":"):
             indent = self.GetLineIndentation(prevline)
             self.addText(" "*(indent+4))
 
-    def processTab(self, currentword, autoCompActive):
+    def processTab(self, currentword, autoCompActive, charat, pos):
         autoCompOn = self.showAutoComp()
         if not autoCompOn and not autoCompActive:
             self.checkForBuiltinComp()
             self.insertDefArgs(currentword)
+            attrOn = self.checkForAttributes(charat, pos)
 
     def onShowTip(self):
         currentword = self.getWordUnderCaret()
@@ -3192,6 +3229,8 @@ class Editor(stc.StyledTextCtrl):
             autoCompActive =  self.AutoCompActive()
             currentword = self.getWordUnderCaret()
             currentline = self.GetCurrentLine()
+            charat = self.GetCharAt(self.GetCurrentPos()-1)
+            pos = self.GetCurrentPos()
             if len(self.args_buffer) > 0 and currentline in range(*self.args_line_number):
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
@@ -3209,7 +3248,7 @@ class Editor(stc.StyledTextCtrl):
                 pos = self.GetSelectionStart()
                 wx.CallAfter(self.quitNavigateSnips, pos)
             else:
-                wx.CallAfter(self.processTab, currentword, autoCompActive)
+                wx.CallAfter(self.processTab, currentword, autoCompActive, charat, pos)
 
         if propagate:
             evt.Skip()
