@@ -39,9 +39,20 @@ APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
 OSX_APP_BUNDLED = False
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
-TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
+
+PREFERENCES_PATH = os.path.join(TEMP_PATH, "epyo-prefs.py")
+if not os.path.isfile(PREFERENCES_PATH):
+    with open(PREFERENCES_PATH, "w") as f:
+        f.write("epyo_prefs = {}")
+
+with open(PREFERENCES_PATH, "r") as f:
+    text = f.read()
+exec text in locals()
+PREFERENCES = copy.deepcopy(epyo_prefs)
+
+TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
 if '/%s.app' % APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
@@ -74,6 +85,10 @@ if not os.path.isdir(STYLES_PATH):
 DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
 if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
     shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
+if PREFERENCES.has_key("pref_style"):
+    PREF_STYLE = os.path.join(STYLES_PATH, PREFERENCES["pref_style"])
+else:
+    PREF_STYLE = DEFAULT_STYLE
 
 MARKERS_PATH = os.path.join(TEMP_PATH, 'markers')
 MARKERS_FILE = os.path.join(MARKERS_PATH, 'markers_file_list')
@@ -109,11 +124,11 @@ def convert_line_endings(temp, mode):
 def ensureNFD(unistr):
     if PLATFORM in ['linux2', 'win32']:
         encodings = [DEFAULT_ENCODING, ENCODING,
-                     'cp1252', 'iso-8859-1', 'utf-16']
+                     'cp1252', 'latin_1', 'utf-16']
         format = 'NFC'
     else:
         encodings = [DEFAULT_ENCODING, ENCODING,
-                     'macroman', 'iso-8859-1', 'utf-16']
+                     'macroman', 'latin_1', 'utf-16']
         format = 'NFC'
     decstr = unistr
     if type(decstr) != UnicodeType:
@@ -609,13 +624,16 @@ STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 'selback':
         'marginback': 'Number Margin Background', 'markerfg': 'Marker Foreground', 'markerbg': 'Marker Background', 
         'bracelight': 'Brace Match', 'bracebad': 'Brace Mismatch', 'lineedge': 'Line Edge'}
 
-with open(DEFAULT_STYLE) as f:
+with open(PREF_STYLE) as f:
     text = f.read()
 exec text in locals()
 STYLES = copy.deepcopy(style)
-STYLES['face'] = DEFAULT_FONT_FACE
-STYLES['size'] = FONT_SIZE
-STYLES['size2'] = FONT_SIZE2
+if not STYLES.has_key('face'):
+    STYLES['face'] = DEFAULT_FONT_FACE
+if not STYLES.has_key('size'):
+    STYLES['size'] = FONT_SIZE
+if not STYLES.has_key('size2'):
+    STYLES['size2'] = FONT_SIZE2
 
 STYLES_PREVIEW_TEXT = '''# Comment
 ## Comment block
@@ -1647,10 +1665,13 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.zoom, id=wx.ID_ZOOM_IN, id2=wx.ID_ZOOM_OUT)
         menu4.AppendSeparator()
         menu4.Append(130, "Show Invisibles", kind=wx.ITEM_CHECK)
+        menu4.Check(130, PREFERENCES.get("show_invisibles", 0))
         self.Bind(wx.EVT_MENU, self.showInvisibles, id=130)
         menu4.Append(131, "Show Edge Line", kind=wx.ITEM_CHECK)
+        menu4.Check(131, PREFERENCES.get("show_edge_line", 0))
         self.Bind(wx.EVT_MENU, self.showEdge, id=131)
         menu4.Append(132, "Wrap Text Line", kind=wx.ITEM_CHECK)
+        menu4.Check(132, PREFERENCES.get("wrap_text_line", 0))
         self.Bind(wx.EVT_MENU, self.wrapMode, id=132)
         menu4.AppendSeparator()
         self.showProjItem = menu4.Append(50, "Open Folder Panel")
@@ -1668,7 +1689,7 @@ class MainFrame(wx.Frame):
         ID_STYLE = 500
         for st in [f for f in os.listdir(STYLES_PATH) if f[0] != "."]:
             self.menu5.Append(ID_STYLE, st, "", wx.ITEM_RADIO)
-            if st == "Default": self.menu5.Check(ID_STYLE, True)
+            if st == PREFERENCES.get("pref_style", "Default"): self.menu5.Check(ID_STYLE, True)
             ID_STYLE += 1
         self.menu5.AppendSeparator()
         self.menu5.Append(499, "Open Style Editor")
@@ -1908,14 +1929,26 @@ class MainFrame(wx.Frame):
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() - 1)
 
     def showInvisibles(self, evt):
-        self.panel.editor.showInvisibles(evt.GetInt())
+        state = evt.GetInt()
+        PREFERENCES["show_invisibles"] = state
+        for i in range(self.panel.notebook.GetPageCount()):
+            ed = self.panel.notebook.GetPage(i)
+            ed.showInvisibles(state)
 
     def showEdge(self, evt):
-        self.panel.editor.showEdge(evt.GetInt())
+        state = evt.GetInt()
+        PREFERENCES["show_edge_line"] = state
+        for i in range(self.panel.notebook.GetPageCount()):
+            ed = self.panel.notebook.GetPage(i)
+            ed.showEdge(state)
 
     def wrapMode(self, evt):
-        mode = {0: stc.STC_WRAP_NONE, 1: stc.STC_WRAP_WORD}[evt.GetInt()]
-        self.panel.editor.SetWrapMode(mode)
+        state = evt.GetInt()
+        PREFERENCES["wrap_text_line"] = state
+        mode = {0: stc.STC_WRAP_NONE, 1: stc.STC_WRAP_WORD}[state]
+        for i in range(self.panel.notebook.GetPageCount()):
+            ed = self.panel.notebook.GetPage(i)
+            ed.SetWrapMode(mode)
 
     def removeTrailingWhiteSpace(self, evt):
         self.panel.editor.removeTrailingWhiteSpace()
@@ -1992,12 +2025,18 @@ class MainFrame(wx.Frame):
         self.panel.editor.OnQuickSearch(str, next)
 
     def insertPath(self, evt):
-        dlg = wx.FileDialog(self, message="Choose a file", defaultDir=os.getcwd(),
+        dlg = wx.FileDialog(self, message="Choose a file", 
+                            defaultDir=PREFERENCES.get("insert_path", os.path.expanduser("~")),
                             defaultFile="", style=wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPaths()
-            text = ensureNFD(path[0])
-            self.panel.editor.ReplaceSelection("'" + text + "'")
+            paths = dlg.GetPaths()
+            if len(paths) == 1:
+                text = ensureNFD(paths[0])
+                self.panel.editor.ReplaceSelection("'" + text + "'")
+            else:
+                text = ", ".join(["'"+ensureNFD(path)+"'" for path in paths])
+                self.panel.editor.ReplaceSelection("[" + text + "]")
+            PREFERENCES["insert_path"] = os.path.split(paths[0])[0]
         dlg.Destroy()
 
     def insertSnippet(self, evt):
@@ -2037,6 +2076,8 @@ class MainFrame(wx.Frame):
             ed.setStyle()
         self.panel.project.setStyle()
         self.panel.markers.scroll.setStyle()
+
+        PREFERENCES["pref_style"] = st
 
         if not fromMenu:
             itemList = self.menu5.GetMenuItems()
@@ -2147,15 +2188,17 @@ class MainFrame(wx.Frame):
         file = menu.FindItemById(id).GetLabel()
         self.panel.addPage(ensureNFD(file[:-1]))
 
-    def open(self, event):
+    def open(self, event, encoding=None):
         dlg = wx.FileDialog(self, message="Choose a file", 
-            defaultDir=os.path.expanduser("~"), defaultFile="", style=wx.OPEN | wx.MULTIPLE)
+            defaultDir=PREFERENCES.get("open_file_path", os.path.expanduser("~")),
+            defaultFile="", style=wx.OPEN | wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPaths()
-            for file in path:
-                filename = ensureNFD(file)
-                self.panel.addPage(filename)
+            paths = dlg.GetPaths()
+            for path in paths:
+                filename = ensureNFD(path)
+                self.panel.addPage(filename, encoding=encoding)
                 self.newRecent(filename)
+            PREFERENCES["open_file_path"] = os.path.split(paths[0])[0]
         dlg.Destroy()
 
     def openWithEncoding(self, event):
@@ -2168,18 +2211,8 @@ class MainFrame(wx.Frame):
             ok = True
         dlg.Destroy()
 
-        if not ok:
-            return
-
-        dlg = wx.FileDialog(self, message="Choose a file", 
-            defaultDir=os.path.expanduser("~"), defaultFile="", style=wx.OPEN | wx.MULTIPLE)
-        if dlg.ShowModal() == wx.ID_OK:
-            path = dlg.GetPaths()
-            for file in path:
-                filename = ensureNFD(file)
-                self.panel.addPage(filename, encoding=encoding)
-                self.newRecent(filename)
-        dlg.Destroy()
+        if ok:
+            self.open(event, encoding=encoding)
 
     def openExample(self, event):
         id = event.GetId()
@@ -2192,12 +2225,14 @@ class MainFrame(wx.Frame):
 
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder", 
-            defaultPath=os.path.expanduser("~"), style=wx.DD_DEFAULT_STYLE)
+            defaultPath=PREFERENCES.get("open_folder_path", os.path.expanduser("~")),
+            style=wx.DD_DEFAULT_STYLE)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
             self.folder = path
             self.panel.project.loadFolder(self.folder)
             sys.path.append(path)
+            PREFERENCES["open_folder_path"] = os.path.split(path)[0]
         dlg.Destroy()
 
     def save(self, event):
@@ -2213,7 +2248,8 @@ class MainFrame(wx.Frame):
     def saveas(self, event):
         deffile = os.path.split(self.panel.editor.path)[1]
         dlg = wx.FileDialog(self, message="Save file as ...", 
-            defaultDir=os.path.expanduser('~'), defaultFile=deffile, style=wx.SAVE)
+            defaultDir=PREFERENCES.get("save_file_path", os.path.expanduser("~")),
+            defaultFile=deffile, style=wx.SAVE)
         dlg.SetFilterIndex(0)
         if dlg.ShowModal() == wx.ID_OK:
             path = ensureNFD(dlg.GetPath())
@@ -2227,6 +2263,7 @@ class MainFrame(wx.Frame):
             tab = self.panel.notebook.GetSelection()
             self.panel.notebook.SetPageText(tab, os.path.split(path)[1].split('.')[0])
             self.newRecent(path)
+            PREFERENCES["save_file_path"] = os.path.split(path)[0]
         dlg.Destroy()
 
     def close(self, event):
@@ -2320,6 +2357,8 @@ class MainFrame(wx.Frame):
         wx.AboutBox(info)
 
     def OnClose(self, event):
+        with open(PREFERENCES_PATH, "w") as f:
+            f.write("epyo_prefs = %s" % str(PREFERENCES))
         try:
             self.snippet_frame.Destroy()
         except:
@@ -2525,14 +2564,16 @@ class Editor(stc.StyledTextCtrl):
         self.SetTabWidth(4)
         self.SetUseTabs(False)
         self.AutoCompSetChooseSingle(True)
-        self.SetViewWhiteSpace(False)
         self.SetEOLMode(wx.stc.STC_EOL_LF)
-        self.SetViewEOL(False)
-        self.SetEdgeMode(stc.STC_EDGE_NONE)
         self.SetPasteConvertEndings(True)
         self.SetControlCharSymbol(32)
         self.SetLayoutCache(True)
-        self.SetWrapMode(stc.STC_WRAP_NONE)
+
+        self.SetViewWhiteSpace(PREFERENCES.get("show_invisibles", 0))
+        self.SetViewEOL(PREFERENCES.get("show_invisibles", 0))
+        self.SetEdgeMode(PREFERENCES.get("show_edge_line", 0))
+        mode = {0: stc.STC_WRAP_NONE, 1: stc.STC_WRAP_WORD}[PREFERENCES.get("wrap_text_line", 0)]
+        self.SetWrapMode(mode)
 
         self.SetProperty("fold", "1")
         self.SetProperty("tab.timmy.whinge.level", "1")
