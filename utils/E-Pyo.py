@@ -20,7 +20,6 @@ import wx.stc  as  stc
 import FlatNotebook as FNB
 from pyo import *
 from PyoDoc import ManualFrame
-from splash import SplashScreen
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -53,6 +52,14 @@ exec text in locals()
 PREFERENCES = copy.deepcopy(epyo_prefs)
 
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
+
+if PLATFORM == "darwin":
+    # python 2.7 only
+    # which_python = subprocess.check_output("which python", shell=True, stderr=subprocess.STDOUT)
+    proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    WHICH_PYTHON = proc.communicate()[0][:-1]
+    proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
 
 if '/%s.app' % APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
@@ -2350,7 +2357,7 @@ class MainFrame(wx.Frame):
         if not self.keyCommandsFrame.IsShown():
             self.keyCommandsFrame.CenterOnParent()
             self.keyCommandsFrame.Show()
-        
+
     def onHelpAbout(self, evt):
         info = wx.AboutDialogInfo()
         info.Name = APP_NAME
@@ -2662,6 +2669,7 @@ class Editor(stc.StyledTextCtrl):
         self.CmdKeyClear(stc.STC_KEY_SUBTRACT, stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_DIVIDE, stc.STC_SCMOD_CTRL)
 
+        self.SetText(WHICH_PYTHON + "\n\n" + IMPORT_PYO_STDOUT + IMPORT_PYO_STDERR)
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
 
