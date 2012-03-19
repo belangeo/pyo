@@ -1674,9 +1674,9 @@ class MainFrame(wx.Frame):
         menu4.Check(132, PREFERENCES.get("wrap_text_line", 0))
         self.Bind(wx.EVT_MENU, self.wrapMode, id=132)
         menu4.AppendSeparator()
-        self.showProjItem = menu4.Append(50, "Open Folder Panel")
+        self.showProjItem = menu4.Append(50, "Show Folder Panel", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
-        self.showMarkItem = menu4.Append(49, "Open Markers Panel")
+        self.showMarkItem = menu4.Append(49, "Show Markers Panel", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.showHideMarkersPanel, id=49)
         menu4.AppendSeparator()
         menu4.Append(190, "Open Documentation Frame\tShift+Ctrl+D")
@@ -1773,6 +1773,9 @@ class MainFrame(wx.Frame):
         self.tcp = TreeCtrlComboPopup()
         self.cc.SetPopupControl(self.tcp)
         self.Reposition()
+
+        self.showProjectTree(PREFERENCES.get("show_folder_panel", 0))
+        self.showMarkersPanel(PREFERENCES.get("show_markers_panel", 0))
 
         if foldersToOpen:
             for p in foldersToOpen:
@@ -2101,14 +2104,16 @@ class MainFrame(wx.Frame):
         self.snippet_frame.Show()
 
     def showHideFolderPanel(self, evt):
-        state = self.showProjItem.GetItemLabel() == "Open Folder Panel"
+        state = evt.GetInt()
         self.showProjectTree(state)
 
     def showHideMarkersPanel(self, evt):
-        state = self.showMarkItem.GetItemLabel() == "Open Markers Panel"
+        state = evt.GetInt()
         self.showMarkersPanel(state)
 
     def showProjectTree(self, state):
+        self.showProjItem.Check(state)
+        PREFERENCES["show_folder_panel"] = state
         if state:
             if self.panel.project.IsShownOnScreen():
                 return
@@ -2120,15 +2125,15 @@ class MainFrame(wx.Frame):
             else:
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
-            self.showProjItem.SetItemLabel("Close Folder Panel")
         else:
             if self.panel.markers.IsShown():
                 self.panel.left_splitter.Unsplit(self.panel.project)
             else:
                 self.panel.splitter.Unsplit(self.panel.left_splitter)
-            self.showProjItem.SetItemLabel("Open Folder Panel")
 
     def showMarkersPanel(self, state):
+        self.showMarkItem.Check(state)
+        PREFERENCES["show_markers_panel"] = state
         if state:
             if self.panel.markers.IsShownOnScreen():
                 return
@@ -2140,13 +2145,11 @@ class MainFrame(wx.Frame):
             else:
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
-            self.showMarkItem.SetItemLabel("Close Markers Panel")
         else:
             if self.panel.project.IsShown():
                 self.panel.left_splitter.Unsplit(self.panel.markers)
             else:
                 self.panel.splitter.Unsplit(self.panel.left_splitter)
-            self.showMarkItem.SetItemLabel("Open Markers Panel")
 
 
     ### New / Open / Save / Delete ###
