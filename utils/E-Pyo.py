@@ -9,7 +9,7 @@ Olivier Belanger - 2012
 
 """
 import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random
-from types import UnicodeType
+from types import UnicodeType, MethodType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
@@ -53,13 +53,33 @@ PREFERENCES = copy.deepcopy(epyo_prefs)
 
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
+# Check for Python/WxPython/Pyo installation and architecture #
+CALLER_NEED_TO_INVOKE_32_BIT = False
+SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
+INSTALLATION_ERROR_MESSAGE = ""
 if PLATFORM == "darwin":
-    # python 2.7 only
-    # which_python = subprocess.check_output("which python", shell=True, stderr=subprocess.STDOUT)
     proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     WHICH_PYTHON = proc.communicate()[0][:-1]
+    # WHICH_PYTHON = WHICH_PYTHON.replace("/local", "")
     proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
+    if "ImportError" in IMPORT_PYO_STDERR:
+        if "No module named" in IMPORT_PYO_STDERR:
+            INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+        elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR:
+            # Need to be tested will python.org 64-bit installation.
+            CALLER_NEED_TO_INVOKE_32_BIT = True
+            INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+    else:
+        proc = subprocess.Popen(['%s -c "import wx"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
+        if "ImportError" in IMPORT_WX_STDERR:
+            if "No module named" in IMPORT_WX_STDERR:
+                INSTALLATION_ERROR_MESSAGE = "WxPython is not installed in the current Python installation. It is needed by pyo to show graphical display.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+            elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
+                CALLER_NEED_TO_INVOKE_32_BIT = True
+                INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but WxPython installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+
 
 if '/%s.app' % APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
@@ -1784,6 +1804,11 @@ class MainFrame(wx.Frame):
         self.showProjectTree(PREFERENCES.get("show_folder_panel", 0))
         self.showMarkersPanel(PREFERENCES.get("show_markers_panel", 0))
 
+        if INSTALLATION_ERROR_MESSAGE != "":
+            report = wx.MessageDialog(self, INSTALLATION_ERROR_MESSAGE, "Installation Report", wx.OK|wx.ICON_INFORMATION|wx.STAY_ON_TOP)
+            report.ShowModal()
+            report.Destroy()
+
         if foldersToOpen:
             for p in foldersToOpen:
                 self.panel.project.loadFolder(p)
@@ -2300,7 +2325,10 @@ class MainFrame(wx.Frame):
                 f.write(script)
             pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
         else:
-            pid = subprocess.Popen(["python", path], cwd=cwd).pid
+            if CALLER_NEED_TO_INVOKE_32_BIT:
+                pid = subprocess.Popen(["%s%s %s" % (SET_32_BIT_ARCH, WHICH_PYTHON, path)], cwd=cwd, shell=True).pid
+            else:
+                pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
 
     def runner(self, event):
         path = ensureNFD(self.panel.editor.path)
@@ -2482,6 +2510,7 @@ class MainPanel(wx.Panel):
         editor.setText(ensureNFD(text))
         editor.path = file
         editor.saveMark = True
+        editor.EmptyUndoBuffer()
         editor.SetSavePoint()
         editor.setStyle()
         self.editor = editor
@@ -2669,7 +2698,6 @@ class Editor(stc.StyledTextCtrl):
         self.CmdKeyClear(stc.STC_KEY_SUBTRACT, stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_DIVIDE, stc.STC_SCMOD_CTRL)
 
-        self.SetText(WHICH_PYTHON + "\n\n" + IMPORT_PYO_STDOUT + IMPORT_PYO_STDERR)
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
 
@@ -3142,9 +3170,19 @@ class Editor(stc.StyledTextCtrl):
             currentword = currentword[:-1]
             if currentword in self.objs_attr_dict.keys():
                 pyokeyword = self.objs_attr_dict[currentword]
-                list = " ".join([word for word in dir(eval(pyokeyword)) if not word.startswith("_")])
+                obj = eval(pyokeyword)
+                list = [word for word in dir(obj) if not word.startswith("_")]
+                for i, word in enumerate(list):
+                    if type(getattr(obj, word)) == MethodType:
+                        args, varargs, varkw, defaults = inspect.getargspec(getattr(obj, word))
+                        args = inspect.formatargspec(args, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
+                        args = args.replace('self, ', '').replace('self', '')
+                        list[i] = word + args
+                list = "/".join(list)
                 if list:
+                    self.AutoCompSetSeparator(ord("/"))
                     self.AutoCompShow(0, list)
+                    self.AutoCompSetSeparator(ord(" "))
                     return True
                 else:
                     self.addText(" "*ws)
@@ -3584,12 +3622,12 @@ class ProjectTree(wx.Panel):
         projectDir = {}
         self.mainPanel.mainFrame.showProjectTree(True)
         for root, dirs, files in os.walk(dirPath):
-            if os.path.split(root)[1][0] != '.':
+            if os.path.split(root)[1][0] != '.' and os.path.split(root)[1] != "build":
                 if root == dirPath:
                     child = self.tree.AppendItem(self.root, folderName, self.fldridx, self.fldropenidx, None)
                     self.tree.SetItemTextColour(child, STYLES['default']['colour'])
                     if dirs:
-                        ddirs = [dir for dir in dirs if dir[0] != '.']
+                        ddirs = [dir for dir in dirs if dir[0] != '.' and dir != "build"]
                         for dir in sorted(ddirs):
                             subfol = self.tree.AppendItem(child, "%s" % dir, self.fldridx, self.fldropenidx, None)
                             projectDir[dir] = subfol
@@ -3603,7 +3641,7 @@ class ProjectTree(wx.Panel):
                     if os.path.split(root)[1] in projectDir.keys():
                         parent = projectDir[os.path.split(root)[1]]
                         if dirs:
-                            ddirs = [dir for dir in dirs if dir[0] != '.']
+                            ddirs = [dir for dir in dirs if dir[0] != '.' and "build/" not in root]
                             for dir in sorted(ddirs):
                                 subfol = self.tree.AppendItem(parent, "%s" % dir, self.fldridx, self.fldropenidx, None)
                                 projectDir[dir] = subfol
