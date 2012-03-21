@@ -1339,8 +1339,8 @@ class SnippetFrame(wx.Frame):
     def onTagSelection(self, evt):
         select = self.entry.GetSelection()
         if select:
-            self.entry.insertText(select[1], "`")
-            self.entry.insertText(select[0], "`")
+            self.entry.InsertText(select[1], "`")
+            self.entry.InsertText(select[0], "`")
 
     def onLoad(self, name, category):
         if os.path.isfile(os.path.join(SNIPPETS_PATH, category, name)):
@@ -1493,9 +1493,6 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
                     text = text[:50] + "...)"
                 item = self.AddItem(text, None, wx.TreeItemData(i))
         self.tree.SetSize((400, 500))
-        if self.value:
-            self.tree.EnsureVisible(self.value)
-            self.tree.SelectItem(self.value)
 
     def SetStringValue(self, value):
         root = self.tree.GetRootItem()
@@ -2291,7 +2288,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.path = path
             self.panel.editor.setStyle()
             self.panel.editor.SetCurrentPos(0)
-            self.panel.editor.addText(" ")
+            self.panel.editor.addText(" ", False)
             self.panel.editor.DeleteBackNotLine()
             self.panel.editor.saveMyFile(path)
             self.SetTitle(path)
@@ -2362,7 +2359,7 @@ class MainFrame(wx.Frame):
         line = self.panel.editor.LineFromPosition(pos)
         pos = self.panel.editor.GetLineEndPosition(line)
         self.panel.editor.SetCurrentPos(pos)
-        self.panel.editor.addText("\n")
+        self.panel.editor.addText("\n", False)
         with stdoutIO() as s:
             exec text
         self.panel.editor.addText(s.getvalue())
@@ -2882,12 +2879,12 @@ class Editor(stc.StyledTextCtrl):
         text = self.GetTextUTF8()
         lines = [line.rstrip() for line in text.splitlines(False)]
         text= "\n".join(lines)
-        self.setText(text)
+        self.setText(text, False)
 
     def tabsToSpaces(self):
         text = self.GetTextUTF8()
         text = text.replace("\t", "    ")
-        self.setText(text)
+        self.setText(text, False)
 
     ### Save and Close file ###
     def saveMyFile(self, file):
@@ -2985,23 +2982,35 @@ class Editor(stc.StyledTextCtrl):
             self.saveMark = True
 
     ### Text Methods ###
-    def addText(self, text):
+    def addText(self, text, update=True):
         try:
             self.AddTextUTF8(text)
         except:
             self.AddText(text)
+        if update:
+            count = self.GetLineCount()
+            for i in range(count):
+                self.updateVariableDict(i)
 
-    def insertText(self, pos, text):
+    def insertText(self, pos, text, update=True):
         try:
             self.InsertTextUTF8(pos, text)
         except:
             self.InsertText(pos, text)
+        if update:
+            count = self.GetLineCount()
+            for i in range(count):
+                self.updateVariableDict(i)
 
-    def setText(self, text):
+    def setText(self, text, update=True):
         try:
             self.SetTextUTF8(text)
         except:
             self.SetText(text)
+        if update:
+            count = self.GetLineCount()
+            for i in range(count):
+                self.updateVariableDict(i)
 
     ### Editor functions ###
     def listPaste(self, pastingList):
@@ -3050,10 +3059,10 @@ class Editor(stc.StyledTextCtrl):
                 self.AutoCompShow(len(currentword), list)
                 return True
             else:
-                self.addText(" "*ws)
+                self.addText(" "*ws, False)
                 return False
         else:
-            self.addText(" "*ws)
+            self.addText(" "*ws, False)
             return False
 
     def insertDefArgs(self, currentword):
@@ -3063,7 +3072,7 @@ class Editor(stc.StyledTextCtrl):
                 text = class_args(eval(word)).replace(word, "")
                 self.args_buffer = text.replace("(", "").replace(")", "").split(",")
                 self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+1]
-                self.insertText(self.GetCurrentPos(), text)
+                self.insertText(self.GetCurrentPos(), text, False)
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
                 break
@@ -3071,7 +3080,7 @@ class Editor(stc.StyledTextCtrl):
     def navigateArgs(self):
         self.deleteBackWhiteSpaces()
         if self.selection != "":
-            self.addText(self.selection)
+            self.addText(self.selection, False)
         arg = self.args_buffer.pop(0)
         if len(self.args_buffer) == 0:
             self.quit_navigate_args = True
@@ -3085,7 +3094,7 @@ class Editor(stc.StyledTextCtrl):
     def quitNavigateArgs(self):
         self.deleteBackWhiteSpaces()
         if self.selection != "":
-            self.addText(self.selection)
+            self.addText(self.selection, False)
         pos = self.GetLineEndPosition(self.GetCurrentLine()) + 1
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
@@ -3140,9 +3149,9 @@ class Editor(stc.StyledTextCtrl):
         if self.selection != "":
             while self.GetCurrentPos() > pos:
                 self.DeleteBack()
-            self.addText(self.selection)
+            self.addText(self.selection, False)
             if chr(self.GetCharAt(self.GetCurrentPos())) == "=":
-                self.addText(" ")
+                self.addText(" ", False)
         arg = self.snip_buffer.pop(0)
         if len(self.snip_buffer) == 0:
             self.quit_navigate_snip = True
@@ -3153,7 +3162,7 @@ class Editor(stc.StyledTextCtrl):
         if self.selection != "":
             while self.GetCurrentPos() > pos:
                 self.DeleteBack()
-            self.addText(self.selection)
+            self.addText(self.selection, False)
         pos = self.PositionFromLine(self.args_line_number[1])
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
@@ -3186,17 +3195,16 @@ class Editor(stc.StyledTextCtrl):
                     self.AutoCompSetSeparator(ord(" "))
                     return True
                 else:
-                    self.addText(" "*ws)
+                    self.addText(" "*ws, False)
                     return False
             else:
-                self.addText(" "*ws)
+                self.addText(" "*ws, False)
                 return False
         else:
             return False
 
-    def processReturn(self):
-        prevline = self.GetCurrentLine() - 1
-        text = self.GetLineUTF8(prevline).replace(" ", "")
+    def updateVariableDict(self, line):
+        text = self.GetLineUTF8(line).replace(" ", "")
         egpos = text.find("=")
         brpos = text.find("(")
         if egpos != -1 and brpos != -1:
@@ -3205,9 +3213,13 @@ class Editor(stc.StyledTextCtrl):
                 obj = text[egpos+1:brpos]
                 if obj in PYO_WORDLIST:
                     self.objs_attr_dict[name] = obj
+
+    def processReturn(self):
+        prevline = self.GetCurrentLine() - 1
+        self.updateVariableDict(prevline)
         if self.GetLineUTF8(prevline).strip().endswith(":"):
             indent = self.GetLineIndentation(prevline)
-            self.addText(" "*(indent+4))
+            self.addText(" "*(indent+4), False)
 
     def processTab(self, currentword, autoCompActive, charat, pos):
         autoCompOn = self.showAutoComp()
@@ -3408,7 +3420,7 @@ class Editor(stc.StyledTextCtrl):
             lineLen = len(self.GetLine(i))
             pos = self.PositionFromLine(i)
             if self.GetTextRangeUTF8(pos,pos+1) != '#' and lineLen > 2:
-                self.insertText(pos, '#')
+                self.insertText(pos, '#', False)
             elif self.GetTextRangeUTF8(pos,pos+1) == '#':
                 self.GotoPos(pos+1)
                 self.DelWordLeft()
@@ -3803,7 +3815,6 @@ class ProjectTree(wx.Panel):
 
     def onCloseProjectPanel(self, evt):
         self.mainPanel.mainFrame.showProjectTree(False)
-
 
 class MarkersListScroll(scrolled.ScrolledPanel):
     def __init__(self, parent, id=-1, pos=(25,25), size=(500,400)):
