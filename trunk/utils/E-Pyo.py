@@ -1426,19 +1426,16 @@ class FileSelectorCombo(wx.combo.ComboCtrl):
         bmp = wx.EmptyBitmap(w,h)
         dc = wx.MemoryDC(bmp)
 
-        # clear to a specific background colour
         bgcolor = wx.Colour(255,254,255)
         dc.SetBackground(wx.Brush(bgcolor))
         dc.Clear()
 
-        # draw the label onto the bitmap
         dc.SetBrush(wx.Brush("#444444"))
         dc.SetPen(wx.Pen("#444444"))
         dc.DrawPolygon([wx.Point(4,h/2-2), wx.Point(w/2,2), wx.Point(w-4,h/2-2)])
         dc.DrawPolygon([wx.Point(4,h/2+2), wx.Point(w/2,h-2), wx.Point(w-4,h/2+2)])
         del dc
 
-        # now apply a mask using the bgcolor
         bmp.SetMaskColour(bgcolor)
         self.SetButtonBitmaps(bmp, True)
 
@@ -1454,7 +1451,10 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
                                 |wx.TR_LINES_AT_ROOT
                                 |wx.SIMPLE_BORDER)
         font, psize = self.tree.GetFont(), self.tree.GetFont().GetPointSize()
-        font.SetPointSize(psize-2)
+        if PLATFORM == "darwin":
+            font.SetPointSize(psize-2)
+        else:
+            font.SetPointSize(psize-1)
         self.tree.SetFont(font)
         self.tree.Bind(wx.EVT_MOTION, self.OnMotion)
         self.tree.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
@@ -1529,7 +1529,6 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
         return item
 
     def OnMotion(self, evt):
-        # have the selection follow the mouse, like in a real combobox
         item, flags = self.tree.HitTest(evt.GetPosition())
         if item and flags & wx.TREE_HITTEST_ONITEMLABEL:
             self.tree.SelectItem(item)
@@ -1558,6 +1557,7 @@ class MainFrame(wx.Frame):
 
         self.snippet_frame = SnippetFrame(self, title='Snippet Editor', pos=(25,25), size=(700,450))
         self.style_frame = ColourEditor(self, title='Style Editor', pos=(100,100), size=(500,550))
+        self.style_frame.setCurrentStyle(PREF_STYLE)
         self.keyCommandsFrame = KeyCommandsFrame(self)
 
         self.print_data = wx.PrintData()
@@ -2543,6 +2543,7 @@ class MainPanel(wx.Panel):
     def onPageChange(self, event):
         self.markers.setDict({})
         self.editor = self.notebook.GetPage(self.notebook.GetSelection())
+        self.editor.SetFocus()
         if not self.editor.path:
             if self.editor.GetModify():
                 self.SetTitle("*** E-Pyo Editor ***")
