@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-This script demonstrates how to use a matrix to do some algorithmic generation of notes.
+This script demonstrates how to use a matrix to do some 
+algorithmic generation of notes.
 
 """
 from pyo import *

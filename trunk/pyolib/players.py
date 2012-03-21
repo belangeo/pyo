@@ -181,10 +181,10 @@ class SfPlayer(PyoObject):
             Full path of the new sound.
 
         """
-        if type(self._sound) == ListType:
-            curNchnls = sndinfo(self._sound[0])[3]
+        if type(self._path) == ListType:
+            curNchnls = sndinfo(self._path[0])[3]
         else:
-            curNchnls = sndinfo(self._sound)[3]
+            curNchnls = sndinfo(self._path)[3]
         if type(path) == ListType:
             p = path[0]
         else:
