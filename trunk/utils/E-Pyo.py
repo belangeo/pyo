@@ -3029,13 +3029,6 @@ class Editor(stc.StyledTextCtrl):
         self.SetCurrentPos(self.GetCurrentPos() + len(text))
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
-    def deleteBackWhiteSpaces(self):
-        count = self.GetCurrentPos()
-        while self.GetCharAt(self.GetCurrentPos()-1) == 32:
-            self.DeleteBack()
-        count -= self.GetCurrentPos()
-        return count
-
     def getWordUnderCaret(self):
         caretPos = self.GetCurrentPos()
         startpos = self.WordStartPosition(caretPos, True)
@@ -3044,7 +3037,7 @@ class Editor(stc.StyledTextCtrl):
         return currentword
 
     def showAutoComp(self):
-        ws = self.deleteBackWhiteSpaces()
+        propagate = True
         charBefore = " "
         caretPos = self.GetCurrentPos()
         if caretPos > 0:
@@ -3057,30 +3050,27 @@ class Editor(stc.StyledTextCtrl):
                     list = list + word + ' '
             if list:
                 self.AutoCompShow(len(currentword), list)
-                return True
-            else:
-                self.addText(" "*ws, False)
-                return False
-        else:
-            self.addText(" "*ws, False)
-            return False
+                propagate = False
+        return propagate
 
     def insertDefArgs(self, currentword):
+        propagate = True
         for word in PYO_WORDLIST:
             if word == currentword:
-                self.deleteBackWhiteSpaces()
                 text = class_args(eval(word)).replace(word, "")
                 self.args_buffer = text.replace("(", "").replace(")", "").split(",")
+                self.args_buffer = [arg.strip() for arg in self.args_buffer]
                 self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+1]
                 self.insertText(self.GetCurrentPos(), text, False)
                 self.selection = self.GetSelectedText()
                 wx.CallAfter(self.navigateArgs)
+                propagate = False
                 break
+        return propagate
 
     def navigateArgs(self):
-        self.deleteBackWhiteSpaces()
         if self.selection != "":
-            self.addText(self.selection, False)
+            self.SetCurrentPos(self.GetSelectionEnd())
         arg = self.args_buffer.pop(0)
         if len(self.args_buffer) == 0:
             self.quit_navigate_args = True
@@ -3092,9 +3082,6 @@ class Editor(stc.StyledTextCtrl):
         self.SearchNext(stc.STC_FIND_MATCHCASE, search)
 
     def quitNavigateArgs(self):
-        self.deleteBackWhiteSpaces()
-        if self.selection != "":
-            self.addText(self.selection, False)
         pos = self.GetLineEndPosition(self.GetCurrentLine()) + 1
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
@@ -3117,7 +3104,6 @@ class Editor(stc.StyledTextCtrl):
     def checkForBuiltinComp(self):
         text, pos = self.GetCurLine()
         if text.strip() in BUILTINS_DICT.keys():
-            self.deleteBackWhiteSpaces()
             indent = self.GetLineIndentation(self.GetCurrentLine())
             text, tlen = self.formatBuiltinComp(BUILTINS_DICT[text.strip()], indent)
             self.args_line_number = [self.GetCurrentLine(), self.GetCurrentLine()+len(text.splitlines())]
@@ -3130,6 +3116,9 @@ class Editor(stc.StyledTextCtrl):
                 self.selection = self.GetSelectedText()
                 pos = self.GetSelectionStart()
                 wx.CallAfter(self.navigateSnips, pos)
+            return False
+        else:
+            return True
 
     def insertSnippet(self, text):
         indent = self.GetLineIndentation(self.GetCurrentLine())
@@ -3147,11 +3136,7 @@ class Editor(stc.StyledTextCtrl):
 
     def navigateSnips(self, pos):
         if self.selection != "":
-            while self.GetCurrentPos() > pos:
-                self.DeleteBack()
-            self.addText(self.selection, False)
-            if chr(self.GetCharAt(self.GetCurrentPos())) == "=":
-                self.addText(" ", False)
+            self.SetCurrentPos(self.GetSelectionEnd())
         arg = self.snip_buffer.pop(0)
         if len(self.snip_buffer) == 0:
             self.quit_navigate_snip = True
@@ -3159,15 +3144,12 @@ class Editor(stc.StyledTextCtrl):
         self.SearchNext(stc.STC_FIND_MATCHCASE, arg)
 
     def quitNavigateSnips(self, pos):
-        if self.selection != "":
-            while self.GetCurrentPos() > pos:
-                self.DeleteBack()
-            self.addText(self.selection, False)
         pos = self.PositionFromLine(self.args_line_number[1])
         self.SetCurrentPos(pos)
         wx.CallAfter(self.SetAnchor, self.GetCurrentPos())
 
     def checkForAttributes(self, charat, pos):
+        propagate = True
         currentword = ""
         while charat == ord("."):
             startpos = self.WordStartPosition(pos-2, True)
@@ -3176,7 +3158,6 @@ class Editor(stc.StyledTextCtrl):
             pos = startpos - 1
             charat = self.GetCharAt(pos)
         if currentword != "":
-            ws = self.deleteBackWhiteSpaces()
             currentword = currentword[:-1]
             if currentword in self.objs_attr_dict.keys():
                 pyokeyword = self.objs_attr_dict[currentword]
@@ -3193,15 +3174,8 @@ class Editor(stc.StyledTextCtrl):
                     self.AutoCompSetSeparator(ord("/"))
                     self.AutoCompShow(0, list)
                     self.AutoCompSetSeparator(ord(" "))
-                    return True
-                else:
-                    self.addText(" "*ws, False)
-                    return False
-            else:
-                self.addText(" "*ws, False)
-                return False
-        else:
-            return False
+                    propagate = False
+        return propagate
 
     def updateVariableDict(self, line):
         text = self.GetLineUTF8(line).replace(" ", "")
@@ -3222,11 +3196,14 @@ class Editor(stc.StyledTextCtrl):
             self.addText(" "*(indent+4), False)
 
     def processTab(self, currentword, autoCompActive, charat, pos):
-        autoCompOn = self.showAutoComp()
-        if not autoCompOn and not autoCompActive:
-            self.checkForBuiltinComp()
-            self.insertDefArgs(currentword)
-            attrOn = self.checkForAttributes(charat, pos)
+        propagate = self.showAutoComp()
+        if propagate:
+            propagate = self.insertDefArgs(currentword)
+            if propagate:
+                propagate = self.checkForBuiltinComp()
+                if propagate:
+                    propagate = self.checkForAttributes(charat, pos)
+        return propagate
 
     def onShowTip(self):
         currentword = self.getWordUnderCaret()
@@ -3311,7 +3288,7 @@ class Editor(stc.StyledTextCtrl):
             self.DelLineLeft()
             propagate = False
 
-        # Copy / Duplicate / Cut / Paste Line --- Alt+'C', Alt+'D', Alt+'C', Alt+'V'
+        # Line Copy / Duplicate / Cut / Paste --- Alt+'C', Alt+'D', Alt+'C', Alt+'V'
         elif evt.GetKeyCode() in [ord('X'), ord('D'), ord('C'), ord('V')] and evt.AltDown():
             if evt.GetKeyCode() == ord('C'):
                 self.LineCopy()
@@ -3336,22 +3313,28 @@ class Editor(stc.StyledTextCtrl):
             pos = self.GetCurrentPos()
             if len(self.args_buffer) > 0 and currentline in range(*self.args_line_number):
                 self.selection = self.GetSelectedText()
-                wx.CallAfter(self.navigateArgs)
+                self.navigateArgs()
+                propagate = False
             elif self.quit_navigate_args and currentline in range(*self.args_line_number):
                 self.quit_navigate_args = False
                 self.selection = self.GetSelectedText()
-                wx.CallAfter(self.quitNavigateArgs)
+                self.quitNavigateArgs()
+                propagate = False
             elif len(self.snip_buffer) > 0 and currentline in range(*self.args_line_number):
                 self.selection = self.GetSelectedText()
                 pos = self.GetSelectionStart()
-                wx.CallAfter(self.navigateSnips, pos)
+                self.navigateSnips(pos)
+                propagate = False
             elif self.quit_navigate_snip and currentline in range(*self.args_line_number):
                 self.quit_navigate_snip = False
                 self.selection = self.GetSelectedText()
                 pos = self.GetSelectionStart()
-                wx.CallAfter(self.quitNavigateSnips, pos)
+                self.quitNavigateSnips(pos)
+                propagate = False
+            elif autoCompActive:
+                propagate = True
             else:
-                wx.CallAfter(self.processTab, currentword, autoCompActive, charat, pos)
+                propagate = self.processTab(currentword, autoCompActive, charat, pos)
 
         if propagate:
             evt.Skip()
