@@ -187,10 +187,22 @@ def class_args(cls):
 
     """
     name = cls.__name__
-    arg, varargs, varkw, defaults = inspect.getargspec(getattr(cls, "__init__"))
-    arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
-    arg = arg.replace("self, ", "")
-    return name + arg
+    try:
+        # Try for a class __init__ function
+        arg, varargs, varkw, defaults = inspect.getargspec(getattr(cls, "__init__"))
+        arg = inspect.formatargspec(arg, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
+        arg = arg.replace("self, ", "")
+        return name + arg
+    except TypeError:
+        try:
+            # Try for a function
+            lines = cls.__doc__.splitlines()
+            for line in lines:
+                if "%s(" % name in line:
+                    return line
+        except:
+            print "class_args was unable to retrieve the init line of the object as an argument."
+            return ""
 
 def getVersion():
     """

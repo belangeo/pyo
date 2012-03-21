@@ -9,7 +9,8 @@ from pyo import *
 # Set this constant to True to loop over preset bank
 WITH_PRESET = False
 
-snds3 = ['../snds/alum1.wav', '../snds/alum2.wav', '../snds/alum3.wav', '../snds/alum4.wav']
+snds3 = ['../snds/alum1.wav', '../snds/alum2.wav', 
+        '../snds/alum3.wav', '../snds/alum4.wav']
 
 presets = [[[16, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0], 
             [16, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0], 
@@ -27,7 +28,7 @@ presets = [[[16, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0],
 s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 
 tm = Xnoise(dist=9, freq=2.34, x1=.5, x2=3, mul=.0025, add=.12)
-b = Beat(time=tm, w1=[90,30,30,20], w2=[30,90,50,40], w3=[0,30,30,40], poly=1)
+b = Beat(time=tm, w1=[90,30,30,20], w2=[30,90,50,40], w3=[0,30,30,40])
 if WITH_PRESET:
     b.setPresets(presets)
     b.recall(0)

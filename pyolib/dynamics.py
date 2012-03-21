@@ -313,7 +313,7 @@ class Wrap(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> Time-varying overlaping envelopes
+    >>> # Time-varying overlaping envelopes
     >>> env = HannTable()
     >>> lff = Sine(.5, mul=3, add=4)
     >>> ph1 = Phasor(lff)
