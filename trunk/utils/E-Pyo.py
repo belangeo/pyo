@@ -1680,6 +1680,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.runner, id=104)
         menu3.Append(105, "Run Selection\tShift+Ctrl+R")
         self.Bind(wx.EVT_MENU, self.runSelection, id=105)
+        menu3.Append(107, "Run Line/Selection as Pyo\tShift+Ctrl+E")
+        self.Bind(wx.EVT_MENU, self.runSelectionAsPyo, id=107)
         menu3.Append(106, "Execute Line/Selection as Python\tCtrl+E")
         self.Bind(wx.EVT_MENU, self.execSelection, id=106)
         self.menuBar.Append(menu3, 'Process')
@@ -2348,6 +2350,18 @@ class MainFrame(wx.Frame):
             with open(TEMP_FILE, "w") as f:
                 f.write(text)
             self.run(TEMP_FILE, os.path.expanduser("~"))
+
+    def runSelectionAsPyo(self, event):
+        text = self.panel.editor.GetSelectedTextUTF8()
+        if text == "":
+            pos = self.panel.editor.GetCurrentPos()
+            line = self.panel.editor.LineFromPosition(pos)
+            text = self.panel.editor.GetLineUTF8(line)
+        with open(TEMP_FILE, "w") as f:
+            f.write("from pyo import *\ns = Server().boot()\n")
+            f.write(text)
+            f.write("\ns.gui(locals())\n")
+        self.run(TEMP_FILE, os.path.expanduser("~"))
 
     def execSelection(self, event):
         text = self.panel.editor.GetSelectedTextUTF8()
