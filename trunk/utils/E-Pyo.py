@@ -1375,8 +1375,9 @@ class SnippetFrame(wx.Frame):
                 short = self.short.GetValue()
                 if short == "Type your shortcut...":
                     short = ""
+                dic = {'shortcut': short, 'value': self.entry.GetTextUTF8()}
                 with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "w", encoding="utf-8") as f:
-                    f.write("snippet = {'value': '" + self.entry.GetTextUTF8() + "', 'shortcut': '" + short + "'}")
+                    f.write("snippet = %s" % pprint.pformat(dic))
                 self.snippet_tree.addItem(name, category)
                 self.parent.reloadSnippetMenu()
         dlg.Destroy()
@@ -2321,11 +2322,13 @@ class MainFrame(wx.Frame):
             with codecs.open(terminal_client_script_path, "w", encoding="utf-8") as f:
                 f.write(script)
             pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
-        else:
+        elif PLATFORM == "darwin":
             if CALLER_NEED_TO_INVOKE_32_BIT:
                 pid = subprocess.Popen(["%s%s %s" % (SET_32_BIT_ARCH, WHICH_PYTHON, path)], cwd=cwd, shell=True).pid
             else:
                 pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
+        elif PLATFORM == "linux2":
+                pid = subprocess.Popen(["python", path], cwd=cwd).pid
 
     def runner(self, event):
         path = ensureNFD(self.panel.editor.path)
