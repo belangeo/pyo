@@ -57,7 +57,7 @@ TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
 INSTALLATION_ERROR_MESSAGE = ""
-if PLATFORM == "darwin":
+if PLATFORM in ["darwin", "linux2"]:
     proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     WHICH_PYTHON = proc.communicate()[0][:-1]
     # WHICH_PYTHON = WHICH_PYTHON.replace("/local", "")
@@ -2130,7 +2130,9 @@ class MainFrame(wx.Frame):
 
     ### Open Prefs ang Logs ###
     def openPrefs(self, evt):
-        pass
+        dlg = PreferencesDialog()
+        dlg.ShowModal()
+        dlg.Destroy()
 
     def showSnippetEditor(self, evt):
         self.snippet_frame.Show()
@@ -3948,6 +3950,67 @@ class MarkersPanel(wx.Panel):
 
     def onCloseMarkersPanel(self, evt):
         self.mainPanel.mainFrame.showMarkersPanel(False)
+
+class PreferencesDialog(wx.Dialog):
+    def __init__(self):
+        wx.Dialog.__init__(self, None, wx.ID_ANY, 'E-Pyo Preferences')
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        mainSizer.AddSpacer((-1,10))
+        font, entryfont, pointsize = self.GetFont(), self.GetFont(), self.GetFont().GetPointSize()
+        
+        font.SetWeight(wx.BOLD)
+        if PLATFORM in ["win32", "linux2"]:
+            entryfont.SetPointSize(pointsize-1)
+        else:
+            font.SetPointSize(pointsize-1)
+            entryfont.SetPointSize(pointsize-2)
+
+        lbl = wx.StaticText(self, label="Python Executable:")
+        lbl.SetFont(font)
+        mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
+        ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
+        txt = wx.TextCtrl(self, size=(360,-1), value=WHICH_PYTHON, style=wx.TE_PROCESS_ENTER)
+        txt.SetFont(entryfont)
+        txt.Bind(wx.EVT_TEXT_ENTER, self.changeExe)
+        ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+        but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
+        #but.Bind(wx.EVT_BUTTON, self.getPath)
+        ctrlSizer.Add(but, 0, wx.ALL, 5)            
+        but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
+        #but2.Bind(wx.EVT_BUTTON, self.getPath)
+        ctrlSizer.Add(but2, 0, wx.ALL, 5)
+        mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+
+        lbl = wx.StaticText(self, label="Resources Folder:")
+        lbl.SetFont(font)
+        mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
+        ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
+        txt = wx.TextCtrl(self, size=(360,-1), value=TEMP_PATH, style=wx.TE_PROCESS_ENTER)
+        txt.SetFont(entryfont)
+        txt.Bind(wx.EVT_TEXT_ENTER, self.changeTempPath)
+        ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+        but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
+        #but.Bind(wx.EVT_BUTTON, self.getPath)
+        ctrlSizer.Add(but, 0, wx.ALL, 5)            
+        but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
+        #but2.Bind(wx.EVT_BUTTON, self.getPath)
+        ctrlSizer.Add(but2, 0, wx.ALL, 5)            
+        mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+ 
+        btnSizer = self.CreateButtonSizer(wx.OK)
+        btnSizer.Realize()
+ 
+        mainSizer.AddSpacer((-1,5))
+        mainSizer.Add(wx.StaticLine(self, size=(480,1)), 0, wx.TOP|wx.BOTTOM, 2)
+        mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
+        self.SetSizer(mainSizer)
+        self.SetClientSize(self.GetBestSize())
+
+    def changeExe(self, evt):
+        print evt.GetString()
+
+    def changeTempPath(self, evt):
+        print evt.GetString()
 
 class STCPrintout(wx.Printout):
     """Specific printing support of the wx.StyledTextCtrl for the wxPython

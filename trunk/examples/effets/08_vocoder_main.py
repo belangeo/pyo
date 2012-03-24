@@ -12,7 +12,7 @@ s = Server(sr=44100, nchnls=2, duplex=0).boot()
 a = SfPlayer('../snds/baseballmajeur_m.aif', loop=True)
 b = PinkNoise(.1)
 
-voc = Vocoder(in1=a, in2=b, base=70, spread=[1.49,1.5], q=10, num=12).out()
+voc = Vocoder(in1=a, in2=b, base=70, spread=[1.49,1.5], q=10, num=8).out()
 voc.ctrl()
 
 s.gui(locals())
