@@ -3858,6 +3858,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
             label.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
             line.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
             comment.Bind(wx.EVT_LEFT_DOWN, self.OnLeftDown)
+        self.setStyle()
 
     def OnLeftDown(self, evt):
         evtobj = evt.GetEventObject()
@@ -3998,10 +3999,9 @@ class PreferencesDialog(wx.Dialog):
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
  
         btnSizer = self.CreateButtonSizer(wx.OK)
-        btnSizer.Realize()
  
         mainSizer.AddSpacer((-1,5))
-        mainSizer.Add(wx.StaticLine(self, size=(480,1)), 0, wx.TOP|wx.BOTTOM, 2)
+        mainSizer.Add(wx.StaticLine(self), 1, wx.EXPAND|wx.ALL, 2)
         mainSizer.Add(btnSizer, 0, wx.ALL | wx.ALIGN_RIGHT, 5)
         self.SetSizer(mainSizer)
         self.SetClientSize(self.GetBestSize())
