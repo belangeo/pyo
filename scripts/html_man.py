@@ -123,6 +123,8 @@ def getFormattedDoc(text, obj):
                 if key == 'See also':
                     see_also = True
                     break
+                elif key == "Parentclass":
+                    break
                 else:
                     flag = True
                     skip_empty_line = True
@@ -142,13 +144,13 @@ def getFormattedDoc(text, obj):
             if verbatim:
                 text += '\\end{verbatim}\n'
                 verbatim = False
-            text +=  '\n\\begin{Large}' + '{\\bf See also : }\\end{Large}'
+            text +=  '\n\\begin{Large}' + '{\\bf See also: }\\end{Large}'
             line_tmp = line.replace('See also:', '')
             words = line_tmp.split(',')
             for word in words:
                 text += '\\htmladdnormallink{%s}{%s.html} ' % (word, word)
         elif 'Parentclass' in line:
-            text +=  '\n\\begin{large} {\\bf Parentclass} : \\end{large}'
+            text +=  '\n\\begin{large} {\\bf Parentclass}: \\end{large}'
             text += '\\htmladdnormallink{%s}{%s.html}\n' % (line.split(':')[1].strip(), line.split(':')[1].strip())
         else:
             if skip_empty_line:

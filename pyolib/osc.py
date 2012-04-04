@@ -131,7 +131,7 @@ class OscReceive(PyoObject):
 
     Uses the OSC protocol to receive values from other softwares or 
     other computers. Get a value at the beginning of each buffersize 
-    and fill it's buffer with it.
+    and fill its buffer with it.
 
     Parentclass: PyoObject
 
@@ -148,13 +148,17 @@ class OscReceive(PyoObject):
 
     get(identifier, all) : Return the first sample of the current 
         buffer as a float.
+    getAddresses() : Returns the addresses managed by the object.
+    addAddress(path, mul, add) : Adds new address(es) to the object's handler.
+    delAddress(path) : Removes address(es) from the object's handler.
+    setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
 
     Notes:
 
     Audio streams are accessed with the `address` string parameter. 
     The user should call :
 
-    OscReceive['/pitch'] to retreive streams named '/pitch'.
+    OscReceive['/pitch'] to retreive stream named '/pitch'.
 
     The out() method is bypassed. OscReceive's signal can not be sent 
     to audio outs.
@@ -195,7 +199,62 @@ class OscReceive(PyoObject):
             return self._base_objs[i]
         else:
             print "'i' too large!"
-    
+
+    def getAddresses(self):
+        """
+        Returns the addresses managed by the object.
+
+        """
+        return self._address
+
+    def addAddress(self, path, mul=1, add=0):
+        """
+        Adds new address(es) to the object's handler.
+
+        Parameters:
+
+        path : string or list of strings
+            New path(s) to receive from.
+        mul : float or PyoObject
+            Multiplication factor. Defaults to 1.
+        add : float or PyoObject
+            Addition factor. Defaults to 0.
+
+        """
+        path, mul, add, lmax = convertArgsToLists(path, mul, add)
+        self._mainReceiver.addAddress(path)
+        self._address.extend(path)
+        self._base_objs.extend([OscReceive_base(self._mainReceiver, wrap(path,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)])
+
+    def delAddress(self, path):
+        """
+        Removes address(es) from the object's handler.
+
+        Parameters:
+
+        path : string or list of strings
+            Path(s) to remove.
+
+        """
+        path, lmax = convertArgsToLists(path)
+        self._mainReceiver.delAddress(path)
+        indexes = [self._address.index(p) for p in path]
+        for ind in reversed(indexes):
+            self._address.pop(ind)
+            obj = self._base_objs.pop(ind)
+
+    def setInterpolation(self, x):
+        """
+        Activate/Deactivate interpolation. Activated by default.
+
+        Parameters:
+
+        x : boolean
+            True activates the interpolation, False deactivates it.
+        
+        """
+        [obj.setInterpolation(x) for obj in self._base_objs]
+
     def get(self, identifier=None, all=False):
         """
         Return the first sample of the current buffer as a float.
@@ -264,9 +323,14 @@ class OscDataSend(PyoObject):
 
     Methods:
 
+    getAddresses() : Returns the addresses managed by the object.
+    addAddress(types, port, address, host) : Adds new address(es) to the 
+        object's handler.
+    delAddress(path) : Removes address(es) from the object's handler.
     send(msg, address=None) : Method used to send `msg` values (a list)
         at the `address` destination if specified. Otherwise, values will 
-        be sent to all destinations managed by the object.
+        be sent to all destinations managed by the object. All destinations
+        must have the same types.
 
     Notes:
 
@@ -306,6 +370,61 @@ class OscDataSend(PyoObject):
 
     def setAdd(self, x):
         pass    
+
+    def getAddresses(self):
+        """
+        Returns the addresses managed by the object.
+
+        """
+        return self._addresses.keys()
+
+    def addAddress(self, types, port, address, host="127.0.0.1"):
+        """
+        Adds new address(es) to the object's handler.
+
+        Parameters:
+
+        types : str
+            String specifying the types sequence of the message to be sent.
+            Possible values are :
+                integer : "i"
+                long integer : "h"
+                float : "f"
+                double : "d"
+                string : "s"
+            The string "ssfi" indicates that the value to send will be a list
+            containing two strings followed by a float and an integer.
+        port : int
+            Port on which values are sent. Receiver should listen on the 
+            same port.
+        address : string
+            Address used on the port to identify values. Address is in 
+            the form of a Unix path (ex.: '/pitch').
+        host : string, optional
+            IP address of the target computer. The default, '127.0.0.1', 
+            is the localhost.
+
+        """
+        types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
+        objs = [OscDataSend_base(wrap(types,i), wrap(port,i), wrap(address,i), wrap(host,i)) for i in range(lmax)]
+        self._base_objs.extend(objs)
+        for i, adr in enumerate(address):
+            self._addresses[adr] = objs[i]
+
+    def delAddress(self, path):
+        """
+        Removes address(es) from the object's handler.
+
+        Parameters:
+
+        path : string or list of strings
+            Path(s) to remove.
+
+        """
+        path, lmax = convertArgsToLists(path)
+        for p in path:
+            self._base_objs.remove(self._addresses[p])
+            del self._addresses[p]
 
     def send(self, msg, address=None):
         """
@@ -359,6 +478,7 @@ class OscDataReceive(PyoObject):
 
     getAddresses() : Returns the addresses managed by the object.
     addAddress(path) : Adds new address(es) to the object's handler.
+    delAddress(path) : Removes address(es) from the object's handler.
 
     Notes:
 
@@ -388,10 +508,10 @@ class OscDataReceive(PyoObject):
     def __init__(self, port, address, function, mul=1, add=0):
         PyoObject.__init__(self)
         self._port = port
-        self._address = address
         self._function = function
-        address, lmax = convertArgsToLists(address)
-        self._base_objs = [OscDataReceive_base(port, address, function)]
+        self._address, lmax = convertArgsToLists(address)
+        # self._address is linked with list at C level
+        self._base_objs = [OscDataReceive_base(port, self._address, function)]
 
     def __dir__(self):
         return []
@@ -419,10 +539,28 @@ class OscDataReceive(PyoObject):
         Parameters:
         
         path : string or list of strings
-            New path(s) to handled.
+            New path(s) to receive from.
 
         """
-        self._base_objs[0].addAddress(path)
+        path, lmax = convertArgsToLists(path)
+        for p in path:
+            if p not in self._address:
+                self._base_objs[0].addAddress(p)
+
+    def delAddress(self, path):
+        """
+        Removes address(es) from the object's handler.
+
+        Parameters:
+
+        path : string or list of strings
+            Path(s) to remove.
+
+        """
+        path, lmax = convertArgsToLists(path)
+        for p in path:
+            index = self._address.index(p)
+            self._base_objs[0].delAddress(index)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []

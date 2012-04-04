@@ -158,6 +158,40 @@ OscReceiver_init(OscReceiver *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
+static PyObject *
+OscReceiver_addAddress(OscReceiver *self, PyObject *arg)
+{
+    int i;
+    if (PyString_Check(arg)) {
+        PyDict_SetItem(self->dict, arg, PyFloat_FromDouble(0.));
+    }    
+    else if (PyList_Check(arg)) {
+        Py_ssize_t lsize = PyList_Size(arg);
+        for (i=0; i<lsize; i++) {
+            PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), PyFloat_FromDouble(0.));
+        }    
+    } 
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+OscReceiver_delAddress(OscReceiver *self, PyObject *arg)
+{
+    int i;
+    if (PyString_Check(arg)) {
+        PyDict_DelItem(self->dict, arg);
+    }    
+    else if (PyList_Check(arg)) {
+        Py_ssize_t lsize = PyList_Size(arg);
+        for (i=0; i<lsize; i++) {
+            PyDict_DelItem(self->dict, PyList_GET_ITEM(arg, i));
+        }    
+    } 
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject * OscReceiver_getServer(OscReceiver* self) { GET_SERVER };
 static PyObject * OscReceiver_getStream(OscReceiver* self) { GET_STREAM };
 
@@ -171,7 +205,9 @@ static PyMethodDef OscReceiver_methods[] = {
 {"getServer", (PyCFunction)OscReceiver_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscReceiver_getStream, METH_NOARGS, "Returns stream object."},
 {"deleteStream", (PyCFunction)OscReceiver_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"free_port", (PyCFunction)OscReceiver_free_port, METH_NOARGS, "Call on __del__ method to free osc port used by the object."},
+{"free_port", (PyCFunction)OscReceiver_free_port, METH_NOARGS, "Called on __del__ method to free osc port used by the object."},
+{"addAddress", (PyCFunction)OscReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
+{"delAddress", (PyCFunction)OscReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
 {NULL}  /* Sentinel */
 };
 
@@ -222,8 +258,9 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     PyObject *address_path;
-    MYFLT oldValue;
     MYFLT value;
+    MYFLT factor;
+    int interpolation;
     int modebuffer[2];
 } OscReceive;
 
@@ -278,14 +315,20 @@ static void
 OscReceive_compute_next_data_frame(OscReceive *self)
 {
     int i;
-    self->value = OscReceiver_getValue((OscReceiver *)self->input, self->address_path);
-    MYFLT step = (self->value - self->oldValue) / self->bufsize;
+    MYFLT val = OscReceiver_getValue((OscReceiver *)self->input, self->address_path);
     
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = self->oldValue + step;
-    }  
-    self->oldValue = self->value;
-    
+    if (self->interpolation == 1) {
+        
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->value = self->value + (val - self->value) * self->factor;
+        }  
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->value = val;
+        }  
+    }
+
     (*self->muladd_func_ptr)(self);
 }
 
@@ -324,12 +367,15 @@ OscReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     OscReceive *self;
     self = (OscReceive *)type->tp_alloc(type, 0);
 
-    self->oldValue = 0.;
     self->value = 0.;
+    self->interpolation = 1;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
+
+    self->factor = 1. / (0.01 * self->sr);
+
     Stream_setFunctionPtr(self->stream, OscReceive_compute_next_data_frame);
     self->mode_func_ptr = OscReceive_setProcMode;
 
@@ -376,6 +422,20 @@ OscReceive_init(OscReceive *self, PyObject *args, PyObject *kwds)
     return 0;
 }
 
+static PyObject *
+OscReceive_setInterpolation(OscReceive *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->interpolation = PyInt_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject * OscReceive_getServer(OscReceive* self) { GET_SERVER };
 static PyObject * OscReceive_getStream(OscReceive* self) { GET_STREAM };
 static PyObject * OscReceive_setMul(OscReceive *self, PyObject *arg) { SET_MUL };	
@@ -409,6 +469,7 @@ static PyMethodDef OscReceive_methods[] = {
     {"deleteStream", (PyCFunction)OscReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)OscReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)OscReceive_stop, METH_NOARGS, "Stops computing."},
+    {"setInterpolation", (PyCFunction)OscReceive_setInterpolation, METH_O, "Sets interpolation on or off."},
     {"setMul", (PyCFunction)OscReceive_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)OscReceive_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)OscReceive_setSub, METH_O, "Sets inverse add factor."},
@@ -1047,9 +1108,22 @@ OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
             }
         }
     }
+
     Py_INCREF(Py_None);
     return Py_None;
-    
+}
+
+static PyObject *
+OscDataReceive_delAddress(OscDataReceive *self, PyObject *arg) {
+    int i;
+    if (arg != NULL) {
+        if (PyInt_Check(arg)) {
+            PySequence_DelItem(self->address_path, PyInt_AsLong(arg));
+        }
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef OscDataReceive_members[] = {
@@ -1064,6 +1138,7 @@ static PyMethodDef OscDataReceive_methods[] = {
     {"deleteStream", (PyCFunction)OscDataReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"free_port", (PyCFunction)OscDataReceive_free_port, METH_NOARGS, "Call on __del__ method to free osc port used by the object."},
     {"addAddress", (PyCFunction)OscDataReceive_addAddress, METH_O, "Add new paths to the object."},
+    {"delAddress", (PyCFunction)OscDataReceive_delAddress, METH_O, "Remove path from the object."},
     {NULL}  /* Sentinel */
 };
 
