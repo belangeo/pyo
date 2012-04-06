@@ -336,6 +336,8 @@ extern PyTypeObject OscReceiveType;
 extern PyTypeObject OscReceiverType;
 extern PyTypeObject OscDataSendType;
 extern PyTypeObject OscDataReceiveType;
+extern PyTypeObject OscListReceiveType;
+extern PyTypeObject OscListReceiverType;
 
 extern PyTypeObject TrigRandIntType;
 extern PyTypeObject TrigRandType;

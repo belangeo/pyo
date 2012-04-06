@@ -52,9 +52,9 @@ files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mi
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['recordmodule.c', 'granulatormodule.c', 'fftmodule.c', 'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
+files = ['oscmodule.c', 'fftmodule.c', 'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
          'matrixmodule.c', 'oscilmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',
-        'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'oscmodule.c', 'delaymodule.c',
+        'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'delaymodule.c','recordmodule.c', 'granulatormodule.c', 
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
         'selectmodule.c', 'freeverbmodule.c', 'compressmodule.c', 'analysismodule.c', 'utilsmodule.c',
         'convolvemodule.c', 'randommodule.c', 'wgverbmodule.c', 'arithmeticmodule.c', 'sigmodule.c',

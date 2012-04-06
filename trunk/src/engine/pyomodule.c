@@ -2459,6 +2459,16 @@ init_pyo64(void)
     Py_INCREF(&OscReceiverType);
     PyModule_AddObject(m, "OscReceiver_base", (PyObject *)&OscReceiverType);
 
+    if (PyType_Ready(&OscListReceiveType) < 0)
+        return;
+    Py_INCREF(&OscListReceiveType);
+    PyModule_AddObject(m, "OscListReceive_base", (PyObject *)&OscListReceiveType);
+    
+    if (PyType_Ready(&OscListReceiverType) < 0)
+        return;
+    Py_INCREF(&OscListReceiverType);
+    PyModule_AddObject(m, "OscListReceiver_base", (PyObject *)&OscListReceiverType);
+    
     if (PyType_Ready(&OscDataReceiveType) < 0)
         return;
     Py_INCREF(&OscDataReceiveType);

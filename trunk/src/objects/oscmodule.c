@@ -27,6 +27,11 @@
 #include "dummymodule.h"
 #include "lo/lo.h"
 
+void error(int num, const char *msg, const char *path)
+{
+    printf("liblo server error %d in path %s: %s\n", num, path, msg);
+}
+
 /* main OSC receiver */
 typedef struct {
     pyo_audio_HEAD
@@ -35,11 +40,6 @@ typedef struct {
     PyObject *dict;
     PyObject *address_path;
 } OscReceiver;
-
-void error(int num, const char *msg, const char *path)
-{
-    printf("liblo server error %d in path %s: %s\n", num, path, msg);
-}
 
 int OscReceiver_handler(const char *path, const char *types, lo_arg **argv, int argc,
                         void *data, void *user_data)
@@ -1182,4 +1182,568 @@ PyTypeObject OscDataReceiveType = {
     (initproc)OscDataReceive_init,      /* tp_init */
     0,                         /* tp_alloc */
     OscDataReceive_new,                 /* tp_new */
+};
+
+/* main OSC list receiver */
+typedef struct {
+    pyo_audio_HEAD
+    lo_server osc_server;
+    int port;
+    int num;
+    PyObject *dict;
+    PyObject *address_path;
+} OscListReceiver;
+
+int OscListReceiver_handler(const char *path, const char *types, lo_arg **argv, int argc,
+                        void *data, void *user_data)
+{
+    OscListReceiver *self = user_data;
+
+    int i;
+    PyObject *flist;
+    flist = PyList_New(self->num);
+
+    for (i=0; i<self->num; i++) {
+        PyList_SET_ITEM(flist, i, PyFloat_FromDouble(argv[i]->FLOAT_VALUE));
+    }
+    PyDict_SetItem(self->dict, PyString_FromString(path), flist);
+    return 0;
+}
+
+PyObject * 
+OscListReceiver_getValue(OscListReceiver *self, PyObject *path)
+{
+    PyObject *tmp;
+    tmp = PyDict_GetItem(self->dict, path);
+    return tmp;
+}
+
+static void
+OscListReceiver_compute_next_data_frame(OscListReceiver *self)
+{
+    while (lo_server_recv_noblock(self->osc_server, 0) != 0) {};
+}
+
+static int
+OscListReceiver_traverse(OscListReceiver *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->dict);
+    Py_VISIT(self->address_path);
+    return 0;
+}
+
+static int 
+OscListReceiver_clear(OscListReceiver *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->dict);
+    Py_CLEAR(self->address_path);
+    return 0;
+}
+
+static void
+OscListReceiver_dealloc(OscListReceiver* self)
+{
+    lo_server_free(self->osc_server);
+    free(self->data);
+    OscListReceiver_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+OscListReceiver_free_port(OscListReceiver *self)
+{
+    lo_server_free(self->osc_server);
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * OscListReceiver_deleteStream(OscListReceiver *self) { DELETE_STREAM };
+
+static PyObject *
+OscListReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    OscListReceiver *self;
+    self = (OscListReceiver *)type->tp_alloc(type, 0);
+    
+    self->num = 8;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, OscListReceiver_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+OscListReceiver_init(OscListReceiver *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *pathtmp;
+    PyObject *flist;
+    Py_ssize_t i;
+    int j;
+    
+    static char *kwlist[] = {"port", "address", "num", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "iO|i", kwlist, &self->port, &pathtmp, &self->num))
+        return -1; 
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->dict = PyDict_New();
+    
+    if (PyString_Check(pathtmp) || PyList_Check(pathtmp)) {
+        Py_INCREF(pathtmp);    
+        Py_XDECREF(self->address_path);
+        self->address_path = pathtmp;
+    }
+    else {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string or a list of strings.");
+        return -1;
+    }    
+
+    if (PyString_Check(self->address_path)) {
+        flist = PyList_New(self->num);
+        for (j=0; j<self->num; j++) {
+            PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+        }
+        PyDict_SetItem(self->dict, self->address_path, flist);
+    }    
+    else if (PyList_Check(self->address_path)) {
+        Py_ssize_t lsize = PyList_Size(self->address_path);
+        for (i=0; i<lsize; i++) {
+            flist = PyList_New(self->num);
+            for (j=0; j<self->num; j++) {
+                PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+            }
+            PyDict_SetItem(self->dict, PyList_GET_ITEM(self->address_path, i), flist);
+        }    
+    }
+    
+    char buf[20];
+    sprintf(buf, "%i", self->port);
+    self->osc_server = lo_server_new(buf, error);
+    
+    lo_server_add_method(self->osc_server, NULL, NULL, OscListReceiver_handler, self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject *
+OscListReceiver_addAddress(OscListReceiver *self, PyObject *arg)
+{
+    PyObject *flist;
+    int i, j;
+
+    if (PyString_Check(arg)) {
+        flist = PyList_New(self->num);
+        for (j=0; j<self->num; j++) {
+            PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+        }
+        PyDict_SetItem(self->dict, arg, flist);
+    }    
+    else if (PyList_Check(arg)) {
+        Py_ssize_t lsize = PyList_Size(arg);
+        for (i=0; i<lsize; i++) {
+            flist = PyList_New(self->num);
+            for (j=0; j<self->num; j++) {
+                PyList_SET_ITEM(flist, j, PyFloat_FromDouble(0.));
+            }
+            PyDict_SetItem(self->dict, PyList_GET_ITEM(arg, i), flist);
+        }    
+    } 
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+OscListReceiver_delAddress(OscListReceiver *self, PyObject *arg)
+{
+    int i;
+    if (PyString_Check(arg)) {
+        PyDict_DelItem(self->dict, arg);
+    }    
+    else if (PyList_Check(arg)) {
+        Py_ssize_t lsize = PyList_Size(arg);
+        for (i=0; i<lsize; i++) {
+            PyDict_DelItem(self->dict, PyList_GET_ITEM(arg, i));
+        }    
+    } 
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * OscListReceiver_getServer(OscListReceiver* self) { GET_SERVER };
+static PyObject * OscListReceiver_getStream(OscListReceiver* self) { GET_STREAM };
+
+static PyMemberDef OscListReceiver_members[] = {
+    {"server", T_OBJECT_EX, offsetof(OscListReceiver, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(OscListReceiver, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef OscListReceiver_methods[] = {
+    {"getServer", (PyCFunction)OscListReceiver_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)OscListReceiver_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)OscListReceiver_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"free_port", (PyCFunction)OscListReceiver_free_port, METH_NOARGS, "Called on __del__ method to free osc port used by the object."},
+    {"addAddress", (PyCFunction)OscListReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
+    {"delAddress", (PyCFunction)OscListReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject OscListReceiverType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.OscListReceiver_base",         /*tp_name*/
+    sizeof(OscListReceiver),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)OscListReceiver_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "OscListReceiver objects. Receive list of values via Open Sound Control protocol.",           /* tp_doc */
+    (traverseproc)OscListReceiver_traverse,   /* tp_traverse */
+    (inquiry)OscListReceiver_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    OscListReceiver_methods,             /* tp_methods */
+    OscListReceiver_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)OscListReceiver_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    OscListReceiver_new,                 /* tp_new */
+};
+
+/* OSC list receiver stream object */
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PyObject *address_path;
+    MYFLT value;
+    MYFLT factor;
+    int order;
+    int interpolation;
+    int modebuffer[2];
+} OscListReceive;
+
+static void OscListReceive_postprocessing_ii(OscListReceive *self) { POST_PROCESSING_II };
+static void OscListReceive_postprocessing_ai(OscListReceive *self) { POST_PROCESSING_AI };
+static void OscListReceive_postprocessing_ia(OscListReceive *self) { POST_PROCESSING_IA };
+static void OscListReceive_postprocessing_aa(OscListReceive *self) { POST_PROCESSING_AA };
+static void OscListReceive_postprocessing_ireva(OscListReceive *self) { POST_PROCESSING_IREVA };
+static void OscListReceive_postprocessing_areva(OscListReceive *self) { POST_PROCESSING_AREVA };
+static void OscListReceive_postprocessing_revai(OscListReceive *self) { POST_PROCESSING_REVAI };
+static void OscListReceive_postprocessing_revaa(OscListReceive *self) { POST_PROCESSING_REVAA };
+static void OscListReceive_postprocessing_revareva(OscListReceive *self) { POST_PROCESSING_REVAREVA };
+
+static void
+OscListReceive_setProcMode(OscListReceive *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = OscListReceive_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = OscListReceive_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = OscListReceive_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = OscListReceive_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = OscListReceive_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = OscListReceive_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = OscListReceive_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = OscListReceive_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = OscListReceive_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+OscListReceive_compute_next_data_frame(OscListReceive *self)
+{
+    int i;
+    PyObject *flist = OscListReceiver_getValue((OscListReceiver *)self->input, self->address_path);
+    MYFLT val = PyFloat_AsDouble(PyList_GET_ITEM(flist, self->order));
+
+    if (self->interpolation == 1) {
+        
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->value = self->value + (val - self->value) * self->factor;
+        }  
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->value = val;
+        }  
+    }
+    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+OscListReceive_traverse(OscListReceive *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->address_path);
+    return 0;
+}
+
+static int 
+OscListReceive_clear(OscListReceive *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->address_path);
+    return 0;
+}
+
+static void
+OscListReceive_dealloc(OscListReceive* self)
+{
+    free(self->data);
+    OscListReceive_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * OscListReceive_deleteStream(OscListReceive *self) { DELETE_STREAM };
+
+static PyObject *
+OscListReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    OscListReceive *self;
+    self = (OscListReceive *)type->tp_alloc(type, 0);
+    
+    self->order = 0;
+    self->value = 0.;
+    self->interpolation = 1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    self->factor = 1. / (0.01 * self->sr);
+    
+    Stream_setFunctionPtr(self->stream, OscListReceive_compute_next_data_frame);
+    self->mode_func_ptr = OscListReceive_setProcMode;
+    
+    return (PyObject *)self;
+}
+
+static int
+OscListReceive_init(OscListReceive *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp=NULL, *pathtmp=NULL, *multmp=NULL, *addtmp=NULL;;
+    
+    static char *kwlist[] = {"input", "address", "order", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &pathtmp, &self->order, &multmp, &addtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    Py_INCREF(inputtmp);
+    self->input = inputtmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    if (! PyString_Check(pathtmp)) {
+        PyErr_SetString(PyExc_TypeError, "The address attributes must be a string.");
+        return -1;
+    }    
+    
+    Py_INCREF(pathtmp);    
+    Py_XDECREF(self->address_path);
+    self->address_path = pathtmp;
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject *
+OscListReceive_setInterpolation(OscListReceive *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->interpolation = PyInt_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject * OscListReceive_getServer(OscListReceive* self) { GET_SERVER };
+static PyObject * OscListReceive_getStream(OscListReceive* self) { GET_STREAM };
+static PyObject * OscListReceive_setMul(OscListReceive *self, PyObject *arg) { SET_MUL };	
+static PyObject * OscListReceive_setAdd(OscListReceive *self, PyObject *arg) { SET_ADD };	
+static PyObject * OscListReceive_setSub(OscListReceive *self, PyObject *arg) { SET_SUB };	
+static PyObject * OscListReceive_setDiv(OscListReceive *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * OscListReceive_play(OscListReceive *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * OscListReceive_stop(OscListReceive *self) { STOP };
+
+static PyObject * OscListReceive_multiply(OscListReceive *self, PyObject *arg) { MULTIPLY };
+static PyObject * OscListReceive_inplace_multiply(OscListReceive *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * OscListReceive_add(OscListReceive *self, PyObject *arg) { ADD };
+static PyObject * OscListReceive_inplace_add(OscListReceive *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * OscListReceive_sub(OscListReceive *self, PyObject *arg) { SUB };
+static PyObject * OscListReceive_inplace_sub(OscListReceive *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * OscListReceive_div(OscListReceive *self, PyObject *arg) { DIV };
+static PyObject * OscListReceive_inplace_div(OscListReceive *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef OscListReceive_members[] = {
+    {"server", T_OBJECT_EX, offsetof(OscListReceive, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(OscListReceive, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(OscListReceive, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(OscListReceive, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef OscListReceive_methods[] = {
+    {"getServer", (PyCFunction)OscListReceive_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)OscListReceive_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)OscListReceive_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)OscListReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)OscListReceive_stop, METH_NOARGS, "Stops computing."},
+    {"setInterpolation", (PyCFunction)OscListReceive_setInterpolation, METH_O, "Sets interpolation on or off."},
+    {"setMul", (PyCFunction)OscListReceive_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)OscListReceive_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)OscListReceive_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)OscListReceive_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods OscListReceive_as_number = {
+    (binaryfunc)OscListReceive_add,                      /*nb_add*/
+    (binaryfunc)OscListReceive_sub,                 /*nb_subtract*/
+    (binaryfunc)OscListReceive_multiply,                 /*nb_multiply*/
+    (binaryfunc)OscListReceive_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)OscListReceive_inplace_add,              /*inplace_add*/
+    (binaryfunc)OscListReceive_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)OscListReceive_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)OscListReceive_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject OscListReceiveType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.OscListReceive_base",         /*tp_name*/
+    sizeof(OscListReceive),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)OscListReceive_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &OscListReceive_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "OscListReceive objects. Receive one value from a list of floats via Open Sound Control protocol.",           /* tp_doc */
+    (traverseproc)OscListReceive_traverse,   /* tp_traverse */
+    (inquiry)OscListReceive_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    OscListReceive_methods,             /* tp_methods */
+    OscListReceive_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)OscListReceive_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    OscListReceive_new,                 /* tp_new */
 };

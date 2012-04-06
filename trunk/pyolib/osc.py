@@ -139,7 +139,9 @@ class OscReceive(PyoObject):
 
     port : int
         Port on which values are received. Sender should output on 
-        the same port.
+        the same port. Unlike OscSend object, there can be only one 
+        port per OscReceive object. Available at initialization time 
+        only.
     address : string
         Address used on the port to identify values. Address is in 
         the form of a Unix path (ex.: '/pitch').
@@ -221,10 +223,13 @@ class OscReceive(PyoObject):
             Addition factor. Defaults to 0.
 
         """
-        path, mul, add, lmax = convertArgsToLists(path, mul, add)
-        self._mainReceiver.addAddress(path)
-        self._address.extend(path)
-        self._base_objs.extend([OscReceive_base(self._mainReceiver, wrap(path,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)])
+        path, lmax = convertArgsToLists(path)
+        mul, add, lmax2 = convertArgsToLists(mul, add)
+        for i, p in enumerate(path):
+            if p not in self._address:
+                self._mainReceiver.addAddress(p)
+                self._address.append(p)
+                self._base_objs.append(OscReceive_base(self._mainReceiver, p, wrap(mul,i), wrap(add,i)))
 
     def delAddress(self, path):
         """
@@ -242,6 +247,7 @@ class OscReceive(PyoObject):
         for ind in reversed(indexes):
             self._address.pop(ind)
             obj = self._base_objs.pop(ind)
+            obj.deleteStream()
 
     def setInterpolation(self, x):
         """
@@ -465,14 +471,17 @@ class OscDataReceive(PyoObject):
 
     port : int
         Port on which values are received. Sender should output on 
-        the same port. Only one port per object.
+        the same port. Unlike OscDataSend object, there can be only 
+        one port per OscDataReceive object. Available at initialization 
+        time only.
     address : string
         Address used on the port to identify values. Address is in 
         the form of a Unix path (ex.: '/pitch'). There can be as many
         addresses as needed on a single port.
     function : callable
         This function will be called whenever a message with a known
-        address is received. Only one function per object.
+        address is received. there can be only one function per 
+        OscDataReceive object. Available at initialization time only.
 
     Methods:
 
@@ -561,6 +570,194 @@ class OscDataReceive(PyoObject):
         for p in path:
             index = self._address.index(p)
             self._base_objs[0].delAddress(index)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+class OscListReceive(PyoObject):
+    """
+    Receives list of values over a network via the Open Sound Control protocol.
+
+    Uses the OSC protocol to receive list of floating-point values from other 
+    softwares or other computers. The list are converted into audio streams.
+    Get values at the beginning of each buffersize and fill buffers with them.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    port : int
+        Port on which values are received. Sender should output on 
+        the same port. Unlike OscSend object, there can be only one 
+        port per OscListReceive object. Available at initialization time 
+        only.
+    address : string
+        Address used on the port to identify values. Address is in 
+        the form of a Unix path (ex.: '/pitch').
+    num : int, optional
+        Length of the lists in input. The object will generate `num` audio
+        streams per given address. Available at initialization time only.
+        This value can't be a list. That means all addresses managed by an 
+        OscListReceive object are of the same length. Defaults to 8.
+
+    Methods:
+
+    get(identifier, all) : Return the first list of samples of the current 
+        buffer as a list of floats.
+    getAddresses() : Returns the addresses managed by the object.
+    addAddress(path, mul, add) : Adds new address(es) to the object's handler.
+    delAddress(path) : Removes address(es) from the object's handler.
+    setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
+
+    Notes:
+
+    Audio streams are accessed with the `address` string parameter. 
+    The user should call :
+
+    OscReceive['/pitch'] to retreive list of streams named '/pitch'.
+
+    The out() method is bypassed. OscReceive's signal can not be sent 
+    to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # 8 oscillators
+    >>> a = OscListReceive(port=10001, address=['/pitch', '/amp'], num=8)
+    >>> b = Sine(freq=a['/pitch'], mul=a['/amp']).mix(2).out()
+
+    """
+
+    def __init__(self, port, address, num=8, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._num = num
+        self._op_duplicate = self._num
+        self._mul = mul
+        self._add = add
+        address, mul, add, lmax = convertArgsToLists(address, mul, add)
+        self._address = address
+        self._mainReceiver = OscListReceiver_base(port, address, num)
+        self._base_objs = [OscListReceive_base(self._mainReceiver, wrap(address,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(self._num)]
+        
+    def __dir__(self):
+        return ['mul', 'add']
+
+    def __del__(self):
+        self._mainReceiver.free_port()
+        for obj in self._base_objs:
+            obj.deleteStream()
+            del obj
+        self._mainReceiver.deleteStream()
+        del self._mainReceiver
+
+    def __getitem__(self, i):
+        if type(i) == type(''):
+            first = self._address.index(i) * self._num
+            return self._base_objs[first:first+self._num]
+        elif i < len(self._base_objs):
+            first = i * self._num
+            return self._base_objs[first:first+self._num]
+        else:
+            print "'i' too large!"
+
+    def getAddresses(self):
+        """
+        Returns the addresses managed by the object.
+
+        """
+        return self._address
+
+    def addAddress(self, path, mul=1, add=0):
+        """
+        Adds new address(es) to the object's handler.
+
+        Parameters:
+
+        path : string or list of strings
+            New path(s) to receive from.
+        mul : float or PyoObject
+            Multiplication factor. Defaults to 1.
+        add : float or PyoObject
+            Addition factor. Defaults to 0.
+
+        """
+        path, lmax = convertArgsToLists(path)
+        mul, add, lmax2 = convertArgsToLists(mul, add)
+        for i, p in enumerate(path):
+            if p not in self._address:
+                self._mainReceiver.addAddress(p)
+                self._address.append(p)
+                self._base_objs.extend([OscListReceive_base(self._mainReceiver, p, j, wrap(mul,i), wrap(add,i)) for j in range(self._num)])
+
+    def delAddress(self, path):
+        """
+        Removes address(es) from the object's handler.
+
+        Parameters:
+
+        path : string or list of strings
+            Path(s) to remove.
+
+        """
+        path, lmax = convertArgsToLists(path)
+        self._mainReceiver.delAddress(path)
+        indexes = [self._address.index(p) for p in path]
+        for ind in reversed(indexes):
+            self._address.pop(ind)
+            first = ind * self._num
+            for i in reversed(range(first, first+self._num)):
+                obj = self._base_objs.pop(i)
+                obj.deleteStream()
+
+    def setInterpolation(self, x):
+        """
+        Activate/Deactivate interpolation. Activated by default.
+
+        Parameters:
+
+        x : boolean
+            True activates the interpolation, False deactivates it.
+
+        """
+        [obj.setInterpolation(x) for obj in self._base_objs]
+
+    def get(self, identifier=None, all=False):
+        """
+        Return the first list of samples of the current buffer as floats.
+
+        Can be used to convert audio stream to usable Python data.
+
+        Address as string must be given to `identifier` to specify
+        which stream to get value from.
+
+        Parameters:
+
+            identifier : string
+                Address string parameter identifying audio stream.
+                Defaults to None, useful when `all` is True to 
+                retreive all streams values.
+            all : boolean, optional
+                If True, the first list of values of each object's stream
+                will be returned as a list of lists. Otherwise, only the 
+                the list of the object's identifier will be returned as a 
+                list of floats. Defaults to False.
+
+        """
+        if not all:
+            first = self._address.index(identifier) * self._num
+            return [obj._getStream().getValue() for obj in self._base_objs[first:first+self._num]]
+        else:
+            outlist = []
+            for add in self._address:
+                first = self._address.index(add) * self._num
+                l = [obj._getStream().getValue() for obj in self._base_objs[first:first+self._num]]
+                outlist.append(l)
+            return outlist
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
