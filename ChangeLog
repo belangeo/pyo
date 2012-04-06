@@ -1,3 +1,13 @@
+2012-04-06 belangeo <belangeo@gmail.com>
+
+    * Added new object : OscListReceive. Handles list of floats from OSC as audio streams.
+    - rev 914
+
+2012-04-03 belangeo <belangeo@gmail.com>
+
+    * Added functionalities to OSC objects (add, remove, setInterpolation, etc.).
+    - rev 913
+
 -------------------------------------------------------------------------------------
 
 2012-01-03 belangeo <belangeo@gmail.com>
