@@ -6893,9 +6893,16 @@ Iter_setChoice(Iter *self, PyObject *arg)
 }	
 
 static PyObject * 
-Iter_reset(Iter *self)
+Iter_reset(Iter *self, PyObject *arg)
 {
-    self->chCount = 0;
+    int tmp;
+    if (PyInt_Check(arg)) {
+        tmp = PyInt_AsLong(arg);
+        if (tmp < self->chSize)
+            self->chCount = tmp;
+        else
+            self->chCount = 0;
+    }
 	Py_INCREF(Py_None);
 	return Py_None;
 }
@@ -6917,7 +6924,7 @@ static PyMethodDef Iter_methods[] = {
     {"out", (PyCFunction)Iter_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Iter_stop, METH_NOARGS, "Stops computing."},
     {"setChoice", (PyCFunction)Iter_setChoice, METH_O, "Sets possible values."},
-    {"reset", (PyCFunction)Iter_reset, METH_NOARGS, "Resets count to 0."},
+    {"reset", (PyCFunction)Iter_reset, METH_O, "Resets count to 0."},
     {"setMul", (PyCFunction)Iter_setMul, METH_O, "Sets oscillator mul factor."},
     {"setAdd", (PyCFunction)Iter_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)Iter_setSub, METH_O, "Sets inverse add factor."},
