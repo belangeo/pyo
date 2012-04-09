@@ -3152,7 +3152,7 @@ class Iter(PyoObject):
 
     setInput(x, fadetime) : Replace the `input` attribute.
     setChoice(x) : Replace the `choice` attribute.
-    reset() : Resets the current count to 0.
+    reset(x) : Resets the current count.
 
     Attributes:
 
@@ -3221,12 +3221,17 @@ class Iter(PyoObject):
         else:
             [obj.setChoice(wrap(self._choice,i)) for i, obj in enumerate(self._base_objs)]
 
-    def reset(self):
+    def reset(self, x=0):
         """
-        Resets the current count to 0.
+        Resets the current count.
+        
+        Parameters:
+        
+        x : int, optional
+            Value where to reset the count. Defaults to 0.
         
         """
-        [obj.reset() for obj in self._base_objs]
+        [obj.reset(x) for obj in self._base_objs]
         
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
