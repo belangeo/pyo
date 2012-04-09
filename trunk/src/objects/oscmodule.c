@@ -1115,7 +1115,6 @@ OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
 
 static PyObject *
 OscDataReceive_delAddress(OscDataReceive *self, PyObject *arg) {
-    int i;
     if (arg != NULL) {
         if (PyInt_Check(arg)) {
             PySequence_DelItem(self->address_path, PyInt_AsLong(arg));
