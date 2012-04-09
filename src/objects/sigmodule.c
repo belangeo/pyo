@@ -780,15 +780,22 @@ VarPort_generates_i(VarPort *self) {
         self->stepVal = (self->value - self->currentValue) / self->timeStep;
         self->lastValue = self->value;
     }    
-    
-    for (i=0; i<self->bufsize; i++) {
-        if (self->timeCount == (self->timeStep - 1))
-            self->currentValue = self->value;
-        else if (self->timeCount < self->timeStep)
-            self->currentValue += self->stepVal;
+   
+    if (self->flag == 1) { 
+        for (i=0; i<self->bufsize; i++) {
+            if (self->timeCount >= (self->timeStep - 1))
+                self->currentValue = self->value;
+            else if (self->timeCount < self->timeStep)
+                self->currentValue += self->stepVal;
 
-        self->timeCount++;
-        self->data[i] = self->y1 = self->y1 + (self->currentValue - self->y1) * self->factor;
+            self->timeCount++;
+            self->data[i] = self->y1 = self->y1 + (self->currentValue - self->y1) * self->factor;
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->data[i] = self->currentValue;
+        }
     }
     
     if (self->timeCount >= self->timeout && self->flag == 1) {
@@ -897,7 +904,8 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int i;
     VarPort *self;
     self = (VarPort *)type->tp_alloc(type, 0);
-    
+   
+    self->flag = 1; 
     self->time = 0.025;
     self->timeStep = (long)(self->time * self->sr);
     self->timeout = (long)((self->time + 0.1) * self->sr);
