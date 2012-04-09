@@ -70,8 +70,8 @@ import pyolib.arithmetic as arithmetic
 from pyolib.arithmetic import *
 import pyolib.midi as midi
 from pyolib.midi import *
-import pyolib.osc as osc
-from pyolib.osc import *
+import pyolib.opensndctrl as opensndctrl
+from pyolib.opensndctrl import *
 import pyolib.pan as pan
 from pyolib.pan import *
 import pyolib.pattern as pattern
@@ -261,7 +261,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                                             'BrownNoise', 'Rossler', 'Lorenz', 'LFO']),
                       'internals': sorted(['Dummy', 'InputFader', 'Mix', 'VarPort']),
                       'midi': sorted(['Midictl', 'CtlScan', 'Notein', 'MidiAdsr', 'MidiDelAdsr', 'Bendin', 'Touchin', 'Programin']),
-                      'osc': sorted(['OscReceive', 'OscSend', 'OscDataSend', 'OscDataReceive', 'OscListReceive']),
+                      'opensndctrl': sorted(['OscReceive', 'OscSend', 'OscDataSend', 'OscDataReceive', 'OscListReceive']),
                       'pan': sorted(['Pan', 'SPan', 'Switch', 'Selector', 'Mixer', 'VoiceManager']),
                       'pattern': sorted(['Pattern', 'Score', 'CallAfter']),
                       'randoms': sorted(['Randi', 'Randh', 'Choice', 'RandInt', 'Xnoise', 'XnoiseMidi', 'RandDur', 'XnoiseDur']),
