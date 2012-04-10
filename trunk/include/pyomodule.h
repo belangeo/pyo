@@ -223,6 +223,7 @@ extern PyTypeObject BeatAmpStreamType;
 extern PyTypeObject BeatDurStreamType;
 extern PyTypeObject BeatEndStreamType;
 extern PyTypeObject CounterType;
+extern PyTypeObject CountType;
 extern PyTypeObject SelectType;
 extern PyTypeObject ChangeType;
 extern PyTypeObject ThreshType;

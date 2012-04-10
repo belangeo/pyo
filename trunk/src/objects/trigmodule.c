@@ -6384,7 +6384,7 @@ typedef struct {
     unsigned long count;
     MYFLT lasttime;
     int started;
-    int modebuffer[3];
+    int modebuffer[2];
 } Timer;
 
 static void
@@ -7014,4 +7014,320 @@ PyTypeObject IterType = {
     (initproc)Iter_init,                          /* tp_init */
     0,                                              /* tp_alloc */
     Iter_new,                                     /* tp_new */
+};
+
+/*************************/
+/******* Count ***********/
+/*************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    unsigned long count;
+    unsigned long min;
+    unsigned long max;
+    int started;
+    int modebuffer[2];
+} Count;
+
+static void
+Count_generates(Count *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {        
+        if (in[i] == 1) {
+            self->count = self->min;
+            self->started = 1;
+        }
+        if (self->started == 1) {
+            self->data[i] = (MYFLT)self->count;
+            if (self->count++ >= self->max && self->max != 0)
+                self->count = self->min;
+        }
+        else {
+            self->data[i] = self->min;
+        }
+    } 
+}
+
+static void Count_postprocessing_ii(Count *self) { POST_PROCESSING_II };
+static void Count_postprocessing_ai(Count *self) { POST_PROCESSING_AI };
+static void Count_postprocessing_ia(Count *self) { POST_PROCESSING_IA };
+static void Count_postprocessing_aa(Count *self) { POST_PROCESSING_AA };
+static void Count_postprocessing_ireva(Count *self) { POST_PROCESSING_IREVA };
+static void Count_postprocessing_areva(Count *self) { POST_PROCESSING_AREVA };
+static void Count_postprocessing_revai(Count *self) { POST_PROCESSING_REVAI };
+static void Count_postprocessing_revaa(Count *self) { POST_PROCESSING_REVAA };
+static void Count_postprocessing_revareva(Count *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Count_setProcMode(Count *self)
+{    
+    int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = Count_generates;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Count_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Count_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Count_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Count_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Count_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Count_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Count_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Count_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Count_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Count_compute_next_data_frame(Count *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Count_traverse(Count *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+Count_clear(Count *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Count_dealloc(Count* self)
+{
+    free(self->data);
+    Count_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Count_deleteStream(Count *self) { DELETE_STREAM };
+
+static PyObject *
+Count_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Count *self;
+    self = (Count *)type->tp_alloc(type, 0);
+    
+    self->started = 0;
+    self->count = 0;
+    self->min = 0;
+    self->max = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Count_compute_next_data_frame);
+    self->mode_func_ptr = Count_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Count_init(Count *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "min", "max", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|kkOO", kwlist, &inputtmp, &self->min, &self->max, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Count_getServer(Count* self) { GET_SERVER };
+static PyObject * Count_getStream(Count* self) { GET_STREAM };
+static PyObject * Count_setMul(Count *self, PyObject *arg) { SET_MUL };	
+static PyObject * Count_setAdd(Count *self, PyObject *arg) { SET_ADD };	
+static PyObject * Count_setSub(Count *self, PyObject *arg) { SET_SUB };	
+static PyObject * Count_setDiv(Count *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Count_play(Count *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Count_stop(Count *self) { STOP };
+
+static PyObject * Count_multiply(Count *self, PyObject *arg) { MULTIPLY };
+static PyObject * Count_inplace_multiply(Count *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Count_add(Count *self, PyObject *arg) { ADD };
+static PyObject * Count_inplace_add(Count *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Count_sub(Count *self, PyObject *arg) { SUB };
+static PyObject * Count_inplace_sub(Count *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Count_div(Count *self, PyObject *arg) { DIV };
+static PyObject * Count_inplace_div(Count *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Count_setMin(Count *self, PyObject *arg)
+{	    
+	if (PyLong_Check(arg) || PyInt_Check(arg))	
+		self->min = PyLong_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Count_setMax(Count *self, PyObject *arg)
+{	  
+    if (arg == Py_None)
+        self->max = 0;
+	else if (PyLong_Check(arg) || PyInt_Check(arg))	
+		self->max = PyLong_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Count_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Count, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Count, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Count, input), 0, "Starts the count."},
+    {"mul", T_OBJECT_EX, offsetof(Count, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Count, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Count_methods[] = {
+    {"getServer", (PyCFunction)Count_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Count_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Count_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Count_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)Count_stop, METH_NOARGS, "Stops computing."},
+    {"setMin", (PyCFunction)Count_setMin, METH_O, "Sets the minimum value."},
+    {"setMax", (PyCFunction)Count_setMax, METH_O, "Sets the maximum value."},
+    {"setMul", (PyCFunction)Count_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)Count_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)Count_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Count_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Count_as_number = {
+    (binaryfunc)Count_add,                         /*nb_add*/
+    (binaryfunc)Count_sub,                         /*nb_subtract*/
+    (binaryfunc)Count_multiply,                    /*nb_multiply*/
+    (binaryfunc)Count_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Count_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Count_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Count_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Count_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject CountType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Count_base",                                   /*tp_name*/
+    sizeof(Count),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Count_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Count_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Count objects. Counts integer at audio rate.",           /* tp_doc */
+    (traverseproc)Count_traverse,                  /* tp_traverse */
+    (inquiry)Count_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Count_methods,                                 /* tp_methods */
+    Count_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Count_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Count_new,                                     /* tp_new */
 };

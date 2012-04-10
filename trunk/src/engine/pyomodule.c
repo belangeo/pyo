@@ -2649,6 +2649,11 @@ init_pyo64(void)
     Py_INCREF(&CounterType);
     PyModule_AddObject(m, "Counter_base", (PyObject *)&CounterType);
 
+    if (PyType_Ready(&CountType) < 0)
+        return;
+    Py_INCREF(&CountType);
+    PyModule_AddObject(m, "Count_base", (PyObject *)&CountType);
+    
     if (PyType_Ready(&ThreshType) < 0)
         return;
     Py_INCREF(&ThreshType);
