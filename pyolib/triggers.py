@@ -3245,3 +3245,118 @@ class Iter(PyoObject):
     def choice(self): return self._choice
     @choice.setter
     def choice(self, x): self.setChoice(x)
+
+class Count(PyoObject):
+    """
+    Counts integers at audio rate.
+
+    Count generates a signal increasing by 1 each sample when it receives a 
+    trigger. It can be used to do sample playback using TableIndex. 
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Trigger signal. Start or Restart the count.
+    min : int, optional
+        Minimum value of the count, included in the count. Defaults to 0.
+    max : int, optional
+        Maximum value of the count. excluded of the count. A value of 0 
+        eliminates the maximum, and the count continues increasing without 
+        resetting. Defaults to 0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+
+    input : PyoObject. Trigger signal. Start/Restart the count.
+    min : int. Minimum value.
+    max : int. Maximum value.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SndTable(SNDS_PATH+'/accord.aif')
+    >>> ind = Count(Trig().play(), [0,100], t.getSize())
+    >>> read = TableIndex(t, ind).out()
+
+    """
+    def __init__(self, input, min=0, max=0, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._min = min
+        self._max = max
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
+        self._base_objs = [Count_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'min', 'max', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New input signal.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+
+        Parameters:
+
+        x : int
+            new `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : int
+            new `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def min(self): return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+    @property
+    def max(self): return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
