@@ -26,12 +26,6 @@ TODO before releasing _pyo_ version 1.0.
 
 ----
 
-*OSC*
-
-- !UdpSend, !UdpReceive
-
-----
-
 *PyoPVObject* (new base class)
 
 - PVAnal, PVSynth, Freeze, Gate, Transposer, Filter, !SpectralDelay, !CrossSynth, Shifter, ...
