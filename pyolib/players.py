@@ -110,21 +110,20 @@ class SfPlayer(PyoObject):
         path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(path, speed, loop, offset, interp, mul, add)
         self._base_players = []
         self._base_objs = []
-        self._trig_objs = []
+        _trig_objs_tmp = []
         for i in range(lmax):
             _snd_size, _dur, _snd_sr, _snd_chnls, _format, _type  = sndinfo(path[0])
             self._base_players.append(SfPlayer_base(wrap(path,i), wrap(speed,i), wrap(loop,i), wrap(offset,i), wrap(interp,i)))
             for j in range(_snd_chnls):
                 self._base_objs.append(SfPlay_base(self._base_players[-1], j, wrap(mul,i), wrap(add,i)))
-                self._trig_objs.append(SfPlayTrig_base(self._base_players[-1], j))
+                _trig_objs_tmp.append(TriggerDummy_base(self._base_players[-1]))
+        self._trig_objs = Dummy(_trig_objs_tmp)
 
     def __dir__(self):
         return ['path', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
 
     def __del__(self):
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj            
+        del self._trig_objs
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
@@ -144,15 +143,15 @@ class SfPlayer(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         if type(chnl) == ListType:
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
@@ -163,9 +162,9 @@ class SfPlayer(PyoObject):
         return self
     
     def stop(self):
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
         
     def setPath(self, path):

@@ -47,7 +47,7 @@ typedef struct {
     double pointerPos;
     MYFLT *samplesBuffer;
     MYFLT *trigsBuffer;
-    MYFLT *tempTrigsBuffer;
+    TriggerStream *trig_stream;
     int init;
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } SfPlayer;
@@ -127,6 +127,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
     
         /* fill samplesBuffer with samples */
         for (i=0; i<self->bufsize; i++) {
+            self->trigsBuffer[i] = 0.0;
             bufpos = self->pointerPos - index;
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
@@ -137,9 +138,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
         }
 
         if (self->pointerPos >= self->sndSize) {
-            for (i=0; i<self->sndChnls; i++) {
-                self->trigsBuffer[i*self->bufsize] = 1.0;
-            } 
+            self->trigsBuffer[0] = 1.0;
             self->pointerPos -= self->sndSize - self->startPos;
             if (self->loop == 0) {
                 PyObject_CallMethod((PyObject *)self, "stop", NULL);
@@ -208,6 +207,7 @@ SfPlayer_readframes_i(SfPlayer *self) {
         
         /* fill stream buffer with samples */
         for (i=0; i<self->bufsize; i++) {
+            self->trigsBuffer[i] = 0.0;
             bufpos = index - self->pointerPos;
             bufindex = (int)bufpos;
             frac = bufpos - bufindex;
@@ -217,11 +217,8 @@ SfPlayer_readframes_i(SfPlayer *self) {
             self->pointerPos -= delta;
         }
         if (self->pointerPos <= 0) {
-            if (self->init == 0) {
-                for (i=0; i<self->sndChnls; i++) {
-                    self->trigsBuffer[i*self->bufsize] = 1.0;
-                }
-            }
+            if (self->init == 0)
+                self->trigsBuffer[0] = 1.0;
             else
                 self->init = 0;
             self->pointerPos += startPos;
@@ -258,6 +255,7 @@ SfPlayer_traverse(SfPlayer *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->speed);    
     Py_VISIT(self->speed_stream);    
+    Py_VISIT(self->trig_stream);    
     return 0;
 }
 
@@ -267,6 +265,7 @@ SfPlayer_clear(SfPlayer *self)
     pyo_CLEAR
     Py_CLEAR(self->speed);    
     Py_CLEAR(self->speed_stream);    
+    Py_CLEAR(self->trig_stream);    
     return 0;
 }
 
@@ -274,7 +273,6 @@ static void
 SfPlayer_dealloc(SfPlayer* self)
 {
     sf_close(self->sf);
-    free(self->tempTrigsBuffer);
     free(self->trigsBuffer);
     free(self->data);
     SfPlayer_clear(self);
@@ -339,12 +337,14 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     self->srScale = self->sndSr / self->sr;
 
     self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
-    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
-    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
 
-    for (i=0; i<(self->bufsize*self->sndChnls); i++) {
+    for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
     }    
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
     
     self->startPos = offset * self->sr * self->srScale;
     if (self->startPos < 0.0 || self->startPos >= self->sndSize)
@@ -358,6 +358,7 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
 
 static PyObject * SfPlayer_getServer(SfPlayer* self) { GET_SERVER };
 static PyObject * SfPlayer_getStream(SfPlayer* self) { GET_STREAM };
+static PyObject * SfPlayer_getTriggerStream(SfPlayer* self) { GET_TRIGGER_STREAM };
 
 static PyObject * SfPlayer_play(SfPlayer *self, PyObject *args, PyObject *kwds)
 { 
@@ -503,20 +504,10 @@ SfPlayer_getSamplesBuffer(SfPlayer *self)
     return (MYFLT *)self->samplesBuffer;
 }    
 
-MYFLT *
-SfPlayer_getTrigsBuffer(SfPlayer *self)
-{
-    int i;
-    for (i=0; i<(self->bufsize*self->sndChnls); i++) {
-        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
-        self->trigsBuffer[i] = 0.0;
-    }    
-    return (MYFLT *)self->tempTrigsBuffer;
-}    
-
 static PyMemberDef SfPlayer_members[] = {
 {"server", T_OBJECT_EX, offsetof(SfPlayer, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(SfPlayer, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(SfPlayer, trig_stream), 0, "Trigger Stream object."},
 {"speed", T_OBJECT_EX, offsetof(SfPlayer, speed), 0, "Frequency in cycle per second."},
 {NULL}  /* Sentinel */
 };
@@ -524,6 +515,7 @@ static PyMemberDef SfPlayer_members[] = {
 static PyMethodDef SfPlayer_methods[] = {
 {"getServer", (PyCFunction)SfPlayer_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfPlayer_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)SfPlayer_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"deleteStream", (PyCFunction)SfPlayer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SfPlayer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlayer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
@@ -848,267 +840,6 @@ SfPlay_members,             /* tp_members */
 0,                         /* tp_alloc */
 SfPlay_new,                 /* tp_new */
 };
-
-/************************************************************************************************/
-/* Sfplay trig streamer object per channel */
-/************************************************************************************************/
-typedef struct {
-    pyo_audio_HEAD
-    SfPlayer *mainPlayer;
-    int chnl; 
-    int modebuffer[2];
-} SfPlayTrig;
-
-static void SfPlayTrig_postprocessing_ii(SfPlayTrig *self) { POST_PROCESSING_II };
-static void SfPlayTrig_postprocessing_ai(SfPlayTrig *self) { POST_PROCESSING_AI };
-static void SfPlayTrig_postprocessing_ia(SfPlayTrig *self) { POST_PROCESSING_IA };
-static void SfPlayTrig_postprocessing_aa(SfPlayTrig *self) { POST_PROCESSING_AA };
-static void SfPlayTrig_postprocessing_ireva(SfPlayTrig *self) { POST_PROCESSING_IREVA };
-static void SfPlayTrig_postprocessing_areva(SfPlayTrig *self) { POST_PROCESSING_AREVA };
-static void SfPlayTrig_postprocessing_revai(SfPlayTrig *self) { POST_PROCESSING_REVAI };
-static void SfPlayTrig_postprocessing_revaa(SfPlayTrig *self) { POST_PROCESSING_REVAA };
-static void SfPlayTrig_postprocessing_revareva(SfPlayTrig *self) { POST_PROCESSING_REVAREVA };
-
-static void
-SfPlayTrig_setProcMode(SfPlayTrig *self) {
-    int muladdmode;
-    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
-    switch (muladdmode) {
-        case 0:        
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_ii;
-            break;
-        case 1:    
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_ai;
-            break;
-        case 2:    
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_revai;
-            break;
-        case 10:        
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_ia;
-            break;
-        case 11:    
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_aa;
-            break;
-        case 12:    
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_revaa;
-            break;
-        case 20:        
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_ireva;
-            break;
-        case 21:    
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_areva;
-            break;
-        case 22:    
-            self->muladd_func_ptr = SfPlayTrig_postprocessing_revareva;
-            break;
-    }  
-}
-
-static void
-SfPlayTrig_compute_next_data_frame(SfPlayTrig *self)
-{
-    int i;
-    MYFLT *tmp;
-    int offset = self->chnl * self->bufsize;
-    tmp = SfPlayer_getTrigsBuffer((SfPlayer *)self->mainPlayer);
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tmp[i + offset];
-    }    
-    (*self->muladd_func_ptr)(self);
-}
-
-static int
-SfPlayTrig_traverse(SfPlayTrig *self, visitproc visit, void *arg)
-{
-    pyo_VISIT
-    Py_VISIT(self->mainPlayer);
-    return 0;
-}
-
-static int 
-SfPlayTrig_clear(SfPlayTrig *self)
-{
-    pyo_CLEAR
-    Py_CLEAR(self->mainPlayer);    
-    return 0;
-}
-
-static void
-SfPlayTrig_dealloc(SfPlayTrig* self)
-{
-    free(self->data);
-    SfPlayTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * SfPlayTrig_deleteStream(SfPlayTrig *self) { DELETE_STREAM };
-
-static PyObject *
-SfPlayTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    int i;
-    SfPlayTrig *self;
-    self = (SfPlayTrig *)type->tp_alloc(type, 0);
-    
-    self->chnl = 0;
-    self->modebuffer[0] = 0;
-    self->modebuffer[1] = 0;
-    
-    INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, SfPlayTrig_compute_next_data_frame);
-    self->mode_func_ptr = SfPlayTrig_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-SfPlayTrig_init(SfPlayTrig *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
-    static char *kwlist[] = {"mainPlayer", "chnl", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
-    
-    Py_XDECREF(self->mainPlayer);
-    Py_INCREF(maintmp);
-    self->mainPlayer = (SfPlayer *)maintmp;
-
-    Py_INCREF(self->stream);
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-
-    (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
-}
-
-static PyObject * SfPlayTrig_getServer(SfPlayTrig* self) { GET_SERVER };
-static PyObject * SfPlayTrig_getStream(SfPlayTrig* self) { GET_STREAM };
-static PyObject * SfPlayTrig_setMul(SfPlayTrig *self, PyObject *arg) { SET_MUL };	
-static PyObject * SfPlayTrig_setAdd(SfPlayTrig *self, PyObject *arg) { SET_ADD };	
-static PyObject * SfPlayTrig_setSub(SfPlayTrig *self, PyObject *arg) { SET_SUB };	
-static PyObject * SfPlayTrig_setDiv(SfPlayTrig *self, PyObject *arg) { SET_DIV };	
-
-static PyObject * SfPlayTrig_play(SfPlayTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * SfPlayTrig_stop(SfPlayTrig *self) { STOP };
-
-static PyObject * SfPlayTrig_multiply(SfPlayTrig *self, PyObject *arg) { MULTIPLY };
-static PyObject * SfPlayTrig_inplace_multiply(SfPlayTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
-static PyObject * SfPlayTrig_add(SfPlayTrig *self, PyObject *arg) { ADD };
-static PyObject * SfPlayTrig_inplace_add(SfPlayTrig *self, PyObject *arg) { INPLACE_ADD };
-static PyObject * SfPlayTrig_sub(SfPlayTrig *self, PyObject *arg) { SUB };
-static PyObject * SfPlayTrig_inplace_sub(SfPlayTrig *self, PyObject *arg) { INPLACE_SUB };
-static PyObject * SfPlayTrig_div(SfPlayTrig *self, PyObject *arg) { DIV };
-static PyObject * SfPlayTrig_inplace_div(SfPlayTrig *self, PyObject *arg) { INPLACE_DIV };
-
-static PyMemberDef SfPlayTrig_members[] = {
-{"server", T_OBJECT_EX, offsetof(SfPlayTrig, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(SfPlayTrig, stream), 0, "Stream object."},
-{"mul", T_OBJECT_EX, offsetof(SfPlayTrig, mul), 0, "Mul factor."},
-{"add", T_OBJECT_EX, offsetof(SfPlayTrig, add), 0, "Add factor."},
-{NULL}  /* Sentinel */
-};
-
-static PyMethodDef SfPlayTrig_methods[] = {
-{"getServer", (PyCFunction)SfPlayTrig_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)SfPlayTrig_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)SfPlayTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)SfPlayTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)SfPlayTrig_stop, METH_NOARGS, "Stops computing."},
-{"setMul", (PyCFunction)SfPlayTrig_setMul, METH_O, "Sets oscillator mul factor."},
-{"setAdd", (PyCFunction)SfPlayTrig_setAdd, METH_O, "Sets oscillator add factor."},
-{"setSub", (PyCFunction)SfPlayTrig_setSub, METH_O, "Sets inverse add factor."},
-{"setDiv", (PyCFunction)SfPlayTrig_setDiv, METH_O, "Sets inverse mul factor."},        
-{NULL}  /* Sentinel */
-};
-
-static PyNumberMethods SfPlayTrig_as_number = {
-    (binaryfunc)SfPlayTrig_add,                         /*nb_add*/
-    (binaryfunc)SfPlayTrig_sub,                         /*nb_subtract*/
-    (binaryfunc)SfPlayTrig_multiply,                    /*nb_multiply*/
-    (binaryfunc)SfPlayTrig_div,                                              /*nb_divide*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
-    (binaryfunc)SfPlayTrig_inplace_add,                 /*inplace_add*/
-    (binaryfunc)SfPlayTrig_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)SfPlayTrig_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)SfPlayTrig_inplace_div,                                              /*inplace_divide*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
-};
-
-PyTypeObject SfPlayTrigType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
-"_pyo.SfPlayTrig_base",         /*tp_name*/
-sizeof(SfPlayTrig),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)SfPlayTrig_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
-0,                         /*tp_repr*/
-&SfPlayTrig_as_number,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"SfPlayTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
-(traverseproc)SfPlayTrig_traverse,   /* tp_traverse */
-(inquiry)SfPlayTrig_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-SfPlayTrig_methods,             /* tp_methods */
-SfPlayTrig_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-(initproc)SfPlayTrig_init,      /* tp_init */
-0,                         /* tp_alloc */
-SfPlayTrig_new,                 /* tp_new */
-};
-
 
 /************************************************************************************************/
 /* SfMarkerShuffler object */

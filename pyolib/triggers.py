@@ -1424,7 +1424,7 @@ class TrigEnv(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, table, dur, interp, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, interp, mul, add)
         self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self._trig_objs = [TrigEnvTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['input', 'table', 'dur', 'interp', 'mul', 'add']
@@ -1433,9 +1433,7 @@ class TrigEnv(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1450,13 +1448,13 @@ class TrigEnv(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
+        self._trig_objs.play(dur, delay)
         if type(chnl) == ListType:
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
@@ -1467,8 +1465,8 @@ class TrigEnv(PyoObject):
         return self
 
     def stop(self):
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
 
     def setInput(self, x, fadetime=0.05):
@@ -1545,9 +1543,7 @@ class TrigEnv(PyoObject):
     @dur.setter
     def dur(self, x): self.setDur(x)
     @property
-    def interp(self): 
-        """int {1, 2, 3, 4}. Interpolation method."""
-        return self._interp
+    def interp(self): return self._interp
     @interp.setter
     def interp(self, x): self.setInterp(x)
 
@@ -1609,7 +1605,7 @@ class TrigLinseg(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [TrigLinseg_base(wrap(in_fader,i), list, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self._trig_objs = [TrigLinsegTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['input', 'list', 'mul', 'add']
@@ -1618,9 +1614,7 @@ class TrigLinseg(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1635,16 +1629,16 @@ class TrigLinseg(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def stop(self):
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
 
     def setInput(self, x, fadetime=0.05):
@@ -1816,7 +1810,7 @@ class TrigExpseg(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, exp, inverse, mul, add, lmax = convertArgsToLists(self._in_fader, exp, inverse, mul, add)
         self._base_objs = [TrigExpseg_base(wrap(in_fader,i), list, wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self._trig_objs = [TrigExpsegTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['input', 'list', 'exp', 'inverse', 'mul', 'add']
@@ -1825,9 +1819,7 @@ class TrigExpseg(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1842,16 +1834,16 @@ class TrigExpseg(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
 
     def stop(self):
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
 
     def setInput(self, x, fadetime=0.05):

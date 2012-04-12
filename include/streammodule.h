@@ -59,6 +59,18 @@ extern PyTypeObject StreamType;
   (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = (self)->bufsize = 0; \
   (self)->active = 1;
 
+typedef struct {
+    PyObject_HEAD
+    MYFLT *data;
+} TriggerStream;
+
+extern MYFLT * TriggerStream_getData(TriggerStream *self);
+extern void TriggerStream_setData(TriggerStream * self, MYFLT *data);
+extern PyTypeObject TriggerStreamType;
+
+#define MAKE_NEW_TRIGGER_STREAM(self, type, rt_error)	\
+    (self) = (TriggerStream *)(type)->tp_alloc((type), 0);                        \
+
 #ifdef __STREAM_MODULE
 /* include from stream.c */
 
