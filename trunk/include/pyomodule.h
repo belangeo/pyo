@@ -193,7 +193,6 @@ extern PyTypeObject PointerType;
 extern PyTypeObject TableIndexType;
 extern PyTypeObject LookupType;
 extern PyTypeObject TableReadType;
-extern PyTypeObject TableReadTrigType;
 extern PyTypeObject OscType;
 extern PyTypeObject OscLoopType;
 extern PyTypeObject OscBankType;
@@ -204,7 +203,6 @@ extern PyTypeObject BrownNoiseType;
 extern PyTypeObject InputType;
 extern PyTypeObject SfPlayerType;
 extern PyTypeObject SfPlayType;
-extern PyTypeObject SfPlayTrigType;
 extern PyTypeObject SfMarkerShufflerType;
 extern PyTypeObject SfMarkerShuffleType;
 extern PyTypeObject SfMarkerLooperType;
@@ -293,13 +291,12 @@ extern PyTypeObject MidiAdsrType;
 extern PyTypeObject MidiDelAdsrType;
 
 extern PyTypeObject DummyType;
+extern PyTypeObject TriggerDummyType;
 extern PyTypeObject RecordType;
 extern PyTypeObject ControlRecType;
 extern PyTypeObject ControlReadType;
-extern PyTypeObject ControlReadTrigType;
 extern PyTypeObject NoteinRecType;
 extern PyTypeObject NoteinReadType;
-extern PyTypeObject NoteinReadTrigType;
 extern PyTypeObject CompareType;
 extern PyTypeObject MixType;
 extern PyTypeObject SigType;
@@ -321,15 +318,12 @@ extern PyTypeObject SndTableType;
 extern PyTypeObject DataTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
-extern PyTypeObject TableRecTrigType;
 extern PyTypeObject TableMorphType;
 extern PyTypeObject TrigTableRecType;
-extern PyTypeObject TrigTableRecTrigType;
 
 extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;
 extern PyTypeObject MatrixRecType;
-extern PyTypeObject MatrixRecTrigType;
 extern PyTypeObject MatrixMorphType;
 
 extern PyTypeObject OscSendType;
@@ -345,11 +339,8 @@ extern PyTypeObject TrigRandType;
 extern PyTypeObject TrigChoiceType;
 extern PyTypeObject IterType;
 extern PyTypeObject TrigEnvType;
-extern PyTypeObject TrigEnvTrigType;
 extern PyTypeObject TrigLinsegType;
-extern PyTypeObject TrigLinsegTrigType;
 extern PyTypeObject TrigExpsegType;
-extern PyTypeObject TrigExpsegTrigType;
 extern PyTypeObject TrigFuncType;
 extern PyTypeObject TrigXnoiseType;
 extern PyTypeObject TrigXnoiseMidiType;
@@ -517,6 +508,13 @@ extern PyTypeObject VectralType;
     Py_XDECREF(self->input_stream); \
     self->input_stream = (Stream *)input_streamtmp;
 
+#define INIT_INPUT_TRIGGER_STREAM \
+    Py_XDECREF(self->input); \
+    self->input = inputtmp; \
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getTriggerStream", NULL); \
+    Py_INCREF(input_streamtmp); \
+    Py_XDECREF(self->input_stream); \
+    self->input_stream = (TriggerStream *)input_streamtmp;
 
 /* Set data */
 #define SET_TABLE_DATA \
@@ -881,6 +879,14 @@ extern PyTypeObject VectralType;
     } \
     Py_INCREF(self->stream); \
     return (PyObject *)self->stream;
+
+#define GET_TRIGGER_STREAM \
+    if (self->trig_stream == NULL) { \
+        PyErr_SetString(PyExc_TypeError, "No trigger stream founded!"); \
+        return PyInt_FromLong(-1); \
+    } \
+    Py_INCREF(self->trig_stream); \
+    return (PyObject *)self->trig_stream;
 
 #define GET_TABLE_STREAM \
     if (self->tablestream == NULL) { \

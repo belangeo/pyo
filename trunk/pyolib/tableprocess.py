@@ -705,7 +705,7 @@ class TableRead(PyoObject):
         self._add = add
         table, freq, loop, interp, mul, add, lmax = convertArgsToLists(table, freq, loop, interp, mul, add)
         self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-        self._trig_objs = [TableReadTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['table', 'freq', 'loop', 'interp', 'mul', 'add']
@@ -714,9 +714,7 @@ class TableRead(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
             
     def __getitem__(self, i):
         if i == 'trig':
@@ -731,13 +729,13 @@ class TableRead(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
+        self._trig_objs.play(dur, delay)
         if type(chnl) == ListType:
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
@@ -748,8 +746,8 @@ class TableRead(PyoObject):
         return self
 
     def stop(self):
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
         
     def setTable(self, x):
@@ -1416,7 +1414,7 @@ class TableRec(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
-        self._trig_objs = [TableRecTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['input', 'table', 'mul', 'add']
@@ -1425,9 +1423,7 @@ class TableRec(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1455,8 +1451,8 @@ class TableRec(PyoObject):
         
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def stop(self):
@@ -1464,8 +1460,8 @@ class TableRec(PyoObject):
         Stop the recording. Otherwise, record through the end of the table.
 
         """
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -1967,7 +1963,7 @@ class TrigTableRec(PyoObject):
         self._in_fader2 = InputFader(trig)
         in_fader, in_fader2, table, fadetime, lmax = convertArgsToLists(self._in_fader, self._in_fader2, table, fadetime)
         self._base_objs = [TrigTableRec_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
-        self._trig_objs = [TrigTableRecTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['input', 'trig', 'table', 'mul', 'add']
@@ -1976,9 +1972,7 @@ class TrigTableRec(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1993,13 +1987,13 @@ class TrigTableRec(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def stop(self):
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

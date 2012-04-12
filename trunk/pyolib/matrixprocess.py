@@ -105,7 +105,7 @@ class MatrixRec(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, matrix, fadetime, delay, lmax = convertArgsToLists(self._in_fader, matrix, fadetime, delay)
         self._base_objs = [MatrixRec_base(wrap(in_fader,i), wrap(matrix,i), wrap(fadetime,i), wrap(delay,i)) for i in range(len(matrix))]
-        self._trig_objs = [MatrixRecTrig_base(obj) for obj in self._base_objs]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
         return ['input', 'matrix', 'mul', 'add']
@@ -114,9 +114,7 @@ class MatrixRec(PyoObject):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
-        for obj in self._trig_objs:
-            obj.deleteStream()
-            del obj
+        del self._trig_objs
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -144,8 +142,8 @@ class MatrixRec(PyoObject):
 
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        self._trig_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._trig_objs)]
         return self
 
     def stop(self):
@@ -153,8 +151,8 @@ class MatrixRec(PyoObject):
         Stop the recording. Otherwise, record through the end of the matrix.
 
         """
+        self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
-        [obj.stop() for obj in self._trig_objs]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):

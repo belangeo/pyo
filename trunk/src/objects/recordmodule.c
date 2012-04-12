@@ -521,7 +521,7 @@ typedef struct {
     long time;
     long size;
     MYFLT *trigsBuffer;
-    MYFLT *tempTrigsBuffer;
+    TriggerStream *trig_stream;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } ControlRead;
@@ -536,6 +536,7 @@ ControlRead_readframes_i(ControlRead *self) {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
     
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (self->go == 1) {
             mod = self->time % self->modulo;
             fpart = mod * invmodulo;
@@ -620,6 +621,7 @@ static int
 ControlRead_traverse(ControlRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->trig_stream);    
     return 0;
 }
 
@@ -627,6 +629,7 @@ static int
 ControlRead_clear(ControlRead *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->trig_stream);    
     return 0;
 }
 
@@ -635,7 +638,6 @@ ControlRead_dealloc(ControlRead* self)
 {
     free(self->data);
     free(self->values);
-    free(self->tempTrigsBuffer);
     free(self->trigsBuffer);
     ControlRead_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -691,11 +693,13 @@ ControlRead_init(ControlRead *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
         
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
     }    
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
     
     self->modulo = (int)(self->sr / self->rate);
 
@@ -709,6 +713,7 @@ ControlRead_init(ControlRead *self, PyObject *args, PyObject *kwds)
 
 static PyObject * ControlRead_getServer(ControlRead* self) { GET_SERVER };
 static PyObject * ControlRead_getStream(ControlRead* self) { GET_STREAM };
+static PyObject * ControlRead_getTriggerStream(ControlRead* self) { GET_TRIGGER_STREAM };
 static PyObject * ControlRead_setMul(ControlRead *self, PyObject *arg) { SET_MUL };	
 static PyObject * ControlRead_setAdd(ControlRead *self, PyObject *arg) { SET_ADD };	
 static PyObject * ControlRead_setSub(ControlRead *self, PyObject *arg) { SET_SUB };	
@@ -805,20 +810,10 @@ ControlRead_setInterp(ControlRead *self, PyObject *arg)
     return Py_None;
 }
 
-MYFLT *
-ControlRead_getTrigsBuffer(ControlRead *self)
-{
-    int i;
-    for (i=0; i<self->bufsize; i++) {
-        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
-        self->trigsBuffer[i] = 0.0;
-    }    
-    return (MYFLT *)self->tempTrigsBuffer;
-}    
-
 static PyMemberDef ControlRead_members[] = {
     {"server", T_OBJECT_EX, offsetof(ControlRead, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(ControlRead, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(ControlRead, trig_stream), 0, "Trigger Stream object."},
     {"mul", T_OBJECT_EX, offsetof(ControlRead, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(ControlRead, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -827,6 +822,7 @@ static PyMemberDef ControlRead_members[] = {
 static PyMethodDef ControlRead_methods[] = {
     {"getServer", (PyCFunction)ControlRead_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)ControlRead_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)ControlRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"deleteStream", (PyCFunction)ControlRead_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)ControlRead_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)ControlRead_stop, METH_NOARGS, "Stops computing."},
@@ -923,263 +919,6 @@ PyTypeObject ControlReadType = {
     (initproc)ControlRead_init,      /* tp_init */
     0,                         /* tp_alloc */
     ControlRead_new,                 /* tp_new */
-};
-
-/************************************************************************************************/
-/* ControlRead trig streamer */
-/************************************************************************************************/
-typedef struct {
-    pyo_audio_HEAD
-    ControlRead *mainReader;
-    int modebuffer[2];
-} ControlReadTrig;
-
-static void ControlReadTrig_postprocessing_ii(ControlReadTrig *self) { POST_PROCESSING_II };
-static void ControlReadTrig_postprocessing_ai(ControlReadTrig *self) { POST_PROCESSING_AI };
-static void ControlReadTrig_postprocessing_ia(ControlReadTrig *self) { POST_PROCESSING_IA };
-static void ControlReadTrig_postprocessing_aa(ControlReadTrig *self) { POST_PROCESSING_AA };
-static void ControlReadTrig_postprocessing_ireva(ControlReadTrig *self) { POST_PROCESSING_IREVA };
-static void ControlReadTrig_postprocessing_areva(ControlReadTrig *self) { POST_PROCESSING_AREVA };
-static void ControlReadTrig_postprocessing_revai(ControlReadTrig *self) { POST_PROCESSING_REVAI };
-static void ControlReadTrig_postprocessing_revaa(ControlReadTrig *self) { POST_PROCESSING_REVAA };
-static void ControlReadTrig_postprocessing_revareva(ControlReadTrig *self) { POST_PROCESSING_REVAREVA };
-
-static void
-ControlReadTrig_setProcMode(ControlReadTrig *self) {
-    int muladdmode;
-    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
-    switch (muladdmode) {
-        case 0:        
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_ii;
-            break;
-        case 1:    
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_ai;
-            break;
-        case 2:    
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_revai;
-            break;
-        case 10:        
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_ia;
-            break;
-        case 11:    
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_aa;
-            break;
-        case 12:    
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_revaa;
-            break;
-        case 20:        
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_ireva;
-            break;
-        case 21:    
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_areva;
-            break;
-        case 22:    
-            self->muladd_func_ptr = ControlReadTrig_postprocessing_revareva;
-            break;
-    }  
-}
-
-static void
-ControlReadTrig_compute_next_data_frame(ControlReadTrig *self)
-{
-    int i;
-    MYFLT *tmp;
-    tmp = ControlRead_getTrigsBuffer((ControlRead *)self->mainReader);
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tmp[i];
-    }    
-    (*self->muladd_func_ptr)(self);
-}
-
-static int
-ControlReadTrig_traverse(ControlReadTrig *self, visitproc visit, void *arg)
-{
-    pyo_VISIT
-    Py_VISIT(self->mainReader);
-    return 0;
-}
-
-static int 
-ControlReadTrig_clear(ControlReadTrig *self)
-{
-    pyo_CLEAR
-    Py_CLEAR(self->mainReader);    
-    return 0;
-}
-
-static void
-ControlReadTrig_dealloc(ControlReadTrig* self)
-{
-    free(self->data);
-    ControlReadTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * ControlReadTrig_deleteStream(ControlReadTrig *self) { DELETE_STREAM };
-
-static PyObject *
-ControlReadTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    int i;
-    ControlReadTrig *self;
-    self = (ControlReadTrig *)type->tp_alloc(type, 0);
-    
-    self->modebuffer[0] = 0;
-    self->modebuffer[1] = 0;
-    
-    INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, ControlReadTrig_compute_next_data_frame);
-    self->mode_func_ptr = ControlReadTrig_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-ControlReadTrig_init(ControlReadTrig *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
-    static char *kwlist[] = {"mainReader", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        return -1; 
-    
-    Py_XDECREF(self->mainReader);
-    Py_INCREF(maintmp);
-    self->mainReader = (ControlRead *)maintmp;
-    
-    Py_INCREF(self->stream);
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
-}
-
-static PyObject * ControlReadTrig_getServer(ControlReadTrig* self) { GET_SERVER };
-static PyObject * ControlReadTrig_getStream(ControlReadTrig* self) { GET_STREAM };
-static PyObject * ControlReadTrig_setMul(ControlReadTrig *self, PyObject *arg) { SET_MUL };	
-static PyObject * ControlReadTrig_setAdd(ControlReadTrig *self, PyObject *arg) { SET_ADD };	
-static PyObject * ControlReadTrig_setSub(ControlReadTrig *self, PyObject *arg) { SET_SUB };	
-static PyObject * ControlReadTrig_setDiv(ControlReadTrig *self, PyObject *arg) { SET_DIV };	
-
-static PyObject * ControlReadTrig_play(ControlReadTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * ControlReadTrig_stop(ControlReadTrig *self) { STOP };
-
-static PyObject * ControlReadTrig_multiply(ControlReadTrig *self, PyObject *arg) { MULTIPLY };
-static PyObject * ControlReadTrig_inplace_multiply(ControlReadTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
-static PyObject * ControlReadTrig_add(ControlReadTrig *self, PyObject *arg) { ADD };
-static PyObject * ControlReadTrig_inplace_add(ControlReadTrig *self, PyObject *arg) { INPLACE_ADD };
-static PyObject * ControlReadTrig_sub(ControlReadTrig *self, PyObject *arg) { SUB };
-static PyObject * ControlReadTrig_inplace_sub(ControlReadTrig *self, PyObject *arg) { INPLACE_SUB };
-static PyObject * ControlReadTrig_div(ControlReadTrig *self, PyObject *arg) { DIV };
-static PyObject * ControlReadTrig_inplace_div(ControlReadTrig *self, PyObject *arg) { INPLACE_DIV };
-
-static PyMemberDef ControlReadTrig_members[] = {
-    {"server", T_OBJECT_EX, offsetof(ControlReadTrig, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(ControlReadTrig, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(ControlReadTrig, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(ControlReadTrig, add), 0, "Add factor."},
-    {NULL}  /* Sentinel */
-};
-
-static PyMethodDef ControlReadTrig_methods[] = {
-    {"getServer", (PyCFunction)ControlReadTrig_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)ControlReadTrig_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)ControlReadTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)ControlReadTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)ControlReadTrig_stop, METH_NOARGS, "Stops computing."},
-    {"setMul", (PyCFunction)ControlReadTrig_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)ControlReadTrig_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)ControlReadTrig_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)ControlReadTrig_setDiv, METH_O, "Sets inverse mul factor."},        
-    {NULL}  /* Sentinel */
-};
-
-static PyNumberMethods ControlReadTrig_as_number = {
-    (binaryfunc)ControlReadTrig_add,                         /*nb_add*/
-    (binaryfunc)ControlReadTrig_sub,                         /*nb_subtract*/
-    (binaryfunc)ControlReadTrig_multiply,                    /*nb_multiply*/
-    (binaryfunc)ControlReadTrig_div,                                              /*nb_divide*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
-    (binaryfunc)ControlReadTrig_inplace_add,                 /*inplace_add*/
-    (binaryfunc)ControlReadTrig_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)ControlReadTrig_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)ControlReadTrig_inplace_div,                                              /*inplace_divide*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
-};
-
-PyTypeObject ControlReadTrigType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "_pyo.ControlReadTrig_base",         /*tp_name*/
-    sizeof(ControlReadTrig),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)ControlReadTrig_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    &ControlReadTrig_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-    "ControlReadTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
-    (traverseproc)ControlReadTrig_traverse,   /* tp_traverse */
-    (inquiry)ControlReadTrig_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    ControlReadTrig_methods,             /* tp_methods */
-    ControlReadTrig_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)ControlReadTrig_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    ControlReadTrig_new,                 /* tp_new */
 };
 
 /************/
@@ -1426,7 +1165,7 @@ typedef struct {
     long time;
     long size;
     MYFLT *trigsBuffer;
-    MYFLT *tempTrigsBuffer;
+    TriggerStream *trig_stream;
 } NoteinRead;
 
 static void
@@ -1437,6 +1176,7 @@ NoteinRead_readframes_i(NoteinRead *self) {
         PyObject_CallMethod((PyObject *)self, "stop", NULL);
     
     for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
         if (self->go == 1) {
             if (self->time >= self->timestamps[self->count]) {
                 self->value = self->values[self->count];
@@ -1520,6 +1260,7 @@ static int
 NoteinRead_traverse(NoteinRead *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->trig_stream);    
     return 0;
 }
 
@@ -1527,6 +1268,7 @@ static int
 NoteinRead_clear(NoteinRead *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->trig_stream);    
     return 0;
 }
 
@@ -1536,7 +1278,6 @@ NoteinRead_dealloc(NoteinRead* self)
     free(self->data);
     free(self->values);
     free(self->timestamps);
-    free(self->tempTrigsBuffer);
     free(self->trigsBuffer);
     NoteinRead_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -1595,11 +1336,13 @@ NoteinRead_init(NoteinRead *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
         
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
     }    
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
     
     (*self->mode_func_ptr)(self);
     
@@ -1609,6 +1352,7 @@ NoteinRead_init(NoteinRead *self, PyObject *args, PyObject *kwds)
 
 static PyObject * NoteinRead_getServer(NoteinRead* self) { GET_SERVER };
 static PyObject * NoteinRead_getStream(NoteinRead* self) { GET_STREAM };
+static PyObject * NoteinRead_getTriggerStream(NoteinRead* self) { GET_TRIGGER_STREAM };
 static PyObject * NoteinRead_setMul(NoteinRead *self, PyObject *arg) { SET_MUL };	
 static PyObject * NoteinRead_setAdd(NoteinRead *self, PyObject *arg) { SET_ADD };	
 static PyObject * NoteinRead_setSub(NoteinRead *self, PyObject *arg) { SET_SUB };	
@@ -1690,20 +1434,10 @@ NoteinRead_setLoop(NoteinRead *self, PyObject *arg)
     return Py_None;
 }
 
-MYFLT *
-NoteinRead_getTrigsBuffer(NoteinRead *self)
-{
-    int i;
-    for (i=0; i<self->bufsize; i++) {
-        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
-        self->trigsBuffer[i] = 0.0;
-    }    
-    return (MYFLT *)self->tempTrigsBuffer;
-}    
-
 static PyMemberDef NoteinRead_members[] = {
     {"server", T_OBJECT_EX, offsetof(NoteinRead, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(NoteinRead, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(NoteinRead, trig_stream), 0, "Trigger Stream object."},
     {"mul", T_OBJECT_EX, offsetof(NoteinRead, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(NoteinRead, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -1712,6 +1446,7 @@ static PyMemberDef NoteinRead_members[] = {
 static PyMethodDef NoteinRead_methods[] = {
     {"getServer", (PyCFunction)NoteinRead_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)NoteinRead_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)NoteinRead_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"deleteStream", (PyCFunction)NoteinRead_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)NoteinRead_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)NoteinRead_stop, METH_NOARGS, "Stops computing."},
@@ -1808,262 +1543,3 @@ PyTypeObject NoteinReadType = {
     0,                         /* tp_alloc */
     NoteinRead_new,                 /* tp_new */
 };
-
-/************************************************************************************************/
-/* NoteinRead trig streamer */
-/************************************************************************************************/
-typedef struct {
-    pyo_audio_HEAD
-    NoteinRead *mainReader;
-    int modebuffer[2];
-} NoteinReadTrig;
-
-static void NoteinReadTrig_postprocessing_ii(NoteinReadTrig *self) { POST_PROCESSING_II };
-static void NoteinReadTrig_postprocessing_ai(NoteinReadTrig *self) { POST_PROCESSING_AI };
-static void NoteinReadTrig_postprocessing_ia(NoteinReadTrig *self) { POST_PROCESSING_IA };
-static void NoteinReadTrig_postprocessing_aa(NoteinReadTrig *self) { POST_PROCESSING_AA };
-static void NoteinReadTrig_postprocessing_ireva(NoteinReadTrig *self) { POST_PROCESSING_IREVA };
-static void NoteinReadTrig_postprocessing_areva(NoteinReadTrig *self) { POST_PROCESSING_AREVA };
-static void NoteinReadTrig_postprocessing_revai(NoteinReadTrig *self) { POST_PROCESSING_REVAI };
-static void NoteinReadTrig_postprocessing_revaa(NoteinReadTrig *self) { POST_PROCESSING_REVAA };
-static void NoteinReadTrig_postprocessing_revareva(NoteinReadTrig *self) { POST_PROCESSING_REVAREVA };
-
-static void
-NoteinReadTrig_setProcMode(NoteinReadTrig *self) {
-    int muladdmode;
-    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
-    
-    switch (muladdmode) {
-        case 0:        
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_ii;
-            break;
-        case 1:    
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_ai;
-            break;
-        case 2:    
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_revai;
-            break;
-        case 10:        
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_ia;
-            break;
-        case 11:    
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_aa;
-            break;
-        case 12:    
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_revaa;
-            break;
-        case 20:        
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_ireva;
-            break;
-        case 21:    
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_areva;
-            break;
-        case 22:    
-            self->muladd_func_ptr = NoteinReadTrig_postprocessing_revareva;
-            break;
-    }  
-}
-
-static void
-NoteinReadTrig_compute_next_data_frame(NoteinReadTrig *self)
-{
-    int i;
-    MYFLT *tmp;
-    tmp = NoteinRead_getTrigsBuffer((NoteinRead *)self->mainReader);
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tmp[i];
-    }    
-    (*self->muladd_func_ptr)(self);
-}
-
-static int
-NoteinReadTrig_traverse(NoteinReadTrig *self, visitproc visit, void *arg)
-{
-    pyo_VISIT
-    Py_VISIT(self->mainReader);
-    return 0;
-}
-
-static int 
-NoteinReadTrig_clear(NoteinReadTrig *self)
-{
-    pyo_CLEAR
-    Py_CLEAR(self->mainReader);    
-    return 0;
-}
-
-static void
-NoteinReadTrig_dealloc(NoteinReadTrig* self)
-{
-    free(self->data);
-    NoteinReadTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * NoteinReadTrig_deleteStream(NoteinReadTrig *self) { DELETE_STREAM };
-
-static PyObject *
-NoteinReadTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    int i;
-    NoteinReadTrig *self;
-    self = (NoteinReadTrig *)type->tp_alloc(type, 0);
-    
-    self->modebuffer[0] = 0;
-    self->modebuffer[1] = 0;
-    
-    INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, NoteinReadTrig_compute_next_data_frame);
-    self->mode_func_ptr = NoteinReadTrig_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-NoteinReadTrig_init(NoteinReadTrig *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
-    static char *kwlist[] = {"mainReader", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        return -1; 
-    
-    Py_XDECREF(self->mainReader);
-    Py_INCREF(maintmp);
-    self->mainReader = (NoteinRead *)maintmp;
-    
-    Py_INCREF(self->stream);
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
-}
-
-static PyObject * NoteinReadTrig_getServer(NoteinReadTrig* self) { GET_SERVER };
-static PyObject * NoteinReadTrig_getStream(NoteinReadTrig* self) { GET_STREAM };
-static PyObject * NoteinReadTrig_setMul(NoteinReadTrig *self, PyObject *arg) { SET_MUL };	
-static PyObject * NoteinReadTrig_setAdd(NoteinReadTrig *self, PyObject *arg) { SET_ADD };	
-static PyObject * NoteinReadTrig_setSub(NoteinReadTrig *self, PyObject *arg) { SET_SUB };	
-static PyObject * NoteinReadTrig_setDiv(NoteinReadTrig *self, PyObject *arg) { SET_DIV };	
-
-static PyObject * NoteinReadTrig_play(NoteinReadTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * NoteinReadTrig_stop(NoteinReadTrig *self) { STOP };
-
-static PyObject * NoteinReadTrig_multiply(NoteinReadTrig *self, PyObject *arg) { MULTIPLY };
-static PyObject * NoteinReadTrig_inplace_multiply(NoteinReadTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
-static PyObject * NoteinReadTrig_add(NoteinReadTrig *self, PyObject *arg) { ADD };
-static PyObject * NoteinReadTrig_inplace_add(NoteinReadTrig *self, PyObject *arg) { INPLACE_ADD };
-static PyObject * NoteinReadTrig_sub(NoteinReadTrig *self, PyObject *arg) { SUB };
-static PyObject * NoteinReadTrig_inplace_sub(NoteinReadTrig *self, PyObject *arg) { INPLACE_SUB };
-static PyObject * NoteinReadTrig_div(NoteinReadTrig *self, PyObject *arg) { DIV };
-static PyObject * NoteinReadTrig_inplace_div(NoteinReadTrig *self, PyObject *arg) { INPLACE_DIV };
-
-static PyMemberDef NoteinReadTrig_members[] = {
-    {"server", T_OBJECT_EX, offsetof(NoteinReadTrig, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(NoteinReadTrig, stream), 0, "Stream object."},
-    {"mul", T_OBJECT_EX, offsetof(NoteinReadTrig, mul), 0, "Mul factor."},
-    {"add", T_OBJECT_EX, offsetof(NoteinReadTrig, add), 0, "Add factor."},
-    {NULL}  /* Sentinel */
-};
-
-static PyMethodDef NoteinReadTrig_methods[] = {
-    {"getServer", (PyCFunction)NoteinReadTrig_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)NoteinReadTrig_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)NoteinReadTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)NoteinReadTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)NoteinReadTrig_stop, METH_NOARGS, "Stops computing."},
-    {"setMul", (PyCFunction)NoteinReadTrig_setMul, METH_O, "Sets oscillator mul factor."},
-    {"setAdd", (PyCFunction)NoteinReadTrig_setAdd, METH_O, "Sets oscillator add factor."},
-    {"setSub", (PyCFunction)NoteinReadTrig_setSub, METH_O, "Sets inverse add factor."},
-    {"setDiv", (PyCFunction)NoteinReadTrig_setDiv, METH_O, "Sets inverse mul factor."},        
-    {NULL}  /* Sentinel */
-};
-
-static PyNumberMethods NoteinReadTrig_as_number = {
-    (binaryfunc)NoteinReadTrig_add,                         /*nb_add*/
-    (binaryfunc)NoteinReadTrig_sub,                         /*nb_subtract*/
-    (binaryfunc)NoteinReadTrig_multiply,                    /*nb_multiply*/
-    (binaryfunc)NoteinReadTrig_div,                                              /*nb_divide*/
-    0,                                              /*nb_remainder*/
-    0,                                              /*nb_divmod*/
-    0,                                              /*nb_power*/
-    0,                                              /*nb_neg*/
-    0,                                              /*nb_pos*/
-    0,                                              /*(unaryfunc)array_abs,*/
-    0,                                              /*nb_nonzero*/
-    0,                                              /*nb_invert*/
-    0,                                              /*nb_lshift*/
-    0,                                              /*nb_rshift*/
-    0,                                              /*nb_and*/
-    0,                                              /*nb_xor*/
-    0,                                              /*nb_or*/
-    0,                                              /*nb_coerce*/
-    0,                                              /*nb_int*/
-    0,                                              /*nb_long*/
-    0,                                              /*nb_float*/
-    0,                                              /*nb_oct*/
-    0,                                              /*nb_hex*/
-    (binaryfunc)NoteinReadTrig_inplace_add,                 /*inplace_add*/
-    (binaryfunc)NoteinReadTrig_inplace_sub,                 /*inplace_subtract*/
-    (binaryfunc)NoteinReadTrig_inplace_multiply,            /*inplace_multiply*/
-    (binaryfunc)NoteinReadTrig_inplace_div,                                              /*inplace_divide*/
-    0,                                              /*inplace_remainder*/
-    0,                                              /*inplace_power*/
-    0,                                              /*inplace_lshift*/
-    0,                                              /*inplace_rshift*/
-    0,                                              /*inplace_and*/
-    0,                                              /*inplace_xor*/
-    0,                                              /*inplace_or*/
-    0,                                              /*nb_floor_divide*/
-    0,                                              /*nb_true_divide*/
-    0,                                              /*nb_inplace_floor_divide*/
-    0,                                              /*nb_inplace_true_divide*/
-    0,                                              /* nb_index */
-};
-
-PyTypeObject NoteinReadTrigType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "_pyo.NoteinReadTrig_base",         /*tp_name*/
-    sizeof(NoteinReadTrig),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)NoteinReadTrig_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    &NoteinReadTrig_as_number,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-    "NoteinReadTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
-    (traverseproc)NoteinReadTrig_traverse,   /* tp_traverse */
-    (inquiry)NoteinReadTrig_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    NoteinReadTrig_methods,             /* tp_methods */
-    NoteinReadTrig_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)NoteinReadTrig_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    NoteinReadTrig_new,                 /* tp_new */
-};
-
-

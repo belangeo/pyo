@@ -1807,11 +1807,21 @@ init_pyo64(void)
     Py_INCREF(&StreamType);
     PyModule_AddObject(m, "Stream", (PyObject *)&StreamType);
 
+    if (PyType_Ready(&TriggerStreamType) < 0)
+        return;
+    Py_INCREF(&TriggerStreamType);
+    PyModule_AddObject(m, "TriggerStream", (PyObject *)&TriggerStreamType);
+    
     if (PyType_Ready(&DummyType) < 0)
         return;
     Py_INCREF(&DummyType);
     PyModule_AddObject(m, "Dummy_base", (PyObject *)&DummyType);
 
+    if (PyType_Ready(&TriggerDummyType) < 0)
+        return;
+    Py_INCREF(&TriggerDummyType);
+    PyModule_AddObject(m, "TriggerDummy_base", (PyObject *)&TriggerDummyType);
+    
     if (PyType_Ready(&RecordType) < 0)
         return;
     Py_INCREF(&RecordType);
@@ -1827,11 +1837,6 @@ init_pyo64(void)
     Py_INCREF(&ControlReadType);
     PyModule_AddObject(m, "ControlRead_base", (PyObject *)&ControlReadType);
 
-    if (PyType_Ready(&ControlReadTrigType) < 0)
-        return;
-    Py_INCREF(&ControlReadTrigType);
-    PyModule_AddObject(m, "ControlReadTrig_base", (PyObject *)&ControlReadTrigType);
-
     if (PyType_Ready(&NoteinRecType) < 0)
         return;
     Py_INCREF(&NoteinRecType);
@@ -1841,12 +1846,6 @@ init_pyo64(void)
         return;
     Py_INCREF(&NoteinReadType);
     PyModule_AddObject(m, "NoteinRead_base", (PyObject *)&NoteinReadType);
-
-    if (PyType_Ready(&NoteinReadTrigType) < 0)
-        return;
-    Py_INCREF(&NoteinReadTrigType);
-    PyModule_AddObject(m, "NoteinReadTrig_base", (PyObject *)&NoteinReadTrigType);
-
 
     if (PyType_Ready(&CompareType) < 0)
         return;
@@ -1967,12 +1966,7 @@ init_pyo64(void)
         return;
     Py_INCREF(&TableRecType);
     PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
-
-    if (PyType_Ready(&TableRecTrigType) < 0)
-        return;
-    Py_INCREF(&TableRecTrigType);
-    PyModule_AddObject(m, "TableRecTrig_base", (PyObject *)&TableRecTrigType);
-    
+   
     if (PyType_Ready(&TableMorphType) < 0)
         return;
     Py_INCREF(&TableMorphType);
@@ -1982,12 +1976,7 @@ init_pyo64(void)
         return;
     Py_INCREF(&TrigTableRecType);
     PyModule_AddObject(m, "TrigTableRec_base", (PyObject *)&TrigTableRecType);
-    
-    if (PyType_Ready(&TrigTableRecTrigType) < 0)
-        return;
-    Py_INCREF(&TrigTableRecTrigType);
-    PyModule_AddObject(m, "TrigTableRecTrig_base", (PyObject *)&TrigTableRecTrigType);
-    
+   
     /* Matrix objects */
     if (PyType_Ready(&MatrixStreamType) < 0)
         return;
@@ -2008,11 +1997,6 @@ init_pyo64(void)
         return;
     Py_INCREF(&MatrixRecType);
     PyModule_AddObject(m, "MatrixRec_base", (PyObject *)&MatrixRecType);
-
-    if (PyType_Ready(&MatrixRecTrigType) < 0)
-        return;
-    Py_INCREF(&MatrixRecTrigType);
-    PyModule_AddObject(m, "MatrixRecTrig_base", (PyObject *)&MatrixRecTrigType);
 
     if (PyType_Ready(&MatrixMorphType) < 0)
         return;
@@ -2138,12 +2122,7 @@ init_pyo64(void)
         return;
     Py_INCREF(&SfPlayType);
     PyModule_AddObject(m, "SfPlay_base", (PyObject *)&SfPlayType);
-
-    if (PyType_Ready(&SfPlayTrigType) < 0)
-        return;
-    Py_INCREF(&SfPlayTrigType);
-    PyModule_AddObject(m, "SfPlayTrig_base", (PyObject *)&SfPlayTrigType);
-    
+   
     if (PyType_Ready(&SfMarkerShufflerType) < 0)
         return;
     Py_INCREF(&SfMarkerShufflerType);
@@ -2183,11 +2162,6 @@ init_pyo64(void)
         return;
     Py_INCREF(&TableReadType);
     PyModule_AddObject(m, "TableRead_base", (PyObject *)&TableReadType);
- 
-    if (PyType_Ready(&TableReadTrigType) < 0)
-        return;
-    Py_INCREF(&TableReadTrigType);
-    PyModule_AddObject(m, "TableReadTrig_base", (PyObject *)&TableReadTrigType);
     
     if (PyType_Ready(&PulsarType) < 0)
         return;
@@ -2499,30 +2473,15 @@ init_pyo64(void)
     Py_INCREF(&TrigEnvType);
     PyModule_AddObject(m, "TrigEnv_base", (PyObject *)&TrigEnvType);
 
-    if (PyType_Ready(&TrigEnvTrigType) < 0)
-        return;
-    Py_INCREF(&TrigEnvTrigType);
-    PyModule_AddObject(m, "TrigEnvTrig_base", (PyObject *)&TrigEnvTrigType);
-
     if (PyType_Ready(&TrigLinsegType) < 0)
         return;
     Py_INCREF(&TrigLinsegType);
     PyModule_AddObject(m, "TrigLinseg_base", (PyObject *)&TrigLinsegType);
 
-    if (PyType_Ready(&TrigLinsegTrigType) < 0)
-        return;
-    Py_INCREF(&TrigLinsegTrigType);
-    PyModule_AddObject(m, "TrigLinsegTrig_base", (PyObject *)&TrigLinsegTrigType);
-
     if (PyType_Ready(&TrigExpsegType) < 0)
         return;
     Py_INCREF(&TrigExpsegType);
     PyModule_AddObject(m, "TrigExpseg_base", (PyObject *)&TrigExpsegType);
-
-    if (PyType_Ready(&TrigExpsegTrigType) < 0)
-        return;
-    Py_INCREF(&TrigExpsegTrigType);
-    PyModule_AddObject(m, "TrigExpsegTrig_base", (PyObject *)&TrigExpsegTrigType);
     
     if (PyType_Ready(&TrigFuncType) < 0)
         return;

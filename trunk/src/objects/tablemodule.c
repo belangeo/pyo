@@ -3980,7 +3980,7 @@ typedef struct {
     MYFLT fadetime;
     MYFLT fadeInSample;
     MYFLT *trigsBuffer;
-    MYFLT *tempTrigsBuffer;
+    TriggerStream *trig_stream;
 } TableRec;
 
 static void
@@ -3989,7 +3989,11 @@ TableRec_compute_next_data_frame(TableRec *self)
     int i, num, upBound;
     MYFLT sclfade, val;
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
-    
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
     if ((size - self->pointer) >= self->bufsize)
         num = self->bufsize;
     else {
@@ -4032,6 +4036,7 @@ TableRec_traverse(TableRec *self, visitproc visit, void *arg)
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
     Py_VISIT(self->table);
+    Py_VISIT(self->trig_stream);    
     return 0;
 }
 
@@ -4042,6 +4047,7 @@ TableRec_clear(TableRec *self)
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
     Py_CLEAR(self->table);
+    Py_CLEAR(self->trig_stream);    
     return 0;
 }
 
@@ -4049,7 +4055,6 @@ static void
 TableRec_dealloc(TableRec* self)
 {
     free(self->data);
-    free(self->tempTrigsBuffer);
     free(self->trigsBuffer);
     TableRec_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -4101,11 +4106,13 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
     }    
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
     
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     if ((self->fadetime * self->sr) >= (size * 0.5))
@@ -4121,6 +4128,7 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
 
 static PyObject * TableRec_getServer(TableRec* self) { GET_SERVER };
 static PyObject * TableRec_getStream(TableRec* self) { GET_STREAM };
+static PyObject * TableRec_getTriggerStream(TableRec* self) { GET_TRIGGER_STREAM };
 
 static PyObject * TableRec_play(TableRec *self, PyObject *args, PyObject *kwds) 
 { 
@@ -4148,23 +4156,12 @@ TableRec_setTable(TableRec *self, PyObject *arg)
     
 	Py_INCREF(Py_None);
 	return Py_None;
-}	
-
-MYFLT *
-TableRec_getTrigsBuffer(TableRec *self)
-{
-    int i;
-    for (i=0; i<self->bufsize; i++) {
-        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
-        self->trigsBuffer[i] = 0.0;
-    }    
-    return (MYFLT *)self->tempTrigsBuffer;
-}    
-
+}
 
 static PyMemberDef TableRec_members[] = {
 {"server", T_OBJECT_EX, offsetof(TableRec, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(TableRec, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(TableRec, trig_stream), 0, "Trigger Stream object."},
 {"input", T_OBJECT_EX, offsetof(TableRec, input), 0, "Input sound object."},
 {"table", T_OBJECT_EX, offsetof(TableRec, table), 0, "Table to record in."},
 {NULL}  /* Sentinel */
@@ -4173,6 +4170,7 @@ static PyMemberDef TableRec_members[] = {
 static PyMethodDef TableRec_methods[] = {
 {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
 {"deleteStream", (PyCFunction)TableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
 {"play", (PyCFunction)TableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
@@ -4220,148 +4218,6 @@ TableRec_members,             /* tp_members */
 (initproc)TableRec_init,      /* tp_init */
 0,                         /* tp_alloc */
 TableRec_new,                 /* tp_new */
-};
-
-/************************************************************************************************/
-/* TableRecTrig trig streamer */
-/************************************************************************************************/
-typedef struct {
-    pyo_audio_HEAD
-    TableRec *mainReader;
-} TableRecTrig;
-
-static void
-TableRecTrig_compute_next_data_frame(TableRecTrig *self)
-{
-    int i;
-    MYFLT *tmp;
-    tmp = TableRec_getTrigsBuffer((TableRec *)self->mainReader);
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tmp[i];
-    }    
-}
-
-static int
-TableRecTrig_traverse(TableRecTrig *self, visitproc visit, void *arg)
-{
-    pyo_VISIT
-    Py_VISIT(self->mainReader);
-    return 0;
-}
-
-static int 
-TableRecTrig_clear(TableRecTrig *self)
-{
-    pyo_CLEAR
-    Py_CLEAR(self->mainReader);    
-    return 0;
-}
-
-static void
-TableRecTrig_dealloc(TableRecTrig* self)
-{
-    free(self->data);
-    TableRecTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * TableRecTrig_deleteStream(TableRecTrig *self) { DELETE_STREAM };
-
-static PyObject *
-TableRecTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    int i;
-    TableRecTrig *self;
-    self = (TableRecTrig *)type->tp_alloc(type, 0);
-    
-    INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TableRecTrig_compute_next_data_frame);
-    
-    return (PyObject *)self;
-}
-
-static int
-TableRecTrig_init(TableRecTrig *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
-    static char *kwlist[] = {"mainReader", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        return -1; 
-    
-    Py_XDECREF(self->mainReader);
-    Py_INCREF(maintmp);
-    self->mainReader = (TableRec *)maintmp;
-    
-    Py_INCREF(self->stream);
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-        
-    Py_INCREF(self);
-    return 0;
-}
-
-static PyObject * TableRecTrig_getServer(TableRecTrig* self) { GET_SERVER };
-static PyObject * TableRecTrig_getStream(TableRecTrig* self) { GET_STREAM };
-
-static PyObject * TableRecTrig_play(TableRecTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TableRecTrig_stop(TableRecTrig *self) { STOP };
-
-static PyMemberDef TableRecTrig_members[] = {
-{"server", T_OBJECT_EX, offsetof(TableRecTrig, server), 0, "Pyo server."},
-{"stream", T_OBJECT_EX, offsetof(TableRecTrig, stream), 0, "Stream object."},
-{NULL}  /* Sentinel */
-};
-
-static PyMethodDef TableRecTrig_methods[] = {
-{"getServer", (PyCFunction)TableRecTrig_getServer, METH_NOARGS, "Returns server object."},
-{"_getStream", (PyCFunction)TableRecTrig_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)TableRecTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-{"play", (PyCFunction)TableRecTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-{"stop", (PyCFunction)TableRecTrig_stop, METH_NOARGS, "Stops computing."},
-{NULL}  /* Sentinel */
-};
-
-PyTypeObject TableRecTrigType = {
-PyObject_HEAD_INIT(NULL)
-0,                         /*ob_size*/
-"_pyo.TableRecTrig_base",         /*tp_name*/
-sizeof(TableRecTrig),         /*tp_basicsize*/
-0,                         /*tp_itemsize*/
-(destructor)TableRecTrig_dealloc, /*tp_dealloc*/
-0,                         /*tp_print*/
-0,                         /*tp_getattr*/
-0,                         /*tp_setattr*/
-0,                         /*tp_compare*/
-0,                         /*tp_repr*/
-0,             /*tp_as_number*/
-0,                         /*tp_as_sequence*/
-0,                         /*tp_as_mapping*/
-0,                         /*tp_hash */
-0,                         /*tp_call*/
-0,                         /*tp_str*/
-0,                         /*tp_getattro*/
-0,                         /*tp_setattro*/
-0,                         /*tp_as_buffer*/
-Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-"TableRecTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
-(traverseproc)TableRecTrig_traverse,   /* tp_traverse */
-(inquiry)TableRecTrig_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
-TableRecTrig_methods,             /* tp_methods */
-TableRecTrig_members,             /* tp_members */
-0,                      /* tp_getset */
-0,                         /* tp_base */
-0,                         /* tp_dict */
-0,                         /* tp_descr_get */
-0,                         /* tp_descr_set */
-0,                         /* tp_dictoffset */
-(initproc)TableRecTrig_init,      /* tp_init */
-0,                         /* tp_alloc */
-TableRecTrig_new,                 /* tp_new */
 };
 
 /******************************/
@@ -4607,15 +4463,15 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    PyObject *trig;
-    Stream *trig_stream;
+    PyObject *trigger;
+    Stream *trigger_stream;
     NewTable *table;
     int pointer;
     int active;
     MYFLT fadetime;
     MYFLT fadeInSample;
     MYFLT *trigsBuffer;
-    MYFLT *tempTrigsBuffer;
+    TriggerStream *trig_stream;
 } TrigTableRec;
 
 static void
@@ -4626,7 +4482,11 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    MYFLT *trig = Stream_getData((Stream *)self->trig_stream);
+    MYFLT *trig = Stream_getData((Stream *)self->trigger_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
 
     if (self->active == 1) {
         if ((size - self->pointer) >= self->bufsize)
@@ -4708,9 +4568,10 @@ TrigTableRec_traverse(TrigTableRec *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->trig);
-    Py_VISIT(self->trig_stream);
+    Py_VISIT(self->trigger);
+    Py_VISIT(self->trigger_stream);
     Py_VISIT(self->table);
+    Py_VISIT(self->trig_stream);    
     return 0;
 }
 
@@ -4720,9 +4581,10 @@ TrigTableRec_clear(TrigTableRec *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->trig);
-    Py_CLEAR(self->trig_stream);
+    Py_CLEAR(self->trigger);
+    Py_CLEAR(self->trigger_stream);
     Py_CLEAR(self->table);
+    Py_CLEAR(self->trig_stream);    
     return 0;
 }
 
@@ -4730,7 +4592,6 @@ static void
 TrigTableRec_dealloc(TrigTableRec* self)
 {
     free(self->data);
-    free(self->tempTrigsBuffer);
     free(self->trigsBuffer);
     TrigTableRec_clear(self);
     self->ob_type->tp_free((PyObject*)self);
@@ -4774,12 +4635,12 @@ TrigTableRec_init(TrigTableRec *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input_stream);
     self->input_stream = (Stream *)input_streamtmp;
 
-    Py_XDECREF(self->trig);
-    self->trig = trigtmp;
-    trig_streamtmp = PyObject_CallMethod((PyObject *)self->trig, "_getStream", NULL);
+    Py_XDECREF(self->trigger);
+    self->trigger = trigtmp;
+    trig_streamtmp = PyObject_CallMethod((PyObject *)self->trigger, "_getStream", NULL);
     Py_INCREF(trig_streamtmp);
-    Py_XDECREF(self->trig_stream);
-    self->trig_stream = (Stream *)trig_streamtmp;
+    Py_XDECREF(self->trigger_stream);
+    self->trigger_stream = (Stream *)trig_streamtmp;
     
     Py_XDECREF(self->table);
     self->table = (NewTable *)tabletmp;
@@ -4788,11 +4649,13 @@ TrigTableRec_init(TrigTableRec *self, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    self->tempTrigsBuffer = (MYFLT *)realloc(self->tempTrigsBuffer, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
     }    
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
     
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     if ((self->fadetime * self->sr) >= (size * 0.5))
@@ -4808,6 +4671,7 @@ TrigTableRec_init(TrigTableRec *self, PyObject *args, PyObject *kwds)
 
 static PyObject * TrigTableRec_getServer(TrigTableRec* self) { GET_SERVER };
 static PyObject * TrigTableRec_getStream(TrigTableRec* self) { GET_STREAM };
+static PyObject * TrigTableRec_getTriggerStream(TrigTableRec* self) { GET_TRIGGER_STREAM };
 
 static PyObject * TrigTableRec_play(TrigTableRec *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * TrigTableRec_stop(TrigTableRec *self) { STOP };
@@ -4831,23 +4695,12 @@ TrigTableRec_setTable(TrigTableRec *self, PyObject *arg)
 	return Py_None;
 }	
 
-MYFLT *
-TrigTableRec_getTrigsBuffer(TrigTableRec *self)
-{
-    int i;
-    for (i=0; i<self->bufsize; i++) {
-        self->tempTrigsBuffer[i] = self->trigsBuffer[i];
-        self->trigsBuffer[i] = 0.0;
-    }    
-    return (MYFLT *)self->tempTrigsBuffer;
-}    
-
-
 static PyMemberDef TrigTableRec_members[] = {
     {"server", T_OBJECT_EX, offsetof(TrigTableRec, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(TrigTableRec, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(TrigTableRec, trig_stream), 0, "Trigger Stream object."},
     {"input", T_OBJECT_EX, offsetof(TrigTableRec, input), 0, "Input sound object."},
-    {"trig", T_OBJECT_EX, offsetof(TrigTableRec, trig), 0, "Trigger object."},
+    {"trigger", T_OBJECT_EX, offsetof(TrigTableRec, trigger), 0, "Trigger object."},
     {"table", T_OBJECT_EX, offsetof(TrigTableRec, table), 0, "Table to record in."},
     {NULL}  /* Sentinel */
 };
@@ -4855,6 +4708,7 @@ static PyMemberDef TrigTableRec_members[] = {
 static PyMethodDef TrigTableRec_methods[] = {
     {"getServer", (PyCFunction)TrigTableRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigTableRec_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)TrigTableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
     {"deleteStream", (PyCFunction)TrigTableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"setTable", (PyCFunction)TrigTableRec_setTable, METH_O, "Sets a new table."},
     {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
@@ -4902,146 +4756,4 @@ PyTypeObject TrigTableRecType = {
     (initproc)TrigTableRec_init,      /* tp_init */
     0,                         /* tp_alloc */
     TrigTableRec_new,                 /* tp_new */
-};
-
-/************************************************************************************************/
-/* TrigTableRecTrig trig streamer */
-/************************************************************************************************/
-typedef struct {
-    pyo_audio_HEAD
-    TrigTableRec *mainReader;
-} TrigTableRecTrig;
-
-static void
-TrigTableRecTrig_compute_next_data_frame(TrigTableRecTrig *self)
-{
-    int i;
-    MYFLT *tmp;
-    tmp = TrigTableRec_getTrigsBuffer((TrigTableRec *)self->mainReader);
-    for (i=0; i<self->bufsize; i++) {
-        self->data[i] = tmp[i];
-    }
-}
-
-static int
-TrigTableRecTrig_traverse(TrigTableRecTrig *self, visitproc visit, void *arg)
-{
-    pyo_VISIT
-    Py_VISIT(self->mainReader);
-    return 0;
-}
-
-static int 
-TrigTableRecTrig_clear(TrigTableRecTrig *self)
-{
-    pyo_CLEAR
-    Py_CLEAR(self->mainReader);    
-    return 0;
-}
-
-static void
-TrigTableRecTrig_dealloc(TrigTableRecTrig* self)
-{
-    free(self->data);
-    TrigTableRecTrig_clear(self);
-    self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * TrigTableRecTrig_deleteStream(TrigTableRecTrig *self) { DELETE_STREAM };
-
-static PyObject *
-TrigTableRecTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    int i;
-    TrigTableRecTrig *self;
-    self = (TrigTableRecTrig *)type->tp_alloc(type, 0);
-    
-    INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, TrigTableRecTrig_compute_next_data_frame);
-    
-    return (PyObject *)self;
-}
-
-static int
-TrigTableRecTrig_init(TrigTableRecTrig *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
-    static char *kwlist[] = {"mainReader", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
-        return -1; 
-    
-    Py_XDECREF(self->mainReader);
-    Py_INCREF(maintmp);
-    self->mainReader = (TrigTableRec *)maintmp;
-    
-    Py_INCREF(self->stream);
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-    
-    Py_INCREF(self);
-    return 0;
-}
-
-static PyObject * TrigTableRecTrig_getServer(TrigTableRecTrig* self) { GET_SERVER };
-static PyObject * TrigTableRecTrig_getStream(TrigTableRecTrig* self) { GET_STREAM };
-
-static PyObject * TrigTableRecTrig_play(TrigTableRecTrig *self, PyObject *args, PyObject *kwds) { PLAY };
-static PyObject * TrigTableRecTrig_stop(TrigTableRecTrig *self) { STOP };
-
-static PyMemberDef TrigTableRecTrig_members[] = {
-    {"server", T_OBJECT_EX, offsetof(TrigTableRecTrig, server), 0, "Pyo server."},
-    {"stream", T_OBJECT_EX, offsetof(TrigTableRecTrig, stream), 0, "Stream object."},
-    {NULL}  /* Sentinel */
-};
-
-static PyMethodDef TrigTableRecTrig_methods[] = {
-    {"getServer", (PyCFunction)TrigTableRecTrig_getServer, METH_NOARGS, "Returns server object."},
-    {"_getStream", (PyCFunction)TrigTableRecTrig_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)TrigTableRecTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
-    {"play", (PyCFunction)TrigTableRecTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
-    {"stop", (PyCFunction)TrigTableRecTrig_stop, METH_NOARGS, "Stops computing."},
-    {NULL}  /* Sentinel */
-};
-
-PyTypeObject TrigTableRecTrigType = {
-    PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-    "_pyo.TrigTableRecTrig_base",         /*tp_name*/
-    sizeof(TrigTableRecTrig),         /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)TrigTableRecTrig_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,             /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
-    "TrigTableRecTrig objects. Sends trigger at the end of playback.",           /* tp_doc */
-    (traverseproc)TrigTableRecTrig_traverse,   /* tp_traverse */
-    (inquiry)TrigTableRecTrig_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
-    TrigTableRecTrig_methods,             /* tp_methods */
-    TrigTableRecTrig_members,             /* tp_members */
-    0,                      /* tp_getset */
-    0,                         /* tp_base */
-    0,                         /* tp_dict */
-    0,                         /* tp_descr_get */
-    0,                         /* tp_descr_set */
-    0,                         /* tp_dictoffset */
-    (initproc)TrigTableRecTrig_init,      /* tp_init */
-    0,                         /* tp_alloc */
-    TrigTableRecTrig_new,                 /* tp_new */
 };
