@@ -3256,3 +3256,104 @@ class Count(PyoObject):
     def max(self): return self._max
     @max.setter
     def max(self, x): self.setMax(x)
+
+class NextTrig(PyoObject):
+    """
+    A trigger in second stream opens a gate only for the next one in first stream.
+
+    When the gate is opened by a trigger in `input2` signal, the next trigger 
+    in `input` signal is allowed to pass and automatically closes the gate.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Trigger signal. Trigger stream waiting for the gate to be opened.
+    input2 : PyoObject
+        Trigger signal. Trigger stream opening the gate.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setInput2(x, fadetime) : Replace the `input2` attribute.
+
+    Attributes:
+
+    input : PyoObject. Incoming trigger stream signal.
+    input2 : PyoObject. Trigger stream opening the gate.
+
+    Notes:
+
+    The `input` signal is evaluated before the `input2` signal, so it's
+    safe to send triggers in both inputs at the same time and wait for the
+    next one.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> mid = Urn(max=4, freq=4, add=60)
+    >>> sigL = SineLoop(freq=MToF(mid), feedback=.08, mul=0.3).out()
+    >>> first = NextTrig(Change(beat), mid["trig"])
+    >>> amp = TrigExpseg(first, [(0,0),(.01,.25),(1,0)])
+    >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
+
+    """
+    def __init__(self, input, input2, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(input2)
+        in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
+        self._base_objs = [NextTrig_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'input2', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInput2(self, x, fadetime=0.05):
+        """
+        Replace the `input2` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input2 = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self): return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)

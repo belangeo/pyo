@@ -209,6 +209,7 @@ extern PyTypeObject SfMarkerLooperType;
 extern PyTypeObject SfMarkerLoopType;
 
 extern PyTypeObject TrigType;
+extern PyTypeObject NextTrigType;
 extern PyTypeObject MetroType;
 extern PyTypeObject SeqerType;
 extern PyTypeObject SeqType;

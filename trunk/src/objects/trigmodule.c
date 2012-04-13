@@ -5622,9 +5622,10 @@ Timer_generates(Timer *self) {
             }
         }
         
-        if (in2[i] == 1 && self->started == 0)
+        if (in2[i] == 1 && self->started == 0) {
             self->count = 0;
             self->started = 1;
+        }
         
         self->data[i] = self->lasttime;
     } 
@@ -6550,4 +6551,301 @@ PyTypeObject CountType = {
     (initproc)Count_init,                          /* tp_init */
     0,                                              /* tp_alloc */
     Count_new,                                     /* tp_new */
+};
+
+/*************************/
+/******* NextTrig ********/
+/*************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *input2;
+    Stream *input2_stream;
+    int gate;
+    int modebuffer[2];
+} NextTrig;
+
+static void
+NextTrig_generates(NextTrig *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+        if (self->gate == 1 && in[i] == 1.0) {
+                self->data[i] = 1.0;
+                self->gate = 0;
+        }
+        
+        if (in2[i] == 1 && self->gate == 0)
+            self->gate = 1;
+    } 
+}
+
+static void NextTrig_postprocessing_ii(NextTrig *self) { POST_PROCESSING_II };
+static void NextTrig_postprocessing_ai(NextTrig *self) { POST_PROCESSING_AI };
+static void NextTrig_postprocessing_ia(NextTrig *self) { POST_PROCESSING_IA };
+static void NextTrig_postprocessing_aa(NextTrig *self) { POST_PROCESSING_AA };
+static void NextTrig_postprocessing_ireva(NextTrig *self) { POST_PROCESSING_IREVA };
+static void NextTrig_postprocessing_areva(NextTrig *self) { POST_PROCESSING_AREVA };
+static void NextTrig_postprocessing_revai(NextTrig *self) { POST_PROCESSING_REVAI };
+static void NextTrig_postprocessing_revaa(NextTrig *self) { POST_PROCESSING_REVAA };
+static void NextTrig_postprocessing_revareva(NextTrig *self) { POST_PROCESSING_REVAREVA };
+
+static void
+NextTrig_setProcMode(NextTrig *self)
+{    
+    int muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = NextTrig_generates;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = NextTrig_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = NextTrig_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = NextTrig_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = NextTrig_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = NextTrig_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = NextTrig_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = NextTrig_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = NextTrig_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = NextTrig_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+NextTrig_compute_next_data_frame(NextTrig *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+NextTrig_traverse(NextTrig *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    return 0;
+}
+
+static int 
+NextTrig_clear(NextTrig *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    return 0;
+}
+
+static void
+NextTrig_dealloc(NextTrig* self)
+{
+    free(self->data);
+    NextTrig_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * NextTrig_deleteStream(NextTrig *self) { DELETE_STREAM };
+
+static PyObject *
+NextTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    NextTrig *self;
+    self = (NextTrig *)type->tp_alloc(type, 0);
+    
+    self->gate = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, NextTrig_compute_next_data_frame);
+    self->mode_func_ptr = NextTrig_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+NextTrig_init(NextTrig *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "input2", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &inputtmp, &input2tmp, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+    
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * NextTrig_getServer(NextTrig* self) { GET_SERVER };
+static PyObject * NextTrig_getStream(NextTrig* self) { GET_STREAM };
+static PyObject * NextTrig_setMul(NextTrig *self, PyObject *arg) { SET_MUL };	
+static PyObject * NextTrig_setAdd(NextTrig *self, PyObject *arg) { SET_ADD };	
+static PyObject * NextTrig_setSub(NextTrig *self, PyObject *arg) { SET_SUB };	
+static PyObject * NextTrig_setDiv(NextTrig *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * NextTrig_play(NextTrig *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * NextTrig_stop(NextTrig *self) { STOP };
+
+static PyObject * NextTrig_multiply(NextTrig *self, PyObject *arg) { MULTIPLY };
+static PyObject * NextTrig_inplace_multiply(NextTrig *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * NextTrig_add(NextTrig *self, PyObject *arg) { ADD };
+static PyObject * NextTrig_inplace_add(NextTrig *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * NextTrig_sub(NextTrig *self, PyObject *arg) { SUB };
+static PyObject * NextTrig_inplace_sub(NextTrig *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * NextTrig_div(NextTrig *self, PyObject *arg) { DIV };
+static PyObject * NextTrig_inplace_div(NextTrig *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef NextTrig_members[] = {
+    {"server", T_OBJECT_EX, offsetof(NextTrig, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(NextTrig, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(NextTrig, input), 0, "Stops NextTrig and output time elapsed."},
+    {"input2", T_OBJECT_EX, offsetof(NextTrig, input2), 0, "Starts NextTrig."},
+    {"mul", T_OBJECT_EX, offsetof(NextTrig, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(NextTrig, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef NextTrig_methods[] = {
+    {"getServer", (PyCFunction)NextTrig_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)NextTrig_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)NextTrig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)NextTrig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)NextTrig_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)NextTrig_setMul, METH_O, "Sets mul factor."},
+    {"setAdd", (PyCFunction)NextTrig_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)NextTrig_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)NextTrig_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods NextTrig_as_number = {
+    (binaryfunc)NextTrig_add,                         /*nb_add*/
+    (binaryfunc)NextTrig_sub,                         /*nb_subtract*/
+    (binaryfunc)NextTrig_multiply,                    /*nb_multiply*/
+    (binaryfunc)NextTrig_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)NextTrig_inplace_add,                 /*inplace_add*/
+    (binaryfunc)NextTrig_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)NextTrig_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)NextTrig_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject NextTrigType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.NextTrig_base",                                   /*tp_name*/
+    sizeof(NextTrig),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)NextTrig_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &NextTrig_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "NextTrig objects. A trig opens a gate only for the next one.",           /* tp_doc */
+    (traverseproc)NextTrig_traverse,                  /* tp_traverse */
+    (inquiry)NextTrig_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    NextTrig_methods,                                 /* tp_methods */
+    NextTrig_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)NextTrig_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    NextTrig_new,                                     /* tp_new */
 };

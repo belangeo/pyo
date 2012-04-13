@@ -2013,6 +2013,11 @@ init_pyo64(void)
     Py_INCREF(&TrigType);
     PyModule_AddObject(m, "Trig_base", (PyObject *)&TrigType);
 
+    if (PyType_Ready(&NextTrigType) < 0)
+        return;
+    Py_INCREF(&NextTrigType);
+    PyModule_AddObject(m, "NextTrig_base", (PyObject *)&NextTrigType);
+
     if (PyType_Ready(&MetroType) < 0)
         return;
     Py_INCREF(&MetroType);
