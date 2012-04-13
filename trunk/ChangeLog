@@ -1,5 +1,10 @@
 2012-04-13 belangeo <belangeo@gmail.com>
 
+    * Added PyoObject.range(min, max) method. Adjust mul and add attributes.
+    - rev 923
+
+2012-04-13 belangeo <belangeo@gmail.com>
+
     * Added new object : Urn. Periodic pseudo-random integer generator without duplicates.
     - rev 922
 

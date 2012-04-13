@@ -244,6 +244,7 @@ class PyoObject(object):
         output beginning at `chnl`.
     mix(voices) : Mix object's audio streams into `voices` streams and 
         return the Mix object.
+    range(min, max) : Adjust `mul` and `add` attributes according to a given range.
     setMul(x) : Replace the `mul` attribute.
     setAdd(x) : Replace the `add` attribute.
     setDiv(x) : Replace and inverse the `mul` attribute.
@@ -534,6 +535,9 @@ class PyoObject(object):
         """
         Start processing without sending samples to output. 
         This method is called automatically at the object creation.
+
+        This method returns "self" allowing it to be applied at the object
+        creation.
         
         Parameters:
         
@@ -551,6 +555,9 @@ class PyoObject(object):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         """
         Start processing and send samples to audio output beginning at `chnl`.
+
+        This method returns "self" allowing it to be applied at the object
+        creation.
         
         Parameters:
 
@@ -590,6 +597,9 @@ class PyoObject(object):
     def stop(self):
         """
         Stop processing.
+
+        This method returns "self" allowing it to be applied at the object
+        creation.
         
         """
         [obj.stop() for obj in self._base_objs]
@@ -598,7 +608,7 @@ class PyoObject(object):
     def mix(self, voices=1):
         """
         Mix the object's audio streams into `voices` streams and return 
-        the Mix object.
+        a Mix object.
         
         Parameters:
 
@@ -609,6 +619,36 @@ class PyoObject(object):
             
         """
         return Mix(self, voices)
+
+    def range(self, min, max):
+        """
+        Adjust `mul` and `add` attributes according to a given range.
+        This function assumes a signal between -1 and 1. Arguments may be
+        list of floats for multi-streams objects.
+
+        This method returns "self" allowing it to be applied at the object
+        creation:
+
+        >>> lfo = Sine(freq=1).range(500, 1000)
+
+        Parameters:
+
+        min : float
+            Minimum value of the output signal.
+        max : float
+            Maximum value of the output signal.
+
+        """
+        min, max, lmax = convertArgsToLists(min, max)
+        if lmax > 1:
+            mul = [(wrap(max,i) - wrap(min,i)) * 0.5 for i in range(lmax)]
+            add = [(wrap(max,i) + wrap(min,i)) * 0.5 for i in range(lmax)]
+        else:
+            mul = (max[0] - min[0]) * 0.5
+            add = (max[0] + min[0]) * 0.5
+        self.setMul(mul)
+        self.setAdd(add)
+        return self
         
     def setMul(self, x):
         """

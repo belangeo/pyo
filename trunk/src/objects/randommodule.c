@@ -5415,7 +5415,8 @@ Urn_reset(Urn *self) {
 static int
 Urn_choose(Urn *self) {
     int x = 0;
-    int i, pick, value;
+    int value = 0;
+    int i, pick;
  
     pick = rand() % self->length;
     for (i=0; i<self->length; i++) {
@@ -5446,7 +5447,6 @@ Urn_generate_i(Urn *self) {
             self->value = (MYFLT)Urn_choose(self);
             if (self->length == 0) {
                 self->trigsBuffer[i] = 1.0;
-                printf("reset pool...\n");
                 Urn_reset(self);
             }
         }

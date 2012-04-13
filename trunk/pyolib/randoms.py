@@ -1198,7 +1198,7 @@ class Urn(PyoObject):
     Periodic pseudo-random integer generator without duplicates.
 
     Urn generates a pseudo-random integer number between 0 and `max` 
-    values at a frequency specified by `freq` parameter. RandInt will 
+    values at a frequency specified by `freq` parameter. Urn will 
     hold generated value until the next generation. Urn works like RandInt, 
     except that it keeps track of each number which has been generated. After
     all numbers have been outputed, the pool is reseted and the object send
