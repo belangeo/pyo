@@ -243,6 +243,7 @@ extern PyTypeObject RandIntType;
 extern PyTypeObject XnoiseType;
 extern PyTypeObject XnoiseMidiType;
 extern PyTypeObject XnoiseDurType;
+extern PyTypeObject UrnType;
 
 extern PyTypeObject BiquadType;
 extern PyTypeObject BiquadxType;
@@ -444,6 +445,7 @@ extern PyTypeObject VectralType;
 #define GRANULATOR_ID 23
 #define FREEVERB_ID 24
 #define XNOISEDUR_ID 25
+#define URN_ID 26
 
 /* object headers */
 #define pyo_audio_HEAD \

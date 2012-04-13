@@ -1671,7 +1671,7 @@ Choice_new,                                     /* tp_new */
 };
 
 /****************/
-/**** RandInt *****/
+/**** RandInt ***/
 /****************/
 typedef struct {
     pyo_audio_HEAD
@@ -1681,7 +1681,7 @@ typedef struct {
     Stream *freq_stream;
     MYFLT value;
     MYFLT time;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
+    int modebuffer[4]; // need at least 2 slots for mul & add 
 } RandInt;
 
 static void
@@ -5383,4 +5383,436 @@ PyTypeObject XnoiseDurType = {
     (initproc)XnoiseDur_init,                          /* tp_init */
     0,                                              /* tp_alloc */
     XnoiseDur_new,                                     /* tp_new */
+};
+
+/****************/
+/****** Urn *****/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *freq;
+    Stream *freq_stream;
+    int *list;
+    int max;
+    int length;
+    MYFLT value;
+    MYFLT time;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Urn;
+
+static void
+Urn_reset(Urn *self) {
+    int i;
+    self->length = self->max;
+    self->list = (int *)realloc(self->list, self->max * sizeof(int));
+    for (i=0; i<self->max; i++) {
+        self->list[i] = i;
+    }
+}
+
+static int
+Urn_choose(Urn *self) {
+    int x = 0;
+    int i, pick, value;
+ 
+    pick = rand() % self->length;
+    for (i=0; i<self->length; i++) {
+        if (i != pick) 
+            self->list[x++] = self->list[i];
+        else
+            value = self->list[i];
+    }
+
+    self->length = x;
+
+    return value;
+}
+
+static void
+Urn_generate_i(Urn *self) {
+    int i;
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT inc = fr / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (MYFLT)Urn_choose(self);
+            if (self->length == 0) {
+                self->trigsBuffer[i] = 1.0;
+                printf("reset pool...\n");
+                Urn_reset(self);
+            }
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void
+Urn_generate_a(Urn *self) {
+    int i;
+    MYFLT inc;
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+        inc = fr[i] / self->sr;
+        self->time += inc;
+        if (self->time < 0.0)
+            self->time += 1.0;
+        else if (self->time >= 1.0) {
+            self->time -= 1.0;
+            self->value = (MYFLT)Urn_choose(self);
+            if (self->length == 0) {
+                self->trigsBuffer[i] = 1.0;
+                Urn_reset(self);
+            }
+        }
+        self->data[i] = self->value;
+    }
+}
+
+static void Urn_postprocessing_ii(Urn *self) { POST_PROCESSING_II };
+static void Urn_postprocessing_ai(Urn *self) { POST_PROCESSING_AI };
+static void Urn_postprocessing_ia(Urn *self) { POST_PROCESSING_IA };
+static void Urn_postprocessing_aa(Urn *self) { POST_PROCESSING_AA };
+static void Urn_postprocessing_ireva(Urn *self) { POST_PROCESSING_IREVA };
+static void Urn_postprocessing_areva(Urn *self) { POST_PROCESSING_AREVA };
+static void Urn_postprocessing_revai(Urn *self) { POST_PROCESSING_REVAI };
+static void Urn_postprocessing_revaa(Urn *self) { POST_PROCESSING_REVAA };
+static void Urn_postprocessing_revareva(Urn *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Urn_setProcMode(Urn *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Urn_generate_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Urn_generate_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Urn_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Urn_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Urn_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Urn_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Urn_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Urn_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Urn_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Urn_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Urn_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+Urn_compute_next_data_frame(Urn *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Urn_traverse(Urn *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->freq);
+    Py_VISIT(self->freq_stream);
+    Py_VISIT(self->trig_stream);    
+    return 0;
+}
+
+static int 
+Urn_clear(Urn *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->freq);
+    Py_CLEAR(self->freq_stream);
+    Py_CLEAR(self->trig_stream);    
+    return 0;
+}
+
+static void
+Urn_dealloc(Urn* self)
+{
+    free(self->data);
+    free(self->trigsBuffer);
+    Urn_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Urn_deleteStream(Urn *self) { DELETE_STREAM };
+
+static PyObject *
+Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Urn *self;
+    self = (Urn *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1.);
+    self->max = 100;
+    self->length = 0;
+    self->value = 0.0;
+    self->time = 1.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Urn_compute_next_data_frame);
+    self->mode_func_ptr = Urn_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Urn_init(Urn *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp))
+        return -1; 
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
+    
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
+    Urn_reset(self);
+
+    Server_generateSeed((Server *)self->server, URN_ID);
+
+    (*self->mode_func_ptr)(self);
+        
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Urn_getServer(Urn* self) { GET_SERVER };
+static PyObject * Urn_getStream(Urn* self) { GET_STREAM };
+static PyObject * Urn_getTriggerStream(Urn* self) { GET_TRIGGER_STREAM };
+static PyObject * Urn_setMul(Urn *self, PyObject *arg) { SET_MUL };	
+static PyObject * Urn_setAdd(Urn *self, PyObject *arg) { SET_ADD };	
+static PyObject * Urn_setSub(Urn *self, PyObject *arg) { SET_SUB };	
+static PyObject * Urn_setDiv(Urn *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Urn_play(Urn *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Urn_out(Urn *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Urn_stop(Urn *self) { STOP };
+
+static PyObject * Urn_multiply(Urn *self, PyObject *arg) { MULTIPLY };
+static PyObject * Urn_inplace_multiply(Urn *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Urn_add(Urn *self, PyObject *arg) { ADD };
+static PyObject * Urn_inplace_add(Urn *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Urn_sub(Urn *self, PyObject *arg) { SUB };
+static PyObject * Urn_inplace_sub(Urn *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Urn_div(Urn *self, PyObject *arg) { DIV };
+static PyObject * Urn_inplace_div(Urn *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Urn_setMax(Urn *self, PyObject *arg)
+{	
+	if (PyNumber_Check(arg) == 1)
+		self->max = PyInt_AsLong(arg);
+
+    Urn_reset(self);
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Urn_setFreq(Urn *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Urn_members[] = {
+{"server", T_OBJECT_EX, offsetof(Urn, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Urn, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(Urn, trig_stream), 0, "Trigger Stream object."},
+{"freq", T_OBJECT_EX, offsetof(Urn, freq), 0, "Polling frequency."},
+{"mul", T_OBJECT_EX, offsetof(Urn, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Urn, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Urn_methods[] = {
+{"getServer", (PyCFunction)Urn_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Urn_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+{"deleteStream", (PyCFunction)Urn_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+{"play", (PyCFunction)Urn_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Urn_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Urn_stop, METH_NOARGS, "Stops computing."},
+{"setMax", (PyCFunction)Urn_setMax, METH_O, "Sets maximum possible value."},
+{"setFreq", (PyCFunction)Urn_setFreq, METH_O, "Sets polling frequency."},
+{"setMul", (PyCFunction)Urn_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Urn_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Urn_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Urn_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Urn_as_number = {
+(binaryfunc)Urn_add,                         /*nb_add*/
+(binaryfunc)Urn_sub,                         /*nb_subtract*/
+(binaryfunc)Urn_multiply,                    /*nb_multiply*/
+(binaryfunc)Urn_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Urn_inplace_add,                 /*inplace_add*/
+(binaryfunc)Urn_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Urn_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Urn_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject UrnType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Urn_base",                                   /*tp_name*/
+sizeof(Urn),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Urn_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Urn_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Urn objects. Periodically generates a new integer random value without repetition.",           /* tp_doc */
+(traverseproc)Urn_traverse,                  /* tp_traverse */
+(inquiry)Urn_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Urn_methods,                                 /* tp_methods */
+Urn_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+(initproc)Urn_init,                          /* tp_init */
+0,                                              /* tp_alloc */
+Urn_new,                                     /* tp_new */
 };

@@ -2112,6 +2112,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&RandIntType);
     PyModule_AddObject(m, "RandInt_base", (PyObject *)&RandIntType);
+
+    if (PyType_Ready(&UrnType) < 0)
+        return;
+    Py_INCREF(&UrnType);
+    PyModule_AddObject(m, "Urn_base", (PyObject *)&UrnType);
     
     if (PyType_Ready(&SfPlayerType) < 0)
         return;
