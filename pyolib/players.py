@@ -131,16 +131,6 @@ class SfPlayer(PyoObject):
             obj.deleteStream()
             del obj
 
-    def __getitem__(self, i):
-        if i == 'trig':
-            return self._trig_objs
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large!"
-
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         self._trig_objs.play(dur, delay)
