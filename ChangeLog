@@ -1,5 +1,10 @@
 2012-04-13 belangeo <belangeo@gmail.com>
 
+    * Added new object : NextTrig. A trigger opens a gate only for the next one.
+    - rev 925
+
+2012-04-13 belangeo <belangeo@gmail.com>
+
     * Added PyoObject.range(min, max) method. Adjust mul and add attributes.
     - rev 923
 

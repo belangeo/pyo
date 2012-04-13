@@ -5395,6 +5395,7 @@ typedef struct {
     int *list;
     int max;
     int length;
+    int lastvalue;
     MYFLT value;
     MYFLT time;
     MYFLT *trigsBuffer;
@@ -5405,6 +5406,7 @@ typedef struct {
 static void
 Urn_reset(Urn *self) {
     int i;
+    self->lastvalue = (int)self->value;
     self->length = self->max;
     self->list = (int *)realloc(self->list, self->max * sizeof(int));
     for (i=0; i<self->max; i++) {
@@ -5419,6 +5421,9 @@ Urn_choose(Urn *self) {
     int i, pick;
  
     pick = rand() % self->length;
+    while (pick == self->lastvalue)
+        pick = rand() % self->length;
+
     for (i=0; i<self->length; i++) {
         if (i != pick) 
             self->list[x++] = self->list[i];
@@ -5427,6 +5432,7 @@ Urn_choose(Urn *self) {
     }
 
     self->length = x;
+    self->lastvalue = -1;
 
     return value;
 }
@@ -5582,6 +5588,7 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->freq = PyFloat_FromDouble(1.);
     self->max = 100;
     self->length = 0;
+    self->lastvalue = -1;
     self->value = 0.0;
     self->time = 1.0;
 	self->modebuffer[0] = 0;
