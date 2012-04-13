@@ -1429,46 +1429,6 @@ class TrigEnv(PyoObject):
     def __dir__(self):
         return ['input', 'table', 'dur', 'interp', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        del self._trig_objs
-
-    def __getitem__(self, i):
-        if i == 'trig':
-            return self._trig_objs
-        
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large!"         
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs.play(dur, delay)
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs.play(dur, delay)
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        self._trig_objs.stop()
-        [obj.stop() for obj in self._base_objs]
-        return self
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1610,35 +1570,7 @@ class TrigLinseg(PyoObject):
     def __dir__(self):
         return ['input', 'list', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        del self._trig_objs
-
-    def __getitem__(self, i):
-        if i == 'trig':
-            return self._trig_objs
-        
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large!"         
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs.play(dur, delay)
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
-
-    def stop(self):
-        self._trig_objs.stop()
-        [obj.stop() for obj in self._base_objs]
         return self
 
     def setInput(self, x, fadetime=0.05):
@@ -1815,35 +1747,7 @@ class TrigExpseg(PyoObject):
     def __dir__(self):
         return ['input', 'list', 'exp', 'inverse', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        del self._trig_objs
-
-    def __getitem__(self, i):
-        if i == 'trig':
-            return self._trig_objs
-        
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large!"         
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs.play(dur, delay)
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
-
-    def stop(self):
-        self._trig_objs.stop()
-        [obj.stop() for obj in self._base_objs]
         return self
 
     def setInput(self, x, fadetime=0.05):

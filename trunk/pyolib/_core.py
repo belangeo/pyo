@@ -437,6 +437,9 @@ class PyoObject(object):
         return self
         
     def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+
         if type(i) == SliceType or i < len(self._base_objs):
             return self._base_objs[i]
         else:
@@ -452,6 +455,9 @@ class PyoObject(object):
         for obj in self._base_objs:
             obj.deleteStream()
             del obj
+
+        if hasattr(self, "_trig_objs"):
+            del self._trig_objs
 
         if hasattr(self, "_input"):
             if type(self._input) == ListType:
@@ -549,6 +555,8 @@ class PyoObject(object):
         
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        if hasattr(self, "_trig_objs"):
+            self._trig_objs.play(dur, delay)
         self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
@@ -585,6 +593,8 @@ class PyoObject(object):
         
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
+        if hasattr(self, "_trig_objs"):
+            self._trig_objs.play(dur, delay)
         if type(chnl) == ListType:
             self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
@@ -602,6 +612,8 @@ class PyoObject(object):
         creation.
         
         """
+        if hasattr(self, "_trig_objs"):
+            self._trig_objs.stop()
         [obj.stop() for obj in self._base_objs]
         return self
 
