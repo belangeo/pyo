@@ -1,3 +1,8 @@
+2012-04-13 belangeo <belangeo@gmail.com>
+
+    * Added new object : Urn. Periodic pseudo-random integer generator without duplicates.
+    - rev 922
+
 2012-04-09 belangeo <belangeo@gmail.com>
 
     * Added new object : Count. Counts integers at audio rate.

@@ -42,11 +42,11 @@ static inline void Server_process_buffers(Server *server);
 static int Server_start_rec_internal(Server *self, char *filename);
 
 /* random objects count and multiplier to assign different seed to each instance. */
-#define num_rnd_objs 26
+#define num_rnd_objs 27
 
-int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+int rnd_objs_count[num_rnd_objs] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 int rnd_objs_mult[num_rnd_objs] = {1993,1997,1999,2003,2011,2017,2027,2029,2039,2053,2063,2069,
-                         2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,2153, 2161};
+                         2081,2083,2087,2089,2099,2111,2113,2129,2131,2137,2141,2143,2153, 2161,2179};
 
 #ifdef USE_COREAUDIO
 static int coreaudio_stop_callback(Server *self);
