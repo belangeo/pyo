@@ -54,33 +54,46 @@ PREFERENCES = copy.deepcopy(epyo_prefs)
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
 # Check for Python/WxPython/Pyo installation and architecture #
+WHICH_PYTHON = ""
+INSTALLATION_ERROR_MESSAGE = ""
 CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
-INSTALLATION_ERROR_MESSAGE = ""
 if PLATFORM in ["darwin", "linux2"]:
     proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     WHICH_PYTHON = proc.communicate()[0][:-1]
     # WHICH_PYTHON = WHICH_PYTHON.replace("/local", "")
-    proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
-    if "ImportError" in IMPORT_PYO_STDERR:
-        if "No module named" in IMPORT_PYO_STDERR:
-            INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
-        elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR:
-            # Need to be tested will python.org 64-bit installation.
-            CALLER_NEED_TO_INVOKE_32_BIT = True
-            INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+else:
+    if "Python" in os.getenv("Path"):
+        pos = os.getenv("Path").index("Python")
+        ver = os.getenv("Path")[pos+6:pos+8]
+        WHICH_PYTHON = "C:\Python%s\python.exe"
     else:
-        proc = subprocess.Popen(['%s -c "import wx"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
-        if "ImportError" in IMPORT_WX_STDERR:
-            if "No module named" in IMPORT_WX_STDERR:
-                INSTALLATION_ERROR_MESSAGE = "WxPython is not installed in the current Python installation. It is needed by pyo to show graphical display.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
-            elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
-                CALLER_NEED_TO_INVOKE_32_BIT = True
-                INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but WxPython installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+        for i in reversed(range(5, 8)):
+            if os.path.isfile("C:\Python2%d\python.exe" % i):
+                WHICH_PYTHON = "C:\Python2%d\python.exe" % i
+                break
+    if WHICH_PYTHON == "":
+        INSTALLATION_ERROR_MESSAGE = "Python 2.x doesn't seem to be installed on this computer. Check your Python installation and try again."
 
-
+proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
+if "ImportError" in IMPORT_PYO_STDERR:
+    if "No module named" in IMPORT_PYO_STDERR:
+        INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+    elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR:
+        # Need to be tested will python.org 64-bit installation.
+        CALLER_NEED_TO_INVOKE_32_BIT = True
+        INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+else:
+    proc = subprocess.Popen(['%s -c "import wx"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
+    if "ImportError" in IMPORT_WX_STDERR:
+        if "No module named" in IMPORT_WX_STDERR:
+            INSTALLATION_ERROR_MESSAGE = "WxPython is not installed in the current Python installation. It is needed by pyo to show graphical display.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+        elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
+            CALLER_NEED_TO_INVOKE_32_BIT = True
+            INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but WxPython installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+        
 if '/%s.app' % APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
 else:
@@ -1350,7 +1363,10 @@ class SnippetFrame(wx.Frame):
             with codecs.open(os.path.join(SNIPPETS_PATH, self.category_name, self.snippet_name), "r", encoding="utf-8") as f:
                 text = f.read()
             exec text in locals()
-            self.entry.SetTextUTF8(snippet["value"])
+            try:
+                self.entry.SetTextUTF8(snippet["value"])
+            except:
+                self.entry.SetText(snippet["value"])
             if snippet["shortcut"]:
                 self.short.SetValue(snippet["shortcut"])
                 self.short.SetForegroundColour("#000000")
