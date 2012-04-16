@@ -603,11 +603,12 @@ KEY_COMMANDS = {
 "28. Alt + 'C'": "Line Copy",
 "29. Alt + 'D'": "Line Duplicate",
 "30. Alt + 'X'": "Line Cut",
-"31. Alt + 'V'": "Line Paste"
+"31. Alt + 'V'": "Line Paste",
+"32. Alt + CLICK + DRAG": "Rectangular selection"
 }
 
 ############## Allowed Extensions ##############
-ALLOWED_EXT = ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"]
+ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE
@@ -3997,6 +3998,16 @@ class PreferencesDialog(wx.Dialog):
         #but2.Bind(wx.EVT_BUTTON, self.getPath)
         ctrlSizer.Add(but2, 0, wx.ALL, 5)            
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+
+        lbl = wx.StaticText(self, label="Allowed File Types (file extension):")
+        lbl.SetFont(font)
+        mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
+        ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
+        txt = wx.TextCtrl(self, size=(360,-1), value=", ".join(ALLOWED_EXT), style=wx.TE_PROCESS_ENTER)
+        txt.SetFont(entryfont)
+        txt.Bind(wx.EVT_TEXT_ENTER, self.changeExt)
+        ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+        mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
  
         btnSizer = self.CreateButtonSizer(wx.OK)
  
@@ -4010,6 +4021,9 @@ class PreferencesDialog(wx.Dialog):
         print evt.GetString()
 
     def changeTempPath(self, evt):
+        print evt.GetString()
+
+    def changeExt(self, evt):
         print evt.GetString()
 
 class STCPrintout(wx.Printout):
