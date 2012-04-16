@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+﻿#! /usr/bin/env python
 # encoding: utf-8
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
@@ -66,7 +66,7 @@ else:
     if "Python" in os.getenv("Path"):
         pos = os.getenv("Path").index("Python")
         ver = os.getenv("Path")[pos+6:pos+8]
-        WHICH_PYTHON = "C:\Python%s\python.exe"
+        WHICH_PYTHON = "C:\Python%s\python.exe" % ver
     else:
         for i in reversed(range(5, 8)):
             if os.path.isfile("C:\Python2%d\python.exe" % i):
@@ -643,7 +643,7 @@ PYO_WORDLIST.append("Server")
 if wx.Platform == '__WXMSW__':
     FONT_SIZE = 10
     FONT_SIZE2 = 8
-    DEFAULT_FONT_FACE = 'Courier'
+    DEFAULT_FONT_FACE = 'Courier New'
 elif wx.Platform == '__WXMAC__':
     FONT_SIZE = 12
     FONT_SIZE2 = 9
@@ -1766,17 +1766,17 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.navigateMarkers, id=602, id2=603)
         self.menuBar.Append(menu8, "Markers")
 
-        menu6 = wx.Menu()
+        self.menu6 = wx.Menu()
         ID_EXAMPLE = 1000
         for folder in EXAMPLE_FOLDERS:
             exmenu = wx.Menu(title=folder.lower())
             for ex in sorted([exp for exp in os.listdir(os.path.join(EXAMPLE_PATH, folder.lower())) if exp[0] != "." and not exp.endswith("pyc")]):
                 exmenu.Append(ID_EXAMPLE, ex)
                 ID_EXAMPLE += 1
-            menu6.AppendMenu(-1, folder, exmenu)
+            self.menu6.AppendMenu(-1, folder, exmenu)
             ID_EXAMPLE += 1
         self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=ID_EXAMPLE)
-        self.menuBar.Append(menu6, "Pyo Examples")
+        self.menuBar.Append(self.menu6, "Pyo Examples")
 
         windowMenu = wx.Menu()
         aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, wx.WXK_TAB, 10001)
@@ -1799,10 +1799,14 @@ class MainFrame(wx.Frame):
             ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
             sth = 17
             cch = -1
-        else:
+        elif PLATFORM == "linux2":
             ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
             sth = 20
             cch = 21
+        elif PLATFORM == "win32":
+            ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
+            sth = 20
+            cch = 20
 
         self.status = self.CreateStatusBar()
         self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
@@ -1841,9 +1845,13 @@ class MainFrame(wx.Frame):
         if PLATFORM == "darwin":
             yoff1 = -1
             yoff2 = -5
-        else:
+        elif PLATFORM == "linux2":
             yoff1 = 1
             yoff2 = 0
+        elif PLATFORM == "win32":
+            yoff1 = -2
+            yoff2 = -2
+
         rect = self.status.GetFieldRect(1)
         self.status_search.SetPosition((self.field1X+12, rect.y+yoff1))
         rect = self.status.GetFieldRect(2)
@@ -2092,9 +2100,11 @@ class MainFrame(wx.Frame):
         dlg.Destroy()
 
     def insertSnippet(self, evt):
-        obj = evt.GetEventObject()
-        name = obj.GetLabelText(evt.GetId())
-        category = obj.GetTitle()
+        id = evt.GetId()
+        menu = self.menu7 #event.GetEventObject()
+        item = menu.FindItemById(id)
+        name = item.GetLabel()
+        category = item.GetMenu().GetTitle()
         with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "r", encoding="utf-8") as f:
             text = f.read()
         exec text in locals()
@@ -2270,10 +2280,10 @@ class MainFrame(wx.Frame):
 
     def openExample(self, event):
         id = event.GetId()
-        menu = event.GetEventObject()
+        menu = self.menu6 #event.GetEventObject()
         item = menu.FindItemById(id)
         filename = item.GetLabel()
-        folder = menu.GetTitle()
+        folder = item.GetMenu().GetTitle()
         path = os.path.join(EXAMPLE_PATH, folder, filename)
         self.panel.addPage(ensureNFD(path))
 
@@ -2349,7 +2359,10 @@ class MainFrame(wx.Frame):
             else:
                 pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
         elif PLATFORM == "linux2":
-                pid = subprocess.Popen(["python", path], cwd=cwd).pid
+            pid = subprocess.Popen(["python", path], cwd=cwd).pid
+        elif PLATFORM == "win32":
+            print WHICH_PYTHON, path
+            pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
 
     def runner(self, event):
         path = ensureNFD(self.panel.editor.path)
@@ -3416,7 +3429,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "¬")
+        #             self.InsertTextUTF8(pos, "�")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()
@@ -3911,6 +3924,7 @@ class MarkersListScroll(scrolled.ScrolledPanel):
                 obj.SetForegroundColour(STYLES['comment']['colour'])
             else:
                 obj.SetForegroundColour(STYLES['default']['colour'])
+        self.Refresh()
 
     def setStyle(self):
         self.SetBackgroundColour(STYLES['background']['colour'])
@@ -3977,8 +3991,10 @@ class PreferencesDialog(wx.Dialog):
         font, entryfont, pointsize = self.GetFont(), self.GetFont(), self.GetFont().GetPointSize()
         
         font.SetWeight(wx.BOLD)
-        if PLATFORM in ["win32", "linux2"]:
+        if PLATFORM == "linux2":
             entryfont.SetPointSize(pointsize-1)
+        elif PLATFORM == "win32":
+            entryfont.SetPointSize(pointsize)
         else:
             font.SetPointSize(pointsize-1)
             entryfont.SetPointSize(pointsize-2)
