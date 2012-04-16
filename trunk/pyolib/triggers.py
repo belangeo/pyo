@@ -3259,7 +3259,7 @@ class Count(PyoObject):
 
 class NextTrig(PyoObject):
     """
-    A trigger in second stream opens a gate only for the next one in first stream.
+    A trigger in the second stream opens a gate only for the next one in the first stream.
 
     When the gate is opened by a trigger in `input2` signal, the next trigger 
     in `input` signal is allowed to pass and automatically closes the gate.
