@@ -51,6 +51,8 @@ with open(PREFERENCES_PATH, "r") as f:
 exec text in locals()
 PREFERENCES = copy.deepcopy(epyo_prefs)
 
+RESOURCES_PATH = PREFERENCES.get("resources_path", TEMP_PATH)
+
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
 # Check for Python/WxPython/Pyo installation and architecture #
@@ -2158,7 +2160,8 @@ class MainFrame(wx.Frame):
     ### Open Prefs ang Logs ###
     def openPrefs(self, evt):
         dlg = PreferencesDialog()
-        dlg.ShowModal()
+        if dlg.ShowModal() == wx.ID_OK:
+            dlg.writePrefs()
         dlg.Destroy()
 
     def showSnippetEditor(self, evt):
@@ -4003,15 +4006,14 @@ class PreferencesDialog(wx.Dialog):
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        txt = wx.TextCtrl(self, size=(360,-1), value=WHICH_PYTHON, style=wx.TE_PROCESS_ENTER)
-        txt.SetFont(entryfont)
-        txt.Bind(wx.EVT_TEXT_ENTER, self.changeExe)
-        ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+        self.entry_exe = wx.TextCtrl(self, size=(360,-1), value=WHICH_PYTHON)
+        self.entry_exe.SetFont(entryfont)
+        ctrlSizer.Add(self.entry_exe, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
-        #but.Bind(wx.EVT_BUTTON, self.getPath)
+        but.Bind(wx.EVT_BUTTON, self.setExecutable)
         ctrlSizer.Add(but, 0, wx.ALL, 5)            
         but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
-        #but2.Bind(wx.EVT_BUTTON, self.getPath)
+        but2.Bind(wx.EVT_BUTTON, self.revertExecutable)
         ctrlSizer.Add(but2, 0, wx.ALL, 5)
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
@@ -4019,15 +4021,14 @@ class PreferencesDialog(wx.Dialog):
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        txt = wx.TextCtrl(self, size=(360,-1), value=TEMP_PATH, style=wx.TE_PROCESS_ENTER)
-        txt.SetFont(entryfont)
-        txt.Bind(wx.EVT_TEXT_ENTER, self.changeTempPath)
-        ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+        self.entry_res = wx.TextCtrl(self, size=(360,-1), value=TEMP_PATH)
+        self.entry_res.SetFont(entryfont)
+        ctrlSizer.Add(self.entry_res, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
-        #but.Bind(wx.EVT_BUTTON, self.getPath)
+        but.Bind(wx.EVT_BUTTON, self.setResourcesFolder)
         ctrlSizer.Add(but, 0, wx.ALL, 5)            
         but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
-        #but2.Bind(wx.EVT_BUTTON, self.getPath)
+        but2.Bind(wx.EVT_BUTTON, self.revertResourcesFolder)
         ctrlSizer.Add(but2, 0, wx.ALL, 5)            
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
@@ -4035,13 +4036,12 @@ class PreferencesDialog(wx.Dialog):
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        txt = wx.TextCtrl(self, size=(360,-1), value=", ".join(ALLOWED_EXT), style=wx.TE_PROCESS_ENTER)
-        txt.SetFont(entryfont)
-        txt.Bind(wx.EVT_TEXT_ENTER, self.changeExt)
-        ctrlSizer.Add(txt, 0, wx.ALL|wx.EXPAND, 5)
+        self.entry_ext = wx.TextCtrl(self, size=(360,-1), value=", ".join(ALLOWED_EXT))
+        self.entry_ext.SetFont(entryfont)
+        ctrlSizer.Add(self.entry_ext, 0, wx.ALL|wx.EXPAND, 5)
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
  
-        btnSizer = self.CreateButtonSizer(wx.OK)
+        btnSizer = self.CreateButtonSizer(wx.CANCEL|wx.OK)
  
         mainSizer.AddSpacer((-1,5))
         mainSizer.Add(wx.StaticLine(self), 1, wx.EXPAND|wx.ALL, 2)
@@ -4049,14 +4049,39 @@ class PreferencesDialog(wx.Dialog):
         self.SetSizer(mainSizer)
         self.SetClientSize(self.GetBestSize())
 
-    def changeExe(self, evt):
-        print evt.GetString()
+    def setExecutable(self, evt):
+        dlg = wx.FileDialog(self, "Choose your python executable", os.path.expanduser("~"), style=wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            self.entry_exe.SetValue(path)
+        dlg.Destroy()
 
-    def changeTempPath(self, evt):
-        print evt.GetString()
+    def setResourcesFolder(self, evt):
+        dlg = wx.DirDialog(self, "Choose your resources folder", os.path.expanduser("~"), style=wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            self.entry_res.SetValue(path)
+        dlg.Destroy()
 
-    def changeExt(self, evt):
-        print evt.GetString()
+    def revertExecutable(self, evt):
+        self.entry_exe.SetValue(WHICH_PYTHON)
+
+    def revertResourcesFolder(self, evt):
+        self.entry_res.SetValue(TEMP_PATH)
+
+    def writePrefs(self):
+        global ALLOWED_EXT, WHICH_PYTHON
+        which_python = self.entry_exe.GetValue()
+        # Maybe that needed to be tested as a working python executable
+        if os.path.isfile(which_python):
+            WHICH_PYTHON = PREFERENCES["which_python"] = which_python
+        res_folder = self.entry_res.GetValue()
+        if os.path.isdir(res_folder):
+            if res_folder != RESOURCES_PATH:
+                pass
+            RESOURCES_PATH = PREFERENCES["resources_path"] = res_folder
+        extensions = [ext.strip() for ext in self.entry_ext.GetValue().split(",")]
+        ALLOWED_EXT = PREFERENCES["allowed_ext"] = extensions
 
 class STCPrintout(wx.Printout):
     """Specific printing support of the wx.StyledTextCtrl for the wxPython
