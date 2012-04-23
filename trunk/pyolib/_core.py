@@ -478,10 +478,11 @@ class PyoObject(object):
                 del self.__dict__[key]
             elif type(self.__dict__[key]) == ListType:
                 for ele in self.__dict__[key]:
-                    try:
-                        ele.deleteStreams()
-                        del ele
-                    except:
+                    if hasattr(ele, "getBaseObjects"):
+                        for obj in ele.getBaseObjects():
+                            obj.deleteStream()
+                            del obj
+                    else:
                         del ele
 
         if hasattr(self, "_in_fader"):
