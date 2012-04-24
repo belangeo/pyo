@@ -1301,13 +1301,13 @@ typedef struct {
 static void
 TrigFunc_generate(TrigFunc *self) {
     int i;
-    PyObject *tuple;
+    PyObject *tuple, *result;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
             if (self->arg == Py_None) {
-                PyObject *result = PyObject_Call(self->func, PyTuple_New(0), NULL);
+                result = PyObject_Call(self->func, PyTuple_New(0), NULL);
                 if (result == NULL) {
                     PyErr_Print();
                     return;
@@ -1316,13 +1316,12 @@ TrigFunc_generate(TrigFunc *self) {
             else {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
-                PyObject *result = PyObject_Call(self->func, tuple, NULL);                
+                result = PyObject_Call(self->func, tuple, NULL);                
                 if (result == NULL) {
                     PyErr_Print();
                     return;
                 }
             }
-
         }    
     }
 }
