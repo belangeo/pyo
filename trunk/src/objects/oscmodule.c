@@ -960,7 +960,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                         void *data, void *user_data)
 {
     OscDataReceive *self = user_data;
-    PyObject *tup;
+    PyObject *tup, *result;
     tup = PyTuple_New(argc+1);
     int i, ok = 0;
     
@@ -995,7 +995,9 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                     break;
             }
         }
-        PyObject_Call(self->callable, tup, NULL);                
+        result = PyObject_Call(self->callable, tup, NULL);     
+        if (result == NULL)
+            PyErr_Print();
     }
     return 0;
 }

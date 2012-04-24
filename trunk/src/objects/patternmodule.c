@@ -40,6 +40,7 @@ static void
 Pattern_generate_i(Pattern *self) {
     MYFLT tm;
     int i, flag;
+    PyObject *result;
     
     flag = 0;
     tm = PyFloat_AS_DOUBLE(self->time);
@@ -53,14 +54,17 @@ Pattern_generate_i(Pattern *self) {
         self->currentTime += self->sampleToSec;
     }
     if (flag == 1 || self->init == 1) {
-        PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
         self->init = 0;
+        result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
+        if (result == NULL)
+            PyErr_Print();
     }
 }
 
 static void
 Pattern_generate_a(Pattern *self) {
     int i, flag;
+    PyObject *result;
     
     MYFLT *tm = Stream_getData((Stream *)self->time_stream);
     
@@ -74,8 +78,10 @@ Pattern_generate_a(Pattern *self) {
         self->currentTime += self->sampleToSec;
     }
     if (flag == 1 || self->init == 1) {
-        PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
         self->init = 0;
+        result = PyObject_Call((PyObject *)self->callable, PyTuple_New(0), NULL);
+        if (result == NULL)
+            PyErr_Print();
     }    
 }
 
@@ -490,17 +496,19 @@ typedef struct {
 static void
 CallAfter_generate(CallAfter *self) {
     int i;
-    PyObject *tuple;
+    PyObject *tuple, *result;
 
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime >= self->time) {
             if (self->arg == Py_None)
-                PyObject_Call(self->callable, PyTuple_New(0), NULL);
+                tuple = PyTuple_New(0);
             else {
                 tuple = PyTuple_New(1);
                 PyTuple_SET_ITEM(tuple, 0, self->arg);
-                PyObject_Call(self->callable, tuple, NULL);                
             }
+            result = PyObject_Call(self->callable, tuple, NULL);                
+            if (result == NULL)
+                PyErr_Print();
             PyObject_CallMethod((PyObject *)self, "stop", NULL);
             break;
         }

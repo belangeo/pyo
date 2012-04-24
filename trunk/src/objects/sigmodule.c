@@ -772,7 +772,7 @@ typedef struct {
 static void
 VarPort_generates_i(VarPort *self) {
     int i;
-    PyObject *tuple;
+    PyObject *tuple, *result;
 
     if (self->value != self->lastValue) {
         self->flag = 1;
@@ -809,7 +809,11 @@ VarPort_generates_i(VarPort *self) {
                 tuple = PyTuple_New(0);
             }
 
-            PyObject_Call(self->callable, tuple, NULL);
+            result = PyObject_Call(self->callable, tuple, NULL);
+            if (result == NULL) {
+                PyErr_Print();
+                return;
+            }
         }   
     }
 }
