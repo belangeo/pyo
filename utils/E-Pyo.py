@@ -56,26 +56,34 @@ RESOURCES_PATH = PREFERENCES.get("resources_path", TEMP_PATH)
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
 # Check for Python/WxPython/Pyo installation and architecture #
-WHICH_PYTHON = ""
+WHICH_PYTHON = PREFERENCES.get("which_python", "")
 INSTALLATION_ERROR_MESSAGE = ""
 CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
-if PLATFORM in ["darwin", "linux2"]:
-    proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    WHICH_PYTHON = proc.communicate()[0][:-1]
-    # WHICH_PYTHON = WHICH_PYTHON.replace("/local", "")
-else:
-    if "Python" in os.getenv("Path"):
-        pos = os.getenv("Path").index("Python")
-        ver = os.getenv("Path")[pos+6:pos+8]
-        WHICH_PYTHON = "C:\Python%s\python.exe" % ver
+if WHICH_PYTHON == "":
+    if '/%s.app' % APP_NAME in os.getcwd():
+        OSX_APP_BUNDLED = True
+        proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        WHICH_PYTHON = proc.communicate()[0][:-1]
+    elif PLATFORM == "darwin":
+        proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        WHICH_PYTHON = proc.communicate()[0][:-1]
+        # WHICH_PYTHON = WHICH_PYTHON.replace("/local", "")
+    elif PLATFORM == "linux2":
+        proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        WHICH_PYTHON = proc.communicate()[0][:-1]
     else:
-        for i in reversed(range(5, 8)):
-            if os.path.isfile("C:\Python2%d\python.exe" % i):
-                WHICH_PYTHON = "C:\Python2%d\python.exe" % i
-                break
-    if WHICH_PYTHON == "":
-        INSTALLATION_ERROR_MESSAGE = "Python 2.x doesn't seem to be installed on this computer. Check your Python installation and try again."
+        if "Python" in os.getenv("Path"):
+            pos = os.getenv("Path").index("Python")
+            ver = os.getenv("Path")[pos+6:pos+8]
+            WHICH_PYTHON = "C:\Python%s\python.exe" % ver
+        else:
+            for i in reversed(range(5, 8)):
+                if os.path.isfile("C:\Python2%d\python.exe" % i):
+                    WHICH_PYTHON = "C:\Python2%d\python.exe" % i
+                    break
+        if WHICH_PYTHON == "":
+            INSTALLATION_ERROR_MESSAGE = "Python 2.x doesn't seem to be installed on this computer. Check your Python installation and try again."
 
 proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
@@ -83,9 +91,11 @@ if "ImportError" in IMPORT_PYO_STDERR:
     if "No module named" in IMPORT_PYO_STDERR:
         INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
     elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR:
-        # Need to be tested will python.org 64-bit installation.
         CALLER_NEED_TO_INVOKE_32_BIT = True
-        INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+        INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n"
+        if PLATFORM == "darwin":
+            INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
+        INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 else:
     proc = subprocess.Popen(['%s -c "import wx"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
@@ -94,7 +104,10 @@ else:
             INSTALLATION_ERROR_MESSAGE = "WxPython is not installed in the current Python installation. It is needed by pyo to show graphical display.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
         elif "no appropriate 64-bit architecture" in IMPORT_WX_STDERR:
             CALLER_NEED_TO_INVOKE_32_BIT = True
-            INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but WxPython installation is 32-bit.\n\n'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
+            INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but WxPython installation is 32-bit.\n\n"
+            if PLATFORM == "darwin":
+                INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
+            INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
         
 if '/%s.app' % APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
@@ -205,8 +218,7 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
 
 ################## AppleScript for Mac bundle ##################
-if '/%s.app' % APP_NAME in os.getcwd():
-    OSX_APP_BUNDLED = True
+if OSX_APP_BUNDLED:
     terminal_close_server_script = """tell application "Terminal" 
     close window 1
 end tell
@@ -234,6 +246,7 @@ end tell
     
     terminal_client_script = """set my_path to quoted form of POSIX path of "%s"
 set my_file to quoted form of POSIX path of "%s"
+set which_python to quoted form of POSIX path of "%s"
 tell application "System Events"
     tell application process "Terminal"
     set frontmost to true
@@ -243,7 +256,7 @@ tell application "System Events"
     keystroke "cd " & my_path
     keystroke return
     delay 0.25
-    keystroke "python " & my_file
+    keystroke which_python & " " & my_file
     keystroke return
     delay 0.25
     end tell
@@ -2350,9 +2363,8 @@ class MainFrame(wx.Frame):
 
     ### Run actions ###
     def run(self, path, cwd):
-        # Need to determine which python to use...
         if OSX_APP_BUNDLED:
-            script = terminal_client_script % (cwd, path)
+            script = terminal_client_script % (cwd, path, WHICH_PYTHON)
             script = convert_line_endings(script, 1)
             with codecs.open(terminal_client_script_path, "w", encoding="utf-8") as f:
                 f.write(script)
@@ -2363,9 +2375,8 @@ class MainFrame(wx.Frame):
             else:
                 pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
         elif PLATFORM == "linux2":
-            pid = subprocess.Popen(["python", path], cwd=cwd).pid
+            pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
         elif PLATFORM == "win32":
-            print WHICH_PYTHON, path
             pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
 
     def runner(self, event):
@@ -4072,9 +4083,9 @@ class PreferencesDialog(wx.Dialog):
 
     def writePrefs(self):
         global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH
+
         which_python = self.entry_exe.GetValue()
-        # Maybe that needed to be tested as a working python executable
-        if os.path.isfile(which_python):
+        if os.path.isfile(which_python) and "python" in which_python:
             WHICH_PYTHON = PREFERENCES["which_python"] = which_python
 
         res_folder = self.entry_res.GetValue()
