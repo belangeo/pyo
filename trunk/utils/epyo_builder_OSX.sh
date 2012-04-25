@@ -31,7 +31,7 @@ mv E-Pyo-i386.app E-Pyo.app
 cd ..
 cp -R E-Pyo_OSX/E-Pyo.app .
 #tar -cjvf E-Pyo_OSX-0.6.1.tar.bz2 E-Pyo.app
-rm -rf E-Pyo_OSX
 #rm -rf E-Pyo.app
+rm -rf E-Pyo_OSX
 rm -rf Resources
 rm -rf examples
