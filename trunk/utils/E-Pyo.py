@@ -1,4 +1,4 @@
-﻿#! /usr/bin/env python
+#! /usr/bin/env python
 # encoding: utf-8
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
@@ -105,20 +105,20 @@ EXAMPLE_FOLDERS.append("FFT")
 EXAMPLE_FOLDERS.sort()
 
 SNIPPET_BUILTIN_CATEGORIES = ['Audio', 'Control', 'Interface', 'Utilities']
-SNIPPETS_PATH = os.path.join(TEMP_PATH, 'snippets')
+SNIPPETS_PATH = os.path.join(RESOURCES_PATH, 'snippets')
 if not os.path.isdir(SNIPPETS_PATH):
     os.mkdir(SNIPPETS_PATH)
-for rep in SNIPPET_BUILTIN_CATEGORIES:
-    if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
-        os.mkdir(os.path.join(SNIPPETS_PATH, rep))
-        files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
-        for file in files:
-            shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
+    for rep in SNIPPET_BUILTIN_CATEGORIES:
+        if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
+            os.mkdir(os.path.join(SNIPPETS_PATH, rep))
+            files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
+            for file in files:
+                shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
 
-STYLES_PATH = os.path.join(TEMP_PATH, "styles")
+STYLES_PATH = os.path.join(RESOURCES_PATH, "styles")
 if not os.path.isdir(STYLES_PATH):
     os.mkdir(STYLES_PATH)
     files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
@@ -1189,6 +1189,7 @@ class SnippetTree(wx.Panel):
                 for file in files:
                     os.remove(os.path.join(SNIPPETS_PATH, name, file))
                 os.rmdir(os.path.join(SNIPPETS_PATH, name))
+                SNIPPETS_CATEGORIES.remove(name)
                 if self.tree.ItemHasChildren(item):
                     self.tree.DeleteChildren(item)
             else:
@@ -4021,7 +4022,7 @@ class PreferencesDialog(wx.Dialog):
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.entry_res = wx.TextCtrl(self, size=(360,-1), value=TEMP_PATH)
+        self.entry_res = wx.TextCtrl(self, size=(360,-1), value=RESOURCES_PATH)
         self.entry_res.SetFont(entryfont)
         ctrlSizer.Add(self.entry_res, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
@@ -4067,19 +4068,45 @@ class PreferencesDialog(wx.Dialog):
         self.entry_exe.SetValue(WHICH_PYTHON)
 
     def revertResourcesFolder(self, evt):
-        self.entry_res.SetValue(TEMP_PATH)
+        self.entry_res.SetValue(RESOURCES_PATH)
 
     def writePrefs(self):
-        global ALLOWED_EXT, WHICH_PYTHON
+        global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH
         which_python = self.entry_exe.GetValue()
         # Maybe that needed to be tested as a working python executable
         if os.path.isfile(which_python):
             WHICH_PYTHON = PREFERENCES["which_python"] = which_python
+
         res_folder = self.entry_res.GetValue()
         if os.path.isdir(res_folder):
             if res_folder != RESOURCES_PATH:
-                pass
-            RESOURCES_PATH = PREFERENCES["resources_path"] = res_folder
+                RESOURCES_PATH = PREFERENCES["resources_path"] = res_folder
+                # snippets
+                old_snippets_path = SNIPPETS_PATH
+                SNIPPETS_PATH = os.path.join(RESOURCES_PATH, 'snippets')
+                if not os.path.isdir(SNIPPETS_PATH):
+                    os.mkdir(SNIPPETS_PATH)
+                for rep in SNIPPETS_CATEGORIES:
+                    if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
+                        os.mkdir(os.path.join(SNIPPETS_PATH, rep))
+                    files = [f for f in os.listdir(os.path.join(old_snippets_path, rep)) if f[0] != "."]
+                    for file in files:
+                        try:
+                            shutil.copy(os.path.join(old_snippets_path, rep, file), os.path.join(SNIPPETS_PATH, rep))
+                        except:
+                            pass
+                # styles
+                old_styles_path = STYLES_PATH
+                STYLES_PATH = os.path.join(RESOURCES_PATH, 'styles')
+                if not os.path.isdir(STYLES_PATH):
+                    os.mkdir(STYLES_PATH)
+                files = [f for f in os.listdir(old_styles_path) if f[0] != "."]
+                for file in files:
+                    try:
+                        shutil.copy(os.path.join(old_styles_path, file), STYLES_PATH)
+                    except:
+                        pass
+
         extensions = [ext.strip() for ext in self.entry_ext.GetValue().split(",")]
         ALLOWED_EXT = PREFERENCES["allowed_ext"] = extensions
 
