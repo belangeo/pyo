@@ -956,7 +956,7 @@ class ColourEditor(wx.Frame):
         toolbar.AddControl(wx.StaticText(toolbar, wx.ID_ANY, label="Edit Style:"))
         choices = [f for f in os.listdir(STYLES_PATH) if f[0] != "."]
         self.choiceMenu = wx.Choice(toolbar, wx.ID_ANY, choices=choices)
-        self.choiceMenu.SetStringSelection("Default")
+        self.choiceMenu.SetStringSelection(PREFERENCES["pref_style"])
         self.choiceMenu.Bind(wx.EVT_CHOICE, self.OnStyleChoice)
         toolbar.AddControl(self.choiceMenu)
         toolbar.AddSeparator()
