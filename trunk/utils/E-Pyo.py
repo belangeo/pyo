@@ -108,8 +108,10 @@ else:
                 INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
             INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
         
-if '/%s.app' % APP_NAME in os.getcwd():
+if PLATFORM == "darwin" and APP_NAME in os.getcwd():
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
+elif PLATFORM == "win32" and APP_NAME in os.getcwd():
+    EXAMPLE_PATH = os.path.join(os.getcwd(), "Resources", "examples")
 else:
     EXAMPLE_PATH = os.path.join(os.getcwd(), "../examples")
 EXAMPLE_FOLDERS = [folder.capitalize() for folder in os.listdir(EXAMPLE_PATH) if folder[0] != "." and folder not in ["snds", "fft"]]
@@ -123,9 +125,14 @@ if not os.path.isdir(SNIPPETS_PATH):
     for rep in SNIPPET_BUILTIN_CATEGORIES:
         if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
             os.mkdir(os.path.join(SNIPPETS_PATH, rep))
-            files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
-            for file in files:
-                shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
+            if PLATFORM == "win32" and APP_NAME in os.getcwd():
+                files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "snippets", rep)) if f[0] != "."]
+                for file in files:
+                    shutil.copy(os.path.join(os.getcwd(), "Resources", "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
+            else:
+                files = [f for f in os.listdir(os.path.join(os.getcwd(), "snippets", rep)) if f[0] != "."]
+                for file in files:
+                    shutil.copy(os.path.join(os.getcwd(), "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
 SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir(os.path.join(SNIPPETS_PATH, rep))]
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
@@ -133,9 +140,14 @@ SNIPPET_ADD_FOLDER_ID = 31
 STYLES_PATH = os.path.join(RESOURCES_PATH, "styles")
 if not os.path.isdir(STYLES_PATH):
     os.mkdir(STYLES_PATH)
-    files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
-    for file in files:
-        shutil.copy(os.path.join(os.getcwd(), "styles", file), os.path.join(STYLES_PATH, file))
+    if PLATFORM == "win32" and APP_NAME in os.getcwd():
+        files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "styles")) if f[0] != "."]
+        for file in files:
+            shutil.copy(os.path.join(os.getcwd(), "Resources", "styles", file), os.path.join(STYLES_PATH, file))
+    else:
+        files = [f for f in os.listdir(os.path.join(os.getcwd(), "styles")) if f[0] != "."]
+        for file in files:
+            shutil.copy(os.path.join(os.getcwd(), "styles", file), os.path.join(STYLES_PATH, file))
 DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
 if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
     shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
@@ -656,8 +668,8 @@ PYO_WORDLIST.append("Server")
 
 ############## Styles Constants ##############
 if wx.Platform == '__WXMSW__':
-    FONT_SIZE = 10
-    FONT_SIZE2 = 8
+    FONT_SIZE = 8
+    FONT_SIZE2 = 6
     DEFAULT_FONT_FACE = 'Verdana'
 elif wx.Platform == '__WXMAC__':
     FONT_SIZE = 12
@@ -2309,7 +2321,10 @@ class MainFrame(wx.Frame):
     def openTutorial(self, event):
         id = event.GetId()
         if id == 998:
-            self.panel.addPage(os.path.join(os.getcwd(), "Tutorial_Custom_PyoObject.py"))
+            if PLATFORM == "win32" and APP_NAME in os.getcwd():
+                self.panel.addPage(os.path.join(os.getcwd(), "Resources", "Tutorial_Custom_PyoObject.py"))
+            else:
+                self.panel.addPage(os.path.join(os.getcwd(), "Tutorial_Custom_PyoObject.py"))
         
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder", 
@@ -3657,8 +3672,10 @@ class ProjectTree(wx.Panel):
         self.tree = wx.TreeCtrl(self, -1, (0, 26), size, wx.TR_DEFAULT_STYLE|wx.TR_HIDE_ROOT|wx.SUNKEN_BORDER|wx.EXPAND)
         self.tree.SetBackgroundColour(STYLES['background']['colour'])
 
-        if wx.Platform == '__WXMAC__':
+        if PLATFORM == 'darwin':
             self.tree.SetFont(wx.Font(11, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
+        elif PLATFORM == 'win32':
+            self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
         else:
             self.tree.SetFont(wx.Font(8, wx.ROMAN, wx.NORMAL, wx.NORMAL, face=STYLES['face']))
 

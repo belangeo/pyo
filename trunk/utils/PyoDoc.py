@@ -21,7 +21,7 @@ DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentbl
                       'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
 
 if wx.Platform == '__WXMSW__':
-  DOC_FACES = {'face': 'Courier', 'size' : 10, 'size2': 8}
+  DOC_FACES = {'face': 'Verdana', 'size' : 8, 'size2': 7}
 elif wx.Platform == '__WXMAC__':
   DOC_FACES = {'face': 'Monaco', 'size' : 12, 'size2': 9}
 else:
@@ -318,7 +318,10 @@ class ManualPanel(wx.Treebook):
         if self.needToParse:
             dlg = wx.ProgressDialog("Pyo Documentation", "    Building manual...    ",
                                    maximum = _NUM_PAGES, parent=self, style = wx.PD_APP_MODAL | wx.PD_AUTO_HIDE | wx.PD_SMOOTH)
-            dlg.SetSize((300, 100))
+            if wx.Platform == '__WXMSW__':
+                dlg.SetSize((300, 150))
+            else:
+                dlg.SetSize((300, 100))
             keepGoing = True
         count = 1
         win = self.makePanel("Intro")
