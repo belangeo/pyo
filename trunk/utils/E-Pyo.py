@@ -658,7 +658,7 @@ PYO_WORDLIST.append("Server")
 if wx.Platform == '__WXMSW__':
     FONT_SIZE = 10
     FONT_SIZE2 = 8
-    DEFAULT_FONT_FACE = 'Courier New'
+    DEFAULT_FONT_FACE = 'Verdana'
 elif wx.Platform == '__WXMAC__':
     FONT_SIZE = 12
     FONT_SIZE2 = 9
@@ -1010,11 +1010,11 @@ class ColourEditor(wx.Frame):
         faceBox = wx.BoxSizer(wx.HORIZONTAL)
         faceLabel = wx.StaticText(self.panel, wx.ID_ANY, "Font Face:")
         faceBox.Add(faceLabel, 0, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5)
-        self.facePopup = wx.ComboBox(self.panel, wx.ID_ANY, "Monaco", size=(250, -1), choices=facelist, style=wx.CB_READONLY)
+        self.facePopup = wx.ComboBox(self.panel, wx.ID_ANY, STYLES['face'], size=(250, -1), choices=facelist, style=wx.CB_READONLY)
         faceBox.Add(self.facePopup, 1, wx.ALL|wx.EXPAND, 5)
-        self.faceView = wx.StaticText(self.panel, wx.ID_ANY, "Monaco")
+        self.faceView = wx.StaticText(self.panel, wx.ID_ANY, STYLES['face'])
         self.font = self.faceView.GetFont()
-        self.font.SetFaceName("Monaco")
+        self.font.SetFaceName(STYLES['face'])
         self.faceView.SetFont(self.font)
         faceBox.Add(self.faceView, 1, wx.ALL|wx.ALIGN_CENTER_VERTICAL, 5)
         self.facePopup.Bind(wx.EVT_COMBOBOX, self.OnFaceSelected)
