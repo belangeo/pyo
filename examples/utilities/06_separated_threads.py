@@ -2,6 +2,7 @@
 # encoding: utf-8
 """
 Launch the audio processing in a separated thread and send events.
+See play_snd.py for subprocess sound player.
 
 """
 import subprocess, time, random
