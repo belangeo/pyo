@@ -1,6 +1,7 @@
 mkdir Resources
 cp PyoDoc.py Resources/
 cp FlatNoteBook.py Resources/
+cp Tutorial_Custom_PyoObject.py Resources/
 cp *.icns Resources/
 svn export ../examples examples/
 cp -R examples Resources/
