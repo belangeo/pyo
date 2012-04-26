@@ -62,7 +62,6 @@ CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
 if WHICH_PYTHON == "":
     if '/%s.app' % APP_NAME in os.getcwd():
-        OSX_APP_BUNDLED = True
         proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM == "darwin":
@@ -218,7 +217,8 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
 
 ################## AppleScript for Mac bundle ##################
-if OSX_APP_BUNDLED:
+if '/%s.app' % APP_NAME in os.getcwd():
+    OSX_APP_BUNDLED = True
     terminal_close_server_script = """tell application "Terminal" 
     close window 1
 end tell
@@ -1807,6 +1807,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         helpmenu.Append(999, 'Show Editor Key Commands')
         self.Bind(wx.EVT_MENU, self.onShowEditorKeyCommands, id=999)
+        helpmenu.Append(998, 'Tutorial: How to Create a Custom PyoObject')
+        self.Bind(wx.EVT_MENU, self.openTutorial, id=998)
         self.menuBar.Append(helpmenu, '&Help')
 
         self.SetMenuBar(self.menuBar)
@@ -2297,13 +2299,18 @@ class MainFrame(wx.Frame):
 
     def openExample(self, event):
         id = event.GetId()
-        menu = self.menu6 #event.GetEventObject()
+        menu = self.menu6
         item = menu.FindItemById(id)
         filename = item.GetLabel()
         folder = item.GetMenu().GetTitle()
         path = os.path.join(EXAMPLE_PATH, folder, filename)
         self.panel.addPage(ensureNFD(path))
 
+    def openTutorial(self, event):
+        id = event.GetId()
+        if id == 998:
+            self.panel.addPage(os.path.join(os.getcwd(), "Tutorial_Custom_PyoObject.py"))
+        
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder", 
             defaultPath=PREFERENCES.get("open_folder_path", os.path.expanduser("~")),
