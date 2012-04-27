@@ -37,6 +37,7 @@ ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252', 
 APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
 OSX_APP_BUNDLED = False
+WIN_APP_BUNDLED = False
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
@@ -55,13 +56,20 @@ RESOURCES_PATH = PREFERENCES.get("resources_path", TEMP_PATH)
 
 TEMP_FILE = os.path.join(TEMP_PATH, 'epyo_tempfile.py')
 
+if PLATFORM == "win32" and sys.executable.endswith("E-Pyo.exe"):
+    os.chdir(os.path.dirname(sys.executable))
+    WIN_APP_BUNDLED = True
+
+if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
+    OSX_APP_BUNDLED = True
+    
 # Check for Python/WxPython/Pyo installation and architecture #
 WHICH_PYTHON = PREFERENCES.get("which_python", "")
 INSTALLATION_ERROR_MESSAGE = ""
 CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
 if WHICH_PYTHON == "":
-    if '/%s.app' % APP_NAME in os.getcwd():
+    if OSX_APP_BUNDLED:
         proc = subprocess.Popen(["export PATH=/usr/local/bin:$PATH;which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     elif PLATFORM == "darwin":
@@ -108,9 +116,9 @@ else:
                 INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
             INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
         
-if PLATFORM == "darwin" and APP_NAME in os.getcwd():
+if OSX_APP_BUNDLED:
     EXAMPLE_PATH = os.path.join(os.getcwd(), "examples")
-elif PLATFORM == "win32" and APP_NAME in os.getcwd():
+elif WIN_APP_BUNDLED:
     EXAMPLE_PATH = os.path.join(os.getcwd(), "Resources", "examples")
 else:
     EXAMPLE_PATH = os.path.join(os.getcwd(), "../examples")
@@ -125,7 +133,7 @@ if not os.path.isdir(SNIPPETS_PATH):
     for rep in SNIPPET_BUILTIN_CATEGORIES:
         if not os.path.isdir(os.path.join(SNIPPETS_PATH, rep)):
             os.mkdir(os.path.join(SNIPPETS_PATH, rep))
-            if PLATFORM == "win32" and APP_NAME in os.getcwd():
+            if WIN_APP_BUNDLED:
                 files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "snippets", rep)) if f[0] != "."]
                 for file in files:
                     shutil.copy(os.path.join(os.getcwd(), "Resources", "snippets", rep, file), os.path.join(SNIPPETS_PATH, rep))
@@ -140,7 +148,7 @@ SNIPPET_ADD_FOLDER_ID = 31
 STYLES_PATH = os.path.join(RESOURCES_PATH, "styles")
 if not os.path.isdir(STYLES_PATH):
     os.mkdir(STYLES_PATH)
-    if PLATFORM == "win32" and APP_NAME in os.getcwd():
+    if WIN_APP_BUNDLED:
         files = [f for f in os.listdir(os.path.join(os.getcwd(), "Resources", "styles")) if f[0] != "."]
         for file in files:
             shutil.copy(os.path.join(os.getcwd(), "Resources", "styles", file), os.path.join(STYLES_PATH, file))
@@ -229,8 +237,7 @@ def hex_to_rgb(value):
     return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
 
 ################## AppleScript for Mac bundle ##################
-if '/%s.app' % APP_NAME in os.getcwd():
-    OSX_APP_BUNDLED = True
+if OSX_APP_BUNDLED:
     terminal_close_server_script = """tell application "Terminal" 
     close window 1
 end tell
@@ -2321,7 +2328,7 @@ class MainFrame(wx.Frame):
     def openTutorial(self, event):
         id = event.GetId()
         if id == 998:
-            if PLATFORM == "win32" and APP_NAME in os.getcwd():
+            if WIN_APP_BUNDLED:
                 self.panel.addPage(os.path.join(os.getcwd(), "Resources", "Tutorial_Custom_PyoObject.py"))
             else:
                 self.panel.addPage(os.path.join(os.getcwd(), "Tutorial_Custom_PyoObject.py"))
