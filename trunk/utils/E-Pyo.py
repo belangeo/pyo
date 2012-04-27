@@ -1732,9 +1732,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.runner, id=104)
         menu3.Append(105, "Run Selection\tShift+Ctrl+R")
         self.Bind(wx.EVT_MENU, self.runSelection, id=105)
-        menu3.Append(107, "Run Line/Selection as Pyo\tShift+Ctrl+E")
+        menu3.Append(107, "Run Line/Selection as Pyo\tCtrl+E")
         self.Bind(wx.EVT_MENU, self.runSelectionAsPyo, id=107)
-        menu3.Append(106, "Execute Line/Selection as Python\tCtrl+E")
+        menu3.Append(106, "Execute Line/Selection as Python\tShift+Ctrl+E")
         self.Bind(wx.EVT_MENU, self.execSelection, id=106)
         self.menuBar.Append(menu3, 'Process')
 
@@ -2391,7 +2391,18 @@ class MainFrame(wx.Frame):
             self.close(None)
 
     ### Run actions ###
-    def run(self, path, cwd):
+    def getCurrentWorkingDirectory(self):
+        path = ensureNFD(self.panel.editor.path)
+        cwd = os.path.expanduser("~")
+        if os.path.isfile(path):
+            try:
+                cwd = toSysEncoding(os.path.split(path)[0])
+            except:
+                pass
+        return cwd
+
+    def run(self, path):
+        cwd = self.getCurrentWorkingDirectory()
         if OSX_APP_BUNDLED:
             script = terminal_client_script % (cwd, path, WHICH_PYTHON)
             script = convert_line_endings(script, 1)
@@ -2409,23 +2420,18 @@ class MainFrame(wx.Frame):
             pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
 
     def runner(self, event):
-        path = ensureNFD(self.panel.editor.path)
-        if os.path.isfile(path):
-            cwd = os.path.split(path)[0]
-            self.run(path, cwd)
-        else:
-            text = self.panel.editor.GetTextUTF8()
-            if text != "":
-                with open(TEMP_FILE, "w") as f:
-                    f.write(text)
-                self.run(TEMP_FILE, os.path.expanduser("~"))
+        text = self.panel.editor.GetTextUTF8()
+        if text != "":
+            with open(TEMP_FILE, "w") as f:
+                f.write(text)
+            self.run(TEMP_FILE)
 
     def runSelection(self, event):
         text = self.panel.editor.GetSelectedTextUTF8()
         if text != "":
             with open(TEMP_FILE, "w") as f:
                 f.write(text)
-            self.run(TEMP_FILE, os.path.expanduser("~"))
+            self.run(TEMP_FILE)
 
     def runSelectionAsPyo(self, event):
         text = self.panel.editor.GetSelectedTextUTF8()
@@ -2437,7 +2443,7 @@ class MainFrame(wx.Frame):
             f.write("from pyo import *\ns = Server().boot()\n")
             f.write(text)
             f.write("\ns.gui(locals())\n")
-        self.run(TEMP_FILE, os.path.expanduser("~"))
+        self.run(TEMP_FILE)
 
     def execSelection(self, event):
         text = self.panel.editor.GetSelectedTextUTF8()

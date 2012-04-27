@@ -18,7 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from types import ListType, SliceType, FloatType, StringType
+from types import ListType, SliceType, FloatType, StringType, UnicodeType
 import random, os, sys, inspect, tempfile
 from subprocess import call
 from distutils.sysconfig import get_python_lib
@@ -46,6 +46,21 @@ XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3,
                 'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
                 'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
                 'loopseg': 12}
+
+def convertStringToSysEncoding(str):
+    """
+    Convert a string to the current platform file system encoding.
+
+    Parameter:
+    
+    str: string
+        String to convert.
+
+    """
+    if type(str) != UnicodeType:
+        str = str.decode("utf-8")
+    str = str.encode(sys.getfilesystemencoding())
+    return str
         
 def convertArgsToLists(*args):
     """
