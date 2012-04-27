@@ -1,3 +1,8 @@
+2012-04-28 belangeo <belangeo@gmail.com>
+
+    * Added new function : convertStringToSysEncoding. For users who use non-ascii characters in their path.
+    - rev 945
+
 2012-04-13 belangeo <belangeo@gmail.com>
 
     * Added new object : NextTrig. A trigger opens a gate only for the next one.
