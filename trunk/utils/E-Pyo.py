@@ -8,7 +8,7 @@ You can do absolutely everything you want to with this piece of software.
 Olivier Belanger - 2012
 
 """
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random, time
 from types import UnicodeType, MethodType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
@@ -2479,7 +2479,11 @@ class MainFrame(wx.Frame):
         if not self.back_server_started:
             with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
                 f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\ns = Server(%s).boot()\ns.start()\n" % BACKGROUND_SERVER_ARGS)
-            self.server_pipe = subprocess.Popen(["python -i %s" % os.path.join(TEMP_PATH, "background_server.py")], 
+            if PLATFORM == "win32":
+                self.server_pipe = subprocess.Popen(['python', '-i', 'background_server.py'], 
+                                        shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
+            else:
+                self.server_pipe = subprocess.Popen(["python -i %s" % os.path.join(TEMP_PATH, "background_server.py")], 
                                         shell=True, stdin=subprocess.PIPE).stdin
             self.back_server_started = True
             self.backServerItem.SetItemLabel("Stop Pyo Background Server")
@@ -2531,6 +2535,9 @@ class MainFrame(wx.Frame):
         wx.AboutBox(info)
 
     def OnClose(self, event):
+        if self.back_server_started == True:
+            self.startStopBackgroundServer(None)
+            time.sleep(0.5)
         with open(PREFERENCES_PATH, "w") as f:
             f.write("epyo_prefs = %s" % str(PREFERENCES))
         try:
