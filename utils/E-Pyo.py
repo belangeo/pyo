@@ -172,6 +172,9 @@ if not os.path.isfile(MARKERS_FILE):
     with open(MARKERS_FILE, "w") as f:
         f.write("=\n")
 
+BACKGROUND_SERVER_DEFAULT_ARGS = 'sr=44100, nchnls=2, buffersize=256, duplex=1, audio="portaudio", jackname="pyo"'
+BACKGROUND_SERVER_ARGS = PREFERENCES.get("background_server_args", BACKGROUND_SERVER_DEFAULT_ARGS)
+
 ################## Utility Functions ##################
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
@@ -1610,6 +1613,9 @@ class MainFrame(wx.Frame):
         self.style_frame.setCurrentStyle(PREF_STYLE)
         self.keyCommandsFrame = KeyCommandsFrame(self)
 
+        self.server_pipe = None
+        self.back_server_started = False
+
         self.print_data = wx.PrintData()
         self.print_data.SetPaperId(wx.PAPER_LETTER)
 
@@ -1728,14 +1734,20 @@ class MainFrame(wx.Frame):
         self.menuBar.Append(menu2, 'Code')
 
         menu3 = wx.Menu()
-        menu3.Append(104, "Run\tCtrl+R")
-        self.Bind(wx.EVT_MENU, self.runner, id=104)
-        menu3.Append(105, "Run Selection\tShift+Ctrl+R")
-        self.Bind(wx.EVT_MENU, self.runSelection, id=105)
-        menu3.Append(107, "Run Line/Selection as Pyo\tCtrl+E")
-        self.Bind(wx.EVT_MENU, self.runSelectionAsPyo, id=107)
-        menu3.Append(106, "Execute Line/Selection as Python\tShift+Ctrl+E")
-        self.Bind(wx.EVT_MENU, self.execSelection, id=106)
+        menu3.Append(300, "Run\tCtrl+R")
+        self.Bind(wx.EVT_MENU, self.runner, id=300)
+        menu3.Append(301, "Run Selection\tShift+Ctrl+R")
+        self.Bind(wx.EVT_MENU, self.runSelection, id=301)
+        menu3.Append(302, "Run Line/Selection as Pyo\tCtrl+E")
+        self.Bind(wx.EVT_MENU, self.runSelectionAsPyo, id=302)
+        menu3.Append(303, "Execute Line/Selection as Python\tShift+Ctrl+E")
+        self.Bind(wx.EVT_MENU, self.execSelection, id=303)
+        menu3.AppendSeparator()
+        self.backServerItem = menu3.Append(304, "Start Pyo Background Server")
+        self.Bind(wx.EVT_MENU, self.startStopBackgroundServer, id=304)
+        self.sendToServerItem = menu3.Append(305, "Send Line/Selection to Pyo Background Server\tCtrl+T")
+        self.sendToServerItem.Enable(False)
+        self.Bind(wx.EVT_MENU, self.sendSelectionToBackgroundServer, id=305)
         self.menuBar.Append(menu3, 'Process')
 
         menu4 = wx.Menu()
@@ -2462,6 +2474,34 @@ class MainFrame(wx.Frame):
         with stdoutIO() as s:
             exec text
         self.panel.editor.addText(s.getvalue())
+
+    def startStopBackgroundServer(self, evt):
+        if not self.back_server_started:
+            with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
+                f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\ns = Server(%s).boot()\ns.start()\n" % BACKGROUND_SERVER_ARGS)
+            self.server_pipe = subprocess.Popen(["python -i %s" % os.path.join(TEMP_PATH, "background_server.py")], 
+                                        shell=True, stdin=subprocess.PIPE).stdin
+            self.back_server_started = True
+            self.backServerItem.SetItemLabel("Stop Pyo Background Server")
+            self.sendToServerItem.Enable(True)
+        else:
+            self.server_pipe.write("print 'Closing background server...'\ns.stop()\ntime.sleep(0.25)\n")
+            self.server_pipe.close()
+            self.server_pipe = None
+            self.back_server_started = False
+            self.backServerItem.SetItemLabel("Start Pyo Background Server")
+            self.sendToServerItem.Enable(False)
+
+    def sendSelectionToBackgroundServer(self, evt):
+        text = self.panel.editor.GetSelectedTextUTF8()
+        if text == "":
+            pos = self.panel.editor.GetCurrentPos()
+            line = self.panel.editor.LineFromPosition(pos)
+            text = self.panel.editor.GetLineUTF8(line)
+        if self.server_pipe != None:
+            for line in text.splitlines():
+                self.server_pipe.write(line + "\n")
+            self.server_pipe.write("\n")
 
     def buildDoc(self):
         self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED)
@@ -4055,7 +4095,7 @@ class PreferencesDialog(wx.Dialog):
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.entry_exe = wx.TextCtrl(self, size=(360,-1), value=WHICH_PYTHON)
+        self.entry_exe = wx.TextCtrl(self, size=(500,-1), value=WHICH_PYTHON)
         self.entry_exe.SetFont(entryfont)
         ctrlSizer.Add(self.entry_exe, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
@@ -4070,7 +4110,7 @@ class PreferencesDialog(wx.Dialog):
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.entry_res = wx.TextCtrl(self, size=(360,-1), value=RESOURCES_PATH)
+        self.entry_res = wx.TextCtrl(self, size=(500,-1), value=RESOURCES_PATH)
         self.entry_res.SetFont(entryfont)
         ctrlSizer.Add(self.entry_res, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
@@ -4081,15 +4121,27 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer.Add(but2, 0, wx.ALL, 5)            
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
-        lbl = wx.StaticText(self, label="Allowed File Types (file extension):")
+        lbl = wx.StaticText(self, label="Background Pyo Server Arguments:")
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
-        self.entry_ext = wx.TextCtrl(self, size=(360,-1), value=", ".join(ALLOWED_EXT))
+        self.server_args = wx.TextCtrl(self, size=(500,-1), value=BACKGROUND_SERVER_ARGS)
+        self.server_args.SetFont(entryfont)
+        ctrlSizer.Add(self.server_args, 0, wx.ALL|wx.EXPAND, 5)
+        but = wx.Button(self, id=wx.ID_ANY, label="Restore default args")
+        but.Bind(wx.EVT_BUTTON, self.setServerDefaultArgs)
+        ctrlSizer.Add(but, 0, wx.ALL, 5)            
+        mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+
+        lbl = wx.StaticText(self, label="Allowed File Types in Folder Panel (file extension):")
+        lbl.SetFont(font)
+        mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
+        ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
+        self.entry_ext = wx.TextCtrl(self, size=(500,-1), value=", ".join(ALLOWED_EXT))
         self.entry_ext.SetFont(entryfont)
         ctrlSizer.Add(self.entry_ext, 0, wx.ALL|wx.EXPAND, 5)
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
- 
+
         btnSizer = self.CreateButtonSizer(wx.CANCEL|wx.OK)
  
         mainSizer.AddSpacer((-1,5))
@@ -4118,8 +4170,11 @@ class PreferencesDialog(wx.Dialog):
     def revertResourcesFolder(self, evt):
         self.entry_res.SetValue(RESOURCES_PATH)
 
+    def setServerDefaultArgs(self, evt):
+        self.server_args.SetValue(BACKGROUND_SERVER_DEFAULT_ARGS)
+        
     def writePrefs(self):
-        global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH
+        global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH, BACKGROUND_SERVER_ARGS
 
         which_python = self.entry_exe.GetValue()
         if os.path.isfile(which_python) and "python" in which_python:
@@ -4157,6 +4212,10 @@ class PreferencesDialog(wx.Dialog):
 
         extensions = [ext.strip() for ext in self.entry_ext.GetValue().split(",")]
         ALLOWED_EXT = PREFERENCES["allowed_ext"] = extensions
+        
+        server_args = self.server_args.GetValue()
+        BACKGROUND_SERVER_ARGS = PREFERENCES["background_server_args"] = server_args
+        
 
 class STCPrintout(wx.Printout):
     """Specific printing support of the wx.StyledTextCtrl for the wxPython
