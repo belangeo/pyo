@@ -2480,10 +2480,10 @@ class MainFrame(wx.Frame):
             with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
                 f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\ns = Server(%s).boot()\ns.start()\n" % BACKGROUND_SERVER_ARGS)
             if PLATFORM == "win32":
-                self.server_pipe = subprocess.Popen(['python', '-i', 'background_server.py'], 
+                self.server_pipe = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
                                         shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
             else:
-                self.server_pipe = subprocess.Popen(["python -i %s" % os.path.join(TEMP_PATH, "background_server.py")], 
+                self.server_pipe = subprocess.Popen(["%s -i %s" % (WHICH_PYTHON, os.path.join(TEMP_PATH, "background_server.py"))], 
                                         shell=True, stdin=subprocess.PIPE).stdin
             self.back_server_started = True
             self.backServerItem.SetItemLabel("Stop Pyo Background Server")
