@@ -2413,6 +2413,17 @@ class MainFrame(wx.Frame):
                 pass
         return cwd
 
+    def addCwdToSysPath(self, text):
+        cwd = self.getCurrentWorkingDirectory()
+        check = True
+        newtext = ""
+        for line in text.splitlines():
+            if check and not line.startswith("#"):
+                newtext += 'import sys\nsys.path.append("%s")\n' % cwd
+                check = False
+            newtext += line + "\n"
+        return newtext
+
     def run(self, path):
         cwd = self.getCurrentWorkingDirectory()
         if OSX_APP_BUNDLED:
@@ -2434,6 +2445,7 @@ class MainFrame(wx.Frame):
     def runner(self, event):
         text = self.panel.editor.GetTextUTF8()
         if text != "":
+            text = self.addCwdToSysPath(text)
             with open(TEMP_FILE, "w") as f:
                 f.write(text)
             self.run(TEMP_FILE)
@@ -2441,6 +2453,7 @@ class MainFrame(wx.Frame):
     def runSelection(self, event):
         text = self.panel.editor.GetSelectedTextUTF8()
         if text != "":
+            text = self.addCwdToSysPath(text)
             with open(TEMP_FILE, "w") as f:
                 f.write(text)
             self.run(TEMP_FILE)
@@ -2451,6 +2464,7 @@ class MainFrame(wx.Frame):
             pos = self.panel.editor.GetCurrentPos()
             line = self.panel.editor.LineFromPosition(pos)
             text = self.panel.editor.GetLineUTF8(line)
+        text = self.addCwdToSysPath(text)
         with open(TEMP_FILE, "w") as f:
             f.write("from pyo import *\ns = Server().boot()\n")
             f.write(text)
