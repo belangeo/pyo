@@ -1,5 +1,5 @@
 """
-Random noise generators.
+Set of objects that implement different kinds of random noise generators.
 
 """
 """

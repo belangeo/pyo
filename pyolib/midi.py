@@ -1,8 +1,7 @@
 """
-Objects to retrieve Midi informations for a specific Midi port.
+Objects to retrieve Midi informations for a specific Midi port and channel.
 
-Objects creates and returns audio streams from the value in their 
-Midi input.
+Objects creates and returns audio streams from the value in their Midi input.
 
 The audio streams of these objects are essentially intended to be
 used as controls and can't be sent to the output soundcard.

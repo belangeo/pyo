@@ -1,7 +1,7 @@
 """
 Play soundfiles from the disk.
 
-SfMarker's objects use markers features (store in the header) from 
+SfMarkerXXX objects use markers features (store in the header) from 
 an AIFF file to create more specific reading patterns.
 
 """

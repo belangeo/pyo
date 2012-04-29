@@ -1,5 +1,6 @@
 """
-Objects to place the sound on an arbitrary set of speakers.
+Set of objects to manage audio voice routing and spread of a sound 
+signal into a new stereo or multi-channel sound field.
  
 """
 

@@ -1,8 +1,8 @@
 """
 Synthesis generators.
 
-Classical synthesis generators that can be used as sources of a signal
-processing chain.
+Set of synthesis generators that can be used as sources of a signal
+processing chain or as parameter's modifiers.
 
 """
 
@@ -49,7 +49,7 @@ class Sine(PyoObject):
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
-    reset() : Resets current phase to 0.
+    reset() : Resets the reading pointer to 0.
     
     Attributes:
     
@@ -246,7 +246,7 @@ class Phasor(PyoObject):
     
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
-    reset() : Resets current phase to 0.
+    reset() : Resets the reading pointer to 0.
  
     Attributes:
     
@@ -1131,7 +1131,7 @@ class LFO(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setSharp(x) : Replace the `sharp` attribute.
     setType(x) : Replace the `type` attribute.
-    reset() : Resets current phase to 0.
+    reset() : Resets the reading pointer to 0.
 
     Attributes:
 
