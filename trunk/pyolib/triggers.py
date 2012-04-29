@@ -1,10 +1,10 @@
 """
-Objects to manage triggers streams.
+Set of objects to manage triggers streams.
 
 A trigger is an audio signal with a value of 1 surrounded by 0s.
 
-TrigXXX objects use this kind of signal to generate some processes 
-with sampling rate time accuracy.
+TrigXXX objects use this kind of signal to generate different 
+processes with sampling rate time accuracy.
 
 """
 

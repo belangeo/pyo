@@ -1,5 +1,18 @@
 """
 Different kinds of audio filtering operations.
+
+An audio filter is designed to amplify, pass or attenuate (negative amplification) 
+some frequency ranges. Common types include low-pass, which pass through 
+frequencies below their cutoff frequencies, and progressively attenuates 
+frequencies above the cutoff frequency. A high-pass filter does the opposite, 
+passing high frequencies above the cutoff frequency, and progressively 
+attenuating frequencies below the cutoff frequency. A bandpass filter passes 
+frequencies between its two cutoff frequencies, while attenuating those outside 
+the range. A band-reject filter, attenuates frequencies between its two cutoff 
+frequencies, while passing those outside the 'reject' range.
+
+An all-pass filter, passes all frequencies, but affects the phase of any given 
+sinusoidal component according to its frequency.
  
 """
 

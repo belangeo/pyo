@@ -1,7 +1,7 @@
 """
 Objects to manage values on an Open Sound Control port.
 
-OscSend take the first value of each buffersize and send it on an
+OscSend takes the first value of each buffersize and send it on an
 OSC port.
 
 OscReceive creates and returns audio streams from the value in its 

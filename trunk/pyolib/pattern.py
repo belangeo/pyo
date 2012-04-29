@@ -1,5 +1,6 @@
 """
-Call Python functions from triggers or number counts. Useful for event sequencing.
+Set of objects that call Python functions from triggers or number counts. 
+Useful for event sequencing.
 
 """
 

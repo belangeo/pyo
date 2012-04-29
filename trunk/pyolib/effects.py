@@ -1,5 +1,6 @@
 """
-Objects to perform specific audio signal processing effects.
+Objects to perform specific audio signal processing effects such
+as distortions, delays, chorus and reverbs.
 
 """
 

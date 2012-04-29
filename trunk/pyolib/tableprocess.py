@@ -1,8 +1,8 @@
 """
-PyoObjects to perform operations on PyoTableObjects.
+Set of objects to perform operations on PyoTableObjects.
 
-PyoTableObjects are 1 dimension containers. They can be used to store 
-audio samples or algorithmic sequences for future uses.
+PyoTableObjects are 1 dimension containers. They can be used to 
+store audio samples or algorithmic sequences for future uses.
 
 """
 
@@ -57,7 +57,7 @@ class Osc(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setPhase(x) : Replace the `phase` attribute.
     setInterp(x) : Replace the `interp` attribute.
-    reset() : Resets current phase to 0.
+    reset() : Resets the reading pointer to 0.
 
     Attributes:
     
@@ -666,7 +666,7 @@ class TableRead(PyoObject):
     setFreq(x) : Replace the `freq` attribute.
     setLoop(x) : Replace the `loop` attribute.
     setInterp(x) : Replace the `interp` attribute.
-    reset() : Resets current phase to 0.
+    reset() : Resets the reading pointer to 0.
 
     Attributes:
 

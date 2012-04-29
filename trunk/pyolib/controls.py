@@ -1,8 +1,8 @@
 """
 Objects designed to create parameter's control at audio rate. 
 
-They create envelopes, line segments and conversion from number to 
-audio signal. 
+These objects can be used to create envelopes, line segments 
+and conversion from python number to audio signal. 
 
 The audio streams of these objects can't be sent to the output 
 soundcard.
