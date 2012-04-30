@@ -2538,8 +2538,11 @@ class MainFrame(wx.Frame):
             self.backServerItem.SetItemLabel("Stop Pyo Background Server")
             self.sendToServerItem.Enable(True)
         else:
-            self.server_pipe.write("print 'Closing background server...'\ns.stop()\ntime.sleep(0.25)\n")
-            self.server_pipe.close()
+            try:
+                self.server_pipe.write("print 'Closing background server...'\ns.stop()\ntime.sleep(0.25)\n")
+                self.server_pipe.close()
+            except IOError:
+                pass
             self.server_pipe = None
             self.back_server_started = False
             self.backServerItem.SetItemLabel("Start Pyo Background Server")
