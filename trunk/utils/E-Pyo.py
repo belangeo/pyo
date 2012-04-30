@@ -1901,6 +1901,7 @@ class MainFrame(wx.Frame):
             yoff1 = -2
             yoff2 = -2
 
+        self.status.SetStatusText("Quick Search:", 0)
         rect = self.status.GetFieldRect(1)
         self.status_search.SetPosition((self.field1X+12, rect.y+yoff1))
         rect = self.status.GetFieldRect(2)
@@ -2112,10 +2113,12 @@ class MainFrame(wx.Frame):
         self.panel.editor.OnShowFindReplace()
 
     def quickSearch(self, evt):
+        self.status.SetStatusText("Quick Search:", 0)
         self.status_search.SetFocus()
         self.status_search.SelectAll()
 
     def quickSearchWordUnderCaret(self, evt):
+        self.status.SetStatusText("Quick Search:", 0)
         word = self.panel.editor.getWordUnderCaret()
         self.status_search.SetValue(word)
         self.onQuickSearchEnter(None)
