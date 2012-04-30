@@ -1,4 +1,4 @@
-﻿#! /usr/bin/env python
+#! /usr/bin/env python
 # encoding: utf-8
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
@@ -2582,7 +2582,10 @@ class MainFrame(wx.Frame):
         info = wx.AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = "(C) 2012 Olivier Bélanger"
+        if PLATFORM == "win32":
+            info.Copyright = "(C) 2012 Olivier Bélanger"
+        else:
+            info.Copyright = u"(C) 2012 Olivier Bélanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         wx.AboutBox(info)
 
@@ -3583,7 +3586,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "�")
+        #             self.InsertTextUTF8(pos, "¬")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()
