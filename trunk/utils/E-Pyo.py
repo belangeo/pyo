@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+﻿#! /usr/bin/env python
 # encoding: utf-8
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
@@ -2494,8 +2494,40 @@ class MainFrame(wx.Frame):
 
     def startStopBackgroundServer(self, evt):
         if not self.back_server_started:
+            outDriverIndex = -1
+            preferedDriver = PREFERENCES.get("background_server_out_device", "")
+            if preferedDriver != "":
+                driverList, driverIndexes = pa_get_output_devices()
+                driverList = [ensureNFD(driver) for driver in driverList]
+                if preferedDriver and preferedDriver in driverList:
+                    outDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
+            inDriverIndex = -1
+            preferedDriver = PREFERENCES.get("background_server_in_device", "")
+            if preferedDriver != "":
+                driverList, driverIndexes = pa_get_input_devices()
+                driverList = [ensureNFD(driver) for driver in driverList]
+                if preferedDriver and preferedDriver in driverList:
+                    inDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
+            midiInDriverIndex = -1
+            preferedDriver = PREFERENCES.get("background_server_midiin_device", "")
+            if preferedDriver != "":
+                driverList, driverIndexes = pm_get_input_devices()
+                driverList = [ensureNFD(driver) for driver in driverList]
+                if preferedDriver and preferedDriver in driverList:
+                    midiInDriverIndex = driverIndexes[driverList.index(preferedDriver)]
+
             with open(os.path.join(TEMP_PATH, "background_server.py"), "w") as f:
-                f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\ns = Server(%s).boot()\ns.start()\n" % BACKGROUND_SERVER_ARGS)
+                f.write("print 'Starting background server...'\nimport time\nfrom pyo import *\n")
+                f.write("s = Server(%s)\n" % BACKGROUND_SERVER_ARGS)
+                if outDriverIndex != -1:
+                    f.write("s.setOutputDevice(%d)\n" % outDriverIndex)
+                if inDriverIndex != -1:
+                    f.write("s.setInputDevice(%d)\n" % inDriverIndex)
+                if midiInDriverIndex != -1:
+                    f.write("s.setMidiInputDevice(%d)\n" % midiInDriverIndex)
+                f.write("s.boot()\ns.start()\n")
             if PLATFORM == "win32":
                 self.server_pipe = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
                                         shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
@@ -2553,8 +2585,11 @@ class MainFrame(wx.Frame):
 
     def OnClose(self, event):
         if self.back_server_started == True:
-            self.startStopBackgroundServer(None)
-            time.sleep(0.5)
+            try:
+                self.startStopBackgroundServer(None)
+                time.sleep(0.5)
+            except:
+                pass
         with open(PREFERENCES_PATH, "w") as f:
             f.write("epyo_prefs = %s" % str(PREFERENCES))
         try:
@@ -4145,7 +4180,13 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer.Add(but2, 0, wx.ALL, 5)            
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
-        lbl = wx.StaticText(self, label="Background Pyo Server Arguments:")
+        mainSizer.Add(wx.StaticLine(self, -1), 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+
+        lbl = wx.StaticText(self, label="Background Pyo Server")
+        lbl.SetFont(font)
+        mainSizer.Add(lbl, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 10)
+
+        lbl = wx.StaticText(self, label="Arguments:")
         lbl.SetFont(font)
         mainSizer.Add(lbl, 0, wx.LEFT|wx.RIGHT, 10)
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -4156,6 +4197,57 @@ class PreferencesDialog(wx.Dialog):
         but.Bind(wx.EVT_BUTTON, self.setServerDefaultArgs)
         ctrlSizer.Add(but, 0, wx.ALL, 5)            
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
+
+        popupSizer = wx.FlexGridSizer(2, 3, 5, 10)
+        for label in ["Output Driver", "Input Driver", "Midi Interface"]:
+            lbl = wx.StaticText(self, label=label)
+            lbl.SetFont(font)
+            popupSizer.Add(lbl)
+
+        preferedDriver = PREFERENCES.get("background_server_out_device", "")
+        driverList, driverIndexes = pa_get_output_devices()
+        driverList = [ensureNFD(driver) for driver in driverList]
+        defaultDriver = pa_get_default_output()
+        self.popupOutDriver = wx.Choice(self, choices=driverList)
+        popupSizer.Add(self.popupOutDriver)
+        if preferedDriver and preferedDriver in driverList:
+            driverIndex = driverIndexes[driverList.index(preferedDriver)]
+            self.popupOutDriver.SetStringSelection(preferedDriver)
+        elif defaultDriver:
+            self.popupOutDriver.SetSelection(driverIndexes.index(defaultDriver))
+
+        preferedDriver = PREFERENCES.get("background_server_in_device", "")
+        driverList, driverIndexes = pa_get_input_devices()
+        driverList = [ensureNFD(driver) for driver in driverList]
+        defaultDriver = pa_get_default_input()
+        self.popupInDriver = wx.Choice(self, choices=driverList)
+        popupSizer.Add(self.popupInDriver)
+        if preferedDriver and preferedDriver in driverList:
+            driverIndex = driverIndexes[driverList.index(preferedDriver)]
+            self.popupInDriver.SetStringSelection(preferedDriver)
+        elif defaultDriver:
+            self.popupInDriver.SetSelection(driverIndexes.index(defaultDriver))
+
+        preferedDriver = PREFERENCES.get("background_server_midiin_device", "")
+        driverList, driverIndexes = pm_get_input_devices()
+        driverList = [ensureNFD(driver) for driver in driverList]
+        if driverList != []:
+            defaultDriver = pm_get_default_input()
+            self.popupMidiInDriver = wx.Choice(self, choices=driverList)
+            popupSizer.Add(self.popupMidiInDriver)
+            if preferedDriver and preferedDriver in driverList:
+                driverIndex = driverIndexes[driverList.index(preferedDriver)]
+                self.popupMidiInDriver.SetStringSelection(preferedDriver)
+            elif defaultDriver:
+                self.popupMidiInDriver.SetSelection(driverIndexes.index(defaultDriver))
+        else:
+            self.popupMidiInDriver = wx.Choice(self, choices=["No Interface"])
+            popupSizer.Add(self.popupMidiInDriver)
+            self.popupMidiInDriver.SetSelection(0)
+
+        mainSizer.Add(popupSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 10)
+
+        mainSizer.Add(wx.StaticLine(self, -1), 0, wx.EXPAND|wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
         lbl = wx.StaticText(self, label="Allowed File Types in Folder Panel (file extension):")
         lbl.SetFont(font)
@@ -4196,7 +4288,7 @@ class PreferencesDialog(wx.Dialog):
 
     def setServerDefaultArgs(self, evt):
         self.server_args.SetValue(BACKGROUND_SERVER_DEFAULT_ARGS)
-        
+    
     def writePrefs(self):
         global ALLOWED_EXT, WHICH_PYTHON, RESOURCES_PATH, SNIPPETS_PATH, STYLES_PATH, BACKGROUND_SERVER_ARGS
 
@@ -4240,6 +4332,11 @@ class PreferencesDialog(wx.Dialog):
         server_args = self.server_args.GetValue()
         BACKGROUND_SERVER_ARGS = PREFERENCES["background_server_args"] = server_args
         
+        PREFERENCES["background_server_out_device"] = self.popupOutDriver.GetStringSelection()
+        PREFERENCES["background_server_in_device"] = self.popupInDriver.GetStringSelection()
+        midiDevice = self.popupMidiInDriver.GetStringSelection()
+        if midiDevice != "No Interface":
+            PREFERENCES["background_server_midiin_device"] = midiDevice
 
 class STCPrintout(wx.Printout):
     """Specific printing support of the wx.StyledTextCtrl for the wxPython
