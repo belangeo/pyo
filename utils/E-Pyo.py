@@ -2582,7 +2582,7 @@ class MainFrame(wx.Frame):
         info = wx.AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2012 Olivier Bélanger"
+        info.Copyright = "(C) 2012 Olivier Bélanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         wx.AboutBox(info)
 
@@ -3089,6 +3089,8 @@ class Editor(stc.StyledTextCtrl):
 
     ### Save and Close file ###
     def saveMyFile(self, file):
+        #with codecs.open(file, "w", encoding="utf-8") as f:
+         #   f.write(self.GetTextUTF8())
         self.SaveFile(file)
         self.path = file
         self.saveMark = False
