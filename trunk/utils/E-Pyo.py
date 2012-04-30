@@ -2582,10 +2582,7 @@ class MainFrame(wx.Frame):
         info = wx.AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        if PLATFORM == "win32":
-            info.Copyright = "(C) 2012 Olivier Bélanger"
-        else:
-            info.Copyright = u"(C) 2012 Olivier Bélanger"
+        info.Copyright = u"(C) 2012 Olivier Bélanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         wx.AboutBox(info)
 
