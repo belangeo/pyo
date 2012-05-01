@@ -278,7 +278,7 @@ tell application "System Events"
     keystroke "cd " & my_path
     keystroke return
     delay 0.25
-    keystroke which_python & " " & my_file
+    keystroke which_python & " " & my_file & " &"
     keystroke return
     delay 0.25
     end tell
