@@ -1,4 +1,4 @@
-﻿#! /usr/bin/env python
+#! /usr/bin/env python
 # encoding: utf-8
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
@@ -67,7 +67,7 @@ if PLATFORM == "win32" and sys.executable.endswith("E-Pyo.exe"):
 if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
     
-# Check for Python/WxPython/Pyo installation and architecture #
+# Check for which Python to use #
 if PLATFORM == "win32":
     WHICH_PYTHON = PREFERENCES.get("which_python", "C:\Python%d%d\python.exe" % sys.version_info[:2])
 else:
@@ -82,12 +82,11 @@ if WHICH_PYTHON == "":
     elif PLATFORM == "darwin":
         proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
-        # WHICH_PYTHON = WHICH_PYTHON.replace("/local", "")
     elif PLATFORM == "linux2":
         proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     else:
-        # No more used on Windows
+        ### No more used on Windows ###
         if "Python" in os.getenv("Path"):
             pos = os.getenv("Path").index("Python")
             ver = os.getenv("Path")[pos+6:pos+8]
@@ -100,10 +99,15 @@ if WHICH_PYTHON == "":
         if WHICH_PYTHON == "":
             INSTALLATION_ERROR_MESSAGE = "Python 2.x doesn't seem to be installed on this computer. Check your Python installation and try again."
 
-proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# Check for WxPython / Pyo installation and architecture #
+if OSX_APP_BUNDLED:
+    tmphome = os.environ["PYTHONHOME"]
+    tmppath = os.environ["PYTHONPATH"]
+    cmd = 'export -n PYTHONHOME PYTHONPATH;env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s' % (WHICH_PYTHON, tmphome, tmppath)
+else:
+    cmd = '%s -c "import pyo"' % WHICH_PYTHON
+proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
-#print IMPORT_PYO_STDOUT
-#print IMPORT_PYO_STDERR
 if "ImportError" in IMPORT_PYO_STDERR:
     if "No module named" in IMPORT_PYO_STDERR:
         INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
@@ -288,7 +292,7 @@ tell application "System Events"
     keystroke "cd " & my_path
     keystroke return
     delay 0.25
-    keystroke %swhich_python & " " & my_file & " &"
+    keystroke "%s" & which_python & " " & my_file & " &"
     keystroke return
     delay 0.25
     end tell
