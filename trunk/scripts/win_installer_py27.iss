@@ -42,19 +42,24 @@ Source: "C:\Python27\Lib\site-packages\msvcr90.dll"; DestDir: "{sd}\Python27\Lib
 Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\pyo-0.6.1-py2.7.egg-info"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
-Source: "C:\pyo\examples\algorithmic\*"; DestDir: "{userdesktop}\pyo_examples\algorithmic"; Flags: ignoreversion
-Source: "C:\pyo\examples\effects\*"; DestDir: "{userdesktop}\pyo_examples\effects"; Flags: ignoreversion
-Source: "C:\pyo\examples\fft\*"; DestDir: "{userdesktop}\pyo_examples\fft"; Flags: ignoreversion
-Source: "C:\pyo\examples\sampling\*"; DestDir: "{userdesktop}\pyo_examples\sampling"; Flags: ignoreversion
-Source: "C:\pyo\examples\snds\*"; DestDir: "{userdesktop}\pyo_examples\snds"; Flags: ignoreversion
-Source: "C:\pyo\examples\tables\*"; DestDir: "{userdesktop}\pyo_examples\tables"; Flags: ignoreversion
-Source: "C:\pyo\examples\control\*"; DestDir: "{userdesktop}\pyo_examples\control"; Flags: ignoreversion
-Source: "C:\pyo\examples\matrix\*"; DestDir: "{userdesktop}\pyo_examples\matrix"; Flags: ignoreversion
-Source: "C:\pyo\examples\sequencing\*"; DestDir: "{userdesktop}\pyo_examples\sequencing"; Flags: ignoreversion
-Source: "C:\pyo\examples\synthesis\*"; DestDir: "{userdesktop}\pyo_examples\synthesis"; Flags: ignoreversion
-Source: "C:\pyo\examples\utilities\*"; DestDir: "{userdesktop}\pyo_examples\utilities"; Flags: ignoreversion
+Source: "C:\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples\"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\pyo\scripts\README-win32-py27.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
+
+; E-Pyo stuff
+Source: "C:\Program Files\E-Pyo\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
+Source: "C:\Program Files\E-Pyo\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[Tasks]
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
+
+[Icons]
+Name: "{group}\E-Pyo"; Filename: "{pf}\E-Pyo\E-Pyo.exe"; WorkingDir: "{pf}\E-Pyo"
+Name: "{commondesktop}\E-Pyo"; Filename: "{pf}\E-Pyo\E-Pyo.exe"; Tasks: desktopicon
+
+[Run]
+Filename: "{pf}\E-Pyo\E-Pyo.exe"; Description: "{cm:LaunchProgram,E-Pyo}"; Flags: nowait postinstall skipifsilent
+;;;;;;;;;;;;;
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "C:\Python27;{olddata}"; Check: NeedsAddPath('C:\Python27')
