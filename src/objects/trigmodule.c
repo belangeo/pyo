@@ -5105,7 +5105,7 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
 	Py_DECREF(self->threshold);
 	if (isNumber == 1) {
 		self->threshold = PyNumber_Float(tmp);
-        self->modebuffer[0] = 0;
+        self->modebuffer[2] = 0;
 	}
 	else {
 		self->threshold = tmp;
@@ -5113,7 +5113,7 @@ Thresh_setThreshold(Thresh *self, PyObject *arg)
         Py_INCREF(streamtmp);
         Py_XDECREF(self->threshold_stream);
         self->threshold_stream = (Stream *)streamtmp;
-		self->modebuffer[0] = 1;
+		self->modebuffer[2] = 1;
 	}
     
     (*self->mode_func_ptr)(self);
