@@ -102,10 +102,12 @@ if WHICH_PYTHON == "":
 
 proc = subprocess.Popen(['%s -c "import pyo"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
+#print IMPORT_PYO_STDOUT
+#print IMPORT_PYO_STDERR
 if "ImportError" in IMPORT_PYO_STDERR:
     if "No module named" in IMPORT_PYO_STDERR:
         INSTALLATION_ERROR_MESSAGE = "Pyo is not installed in the current Python installation. Audio programs won't run.\n\nCurrent Python path: %s\n" % WHICH_PYTHON
-    elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR:
+    elif "no appropriate 64-bit architecture" in IMPORT_PYO_STDERR or "but wrong architecture" in IMPORT_PYO_STDERR:
         CALLER_NEED_TO_INVOKE_32_BIT = True
         INSTALLATION_ERROR_MESSAGE = "The current Python installation is running in 64-bit mode but pyo installation is 32-bit.\n\n"
         if PLATFORM == "darwin":
