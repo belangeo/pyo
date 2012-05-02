@@ -104,8 +104,10 @@ if OSX_APP_BUNDLED:
     tmphome = os.environ["PYTHONHOME"]
     tmppath = os.environ["PYTHONPATH"]
     cmd = 'export -n PYTHONHOME PYTHONPATH;env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s' % (WHICH_PYTHON, tmphome, tmppath)
+    cmd2 = 'export -n PYTHONHOME PYTHONPATH;env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s' % (WHICH_PYTHON, tmphome, tmppath)
 else:
     cmd = '%s -c "import pyo"' % WHICH_PYTHON
+    cmd2 = '%s -c "import wx"' % WHICH_PYTHON
 proc = subprocess.Popen([cmd], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 IMPORT_PYO_STDOUT, IMPORT_PYO_STDERR = proc.communicate()
 if "ImportError" in IMPORT_PYO_STDERR:
@@ -118,7 +120,7 @@ if "ImportError" in IMPORT_PYO_STDERR:
             INSTALLATION_ERROR_MESSAGE += "'VERSIONER_PYTHON_PREFER_32_BIT=yes' will be invoked before calling python executable.\n\n"
         INSTALLATION_ERROR_MESSAGE += "Current Python path: %s\n" % WHICH_PYTHON
 else:
-    proc = subprocess.Popen(['%s -c "import wx"' % WHICH_PYTHON], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen([cmd2], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     IMPORT_WX_STDOUT, IMPORT_WX_STDERR = proc.communicate()
     if "ImportError" in IMPORT_WX_STDERR:
         if "No module named" in IMPORT_WX_STDERR:
