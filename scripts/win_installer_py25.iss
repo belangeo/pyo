@@ -59,13 +59,14 @@ Name: "{commondesktop}\E-Pyo"; Filename: "{pf}\E-Pyo\E-Pyo.exe"; Tasks: desktopi
 
 [Run]
 Filename: "{pf}\E-Pyo\E-Pyo.exe"; Description: "{cm:LaunchProgram,E-Pyo}"; Flags: nowait postinstall skipifsilent
+
+[InstallDelete]
+Type: filesandordirs; Name: "{userdesktop}\pyo_examples";
+Type: filesandordirs; Name: "{userdocs}\.epyo";
 ;;;;;;;;;;;;;
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "Path"; ValueData: "C:\Python25;{olddata}"; Check: NeedsAddPath('C:\Python25')
-
-[InstallDelete]
-Type: filesandordirs; Name: "{userdesktop}\pyo_examples";
 
 [Code]
 function NeedsAddPath(Param: string): boolean;
