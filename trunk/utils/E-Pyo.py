@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+﻿#! /usr/bin/env python
 # encoding: utf-8
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
@@ -8,6 +8,7 @@ You can do absolutely everything you want to with this piece of software.
 Olivier Belanger - 2012
 
 """
+from __future__ import with_statement
 import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random, time
 from types import UnicodeType, MethodType
 from wx.lib.wordwrap import wordwrap
@@ -38,7 +39,10 @@ APP_NAME = 'E-Pyo'
 APP_VERSION = '0.6.1'
 OSX_APP_BUNDLED = False
 WIN_APP_BUNDLED = False
-TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
+if PLATFORM == "win32":
+    TEMP_PATH = os.path.join(os.path.expanduser('~'), "My Documents", ".epyo")
+else:
+    TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 
@@ -64,7 +68,10 @@ if PLATFORM == "darwin" and '/%s.app' % APP_NAME in os.getcwd():
     OSX_APP_BUNDLED = True
     
 # Check for Python/WxPython/Pyo installation and architecture #
-WHICH_PYTHON = PREFERENCES.get("which_python", "")
+if PLATFORM == "win32":
+    WHICH_PYTHON = PREFERENCES.get("which_python", "C:\Python%d%d\python.exe" % sys.version_info[:2])
+else:
+    WHICH_PYTHON = PREFERENCES.get("which_python", "")
 INSTALLATION_ERROR_MESSAGE = ""
 CALLER_NEED_TO_INVOKE_32_BIT = False
 SET_32_BIT_ARCH = "export VERSIONER_PYTHON_PREFER_32_BIT=yes;"
@@ -80,6 +87,7 @@ if WHICH_PYTHON == "":
         proc = subprocess.Popen(["which python"], shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         WHICH_PYTHON = proc.communicate()[0][:-1]
     else:
+        # No more used on Windows
         if "Python" in os.getenv("Path"):
             pos = os.getenv("Path").index("Python")
             ver = os.getenv("Path")[pos+6:pos+8]
@@ -278,7 +286,7 @@ tell application "System Events"
     keystroke "cd " & my_path
     keystroke return
     delay 0.25
-    keystroke which_python & " " & my_file & " &"
+    keystroke %swhich_python & " " & my_file & " &"
     keystroke return
     delay 0.25
     end tell
@@ -2430,7 +2438,10 @@ class MainFrame(wx.Frame):
     def run(self, path):
         cwd = self.getCurrentWorkingDirectory()
         if OSX_APP_BUNDLED:
-            script = terminal_client_script % (cwd, path, WHICH_PYTHON)
+            if CALLER_NEED_TO_INVOKE_32_BIT:
+                script = terminal_client_script % (cwd, path, WHICH_PYTHON, SET_32_BIT_ARCH)
+            else:
+                script = terminal_client_script % (cwd, path, WHICH_PYTHON, "")
             script = convert_line_endings(script, 1)
             with codecs.open(terminal_client_script_path, "w", encoding="utf-8") as f:
                 f.write(script)
@@ -2560,7 +2571,9 @@ class MainFrame(wx.Frame):
             self.server_pipe.write("\n")
 
     def buildDoc(self):
-        self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED)
+        self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED, which_python=WHICH_PYTHON,
+                                    caller_need_to_invoke_32_bit=CALLER_NEED_TO_INVOKE_32_BIT,
+                                    set_32_bit_arch=SET_32_BIT_ARCH)
 
     def showDoc(self, evt):
         if not self.doc_frame.IsShown():
@@ -2582,7 +2595,7 @@ class MainFrame(wx.Frame):
         info = wx.AboutDialogInfo()
         info.Name = APP_NAME
         info.Version = APP_VERSION
-        info.Copyright = u"(C) 2012 Olivier Bélanger"
+        info.Copyright = u"(C) 2012 Olivier Belanger"
         info.Description = "E-Pyo is a text editor especially configured to edit pyo audio programs.\n\n"
         wx.AboutBox(info)
 
@@ -3583,7 +3596,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "¬")
+        #             self.InsertTextUTF8(pos, "�")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()

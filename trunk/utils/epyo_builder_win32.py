@@ -1,4 +1,6 @@
-import os, shutil
+import os, shutil, sys
+
+version = sys.version_info[:2]
 
 os.mkdir("Resources")
 shutil.copy("PyoDoc.py", "Resources")
@@ -15,9 +17,9 @@ os.system("python ..\..\pyinstaller\Configure.py")
 os.system('python ..\..\pyinstaller\Makespec.py -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"')
 os.system('python ..\..\pyinstaller\Build.py "E-Pyo.spec"')
 
-os.mkdir("E-Pyo")
-shutil.copytree("Resources", "E-Pyo/Resources")
-shutil.copy("dist/E-Pyo.exe", "E-Pyo")
+os.mkdir("E-Pyo_py%d%d" % version)
+shutil.copytree("Resources", "E-Pyo_py%d%d/Resources" % version)
+shutil.copy("dist/E-Pyo.exe", "E-Pyo_py%d%d" % version)
 os.remove("E-Pyo.spec")
 shutil.rmtree("build")
 shutil.rmtree("dist")

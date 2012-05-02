@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+from __future__ import with_statement
 import subprocess
 import wx
 import wx.stc  as  stc
@@ -8,7 +9,10 @@ from pyo import *
 
 DOC_AS_SINGLE_APP = False
 
-TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
+if wx.Platform == '__WXMSW__':
+    TEMP_PATH = os.path.join(os.path.expanduser('~'), "My Documents", ".epyo")
+else:
+    TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 DOC_PATH = os.path.join(TEMP_PATH, 'doc')
@@ -32,6 +36,7 @@ for key, value in DOC_STYLES['Default'].items():
 
 terminal_client_script = """set my_path to quoted form of POSIX path of "%s"
 set my_file to quoted form of POSIX path of "%s"
+set which_python to quoted form of POSIX path of "%s"
 tell application "System Events"
 tell application process "Terminal"
     set frontmost to true
@@ -41,7 +46,7 @@ tell application process "Terminal"
     keystroke "cd " & my_path
     keystroke return
     delay 0.25
-    keystroke "python " & my_file
+    keystroke %swhich_python & " " & my_file & " &"
     keystroke return
     delay 0.25
     end tell
@@ -742,11 +747,17 @@ class ManualPanel(wx.Treebook):
             (child, cookie) = tree.GetNextChild(root, cookie)
 
 class ManualFrame(wx.Frame):
-    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700), osx_app_bundled=False):
+    def __init__(self, parent=None, id=-1, title='Pyo Documentation', size=(940, 700), 
+                    osx_app_bundled=False, which_python="python",
+                    caller_need_to_invoke_32_bit=False,
+                    set_32_bit_arch="export VERSIONER_PYTHON_PREFER_32_BIT=yes;"):
         wx.Frame.__init__(self, parent=parent, id=id, title=title, size=size)
         self.SetMinSize((600, -1))
 
         self.osx_app_bundled = osx_app_bundled
+        self.which_python = which_python
+        self.caller_need_to_invoke_32_bit = caller_need_to_invoke_32_bit
+        self.set_32_bit_arch = set_32_bit_arch
         gosearchID = 1000
         aTable = wx.AcceleratorTable([(wx.ACCEL_NORMAL, 47, gosearchID)])
         self.SetAcceleratorTable(aTable)
@@ -906,11 +917,20 @@ class ManualFrame(wx.Frame):
             f.write(text)
         if not DOC_AS_SINGLE_APP and self.osx_app_bundled:
             f = open(terminal_client_script_path, "w")
-            f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH))
+            if self.caller_need_to_invoke_32_bit:
+                f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH, self.which_python, self.set_32_bit_arch))
+            else:
+                f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH, self.which_python, ""))
             f.close()
             pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
+        elif wx.Platform == '__WXMAC__':
+            if self.caller_need_to_invoke_32_bit:
+                pid = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, DOC_EXAMPLE_PATH)],
+                                        cwd=TEMP_PATH, shell=True).pid
+            else:
+                pid = subprocess.Popen([self.which_python, DOC_EXAMPLE_PATH], cwd=TEMP_PATH).pid
         else:
-            pid = subprocess.Popen(["python", DOC_EXAMPLE_PATH], cwd=TEMP_PATH, shell=False).pid
+            pid = subprocess.Popen([self.which_python, DOC_EXAMPLE_PATH], cwd=TEMP_PATH).pid
         wx.FutureCall(8000, self.status.SetStatusText, "", 0)
 
 if __name__ == "__main__":
