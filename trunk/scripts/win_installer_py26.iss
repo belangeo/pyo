@@ -47,8 +47,8 @@ Source: "C:\pyo\scripts\README-win32-py26.txt"; DestDir: "{userdesktop}"; Flags:
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 ; E-Pyo stuff
-Source: "C:\Program Files\E-Pyo\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
-Source: "C:\Program Files\E-Pyo\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Program Files\E-Pyo_py26\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
+Source: "C:\Program Files\E-Pyo_py26\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
