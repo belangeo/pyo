@@ -1,3 +1,9 @@
+-------------------------------------------------------------------------------------
+
+2012-05-02 belangeo <belangeo@gmail.com>
+
+    * rev 966 - Upgraded version number to 0.6.2, release tag: 0.6.1.
+
 2012-04-28 belangeo <belangeo@gmail.com>
 
     * Added new function : convertStringToSysEncoding. For users who use non-ascii characters in their path.
