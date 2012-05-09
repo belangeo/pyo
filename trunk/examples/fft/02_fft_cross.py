@@ -6,7 +6,7 @@ Performs the cross-synthesis of two sounds.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 snd1 = SfPlayer("../snds/baseballmajeur_m.aif", loop=True).mix(2)
 snd2 = FM(carrier=[75,100,125,150], ratio=[.999,.5005], index=20, mul=.4).mix(2)

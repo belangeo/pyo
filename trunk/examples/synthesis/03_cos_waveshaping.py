@@ -5,7 +5,7 @@ Cos waveshaping synthesis.
 from pyo import *
 import math
 
-s = Server(sr=44100, nchnls=2).boot()
+s = Server(sr=44100, nchnls=2, duplex=0).boot()
 
 ### Controls ###
 drv = Sig(0)

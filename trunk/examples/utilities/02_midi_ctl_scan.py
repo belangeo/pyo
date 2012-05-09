@@ -12,7 +12,7 @@ pm_list_devices()
 
 num = input("Enter your Midi interface number : ")
 
-s = Server()
+s = Server(duplex=0)
 s.setMidiInputDevice(num)
 s.boot().start()
 

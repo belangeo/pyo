@@ -6,7 +6,7 @@ Spectral domain noise reduction.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 snd = "../snds/flute.aif"
 chnls = sndinfo(snd)[3]

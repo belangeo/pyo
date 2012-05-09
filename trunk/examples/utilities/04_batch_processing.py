@@ -6,7 +6,7 @@ This script demonstrates how to use pyo to do offline batch processing.
 """
 import os
 from pyo import *
-s = Server(audio="offline").boot()
+s = Server(duplex=0, audio="offline").boot()
 
 # input sound
 sndpath = SNDS_PATH + "/accord.aif"

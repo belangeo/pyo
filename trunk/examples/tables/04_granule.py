@@ -4,7 +4,7 @@ Hand-written granulation module.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 t1 = SndTable('../snds/baseballmajeur_m.aif')
 t2 = WinTable(7)
