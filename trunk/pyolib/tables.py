@@ -770,6 +770,10 @@ class LinTable(PyoTableObject):
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
         PyoTableObject.__init__(self)
+        if size < list[-1][0]:
+            print "LinTable warning : size smaller than last point position."
+            print "                   Increased size to last point position + 1"
+            size = list[-1][0] + 1
         self._size = size
         self._base_objs = [LinTable_base(list, size)]
 
@@ -928,6 +932,10 @@ class CosTable(PyoTableObject):
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
         PyoTableObject.__init__(self)
+        if size < list[-1][0]:
+            print "CosTable warning : size smaller than last point position."
+            print "                   Increased size to last point position + 1"
+            size = list[-1][0] + 1
         self._size = size
         self._base_objs = [CosTable_base(list, size)]
 
@@ -1108,6 +1116,10 @@ class CurveTable(PyoTableObject):
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
         PyoTableObject.__init__(self)
+        if size < list[-1][0]:
+            print "CurveTable warning : size smaller than last point position."
+            print "                     Increased size to last point position + 1"
+            size = list[-1][0] + 1
         self._size = size
         self._tension = tension
         self._bias = bias
@@ -1324,6 +1336,10 @@ class ExpTable(PyoTableObject):
     """
     def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
         PyoTableObject.__init__(self)
+        if size < list[-1][0]:
+            print "ExpTable warning : size smaller than last point position."
+            print "                   Increased size to last point position + 1"
+            size = list[-1][0] + 1
         self._size = size
         self._exp = exp
         self._inverse = inverse
