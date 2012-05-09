@@ -45,7 +45,11 @@ if '--use-jack' in sys.argv:
 if '--use-coreaudio' in sys.argv: 
     sys.argv.remove('--use-coreaudio') 
     macros.append(('USE_COREAUDIO',None))
-    
+
+if '--no-messages' in sys.argv:    
+    sys.argv.remove('--no-messages') 
+    macros.append(('NO_MESSAGES',None))
+
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
         'interpolation.c', 'fft.c', "wind.c"]

@@ -1797,6 +1797,14 @@ init_pyo64(void)
     
     m = Py_InitModule3(LIB_BASE_NAME, pyo_functions, "Python digital signal processing module.");
 
+#ifndef NO_MESSAGES
+#ifndef USE_DOUBLE
+    printf("pyo version %s (uses single precision)\n", PYO_VERSION);
+#else
+    printf("pyo version %s (uses double precision)\n", PYO_VERSION);
+#endif
+#endif
+
     if (PyType_Ready(&ServerType) < 0)
         return;
     Py_INCREF(&ServerType);

@@ -1,3 +1,8 @@
+2012-05-08 belangeo <belangeo@gmail.com>
+
+    * Added compiler flag --no-messages to suppress startup messages.
+    - rev 968
+
 -------------------------------------------------------------------------------------
 
 2012-05-02 belangeo <belangeo@gmail.com>
