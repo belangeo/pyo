@@ -6,7 +6,7 @@ Music box. 5 voices randomly choosing frequencies over a common scale.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 low_freqs = [midiToHz(m+7) for m in [36,43.01,48,55.01,60]]
 mid_freqs = [midiToHz(m+7) for m in [60,62,63.93,65,67.01,69,71,72]]

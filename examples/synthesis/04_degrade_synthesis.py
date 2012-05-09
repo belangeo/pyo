@@ -7,7 +7,7 @@ Synthesis sound with lot of harmonics passed through a Degrade object.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 # Fadein
 f = Fader(fadein=4, mul=.3).play()

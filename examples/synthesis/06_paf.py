@@ -4,7 +4,7 @@ from pyo import *
 import math
 twopi = math.pi * 2
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 class PAF:
     def __init__(self, f0, fc, bw, fs, amp):

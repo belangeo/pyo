@@ -26,7 +26,7 @@ print "Up sampling %i times..." % UP
 upsamp(IN_SND, UP_SND, UP, SIZE)
 
 print "Apply distortion at a sampling rate of %i Hz." % (SR*UP)
-s = Server(sr=SR*UP, nchnls=1, audio="offline").boot()
+s = Server(sr=SR*UP, nchnls=1, duplex=0, audio="offline").boot()
 s.recordOptions(dur=DUR+.1, filename=PROC_SND, fileformat=0, sampletype=0)
 sf = SfPlayer(IN_SND, loop=False, interp=4, mul=0.7)
 dist = Disto(sf, drive=0.75, slope=0.7, mul=0.3)

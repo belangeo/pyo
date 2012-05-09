@@ -5,7 +5,7 @@ Algorithmic melody patterns snapped on a specific scale...
 
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 scls = [[0,4,7,11,13,17,21,25,29,33],
         [0,7,12,14,17,21,24,29,31,34],

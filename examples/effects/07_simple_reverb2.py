@@ -7,7 +7,7 @@ Simple reverb based on Schroeder algorithm.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 a = SfPlayer("../snds/flute.aif", loop=True, mul=0.3).mix(2).out()
 

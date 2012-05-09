@@ -7,7 +7,7 @@ hard clip on top, soft compression on bottom.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 SOURCE = "../snds/flute.aif"
 BP_CENTER_FREQ = 250

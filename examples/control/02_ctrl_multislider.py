@@ -9,7 +9,7 @@ will show a multislider to set each value separately.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 a = BrownNoise()
 b = Biquadx(a, freq=[200, 400, 800, 1600, 3200, 6400], q=10, type=2).out()

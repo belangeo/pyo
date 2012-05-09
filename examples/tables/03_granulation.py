@@ -8,7 +8,7 @@ Classical granulation stretching...
 
 from pyo import *
 
-s = Server(buffersize=512).boot()
+s = Server(buffersize=512, duplex=0).boot()
 
 snd = SndTable('../snds/baseballmajeur_m.aif')
 snd.view()

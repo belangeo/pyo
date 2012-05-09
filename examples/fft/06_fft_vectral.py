@@ -6,7 +6,7 @@ Spectral gate and blur.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 snd = '../snds/ounkmaster.aif'
 

@@ -11,7 +11,7 @@ will not appear in the ctrl window.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 a = FM(carrier=150, ratio=.4958, index=10, mul=.2)
 a.ctrl(title="Frequency modulation controls")

@@ -7,7 +7,7 @@ Python function regularly called with a Pattern object.
 from pyo import *
 import random
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 amp = Fader(fadein=1, mul=.25).play()
 src1 = BrownNoise(mul=amp)

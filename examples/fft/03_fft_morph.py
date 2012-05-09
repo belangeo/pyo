@@ -6,7 +6,7 @@ Spectral morphing of two sounds.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 snd1 = SfPlayer("../snds/baseballmajeur_m.aif", loop=True, mul=.3).mix(2)
 lfos = Sine(freq=[.05,.04], mul=.05, add=[1,.5])

@@ -7,7 +7,7 @@ Simple wave terrain synthesis. The terrain is generated with sin functions.
 from pyo import *
 import random, math
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
+s = Server(sr=44100, nchnls=2, buffersize=512, duplex=0).boot()
 
 def terrain(size=256, freq=1, phase=16):
     l = []

@@ -10,7 +10,7 @@ interpreter widget of the Server window to show the spectrum.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 son = '../snds/baseballmajeur_m.aif'
 info = sndinfo(son)

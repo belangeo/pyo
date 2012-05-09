@@ -1,5 +1,10 @@
 2012-05-09 belangeo <belangeo@gmail.com>
 
+    * Ensures that every example in the examples folder that don't need audio input have the duplex mode set to 0.
+    - rev 971
+
+2012-05-09 belangeo <belangeo@gmail.com>
+
     * Added new object: MatrixRecLoop. Records samples in loop into a previously created NewMatrix.
     - rev 970
 

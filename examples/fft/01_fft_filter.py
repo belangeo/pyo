@@ -6,7 +6,7 @@ Spectral domain filter.
 """
 from pyo import *
 
-s = Server().boot()
+s = Server(duplex=0).boot()
 
 a = Noise(.1).mix(2)
 
