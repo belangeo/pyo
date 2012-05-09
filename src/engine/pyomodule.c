@@ -2006,6 +2006,11 @@ init_pyo64(void)
     Py_INCREF(&MatrixRecType);
     PyModule_AddObject(m, "MatrixRec_base", (PyObject *)&MatrixRecType);
 
+    if (PyType_Ready(&MatrixRecLoopType) < 0)
+        return;
+    Py_INCREF(&MatrixRecLoopType);
+    PyModule_AddObject(m, "MatrixRecLoop_base", (PyObject *)&MatrixRecLoopType);
+    
     if (PyType_Ready(&MatrixMorphType) < 0)
         return;
     Py_INCREF(&MatrixMorphType);

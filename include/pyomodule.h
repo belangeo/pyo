@@ -328,6 +328,7 @@ extern PyTypeObject TrigTableRecType;
 extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;
 extern PyTypeObject MatrixRecType;
+extern PyTypeObject MatrixRecLoopType;
 extern PyTypeObject MatrixMorphType;
 
 extern PyTypeObject OscSendType;

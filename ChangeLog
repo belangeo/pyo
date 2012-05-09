@@ -1,3 +1,8 @@
+2012-05-09 belangeo <belangeo@gmail.com>
+
+    * Added new object: MatrixRecLoop. Records samples in loop into a previously created NewMatrix.
+    - rev 970
+
 2012-05-08 belangeo <belangeo@gmail.com>
 
     * Fixed issue 30. Lin/Exp/Cos/CurveTable compare size with last position in the list and increase size if needed.

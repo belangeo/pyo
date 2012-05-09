@@ -493,7 +493,10 @@ class PyoObject(object):
                 for ele in self.__dict__[key]:
                     if hasattr(ele, "getBaseObjects"):
                         for obj in ele.getBaseObjects():
-                            obj.deleteStream()
+                            try:
+                                obj.deleteStream()
+                            except:
+                                pass
                             del obj
                     else:
                         del ele
