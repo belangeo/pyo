@@ -1,5 +1,10 @@
 2012-05-08 belangeo <belangeo@gmail.com>
 
+    * Fixed issue 30. Lin/Exp/Cos/CurveTable compare size with last position in the list and increase size if needed.
+    - rev 969
+
+2012-05-08 belangeo <belangeo@gmail.com>
+
     * Added compiler flag --no-messages to suppress startup messages.
     - rev 968
 
