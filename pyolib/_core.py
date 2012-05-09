@@ -29,11 +29,9 @@ import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
     import pyo64 as current_pyo
     from _pyo64 import *
-    print "pyo version %s (uses double precision)" % PYO_VERSION
 else:    
     import pyo as current_pyo
     from _pyo import *
-    print "pyo version %s (uses single precision)" % PYO_VERSION
     
 from _maps import *
 from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWindow

@@ -86,6 +86,7 @@ void
 Server_warning(Server *self, char * format, ...)
 {
     // Warnings should be used when an unexpected or unusual choice was made by pyo
+#ifndef NO_MESSAGES
     if (self->verbosity & 4) {
         char buffer[256];
         va_list args;
@@ -94,6 +95,7 @@ Server_warning(Server *self, char * format, ...)
         va_end (args);
         printf("%s",buffer);
     }
+#endif
 }
 
 void
@@ -566,7 +568,7 @@ Server_jack_autoconnect (Server *self)
     int i=0;
     while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
         if (jack_connect (be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
-            Server_warning(self, "Jack: cannot connect input ports\n");
+            Server_error(self, "Jack: cannot connect input ports\n");
             ret = -1;
         }
         i++;
@@ -582,7 +584,7 @@ Server_jack_autoconnect (Server *self)
     i=0;
     while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
         if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
-            Server_warning(self, "Jack: cannot connect output ports\n");
+            Server_error(self, "Jack: cannot connect output ports\n");
             ret = -1;
         }
         i++;
@@ -616,7 +618,7 @@ Server_jack_init (Server *self)
         return -1;
     }
     if (status & JackServerStarted) {
-        Server_message(self, "JACK server started.\n");
+        Server_warning(self, "JACK server started.\n");
     }
     if (strcmp(self->serverName, jack_get_client_name(be_data->jack_client)) ) {
         strcpy(self->serverName, jack_get_client_name(be_data->jack_client));
@@ -756,7 +758,7 @@ Server_coreaudio_init(Server *self)
             free(name);
             break;
         }
-        Server_message(self, "   %d : \"%s\"\n", i, name);
+        Server_debug(self, "   %d : \"%s\"\n", i, name);
         free(name);
     }    
     
@@ -786,7 +788,7 @@ Server_coreaudio_init(Server *self)
         if (err != kAudioHardwareNoError) {
             Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mInputDevice);
         }
-        Server_message(self, "Coreaudio : Uses input device : \"%s\"\n", name);
+        Server_debug(self, "Coreaudio : Uses input device : \"%s\"\n", name);
         self->input = mInputDevice;
         free(name);
     }    
@@ -813,7 +815,7 @@ Server_coreaudio_init(Server *self)
     if (err != kAudioHardwareNoError) {
         Server_error(self, "Get kAudioDevicePropertyDeviceName error %s A %08X\n", (char*)&err, mOutputDevice);
     }
-    Server_message(self, "Coreaudio : Uses output device : \"%s\"\n", name);
+    Server_debug(self, "Coreaudio : Uses output device : \"%s\"\n", name);
     self->output = mOutputDevice;
     free(name);
     
@@ -880,10 +882,10 @@ Server_coreaudio_init(Server *self)
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyBufferFrameSize error %4.4s\n", (char*)&err);
         else
-            Server_message(self, "pyo buffer size set to output device buffer size : %i\n", self->bufferSize);
+            Server_debug(self, "pyo buffer size set to output device buffer size : %i\n", self->bufferSize);
     } 
     else
-        Server_message(self, "Coreaudio : Changed output device buffer size successfully: %i\n", self->bufferSize);
+        Server_debug(self, "Coreaudio : Changed output device buffer size successfully: %i\n", self->bufferSize);
 
     if (self->duplex == 1) {
         err = AudioDeviceSetProperty(mInputDevice, &now, 0, false, kAudioDevicePropertyBufferFrameSize, count, &self->bufferSize);
@@ -903,10 +905,10 @@ Server_coreaudio_init(Server *self)
         if (err != kAudioHardwareNoError)
             Server_error(self, "set kAudioDevicePropertyNominalSampleRate error %s\n", (char*)&err);
         else    
-            Server_message(self, "pyo sampling rate set to output device sampling rate : %i\n", self->samplingRate);
+            Server_debug(self, "pyo sampling rate set to output device sampling rate : %i\n", self->samplingRate);
     }
     else
-        Server_message(self, "Coreaudio : Changed output device sampling rate successfully: %.2f\n", self->samplingRate);
+        Server_debug(self, "Coreaudio : Changed output device sampling rate successfully: %.2f\n", self->samplingRate);
     
     if (self->duplex ==1) {
         pyoSamplingRate = self->samplingRate;
@@ -1258,7 +1260,7 @@ Server_shut_down(Server *self)
     int i;
     int ret = -1;
     if (self->server_booted == 0) {
-        Server_error(self, "The Server must be booted!");
+        Server_error(self, "The Server must be booted!\n");
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -1859,7 +1861,7 @@ Server_start(Server *self)
             break;           
     }
     if (err) {
-        Server_error(self, "Error starting server.");
+        Server_error(self, "Error starting server.\n");
     }
 
     Py_INCREF(Py_None);
@@ -2011,7 +2013,7 @@ Server_addStream(Server *self, PyObject *args)
         return PyInt_FromLong(-1); 
         
     if (tmp == NULL) {
-        Server_error(self, "Need a pyo object as argument\n");
+        Server_error(self, "Server_addStream needs a pyo object as argument.\n");
         return PyInt_FromLong(-1);
     }
 
