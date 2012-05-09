@@ -741,6 +741,216 @@ PyTypeObject MatrixRecType = {
 };
 
 /******************************/
+/* MatrixRecLoop object definition */
+/******************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    NewMatrix *matrix;
+    int pointer;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
+} MatrixRecLoop;
+
+static void
+MatrixRecLoop_compute_next_data_frame(MatrixRecLoop *self)
+{
+    int i;
+    int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
+    int height = NewMatrix_getHeight((NewMatrix *)self->matrix);
+    int size = width * height;
+
+    MYFLT buffer[self->bufsize];
+    memset(&buffer, 0, sizeof(buffer));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+        buffer[i] = in[i];
+        if (self->pointer++ >= size) {
+            self->pointer = 0;
+            self->trigsBuffer[i] = 1.0;
+        }
+    }
+    NewMatrix_recordChunkAllRow((NewMatrix *)self->matrix, buffer, self->bufsize);
+}
+
+static int
+MatrixRecLoop_traverse(MatrixRecLoop *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->matrix);
+    Py_VISIT(self->trig_stream);    
+    return 0;
+}
+
+static int 
+MatrixRecLoop_clear(MatrixRecLoop *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->matrix);
+    Py_CLEAR(self->trig_stream);    
+    return 0;
+}
+
+static void
+MatrixRecLoop_dealloc(MatrixRecLoop* self)
+{
+    free(self->data);
+    free(self->trigsBuffer);
+    MatrixRecLoop_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * MatrixRecLoop_deleteStream(MatrixRecLoop *self) { DELETE_STREAM };
+
+static PyObject *
+MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    MatrixRecLoop *self;
+    self = (MatrixRecLoop *)type->tp_alloc(type, 0);
+    
+    self->pointer = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    Stream_setFunctionPtr(self->stream, MatrixRecLoop_compute_next_data_frame);
+    
+    return (PyObject *)self;
+}
+
+static int
+MatrixRecLoop_init(MatrixRecLoop *self, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *matrixtmp;
+    
+    static char *kwlist[] = {"input", "matrix", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &matrixtmp))
+        return -1; 
+    
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (Stream *)input_streamtmp;
+    
+    Py_XDECREF(self->matrix);
+    self->matrix = (NewMatrix *)matrixtmp;
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
+    
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * MatrixRecLoop_getServer(MatrixRecLoop* self) { GET_SERVER };
+static PyObject * MatrixRecLoop_getStream(MatrixRecLoop* self) { GET_STREAM };
+static PyObject * MatrixRecLoop_getTriggerStream(MatrixRecLoop* self) { GET_TRIGGER_STREAM };
+
+static PyObject * MatrixRecLoop_play(MatrixRecLoop *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * MatrixRecLoop_stop(MatrixRecLoop *self) { STOP };
+
+static PyObject *
+MatrixRecLoop_setMatrix(MatrixRecLoop *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+    Py_INCREF(tmp);
+	Py_DECREF(self->matrix);
+    self->matrix = (NewMatrix *)tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef MatrixRecLoop_members[] = {
+    {"server", T_OBJECT_EX, offsetof(MatrixRecLoop, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(MatrixRecLoop, stream), 0, "Stream object."},
+    {"trig_stream", T_OBJECT_EX, offsetof(MatrixRecLoop, trig_stream), 0, "Trigger Stream object."},
+    {"input", T_OBJECT_EX, offsetof(MatrixRecLoop, input), 0, "Input sound object."},
+    {"matrix", T_OBJECT_EX, offsetof(MatrixRecLoop, matrix), 0, "matrix to record in."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef MatrixRecLoop_methods[] = {
+    {"getServer", (PyCFunction)MatrixRecLoop_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)MatrixRecLoop_getStream, METH_NOARGS, "Returns stream object."},
+    {"_getTriggerStream", (PyCFunction)MatrixRecLoop_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+    {"deleteStream", (PyCFunction)MatrixRecLoop_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"setMatrix", (PyCFunction)MatrixRecLoop_setMatrix, METH_O, "Sets a new Matrix."},
+    {"play", (PyCFunction)MatrixRecLoop_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)MatrixRecLoop_stop, METH_NOARGS, "Stops computing."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject MatrixRecLoopType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.MatrixRecLoop_base",         /*tp_name*/
+    sizeof(MatrixRecLoop),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)MatrixRecLoop_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "MatrixRecLoop objects. Record circular audio input in a Matrix object.",           /* tp_doc */
+    (traverseproc)MatrixRecLoop_traverse,   /* tp_traverse */
+    (inquiry)MatrixRecLoop_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    MatrixRecLoop_methods,             /* tp_methods */
+    MatrixRecLoop_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    (initproc)MatrixRecLoop_init,      /* tp_init */
+    0,                         /* tp_alloc */
+    MatrixRecLoop_new,                 /* tp_new */
+};
+
+/******************************/
 /* MatrixMorph object definition */
 /******************************/
 typedef struct {

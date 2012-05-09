@@ -32,7 +32,7 @@ from types import SliceType
 
 class MatrixRec(PyoObject):
     """
-    MatrixRec is for writing samples into a previously created NewMatrix.
+    MatrixRec records samples into a previously created NewMatrix.
 
     See `NewMatrix` to create an empty matrix.
 
@@ -108,7 +108,7 @@ class MatrixRec(PyoObject):
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
     def __dir__(self):
-        return ['input', 'matrix', 'mul', 'add']
+        return ['input', 'matrix']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self
@@ -154,7 +154,131 @@ class MatrixRec(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Audio signal to write in the matrix.""" 
+        """PyoObject. Audio signal to record in the matrix.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def matrix(self):
+        """PyoMatrixObject. The matrix where to write samples."""
+        return self._matrix
+    @matrix.setter
+    def matrix(self, x): self.setMatrix(x)
+
+class MatrixRecLoop(PyoObject):
+    """
+    MatrixRecLoop records samples in loop into a previously created NewMatrix.
+
+    See `NewMatrix` to create an empty matrix.
+
+    MatrixRecLoop records samples into the matrix, row after row, until 
+    the matrix is full and then loop back to the beginning. 
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal to write in the matrix.
+    matrix : PyoMatrixObject
+        The matrix where to write samples.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMatrix(x) : Replace the `matrix` attribute.
+
+    Attributes:
+
+    input : PyoObject. Audio signal to write in the matrix.
+    matrix : PyoMatrixObject. The matrix where to write samples.
+
+    Notes:
+
+    The out() method is bypassed. MatrixRecLoop returns no signal.
+
+    MatrixRecLoop has no `mul` and `add` attributes.
+
+    MatrixRecLoop will sends a trigger signal when reaching the end 
+    of the matrix. User can retreive the trigger streams by calling 
+    obj['trig']. See `TableRec` documentation for an example.
+
+    See also: NewMatrix
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> env = CosTable([(0,0), (300,1), (1000,.4), (8191,0)])
+    >>> matrix = NewMatrix(8192, 8)
+    >>> src = SfPlayer(SNDS_PATH+'/transparent.aif', loop=True, mul=.3)
+    >>> m_rec = MatrixRecLoop(src, matrix)
+    >>> period = 8192 / s.getSamplingRate()
+    >>> metro = Metro(time=period/2, poly=2).play()
+    >>> x = TrigLinseg(metro, [(0,0), (period,1)])
+    >>> y = TrigRandInt(metro, max=2, mul=0.125)
+    >>> amp = TrigEnv(metro, table=env, dur=period)
+    >>> out = MatrixPointer(matrix, x, y, amp).out()
+
+    """
+    def __init__(self, input, matrix):
+        PyoObject.__init__(self)
+        self._input = input
+        self._matrix = matrix
+        self._in_fader = InputFader(input)
+        in_fader, matrix, lmax = convertArgsToLists(self._in_fader, matrix)
+        self._base_objs = [MatrixRecLoop_base(wrap(in_fader,i), wrap(matrix,i)) for i in range(len(matrix))]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+
+    def __dir__(self):
+        return ['input', 'matrix']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self
+
+    def setMul(self, x):
+        pass
+
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setMatrix(self, x):
+        """
+        Replace the `matrix` attribute.
+
+        Parameters:
+
+        x : NewMatrix
+            new `matrix` attribute.
+
+        """
+        self._matrix = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Audio signal to record in the matrix.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
