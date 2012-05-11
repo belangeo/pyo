@@ -7,7 +7,7 @@ as any other builtin PyoObjects.
 """
 from pyo import *
 
-class Vocoder(PyoObject):
+class MyVocoder(PyoObject):
     """
     Vocoder effect.
 
@@ -62,7 +62,7 @@ class Vocoder(PyoObject):
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True)
     >>> b = PinkNoise(.1)
     >>> lfo = Sine(freq=.05, mul=50, add=100)
-    >>> voc = Vocoder(in1=a, in2=b, num=12, base=lfo, spread=[1.2,1.22]).out()
+    >>> voc = MyVocoder(in1=a, in2=b, num=12, base=lfo, spread=[1.2,1.22]).out()
 
     """
     def __init__(self, in1, in2, base=50, spread=1.5, q=5, num=20, mul=1, add=0):

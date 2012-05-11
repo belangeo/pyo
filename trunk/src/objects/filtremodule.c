@@ -5515,3 +5515,1263 @@ PyTypeObject PhaserType = {
     Phaser_new,                                     /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *input2;
+    Stream *input2_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *spread;
+    Stream *spread_stream;
+    PyObject *q;
+    Stream *q_stream;
+    PyObject *slope;
+    Stream *slope_stream;
+    MYFLT last_freq;
+    MYFLT last_spread;
+    MYFLT last_q;
+    MYFLT last_slope;
+    MYFLT factor;
+    int stages;
+    int last_stages;
+    MYFLT nyquist;
+    MYFLT twoPiOnSr;
+    int modebuffer[6]; // need at least 2 slots for mul & add 
+    // sample memories
+    MYFLT *y1;
+    MYFLT *y2;
+    MYFLT *yy1;
+    MYFLT *yy2;
+    // follower memories
+    MYFLT *follow;
+    // coefficients
+    MYFLT *b0;
+    MYFLT *b2;
+    MYFLT *a0;
+    MYFLT *a1;
+    MYFLT *a2;
+} Vocoder;
+
+static void
+Vocoder_allocate_memories(Vocoder *self)
+{
+    int i, i2j, j;
+    self->y1 = (MYFLT *)realloc(self->y1, self->stages * 2 *  sizeof(MYFLT));
+    self->y2 = (MYFLT *)realloc(self->y2, self->stages * 2 *  sizeof(MYFLT));
+    self->yy1 = (MYFLT *)realloc(self->yy1, self->stages * 2 *  sizeof(MYFLT));
+    self->yy2 = (MYFLT *)realloc(self->yy2, self->stages * 2 *  sizeof(MYFLT));
+    self->b0 = (MYFLT *)realloc(self->b0, self->stages *  sizeof(MYFLT));
+    self->b2 = (MYFLT *)realloc(self->b2, self->stages *  sizeof(MYFLT));
+    self->a0 = (MYFLT *)realloc(self->a0, self->stages *  sizeof(MYFLT));
+    self->a1 = (MYFLT *)realloc(self->a1, self->stages *  sizeof(MYFLT));
+    self->a2 = (MYFLT *)realloc(self->a2, self->stages *  sizeof(MYFLT));
+    self->follow = (MYFLT *)realloc(self->follow, self->stages *  sizeof(MYFLT));
+    for (i=0; i<self->stages; i++) {
+        self->b0[i] = self->b2[i] = self->a0[i] = self->a1[i] = self->a2[i] = self->follow[i] = 0.0;
+        for (j=0; j<2; j++) {
+            i2j = i * 2 + j;
+            self->yy1[i2j] = self->yy2[i2j] = self->y1[i2j] = self->y2[i2j] = 0.0;
+
+        }
+    }    
+}
+
+static void
+Vocoder_compute_variables(Vocoder *self, MYFLT base, MYFLT spread, MYFLT q)
+{    
+    int i;
+    MYFLT w0, c, alpha, freq, invqfac;
+    
+    invqfac = 1.0 / (2.0 * q);
+
+    for (i=0; i<self->stages; i++) {
+        freq = base * MYPOW(i+1, spread);
+        if (freq <= 10) 
+            freq = 10.0;
+        else if (freq >= self->nyquist)
+            freq = self->nyquist;
+        
+        w0 = self->twoPiOnSr * freq;
+        c = MYCOS(w0);
+        alpha = MYSIN(w0) * invqfac;
+        self->b0[i] = alpha;
+        self->b2[i] = -alpha;
+        self->a0[i] = 1.0 / (1.0 + alpha); /* Inversed to multiply */
+        self->a1[i] = -2.0 * c;
+        self->a2[i] = 1.0 - alpha;
+    }
+}
+    
+static void
+Vocoder_filters_iii(Vocoder *self) {
+    int i, j, j2;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    q = PyFloat_AS_DOUBLE(self->q);
+    if (q < 0.1)
+        q = 0.1;
+    amp = q * 10.0;
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+
+    if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        self->last_freq = freq;
+        self->last_spread = spread;
+        self->last_q = q;
+        self->last_stages = self->stages;
+        Vocoder_compute_variables(self, freq, spread, q);
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }
+}
+
+static void
+Vocoder_filters_aii(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    q = PyFloat_AS_DOUBLE(self->q);
+    if (q < 0.1)
+        q = 0.1;
+    amp = q * 10.0;
+        
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0)
+            freq = fr[i];
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+                        
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }
+}
+
+static void
+Vocoder_filters_iai(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    if (q < 0.1)
+        q = 0.1;
+    amp = q * 10.0;
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0)
+            spread = sprd[i];
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }    
+}
+
+static void
+Vocoder_filters_aai(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    if (q < 0.1)
+        q = 0.1;
+    amp = q * 10.0;
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0) {
+            freq = fr[i];
+            spread = sprd[i];
+        }
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }    
+}
+
+static void
+Vocoder_filters_iia(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0) {
+            q = qstr[i];
+            if (q < 0.1)
+                q = 0.1;
+            amp = q * 10.0;            
+        }
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }    
+}
+
+static void
+Vocoder_filters_aia(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0) {
+            freq = fr[i];
+            q = qstr[i];
+            if (q < 0.1)
+                q = 0.1;
+            amp = q * 10.0;            
+        }
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }    
+}
+
+static void
+Vocoder_filters_iaa(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0) {
+            spread = sprd[i];
+            q = qstr[i];
+            if (q < 0.1)
+                q = 0.1;
+            amp = q * 10.0;            
+        }
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }    
+}
+
+static void
+Vocoder_filters_aaa(Vocoder *self) {
+    int i, j, j2;
+    int count = 0, maxcount = self->bufsize / 4;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
+    
+    if (self->modebuffer[5] == 0)
+        slope = PyFloat_AS_DOUBLE(self->slope);
+    else
+        slope = Stream_getData((Stream *)self->slope_stream)[0];
+    if (slope < 0.0)
+        slope = 0.0;
+    else if (slope > 1.0)
+        slope = 1.0;
+    if (slope != self->last_slope) {
+        self->last_slope = slope;
+        self->factor = MYEXP(-1.0 / (self->sr / ((slope * 99.0) + 1.0)));
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (count == 0) {
+            freq = fr[i];
+            spread = sprd[i];
+            q = qstr[i];
+            if (q < 0.1)
+                q = 0.1;
+            amp = q * 10.0;            
+        }
+        else if (count >= maxcount)
+            count = 0;
+        count++;
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+            self->last_freq = freq;
+            self->last_spread = spread;
+            self->last_q = q;
+            self->last_stages = self->stages;
+            Vocoder_compute_variables(self, freq, spread, q);
+        }
+        output = 0.0;
+        vin = in[i];
+        vin2 = in2[i];
+        for (j=0; j<self->stages; j++) {
+            j2 = j * 2;
+            /* Analysis part filter 1 */
+            w = ( vin - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) )  * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 1 */
+            w2 = ( vin2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            j2++;
+            /* Analysis part filter 2 */
+            w = ( vout - (self->a1[j] * self->y1[j2]) - (self->a2[j] * self->y2[j2]) ) * self->a0[j];
+            vout = (self->b0[j] * w) + (self->b2[j] * self->y2[j2]);
+            self->y2[j2] = self->y1[j2];
+            self->y1[j2] = w;
+            
+            /* Exciter part filter 2 */
+            w2 = ( vout2 - (self->a1[j] * self->yy1[j2]) - (self->a2[j] * self->yy2[j2]) ) * self->a0[j];
+            vout2 = (self->b0[j] * w2) + (self->b2[j] * self->yy2[j2]);
+            self->yy2[j2] = self->yy1[j2];
+            self->yy1[j2] = w2;
+            
+            /* Follower */
+            if (vout < 0.0)
+                vout = -vout;
+            self->follow[j] = vout + self->factor * (self->follow[j] - vout);
+            output += vout2 * self->follow[j];
+        }
+        self->data[i] = output * amp;
+    }    
+}
+
+static void Vocoder_postprocessing_ii(Vocoder *self) { POST_PROCESSING_II };
+static void Vocoder_postprocessing_ai(Vocoder *self) { POST_PROCESSING_AI };
+static void Vocoder_postprocessing_ia(Vocoder *self) { POST_PROCESSING_IA };
+static void Vocoder_postprocessing_aa(Vocoder *self) { POST_PROCESSING_AA };
+static void Vocoder_postprocessing_ireva(Vocoder *self) { POST_PROCESSING_IREVA };
+static void Vocoder_postprocessing_areva(Vocoder *self) { POST_PROCESSING_AREVA };
+static void Vocoder_postprocessing_revai(Vocoder *self) { POST_PROCESSING_REVAI };
+static void Vocoder_postprocessing_revaa(Vocoder *self) { POST_PROCESSING_REVAA };
+static void Vocoder_postprocessing_revareva(Vocoder *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Vocoder_setProcMode(Vocoder *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Vocoder_filters_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Vocoder_filters_aii;
+            break;
+        case 10:        
+            self->proc_func_ptr = Vocoder_filters_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = Vocoder_filters_aai;
+            break;
+        case 100:    
+            self->proc_func_ptr = Vocoder_filters_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = Vocoder_filters_aia;
+            break;
+        case 110:        
+            self->proc_func_ptr = Vocoder_filters_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = Vocoder_filters_aaa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Vocoder_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Vocoder_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Vocoder_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Vocoder_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Vocoder_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Vocoder_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Vocoder_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Vocoder_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Vocoder_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Vocoder_compute_next_data_frame(Vocoder *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Vocoder_traverse(Vocoder *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->spread);    
+    Py_VISIT(self->spread_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    Py_VISIT(self->slope);    
+    Py_VISIT(self->slope_stream);    
+    return 0;
+}
+
+static int 
+Vocoder_clear(Vocoder *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->spread);
+    Py_CLEAR(self->spread_stream);
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    Py_CLEAR(self->slope);
+    Py_CLEAR(self->slope_stream);
+    return 0;
+}
+
+static void
+Vocoder_dealloc(Vocoder* self)
+{
+    free(self->data);
+    free(self->y1);
+    free(self->y2);
+    free(self->yy1);
+    free(self->yy2);
+    free(self->b0);
+    free(self->b2);
+    free(self->a0);
+    free(self->a1);
+    free(self->a2);
+    free(self->follow);
+    Vocoder_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject * Vocoder_deleteStream(Vocoder *self) { DELETE_STREAM };
+
+static PyObject *
+Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    Vocoder *self;
+    self = (Vocoder *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(60);
+    self->spread = PyFloat_FromDouble(1.25);
+    self->q = PyFloat_FromDouble(20);
+    self->slope = PyFloat_FromDouble(0.5);
+    self->last_freq = self->last_spread = self->last_q = self->last_slope = -1.0;
+    self->factor = 0.99;
+    self->stages = 24;
+    self->last_stages = -1;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->twoPiOnSr = (MYFLT)(TWOPI / self->sr);
+    
+    Stream_setFunctionPtr(self->stream, Vocoder_compute_next_data_frame);
+    self->mode_func_ptr = Vocoder_setProcMode;
+    return (PyObject *)self;
+}
+
+static int
+Vocoder_init(Vocoder *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp=NULL, *spreadtmp=NULL, *qtmp=NULL, *slopetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    
+    static char *kwlist[] = {"input", "input2", "freq", "spread", "q", "slope", "stages", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOiOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &spreadtmp, &qtmp, &slopetmp, &self->stages, &multmp, &addtmp))
+        return -1; 
+    
+    INIT_INPUT_STREAM
+
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (spreadtmp) {
+        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+    }
+    
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+
+    if (slopetmp) {
+        PyObject_CallMethod((PyObject *)self, "setSlope", "O", slopetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    Py_INCREF(self->stream);
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    Vocoder_allocate_memories(self);
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(self);
+    return 0;
+}
+
+static PyObject * Vocoder_getServer(Vocoder* self) { GET_SERVER };
+static PyObject * Vocoder_getStream(Vocoder* self) { GET_STREAM };
+static PyObject * Vocoder_setMul(Vocoder *self, PyObject *arg) { SET_MUL };	
+static PyObject * Vocoder_setAdd(Vocoder *self, PyObject *arg) { SET_ADD };	
+static PyObject * Vocoder_setSub(Vocoder *self, PyObject *arg) { SET_SUB };	
+static PyObject * Vocoder_setDiv(Vocoder *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Vocoder_play(Vocoder *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Vocoder_out(Vocoder *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Vocoder_stop(Vocoder *self) { STOP };
+
+static PyObject * Vocoder_multiply(Vocoder *self, PyObject *arg) { MULTIPLY };
+static PyObject * Vocoder_inplace_multiply(Vocoder *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Vocoder_add(Vocoder *self, PyObject *arg) { ADD };
+static PyObject * Vocoder_inplace_add(Vocoder *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Vocoder_sub(Vocoder *self, PyObject *arg) { SUB };
+static PyObject * Vocoder_inplace_sub(Vocoder *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Vocoder_div(Vocoder *self, PyObject *arg) { DIV };
+static PyObject * Vocoder_inplace_div(Vocoder *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Vocoder_setFreq(Vocoder *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Vocoder_setSpread(Vocoder *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->spread);
+	if (isNumber == 1) {
+		self->spread = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->spread = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->spread_stream);
+        self->spread_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Vocoder_setQ(Vocoder *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Vocoder_setSlope(Vocoder *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->slope);
+	if (isNumber == 1) {
+		self->slope = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->slope = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->slope, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->slope_stream);
+        self->slope_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Vocoder_setStages(Vocoder *self, PyObject *arg)
+{
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		self->stages = PyInt_AsLong(arg);
+        Vocoder_allocate_memories(self);
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Vocoder_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Vocoder, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Vocoder, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Vocoder, input), 0, "Spectral envelope signal."},
+    {"input2", T_OBJECT_EX, offsetof(Vocoder, input2), 0, "Exciter signal."},
+    {"freq", T_OBJECT_EX, offsetof(Vocoder, freq), 0, "Base frequency in cycle per second."},
+    {"spread", T_OBJECT_EX, offsetof(Vocoder, spread), 0, "Frequency expansion factor."},
+    {"q", T_OBJECT_EX, offsetof(Vocoder, q), 0, "Q factor."},
+    {"slope", T_OBJECT_EX, offsetof(Vocoder, slope), 0, "Responsiveness of the follower lowpass filter."},
+    {"mul", T_OBJECT_EX, offsetof(Vocoder, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Vocoder, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Vocoder_methods[] = {
+    {"getServer", (PyCFunction)Vocoder_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Vocoder_getStream, METH_NOARGS, "Returns stream object."},
+    {"deleteStream", (PyCFunction)Vocoder_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
+    {"play", (PyCFunction)Vocoder_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Vocoder_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Vocoder_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)Vocoder_setFreq, METH_O, "Sets filter base frequency in cycle per second."},
+	{"setSpread", (PyCFunction)Vocoder_setSpread, METH_O, "Sets frequency expansion factor."},
+    {"setQ", (PyCFunction)Vocoder_setQ, METH_O, "Sets filter Q factor."},
+    {"setSlope", (PyCFunction)Vocoder_setSlope, METH_O, "Sets responsiveness of the follower."},
+    {"setStages", (PyCFunction)Vocoder_setStages, METH_O, "Sets the number of filtering stages."},
+	{"setMul", (PyCFunction)Vocoder_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Vocoder_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Vocoder_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Vocoder_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Vocoder_as_number = {
+    (binaryfunc)Vocoder_add,                         /*nb_add*/
+    (binaryfunc)Vocoder_sub,                         /*nb_subtract*/
+    (binaryfunc)Vocoder_multiply,                    /*nb_multiply*/
+    (binaryfunc)Vocoder_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Vocoder_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Vocoder_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Vocoder_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Vocoder_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject VocoderType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Vocoder_base",                                   /*tp_name*/
+    sizeof(Vocoder),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Vocoder_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Vocoder_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Vocoder objects. Bank of bandpass filters implementing the vocoder effect.",           /* tp_doc */
+    (traverseproc)Vocoder_traverse,                  /* tp_traverse */
+    (inquiry)Vocoder_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Vocoder_methods,                                 /* tp_methods */
+    Vocoder_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    (initproc)Vocoder_init,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Vocoder_new,                                     /* tp_new */
+};
+

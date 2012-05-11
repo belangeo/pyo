@@ -2285,7 +2285,7 @@ init_pyo64(void)
         return;
     Py_INCREF(&BiquadxType);
     PyModule_AddObject(m, "Biquadx_base", (PyObject *)&BiquadxType);
-
+    
     if (PyType_Ready(&BiquadaType) < 0)
         return;
     Py_INCREF(&BiquadaType);
@@ -2320,6 +2320,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&PhaserType);
     PyModule_AddObject(m, "Phaser_base", (PyObject *)&PhaserType);    
+
+    if (PyType_Ready(&VocoderType) < 0)
+        return;
+    Py_INCREF(&VocoderType);
+    PyModule_AddObject(m, "Vocoder_base", (PyObject *)&VocoderType);
     
     if (PyType_Ready(&PortType) < 0)
         return;
