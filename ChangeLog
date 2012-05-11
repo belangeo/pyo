@@ -1,5 +1,10 @@
 2012-05-10 belangeo <belangeo@gmail.com>
 
+    * Removed printing to the console from pa_get_* and pm_get_* functions.
+    - rev 973
+
+2012-05-10 belangeo <belangeo@gmail.com>
+
     * Added new object: Vocoder. Vocoder effect.
     - rev 972
 

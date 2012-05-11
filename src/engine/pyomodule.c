@@ -29,6 +29,10 @@
 #include "tablemodule.h"
 #include "matrixmodule.h"
 
+/** Note : 
+ ** Add an argument to pa_get_* and pm_get_* functions to allow printing to the console
+ **/
+
 /****** Portaudio utilities ******/
 static void portaudio_assert(PaError ecode, const char* cmdName) {
     if (ecode != paNoError) {
@@ -88,7 +92,6 @@ portaudio_list_host_apis(){
             for (i=0; i < n; ++i){
                 const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
                 assert(info);
-                
                 fprintf(stdout, "index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
             }
         }        
@@ -117,7 +120,7 @@ portaudio_get_default_host_api(){
         const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
         assert(info);
         
-        fprintf(stdout, "index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
+        //fprintf(stdout, "index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
         
         return PyInt_FromLong(i);
     }
@@ -227,7 +230,7 @@ portaudio_get_output_devices(){
                 assert(info);
                 
                 if (info->maxOutputChannels > 0){
-                    fprintf(stdout, "%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
+                    //fprintf(stdout, "%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
                     PyList_Append(list, PyString_FromString(info->name));
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
@@ -270,7 +273,7 @@ portaudio_get_input_devices(){
                 assert(info);
                 
                 if (info->maxInputChannels > 0){
-                    fprintf(stdout, "%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
+                    //fprintf(stdout, "%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
                     PyList_Append(list, PyString_FromString(info->name));
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
@@ -302,8 +305,8 @@ portaudio_get_default_input(){
         const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
         assert(info);
         
-        if (info->maxInputChannels > 0)
-            fprintf(stdout, "%i: IN, name: %s, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
+        //if (info->maxInputChannels > 0)
+        //    fprintf(stdout, "%i: IN, name: %s, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
 
         return PyInt_FromLong(i);        
     }
@@ -332,8 +335,8 @@ portaudio_get_default_output(){
         const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
         assert(info);
         
-        if (info->maxOutputChannels > 0)
-            fprintf(stdout, "%i: OUT, name: %s, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
+        //if (info->maxOutputChannels > 0)
+        //    fprintf(stdout, "%i: OUT, name: %s, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
         
         return PyInt_FromLong(i);
         
@@ -405,7 +408,7 @@ portmidi_get_input_devices(){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
         
             if (info->input){
-                printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
+                //printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
                 PyList_Append(list, PyString_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
@@ -438,7 +441,7 @@ portmidi_get_output_devices(){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
             
             if (info->output){
-                printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
+                //printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
                 PyList_Append(list, PyString_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
@@ -462,8 +465,8 @@ portmidi_get_default_input(){
     i = Pm_GetDefaultInputDeviceID();
     if (i >= 0) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        if (info->input) 
-            printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);        
+        //if (info->input) 
+        //    printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);        
     }
     else {
         printf("pm_get_default_input: no midi input device found.\n");
@@ -486,8 +489,8 @@ portmidi_get_default_output(){
     i = Pm_GetDefaultOutputDeviceID();
     if (i >= 0) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        if (info->output) 
-            printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);        
+        //if (info->output) 
+        //    printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);        
     }
     else {
         printf("pm_get_default_output: no midi output device found.\n");
