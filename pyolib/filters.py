@@ -1890,7 +1890,7 @@ class Phaser(PyoObject):
         Amount of output signal which is fed back into the input of the
         allpass chain. Defaults to 0.
     num : int, optional
-        The number of allpass stages in series. Determine the number of
+        The number of allpass stages in series. Defines the number of
         notches in the spectrum. Available at initialization only.
         Defaults to 8.
 
@@ -2051,6 +2051,257 @@ class Phaser(PyoObject):
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
+
+class Vocoder(PyoObject):
+    """
+    Applies the spectral envelope of a first sound to the spectrum of a second sound. 
+
+    The vocoder is an analysis/synthesis system, historically used to reproduce 
+    human speech. In the encoder, the first input (spectral envelope) is passed 
+    through a multiband filter, each band is passed through an envelope follower, 
+    and the control signals from the envelope followers are communicated to the 
+    decoder. The decoder applies these (amplitude) control signals to corresponding 
+    filters modifying the second source (exciter).
+
+    Parentclass : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Spectral envelope. Gives the spectral properties of the bank of filters.
+        For best results, this signal must have a dynamic spectrum, both for
+        amplitudes and frequencies.
+    input2 : PyoObject
+        Exciter. Spectrum to filter. For best results, this signal must have a
+        broadband spectrum with few amplitude variations.
+    freq : float or PyoObject, optional
+        Center frequency of the first band. This is the base frequency used to 
+        compute the upper bands. Defaults to 60.
+    spread : float or PyoObject, optional
+        Spreading factor for upper band frequencies. Each band is 
+        `freq * pow(order, spread)`, where order is the harmonic rank of the band.
+        Defaults to 1.25.
+    q : float or PyoObject, optional
+        Q of the filters as `center frequency / bandwidth`. Higher values imply
+        more resonance around the center frequency. Defaults to 20.
+    slope : float or PyoObject, optional
+        Time response of the envelope follower. Lower values mean smoother changes,
+        while higher values mean a better time accuracy. Defaults to 0.5.
+    stages : int, optional
+        The number of bands in the filter bank. Defines the number of notches in 
+        the spectrum. Defaults to 24.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setInput2(x, fadetime) : Replace the `input2` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setSpread(x) : Replace the `spread` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setSlope(x) : Replace the `slope` attribute.
+    setStages(x) : Replace the `stages` attribute.
+
+    Attributes:
+
+    input : PyoObject. Spectral envelope of the process.
+    input2 : PyoObject. Exciter of the filter bank.
+    freq : float or PyoObject. Center frequency of the first band.
+    spread : float or PyoObject. Spreading factor for upper band frequencies.
+    q : float or PyoObject. Q factor of the filters.
+    slope : float or PyoObject. Time response of the envelope follower.
+    stages : int. The number of bands in the filter bank.
+
+    Notes:
+
+    Altough parameters can be audio signals, values are sampled only four times 
+    per buffer size. To avoid artefacts, it is recommended to keep variations
+    at low rate (< 20 Hz).
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH+'/transparent.aif', loop=True)
+    >>> ex = BrownNoise(0.5)
+    >>> voc = Vocoder(sf, ex, freq=80, spread=1.2, q=20, slope=0.5)
+    >>> out = voc.mix(2).out()
+
+    """
+    def __init__(self, input, input2, freq=60, spread=1.25, q=20, slope=0.5, stages=24, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        self._freq = freq
+        self._spread = spread
+        self._q = q
+        self._slope = slope
+        self._stages = stages
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(input2)
+        in_fader, in_fader2, freq, spread, q, slope, stages, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, spread, q, slope, stages, mul, add)
+        self._base_objs = [Vocoder_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(slope,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'input2', 'freq', 'spread', 'q', 'slope', 'stages', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process. The spectral envelope.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInput2(self, x, fadetime=0.05):
+        """
+        Replace the `input2` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process. The exciter.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input2 = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSpread(self, x):
+        """
+        Replace the `spread` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `spread` attribute.
+
+        """
+        self._spread = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSlope(self, x):
+        """
+        Replace the `slope` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `slope` attribute.
+
+        """
+        self._slope = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSlope(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setStages(self, x):
+        """
+        Replace the `stages` attribute.
+
+        Parameters:
+
+        x : int
+            New `stages` attribute.
+
+        """
+        self._stages = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(10, 1000, "log", "freq", self._freq), 
+                          SLMap(0.25, 2, "lin", "spread", self._spread),
+                          SLMap(0.5, 200, "log", "q", self._q), 
+                          SLMap(0, 1, "lin", "slope", self._slope),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process. Spectral envelope.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoObject. Input signal to process. Exciter.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Center frequency of the first band.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def spread(self):
+        """float or PyoObject. Spreading factor for upper band frequencies.""" 
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q factor of the filters.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def slope(self):
+        """float or PyoObject. Time response of the envelope follower.""" 
+        return self._slope
+    @slope.setter
+    def slope(self, x): self.setSlope(x)
+
+    @property
+    def stages(self):
+        """int. The number of bands in the filter bank.""" 
+        return self._stages
+    @stages.setter
+    def stages(self, x): self.setStages(x)
 
 class IRWinSinc(PyoObject):
     """
