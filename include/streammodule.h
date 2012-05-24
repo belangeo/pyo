@@ -56,7 +56,7 @@ extern PyTypeObject StreamType;
   (self) = (Stream *)(type)->tp_alloc((type), 0);	\
   if ((self) == rt_error) { return rt_error; }	\
 						\
-  (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = (self)->bufsize = 0; \
+  (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = (self)->bufsize = (self)->duration = 0; \
   (self)->active = 1;
 
 typedef struct {

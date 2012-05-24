@@ -830,8 +830,9 @@ class XnoiseMidi(PyoObject):
 
     >>> s = Server().boot()
     >>> s.start()
-    >>> l = Phasor(.1, 0, .5, 0)
-    >>> freq = XnoiseMidi('loopseg', freq=8, x1=1, x2=l, scale=1, mrange=(60,96))
+    >>> l = Phasor(.4)
+    >>> rnd = XnoiseMidi('loopseg', freq=8, x1=1, x2=l, scale=0, mrange=(60,96))
+    >>> freq = Snap(rnd, choice=[0, 2, 3, 5, 7, 8, 11], scale=1)
     >>> jit = Randi(min=0.99, max=1.01, freq=[2.33,3.41])
     >>> a = SineLoop(freq*jit, feedback=0.03, mul=.2).out()
 

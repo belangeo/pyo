@@ -18,8 +18,6 @@
 **  Original file can be found on musicdsp.org :
 **  http://www.musicdsp.org/archive.php?classid=2#79
 ****************************************************** */
-
-//#include <stdlib.h>
 #include "fft.h"
 #include "pyomodule.h"
 #include <math.h>
@@ -32,7 +30,6 @@ void fft_compute_split_twiddle(MYFLT **twiddle, int size) {
     MYFLT a = e;
     MYFLT a3;
     for(j=2; j<=n8; j++) {
-        //j1 = j - 1;
         a3 = 3 * a;
         twiddle[0][j-1] = MYCOS(a);
         twiddle[1][j-1] = MYSIN(a);
@@ -113,7 +110,6 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	    n4 = n2 >> 2;
 	    n8 = n2 >> 3;
 	    pas = n / n2;
-	    //e = 2 * PI / n2;
 	    i1 = 0;
 	    id = n2 << 1;
 	    do { 
@@ -142,19 +138,12 @@ void realfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	        i1 = id - n2;
 	        id <<= 1;
 	    } while ( i1<n );
-	    //a = e;
 	    for (j=2; j<=n8; j++){ 
 	        pos = (j-1) * pas;
 	        cc1 = twiddle[0][pos];
 	        ss1 = twiddle[1][pos];
 	        cc3 = twiddle[2][pos];
 	        ss3 = twiddle[3][pos]; 
-	        //a3 = 3 * a;
-	        //cc1 = cos(a);
-	        //ss1 = sin(a);
-	        //cc3 = cos(a3);
-	        //ss3 = sin(a3);
-	        //a = j * e;
 	        i = 0;
 	        id = n2 << 1;
 	        do {
@@ -230,7 +219,6 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	    n4 = n2 >> 2;
 	    n8 = n2 >> 3;
 	    pas = n / n2;
-	    //e = 2 * PI / n2;
 	    i1 = 0;
 	    do { 
 	        for (; i1<n; i1+=id) {
@@ -259,19 +247,12 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
 	        i1 = id - n2;
 	        id <<= 1;
 	    } while ( i1<n1 );
-	    //a = e;
 	    for (j=2; j<=n8; j++) {  
 	        pos = (j-1) * pas;
 	        cc1 = twiddle[0][pos];
 	        ss1 = twiddle[1][pos];
 	        cc3 = twiddle[2][pos];
 	        ss3 = twiddle[3][pos];
-	        //a3 = 3 * a;
-	        //cc1 = cos(a);
-	        //ss1 = sin(a);
-	        //cc3 = cos(a3);
-	        //ss3 = sin(a3);
-	        //a = j * e;
 	        i = 0;
 	        id = n2 << 1;
 	        do {
@@ -341,8 +322,6 @@ void irealfft_split(MYFLT *data, MYFLT *outdata, int n, MYFLT **twiddle) {
         outdata[i] = data[i];	
 }
 
-/* *************************************************** */
-
 /* *****************************************************
 ** Decimation-in-freq radix-2 in-place butterfly
 ** data: array of doubles:
@@ -372,11 +351,6 @@ void dif_butterfly(MYFLT *data, int size, MYFLT *twiddle){
             for(angle=0; l1<ol2; l1+=2, l2+=2) {
                 wr = twiddle[angle];
                 wi = -twiddle[size+angle]; /* size here is half the FFT size */
-                /*
-                ang = 2 * PI * angle / size;
-                wr = cos(ang);
-                wi = -sin(ang);
-                */
                 xr = *l1 + *l2;
                 xi = *(l1+1) + *(l2+1);
                 dr = *l1 - *l2;
@@ -420,11 +394,6 @@ void inverse_dit_butterfly(MYFLT *data, int size, MYFLT *twiddle){
             for(angle=0; l1<ol2; l1+=2, l2+=2) {
                 wr = twiddle[angle];
                 wi = twiddle[size+angle]; /* size here is half the FFT size */
-                /*
-                ang = 2 * PI * angle / size;
-                wr = cos(ang);
-                wi = sin(ang);
-                */
                 xr = *l1;
                 xi = *(l1+1);
                 yr = *l2;

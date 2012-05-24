@@ -605,7 +605,7 @@ static void
 Freeverb_dealloc(Freeverb* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     for(i=0; i<NUM_COMB; i++) {
         free(self->comb_buf[i]);
     }
@@ -616,12 +616,12 @@ Freeverb_dealloc(Freeverb* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Freeverb_deleteStream(Freeverb *self) { DELETE_STREAM };
-
 static PyObject *
 Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, j, rndSamps;
+    MYFLT nsamps;
+    PyObject *inputtmp, *input_streamtmp, *sizetmp=NULL, *damptmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Freeverb *self;
     self = (Freeverb *)type->tp_alloc(type, 0);
 
@@ -639,21 +639,11 @@ Freeverb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Freeverb_compute_next_data_frame);
     self->mode_func_ptr = Freeverb_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
-{
-    int i, j, rndSamps;
-    MYFLT nsamps;
-    PyObject *inputtmp, *input_streamtmp, *sizetmp=NULL, *damptmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"input", "size", "damp", "mix", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &sizetmp, &damptmp, &mixtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
 
@@ -677,7 +667,6 @@ Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
@@ -704,9 +693,8 @@ Freeverb_init(Freeverb *self, PyObject *args, PyObject *kwds)
                 self->allpass_buf[i][j] = 0.0;
             }
     }
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Freeverb_getServer(Freeverb* self) { GET_SERVER };
@@ -845,7 +833,6 @@ static PyMemberDef Freeverb_members[] = {
 static PyMethodDef Freeverb_methods[] = {
     {"getServer", (PyCFunction)Freeverb_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Freeverb_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Freeverb_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Freeverb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Freeverb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Freeverb_stop, METH_NOARGS, "Stops computing."},
@@ -938,7 +925,7 @@ PyTypeObject FreeverbType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Freeverb_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Freeverb_new,                 /* tp_new */
 };

@@ -127,8 +127,6 @@ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /*tp_flags*/
 TableStream_new, /* tp_new */
 };
 
-
-
 /***********************/
 /* HarmTable structure */
 /***********************/
@@ -168,18 +166,16 @@ HarmTable_generate(HarmTable *self) {
 static int
 HarmTable_traverse(HarmTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
+    pyo_table_VISIT
     Py_VISIT(self->amplist);
-    Py_VISIT(self->tablestream);
     return 0;
 }
 
 static int 
 HarmTable_clear(HarmTable *self)
 {
-    Py_CLEAR(self->server);
+    pyo_table_CLEAR
     Py_CLEAR(self->amplist);
-    Py_CLEAR(self->tablestream);
     return 0;
 }
 
@@ -194,8 +190,8 @@ HarmTable_dealloc(HarmTable* self)
 static PyObject *
 HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    PyObject *amplist=NULL;
     HarmTable *self;
-    
     self = (HarmTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -206,18 +202,10 @@ HarmTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
 
-    return (PyObject *)self;
-}
-
-static int
-HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *amplist=NULL;
-    
     static char *kwlist[] = {"list", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (amplist) {
         Py_INCREF(amplist);
@@ -233,8 +221,7 @@ HarmTable_init(HarmTable *self, PyObject *args, PyObject *kwds)
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
 
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * HarmTable_getServer(HarmTable* self) { GET_SERVER };
@@ -366,7 +353,7 @@ HarmTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)HarmTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 HarmTable_new,                 /* tp_new */
 };
@@ -452,18 +439,16 @@ ChebyTable_generate(ChebyTable *self) {
 static int
 ChebyTable_traverse(ChebyTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
+    pyo_table_VISIT
     Py_VISIT(self->amplist);
-    Py_VISIT(self->tablestream);
     return 0;
 }
 
 static int 
 ChebyTable_clear(ChebyTable *self)
 {
-    Py_CLEAR(self->server);
+    pyo_table_CLEAR
     Py_CLEAR(self->amplist);
-    Py_CLEAR(self->tablestream);
     return 0;
 }
 
@@ -478,8 +463,8 @@ ChebyTable_dealloc(ChebyTable* self)
 static PyObject *
 ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    PyObject *amplist=NULL;
     ChebyTable *self;
-    
     self = (ChebyTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -489,19 +474,11 @@ ChebyTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *amplist=NULL;
-    
     static char *kwlist[] = {"list", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &amplist, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (amplist) {
         Py_INCREF(amplist);
@@ -516,9 +493,8 @@ ChebyTable_init(ChebyTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * ChebyTable_getServer(ChebyTable* self) { GET_SERVER };
@@ -650,7 +626,7 @@ ChebyTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)ChebyTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 ChebyTable_new,                 /* tp_new */
 };
@@ -680,16 +656,14 @@ HannTable_generate(HannTable *self) {
 static int
 HannTable_traverse(HannTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 HannTable_clear(HannTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -705,7 +679,6 @@ static PyObject *
 HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     HannTable *self;
-    
     self = (HannTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -713,17 +686,11 @@ HannTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
-
-static int
-HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
-{    
+ 
     static char *kwlist[] = {"size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -732,9 +699,8 @@ HannTable_init(HannTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+   
+    return (PyObject *)self;
 }
 
 static PyObject * HannTable_getServer(HannTable* self) { GET_SERVER };
@@ -841,7 +807,7 @@ HannTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)HannTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 HannTable_new,                 /* tp_new */
 };
@@ -890,16 +856,14 @@ SincTable_generate(SincTable *self) {
 static int
 SincTable_traverse(SincTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 SincTable_clear(SincTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -915,7 +879,6 @@ static PyObject *
 SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     SincTable *self;
-    
     self = (SincTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -925,17 +888,11 @@ SincTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->windowed = 0;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-SincTable_init(SincTable *self, PyObject *args, PyObject *kwds)
-{    
     static char *kwlist[] = {"freq", "windowed", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FII, kwlist, &self->freq, &self->windowed, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -945,8 +902,7 @@ SincTable_init(SincTable *self, PyObject *args, PyObject *kwds)
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * SincTable_getServer(SincTable* self) { GET_SERVER };
@@ -1089,7 +1045,7 @@ PyTypeObject SincTableType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)SincTable_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     SincTable_new,                 /* tp_new */
 };
@@ -1111,16 +1067,14 @@ WinTable_generate(WinTable *self) {
 static int
 WinTable_traverse(WinTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 WinTable_clear(WinTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -1136,7 +1090,6 @@ static PyObject *
 WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     WinTable *self;
-    
     self = (WinTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -1145,17 +1098,11 @@ WinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->type = 2;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-WinTable_init(WinTable *self, PyObject *args, PyObject *kwds)
-{    
     static char *kwlist[] = {"type", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|ii", kwlist, &self->type, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -1164,9 +1111,8 @@ WinTable_init(WinTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * WinTable_getServer(WinTable* self) { GET_SERVER };
@@ -1295,7 +1241,7 @@ WinTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)WinTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 WinTable_new,                 /* tp_new */
 };
@@ -1332,16 +1278,14 @@ ParaTable_generate(ParaTable *self) {
 static int
 ParaTable_traverse(ParaTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 ParaTable_clear(ParaTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -1357,7 +1301,6 @@ static PyObject *
 ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     ParaTable *self;
-    
     self = (ParaTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -1365,17 +1308,11 @@ ParaTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
-
-static int
-ParaTable_init(ParaTable *self, PyObject *args, PyObject *kwds)
-{    
+ 
     static char *kwlist[] = {"size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|i", kwlist, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
     TableStream_setSize(self->tablestream, self->size);
@@ -1384,9 +1321,8 @@ ParaTable_init(ParaTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+   
+    return (PyObject *)self;
 }
 
 static PyObject * ParaTable_getServer(ParaTable* self) { GET_SERVER };
@@ -1493,7 +1429,7 @@ PyTypeObject ParaTableType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)ParaTable_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     ParaTable_new,                 /* tp_new */
 };
@@ -1550,18 +1486,16 @@ LinTable_generate(LinTable *self) {
 static int
 LinTable_traverse(LinTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
+    pyo_table_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->tablestream);
     return 0;
 }
 
 static int 
 LinTable_clear(LinTable *self)
 {
-    Py_CLEAR(self->server);
+    pyo_table_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->tablestream);
     return 0;
 }
 
@@ -1576,8 +1510,8 @@ LinTable_dealloc(LinTable* self)
 static PyObject *
 LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    PyObject *pointslist=NULL;
     LinTable *self;
-    
     self = (LinTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -1586,19 +1520,11 @@ LinTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-LinTable_init(LinTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *pointslist=NULL;
-    
     static char *kwlist[] = {"list", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (pointslist) {
         Py_INCREF(pointslist);
@@ -1617,9 +1543,8 @@ LinTable_init(LinTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * LinTable_getServer(LinTable* self) { GET_SERVER };
@@ -1782,7 +1707,7 @@ LinTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)LinTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 LinTable_new,                 /* tp_new */
 };
@@ -1841,18 +1766,16 @@ CosTable_generate(CosTable *self) {
 static int
 CosTable_traverse(CosTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
+    pyo_table_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->tablestream);
     return 0;
 }
 
 static int 
 CosTable_clear(CosTable *self)
 {
-    Py_CLEAR(self->server);
+    pyo_table_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->tablestream);
     return 0;
 }
 
@@ -1867,8 +1790,8 @@ CosTable_dealloc(CosTable* self)
 static PyObject *
 CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    PyObject *pointslist=NULL;
     CosTable *self;
-    
     self = (CosTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -1877,19 +1800,11 @@ CosTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 8192;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-CosTable_init(CosTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *pointslist=NULL;
-    
     static char *kwlist[] = {"list", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (pointslist) {
         Py_INCREF(pointslist);
@@ -1908,9 +1823,8 @@ CosTable_init(CosTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * CosTable_getServer(CosTable* self) { GET_SERVER };
@@ -2073,7 +1987,7 @@ CosTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)CosTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 CosTable_new,                 /* tp_new */
 };
@@ -2157,18 +2071,16 @@ CurveTable_generate(CurveTable *self) {
 static int
 CurveTable_traverse(CurveTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
+    pyo_table_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->tablestream);
     return 0;
 }
 
 static int 
 CurveTable_clear(CurveTable *self)
 {
-    Py_CLEAR(self->server);
+    pyo_table_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->tablestream);
     return 0;
 }
 
@@ -2183,8 +2095,8 @@ CurveTable_dealloc(CurveTable* self)
 static PyObject *
 CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    CurveTable *self;
-    
+    PyObject *pointslist=NULL;
+    CurveTable *self;    
     self = (CurveTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -2195,19 +2107,11 @@ CurveTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->bias = 0.0;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-CurveTable_init(CurveTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *pointslist=NULL;
-    
     static char *kwlist[] = {"list", "tension", "bias", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &pointslist, &self->tension, &self->bias, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (pointslist) {
         Py_INCREF(pointslist);
@@ -2226,9 +2130,8 @@ CurveTable_init(CurveTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * CurveTable_getServer(CurveTable* self) { GET_SERVER };
@@ -2435,7 +2338,7 @@ CurveTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)CurveTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 CurveTable_new,                 /* tp_new */
 };
@@ -2516,18 +2419,16 @@ ExpTable_generate(ExpTable *self) {
 static int
 ExpTable_traverse(ExpTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
+    pyo_table_VISIT
     Py_VISIT(self->pointslist);
-    Py_VISIT(self->tablestream);
     return 0;
 }
 
 static int 
 ExpTable_clear(ExpTable *self)
 {
-    Py_CLEAR(self->server);
+    pyo_table_CLEAR
     Py_CLEAR(self->pointslist);
-    Py_CLEAR(self->tablestream);
     return 0;
 }
 
@@ -2542,8 +2443,8 @@ ExpTable_dealloc(ExpTable* self)
 static PyObject *
 ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    ExpTable *self;
-    
+    PyObject *pointslist=NULL;
+    ExpTable *self;    
     self = (ExpTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -2554,19 +2455,11 @@ ExpTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->inverse = 1;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-ExpTable_init(ExpTable *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *pointslist=NULL;
-    
     static char *kwlist[] = {"list", "exp", "inverse", "size", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFII, kwlist, &pointslist, &self->exp, &self->inverse, &self->size))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (pointslist) {
         Py_INCREF(pointslist);
@@ -2585,9 +2478,8 @@ ExpTable_init(ExpTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * ExpTable_getServer(ExpTable* self) { GET_SERVER };
@@ -2793,7 +2685,7 @@ ExpTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)ExpTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 ExpTable_new,                 /* tp_new */
 };
@@ -2818,13 +2710,15 @@ SndTable_loadSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
     unsigned int i, num, num_items, num_chnls, snd_size, start, stop;
+    unsigned int num_count = 0;
     MYFLT *tmp;
         
     info.format = 0;
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        printf("SndTable failed to open the file.\n");
+        return;
     }
     snd_size = info.frames;
     self->sndSr = info.samplerate;
@@ -2845,15 +2739,32 @@ SndTable_loadSound(SndTable *self) {
     
     /* Allocate space for the data to be read, then read it. */
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
-    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
-    
-    sf_seek(sf, start, SEEK_SET);
-    num = SF_READ(sf, tmp, num_items);
-    sf_close(sf);
-    for (i=0; i<num_items; i++) {
-        if ((i % num_chnls) == self->chnl) {
-            self->data[(int)(i/num_chnls)] = tmp[i];
-        }    
+
+    /* For sound longer than 1 minute, load 30 sec chunks. */
+    if (self->size > (self->sndSr * 60 * num_chnls)) {
+        tmp = (MYFLT *)malloc(self->sndSr * 30 * num_chnls * sizeof(MYFLT));
+        sf_seek(sf, start, SEEK_SET);
+        num_items = self->sndSr * 30 * num_chnls;
+        do {
+            num = SF_READ(sf, tmp, num_items);
+            for (i=0; i<num; i++) {
+                if ((i % num_chnls) == self->chnl) {
+                    self->data[(int)(num_count++)] = tmp[i];
+                }  
+            }
+        } while (num == num_items);
+    }
+    /* For sound shorter than 1 minute, load sound in one pass. */
+    else {
+        tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+        sf_seek(sf, start, SEEK_SET);
+        num = SF_READ(sf, tmp, num_items);
+        sf_close(sf);
+        for (i=0; i<num_items; i++) {
+            if ((i % num_chnls) == self->chnl) {
+                self->data[(int)(i/num_chnls)] = tmp[i];
+            }    
+        }
     }
 
     self->data[self->size] = self->data[0];  
@@ -2878,7 +2789,8 @@ SndTable_appendSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        printf("SndTable failed to open the file.\n");
+        return;
     }
     snd_size = info.frames;
     self->sndSr = info.samplerate;
@@ -2930,7 +2842,6 @@ SndTable_appendSound(SndTable *self) {
                 self->data[real_index] = tmp[i];
             }    
         }
-        
     }
     else {
         for (i=0; i<num_items; i++) {
@@ -2971,7 +2882,8 @@ SndTable_prependSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        printf("SndTable failed to open the file.\n");
+        return;
     }
     snd_size = info.frames;
     self->sndSr = info.samplerate;
@@ -3064,7 +2976,8 @@ SndTable_insertSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("Failed to open the file.\n");
+        printf("SndTble failed to open the file.\n");
+        return;
     }
     snd_size = info.frames;
     self->sndSr = info.samplerate;
@@ -3165,16 +3078,14 @@ SndTable_insertSound(SndTable *self) {
 static int
 SndTable_traverse(SndTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 SndTable_clear(SndTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -3189,31 +3100,25 @@ SndTable_dealloc(SndTable* self)
 static PyObject *
 SndTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
     SndTable *self;
     
     self = (SndTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
     self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    
+
     self->chnl = 0;
     self->stop = -1.0;
     self->crossfade = 0.0;
     self->insertPos = 0.0;
 
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-SndTable_init(SndTable *self, PyObject *args, PyObject *kwds)
-{    
-    int i;
     static char *kwlist[] = {"path", "chnl", "start", "stop", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S_IFF, kwlist, &self->path, &self->chnl, &self->start, &self->stop))
-        return -1; 
+        return PyInt_FromLong(-1); 
     
     if (strcmp(self->path, "") == 0) {
         self->size = (int)self->sr;
@@ -3233,8 +3138,7 @@ SndTable_init(SndTable *self, PyObject *args, PyObject *kwds)
         SndTable_loadSound(self);
     }
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * SndTable_getServer(SndTable* self) { GET_SERVER };
@@ -3514,9 +3418,17 @@ SndTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)SndTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 SndTable_new,                 /* tp_new */
+0,               /* tp_free */
+0,               /* tp_is_gc */    
+0,               /* tp_bases */
+0,               /* tp_mro */
+0,               /* tp_cache */
+0,               /* tp_subclasses */
+0,               /* tp_weaklist */
+0,               /* tp_del */
 };
 
 /***********************/
@@ -3561,16 +3473,14 @@ NewTable_recordChunk(NewTable *self, MYFLT *data, int datasize)
 static int
 NewTable_traverse(NewTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 NewTable_clear(NewTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -3585,8 +3495,9 @@ NewTable_dealloc(NewTable* self)
 static PyObject *
 NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
+    PyObject *inittmp=NULL;
     NewTable *self;
-    
     self = (NewTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -3595,19 +3506,11 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->feedback = 0.0;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
-{    
-    int i;
-    PyObject *inittmp=NULL;
     static char *kwlist[] = {"length", "init", "feedback", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
-        return -1; 
+        Py_RETURN_NONE; 
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     self->size = (int)(self->length * sr + 0.5);
@@ -3625,9 +3528,8 @@ NewTable_init(NewTable *self, PyObject *args, PyObject *kwds)
     
     TableStream_setData(self->tablestream, self->data);
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * NewTable_getServer(NewTable* self) { GET_SERVER };
@@ -3791,7 +3693,7 @@ NewTable_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)NewTable_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 NewTable_new,                 /* tp_new */
 };
@@ -3807,16 +3709,14 @@ typedef struct {
 static int
 DataTable_traverse(DataTable *self, visitproc visit, void *arg)
 {
-    Py_VISIT(self->server);
-    Py_VISIT(self->tablestream);
+    pyo_table_VISIT
     return 0;
 }
 
 static int 
 DataTable_clear(DataTable *self)
 {
-    Py_CLEAR(self->server);
-    Py_CLEAR(self->tablestream);
+    pyo_table_CLEAR
     return 0;
 }
 
@@ -3831,8 +3731,9 @@ DataTable_dealloc(DataTable* self)
 static PyObject *
 DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    int i;
+    PyObject *inittmp=NULL;
     DataTable *self;
-    
     self = (DataTable *)type->tp_alloc(type, 0);
     
     self->server = PyServer_get_server();
@@ -3840,19 +3741,11 @@ DataTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->pointer = 0;
     
     MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
-    
-    return (PyObject *)self;
-}
 
-static int
-DataTable_init(DataTable *self, PyObject *args, PyObject *kwds)
-{    
-    int i;
-    PyObject *inittmp=NULL;
     static char *kwlist[] = {"size", "init", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "i|O", kwlist, &self->size, &inittmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     
@@ -3870,9 +3763,8 @@ DataTable_init(DataTable *self, PyObject *args, PyObject *kwds)
 
     double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
     TableStream_setSamplingRate(self->tablestream, sr);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * DataTable_getServer(DataTable* self) { GET_SERVER };
@@ -3962,7 +3854,7 @@ PyTypeObject DataTableType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)DataTable_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     DataTable_new,                 /* tp_new */
 };
@@ -4054,18 +3946,17 @@ TableRec_clear(TableRec *self)
 static void
 TableRec_dealloc(TableRec* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->trigsBuffer);
     TableRec_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * TableRec_deleteStream(TableRec *self) { DELETE_STREAM };
-
 static PyObject *
 TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp;
     TableRec *self;
     self = (TableRec *)type->tp_alloc(type, 0);
     
@@ -4078,31 +3969,16 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, TableRec_compute_next_data_frame);
     Stream_setStreamActive(self->stream, 0);
 
-    return (PyObject *)self;
-}
-
-static int
-TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *tabletmp;
-    
     static char *kwlist[] = {"input", "table", "fadetime", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_F, kwlist, &inputtmp, &tabletmp, &self->fadetime))
-        return -1; 
+        Py_RETURN_NONE; 
     
-    Py_XDECREF(self->input);
-    self->input = inputtmp;
-    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-    Py_INCREF(input_streamtmp);
-    Py_XDECREF(self->input_stream);
-    self->input_stream = (Stream *)input_streamtmp;
+    INIT_INPUT_STREAM
     
     Py_XDECREF(self->table);
     self->table = (NewTable *)tabletmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
@@ -4122,8 +3998,7 @@ TableRec_init(TableRec *self, PyObject *args, PyObject *kwds)
     else
         self->fadeInSample = MYFLOOR(self->fadetime * self->sr);
 
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * TableRec_getServer(TableRec* self) { GET_SERVER };
@@ -4171,7 +4046,6 @@ static PyMethodDef TableRec_methods[] = {
 {"getServer", (PyCFunction)TableRec_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableRec_getStream, METH_NOARGS, "Returns stream object."},
 {"_getTriggerStream", (PyCFunction)TableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"deleteStream", (PyCFunction)TableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setTable", (PyCFunction)TableRec_setTable, METH_O, "Sets a new table."},
 {"play", (PyCFunction)TableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)TableRec_stop, METH_NOARGS, "Stops computing."},
@@ -4215,7 +4089,7 @@ TableRec_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)TableRec_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 TableRec_new,                 /* tp_new */
 };
@@ -4297,43 +4171,29 @@ TableMorph_clear(TableMorph *self)
 static void
 TableMorph_dealloc(TableMorph* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     TableMorph_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * TableMorph_deleteStream(TableMorph *self) { DELETE_STREAM };
 
 static PyObject *
 TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp, *sourcestmp;
     TableMorph *self;
     self = (TableMorph *)type->tp_alloc(type, 0);
     
     INIT_OBJECT_COMMON
     
     Stream_setFunctionPtr(self->stream, TableMorph_compute_next_data_frame);
-    
-    return (PyObject *)self;
-}
 
-static int
-TableMorph_init(TableMorph *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *tabletmp, *sourcestmp;
-    
     static char *kwlist[] = {"input", "table", "sources", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &tabletmp, &sourcestmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
-    Py_XDECREF(self->input);
-    self->input = inputtmp;
-    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-    Py_INCREF(input_streamtmp);
-    Py_XDECREF(self->input_stream);
-    self->input_stream = (Stream *)input_streamtmp;
+    INIT_INPUT_STREAM
     
     Py_XDECREF(self->table);
     self->table = (PyObject *)tabletmp;
@@ -4341,11 +4201,9 @@ TableMorph_init(TableMorph *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->sources);
     self->sources = (PyObject *)sourcestmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * TableMorph_getServer(TableMorph* self) { GET_SERVER };
@@ -4406,7 +4264,6 @@ static PyMemberDef TableMorph_members[] = {
 static PyMethodDef TableMorph_methods[] = {
 {"getServer", (PyCFunction)TableMorph_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)TableMorph_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)TableMorph_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setTable", (PyCFunction)TableMorph_setTable, METH_O, "Sets a new table."},
 {"setSources", (PyCFunction)TableMorph_setSources, METH_O, "Changes the sources tables."},
 {"play", (PyCFunction)TableMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
@@ -4451,7 +4308,7 @@ TableMorph_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)TableMorph_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 TableMorph_new,                 /* tp_new */
 };
@@ -4591,18 +4448,17 @@ TrigTableRec_clear(TrigTableRec *self)
 static void
 TrigTableRec_dealloc(TrigTableRec* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->trigsBuffer);
     TrigTableRec_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * TrigTableRec_deleteStream(TrigTableRec *self) { DELETE_STREAM };
-
 static PyObject *
 TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *trigtmp, *trig_streamtmp, *tabletmp;
     TrigTableRec *self;
     self = (TrigTableRec *)type->tp_alloc(type, 0);
     
@@ -4613,27 +4469,13 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     
     Stream_setFunctionPtr(self->stream, TrigTableRec_compute_next_data_frame);
-    
-    return (PyObject *)self;
-}
 
-static int
-TrigTableRec_init(TrigTableRec *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *trigtmp, *trig_streamtmp, *tabletmp;
-    
     static char *kwlist[] = {"input", "trig", "table", "fadetime", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_F, kwlist, &inputtmp, &trigtmp, &tabletmp, &self->fadetime))
-        return -1; 
+        Py_RETURN_NONE; 
     
-    Py_XDECREF(self->input);
-    self->input = inputtmp;
-    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL);
-    Py_INCREF(input_streamtmp);
-    Py_XDECREF(self->input_stream);
-    self->input_stream = (Stream *)input_streamtmp;
+    INIT_INPUT_STREAM
 
     Py_XDECREF(self->trigger);
     self->trigger = trigtmp;
@@ -4645,7 +4487,6 @@ TrigTableRec_init(TrigTableRec *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->table);
     self->table = (NewTable *)tabletmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
@@ -4664,9 +4505,8 @@ TrigTableRec_init(TrigTableRec *self, PyObject *args, PyObject *kwds)
         self->fadeInSample = 0.0;
     else
         self->fadeInSample = MYROUND(self->fadetime * self->sr + 0.5);
-    
-    Py_INCREF(self);
-    return 0;
+     
+    return (PyObject *)self;
 }
 
 static PyObject * TrigTableRec_getServer(TrigTableRec* self) { GET_SERVER };
@@ -4709,7 +4549,6 @@ static PyMethodDef TrigTableRec_methods[] = {
     {"getServer", (PyCFunction)TrigTableRec_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TrigTableRec_getStream, METH_NOARGS, "Returns stream object."},
     {"_getTriggerStream", (PyCFunction)TrigTableRec_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-    {"deleteStream", (PyCFunction)TrigTableRec_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"setTable", (PyCFunction)TrigTableRec_setTable, METH_O, "Sets a new table."},
     {"play", (PyCFunction)TrigTableRec_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)TrigTableRec_stop, METH_NOARGS, "Stops computing."},
@@ -4753,7 +4592,7 @@ PyTypeObject TrigTableRecType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)TrigTableRec_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     TrigTableRec_new,                 /* tp_new */
 };

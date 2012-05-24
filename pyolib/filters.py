@@ -1163,14 +1163,6 @@ class BandSplit(PyoObject):
     def __dir__(self):
         return ['input', 'q', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1199,29 +1191,6 @@ class BandSplit(PyoObject):
         self._q = x
         x, lmax = convertArgsToLists(x)
         [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-                        
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-    
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapQ(self._q), SLMapMul(self._mul)]
@@ -1313,14 +1282,6 @@ class FourBand(PyoObject):
     def __dir__(self):
         return ['input', 'freq1', 'freq2', 'freq3', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1377,29 +1338,6 @@ class FourBand(PyoObject):
         self._freq3 = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq3(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(40,300,"log","freq1",self._freq1),
@@ -1512,14 +1450,6 @@ class Hilbert(PyoObject):
     def __dir__(self):
         return ['input', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
     def __getitem__(self, str):
         if str == 'real':
             self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if (i%2) == 0]))
@@ -1568,29 +1498,6 @@ class Hilbert(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-                    
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-    
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []

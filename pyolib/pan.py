@@ -87,14 +87,6 @@ class Pan(PyoObject):
     def __dir__(self):
         return ['input', 'pan', 'spread', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-     
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -137,29 +129,6 @@ class Pan(PyoObject):
         self._spread = x
         x, lmax = convertArgsToLists(x)
         [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-                     
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-    
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapPan(self._pan),
@@ -241,14 +210,6 @@ class SPan(PyoObject):
     def __dir__(self):
         return ['input', 'pan', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-     
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -277,29 +238,6 @@ class SPan(PyoObject):
         self._pan = x
         x, lmax = convertArgsToLists(x)
         [obj.setPan(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-                     
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-    
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapPan(self._pan), SLMapMul(self._mul)]
@@ -381,14 +319,6 @@ class Switch(PyoObject):
     def __dir__(self):
         return ['input', 'voice', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -417,29 +347,6 @@ class Switch(PyoObject):
         self._voice = x
         x, lmax = convertArgsToLists(x)
         [obj.setVoice(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, self._outs-1, "lin", "voice", self._voice), SLMapMul(self._mul)]
@@ -774,14 +681,6 @@ class Mixer(PyoObject):
     def __dir__(self):
         return ["time", "mul", "add"]
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
     def __getitem__(self, x):
         if type(x) == SliceType:
             return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]
@@ -789,29 +688,6 @@ class Mixer(PyoObject):
             return [self._base_objs[x*self._chnls+i] for i in range(self._chnls)]
         else:
             print "'x' too large!"         
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def setTime(self, x):
         """

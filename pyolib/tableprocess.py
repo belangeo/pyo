@@ -227,8 +227,8 @@ class OscLoop(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143])
-    >>> lfo = Sine(.1, 0, .05, .05)
-    >>> a = OscLoop(table=t, freq=100, feedback=lfo).out()   
+    >>> lfo = Sine(.5, 0, .05, .05)
+    >>> a = OscLoop(table=t, freq=[100,99.3], feedback=lfo, mul=.2).out()   
 
     """
     def __init__(self, table, freq=1000, feedback=0, mul=1, add=0):
@@ -1380,7 +1380,7 @@ class TableRec(PyoObject):
         return ['input', 'table', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -1500,7 +1500,7 @@ class TableMorph(PyoObject):
         return ['input', 'table', 'sources', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -1884,7 +1884,7 @@ class TrigTableRec(PyoObject):
         return ['input', 'trig', 'table', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass

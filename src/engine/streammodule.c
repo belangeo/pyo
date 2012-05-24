@@ -28,54 +28,32 @@
 
 int stream_id = 1;
 
-/* Stream object */
 int 
 Stream_getNewStreamId() 
 {
     return stream_id++;
 }
 
+static int
+Stream_traverse(Stream *self, visitproc visit, void *arg)
+{
+    Py_VISIT(self->streamobject);    
+    return 0;
+}
+
+static int 
+Stream_clear(Stream *self)
+{
+    Py_CLEAR(self->streamobject);    
+    return 0;
+}
+
 static void
 Stream_dealloc(Stream* self)
 {
-    free(self->data);
-    Py_XDECREF(self->streamobject);
+    self->data = NULL;
+    Stream_clear(self);
     self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject *
-Stream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    Stream *self;
-    MAKE_NEW_STREAM(self, type, NULL);
-    return (PyObject *)self;
-}
-
-static int
-Stream_init(Stream *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *object=NULL, *tmp;
-     
-    static char *kwlist[] = {"streamobject", NULL};
- 
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &object)){
-        return -1;
-    }
- 
-    if (object) {
-        tmp = self->streamobject;
-        Py_INCREF(object);
-        self->streamobject = object;
-        self->active = 0;
-        self->chnl = 0;
-        self->todac = 0;
-        self->duration = 0;
-        self->bufferCountWait = 0;
-        self->bufferCount = 0;
-        Py_DECREF(tmp);
-    }
- 
-    return 0;
 }
 
 PyObject *
@@ -233,31 +211,19 @@ between brackets, beginning at 0. To retrieve only the third stream of our objec
     0, /* tp_descr_get */
     0, /* tp_descr_set */
     0, /* tp_dictoffset */
-    (initproc)Stream_init, /* tp_init */
+    0, /* tp_init */
     0, /* tp_alloc */
-    Stream_new, /* tp_new */
+    0, /* tp_new */
 };
 
+/************************/
 /* TriggerStream object */
+/************************/
 static void
 TriggerStream_dealloc(TriggerStream* self)
 {
-    free(self->data);
+    self->data = NULL;
     self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject *
-TriggerStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    TriggerStream *self;
-    MAKE_NEW_TRIGGER_STREAM(self, type, NULL);
-    return (PyObject *)self;
-}
-
-static int
-TriggerStream_init(TriggerStream *self)
-{
-    return 0;
 }
 
 MYFLT *
@@ -297,8 +263,8 @@ PyTypeObject TriggerStreamType = {
     "\n\
     Trigger stream object. For internal use only. \n\n\
     ", /* tp_doc */
-    0, /* tp_traverse */
-    0, /* tp_clear */
+    (traverseproc)Stream_traverse, /* tp_traverse */
+    (inquiry)Stream_clear, /* tp_clear */
     0, /* tp_richcompare */
     0, /* tp_weaklistoffset */
     0, /* tp_iter */
@@ -311,7 +277,7 @@ PyTypeObject TriggerStreamType = {
     0, /* tp_descr_get */
     0, /* tp_descr_set */
     0, /* tp_dictoffset */
-    (initproc)TriggerStream_init, /* tp_init */
+    0, /* tp_init */
     0, /* tp_alloc */
-    TriggerStream_new, /* tp_new */
+    0, /* tp_new */
 };

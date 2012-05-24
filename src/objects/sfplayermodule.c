@@ -272,19 +272,21 @@ SfPlayer_clear(SfPlayer *self)
 static void
 SfPlayer_dealloc(SfPlayer* self)
 {
-    sf_close(self->sf);
+    pyo_DEALLOC
+    if (self->sf != NULL)
+        sf_close(self->sf);
     free(self->trigsBuffer);
-    free(self->data);
+    free(self->samplesBuffer);
     SfPlayer_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SfPlayer_deleteStream(SfPlayer *self) { DELETE_STREAM };
 
 static PyObject *
 SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT offset = 0.;
+    PyObject *speedtmp=NULL;
     SfPlayer *self;
     self = (SfPlayer *)type->tp_alloc(type, 0);
     
@@ -297,27 +299,16 @@ SfPlayer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlayer_compute_next_data_frame);
     self->mode_func_ptr = SfPlayer_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    MYFLT offset = 0.;
-    PyObject *speedtmp=NULL;
-    
     static char *kwlist[] = {"path", "speed", "loop", "offset", "interp", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_S__OIFI, kwlist, &self->path, &speedtmp, &self->loop, &offset, &self->interp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (speedtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
     }
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -352,8 +343,7 @@ SfPlayer_init(SfPlayer *self, PyObject *args, PyObject *kwds)
     
     self->pointerPos = self->startPos;
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * SfPlayer_getServer(SfPlayer* self) { GET_SERVER };
@@ -516,7 +506,6 @@ static PyMethodDef SfPlayer_methods[] = {
 {"getServer", (PyCFunction)SfPlayer_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfPlayer_getStream, METH_NOARGS, "Returns stream object."},
 {"_getTriggerStream", (PyCFunction)SfPlayer_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"deleteStream", (PyCFunction)SfPlayer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SfPlayer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlayer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfPlayer_stop, METH_NOARGS, "Stops computing."},
@@ -565,7 +554,7 @@ SfPlayer_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)SfPlayer_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 SfPlayer_new,                 /* tp_new */
 };
@@ -659,17 +648,16 @@ SfPlay_clear(SfPlay *self)
 static void
 SfPlay_dealloc(SfPlay* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     SfPlay_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SfPlay_deleteStream(SfPlay *self) { DELETE_STREAM };
 
 static PyObject *
 SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     SfPlay *self;
     self = (SfPlay *)type->tp_alloc(type, 0);
     
@@ -680,19 +668,11 @@ SfPlay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfPlay_compute_next_data_frame);
     self->mode_func_ptr = SfPlay_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SfPlay_init(SfPlay *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
@@ -706,13 +686,11 @@ SfPlay_init(SfPlay *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * SfPlay_getServer(SfPlay* self) { GET_SERVER };
@@ -746,7 +724,6 @@ static PyMemberDef SfPlay_members[] = {
 static PyMethodDef SfPlay_methods[] = {
 {"getServer", (PyCFunction)SfPlay_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfPlay_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)SfPlay_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SfPlay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfPlay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfPlay_stop, METH_NOARGS, "Stops computing."},
@@ -836,7 +813,7 @@ SfPlay_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)SfPlay_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 SfPlay_new,                 /* tp_new */
 };
@@ -1104,20 +1081,20 @@ SfMarkerShuffler_clear(SfMarkerShuffler *self)
 static void
 SfMarkerShuffler_dealloc(SfMarkerShuffler* self)
 {
-    sf_close(self->sf);
+    pyo_DEALLOC
+    if (self->sf != NULL)
+        sf_close(self->sf);
     free(self->samplesBuffer);
     free(self->markers);
-    free(self->data);
     SfMarkerShuffler_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SfMarkerShuffler_deleteStream(SfMarkerShuffler *self) { DELETE_STREAM };
 
 static PyObject *
 SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *speedtmp=NULL, *markerstmp=NULL;
     SfMarkerShuffler *self;
     self = (SfMarkerShuffler *)type->tp_alloc(type, 0);
     
@@ -1130,25 +1107,16 @@ SfMarkerShuffler_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffler_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerShuffler_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *speedtmp=NULL, *markerstmp=NULL;
-    
     static char *kwlist[] = {"path", "markers", "speed", "interp", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "sO|Oi", kwlist, &self->path, &markerstmp, &speedtmp, &self->interp))
-        return -1; 
+        Py_RETURN_NONE;
 
     if (speedtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -1170,6 +1138,7 @@ SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
     if (self->sf == NULL)
     {
         printf("Failed to open the file.\n");
+        Py_RETURN_NONE;
     }
     self->sndSize = self->info.frames;
     self->sndSr = self->info.samplerate;
@@ -1182,9 +1151,8 @@ SfMarkerShuffler_init(SfMarkerShuffler *self, PyObject *args, PyObject *kwds)
     self->samplesBuffer = (MYFLT *)realloc(self->samplesBuffer, self->bufsize * self->sndChnls * sizeof(MYFLT));
 
     Server_generateSeed((Server *)self->server, SFMARKERSHUFFLER_ID);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * SfMarkerShuffler_getServer(SfMarkerShuffler* self) { GET_SERVER };
@@ -1273,7 +1241,6 @@ static PyMemberDef SfMarkerShuffler_members[] = {
 static PyMethodDef SfMarkerShuffler_methods[] = {
 {"getServer", (PyCFunction)SfMarkerShuffler_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfMarkerShuffler_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)SfMarkerShuffler_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SfMarkerShuffler_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfMarkerShuffler_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfMarkerShuffler_stop, METH_NOARGS, "Stops computing."},
@@ -1319,7 +1286,7 @@ SfMarkerShuffler_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)SfMarkerShuffler_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 SfMarkerShuffler_new,                 /* tp_new */
 };
@@ -1413,17 +1380,16 @@ SfMarkerShuffle_clear(SfMarkerShuffle *self)
 static void
 SfMarkerShuffle_dealloc(SfMarkerShuffle* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     SfMarkerShuffle_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SfMarkerShuffle_deleteStream(SfMarkerShuffle *self) { DELETE_STREAM };
 
 static PyObject *
 SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     SfMarkerShuffle *self;
     self = (SfMarkerShuffle *)type->tp_alloc(type, 0);
     
@@ -1434,19 +1400,11 @@ SfMarkerShuffle_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerShuffle_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerShuffle_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SfMarkerShuffle_init(SfMarkerShuffle *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
@@ -1460,13 +1418,11 @@ SfMarkerShuffle_init(SfMarkerShuffle *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * SfMarkerShuffle_getServer(SfMarkerShuffle* self) { GET_SERVER };
@@ -1500,7 +1456,6 @@ static PyMemberDef SfMarkerShuffle_members[] = {
 static PyMethodDef SfMarkerShuffle_methods[] = {
 {"getServer", (PyCFunction)SfMarkerShuffle_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SfMarkerShuffle_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)SfMarkerShuffle_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SfMarkerShuffle_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)SfMarkerShuffle_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)SfMarkerShuffle_stop, METH_NOARGS, "Stops computing."},
@@ -1590,7 +1545,7 @@ SfMarkerShuffle_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)SfMarkerShuffle_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 SfMarkerShuffle_new,                 /* tp_new */
 };
@@ -1872,20 +1827,20 @@ SfMarkerLooper_clear(SfMarkerLooper *self)
 static void
 SfMarkerLooper_dealloc(SfMarkerLooper* self)
 {
-    sf_close(self->sf);
+    pyo_DEALLOC
+    if (self->sf != NULL)
+        sf_close(self->sf);
     free(self->samplesBuffer);
     free(self->markers);
-    free(self->data);
     SfMarkerLooper_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SfMarkerLooper_deleteStream(SfMarkerLooper *self) { DELETE_STREAM };
 
 static PyObject *
 SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *speedtmp=NULL, *marktmp=NULL, *markerstmp=NULL;
     SfMarkerLooper *self;
     self = (SfMarkerLooper *)type->tp_alloc(type, 0);
     
@@ -1902,19 +1857,11 @@ SfMarkerLooper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLooper_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerLooper_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *speedtmp=NULL, *marktmp=NULL, *markerstmp=NULL;
-    
     static char *kwlist[] = {"path", "markers", "speed", "mark", "interp", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "sO|OOi", kwlist, &self->path, &markerstmp, &speedtmp, &marktmp, &self->interp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (speedtmp) {
         PyObject_CallMethod((PyObject *)self, "setSpeed", "O", speedtmp);
@@ -1924,7 +1871,6 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setMark", "O", marktmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -1946,6 +1892,7 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
     if (self->sf == NULL)
     {
         printf("Failed to open the file.\n");
+        Py_RETURN_NONE;
     }
     self->sndSize = self->info.frames;
     self->sndSr = self->info.samplerate;
@@ -1959,8 +1906,7 @@ SfMarkerLooper_init(SfMarkerLooper *self, PyObject *args, PyObject *kwds)
     
     Server_generateSeed((Server *)self->server, SFMARKERLOOPER_ID);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * SfMarkerLooper_getServer(SfMarkerLooper* self) { GET_SERVER };
@@ -2080,7 +2026,6 @@ static PyMemberDef SfMarkerLooper_members[] = {
 static PyMethodDef SfMarkerLooper_methods[] = {
     {"getServer", (PyCFunction)SfMarkerLooper_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfMarkerLooper_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)SfMarkerLooper_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)SfMarkerLooper_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLooper_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfMarkerLooper_stop, METH_NOARGS, "Stops computing."},
@@ -2127,7 +2072,7 @@ PyTypeObject SfMarkerLooperType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)SfMarkerLooper_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     SfMarkerLooper_new,                 /* tp_new */
 };
@@ -2221,17 +2166,16 @@ SfMarkerLoop_clear(SfMarkerLoop *self)
 static void
 SfMarkerLoop_dealloc(SfMarkerLoop* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     SfMarkerLoop_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SfMarkerLoop_deleteStream(SfMarkerLoop *self) { DELETE_STREAM };
 
 static PyObject *
 SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     SfMarkerLoop *self;
     self = (SfMarkerLoop *)type->tp_alloc(type, 0);
     
@@ -2242,19 +2186,11 @@ SfMarkerLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SfMarkerLoop_compute_next_data_frame);
     self->mode_func_ptr = SfMarkerLoop_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SfMarkerLoop_init(SfMarkerLoop *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
@@ -2268,13 +2204,11 @@ SfMarkerLoop_init(SfMarkerLoop *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * SfMarkerLoop_getServer(SfMarkerLoop* self) { GET_SERVER };
@@ -2308,7 +2242,6 @@ static PyMemberDef SfMarkerLoop_members[] = {
 static PyMethodDef SfMarkerLoop_methods[] = {
     {"getServer", (PyCFunction)SfMarkerLoop_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SfMarkerLoop_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)SfMarkerLoop_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)SfMarkerLoop_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SfMarkerLoop_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SfMarkerLoop_stop, METH_NOARGS, "Stops computing."},
@@ -2398,7 +2331,7 @@ PyTypeObject SfMarkerLoopType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)SfMarkerLoop_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     SfMarkerLoop_new,                 /* tp_new */
 };

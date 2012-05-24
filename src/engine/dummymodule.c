@@ -105,31 +105,9 @@ Dummy_clear(Dummy *self)
 static void
 Dummy_dealloc(Dummy* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Dummy_clear(self);
     self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject * Dummy_deleteStream(Dummy *self) { DELETE_STREAM };
-
-PyObject *
-Dummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
-{
-    int i;
-    Dummy *self;
-    self = (Dummy *)type->tp_alloc(type, 0);
-        
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-
-    INIT_OBJECT_COMMON
-    Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
-    self->mode_func_ptr = Dummy_setProcMode;
-
-    Py_INCREF(self->stream);
-    PyObject_CallMethod(self->server, "addStream", "O", self->stream);    
-
-    return (PyObject *)self;
 }
 
 PyObject * 
@@ -143,20 +121,12 @@ Dummy_initialize(Dummy *self)
     Stream_setFunctionPtr(self->stream, Dummy_compute_next_data_frame);
     self->mode_func_ptr = Dummy_setProcMode;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Stream_setStreamActive(self->stream, 1);
     
     Py_INCREF(Py_None);
     return Py_None;
-}
-
-int
-Dummy_init(Dummy *self, PyObject *args, PyObject *kwds)
-{    
-    Py_INCREF(self);
-    return 0;
 }
 
 static PyObject *
@@ -213,7 +183,6 @@ static PyMemberDef Dummy_members[] = {
 static PyMethodDef Dummy_methods[] = {
     {"getServer", (PyCFunction)Dummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Dummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Dummy_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Dummy_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Dummy_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Dummy_stop, METH_NOARGS, "Stops computing."},
@@ -304,9 +273,9 @@ PyTypeObject DummyType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)Dummy_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
-    Dummy_new,                                     /* tp_new */
+    0,                                     /* tp_new */
 };
 
 /************************************************************************************************/
@@ -397,17 +366,16 @@ TriggerDummy_clear(TriggerDummy *self)
 static void
 TriggerDummy_dealloc(TriggerDummy* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     TriggerDummy_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * TriggerDummy_deleteStream(TriggerDummy *self) { DELETE_STREAM };
 
 static PyObject *
 TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp;
     TriggerDummy *self;
     self = (TriggerDummy *)type->tp_alloc(type, 0);
     
@@ -417,29 +385,19 @@ TriggerDummy_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, TriggerDummy_compute_next_data_frame);
     self->mode_func_ptr = TriggerDummy_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-TriggerDummy_init(TriggerDummy *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp;
-    
     static char *kwlist[] = {"input", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     INIT_INPUT_TRIGGER_STREAM
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * TriggerDummy_getServer(TriggerDummy* self) { GET_SERVER };
@@ -472,7 +430,6 @@ static PyMemberDef TriggerDummy_members[] = {
 static PyMethodDef TriggerDummy_methods[] = {
     {"getServer", (PyCFunction)TriggerDummy_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)TriggerDummy_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)TriggerDummy_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)TriggerDummy_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)TriggerDummy_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)TriggerDummy_setMul, METH_O, "Sets oscillator mul factor."},
@@ -560,7 +517,7 @@ PyTypeObject TriggerDummyType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)TriggerDummy_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     TriggerDummy_new,                 /* tp_new */
 };

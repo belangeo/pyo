@@ -46,7 +46,6 @@ typedef struct {
     MYFLT *y2;
     // coefficients
     MYFLT *b0;
-    MYFLT *b1;
     MYFLT *b2;
     MYFLT *a0;
     MYFLT *a1;
@@ -177,6 +176,8 @@ BandSplitter_traverse(BandSplitter *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    Py_VISIT(self->q);
+    Py_VISIT(self->q_stream);
     return 0;
 }
 
@@ -186,20 +187,21 @@ BandSplitter_clear(BandSplitter *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->q);
+    Py_CLEAR(self->q_stream);
     return 0;
 }
 
 static void
 BandSplitter_dealloc(BandSplitter* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->band_freqs);
     free(self->x1);
     free(self->x2);
     free(self->y1);
     free(self->y2);
     free(self->b0);
-    free(self->b1);
     free(self->b2);
     free(self->a0);
     free(self->a1);
@@ -209,12 +211,11 @@ BandSplitter_dealloc(BandSplitter* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * BandSplitter_deleteStream(BandSplitter *self) { DELETE_STREAM };
-
 static PyObject *
 BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *qtmp=NULL;
     BandSplitter *self;
     self = (BandSplitter *)type->tp_alloc(type, 0);
 
@@ -229,38 +230,26 @@ BandSplitter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->halfSr = self->sr / 2.;
     self->TwoPiOnSr = TWOPI / self->sr;
-    return (PyObject *)self;
-}
 
-static int
-BandSplitter_init(BandSplitter *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *qtmp=NULL;
-    
     static char *kwlist[] = {"input", "bands", "min", "max", "q", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_IFFO, kwlist, &inputtmp, &self->bands, &self->min_freq, &self->max_freq, &qtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
  
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->band_freqs = (MYFLT *)realloc(self->band_freqs, self->bands * sizeof(MYFLT));
-    
     self->x1 = (MYFLT *)realloc(self->x1, self->bands * sizeof(MYFLT));
     self->x2 = (MYFLT *)realloc(self->x2, self->bands * sizeof(MYFLT));
     self->y1 = (MYFLT *)realloc(self->y1, self->bands * sizeof(MYFLT));
     self->y2 = (MYFLT *)realloc(self->y2, self->bands * sizeof(MYFLT));
-
     self->b0 = (MYFLT *)realloc(self->b0, self->bands * sizeof(MYFLT));
-    self->b1 = (MYFLT *)realloc(self->b1, self->bands * sizeof(MYFLT));
     self->b2 = (MYFLT *)realloc(self->b2, self->bands * sizeof(MYFLT));
     self->a0 = (MYFLT *)realloc(self->a0, self->bands * sizeof(MYFLT));
     self->a1 = (MYFLT *)realloc(self->a1, self->bands * sizeof(MYFLT));
     self->a2 = (MYFLT *)realloc(self->a2, self->bands * sizeof(MYFLT));
-
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->bands * self->bufsize * sizeof(MYFLT));
 
     BandSplitter_setFrequencies((BandSplitter *)self);
@@ -273,9 +262,8 @@ BandSplitter_init(BandSplitter *self, PyObject *args, PyObject *kwds)
     }
 
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -330,7 +318,6 @@ static PyMemberDef BandSplitter_members[] = {
 static PyMethodDef BandSplitter_methods[] = {
 {"getServer", (PyCFunction)BandSplitter_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)BandSplitter_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)BandSplitter_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"setQ", (PyCFunction)BandSplitter_setQ, METH_O, "Sets the filters Q."},
 {"play", (PyCFunction)BandSplitter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)BandSplitter_stop, METH_NOARGS, "Stops computing."},
@@ -374,7 +361,7 @@ BandSplitter_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)BandSplitter_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 BandSplitter_new,                                     /* tp_new */
 };
@@ -468,17 +455,16 @@ BandSplit_clear(BandSplit *self)
 static void
 BandSplit_dealloc(BandSplit* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     BandSplit_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * BandSplit_deleteStream(BandSplit *self) { DELETE_STREAM };
 
 static PyObject *
 BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     BandSplit *self;
     self = (BandSplit *)type->tp_alloc(type, 0);
     
@@ -489,19 +475,11 @@ BandSplit_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BandSplit_compute_next_data_frame);
     self->mode_func_ptr = BandSplit_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-BandSplit_init(BandSplit *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -515,13 +493,11 @@ BandSplit_init(BandSplit *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * BandSplit_getServer(BandSplit* self) { GET_SERVER };
@@ -555,7 +531,6 @@ static PyMemberDef BandSplit_members[] = {
 static PyMethodDef BandSplit_methods[] = {
 {"getServer", (PyCFunction)BandSplit_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)BandSplit_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)BandSplit_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)BandSplit_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)BandSplit_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)BandSplit_stop, METH_NOARGS, "Stops computing."},
@@ -645,7 +620,7 @@ BandSplit_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)BandSplit_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 BandSplit_new,                 /* tp_new */
 };
@@ -872,18 +847,17 @@ FourBandMain_clear(FourBandMain *self)
 static void
 FourBandMain_dealloc(FourBandMain* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer_streams);
     FourBandMain_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * FourBandMain_deleteStream(FourBandMain *self) { DELETE_STREAM };
-
 static PyObject *
 FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *freq1tmp=NULL, *freq2tmp=NULL, *freq3tmp=NULL;
     FourBandMain *self;
     self = (FourBandMain *)type->tp_alloc(type, 0);
     
@@ -899,24 +873,14 @@ FourBandMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FourBandMain_compute_next_data_frame);
     self->mode_func_ptr = FourBandMain_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FourBandMain_init(FourBandMain *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *freq1tmp=NULL, *freq2tmp=NULL, *freq3tmp=NULL;
-    
     static char *kwlist[] = {"input", "freq1", "freq2", "freq3", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freq1tmp, &freq2tmp, &freq3tmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     for (i=0; i<6; i++) {
@@ -943,8 +907,7 @@ FourBandMain_init(FourBandMain *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -1062,7 +1025,6 @@ static PyMemberDef FourBandMain_members[] = {
 static PyMethodDef FourBandMain_methods[] = {
     {"getServer", (PyCFunction)FourBandMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FourBandMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)FourBandMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"setFreq1", (PyCFunction)FourBandMain_setFreq1, METH_O, "Sets the first cutoff frequency."},
     {"setFreq2", (PyCFunction)FourBandMain_setFreq2, METH_O, "Sets the second cutoff frequency."},
     {"setFreq3", (PyCFunction)FourBandMain_setFreq3, METH_O, "Sets the third cutoff frequency."},
@@ -1108,7 +1070,7 @@ PyTypeObject FourBandMainType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)FourBandMain_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     FourBandMain_new,                                     /* tp_new */
 };
@@ -1202,17 +1164,16 @@ FourBand_clear(FourBand *self)
 static void
 FourBand_dealloc(FourBand* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     FourBand_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * FourBand_deleteStream(FourBand *self) { DELETE_STREAM };
 
 static PyObject *
 FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     FourBand *self;
     self = (FourBand *)type->tp_alloc(type, 0);
     
@@ -1223,19 +1184,11 @@ FourBand_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FourBand_compute_next_data_frame);
     self->mode_func_ptr = FourBand_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FourBand_init(FourBand *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -1249,13 +1202,11 @@ FourBand_init(FourBand *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * FourBand_getServer(FourBand* self) { GET_SERVER };
@@ -1289,7 +1240,6 @@ static PyMemberDef FourBand_members[] = {
 static PyMethodDef FourBand_methods[] = {
     {"getServer", (PyCFunction)FourBand_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FourBand_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)FourBand_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FourBand_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FourBand_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FourBand_stop, METH_NOARGS, "Stops computing."},
@@ -1379,7 +1329,7 @@ PyTypeObject FourBandType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)FourBand_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     FourBand_new,                 /* tp_new */
 };

@@ -343,17 +343,17 @@ Randi_clear(Randi *self)
 static void
 Randi_dealloc(Randi* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Randi_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Randi_deleteStream(Randi *self) { DELETE_STREAM };
 
 static PyObject *
 Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT mi, ma;
+    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Randi *self;
     self = (Randi *)type->tp_alloc(type, 0);
     
@@ -371,19 +371,11 @@ Randi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Randi_compute_next_data_frame);
     self->mode_func_ptr = Randi_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Randi_init(Randi *self, PyObject *args, PyObject *kwds)
-{
-    MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
 
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
@@ -405,7 +397,6 @@ Randi_init(Randi *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, RANDI_ID);
@@ -422,9 +413,8 @@ Randi_init(Randi *self, PyObject *args, PyObject *kwds)
     self->value = self->oldValue = (mi + ma) * 0.5;
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Randi_getServer(Randi* self) { GET_SERVER };
@@ -563,7 +553,6 @@ static PyMemberDef Randi_members[] = {
 static PyMethodDef Randi_methods[] = {
 {"getServer", (PyCFunction)Randi_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Randi_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Randi_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Randi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Randi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Randi_stop, METH_NOARGS, "Stops computing."},
@@ -656,7 +645,7 @@ Randi_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Randi_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Randi_new,                                     /* tp_new */
 };
@@ -963,17 +952,17 @@ Randh_clear(Randh *self)
 static void
 Randh_dealloc(Randh* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Randh_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Randh_deleteStream(Randh *self) { DELETE_STREAM };
 
 static PyObject *
 Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT mi, ma;
+    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Randh *self;
     self = (Randh *)type->tp_alloc(type, 0);
     
@@ -991,19 +980,11 @@ Randh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Randh_compute_next_data_frame);
     self->mode_func_ptr = Randh_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Randh_init(Randh *self, PyObject *args, PyObject *kwds)
-{
-    MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"min", "max", "freq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOOO", kwlist, &mintmp, &maxtmp, &freqtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
@@ -1025,7 +1006,6 @@ Randh_init(Randh *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     Server_generateSeed((Server *)self->server, RANDH_ID);
@@ -1042,9 +1022,8 @@ Randh_init(Randh *self, PyObject *args, PyObject *kwds)
     self->value = (mi + ma) * 0.5;
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Randh_getServer(Randh* self) { GET_SERVER };
@@ -1183,7 +1162,6 @@ static PyMemberDef Randh_members[] = {
 static PyMethodDef Randh_methods[] = {
 {"getServer", (PyCFunction)Randh_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Randh_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Randh_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Randh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Randh_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Randh_stop, METH_NOARGS, "Stops computing."},
@@ -1276,7 +1254,7 @@ Randh_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Randh_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Randh_new,                                     /* tp_new */
 };
@@ -1417,18 +1395,17 @@ Choice_clear(Choice *self)
 static void
 Choice_dealloc(Choice* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->choice);
     Choice_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Choice_deleteStream(Choice *self) { DELETE_STREAM };
-
 static PyObject *
 Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *choicetmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Choice *self;
     self = (Choice *)type->tp_alloc(type, 0);
     
@@ -1442,18 +1419,11 @@ Choice_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Choice_compute_next_data_frame);
     self->mode_func_ptr = Choice_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Choice_init(Choice *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *choicetmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"choice", "freq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &choicetmp, &freqtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (choicetmp) {
         PyObject_CallMethod((PyObject *)self, "setChoice", "O", choicetmp);
@@ -1471,15 +1441,13 @@ Choice_init(Choice *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     Server_generateSeed((Server *)self->server, CHOICE_ID);
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Choice_getServer(Choice* self) { GET_SERVER };
@@ -1573,7 +1541,6 @@ static PyMemberDef Choice_members[] = {
 static PyMethodDef Choice_methods[] = {
 {"getServer", (PyCFunction)Choice_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Choice_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Choice_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Choice_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Choice_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Choice_stop, METH_NOARGS, "Stops computing."},
@@ -1665,7 +1632,7 @@ Choice_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Choice_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Choice_new,                                     /* tp_new */
 };
@@ -1858,17 +1825,16 @@ RandInt_clear(RandInt *self)
 static void
 RandInt_dealloc(RandInt* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     RandInt_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * RandInt_deleteStream(RandInt *self) { DELETE_STREAM };
 
 static PyObject *
 RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     RandInt *self;
     self = (RandInt *)type->tp_alloc(type, 0);
     
@@ -1884,18 +1850,11 @@ RandInt_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RandInt_compute_next_data_frame);
     self->mode_func_ptr = RandInt_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maxtmp=NULL, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &maxtmp, &freqtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     if (maxtmp) {
         PyObject_CallMethod((PyObject *)self, "setMax", "O", maxtmp);
@@ -1913,15 +1872,13 @@ RandInt_init(RandInt *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, RANDINT_ID);
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * RandInt_getServer(RandInt* self) { GET_SERVER };
@@ -2025,7 +1982,6 @@ static PyMemberDef RandInt_members[] = {
 static PyMethodDef RandInt_methods[] = {
 {"getServer", (PyCFunction)RandInt_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)RandInt_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)RandInt_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)RandInt_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)RandInt_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)RandInt_stop, METH_NOARGS, "Stops computing."},
@@ -2117,7 +2073,7 @@ RandInt_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)RandInt_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 RandInt_new,                                     /* tp_new */
 };
@@ -2333,17 +2289,17 @@ RandDur_clear(RandDur *self)
 static void
 RandDur_dealloc(RandDur* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     RandDur_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * RandDur_deleteStream(RandDur *self) { DELETE_STREAM };
 
 static PyObject *
 RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT mi, ma;
+    PyObject *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
     RandDur *self;
     self = (RandDur *)type->tp_alloc(type, 0);
     
@@ -2359,19 +2315,11 @@ RandDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, RandDur_compute_next_data_frame);
     self->mode_func_ptr = RandDur_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-RandDur_init(RandDur *self, PyObject *args, PyObject *kwds)
-{
-    MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"min", "max", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &mintmp, &maxtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (mintmp) {
         PyObject_CallMethod((PyObject *)self, "setMin", "O", mintmp);
@@ -2389,7 +2337,6 @@ RandDur_init(RandDur *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     Server_generateSeed((Server *)self->server, RANDDUR_ID);
@@ -2410,9 +2357,8 @@ RandDur_init(RandDur *self, PyObject *args, PyObject *kwds)
         self->inc = (1.0 / self->value) / self->sr;
 
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * RandDur_getServer(RandDur* self) { GET_SERVER };
@@ -2516,7 +2462,6 @@ static PyMemberDef RandDur_members[] = {
 static PyMethodDef RandDur_methods[] = {
     {"getServer", (PyCFunction)RandDur_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)RandDur_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)RandDur_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)RandDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)RandDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)RandDur_stop, METH_NOARGS, "Stops computing."},
@@ -2608,7 +2553,7 @@ PyTypeObject RandDurType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)RandDur_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     RandDur_new,                                     /* tp_new */
 };
@@ -3199,17 +3144,16 @@ Xnoise_clear(Xnoise *self)
 static void
 Xnoise_dealloc(Xnoise* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Xnoise_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Xnoise_deleteStream(Xnoise *self) { DELETE_STREAM };
 
 static PyObject *
 Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
     Xnoise *self;
     self = (Xnoise *)type->tp_alloc(type, 0);
     
@@ -3242,18 +3186,11 @@ Xnoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     Stream_setFunctionPtr(self->stream, Xnoise_compute_next_data_frame);
     self->mode_func_ptr = Xnoise_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Xnoise_init(Xnoise *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"type", "freq", "x1", "x2", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
@@ -3275,15 +3212,13 @@ Xnoise_init(Xnoise *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Xnoise_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Xnoise_getServer(Xnoise* self) { GET_SERVER };
@@ -3441,7 +3376,6 @@ static PyMemberDef Xnoise_members[] = {
 static PyMethodDef Xnoise_methods[] = {
     {"getServer", (PyCFunction)Xnoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Xnoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Xnoise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Xnoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Xnoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Xnoise_stop, METH_NOARGS, "Stops computing."},
@@ -3535,7 +3469,7 @@ PyTypeObject XnoiseType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)Xnoise_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     Xnoise_new,                                     /* tp_new */
 };
@@ -4162,17 +4096,16 @@ XnoiseMidi_clear(XnoiseMidi *self)
 static void
 XnoiseMidi_dealloc(XnoiseMidi* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     XnoiseMidi_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * XnoiseMidi_deleteStream(XnoiseMidi *self) { DELETE_STREAM };
 
 static PyObject *
 XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *rangetmp=NULL, *multmp=NULL, *addtmp=NULL;
     XnoiseMidi *self;
     self = (XnoiseMidi *)type->tp_alloc(type, 0);
         
@@ -4209,18 +4142,11 @@ XnoiseMidi_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     Stream_setFunctionPtr(self->stream, XnoiseMidi_compute_next_data_frame);
     self->mode_func_ptr = XnoiseMidi_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-XnoiseMidi_init(XnoiseMidi *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *freqtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *rangetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"type", "freq", "x1", "x2", "scale", "range", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOiOOO", kwlist, &self->type, &freqtmp, &x1tmp, &x2tmp, &self->scale, &rangetmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
@@ -4246,15 +4172,13 @@ XnoiseMidi_init(XnoiseMidi *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     XnoiseMidi_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * XnoiseMidi_getServer(XnoiseMidi* self) { GET_SERVER };
@@ -4455,7 +4379,6 @@ static PyMemberDef XnoiseMidi_members[] = {
 static PyMethodDef XnoiseMidi_methods[] = {
     {"getServer", (PyCFunction)XnoiseMidi_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)XnoiseMidi_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)XnoiseMidi_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)XnoiseMidi_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)XnoiseMidi_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)XnoiseMidi_stop, METH_NOARGS, "Stops computing."},
@@ -4551,7 +4474,7 @@ PyTypeObject XnoiseMidiType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)XnoiseMidi_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     XnoiseMidi_new,                                     /* tp_new */
 };
@@ -4987,17 +4910,17 @@ XnoiseDur_clear(XnoiseDur *self)
 static void
 XnoiseDur_dealloc(XnoiseDur* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     XnoiseDur_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * XnoiseDur_deleteStream(XnoiseDur *self) { DELETE_STREAM };
 
 static PyObject *
 XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT mi, ma;
+    PyObject *mintmp=NULL, *maxtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
     XnoiseDur *self;
     self = (XnoiseDur *)type->tp_alloc(type, 0);
     
@@ -5031,19 +4954,11 @@ XnoiseDur_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     Stream_setFunctionPtr(self->stream, XnoiseDur_compute_next_data_frame);
     self->mode_func_ptr = XnoiseDur_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-XnoiseDur_init(XnoiseDur *self, PyObject *args, PyObject *kwds)
-{
-    MYFLT mi, ma;
-    PyObject *mintmp=NULL, *maxtmp=NULL, *x1tmp=NULL, *x2tmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"type", "min", "max", "x1", "x2", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOOOOO", kwlist, &self->type, &mintmp, &maxtmp, &x1tmp, &x2tmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (x1tmp) {
         PyObject_CallMethod((PyObject *)self, "setX1", "O", x1tmp);
@@ -5069,7 +4984,6 @@ XnoiseDur_init(XnoiseDur *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (self->modebuffer[2] == 0)
@@ -5090,9 +5004,8 @@ XnoiseDur_init(XnoiseDur *self, PyObject *args, PyObject *kwds)
     XnoiseDur_setRandomType(self);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * XnoiseDur_getServer(XnoiseDur* self) { GET_SERVER };
@@ -5285,7 +5198,6 @@ static PyMemberDef XnoiseDur_members[] = {
 static PyMethodDef XnoiseDur_methods[] = {
     {"getServer", (PyCFunction)XnoiseDur_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)XnoiseDur_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)XnoiseDur_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)XnoiseDur_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)XnoiseDur_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)XnoiseDur_stop, METH_NOARGS, "Stops computing."},
@@ -5380,7 +5292,7 @@ PyTypeObject XnoiseDurType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)XnoiseDur_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     XnoiseDur_new,                                     /* tp_new */
 };
@@ -5570,18 +5482,18 @@ Urn_clear(Urn *self)
 static void
 Urn_dealloc(Urn* self)
 {
-    free(self->data);
+    pyo_DEALLOC
+    free(self->list);
     free(self->trigsBuffer);
     Urn_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Urn_deleteStream(Urn *self) { DELETE_STREAM };
-
 static PyObject *
 Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Urn *self;
     self = (Urn *)type->tp_alloc(type, 0);
     
@@ -5598,19 +5510,11 @@ Urn_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Urn_compute_next_data_frame);
     self->mode_func_ptr = Urn_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Urn_init(Urn *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"max", "freq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOOO", kwlist, &self->max, &freqtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
@@ -5624,7 +5528,6 @@ Urn_init(Urn *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
@@ -5641,9 +5544,8 @@ Urn_init(Urn *self, PyObject *args, PyObject *kwds)
     Server_generateSeed((Server *)self->server, URN_ID);
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Urn_getServer(Urn* self) { GET_SERVER };
@@ -5727,7 +5629,6 @@ static PyMethodDef Urn_methods[] = {
 {"getServer", (PyCFunction)Urn_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Urn_getStream, METH_NOARGS, "Returns stream object."},
 {"_getTriggerStream", (PyCFunction)Urn_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
-{"deleteStream", (PyCFunction)Urn_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Urn_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Urn_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Urn_stop, METH_NOARGS, "Stops computing."},
@@ -5819,7 +5720,7 @@ Urn_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Urn_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Urn_new,                                     /* tp_new */
 };

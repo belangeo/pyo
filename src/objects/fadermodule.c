@@ -170,17 +170,16 @@ Fader_clear(Fader *self)
 static void
 Fader_dealloc(Fader* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Fader_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Fader_deleteStream(Fader *self) { DELETE_STREAM };
 
 static PyObject *
 Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *multmp=NULL, *addtmp=NULL;
     Fader *self;
     self = (Fader *)type->tp_alloc(type, 0);
     
@@ -200,19 +199,11 @@ Fader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
-    
-    return (PyObject *)self;
-}
 
-static int
-Fader_init(Fader *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"fadein", "fadeout", "dur", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFOO, kwlist, &self->attack, &self->release, &self->duration, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
  
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -222,13 +213,11 @@ Fader_init(Fader *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Fader_getServer(Fader* self) { GET_SERVER };
@@ -304,7 +293,6 @@ static PyMemberDef Fader_members[] = {
 static PyMethodDef Fader_methods[] = {
 {"getServer", (PyCFunction)Fader_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Fader_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Fader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Fader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Fader_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Fader_setMul, METH_O, "Sets Fader mul factor."},
@@ -396,7 +384,7 @@ Fader_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Fader_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Fader_new,                 /* tp_new */
 };
@@ -552,17 +540,16 @@ Adsr_clear(Adsr *self)
 static void
 Adsr_dealloc(Adsr* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Adsr_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Adsr_deleteStream(Adsr *self) { DELETE_STREAM };
 
 static PyObject *
 Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *multmp=NULL, *addtmp=NULL;
     Adsr *self;
     self = (Adsr *)type->tp_alloc(type, 0);
     
@@ -584,19 +571,11 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
-    
-    return (PyObject *)self;
-}
-
-static int
-Adsr_init(Adsr *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"attack", "decay", "sustain", "release", "dur", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFFFOO, kwlist, &self->attack, &self->decay, &self->sustain, &self->release, &self->duration, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -606,13 +585,11 @@ Adsr_init(Adsr *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Adsr_getServer(Adsr* self) { GET_SERVER };
@@ -704,7 +681,6 @@ static PyMemberDef Adsr_members[] = {
 static PyMethodDef Adsr_methods[] = {
 {"getServer", (PyCFunction)Adsr_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Adsr_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Adsr_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Adsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Adsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setMul", (PyCFunction)Adsr_setMul, METH_O, "Sets Adsr mul factor."},
@@ -798,7 +774,7 @@ Adsr_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Adsr_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Adsr_new,                 /* tp_new */
 };
@@ -955,19 +931,18 @@ Linseg_clear(Linseg *self)
 static void
 Linseg_dealloc(Linseg* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->targets);
     free(self->times);
     Linseg_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Linseg_deleteStream(Linseg *self) { DELETE_STREAM };
-
 static PyObject *
 Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, initToFirstVal = 0;
+    PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
     Linseg *self;
     self = (Linseg *)type->tp_alloc(type, 0);
     
@@ -983,20 +958,11 @@ Linseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
-    
-    return (PyObject *)self;
-}
 
-static int
-Linseg_init(Linseg *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
-    int i, initToFirstVal = 0;
-    
     static char *kwlist[] = {"list", "loop", "initToFirstVal", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &pointslist, &self->loop, &initToFirstVal, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     Py_INCREF(pointslist);
     Py_XDECREF(self->pointslist);
@@ -1011,7 +977,6 @@ Linseg_init(Linseg *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     if (initToFirstVal) {
@@ -1021,9 +986,8 @@ Linseg_init(Linseg *self, PyObject *args, PyObject *kwds)
     }
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Linseg_getServer(Linseg* self) { GET_SERVER };
@@ -1099,7 +1063,6 @@ static PyMemberDef Linseg_members[] = {
 static PyMethodDef Linseg_methods[] = {
 {"getServer", (PyCFunction)Linseg_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Linseg_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Linseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Linseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Linseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
 {"setList", (PyCFunction)Linseg_setList, METH_O, "Sets target points list."},
@@ -1190,7 +1153,7 @@ Linseg_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Linseg_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Linseg_new,                 /* tp_new */
 };
@@ -1369,19 +1332,18 @@ Expseg_clear(Expseg *self)
 static void
 Expseg_dealloc(Expseg* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->targets);
     free(self->times);
     Expseg_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Expseg_deleteStream(Expseg *self) { DELETE_STREAM };
-
 static PyObject *
 Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, initToFirstVal = 0;
+    PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
     Expseg *self;
     self = (Expseg *)type->tp_alloc(type, 0);
     
@@ -1399,20 +1361,11 @@ Expseg_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setStreamActive(self->stream, 0);
     
     self->sampleToSec = 1. / self->sr;
-    
-    return (PyObject *)self;
-}
 
-static int
-Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *pointslist=NULL, *multmp=NULL, *addtmp=NULL;
-    int i, initToFirstVal = 0;
-    
     static char *kwlist[] = {"list", "loop", "exp", "inverse", "initToFirstVal", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|idiiOO", kwlist, &pointslist, &self->loop, &self->exp_tmp, &self->inverse_tmp, &initToFirstVal, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_INCREF(pointslist);
     Py_XDECREF(self->pointslist);
@@ -1427,7 +1380,6 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (initToFirstVal) {
@@ -1437,9 +1389,8 @@ Expseg_init(Expseg *self, PyObject *args, PyObject *kwds)
     }
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Expseg_getServer(Expseg* self) { GET_SERVER };
@@ -1543,7 +1494,6 @@ static PyMemberDef Expseg_members[] = {
 static PyMethodDef Expseg_methods[] = {
     {"getServer", (PyCFunction)Expseg_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Expseg_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Expseg_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Expseg_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Expseg_stop, METH_NOARGS, "Starts fadeout and stops computing."},
     {"setList", (PyCFunction)Expseg_setList, METH_O, "Sets target points list."},
@@ -1636,7 +1586,7 @@ PyTypeObject ExpsegType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Expseg_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Expseg_new,                 /* tp_new */
 };

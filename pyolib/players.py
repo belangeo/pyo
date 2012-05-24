@@ -121,41 +121,6 @@ class SfPlayer(PyoObject):
 
     def __dir__(self):
         return ['path', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
-
-    def __del__(self):
-        del self._trig_objs
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs.play(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._trig_objs.play(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-    
-    def stop(self):
-        self._trig_objs.stop()
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
         
     def setPath(self, path):
         """
@@ -388,37 +353,6 @@ class SfMarkerShuffler(PyoObject):
     def __dir__(self):
         return ['speed', 'interp', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-                        
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-    
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
-        
     def setSpeed(self, x):
         """
         Replace the `speed` attribute.
@@ -556,37 +490,6 @@ class SfMarkerLooper(PyoObject):
 
     def __dir__(self):
         return ['speed', 'mark', 'interp', 'mul', 'add']
-
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def out(self, chnl=0, inc=1, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:   
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
 
     def setSpeed(self, x):
         """

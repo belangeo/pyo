@@ -99,7 +99,7 @@ def wrap(arg, i):
         return x
 
 if sys.version_info[:2] <= (2, 5):
-    def example(cls, dur=5):
+    def example(cls, dur=5, toprint=True, double=False):
         """
     Execute the example given in the documentation of the object as an argument.
 
@@ -111,16 +111,29 @@ if sys.version_info[:2] <= (2, 5):
         Class reference of the desired object example.
     dur : float, optional
         Duration of the example.
+    toprint : boolean, optional
+        If True, the example script will be printed to the console.
+        Defaults to True.
+    double : boolean, optional
+        If True, force the example to run in double precision (64-bit)
+        Defaults to False.
 
     Examples:
 
     >>> example(Sine)
 
         """
-        doc = cls.__doc__.split("Examples:")[1]
-        lines = doc.splitlines()
+        doc = cls.__doc__.split("Examples:")
+        if len(doc) < 2:
+            print "There is no manual example for %s object." % cls.__name__
+            return
+        if "Server" in doc[1]:
+            with_server = True
+        else:
+            with_server = False
+        lines = doc[1].splitlines()
         ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-        if hasattr(__builtin__, 'pyo_use_double'):
+        if hasattr(__builtin__, 'pyo_use_double') or double:
             ex = "import time\nfrom pyo64 import *\n"
         else:
             ex = "import time\nfrom pyo import *\n"
@@ -128,14 +141,16 @@ if sys.version_info[:2] <= (2, 5):
             if ">>>" in line: line = line.lstrip(">>> ")
             if "..." in line: line = "    " +  line.lstrip("... ")
             ex += line + "\n"
-        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+        if with_server:
+            ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
         f = open('/tmp/pyo_example.py', 'w')
-        f.write('print """\n%s\n"""\n' % ex)
+        if toprint:
+            f.write('print """\n%s\n"""\n' % ex)
         f.write(ex)
         f.close()    
         p = call(["python", '/tmp/pyo_example.py'])
 else:
-    def example(cls, dur=5):
+    def example(cls, dur=5, toprint=True, double=False):
         """
     Execute the example given in the documentation of the object as an argument.
 
@@ -147,16 +162,29 @@ else:
         Class reference of the desired object example.
     dur : float, optional
         Duration of the example.
+    toprint : boolean, optional
+        If True, the example script will be printed to the console.
+        Defaults to True.
+    double : boolean, optional
+        If True, force the example to run in double precision (64-bit)
+        Defaults to False.
 
     Examples:
 
     >>> example(Sine)
 
         """
-        doc = cls.__doc__.split("Examples:")[1]
-        lines = doc.splitlines()
+        doc = cls.__doc__.split("Examples:")
+        if len(doc) < 2:
+            print "There is no manual example for %s object." % cls.__name__
+            return
+        if "Server" in doc[1]:
+            with_server = True
+        else:
+            with_server = False
+        lines = doc[1].splitlines()
         ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-        if hasattr(__builtin__, 'pyo_use_double'):
+        if hasattr(__builtin__, 'pyo_use_double') or double:
             ex = "import time\nfrom pyo64 import *\n"
         else:
             ex = "import time\nfrom pyo import *\n"
@@ -164,9 +192,11 @@ else:
             if ">>>" in line: line = line.lstrip(">>> ")
             if "..." in line: line = "    " +  line.lstrip("... ")
             ex += line + "\n"
-        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+        if with_server:
+            ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
         f = tempfile.NamedTemporaryFile(delete=False)
-        f.write('print """\n%s\n"""\n' % ex)
+        if toprint:
+            f.write('print """\n%s\n"""\n' % ex)
         f.write(ex)
         f.close()    
         p = call(["python", f.name])
@@ -266,6 +296,7 @@ class PyoObject(object):
     ctrl(map_list, title) : Opens a sliders window to control parameters.
     get(all) : Return the first sample of the current buffer as a float.
     dump() : Print current status of the object's attributes.
+    getBaseObjects() : Return a list of audio Stream objects managed by the instance.
 
     Attributes:
 
@@ -305,20 +336,14 @@ class PyoObject(object):
             if not serverBooted():
                 print "\nPYO Error: The Server must be booted before creating any audio object.\n"
                 exit()
-
         self._target_dict = {}
         self._signal_dict = {}
         self._keep_trace = []
         self._mul = 1.0
         self._add = 0.0
-        self._mul_dummy_keep_trace = []
-        self._add_dummy_keep_trace = []
-        self._div_upsamp_keep_trace = []
-        self._sub_upsamp_keep_trace = []
         self._op_duplicate = 1
 
     def __add__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             _add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
@@ -327,17 +352,16 @@ class PyoObject(object):
                 _add_dummy = x + self
             else:
                 _add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])
-        self._add_dummy_keep_trace.append(_add_dummy)
+        self._keep_trace.append(_add_dummy)
         return _add_dummy
         
     def __radd__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             _add_dummy = Dummy([obj + wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             _add_dummy = Dummy([wrap(self._base_objs,i) + obj for i, obj in enumerate(x)])                
-        self._add_dummy_keep_trace.append(_add_dummy)
+        self._keep_trace.append(_add_dummy)
         return _add_dummy
             
     def __iadd__(self, x):
@@ -345,38 +369,34 @@ class PyoObject(object):
         return self
 
     def __sub__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             _add_dummy = Dummy([obj - wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                print 'Substraction Warning: %s - %s' % (self.__repr__(), x.__repr__()),
-                print 'Right operator trunctaded to match left operator number of streams.'
-                _add_dummy = Dummy([obj - wrap(x,i) for i, obj in enumerate(self._base_objs)])
+                _add_dummy = Dummy([wrap(self._base_objs,i) - wrap(x,i) for i in range(lmax)])
             else:
                 _add_dummy = Dummy([wrap(self._base_objs,i) - obj for i, obj in enumerate(x)])
-        self._add_dummy_keep_trace.append(_add_dummy)
+        self._keep_trace.append(_add_dummy)
         return _add_dummy
 
     def __rsub__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             tmp = []
             for i, obj in enumerate(self._base_objs):
                 sub_upsamp = Sig(wrap(x, i/self._op_duplicate))
-                self._sub_upsamp_keep_trace.append(sub_upsamp)
+                self._keep_trace.append(sub_upsamp)
                 tmp.append(sub_upsamp - obj)
             _add_dummy = Dummy(tmp)
         else:
             tmp = []
             for i, obj in enumerate(x):
                 sub_upsamp = Sig(obj)
-                self._sub_upsamp_keep_trace.append(sub_upsamp)
+                self._keep_trace.append(sub_upsamp)
                 tmp.append(sub_upsamp - wrap(self._base_objs,i))
             _add_dummy = Dummy(tmp)
-        self._add_dummy_keep_trace.append(_add_dummy)
+        self._keep_trace.append(_add_dummy)
         return _add_dummy
 
     def __isub__(self, x):
@@ -384,26 +404,24 @@ class PyoObject(object):
         return self
  
     def __mul__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             _mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                _mul_dummy = x * self 
+                _mul_dummy = x * self
             else:
                 _mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])  
-        self._mul_dummy_keep_trace.append(_mul_dummy)
+        self._keep_trace.append(_mul_dummy)
         return _mul_dummy
         
     def __rmul__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             _mul_dummy = Dummy([obj * wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             _mul_dummy = Dummy([wrap(self._base_objs,i) * obj for i, obj in enumerate(x)])                
-        self._mul_dummy_keep_trace.append(_mul_dummy)
+        self._keep_trace.append(_mul_dummy)
         return _mul_dummy
             
     def __imul__(self, x):
@@ -411,38 +429,34 @@ class PyoObject(object):
         return self
  
     def __div__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             _mul_dummy = Dummy([obj / wrap(x,i/self._op_duplicate) for i, obj in enumerate(self._base_objs)])
         else:
             if isinstance(x, PyoObject):
-                print 'Division Warning: %s / %s' % (self.__repr__(), x.__repr__()),
-                print 'Right operator trunctaded to match left operator number of streams.'
-                _mul_dummy = Dummy([obj / wrap(x,i) for i, obj in enumerate(self._base_objs)])
+                _mul_dummy = Dummy([wrap(self._base_objs,i) / wrap(x,i) for i in range(lmax)])
             else:
                 _mul_dummy = Dummy([wrap(self._base_objs,i) / obj for i, obj in enumerate(x)])
-        self._mul_dummy_keep_trace.append(_mul_dummy)
+        self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
     def __rdiv__(self, x):
-        self._keep_trace.append(x)
         x, lmax = convertArgsToLists(x)
         if self.__len__() >= lmax:
             tmp = []
             for i, obj in enumerate(self._base_objs):
                 div_upsamp = Sig(wrap(x, i/self._op_duplicate))
-                self._div_upsamp_keep_trace.append(div_upsamp)
+                self._keep_trace.append(div_upsamp)
                 tmp.append(div_upsamp / obj)
             _mul_dummy = Dummy(tmp)
         else:
             tmp = []
             for i, obj in enumerate(x):
                 div_upsamp = Sig(obj)
-                self._div_upsamp_keep_trace.append(div_upsamp)
+                self._keep_trace.append(div_upsamp)
                 tmp.append(div_upsamp / wrap(self._base_objs,i))
             _mul_dummy = Dummy(tmp)
-        self._mul_dummy_keep_trace.append(_mul_dummy)
+        self._keep_trace.append(_mul_dummy)
         return _mul_dummy
 
     def __idiv__(self, x):
@@ -452,57 +466,16 @@ class PyoObject(object):
     def __getitem__(self, i):
         if i == 'trig':
             return self._trig_objs
-
         if type(i) == SliceType or i < len(self._base_objs):
             return self._base_objs[i]
         else:
             if type(i) == StringType:
                 print "Object %s has no stream named '%s'!" % (self.__class__, i)
             else:
-                print "'i' too large!"         
+                print "'i' too large in slicing object %s!" % self.__class__.__name__
  
     def __len__(self):
         return len(self._base_objs)
-
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-
-        if hasattr(self, "_trig_objs"):
-            del self._trig_objs
-
-        if hasattr(self, "_input"):
-            if type(self._input) == ListType:
-                for pyoObj in self._input:
-                    if hasattr(pyoObj, "getBaseObjects"):
-                        for obj in pyoObj.getBaseObjects():
-                            obj.deleteStream()
-                            del obj
-            else:
-                if hasattr(self._input, "getBaseObjects"):
-                    for obj in self._input.getBaseObjects():
-                        obj.deleteStream()
-                        del obj
-            del self._input
-
-        for key in self.__dict__.keys():
-            if isinstance(self.__dict__[key], PyoObject):
-                del self.__dict__[key]
-            elif type(self.__dict__[key]) == ListType:
-                for ele in self.__dict__[key]:
-                    if hasattr(ele, "getBaseObjects"):
-                        for obj in ele.getBaseObjects():
-                            try:
-                                obj.deleteStream()
-                            except:
-                                pass
-                            del obj
-                    else:
-                        del ele
-
-        if hasattr(self, "_in_fader"):
-            del self._in_fader
 
     def __repr__(self):
         return '< Instance of %s class >' % self.__class__.__name__
@@ -549,7 +522,7 @@ class PyoObject(object):
             
     def getBaseObjects(self):
         """
-        Return a list of audio Stream objects.
+        Return a list of audio Stream objects managed by the instance.
         
         """
         return self._base_objs
@@ -574,7 +547,9 @@ class PyoObject(object):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
             self._trig_objs.play(dur, delay)
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        if hasattr(self, "_base_players"):
+            [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
@@ -612,13 +587,15 @@ class PyoObject(object):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
             self._trig_objs.play(dur, delay)
+        if hasattr(self, "_base_players"):
+            [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
         if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+            [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         else:
             if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
+                [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
             else:
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+                [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         return self
     
     def stop(self):
@@ -631,6 +608,8 @@ class PyoObject(object):
         """
         if hasattr(self, "_trig_objs"):
             self._trig_objs.stop()
+        if hasattr(self, "_base_players"):
+            [obj.stop() for obj in self._base_players]
         [obj.stop() for obj in self._base_objs]
         return self
 
@@ -760,7 +739,6 @@ class PyoObject(object):
     def _reset_from_set(self, attr=None):
         setattr(self, attr, self._target_dict[attr])
         self._signal_dict[attr].stop()
-        del self._signal_dict[attr]
         
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         """
@@ -791,7 +769,6 @@ class PyoObject(object):
         if map_list == []:
             print("There is no controls for %s object." % self.__class__.__name__)
             return
-    
         createCtrlWindow(self, map_list, title, wxnoserver)
 
     @property
@@ -824,7 +801,7 @@ class PyoTableObject(object):
     getSize() : Return table size in samples.
     view() : Opens a window showing the contents of the table.
     dump() : Print current status of the object's attributes.
-    save(path, format) : Writes the content of the table in an audio file.
+    save(path, format, sampletype) : Writes the content of the table in an audio file.
     write(path, oneline) : Writes the content of the table in a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
@@ -833,6 +810,7 @@ class PyoTableObject(object):
     copy() : Returns a deep copy of the object.
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
+    getBseObjects() : Return a list of table Stream objects managed by the instance.
     
     Notes:
     
@@ -856,7 +834,7 @@ class PyoTableObject(object):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print "'i' too large in slicing table %s!" % self.__class__.__name__
  
     def __len__(self):
         return len(self._base_objs)
@@ -967,7 +945,7 @@ class PyoTableObject(object):
         
     def getBaseObjects(self):
         """
-        Return a list of table Stream objects.
+        Return a list of table Stream objects managed by the instance.
         
         """
         return self._base_objs
@@ -1049,7 +1027,6 @@ class PyoTableObject(object):
             _size = self.getSize()
             if type(_size) != ListType:
                 _size = [_size]
-
             _chnls = len(self._base_objs)
             args[0] = None
             args.append(_chnls)
@@ -1103,6 +1080,7 @@ class PyoMatrixObject(object):
     boost(min, max, boost) : Boost the contrast of values in the matrix.
     put(value, x, y) : Puts a value at specified position in the matrix.
     get(x, y) : Returns the value at specified position in the matrix.
+    getBaseObjects() : Returns a list of matrix stream objects managed by the instance.
     
     Notes:
     
@@ -1126,7 +1104,7 @@ class PyoMatrixObject(object):
         if i < len(self._base_objs):
             return self._base_objs[i]
         else:
-            print "'i' too large!"
+            print "'i' too large in slicing matrix %s!" % self.__class__.__name__
  
     def __len__(self):
         return len(self._base_objs)
@@ -1186,7 +1164,7 @@ class PyoMatrixObject(object):
         
     def getBaseObjects(self):
         """
-        Returns a list of matrix stream objects.
+        Returns a list of matrix stream objects managed by the instance.
         
         """
         return self._base_objs
@@ -1362,22 +1340,6 @@ class Mix(PyoObject):
     def __dir__(self):
         return ['mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        del self._base_objs
-        if type(self._input) == ListType:
-            for pyoObj in self._input:
-                for obj in pyoObj.getBaseObjects():
-                    obj.deleteStream()
-                    del obj
-        else:
-            for obj in self._input.getBaseObjects():
-                obj.deleteStream()
-                del obj
-        del self._input
-
 class Dummy(PyoObject):
     """
     Dummy object used to perform arithmetics on PyoObject.
@@ -1436,11 +1398,6 @@ class Dummy(PyoObject):
 
     def __dir__(self):
         return ['mul', 'add']
-
-    def deleteStream(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
         
 class InputFader(PyoObject):
     """
@@ -1623,7 +1580,7 @@ class VarPort(PyoObject):
     >>> def callback(arg):
     ...     print "end of line"
     ...     print arg
-    .... 
+    ... 
     >>> fr = VarPort(value=500, time=2, init=250, function=callback, arg="YEP!")
     >>> a = SineLoop(freq=[fr,fr*1.01], feedback=0.05, mul=.2).out()
 

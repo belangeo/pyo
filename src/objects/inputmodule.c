@@ -108,17 +108,16 @@ Input_clear(Input *self)
 static void
 Input_dealloc(Input* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Input_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Input_deleteStream(Input *self) { DELETE_STREAM };
 
 static PyObject *
 Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *multmp=NULL, *addtmp=NULL;
     Input *self;
     self = (Input *)type->tp_alloc(type, 0);
 
@@ -129,19 +128,11 @@ Input_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Input_compute_next_data_frame);
     self->mode_func_ptr = Input_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-Input_init(Input *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"chnl", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iOO", kwlist, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
  
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -151,13 +142,11 @@ Input_init(Input *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Input_getServer(Input* self) { GET_SERVER };
@@ -191,7 +180,6 @@ static PyMemberDef Input_members[] = {
 static PyMethodDef Input_methods[] = {
     {"getServer", (PyCFunction)Input_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Input_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Input_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Input_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Input_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Input_stop, METH_NOARGS, "Stops computing."},
@@ -281,7 +269,7 @@ PyTypeObject InputType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Input_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Input_new,                 /* tp_new */
 };

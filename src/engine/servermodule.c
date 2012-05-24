@@ -1321,10 +1321,13 @@ Server_clear(Server *self)
 static void
 Server_dealloc(Server* self)
 {  
-    Server_shut_down(self);
+    if (self->server_booted == 1)
+        Server_shut_down(self);
     Server_clear(self);
     free(self->input_buffer);
+    free(self->output_buffer);
     free(self->serverName);
+    my_server = NULL;
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -1360,7 +1363,6 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->startoffset = 0.0;
     self->globalSeed = 0;
     Py_XDECREF(my_server);
-    Py_XINCREF(self);
     my_server = (Server *)self;
     return (PyObject *)self;
 }
@@ -1400,6 +1402,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     self->recpath = getenv("HOME");
     if (self->recpath != NULL)
         strncat(self->recpath, "/pyo_rec.wav", strlen("/pyo_rec.wav")); 
+
     return 0;
 }
 
@@ -1822,6 +1825,8 @@ Server_start(Server *self)
     }
     int err = -1;
     
+    Server_debug(self, "Number of streams %d\n", self->stream_count);
+
     /* Ensure Python is set up for threading */
     PyEval_InitThreads();
 
@@ -2017,7 +2022,6 @@ Server_addStream(Server *self, PyObject *args)
         return PyInt_FromLong(-1);
     }
 
-    Py_INCREF(tmp);
     PyList_Append(self->streams, tmp);
 
     self->stream_count++;
@@ -2032,6 +2036,7 @@ Server_removeStream(Server *self, int id)
     int i, sid;
     Stream *stream_tmp;
     
+    Server_debug(self, "stream_count = %d, streams list size = %d\n", self->stream_count, PyList_Size(self->streams));
     for (i=0; i<self->stream_count; i++) {
         stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
         sid = Stream_getStreamId(stream_tmp);
@@ -2039,6 +2044,7 @@ Server_removeStream(Server *self, int id)
             Server_debug(self, "Removed stream id %d\n", id);
             PySequence_DelItem(self->streams, i);
             self->stream_count--;
+            break;
         }
     }
     Py_INCREF(Py_None);

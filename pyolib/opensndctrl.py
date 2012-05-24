@@ -106,7 +106,7 @@ class OscSend(PyoObject):
         self._in_fader.setInput(x, fadetime)
             
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -185,14 +185,6 @@ class OscReceive(PyoObject):
 
     def __dir__(self):
         return ['mul', 'add']
-
-    def __del__(self):
-        self._mainReceiver.free_port()
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        self._mainReceiver.deleteStream()
-        del self._mainReceiver
             
     def __getitem__(self, i):
         if type(i) == type(''):
@@ -247,7 +239,6 @@ class OscReceive(PyoObject):
         for ind in reversed(indexes):
             self._address.pop(ind)
             obj = self._base_objs.pop(ind)
-            obj.deleteStream()
 
     def setInterpolation(self, x):
         """
@@ -289,7 +280,7 @@ class OscReceive(PyoObject):
             return [obj._getStream().getValue() for obj in self._base_objs]
              
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -369,7 +360,7 @@ class OscDataSend(PyoObject):
         return []
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -525,14 +516,8 @@ class OscDataReceive(PyoObject):
     def __dir__(self):
         return []
 
-    def __del__(self):
-        self._base_objs[0].free_port()
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def getAddresses(self):
         """
@@ -644,14 +629,6 @@ class OscListReceive(PyoObject):
     def __dir__(self):
         return ['mul', 'add']
 
-    def __del__(self):
-        self._mainReceiver.free_port()
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        self._mainReceiver.deleteStream()
-        del self._mainReceiver
-
     def __getitem__(self, i):
         if type(i) == type(''):
             first = self._address.index(i) * self._num
@@ -709,7 +686,6 @@ class OscListReceive(PyoObject):
             first = ind * self._num
             for i in reversed(range(first, first+self._num)):
                 obj = self._base_objs.pop(i)
-                obj.deleteStream()
 
     def setInterpolation(self, x):
         """
@@ -757,7 +733,7 @@ class OscListReceive(PyoObject):
             return outlist
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []

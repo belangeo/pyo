@@ -112,7 +112,7 @@ class Follower(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(1., 500., 'log', 'freq', self._freq)]
@@ -233,7 +233,7 @@ class Follower2(PyoObject):
         [obj.setFalltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.001, 1., 'log', 'risetime', self._risetime)]
@@ -345,7 +345,7 @@ class ZCross(PyoObject):
         [obj.setThresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []

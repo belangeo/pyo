@@ -111,7 +111,7 @@ class MatrixRec(PyoObject):
         return ['input', 'matrix']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -235,7 +235,7 @@ class MatrixRecLoop(PyoObject):
         return ['input', 'matrix']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -483,7 +483,7 @@ class MatrixMorph(PyoObject):
         return ['input', 'matrix', 'sources', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass

@@ -38,7 +38,7 @@ typedef struct {
 } HilbertMain;
 
 /* 6th order allpass poles */
-const MYFLT poles[12] = {.3609, 2.7412, 11.1573, 44.7581, 179.6242, 798.4578, 
+static const MYFLT poles[12] = {.3609, 2.7412, 11.1573, 44.7581, 179.6242, 798.4578, 
                     1.2524, 5.5671, 22.3423, 89.6271, 364.7914, 2770.1114};
 
 static void
@@ -124,18 +124,17 @@ HilbertMain_clear(HilbertMain *self)
 static void
 HilbertMain_dealloc(HilbertMain* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer_streams);
     HilbertMain_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * HilbertMain_deleteStream(HilbertMain *self) { DELETE_STREAM };
-
 static PyObject *
 HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp;
     HilbertMain *self;
     self = (HilbertMain *)type->tp_alloc(type, 0);
     
@@ -148,22 +147,13 @@ HilbertMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->y1[i] = 0.0;
     }
 
-    return (PyObject *)self;
-}
-
-static int
-HilbertMain_init(HilbertMain *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp;
-    
     static char *kwlist[] = {"input", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
  
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 2 * self->bufsize * sizeof(MYFLT));
@@ -171,9 +161,8 @@ HilbertMain_init(HilbertMain *self, PyObject *args, PyObject *kwds)
     HilbertMain_compute_variables((HilbertMain *)self);
 
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * HilbertMain_getServer(HilbertMain* self) { GET_SERVER };
@@ -192,7 +181,6 @@ static PyMemberDef HilbertMain_members[] = {
 static PyMethodDef HilbertMain_methods[] = {
 {"getServer", (PyCFunction)HilbertMain_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)HilbertMain_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)HilbertMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)HilbertMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)HilbertMain_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
@@ -235,7 +223,7 @@ HilbertMain_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)HilbertMain_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 HilbertMain_new,                                     /* tp_new */
 };
@@ -329,17 +317,16 @@ Hilbert_clear(Hilbert *self)
 static void
 Hilbert_dealloc(Hilbert* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Hilbert_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Hilbert_deleteStream(Hilbert *self) { DELETE_STREAM };
 
 static PyObject *
 Hilbert_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     Hilbert *self;
     self = (Hilbert *)type->tp_alloc(type, 0);
     
@@ -349,19 +336,11 @@ Hilbert_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Hilbert_compute_next_data_frame);
     self->mode_func_ptr = Hilbert_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Hilbert_init(Hilbert *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -375,13 +354,11 @@ Hilbert_init(Hilbert *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Hilbert_getServer(Hilbert* self) { GET_SERVER };
@@ -415,7 +392,6 @@ static PyMemberDef Hilbert_members[] = {
 static PyMethodDef Hilbert_methods[] = {
 {"getServer", (PyCFunction)Hilbert_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Hilbert_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Hilbert_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Hilbert_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Hilbert_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Hilbert_stop, METH_NOARGS, "Stops computing."},
@@ -505,7 +481,7 @@ Hilbert_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Hilbert_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Hilbert_new,                 /* tp_new */
 };

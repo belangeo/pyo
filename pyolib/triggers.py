@@ -72,7 +72,7 @@ class Trig(PyoObject):
         return []
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -160,7 +160,7 @@ class Metro(PyoObject):
         [obj.setTime(wrap(x,i)*self._poly) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
         
     def setMul(self, x):
         pass
@@ -281,19 +281,8 @@ class Seq(PyoObject):
         else:
             [obj.setSeq(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -396,20 +385,9 @@ class Cloud(PyoObject):
         self._density = x
         x, lmax = convertArgsToLists(x)
         [obj.setDensity(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
-        
+       
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
         
     def setMul(self, x):
         pass
@@ -548,38 +526,6 @@ class Beat(PyoObject):
 
     def __dir__(self):
         return ['time', 'taps', 'w1', 'w2', 'w3']
-
-    def __del__(self):
-        if self._tap_dummy:
-            [obj.deleteStream() for obj in self._tap_dummy]
-        if self._amp_dummy:
-            [obj.deleteStream() for obj in self._amp_dummy]
-        if self._dur_dummy:
-            [obj.deleteStream() for obj in self._dur_dummy]
-        if self._end_dummy:
-            [obj.deleteStream() for obj in self._end_dummy]
-        self._tap_dummy = []
-        self._amp_dummy = []
-        self._dur_dummy = []
-        self._end_dummy = []
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._tap_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._amp_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._dur_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._end_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
 
     def __getitem__(self, i):
         if i == 'tap':
@@ -778,25 +724,21 @@ class Beat(PyoObject):
 
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
         self._tap_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._tap_objs)]
         self._amp_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._amp_objs)]
         self._dur_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._dur_objs)]
         self._end_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._end_objs)]
-        return self
+        return PyoObject.play(self, dur, delay)
 
     def stop(self):
-        [obj.stop() for obj in self._base_players]
-        [obj.stop() for obj in self._base_objs]
         [obj.stop() for obj in self._tap_objs]
         [obj.stop() for obj in self._amp_objs]
         [obj.stop() for obj in self._dur_objs]
         [obj.stop() for obj in self._end_objs]
-        return self
+        return PyoObject.stop(self)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -935,7 +877,7 @@ class TrigRandInt(PyoObject):
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(1., 200., 'lin', 'max', self._max),
@@ -1290,7 +1232,7 @@ class TrigFunc(PyoObject):
         return ['input', 'function', 'arg']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -1571,7 +1513,7 @@ class TrigLinseg(PyoObject):
         return ['input', 'list', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1748,7 +1690,7 @@ class TrigExpseg(PyoObject):
         return ['input', 'list', 'exp', 'inverse', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2406,7 +2348,7 @@ class Counter(PyoObject):
         return ['input', 'min', 'max', 'dir', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2561,7 +2503,7 @@ class Select(PyoObject):
         return ['input', 'value', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2653,7 +2595,7 @@ class Change(PyoObject):
         return ['input', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2752,7 +2694,7 @@ class Thresh(PyoObject):
         return ['input', 'threshold', 'dir', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2873,7 +2815,7 @@ class Percent(PyoObject):
         return ['input', 'percent', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -3295,7 +3237,7 @@ class NextTrig(PyoObject):
     >>> s.start()
     >>> mid = Urn(max=4, freq=4, add=60)
     >>> sigL = SineLoop(freq=MToF(mid), feedback=.08, mul=0.3).out()
-    >>> first = NextTrig(Change(beat), mid["trig"])
+    >>> first = NextTrig(Change(mid), mid["trig"])
     >>> amp = TrigExpseg(first, [(0,0),(.01,.25),(1,0)])
     >>> sigR = SineLoop(midiToHz(84), feedback=0.05, mul=amp).out(1)
 

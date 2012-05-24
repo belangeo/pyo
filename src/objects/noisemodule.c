@@ -130,17 +130,16 @@ Noise_clear(Noise *self)
 static void
 Noise_dealloc(Noise* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Noise_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Noise_deleteStream(Noise *self) { DELETE_STREAM };
 
 static PyObject *
 Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *multmp=NULL, *addtmp=NULL;
     Noise *self;
     self = (Noise *)type->tp_alloc(type, 0);
     
@@ -151,19 +150,11 @@ Noise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Noise_compute_next_data_frame);
     self->mode_func_ptr = Noise_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Noise_init(Noise *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
  
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -173,7 +164,6 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, NOISE_ID);
@@ -181,9 +171,8 @@ Noise_init(Noise *self, PyObject *args, PyObject *kwds)
     self->seed = rand();
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Noise_getServer(Noise* self) { GET_SERVER };
@@ -236,7 +225,6 @@ static PyMemberDef Noise_members[] = {
 static PyMethodDef Noise_methods[] = {
 {"getServer", (PyCFunction)Noise_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Noise_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Noise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Noise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Noise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Noise_stop, METH_NOARGS, "Stops computing."},
@@ -327,7 +315,7 @@ Noise_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Noise_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Noise_new,                 /* tp_new */
 };
@@ -434,17 +422,16 @@ PinkNoise_clear(PinkNoise *self)
 static void
 PinkNoise_dealloc(PinkNoise* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     PinkNoise_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * PinkNoise_deleteStream(PinkNoise *self) { DELETE_STREAM };
 
 static PyObject *
 PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *multmp=NULL, *addtmp=NULL;
     PinkNoise *self;
     self = (PinkNoise *)type->tp_alloc(type, 0);
     
@@ -455,19 +442,11 @@ PinkNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PinkNoise_compute_next_data_frame);
     self->mode_func_ptr = PinkNoise_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-PinkNoise_init(PinkNoise *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -477,15 +456,13 @@ PinkNoise_init(PinkNoise *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
     Server_generateSeed((Server *)self->server, PINKNOISE_ID);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * PinkNoise_getServer(PinkNoise* self) { GET_SERVER };
@@ -519,7 +496,6 @@ static PyMemberDef PinkNoise_members[] = {
 static PyMethodDef PinkNoise_methods[] = {
     {"getServer", (PyCFunction)PinkNoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PinkNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)PinkNoise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)PinkNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)PinkNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)PinkNoise_stop, METH_NOARGS, "Stops computing."},
@@ -609,7 +585,7 @@ PyTypeObject PinkNoiseType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)PinkNoise_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     PinkNoise_new,                 /* tp_new */
 };
@@ -706,17 +682,17 @@ BrownNoise_clear(BrownNoise *self)
 static void
 BrownNoise_dealloc(BrownNoise* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     BrownNoise_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * BrownNoise_deleteStream(BrownNoise *self) { DELETE_STREAM };
 
 static PyObject *
 BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT b;
+    PyObject *multmp=NULL, *addtmp=NULL;
     BrownNoise *self;
     self = (BrownNoise *)type->tp_alloc(type, 0);
     
@@ -727,20 +703,11 @@ BrownNoise_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BrownNoise_compute_next_data_frame);
     self->mode_func_ptr = BrownNoise_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-BrownNoise_init(BrownNoise *self, PyObject *args, PyObject *kwds)
-{
-    MYFLT b;
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OO", kwlist, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -750,7 +717,6 @@ BrownNoise_init(BrownNoise *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     b = 2.0 - MYCOS(TWOPI * 20.0 / self->sr);
@@ -761,8 +727,7 @@ BrownNoise_init(BrownNoise *self, PyObject *args, PyObject *kwds)
     
     Server_generateSeed((Server *)self->server, BROWNNOISE_ID);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * BrownNoise_getServer(BrownNoise* self) { GET_SERVER };
@@ -796,7 +761,6 @@ static PyMemberDef BrownNoise_members[] = {
 static PyMethodDef BrownNoise_methods[] = {
     {"getServer", (PyCFunction)BrownNoise_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BrownNoise_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)BrownNoise_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)BrownNoise_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BrownNoise_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BrownNoise_stop, METH_NOARGS, "Stops computing."},
@@ -886,7 +850,7 @@ PyTypeObject BrownNoiseType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)BrownNoise_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     BrownNoise_new,                 /* tp_new */
 };

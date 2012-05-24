@@ -119,17 +119,16 @@ Sig_clear(Sig *self)
 static void
 Sig_dealloc(Sig* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Sig_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Sig_deleteStream(Sig *self) { DELETE_STREAM };
 
 static PyObject *
 Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Sig *self;
     self = (Sig *)type->tp_alloc(type, 0);
     
@@ -141,19 +140,11 @@ Sig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Sig_compute_next_data_frame);
     self->mode_func_ptr = Sig_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Sig_init(Sig *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *valuetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"value", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &valuetmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
 
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
@@ -167,15 +158,13 @@ Sig_init(Sig *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
     
     Sig_compute_next_data_frame((Sig *)self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -242,7 +231,6 @@ static PyMemberDef Sig_members[] = {
 static PyMethodDef Sig_methods[] = {
 {"getServer", (PyCFunction)Sig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Sig_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Sig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Sig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Sig_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Sig_stop, METH_NOARGS, "Stops computing."},
@@ -333,7 +321,7 @@ Sig_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Sig_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Sig_new,                 /* tp_new */
 };
@@ -493,17 +481,17 @@ SigTo_clear(SigTo *self)
 static void
 SigTo_dealloc(SigTo* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     SigTo_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * SigTo_deleteStream(SigTo *self) { DELETE_STREAM };
 
 static PyObject *
 SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT inittmp = 0.0;
+    PyObject *valuetmp=NULL, *timetmp=NULL, *multmp=NULL, *addtmp=NULL;
     SigTo *self;
     self = (SigTo *)type->tp_alloc(type, 0);
 
@@ -519,21 +507,11 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SigTo_compute_next_data_frame);
     self->mode_func_ptr = SigTo_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    MYFLT inittmp = 0.0;
-    PyObject *valuetmp=NULL, *timetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"value", "time", "init", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &valuetmp, &timetmp, &inittmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
@@ -551,7 +529,6 @@ SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->lastValue = self->currentValue = inittmp;
@@ -561,9 +538,8 @@ SigTo_init(SigTo *self, PyObject *args, PyObject *kwds)
     for(i=0; i<self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -652,7 +628,6 @@ static PyMemberDef SigTo_members[] = {
 static PyMethodDef SigTo_methods[] = {
 {"getServer", (PyCFunction)SigTo_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)SigTo_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)SigTo_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)SigTo_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)SigTo_stop, METH_NOARGS, "Stops computing."},
 {"setValue", (PyCFunction)SigTo_setValue, METH_O, "Sets SigTo value."},
@@ -743,7 +718,7 @@ SigTo_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)SigTo_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 SigTo_new,                 /* tp_new */
 };
@@ -895,17 +870,17 @@ VarPort_clear(VarPort *self)
 static void
 VarPort_dealloc(VarPort* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     VarPort_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * VarPort_deleteStream(VarPort *self) { DELETE_STREAM };
 
 static PyObject *
 VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT inittmp = 0.0;
+    PyObject *valuetmp=NULL, *timetmp=NULL, *calltmp=NULL, *argtmp=NULL, *multmp=NULL, *addtmp=NULL;
     VarPort *self;
     self = (VarPort *)type->tp_alloc(type, 0);
    
@@ -926,21 +901,11 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = VarPort_setProcMode;
     
     self->factor = 1. / (.1 * self->sr);
-    
-    return (PyObject *)self;
-}
 
-static int
-VarPort_init(VarPort *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    MYFLT inittmp = 0.0;
-    PyObject *valuetmp=NULL, *timetmp=NULL, *calltmp=NULL, *argtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOOOO, kwlist, &valuetmp, &timetmp, &inittmp, &calltmp, &argtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     if (valuetmp) {
         PyObject_CallMethod((PyObject *)self, "setValue", "O", valuetmp);
@@ -970,7 +935,6 @@ VarPort_init(VarPort *self, PyObject *args, PyObject *kwds)
         self->arg = argtmp;
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->lastValue = self->currentValue = self->y1 = inittmp;
@@ -980,9 +944,8 @@ VarPort_init(VarPort *self, PyObject *args, PyObject *kwds)
     for(i=0; i<self->bufsize; i++) {
         self->data[i] = self->currentValue;
     }
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -1062,7 +1025,6 @@ static PyMemberDef VarPort_members[] = {
 static PyMethodDef VarPort_methods[] = {
     {"getServer", (PyCFunction)VarPort_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VarPort_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)VarPort_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)VarPort_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)VarPort_stop, METH_NOARGS, "Stops computing."},
     {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
@@ -1153,7 +1115,7 @@ PyTypeObject VarPortType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)VarPort_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     VarPort_new,                 /* tp_new */
 };
