@@ -110,7 +110,7 @@ class Pattern(PyoObject):
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, x=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
         
     def setMul(self, x):
         pass
@@ -211,7 +211,7 @@ class Score(PyoObject):
         return ['input']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -288,7 +288,7 @@ class CallAfter(PyoObject):
         return []
 
     def out(self, x=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
         
     def setMul(self, x):
         pass

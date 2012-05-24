@@ -26,6 +26,8 @@
 #include "dummymodule.h"
 #include "tablemodule.h"
 
+static MYFLT BLACKMAN2[257] = {0.0, 0.00001355457612407795, 0.00005422714831165853, 0.00012204424012042525, 0.00021705003118953348, 0.00033930631782219667, 0.0004888924578373699, 0.00066590529972627988, 0.00087045909615995898, 0.0011026854019042381, 0.0013627329562085205, 0.0016507675497451635, 0.001966971876186191, 0.0023115453685137038, 0.0026847040201710415, 0.0030866801911709624, 0.0035177223992877149, 0.0039780950964686118, 0.004468078430611172, 0.0049879679928611226, 0.0055380745505964057, 0.0061187237662708727, 0.0067302559023018349, 0.0073730255121936678, 0.0080474011180991928, 0.0087537648750297542, 0.0094925122219332442, 0.010264051519867853, 0.011068803677508544, 0.011907201764231275, 0.012779690611027246, 0.013686726399509554, 0.014628776239280425, 0.015606317733936455, 0.016619838535996113, 0.017669835891040944, 0.018756816171369962, 0.019881294399473233, 0.021043793761637002, 0.022244845112000651, 0.023484986467390646, 0.024764762493264474, 0.026084723981101995, 0.027445427317589366, 0.028847433945943753, 0.030291309819735913, 0.031777624849569003, 0.033306952342980187, 0.034879868437934558, 0.036496951530286398, 0.038158781695585731, 0.039865940105613923, 0.041619008440034494, 0.043418568293550078, 0.045265200578957936, 0.047159484926502321, 0.04910199907992175, 0.051093318289594611, 0.053134014703186641, 0.055224656754207603, 0.05736580854888524, 0.059558029251766974, 0.061801872470459936, 0.064097885639923663, 0.066446609406726198, 0.068848577013680551, 0.071304313685273069, 0.073814336014300028, 0.076379151350125907, 0.078999257188976796, 0.081675140566682625, 0.08440727745428013, 0.08719613215688693, 0.090042156716257177, 0.092945790317425406, 0.095907458699845349, 0.09892757357342627, 0.10200653203986923, 0.10514471601969966, 0.10834249168539431, 0.11160020890099166, 0.11491820066857752, 0.11829678258202875, 0.12173625228839696, 0.12523688895730928, 0.12879895275875847, 0.13242268434965018, 0.1361083043694708, 0.13985601294543293, 0.14366598920745235, 0.14753839081330203, 0.15147335348428598, 0.15547099055176727, 0.15953139251487919, 0.16365462660974361, 0.16784073639051059, 0.17208974132253127, 0.17640163638796383, 0.18077639170410914, 0.18521395215476394, 0.18971423703487098, 0.19427713970874003, 0.19890252728210264, 0.2035902402882592, 0.20834009238856521, 0.21315187008749686, 0.218025332462529, 0.22296021090904578, 0.22795620890049961, 0.23301300176402318, 0.2381302364716896, 0.24330753144760825, 0.24854447639103289, 0.25384063211565033, 0.25919553040520765, 0.26460867388562637, 0.27007953591374234, 0.27560756048280166, 0.28119216214482828, 0.28683272594997611, 0.29252860740296116, 0.29827913243666476, 0.30408359740298374, 0.30994126908099884, 0.31585138470251517, 0.3218131519950253, 0.32782574924213004, 0.33388832536144369, 0.33999999999999991, 0.34615986364716356, 0.35236697776504228, 0.35862037493638421, 0.36491905902993321, 0.37126200538320747, 0.37764816100265119, 0.38407644478110459, 0.39054574773252188, 0.39705493324385926, 0.40360283734404451, 0.41018826898992783, 0.41681001036910403, 0.42346681721948765, 0.43015741916550887, 0.43688052007079137, 0.44363479840716119, 0.45041890763982673, 0.45723147662855934, 0.46407111004469437, 0.47093638880376354, 0.47782587051356035, 0.4847380899374274, 0.49167155947254987, 0.49862476964302743, 0.50559618960748731, 0.51258426768099419, 0.51958743187100298, 0.526604090427091, 0.53363263240419834, 0.54067142823909731, 0.5477188303398014, 0.55477317368762102, 0.5618327764515586, 0.56889594061473336, 0.57596095261251634, 0.58302608398204925, 0.59008959202281352, 0.5971497204679086, 0.60420470016569239, 0.61125274977143074, 0.61829207644859363, 0.62532087657943414, 0.63233733648447599, 0.63933963315053088, 0.64632593496686574, 0.65329440246912585, 0.66024318909062385, 0.66717044192059383, 0.67407430246900757, 0.68095290743754511, 0.68780438949630818, 0.69462687806585954, 0.70141850010417084, 0.70817738089805216, 0.71490164485864349, 0.72158941632053231, 0.7282388203440715, 0.73484798352045921, 0.74141503477914861, 0.74793810619714429, 0.75441533380975301, 0.76084485842234006, 0.76722482642265344, 0.77355339059327366, 0.77982871092374229, 0.78604895542192688, 0.7922123009241796, 0.79831693390384428, 0.80436105127766677, 0.81034286120967125, 0.81626058391205358, 0.82211245244265874, 0.82789671349859684, 0.83361162820556423, 0.83925547290243352, 0.84482653992067935, 0.85032313835820861, 0.85574359484716933, 0.86108625431531149, 0.86634948074047979, 0.87153165789781828, 0.87663119009927604, 0.88164650292500113, 0.88657604394621592, 0.89141828343917606, 0.89617171508981341, 0.90083485668867092, 0.90540625081574555, 0.90988446551485458, 0.91426809495715211, 0.9185557600934271, 0.92274610929481327, 0.92683781898156326, 0.93082959423952683, 0.93472016942399416, 0.93850830875056723, 0.94219280687272511, 0.94577248944576608, 0.94924621367680617, 0.9526128688605292, 0.95587137690038915, 0.95902069281497004, 0.96205980522922363, 0.96498773685030803, 0.96780354492775944, 0.97050632169774165, 0.97309519481112294, 0.97556932774514038, 0.97792792019842123, 0.9801702084691396, 0.98229546581609617, 0.98430300280251803, 0.98619216762238726, 0.98796234640911229, 0.98961296352637218, 0.99114348184096723, 0.99255340297752515, 0.99384226755491845, 0.99500965540426034, 0.99605518576835683, 0.99697851748250432, 0.99777934913652766, 0.99845741921797138, 0.99901250623636195, 0.99944442882846996, 0.99975304584451585, 0.99993825641526857, 1.0};
+
 /************/
 /* Convolve */
 /************/
@@ -125,6 +127,7 @@ Convolve_traverse(Convolve *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
+    Py_VISIT(self->table);
     return 0;
 }
 
@@ -134,24 +137,24 @@ Convolve_clear(Convolve *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->table);
     return 0;
 }
 
 static void
 Convolve_dealloc(Convolve* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->input_tmp);
     Convolve_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Convolve_deleteStream(Convolve *self) { DELETE_STREAM };
-
 static PyObject *
 Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp, *multmp=NULL, *addtmp=NULL;
     Convolve *self;
     self = (Convolve *)type->tp_alloc(type, 0);
     
@@ -162,19 +165,11 @@ Convolve_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Convolve_compute_next_data_frame);
     self->mode_func_ptr = Convolve_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *tabletmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "table", "size", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &tabletmp, &self->size, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
 
@@ -189,7 +184,6 @@ Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -198,9 +192,8 @@ Convolve_init(Convolve *self, PyObject *args, PyObject *kwds)
     for (i=0; i<self->size; i++) {
         self->input_tmp[i] = 0.0;
     }
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Convolve_getServer(Convolve* self) { GET_SERVER };
@@ -261,7 +254,6 @@ static PyMethodDef Convolve_methods[] = {
 {"getTable", (PyCFunction)Convolve_getTable, METH_NOARGS, "Returns impulse response table object."},
 {"getServer", (PyCFunction)Convolve_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Convolve_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Convolve_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Convolve_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Convolve_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Convolve_stop, METH_NOARGS, "Stops computing."},
@@ -352,12 +344,10 @@ Convolve_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Convolve_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Convolve_new,                                     /* tp_new */
 };
-
-MYFLT BLACKMAN2[257] = {0.0, 0.00001355457612407795, 0.00005422714831165853, 0.00012204424012042525, 0.00021705003118953348, 0.00033930631782219667, 0.0004888924578373699, 0.00066590529972627988, 0.00087045909615995898, 0.0011026854019042381, 0.0013627329562085205, 0.0016507675497451635, 0.001966971876186191, 0.0023115453685137038, 0.0026847040201710415, 0.0030866801911709624, 0.0035177223992877149, 0.0039780950964686118, 0.004468078430611172, 0.0049879679928611226, 0.0055380745505964057, 0.0061187237662708727, 0.0067302559023018349, 0.0073730255121936678, 0.0080474011180991928, 0.0087537648750297542, 0.0094925122219332442, 0.010264051519867853, 0.011068803677508544, 0.011907201764231275, 0.012779690611027246, 0.013686726399509554, 0.014628776239280425, 0.015606317733936455, 0.016619838535996113, 0.017669835891040944, 0.018756816171369962, 0.019881294399473233, 0.021043793761637002, 0.022244845112000651, 0.023484986467390646, 0.024764762493264474, 0.026084723981101995, 0.027445427317589366, 0.028847433945943753, 0.030291309819735913, 0.031777624849569003, 0.033306952342980187, 0.034879868437934558, 0.036496951530286398, 0.038158781695585731, 0.039865940105613923, 0.041619008440034494, 0.043418568293550078, 0.045265200578957936, 0.047159484926502321, 0.04910199907992175, 0.051093318289594611, 0.053134014703186641, 0.055224656754207603, 0.05736580854888524, 0.059558029251766974, 0.061801872470459936, 0.064097885639923663, 0.066446609406726198, 0.068848577013680551, 0.071304313685273069, 0.073814336014300028, 0.076379151350125907, 0.078999257188976796, 0.081675140566682625, 0.08440727745428013, 0.08719613215688693, 0.090042156716257177, 0.092945790317425406, 0.095907458699845349, 0.09892757357342627, 0.10200653203986923, 0.10514471601969966, 0.10834249168539431, 0.11160020890099166, 0.11491820066857752, 0.11829678258202875, 0.12173625228839696, 0.12523688895730928, 0.12879895275875847, 0.13242268434965018, 0.1361083043694708, 0.13985601294543293, 0.14366598920745235, 0.14753839081330203, 0.15147335348428598, 0.15547099055176727, 0.15953139251487919, 0.16365462660974361, 0.16784073639051059, 0.17208974132253127, 0.17640163638796383, 0.18077639170410914, 0.18521395215476394, 0.18971423703487098, 0.19427713970874003, 0.19890252728210264, 0.2035902402882592, 0.20834009238856521, 0.21315187008749686, 0.218025332462529, 0.22296021090904578, 0.22795620890049961, 0.23301300176402318, 0.2381302364716896, 0.24330753144760825, 0.24854447639103289, 0.25384063211565033, 0.25919553040520765, 0.26460867388562637, 0.27007953591374234, 0.27560756048280166, 0.28119216214482828, 0.28683272594997611, 0.29252860740296116, 0.29827913243666476, 0.30408359740298374, 0.30994126908099884, 0.31585138470251517, 0.3218131519950253, 0.32782574924213004, 0.33388832536144369, 0.33999999999999991, 0.34615986364716356, 0.35236697776504228, 0.35862037493638421, 0.36491905902993321, 0.37126200538320747, 0.37764816100265119, 0.38407644478110459, 0.39054574773252188, 0.39705493324385926, 0.40360283734404451, 0.41018826898992783, 0.41681001036910403, 0.42346681721948765, 0.43015741916550887, 0.43688052007079137, 0.44363479840716119, 0.45041890763982673, 0.45723147662855934, 0.46407111004469437, 0.47093638880376354, 0.47782587051356035, 0.4847380899374274, 0.49167155947254987, 0.49862476964302743, 0.50559618960748731, 0.51258426768099419, 0.51958743187100298, 0.526604090427091, 0.53363263240419834, 0.54067142823909731, 0.5477188303398014, 0.55477317368762102, 0.5618327764515586, 0.56889594061473336, 0.57596095261251634, 0.58302608398204925, 0.59008959202281352, 0.5971497204679086, 0.60420470016569239, 0.61125274977143074, 0.61829207644859363, 0.62532087657943414, 0.63233733648447599, 0.63933963315053088, 0.64632593496686574, 0.65329440246912585, 0.66024318909062385, 0.66717044192059383, 0.67407430246900757, 0.68095290743754511, 0.68780438949630818, 0.69462687806585954, 0.70141850010417084, 0.70817738089805216, 0.71490164485864349, 0.72158941632053231, 0.7282388203440715, 0.73484798352045921, 0.74141503477914861, 0.74793810619714429, 0.75441533380975301, 0.76084485842234006, 0.76722482642265344, 0.77355339059327366, 0.77982871092374229, 0.78604895542192688, 0.7922123009241796, 0.79831693390384428, 0.80436105127766677, 0.81034286120967125, 0.81626058391205358, 0.82211245244265874, 0.82789671349859684, 0.83361162820556423, 0.83925547290243352, 0.84482653992067935, 0.85032313835820861, 0.85574359484716933, 0.86108625431531149, 0.86634948074047979, 0.87153165789781828, 0.87663119009927604, 0.88164650292500113, 0.88657604394621592, 0.89141828343917606, 0.89617171508981341, 0.90083485668867092, 0.90540625081574555, 0.90988446551485458, 0.91426809495715211, 0.9185557600934271, 0.92274610929481327, 0.92683781898156326, 0.93082959423952683, 0.93472016942399416, 0.93850830875056723, 0.94219280687272511, 0.94577248944576608, 0.94924621367680617, 0.9526128688605292, 0.95587137690038915, 0.95902069281497004, 0.96205980522922363, 0.96498773685030803, 0.96780354492775944, 0.97050632169774165, 0.97309519481112294, 0.97556932774514038, 0.97792792019842123, 0.9801702084691396, 0.98229546581609617, 0.98430300280251803, 0.98619216762238726, 0.98796234640911229, 0.98961296352637218, 0.99114348184096723, 0.99255340297752515, 0.99384226755491845, 0.99500965540426034, 0.99605518576835683, 0.99697851748250432, 0.99777934913652766, 0.99845741921797138, 0.99901250623636195, 0.99944442882846996, 0.99975304584451585, 0.99993825641526857, 1.0};
 
 /************/
 /* IRWinSinc */
@@ -366,6 +356,10 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *bandwidth;
+    Stream *bandwidth_stream;
     int modebuffer[4]; // need at least 2 slots for mul & add 
     MYFLT *impulse;
     MYFLT *impulse_tmp;
@@ -375,10 +369,6 @@ typedef struct {
     int order;
     int size;
     int changed;
-    PyObject *freq;
-    Stream *freq_stream;
-    PyObject *bandwidth;
-    Stream *bandwidth_stream;
     MYFLT last_freq;
     MYFLT last_bandwidth;
 } IRWinSinc;
@@ -621,7 +611,7 @@ IRWinSinc_clear(IRWinSinc *self)
 static void
 IRWinSinc_dealloc(IRWinSinc* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->input_tmp);
     free(self->impulse);
     free(self->impulse_tmp);
@@ -629,12 +619,11 @@ IRWinSinc_dealloc(IRWinSinc* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * IRWinSinc_deleteStream(IRWinSinc *self) { DELETE_STREAM };
-
 static PyObject *
 IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
     IRWinSinc *self;
     self = (IRWinSinc *)type->tp_alloc(type, 0);
     
@@ -654,18 +643,11 @@ IRWinSinc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRWinSinc_compute_next_data_frame);
     self->mode_func_ptr = IRWinSinc_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-IRWinSinc_init(IRWinSinc *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
 
@@ -685,15 +667,13 @@ IRWinSinc_init(IRWinSinc *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     IRWinSinc_alloc_memory(self);
     
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * IRWinSinc_getServer(IRWinSinc* self) { GET_SERVER };
@@ -814,7 +794,6 @@ static PyMemberDef IRWinSinc_members[] = {
 static PyMethodDef IRWinSinc_methods[] = {
     {"getServer", (PyCFunction)IRWinSinc_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRWinSinc_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)IRWinSinc_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)IRWinSinc_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRWinSinc_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRWinSinc_stop, METH_NOARGS, "Stops computing."},
@@ -907,7 +886,7 @@ PyTypeObject IRWinSincType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)IRWinSinc_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     IRWinSinc_new,                                     /* tp_new */
 };
@@ -1050,19 +1029,18 @@ IRAverage_clear(IRAverage *self)
 static void
 IRAverage_dealloc(IRAverage* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->input_tmp);
     free(self->impulse);
     IRAverage_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * IRAverage_deleteStream(IRAverage *self) { DELETE_STREAM };
-
 static PyObject *
 IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     IRAverage *self;
     self = (IRAverage *)type->tp_alloc(type, 0);
     
@@ -1074,18 +1052,11 @@ IRAverage_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRAverage_compute_next_data_frame);
     self->mode_func_ptr = IRAverage_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-IRAverage_init(IRAverage *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "order", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->order, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
 
@@ -1097,15 +1068,13 @@ IRAverage_init(IRAverage *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     IRAverage_alloc_memory(self);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * IRAverage_getServer(IRAverage* self) { GET_SERVER };
@@ -1140,7 +1109,6 @@ static PyMemberDef IRAverage_members[] = {
 static PyMethodDef IRAverage_methods[] = {
     {"getServer", (PyCFunction)IRAverage_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRAverage_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)IRAverage_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)IRAverage_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRAverage_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRAverage_stop, METH_NOARGS, "Stops computing."},
@@ -1230,7 +1198,7 @@ PyTypeObject IRAverageType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)IRAverage_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     IRAverage_new,                                     /* tp_new */
 };
@@ -1242,6 +1210,10 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *bandwidth;
+    Stream *bandwidth_stream;
     int modebuffer[4]; // need at least 2 slots for mul & add 
     MYFLT *impulse;
     MYFLT *input_tmp;
@@ -1250,10 +1222,6 @@ typedef struct {
     int order;
     int size;
     int changed;
-    PyObject *freq;
-    Stream *freq_stream;
-    PyObject *bandwidth;
-    Stream *bandwidth_stream;
     MYFLT last_freq;
     MYFLT last_bandwidth;
 } IRPulse;
@@ -1517,19 +1485,18 @@ IRPulse_clear(IRPulse *self)
 static void
 IRPulse_dealloc(IRPulse* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->input_tmp);
     free(self->impulse);
     IRPulse_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * IRPulse_deleteStream(IRPulse *self) { DELETE_STREAM };
-
 static PyObject *
 IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
     IRPulse *self;
     self = (IRPulse *)type->tp_alloc(type, 0);
     
@@ -1549,18 +1516,11 @@ IRPulse_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRPulse_compute_next_data_frame);
     self->mode_func_ptr = IRPulse_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-IRPulse_init(IRPulse *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *bandwidthtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "freq", "bw", "type", "order", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiiOO", kwlist, &inputtmp, &freqtmp, &bandwidthtmp, &self->filtertype, &self->order, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -1580,15 +1540,13 @@ IRPulse_init(IRPulse *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     IRPulse_alloc_memory(self);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * IRPulse_getServer(IRPulse* self) { GET_SERVER };
@@ -1709,7 +1667,6 @@ static PyMemberDef IRPulse_members[] = {
 static PyMethodDef IRPulse_methods[] = {
     {"getServer", (PyCFunction)IRPulse_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRPulse_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)IRPulse_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)IRPulse_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRPulse_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRPulse_stop, METH_NOARGS, "Stops computing."},
@@ -1802,7 +1759,7 @@ PyTypeObject IRPulseType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)IRPulse_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     IRPulse_new,                                     /* tp_new */
 };
@@ -1814,18 +1771,18 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     Stream *input_stream;
-    int modebuffer[5]; // need at least 2 slots for mul & add 
-    MYFLT *impulse;
-    MYFLT *input_tmp;
-    int count;
-    int order;
-    int size;
     PyObject *carrier;
     Stream *carrier_stream;
     PyObject *ratio;
     Stream *ratio_stream;
     PyObject *index;
     Stream *index_stream;
+    int modebuffer[5]; // need at least 2 slots for mul & add 
+    MYFLT *impulse;
+    MYFLT *input_tmp;
+    int count;
+    int order;
+    int size;
     MYFLT last_carrier;
     MYFLT last_ratio;
     MYFLT last_index;
@@ -2020,19 +1977,18 @@ IRFM_clear(IRFM *self)
 static void
 IRFM_dealloc(IRFM* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->input_tmp);
     free(self->impulse);
     IRFM_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * IRFM_deleteStream(IRFM *self) { DELETE_STREAM };
-
 static PyObject *
 IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *carriertmp=NULL, *ratiotmp=NULL, *indextmp=NULL, *multmp=NULL, *addtmp=NULL;
     IRFM *self;
     self = (IRFM *)type->tp_alloc(type, 0);
     
@@ -2053,18 +2009,11 @@ IRFM_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IRFM_compute_next_data_frame);
     self->mode_func_ptr = IRFM_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-IRFM_init(IRFM *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *carriertmp=NULL, *ratiotmp=NULL, *indextmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "carrier", "ratio", "index", "order", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOiOO", kwlist, &inputtmp, &carriertmp, &ratiotmp, &indextmp, &self->order, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -2088,15 +2037,13 @@ IRFM_init(IRFM *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     IRFM_alloc_memory(self);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * IRFM_getServer(IRFM* self) { GET_SERVER };
@@ -2230,7 +2177,6 @@ static PyMemberDef IRFM_members[] = {
 static PyMethodDef IRFM_methods[] = {
     {"getServer", (PyCFunction)IRFM_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IRFM_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)IRFM_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)IRFM_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IRFM_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IRFM_stop, METH_NOARGS, "Stops computing."},
@@ -2323,7 +2269,7 @@ PyTypeObject IRFMType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)IRFM_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     IRFM_new,                                     /* tp_new */
 };

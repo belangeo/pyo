@@ -110,6 +110,7 @@ static int
 Mix_traverse(Mix *self, visitproc visit, void *arg)
 {
     pyo_VISIT
+    Py_VISIT(self->input);
     return 0;
 }
 
@@ -117,23 +118,23 @@ static int
 Mix_clear(Mix *self)
 {
     pyo_CLEAR
+    Py_CLEAR(self->input);
     return 0;
 }
 
 static void
 Mix_dealloc(Mix* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Mix_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Mix_deleteStream(Mix *self) { DELETE_STREAM };
 
 static PyObject *
 Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Mix *self;
     self = (Mix *)type->tp_alloc(type, 0);
 
@@ -143,19 +144,11 @@ Mix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Mix_compute_next_data_frame);
     self->mode_func_ptr = Mix_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-Mix_init(Mix *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"input", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
 
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -169,13 +162,11 @@ Mix_init(Mix *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Mix_getServer(Mix* self) { GET_SERVER };
@@ -201,6 +192,7 @@ static PyObject * Mix_inplace_div(Mix *self, PyObject *arg) { INPLACE_DIV };
 static PyMemberDef Mix_members[] = {
     {"server", T_OBJECT_EX, offsetof(Mix, server), 0, "Pyo server."},
     {"stream", T_OBJECT_EX, offsetof(Mix, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Mix, input), 0, "List of input signals to mix."},
     {"mul", T_OBJECT_EX, offsetof(Mix, mul), 0, "Mul factor."},
     {"add", T_OBJECT_EX, offsetof(Mix, add), 0, "Add factor."},
     {NULL}  /* Sentinel */
@@ -209,7 +201,6 @@ static PyMemberDef Mix_members[] = {
 static PyMethodDef Mix_methods[] = {
     {"getServer", (PyCFunction)Mix_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Mix_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Mix_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Mix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Mix_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Mix_stop, METH_NOARGS, "Stops computing."},
@@ -299,7 +290,7 @@ PyTypeObject MixType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Mix_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Mix_new,                 /* tp_new */
 };

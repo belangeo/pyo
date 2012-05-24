@@ -147,29 +147,6 @@ class FFT(PyoObject):
     def __len__(self):
         return len(self._real_objs)
 
-    def __del__(self):
-        if self._real_dummy:
-            [obj.deleteStream() for obj in self._real_dummy]
-        if self._imag_dummy:
-            [obj.deleteStream() for obj in self._imag_dummy]
-        if self._bin_dummy:
-            [obj.deleteStream() for obj in self._bin_dummy]
-        self._real_dummy = []
-        self._imag_dummy = []
-        self._bin_dummy = []
-        for obj in self._real_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._imag_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._bin_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._base_players:
-            obj.deleteStream()
-            del obj
-
     def __getitem__(self, str):
         if str == 'real':
             self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._real_objs)]))
@@ -236,6 +213,9 @@ class FFT(PyoObject):
         [obj.stop() for obj in self._imag_objs]
         [obj.stop() for obj in self._bin_objs]
         return self
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
 
     def setSize(self, x):
         """
@@ -574,17 +554,6 @@ class CarToPol(PyoObject):
     def __len__(self):
         return len(self._inreal)
 
-    def __del__(self):
-        if self._mag_dummy:
-            [obj.deleteStream() for obj in self._mag_dummy]
-        if self._ang_dummy:
-            [obj.deleteStream() for obj in self._ang_dummy]
-        self._mag_dummy = []
-        self._ang_dummy = []
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-
     def __getitem__(self, str):
         if str == 'mag':
             self._mag_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
@@ -749,17 +718,6 @@ class PolToCar(PyoObject):
     def __len__(self):
         return len(self._inmag)
 
-    def __del__(self):
-        if self._real_dummy:
-            [obj.deleteStream() for obj in self._real_dummy]
-        if self._imag_dummy:
-            [obj.deleteStream() for obj in self._imag_dummy]
-        self._real_dummy = []
-        self._imag_dummy = []
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-
     def __getitem__(self, str):
         if str == 'real':
             self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if i%2 == 0]))
@@ -899,8 +857,8 @@ class FrameDelta(PyoObject):
     >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
     >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
     >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=0.51))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=0.5))
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
     >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
     >>> car = PolToCar(m_mag_read, accum)
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
@@ -917,43 +875,24 @@ class FrameDelta(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps
-        self._main_players = []
+        self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._main_players.append(FrameDeltaMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+            self._base_players.append(FrameDeltaMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
         self._base_objs = []
         for i in range(lmax):
-            main_player = i % num_of_mains
+            base_player = i % num_of_mains
             overlap = i / num_of_mains
-            self._base_objs.append(FrameDelta_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(FrameDelta_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
         return ['input', 'framesize', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._main_players:
-            obj.deleteStream()
-            del obj
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._main_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._main_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._main_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1059,8 +998,8 @@ class FrameAccum(PyoObject):
     >>> delta = FrameDelta(pol["ang"], framesize=size, overlaps=4)
     >>> m_mag_rec = MatrixRec(pol["mag"], m_mag, 0, [i*hop for i in range(4)]).play()
     >>> m_pha_rec = MatrixRec(delta, m_pha, 0, [i*hop for i in range(4)]).play()
-    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Randi(freq=0.51))
-    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Randi(freq=0.5))
+    >>> m_mag_read = MatrixPointer(m_mag, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
+    >>> m_pha_read = MatrixPointer(m_pha, fin["bin"]/size, Sine(freq=0.25, mul=.5, add=.5))
     >>> accum = FrameAccum(m_pha_read, framesize=size, overlaps=4)
     >>> car = PolToCar(m_mag_read, accum)
     >>> fout = IFFT(car["real"], car["imag"], size=size, overlaps=4).mix(1).out()
@@ -1077,43 +1016,24 @@ class FrameAccum(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps
-        self._main_players = []
+        self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
             for i in range(len(self._in_fader)):
                 if (i%num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._main_players.append(FrameAccumMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
+            self._base_players.append(FrameAccumMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j)))
         self._base_objs = []
         for i in range(lmax):
-            main_player = i % num_of_mains
+            base_player = i % num_of_mains
             overlap = i / num_of_mains
-            self._base_objs.append(FrameAccum_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(FrameAccum_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
         return ['input', 'framesize', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._main_players:
-            obj.deleteStream()
-            del obj
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._main_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._main_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._main_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1241,43 +1161,24 @@ class Vectral(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, up, down, damp, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, up, down, damp, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps
-        self._main_players = []
+        self._base_players = []
         for j in range(num_of_mains):
             objs_list = []
             for i in range(len(self._in_fader)):
                 if (i % num_of_mains) == j:
                     objs_list.append(self._in_fader[i])
-            self._main_players.append(VectralMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j), wrap(up,j), wrap(down,j), wrap(damp,j)))
+            self._base_players.append(VectralMain_base(objs_list, wrap(framesize,j), wrap(overlaps,j), wrap(up,j), wrap(down,j), wrap(damp,j)))
         self._base_objs = []
         for i in range(lmax):
-            main_player = i % num_of_mains
+            base_player = i % num_of_mains
             overlap = i / num_of_mains
-            self._base_objs.append(Vectral_base(self._main_players[main_player], overlap, wrap(mul,i), wrap(add,i)))
+            self._base_objs.append(Vectral_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
     def __dir__(self):
         return ['input', 'framesize', 'up', 'down', 'damp', 'mul', 'add']
 
-    def __del__(self):
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        for obj in self._main_players:
-            obj.deleteStream()
-            del obj
-
-    def play(self, dur=0, delay=0):
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._main_players = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._main_players)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
-
-    def stop(self):
-        [obj.stop() for obj in self._main_players]
-        [obj.stop() for obj in self._base_objs]
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """

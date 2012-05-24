@@ -133,17 +133,16 @@ Select_clear(Select *self)
 static void
 Select_dealloc(Select* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Select_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Select_deleteStream(Select *self) { DELETE_STREAM };
 
 static PyObject *
 Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Select *self;
     self = (Select *)type->tp_alloc(type, 0);
     
@@ -155,19 +154,11 @@ Select_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Select_compute_next_data_frame);
     self->mode_func_ptr = Select_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Select_init(Select *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "value", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->value, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
 
@@ -179,13 +170,11 @@ Select_init(Select *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Select_getServer(Select* self) { GET_SERVER };
@@ -234,7 +223,6 @@ static PyMemberDef Select_members[] = {
 static PyMethodDef Select_methods[] = {
 {"getServer", (PyCFunction)Select_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Select_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Select_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Select_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Select_stop, METH_NOARGS, "Stops computing."},
 {"setValue", (PyCFunction)Select_setValue, METH_O, "Sets value to select."},
@@ -324,7 +312,7 @@ Select_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Select_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Select_new,                 /* tp_new */
 };
@@ -434,17 +422,16 @@ Change_clear(Change *self)
 static void
 Change_dealloc(Change* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Change_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Change_deleteStream(Change *self) { DELETE_STREAM };
 
 static PyObject *
 Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     Change *self;
     self = (Change *)type->tp_alloc(type, 0);
 
@@ -455,19 +442,11 @@ Change_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Change_compute_next_data_frame);
     self->mode_func_ptr = Change_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Change_init(Change *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO", kwlist, &inputtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
 
@@ -479,13 +458,11 @@ Change_init(Change *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+     
+    return (PyObject *)self;
 }
 
 static PyObject * Change_getServer(Change* self) { GET_SERVER };
@@ -518,7 +495,6 @@ static PyMemberDef Change_members[] = {
 static PyMethodDef Change_methods[] = {
 {"getServer", (PyCFunction)Change_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Change_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Change_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Change_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Change_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Change_setMul, METH_O, "Sets mul factor."},
@@ -607,7 +583,7 @@ Change_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Change_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Change_new,                 /* tp_new */
 };

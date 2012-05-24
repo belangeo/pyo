@@ -486,28 +486,57 @@ extern PyTypeObject VectralType;
 
 /* VISIT & CLEAR */
 #define pyo_VISIT \
+    if (PyServer_get_server() != NULL) \
+        Py_VISIT(self->server); \
     Py_VISIT(self->stream); \
-    Py_VISIT(self->server); \
     Py_VISIT(self->mul); \
     Py_VISIT(self->mul_stream); \
     Py_VISIT(self->add); \
     Py_VISIT(self->add_stream);    
 
+#define pyo_table_VISIT \
+    if (PyServer_get_server() != NULL) \
+        Py_VISIT(self->server); \
+    Py_VISIT(self->tablestream); \
+
+#define pyo_matrix_VISIT \
+    if (PyServer_get_server() != NULL) \
+        Py_VISIT(self->server); \
+    Py_VISIT(self->matrixstream); \
+
 #define pyo_CLEAR \
+    if (PyServer_get_server() != NULL) { \
+        Py_INCREF(self->server); \
+        Py_CLEAR(self->server); \
+    } \
     Py_CLEAR(self->stream); \
-    Py_CLEAR(self->server); \
     Py_CLEAR(self->mul); \
     Py_CLEAR(self->mul_stream); \
     Py_CLEAR(self->add); \
-    Py_CLEAR(self->add_stream);    
+    Py_CLEAR(self->add_stream); \
 
-#define DELETE_STREAM \
-    Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
-    Py_INCREF(Py_None); \
-    return Py_None;
+#define pyo_table_CLEAR \
+    if (PyServer_get_server() != NULL) { \
+        Py_INCREF(self->server); \
+        Py_CLEAR(self->server); \
+    } \
+    Py_CLEAR(self->tablestream); \
+
+#define pyo_matrix_CLEAR \
+    if (PyServer_get_server() != NULL) { \
+        Py_INCREF(self->server); \
+        Py_CLEAR(self->server); \
+    } \
+    Py_CLEAR(self->matrixstream); \
+
+#define pyo_DEALLOC \
+    if (PyServer_get_server() != NULL) \
+        Server_removeStream((Server *)self->server, Stream_getStreamId(self->stream)); \
+    free(self->data); \
 
 /* INIT INPUT STREAM */
 #define INIT_INPUT_STREAM \
+    Py_INCREF(inputtmp); \
     Py_XDECREF(self->input); \
     self->input = inputtmp; \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getStream", NULL); \
@@ -516,12 +545,42 @@ extern PyTypeObject VectralType;
     self->input_stream = (Stream *)input_streamtmp;
 
 #define INIT_INPUT_TRIGGER_STREAM \
+    Py_INCREF(inputtmp); \
     Py_XDECREF(self->input); \
     self->input = inputtmp; \
     input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getTriggerStream", NULL); \
     Py_INCREF(input_streamtmp); \
     Py_XDECREF(self->input_stream); \
     self->input_stream = (TriggerStream *)input_streamtmp;
+
+/* Init Server & Stream */
+#define INIT_OBJECT_COMMON \
+    self->server = PyServer_get_server(); \
+    self->mul = PyFloat_FromDouble(1); \
+    self->add = PyFloat_FromDouble(0); \
+    self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
+    self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
+    self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
+    self->data = (MYFLT *)realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
+    for (i=0; i<self->bufsize; i++) \
+        self->data[i] = 0.0; \
+    MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
+    Stream_setStreamObject(self->stream, (PyObject *)self); \
+    Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
+    Stream_setBufferSize(self->stream, self->bufsize); \
+    Stream_setData(self->stream, self->data);
+
+#define SET_INTERP_POINTER \
+    if (self->interp == 0) \
+        self->interp = 2; \
+    if (self->interp == 1) \
+        self->interp_func_ptr = nointerp; \
+    else if (self->interp == 2) \
+        self->interp_func_ptr = linear; \
+    else if (self->interp == 3) \
+        self->interp_func_ptr = cosine; \
+    else if (self->interp == 4) \
+        self->interp_func_ptr = cubic; \
 
 /* Set data */
 #define SET_TABLE_DATA \
@@ -839,37 +898,6 @@ extern PyTypeObject VectralType;
  \
     return PyFloat_FromDouble(self->data[y][x]); \
 
-
-/* Init Server & Stream */
-#define INIT_OBJECT_COMMON \
-    self->server = PyServer_get_server(); \
-    self->mul = PyFloat_FromDouble(1); \
-    self->add = PyFloat_FromDouble(0); \
-    self->bufsize = PyInt_AsLong(PyObject_CallMethod(self->server, "getBufferSize", NULL)); \
-    self->sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL)); \
-    self->nchnls = PyInt_AsLong(PyObject_CallMethod(self->server, "getNchnls", NULL)); \
-    self->data = (MYFLT *)realloc(self->data, (self->bufsize) * sizeof(MYFLT)); \
-    MAKE_NEW_STREAM(self->stream, &StreamType, NULL); \
-    Stream_setStreamObject(self->stream, (PyObject *)self); \
-    Stream_setStreamId(self->stream, Stream_getNewStreamId()); \
-    Stream_setBufferSize(self->stream, self->bufsize); \
-    for (i=0; i<self->bufsize; i++) \
-        self->data[i] = 0.0; \
-    Stream_setData(self->stream, self->data);
-
-
-#define SET_INTERP_POINTER \
-    if (self->interp == 0) \
-        self->interp = 2; \
-    if (self->interp == 1) \
-        self->interp_func_ptr = nointerp; \
-    else if (self->interp == 2) \
-        self->interp_func_ptr = linear; \
-    else if (self->interp == 3) \
-        self->interp_func_ptr = cosine; \
-    else if (self->interp == 4) \
-        self->interp_func_ptr = cubic; \
-
 /* GETS & SETS */
 #define GET_SERVER \
     if (self->server == NULL) { \
@@ -1044,14 +1072,11 @@ extern PyTypeObject VectralType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setMul", "O", arg); \
-    Py_INCREF(self); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_MULTIPLY \
     PyObject_CallMethod((PyObject *)self, "setMul", "O", arg); \
-    Py_INCREF(self); \
     return (PyObject *)self;
 
 #define ADD \
@@ -1059,14 +1084,11 @@ extern PyTypeObject VectralType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setAdd", "O", arg); \
-    Py_INCREF(self); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_ADD \
     PyObject_CallMethod((PyObject *)self, "setAdd", "O", arg); \
-    Py_INCREF(self); \
     return (PyObject *)self;
 
 #define SUB \
@@ -1074,14 +1096,11 @@ extern PyTypeObject VectralType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setSub", "O", arg); \
-    Py_INCREF(self); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_SUB \
     PyObject_CallMethod((PyObject *)self, "setSub", "O", arg); \
-    Py_INCREF(self); \
     return (PyObject *)self;
 
 #define DIV \
@@ -1089,14 +1108,11 @@ extern PyTypeObject VectralType;
     MAKE_NEW_DUMMY(dummy, &DummyType, NULL); \
     Dummy_initialize(dummy); \
     PyObject_CallMethod((PyObject *)dummy, "setDiv", "O", arg); \
-    Py_INCREF(self); \
     PyObject_CallMethod((PyObject *)dummy, "setInput", "O", self); \
-    Py_INCREF(dummy); \
     return (PyObject *)dummy;
 
 #define INPLACE_DIV \
     PyObject_CallMethod((PyObject *)self, "setDiv", "O", arg); \
-    Py_INCREF(self); \
     return (PyObject *)self;
 
 /* PLAY, OUT, STOP */

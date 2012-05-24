@@ -395,7 +395,7 @@ OscBank_clear(OscBank *self)
 static void
 OscBank_dealloc(OscBank* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->pointerPos);
     free(self->frequencies);
     free(self->fOldValues);
@@ -408,12 +408,11 @@ OscBank_dealloc(OscBank* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * OscBank_deleteStream(OscBank *self) { DELETE_STREAM };
-
 static PyObject *
 OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *tabletmp, *freqtmp=NULL, *spreadtmp=NULL, *slopetmp=NULL, *frndftmp=NULL, *frndatmp=NULL, *arndftmp=NULL, *arndatmp=NULL, *multmp=NULL, *addtmp=NULL;
     OscBank *self;
     self = (OscBank *)type->tp_alloc(type, 0);
     
@@ -446,19 +445,11 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setFunctionPtr(self->stream, OscBank_compute_next_data_frame);
     self->mode_func_ptr = OscBank_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-OscBank_init(OscBank *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *tabletmp, *freqtmp=NULL, *spreadtmp=NULL, *slopetmp=NULL, *frndftmp=NULL, *frndatmp=NULL, *arndftmp=NULL, *arndatmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"table", "freq", "spread", "slope", "frndf", "frnda", "arndf", "arnda", "num", "fjit", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp))
-        return -1;
+        Py_RETURN_NONE;
 
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -497,7 +488,6 @@ OscBank_init(OscBank *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -519,8 +509,7 @@ OscBank_init(OscBank *self, PyObject *args, PyObject *kwds)
 
     Server_generateSeed((Server *)self->server, OSCBANK_ID);
 
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * OscBank_getServer(OscBank* self) { GET_SERVER };
@@ -823,7 +812,6 @@ static PyMethodDef OscBank_methods[] = {
     {"getTable", (PyCFunction)OscBank_getTable, METH_NOARGS, "Returns waveform table object."},
     {"getServer", (PyCFunction)OscBank_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscBank_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)OscBank_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)OscBank_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)OscBank_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)OscBank_stop, METH_NOARGS, "Stops computing."},
@@ -922,7 +910,7 @@ PyTypeObject OscBankType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)OscBank_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     OscBank_new,                                     /* tp_new */
 };

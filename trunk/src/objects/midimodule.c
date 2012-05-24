@@ -86,18 +86,16 @@ CtlScan_clear(CtlScan *self)
 static void
 CtlScan_dealloc(CtlScan* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     CtlScan_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * CtlScan_deleteStream(CtlScan *self) { DELETE_STREAM };
 
 static PyObject *
 CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    
+    PyObject *calltmp=NULL;    
     CtlScan *self;
     self = (CtlScan *)type->tp_alloc(type, 0);
 
@@ -107,29 +105,19 @@ CtlScan_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CtlScan_compute_next_data_frame);
     self->mode_func_ptr = CtlScan_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-CtlScan_init(CtlScan *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *calltmp=NULL;
 
     static char *kwlist[] = {"callable", "toprint", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
-        return -1; 
+        Py_RETURN_NONE;
 
     if (calltmp) {
         PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
     }
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * CtlScan_getServer(CtlScan* self) { GET_SERVER };
@@ -178,7 +166,6 @@ static PyMemberDef CtlScan_members[] = {
 static PyMethodDef CtlScan_methods[] = {
     {"getServer", (PyCFunction)CtlScan_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CtlScan_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)CtlScan_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)CtlScan_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)CtlScan_stop, METH_NOARGS, "Stops computing."},
     {"setFunction", (PyCFunction)CtlScan_setFunction, METH_O, "Sets the function to be called."},
@@ -223,7 +210,7 @@ PyTypeObject CtlScanType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)CtlScan_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     CtlScan_new,                 /* tp_new */
 };
@@ -363,18 +350,16 @@ Midictl_clear(Midictl *self)
 static void
 Midictl_dealloc(Midictl* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Midictl_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Midictl_deleteStream(Midictl *self) { DELETE_STREAM };
-
 static PyObject *
 Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
-    
+    int i;    
+    PyObject *multmp=NULL, *addtmp=NULL;
     Midictl *self;
     self = (Midictl *)type->tp_alloc(type, 0);
 
@@ -390,19 +375,11 @@ Midictl_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Midictl_compute_next_data_frame);
     self->mode_func_ptr = Midictl_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"ctlnumber", "minscale", "maxscale", "init", "channel", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_I_FFFIOO, kwlist, &self->ctlnumber, &self->minscale, &self->maxscale, &self->oldValue, &self->channel, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
  
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -412,15 +389,13 @@ Midictl_init(Midictl *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->value = self->oldValue;
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Midictl_getServer(Midictl* self) { GET_SERVER };
@@ -586,7 +561,6 @@ static PyMemberDef Midictl_members[] = {
 static PyMethodDef Midictl_methods[] = {
     {"getServer", (PyCFunction)Midictl_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Midictl_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Midictl_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Midictl_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Midictl_stop, METH_NOARGS, "Stops computing."},
 	{"setInterpolation", (PyCFunction)Midictl_setInterpolation, METH_O, "Activate/Deactivate interpolation."},
@@ -681,7 +655,7 @@ PyTypeObject MidictlType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Midictl_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Midictl_new,                 /* tp_new */
 };
@@ -816,18 +790,16 @@ Bendin_clear(Bendin *self)
 static void
 Bendin_dealloc(Bendin* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Bendin_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Bendin_deleteStream(Bendin *self) { DELETE_STREAM };
 
 static PyObject *
 Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    
+    PyObject *multmp=NULL, *addtmp=NULL;    
     Bendin *self;
     self = (Bendin *)type->tp_alloc(type, 0);
     
@@ -842,19 +814,11 @@ Bendin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Bendin_compute_next_data_frame);
     self->mode_func_ptr = Bendin_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Bendin_init(Bendin *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"brange", "scale", "channel", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FIIOO, kwlist, &self->range, &self->scale, &self->channel, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -864,7 +828,6 @@ Bendin_init(Bendin *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     if (self->scale == 0)
@@ -874,8 +837,7 @@ Bendin_init(Bendin *self, PyObject *args, PyObject *kwds)
         
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Bendin_getServer(Bendin* self) { GET_SERVER };
@@ -977,7 +939,6 @@ static PyMemberDef Bendin_members[] = {
 static PyMethodDef Bendin_methods[] = {
     {"getServer", (PyCFunction)Bendin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Bendin_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Bendin_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Bendin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Bendin_stop, METH_NOARGS, "Stops computing."},
 	{"setBrange", (PyCFunction)Bendin_setBrange, METH_O, "Sets the bending bipolar range."},
@@ -1069,7 +1030,7 @@ PyTypeObject BendinType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Bendin_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Bendin_new,                 /* tp_new */
 };
@@ -1199,18 +1160,16 @@ Touchin_clear(Touchin *self)
 static void
 Touchin_dealloc(Touchin* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Touchin_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Touchin_deleteStream(Touchin *self) { DELETE_STREAM };
 
 static PyObject *
 Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    
+    PyObject *multmp=NULL, *addtmp=NULL;    
     Touchin *self;
     self = (Touchin *)type->tp_alloc(type, 0);
     
@@ -1225,19 +1184,11 @@ Touchin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Touchin_compute_next_data_frame);
     self->mode_func_ptr = Touchin_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Touchin_init(Touchin *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"minscale", "maxscale", "init", "channel", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FFFIOO, kwlist, &self->minscale, &self->maxscale, &self->oldValue, &self->channel, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -1247,15 +1198,13 @@ Touchin_init(Touchin *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->value = self->oldValue;
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Touchin_getServer(Touchin* self) { GET_SERVER };
@@ -1352,7 +1301,6 @@ static PyMemberDef Touchin_members[] = {
 static PyMethodDef Touchin_methods[] = {
     {"getServer", (PyCFunction)Touchin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Touchin_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Touchin_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Touchin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Touchin_stop, METH_NOARGS, "Stops computing."},
 	{"setMinScale", (PyCFunction)Touchin_setMinScale, METH_O, "Sets the minimum value of scaling."},
@@ -1444,7 +1392,7 @@ PyTypeObject TouchinType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Touchin_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Touchin_new,                 /* tp_new */
 };
@@ -1568,18 +1516,16 @@ Programin_clear(Programin *self)
 static void
 Programin_dealloc(Programin* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Programin_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Programin_deleteStream(Programin *self) { DELETE_STREAM };
 
 static PyObject *
 Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
-    
+    PyObject *multmp=NULL, *addtmp=NULL;    
     Programin *self;
     self = (Programin *)type->tp_alloc(type, 0);
     
@@ -1591,19 +1537,11 @@ Programin_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Programin_compute_next_data_frame);
     self->mode_func_ptr = Programin_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Programin_init(Programin *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"channel", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "iOO", kwlist, &self->channel, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (multmp) {
         PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
@@ -1613,13 +1551,11 @@ Programin_init(Programin *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Programin_getServer(Programin* self) { GET_SERVER };
@@ -1674,7 +1610,6 @@ static PyMemberDef Programin_members[] = {
 static PyMethodDef Programin_methods[] = {
     {"getServer", (PyCFunction)Programin_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Programin_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Programin_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Programin_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Programin_stop, METH_NOARGS, "Stops computing."},
 	{"setChannel", (PyCFunction)Programin_setChannel, METH_O, "Sets the midi channel."},
@@ -1764,7 +1699,7 @@ PyTypeObject PrograminType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Programin_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Programin_new,                 /* tp_new */
 };
@@ -1913,13 +1848,11 @@ MidiNote_clear(MidiNote *self)
 static void
 MidiNote_dealloc(MidiNote* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->notebuf);
     MidiNote_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * MidiNote_deleteStream(MidiNote *self) { DELETE_STREAM };
 
 static PyObject *
 MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -1939,21 +1872,12 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiNote_compute_next_data_frame);
     self->mode_func_ptr = MidiNote_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    
     static char *kwlist[] = {"voices", "scale", "first", "last", "channel", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|iiiii", kwlist, &self->voices, &self->scale, &self->first, &self->last, &self->channel))
-        return -1; 
+        Py_RETURN_NONE;
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->notebuf = (int *)realloc(self->notebuf, self->voices * 2 * sizeof(int));
@@ -1966,9 +1890,8 @@ MidiNote_init(MidiNote *self, PyObject *args, PyObject *kwds)
     self->centralkey = (self->first + self->last) / 2;
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+     
+    return (PyObject *)self;
 }
 
 MYFLT MidiNote_getValue(MidiNote *self, int voice, int which)
@@ -2049,7 +1972,6 @@ static PyMemberDef MidiNote_members[] = {
 static PyMethodDef MidiNote_methods[] = {
 {"getServer", (PyCFunction)MidiNote_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)MidiNote_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)MidiNote_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)MidiNote_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)MidiNote_stop, METH_NOARGS, "Stops computing."},
 {"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
@@ -2094,7 +2016,7 @@ MidiNote_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)MidiNote_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 MidiNote_new,                 /* tp_new */
 };
@@ -2194,17 +2116,16 @@ Notein_clear(Notein *self)
 static void
 Notein_dealloc(Notein* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Notein_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Notein_deleteStream(Notein *self) { DELETE_STREAM };
 
 static PyObject *
 Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
     Notein *self;
     self = (Notein *)type->tp_alloc(type, 0);
     
@@ -2216,19 +2137,11 @@ Notein_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Notein_compute_next_data_frame);
     self->mode_func_ptr = Notein_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Notein_init(Notein *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *handlertmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"handler", "voice", "mode", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iiOO", kwlist, &handlertmp, &self->voice, &self->mode, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->handler);
     Py_INCREF(handlertmp);
@@ -2242,13 +2155,11 @@ Notein_init(Notein *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Notein_getServer(Notein* self) { GET_SERVER };
@@ -2281,7 +2192,6 @@ static PyMemberDef Notein_members[] = {
 static PyMethodDef Notein_methods[] = {
 {"getServer", (PyCFunction)Notein_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Notein_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Notein_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Notein_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Notein_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Notein_setMul, METH_O, "Sets Notein mul factor."},
@@ -2370,7 +2280,7 @@ Notein_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Notein_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Notein_new,                 /* tp_new */
 };
@@ -2523,17 +2433,16 @@ MidiAdsr_clear(MidiAdsr *self)
 static void
 MidiAdsr_dealloc(MidiAdsr* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     MidiAdsr_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * MidiAdsr_deleteStream(MidiAdsr *self) { DELETE_STREAM };
 
 static PyObject *
 MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     MidiAdsr *self;
     self = (MidiAdsr *)type->tp_alloc(type, 0);
     
@@ -2553,19 +2462,11 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = MidiAdsr_setProcMode;
 
     self->sampleToSec = 1. / self->sr;
-    
-    return (PyObject *)self;
-}
 
-static int
-MidiAdsr_init(MidiAdsr *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "attack", "decay", "sustain", "release", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFOO, kwlist, &inputtmp, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
 
@@ -2577,13 +2478,11 @@ MidiAdsr_init(MidiAdsr *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * MidiAdsr_getServer(MidiAdsr* self) { GET_SERVER };
@@ -2654,7 +2553,6 @@ static PyMemberDef MidiAdsr_members[] = {
 static PyMethodDef MidiAdsr_methods[] = {
     {"getServer", (PyCFunction)MidiAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiAdsr_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)MidiAdsr_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)MidiAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MidiAdsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiAdsr_setMul, METH_O, "Sets MidiAdsr mul factor."},
@@ -2747,7 +2645,7 @@ PyTypeObject MidiAdsrType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)MidiAdsr_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     MidiAdsr_new,                 /* tp_new */
 };
@@ -2905,17 +2803,16 @@ MidiDelAdsr_clear(MidiDelAdsr *self)
 static void
 MidiDelAdsr_dealloc(MidiDelAdsr* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     MidiDelAdsr_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * MidiDelAdsr_deleteStream(MidiDelAdsr *self) { DELETE_STREAM };
 
 static PyObject *
 MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     MidiDelAdsr *self;
     self = (MidiDelAdsr *)type->tp_alloc(type, 0);
     
@@ -2936,19 +2833,11 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = MidiDelAdsr_setProcMode;
     
     self->sampleToSec = 1. / self->sr;
-    
-    return (PyObject *)self;
-}
 
-static int
-MidiDelAdsr_init(MidiDelAdsr *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "delay", "attack", "decay", "sustain", "release", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->delay, &self->attack, &self->decay, &self->sustain, &self->release, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -2960,13 +2849,11 @@ MidiDelAdsr_init(MidiDelAdsr *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * MidiDelAdsr_getServer(MidiDelAdsr* self) { GET_SERVER };
@@ -3048,7 +2935,6 @@ static PyMemberDef MidiDelAdsr_members[] = {
 static PyMethodDef MidiDelAdsr_methods[] = {
     {"getServer", (PyCFunction)MidiDelAdsr_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)MidiDelAdsr_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)MidiDelAdsr_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)MidiDelAdsr_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)MidiDelAdsr_stop, METH_NOARGS, "Starts fadeout and stops computing."},
     {"setMul", (PyCFunction)MidiDelAdsr_setMul, METH_O, "Sets MidiDelAdsr mul factor."},
@@ -3142,7 +3028,7 @@ PyTypeObject MidiDelAdsrType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)MidiDelAdsr_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     MidiDelAdsr_new,                 /* tp_new */
 };

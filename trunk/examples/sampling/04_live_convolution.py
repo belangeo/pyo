@@ -14,7 +14,9 @@ Circular convolution is very expensive, so keep TLEN (in samples) small.
 """
 from pyo import *
 
-s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1).boot()
+s = Server(sr=44100, nchnls=2, buffersize=512, duplex=1)
+s.setOutputDevice(3)
+s.boot()
 
 sf = Noise(.5)
 

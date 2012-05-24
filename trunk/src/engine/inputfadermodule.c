@@ -138,17 +138,16 @@ InputFader_clear(InputFader *self)
 static void
 InputFader_dealloc(InputFader* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     InputFader_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * InputFader_deleteStream(InputFader *self) { DELETE_STREAM };
 
 static PyObject *
 InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp=NULL, *streamtmp;
     InputFader *self;
     self = (InputFader *)type->tp_alloc(type, 0);
     
@@ -163,19 +162,11 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, InputFader_compute_next_data_frame);
     self->mode_func_ptr = InputFader_setProcMode;
     self->proc_func_ptr = InputFader_process_only_first;
-    
-    return (PyObject *)self;
-}
 
-static int
-InputFader_init(InputFader *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp=NULL, *streamtmp;
-    
     static char *kwlist[] = {"input", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
-        return -1; 
+        Py_RETURN_NONE; 
 
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input1);
@@ -185,11 +176,9 @@ InputFader_init(InputFader *self, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->input1_stream);
     self->input1_stream = (Stream *)streamtmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject *
@@ -200,7 +189,7 @@ InputFader_setInput(InputFader *self, PyObject *args, PyObject *kwds)
     static char *kwlist[] = {"input", "fadetime", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &tmp, &self->fadetime))
-        return PyInt_FromLong(-1);
+        Py_RETURN_NONE; 
     
     self->switcher = (self->switcher + 1) % 2;
     self->currentTime = 0.0;
@@ -250,7 +239,6 @@ static PyMemberDef InputFader_members[] = {
 static PyMethodDef InputFader_methods[] = {
     {"getServer", (PyCFunction)InputFader_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)InputFader_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)InputFader_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)InputFader_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)InputFader_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"setInput", (PyCFunction)InputFader_setInput, METH_VARARGS|METH_KEYWORDS, "Crossfade between current stream and given stream."},
@@ -295,7 +283,7 @@ PyTypeObject InputFaderType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)InputFader_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     InputFader_new,                 /* tp_new */
 };

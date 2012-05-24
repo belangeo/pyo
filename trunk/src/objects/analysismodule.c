@@ -170,17 +170,16 @@ Follower_clear(Follower *self)
 static void
 Follower_dealloc(Follower* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Follower_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Follower_deleteStream(Follower *self) { DELETE_STREAM };
 
 static PyObject *
 Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Follower *self;
     self = (Follower *)type->tp_alloc(type, 0);
     
@@ -195,18 +194,11 @@ Follower_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Follower_compute_next_data_frame);
     self->mode_func_ptr = Follower_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Follower_init(Follower *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     INIT_INPUT_STREAM
     
@@ -222,13 +214,11 @@ Follower_init(Follower *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Follower_getServer(Follower* self) { GET_SERVER };
@@ -297,7 +287,6 @@ static PyMemberDef Follower_members[] = {
 static PyMethodDef Follower_methods[] = {
 {"getServer", (PyCFunction)Follower_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Follower_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Follower_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Follower_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Follower_stop, METH_NOARGS, "Stops computing."},
 {"setFreq", (PyCFunction)Follower_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
@@ -387,7 +376,7 @@ Follower_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Follower_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Follower_new,                                     /* tp_new */
 };
@@ -645,17 +634,16 @@ Follower2_clear(Follower2 *self)
 static void
 Follower2_dealloc(Follower2* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Follower2_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Follower2_deleteStream(Follower2 *self) { DELETE_STREAM };
 
 static PyObject *
 Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
     Follower2 *self;
     self = (Follower2 *)type->tp_alloc(type, 0);
     
@@ -673,18 +661,11 @@ Follower2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Follower2_compute_next_data_frame);
     self->mode_func_ptr = Follower2_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Follower2_init(Follower2 *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "risetime", "falltime", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &risetimetmp, &falltimetmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
     
     INIT_INPUT_STREAM
     
@@ -704,13 +685,11 @@ Follower2_init(Follower2 *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Follower2_getServer(Follower2* self) { GET_SERVER };
@@ -814,7 +793,6 @@ static PyMemberDef Follower2_members[] = {
 static PyMethodDef Follower2_methods[] = {
     {"getServer", (PyCFunction)Follower2_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Follower2_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Follower2_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Follower2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Follower2_stop, METH_NOARGS, "Stops computing."},
     {"setRisetime", (PyCFunction)Follower2_setRisetime, METH_O, "Sets filter risetime in second."},
@@ -905,7 +883,7 @@ PyTypeObject Follower2Type = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)Follower2_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     Follower2_new,                                     /* tp_new */
 };
@@ -1023,17 +1001,16 @@ ZCross_clear(ZCross *self)
 static void
 ZCross_dealloc(ZCross* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     ZCross_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * ZCross_deleteStream(ZCross *self) { DELETE_STREAM };
 
 static PyObject *
 ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
     ZCross *self;
     self = (ZCross *)type->tp_alloc(type, 0);
     
@@ -1045,18 +1022,11 @@ ZCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, ZCross_compute_next_data_frame);
     self->mode_func_ptr = ZCross_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-ZCross_init(ZCross *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "thresh", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FOO, kwlist, &inputtmp, &self->thresh, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE; 
 
     INIT_INPUT_STREAM
     
@@ -1068,13 +1038,11 @@ ZCross_init(ZCross *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * ZCross_getServer(ZCross* self) { GET_SERVER };
@@ -1126,7 +1094,6 @@ static PyMemberDef ZCross_members[] = {
 static PyMethodDef ZCross_methods[] = {
 {"getServer", (PyCFunction)ZCross_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)ZCross_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)ZCross_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)ZCross_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)ZCross_stop, METH_NOARGS, "Stops computing."},
 {"setThresh", (PyCFunction)ZCross_setThresh, METH_O, "Sets the threshold factor."},
@@ -1216,7 +1183,7 @@ ZCross_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)ZCross_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 ZCross_new,                                     /* tp_new */
 };

@@ -28,7 +28,8 @@
 #include "fft.h"
 #include "wind.h"
 
-int isPowerOfTwo(int x) {
+static int 
+isPowerOfTwo(int x) {
     return (x != 0) && ((x & (x - 1)) == 0);
 }
 
@@ -164,7 +165,7 @@ static void
 FFTMain_dealloc(FFTMain* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     free(self->inframe);
     free(self->outframe);
     free(self->window);
@@ -178,12 +179,11 @@ FFTMain_dealloc(FFTMain* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * FFTMain_deleteStream(FFTMain *self) { DELETE_STREAM };
-
 static PyObject *
 FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp;
     FFTMain *self;
     self = (FFTMain *)type->tp_alloc(type, 0);
     
@@ -193,30 +193,20 @@ FFTMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, FFTMain_compute_next_data_frame);
     self->mode_func_ptr = FFTMain_setProcMode;
 
-    return (PyObject *)self;
-}
-
-static int
-FFTMain_init(FFTMain *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp;
-    
     static char *kwlist[] = {"input", "size", "hopsize", "wintype", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iii", kwlist, &inputtmp, &self->size, &self->hopsize, &self->wintype))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
  
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     FFTMain_realloc_memories(self);
 
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * FFTMain_getServer(FFTMain* self) { GET_SERVER };
@@ -270,7 +260,6 @@ static PyMemberDef FFTMain_members[] = {
 static PyMethodDef FFTMain_methods[] = {
 {"getServer", (PyCFunction)FFTMain_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)FFTMain_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)FFTMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)FFTMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)FFTMain_stop, METH_NOARGS, "Stops computing."},
 {"setSize", (PyCFunction)FFTMain_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new FFT size."},
@@ -315,7 +304,7 @@ FFTMain_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)FFTMain_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 FFTMain_new,                                     /* tp_new */
 };
@@ -409,17 +398,16 @@ FFT_clear(FFT *self)
 static void
 FFT_dealloc(FFT* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     FFT_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * FFT_deleteStream(FFT *self) { DELETE_STREAM };
 
 static PyObject *
 FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     FFT *self;
     self = (FFT *)type->tp_alloc(type, 0);
     
@@ -429,19 +417,11 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FFT_compute_next_data_frame);
     self->mode_func_ptr = FFT_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FFT_init(FFT *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -455,13 +435,11 @@ FFT_init(FFT *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * FFT_getServer(FFT* self) { GET_SERVER };
@@ -494,7 +472,6 @@ static PyMemberDef FFT_members[] = {
 static PyMethodDef FFT_methods[] = {
 {"getServer", (PyCFunction)FFT_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)FFT_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)FFT_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)FFT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)FFT_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)FFT_setMul, METH_O, "Sets FFT mul factor."},
@@ -583,7 +560,7 @@ FFT_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)FFT_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 FFT_new,                 /* tp_new */
 };
@@ -754,7 +731,7 @@ static void
 IFFT_dealloc(IFFT* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     free(self->inframe);
     free(self->outframe);
     free(self->window);
@@ -763,17 +740,15 @@ IFFT_dealloc(IFFT* self)
     }
     free(self->twiddle);
     free(self->twiddle2);
-
     IFFT_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * IFFT_deleteStream(IFFT *self) { DELETE_STREAM };
 
 static PyObject *
 IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inrealtmp, *inreal_streamtmp, *inimagtmp, *inimag_streamtmp, *multmp=NULL, *addtmp=NULL;
     IFFT *self;
     self = (IFFT *)type->tp_alloc(type, 0);
 
@@ -785,19 +760,11 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IFFT_compute_next_data_frame);
     self->mode_func_ptr = IFFT_setProcMode;
-    
-    return (PyObject *)self;
-}
-
-static int
-IFFT_init(IFFT *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inrealtmp, *inreal_streamtmp, *inimagtmp, *inimag_streamtmp, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"inreal", "inimag", "size", "hopsize", "wintype", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiiOO", kwlist, &inrealtmp, &inimagtmp, &self->size, &self->hopsize, &self->wintype, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     Py_XDECREF(self->inimag);
     self->inimag = inimagtmp;
@@ -821,15 +788,13 @@ IFFT_init(IFFT *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     IFFT_realloc_memories(self);    
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * IFFT_getServer(IFFT* self) { GET_SERVER };
@@ -900,7 +865,6 @@ static PyMemberDef IFFT_members[] = {
 static PyMethodDef IFFT_methods[] = {
     {"getServer", (PyCFunction)IFFT_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)IFFT_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)IFFT_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)IFFT_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)IFFT_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)IFFT_stop, METH_NOARGS, "Stops computing."},
@@ -992,7 +956,7 @@ PyTypeObject IFFTType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)IFFT_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     IFFT_new,                 /* tp_new */
 };
@@ -1106,17 +1070,16 @@ CarToPol_clear(CarToPol *self)
 static void
 CarToPol_dealloc(CarToPol* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     CarToPol_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * CarToPol_deleteStream(CarToPol *self) { DELETE_STREAM };
 
 static PyObject *
 CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
     CarToPol *self;
     self = (CarToPol *)type->tp_alloc(type, 0);
     
@@ -1126,19 +1089,11 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CarToPol_compute_next_data_frame);
     self->mode_func_ptr = CarToPol_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-CarToPol_init(CarToPol *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -1157,13 +1112,11 @@ CarToPol_init(CarToPol *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * CarToPol_getServer(CarToPol* self) { GET_SERVER };
@@ -1198,7 +1151,6 @@ static PyMemberDef CarToPol_members[] = {
 static PyMethodDef CarToPol_methods[] = {
     {"getServer", (PyCFunction)CarToPol_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)CarToPol_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)CarToPol_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)CarToPol_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)CarToPol_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)CarToPol_setMul, METH_O, "Sets CarToPol mul factor."},
@@ -1287,7 +1239,7 @@ PyTypeObject CarToPolType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)CarToPol_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     CarToPol_new,                 /* tp_new */
 };
@@ -1401,17 +1353,16 @@ PolToCar_clear(PolToCar *self)
 static void
 PolToCar_dealloc(PolToCar* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     PolToCar_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * PolToCar_deleteStream(PolToCar *self) { DELETE_STREAM };
 
 static PyObject *
 PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
     PolToCar *self;
     self = (PolToCar *)type->tp_alloc(type, 0);
     
@@ -1421,19 +1372,11 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PolToCar_compute_next_data_frame);
     self->mode_func_ptr = PolToCar_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-PolToCar_init(PolToCar *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"input", "input2", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOi|OO", kwlist, &inputtmp, &input2tmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -1452,13 +1395,11 @@ PolToCar_init(PolToCar *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * PolToCar_getServer(PolToCar* self) { GET_SERVER };
@@ -1493,7 +1434,6 @@ static PyMemberDef PolToCar_members[] = {
 static PyMethodDef PolToCar_methods[] = {
     {"getServer", (PyCFunction)PolToCar_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)PolToCar_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)PolToCar_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)PolToCar_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)PolToCar_stop, METH_NOARGS, "Stops computing."},
     {"setMul", (PyCFunction)PolToCar_setMul, METH_O, "Sets PolToCar mul factor."},
@@ -1582,7 +1522,7 @@ PyTypeObject PolToCarType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)PolToCar_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     PolToCar_new,                 /* tp_new */
 };
@@ -1676,7 +1616,7 @@ static void
 FrameDeltaMain_dealloc(FrameDeltaMain* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     for (i=0; i<self->overlaps; i++) {
         free(self->frameBuffer[i]);
     }
@@ -1686,12 +1626,11 @@ FrameDeltaMain_dealloc(FrameDeltaMain* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * FrameDeltaMain_deleteStream(FrameDeltaMain *self) { DELETE_STREAM };
-
 static PyObject *
 FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, j;
+    PyObject *inputtmp;
     FrameDeltaMain *self;
     self = (FrameDeltaMain *)type->tp_alloc(type, 0);
     
@@ -1700,26 +1639,16 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDeltaMain_compute_next_data_frame);
     self->mode_func_ptr = FrameDeltaMain_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FrameDeltaMain_init(FrameDeltaMain *self, PyObject *args, PyObject *kwds)
-{
-    int i, j;
-    PyObject *inputtmp;
-    
     static char *kwlist[] = {"input", "frameSize", "overlaps", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (inputtmp) {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
     }
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->hopsize = self->frameSize / self->overlaps;
@@ -1737,8 +1666,7 @@ FrameDeltaMain_init(FrameDeltaMain *self, PyObject *args, PyObject *kwds)
 
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * FrameDeltaMain_getServer(FrameDeltaMain* self) { GET_SERVER };
@@ -1807,7 +1735,6 @@ static PyMemberDef FrameDeltaMain_members[] = {
 static PyMethodDef FrameDeltaMain_methods[] = {
     {"getServer", (PyCFunction)FrameDeltaMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameDeltaMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)FrameDeltaMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FrameDeltaMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)FrameDeltaMain_stop, METH_NOARGS, "Stops computing."},
     {"setInput", (PyCFunction)FrameDeltaMain_setInput, METH_O, "Sets list of input streams."},
@@ -1852,7 +1779,7 @@ PyTypeObject FrameDeltaMainType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)FrameDeltaMain_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     FrameDeltaMain_new,                 /* tp_new */
 };
@@ -1946,17 +1873,16 @@ FrameDelta_clear(FrameDelta *self)
 static void
 FrameDelta_dealloc(FrameDelta* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     FrameDelta_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * FrameDelta_deleteStream(FrameDelta *self) { DELETE_STREAM };
 
 static PyObject *
 FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     FrameDelta *self;
     self = (FrameDelta *)type->tp_alloc(type, 0);
     
@@ -1966,19 +1892,11 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDelta_compute_next_data_frame);
     self->mode_func_ptr = FrameDelta_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FrameDelta_init(FrameDelta *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -1992,13 +1910,11 @@ FrameDelta_init(FrameDelta *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * FrameDelta_getServer(FrameDelta* self) { GET_SERVER };
@@ -2032,7 +1948,6 @@ static PyMemberDef FrameDelta_members[] = {
 static PyMethodDef FrameDelta_methods[] = {
     {"getServer", (PyCFunction)FrameDelta_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameDelta_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)FrameDelta_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FrameDelta_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FrameDelta_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FrameDelta_stop, METH_NOARGS, "Stops computing."},
@@ -2122,7 +2037,7 @@ PyTypeObject FrameDeltaType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)FrameDelta_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     FrameDelta_new,                 /* tp_new */
 };
@@ -2210,7 +2125,7 @@ static void
 FrameAccumMain_dealloc(FrameAccumMain* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     for (i=0; i<self->overlaps; i++) {
         free(self->frameBuffer[i]);
     }
@@ -2220,12 +2135,11 @@ FrameAccumMain_dealloc(FrameAccumMain* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * FrameAccumMain_deleteStream(FrameAccumMain *self) { DELETE_STREAM };
-
 static PyObject *
 FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, j;
+    PyObject *inputtmp;
     FrameAccumMain *self;
     self = (FrameAccumMain *)type->tp_alloc(type, 0);
     
@@ -2234,26 +2148,16 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccumMain_compute_next_data_frame);
     self->mode_func_ptr = FrameAccumMain_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FrameAccumMain_init(FrameAccumMain *self, PyObject *args, PyObject *kwds)
-{
-    int i, j;
-    PyObject *inputtmp;
-    
     static char *kwlist[] = {"input", "framesize", "overlaps", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii", kwlist, &inputtmp, &self->frameSize, &self->overlaps))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (inputtmp) {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->hopsize = self->frameSize / self->overlaps;
@@ -2271,8 +2175,7 @@ FrameAccumMain_init(FrameAccumMain *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * FrameAccumMain_getServer(FrameAccumMain* self) { GET_SERVER };
@@ -2341,7 +2244,6 @@ static PyMemberDef FrameAccumMain_members[] = {
 static PyMethodDef FrameAccumMain_methods[] = {
     {"getServer", (PyCFunction)FrameAccumMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameAccumMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)FrameAccumMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FrameAccumMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)FrameAccumMain_stop, METH_NOARGS, "Stops computing."},
     {"setInput", (PyCFunction)FrameAccumMain_setInput, METH_O, "Sets list of input streams."},
@@ -2386,7 +2288,7 @@ PyTypeObject FrameAccumMainType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)FrameAccumMain_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     FrameAccumMain_new,                 /* tp_new */
 };
@@ -2480,17 +2382,16 @@ FrameAccum_clear(FrameAccum *self)
 static void
 FrameAccum_dealloc(FrameAccum* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     FrameAccum_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * FrameAccum_deleteStream(FrameAccum *self) { DELETE_STREAM };
 
 static PyObject *
 FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     FrameAccum *self;
     self = (FrameAccum *)type->tp_alloc(type, 0);
     
@@ -2500,19 +2401,11 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccum_compute_next_data_frame);
     self->mode_func_ptr = FrameAccum_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-FrameAccum_init(FrameAccum *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -2526,13 +2419,11 @@ FrameAccum_init(FrameAccum *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * FrameAccum_getServer(FrameAccum* self) { GET_SERVER };
@@ -2566,7 +2457,6 @@ static PyMemberDef FrameAccum_members[] = {
 static PyMethodDef FrameAccum_methods[] = {
     {"getServer", (PyCFunction)FrameAccum_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)FrameAccum_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)FrameAccum_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)FrameAccum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)FrameAccum_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)FrameAccum_stop, METH_NOARGS, "Stops computing."},
@@ -2656,7 +2546,7 @@ PyTypeObject FrameAccumType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)FrameAccum_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     FrameAccum_new,                 /* tp_new */
 };
@@ -2802,7 +2692,7 @@ static void
 VectralMain_dealloc(VectralMain* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     for (i=0; i<self->overlaps; i++) {
         free(self->frameBuffer[i]);
     }
@@ -2812,12 +2702,11 @@ VectralMain_dealloc(VectralMain* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * VectralMain_deleteStream(VectralMain *self) { DELETE_STREAM };
-
 static PyObject *
 VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, j;
+    PyObject *inputtmp, *uptmp=NULL, *downtmp=NULL, *damptmp=NULL;
     VectralMain *self;
     self = (VectralMain *)type->tp_alloc(type, 0);
     
@@ -2834,20 +2723,11 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, VectralMain_compute_next_data_frame);
     self->mode_func_ptr = VectralMain_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-VectralMain_init(VectralMain *self, PyObject *args, PyObject *kwds)
-{
-    int i, j;
-    PyObject *inputtmp, *uptmp=NULL, *downtmp=NULL, *damptmp=NULL;
-    
     static char *kwlist[] = {"input", "frameSize", "overlaps", "up", "down", "damp", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oii|OOO", kwlist, &inputtmp, &self->frameSize, &self->overlaps, &uptmp, &downtmp, &damptmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (inputtmp) {
         PyObject_CallMethod((PyObject *)self, "setInput", "O", inputtmp);
@@ -2865,7 +2745,6 @@ VectralMain_init(VectralMain *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setDamp", "O", damptmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->hopsize = self->frameSize / self->overlaps;
@@ -2883,8 +2762,7 @@ VectralMain_init(VectralMain *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * VectralMain_getServer(VectralMain* self) { GET_SERVER };
@@ -3049,7 +2927,6 @@ static PyMemberDef VectralMain_members[] = {
 static PyMethodDef VectralMain_methods[] = {
     {"getServer", (PyCFunction)VectralMain_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)VectralMain_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)VectralMain_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)VectralMain_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)VectralMain_stop, METH_NOARGS, "Stops computing."},
     {"setInput", (PyCFunction)VectralMain_setInput, METH_O, "Sets list of input streams."},
@@ -3097,7 +2974,7 @@ PyTypeObject VectralMainType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)VectralMain_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     VectralMain_new,                 /* tp_new */
 };
@@ -3191,17 +3068,16 @@ Vectral_clear(Vectral *self)
 static void
 Vectral_dealloc(Vectral* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Vectral_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Vectral_deleteStream(Vectral *self) { DELETE_STREAM };
 
 static PyObject *
 Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
     Vectral *self;
     self = (Vectral *)type->tp_alloc(type, 0);
     
@@ -3211,19 +3087,11 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Vectral_compute_next_data_frame);
     self->mode_func_ptr = Vectral_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Vectral_init(Vectral *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"mainSplitter", "chnl", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "Oi|OO", kwlist, &maintmp, &self->chnl, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainSplitter);
     Py_INCREF(maintmp);
@@ -3237,13 +3105,11 @@ Vectral_init(Vectral *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Vectral_getServer(Vectral* self) { GET_SERVER };
@@ -3277,7 +3143,6 @@ static PyMemberDef Vectral_members[] = {
 static PyMethodDef Vectral_methods[] = {
     {"getServer", (PyCFunction)Vectral_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Vectral_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Vectral_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Vectral_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Vectral_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Vectral_stop, METH_NOARGS, "Stops computing."},
@@ -3367,7 +3232,7 @@ PyTypeObject VectralType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Vectral_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Vectral_new,                 /* tp_new */
 };

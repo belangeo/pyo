@@ -904,17 +904,16 @@ LFO_clear(LFO *self)
 static void
 LFO_dealloc(LFO* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     LFO_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * LFO_deleteStream(LFO *self) { DELETE_STREAM };
 
 static PyObject *
 LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *freqtmp=NULL, *sharptmp=NULL, *multmp=NULL, *addtmp=NULL;
     LFO *self;
     self = (LFO *)type->tp_alloc(type, 0);
         
@@ -936,19 +935,12 @@ LFO_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->srOverEight = (MYFLT)self->sr * 0.125;
     Stream_setFunctionPtr(self->stream, LFO_compute_next_data_frame);
     self->mode_func_ptr = LFO_setProcMode;
-    return (PyObject *)self;
-}
-
-static int
-LFO_init(LFO *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *freqtmp=NULL, *sharptmp=NULL, *multmp=NULL, *addtmp=NULL;
 
     static char *kwlist[] = {"freq", "sharp", "type", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOiOO", kwlist, &freqtmp, &sharptmp, &self->wavetype, &multmp, &addtmp))
-        return -1; 
-    
+        Py_RETURN_NONE;
+
     if (freqtmp) {
         PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
     }
@@ -965,7 +957,6 @@ LFO_init(LFO *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     Server_generateSeed((Server *)self->server, LFO_ID);
@@ -974,8 +965,7 @@ LFO_init(LFO *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * LFO_getServer(LFO* self) { GET_SERVER };
@@ -1113,7 +1103,6 @@ static PyMemberDef LFO_members[] = {
 static PyMethodDef LFO_methods[] = {
     {"getServer", (PyCFunction)LFO_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)LFO_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)LFO_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)LFO_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)LFO_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)LFO_stop, METH_NOARGS, "Stops computing."},
@@ -1207,7 +1196,7 @@ PyTypeObject LFOType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)LFO_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     LFO_new,                                     /* tp_new */
 };

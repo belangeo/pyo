@@ -1500,8 +1500,9 @@ class SndTable(PyoTableObject):
 
     Parameters:
 
-    path : string
-        Full path name of the sound.
+    path : string, optional
+        Full path name of the sound. The defaults, None, creates an empty
+        table.
     chnl : int, optional
         Channel number to read in. Available at initialization time only.
         The default (None) reads all channels.
@@ -1542,7 +1543,7 @@ class SndTable(PyoTableObject):
     >>> a = Osc(table=t, freq=[freq, freq*.995], mul=.3).out()
 
     """
-    def __init__(self, path, chnl=None, start=0, stop=None, initchnls=1):
+    def __init__(self, path=None, chnl=None, start=0, stop=None, initchnls=1):
         PyoTableObject.__init__(self)
         self._path = path
         self._chnl = chnl
@@ -1840,7 +1841,7 @@ class SndTable(PyoTableObject):
         """float. Stop point, in seconds, to read into the file.""" 
         return self._stop
     @stop.setter
-    def stop(self, x): print "'stop' attribute is read-only."
+    def stop(self, x): print "SndTable 'stop' attribute is read-only."
 
 class NewTable(PyoTableObject):
     """

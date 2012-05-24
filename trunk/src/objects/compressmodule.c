@@ -237,18 +237,18 @@ Compress_clear(Compress *self)
 static void
 Compress_dealloc(Compress* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->lh_buffer);
     Compress_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Compress_deleteStream(Compress *self) { DELETE_STREAM };
-
 static PyObject *
 Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *looktmp=NULL, *kneetmp=NULL;
     Compress *self;
     self = (Compress *)type->tp_alloc(type, 0);
     
@@ -272,20 +272,11 @@ Compress_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setFunctionPtr(self->stream, Compress_compute_next_data_frame);
     self->mode_func_ptr = Compress_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Compress_init(Compress *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *ratiotmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    PyObject *looktmp=NULL, *kneetmp=NULL;
-    
     static char *kwlist[] = {"input", "thresh", "ratio", "risetime", "falltime", "lookahead", "knee", "outputAmp", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOiOO", kwlist, &inputtmp, &threshtmp, &ratiotmp, &risetimetmp, &falltimetmp, &looktmp, &kneetmp, &self->outputAmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -324,13 +315,11 @@ Compress_init(Compress *self, PyObject *args, PyObject *kwds)
 
     self->proc_func_ptr = Compress_compress_soft;
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Compress_getServer(Compress* self) { GET_SERVER };
@@ -541,7 +530,6 @@ static PyMemberDef Compress_members[] = {
 static PyMethodDef Compress_methods[] = {
 {"getServer", (PyCFunction)Compress_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Compress_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Compress_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Compress_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Compress_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Compress_stop, METH_NOARGS, "Stops computing."},
@@ -637,7 +625,7 @@ Compress_members,                                 /* tp_members */
 0,                                              /* tp_descr_get */
 0,                                              /* tp_descr_set */
 0,                                              /* tp_dictoffset */
-(initproc)Compress_init,                          /* tp_init */
+0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Compress_new,                                     /* tp_new */
 };
@@ -1245,18 +1233,18 @@ Gate_clear(Gate *self)
 static void
 Gate_dealloc(Gate* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->lh_buffer);
     Gate_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Gate_deleteStream(Gate *self) { DELETE_STREAM };
-
 static PyObject *
 Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PyObject *looktmp=NULL;
     Gate *self;
     self = (Gate *)type->tp_alloc(type, 0);
     
@@ -1282,20 +1270,11 @@ Gate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setFunctionPtr(self->stream, Gate_compute_next_data_frame);
     self->mode_func_ptr = Gate_setProcMode;
-    return (PyObject *)self;
-}
 
-static int
-Gate_init(Gate *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *threshtmp=NULL, *risetimetmp=NULL, *falltimetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    PyObject *looktmp=NULL;
-    int i;
-    
     static char *kwlist[] = {"input", "thresh", "risetime", "falltime", "lookahead", "outputAmp", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiOO", kwlist, &inputtmp, &threshtmp, &risetimetmp, &falltimetmp, &looktmp, &self->outputAmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
 
@@ -1327,13 +1306,11 @@ Gate_init(Gate *self, PyObject *args, PyObject *kwds)
         self->lh_buffer[i] = 0.;
     }    
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * Gate_getServer(Gate* self) { GET_SERVER };
@@ -1495,7 +1472,6 @@ static PyMemberDef Gate_members[] = {
 static PyMethodDef Gate_methods[] = {
     {"getServer", (PyCFunction)Gate_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Gate_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Gate_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Gate_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Gate_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Gate_stop, METH_NOARGS, "Stops computing."},
@@ -1589,7 +1565,7 @@ PyTypeObject GateType = {
     0,                                              /* tp_descr_get */
     0,                                              /* tp_descr_set */
     0,                                              /* tp_dictoffset */
-    (initproc)Gate_init,                          /* tp_init */
+    0,                          /* tp_init */
     0,                                              /* tp_alloc */
     Gate_new,                                     /* tp_new */
 };

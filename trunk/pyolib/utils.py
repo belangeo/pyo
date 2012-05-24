@@ -188,7 +188,7 @@ class Print(PyoObject):
         [obj.setMessage(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -658,7 +658,7 @@ class Compare(PyoObject):
         return ['input', 'comp', 'mode', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -811,7 +811,7 @@ class Record(PyoObject):
         self._base_objs = [Record_base(self._input.getBaseObjects(), filename, chnls, fileformat, sampletype, buffering)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def __dir__(self):
         return []
@@ -970,7 +970,7 @@ class ControlRec(PyoObject):
         self._base_objs = [ControlRec_base(wrap(in_fader,i), rate, dur) for i in range(lmax)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def __dir__(self):
         return []
@@ -1078,7 +1078,7 @@ class ControlRead(PyoObject):
         return ['rate', 'loop', 'interp', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setRate(self, x):
         """
@@ -1213,7 +1213,7 @@ class NoteinRec(PyoObject):
         self._base_objs = [NoteinRec_base(wrap(in_pitch,i), wrap(in_velocity,i)) for i in range(lmax)]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def __dir__(self):
         return []
@@ -1314,18 +1314,6 @@ class NoteinRead(PyoObject):
     def __dir__(self):
         return ['loop', 'mul', 'add']
 
-    def __del__(self):
-        if self._pitch_dummy:
-            [obj.deleteStream() for obj in self._pitch_dummy]
-        if self._velocity_dummy:
-            [obj.deleteStream() for obj in self._velocity_dummy]
-        self._pitch_dummy = []
-        self._velocity_dummy = []
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        del self._trig_objs
-
     def __getitem__(self, str):
         if str == 'trig':
             return self._trig_objs
@@ -1363,7 +1351,7 @@ class NoteinRead(PyoObject):
             return [obj._getStream().getValue() for obj in self.__getitem__(identifier).getBaseObjects()]
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setLoop(self, x):
         """

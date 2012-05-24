@@ -465,7 +465,7 @@ static void
 WGVerb_dealloc(WGVerb* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     for (i=0; i<8; i++) {
         free(self->buffer[i]);
     }    
@@ -473,12 +473,11 @@ WGVerb_dealloc(WGVerb* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * WGVerb_deleteStream(WGVerb *self) { DELETE_STREAM };
-
 static PyObject *
 WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, j;
+    PyObject *inputtmp, *input_streamtmp, *feedbacktmp=NULL, *cutofftmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
     WGVerb *self;
     self = (WGVerb *)type->tp_alloc(type, 0);
     
@@ -514,20 +513,11 @@ WGVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         self->rnd_halfRange[i] = self->rnd_range[i] * 0.5;
         self->delays[i] = reverbParams[i][0] * (self->sr / 44100.0);
     }
-    
-    return (PyObject *)self;
-}
 
-static int
-WGVerb_init(WGVerb *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *feedbacktmp=NULL, *cutofftmp=NULL, *mixtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i, j;
-    
     static char *kwlist[] = {"input", "feedback", "cutoff", "mix", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &feedbacktmp, &cutofftmp, &mixtmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
        
@@ -551,7 +541,6 @@ WGVerb_init(WGVerb *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     for (i=0; i<8; i++) {
@@ -563,9 +552,8 @@ WGVerb_init(WGVerb *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * WGVerb_getServer(WGVerb* self) { GET_SERVER };
@@ -705,7 +693,6 @@ static PyMemberDef WGVerb_members[] = {
 static PyMethodDef WGVerb_methods[] = {
 {"getServer", (PyCFunction)WGVerb_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)WGVerb_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)WGVerb_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)WGVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)WGVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)WGVerb_stop, METH_NOARGS, "Stops computing."},
@@ -798,7 +785,7 @@ WGVerb_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)WGVerb_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 WGVerb_new,                 /* tp_new */
 };

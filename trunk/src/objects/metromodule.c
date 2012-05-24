@@ -178,17 +178,16 @@ Metro_clear(Metro *self)
 static void
 Metro_dealloc(Metro* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Metro_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Metro_deleteStream(Metro *self) { DELETE_STREAM };
 
 static PyObject *
 Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *timetmp=NULL;
     Metro *self;
     self = (Metro *)type->tp_alloc(type, 0);
     
@@ -206,31 +205,21 @@ Metro_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->sampleToSec = 1.0 / self->sr;
     self->currentTime = 0.;
-    
-    return (PyObject *)self;
-}
 
-static int
-Metro_init(Metro *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *timetmp=NULL;
-    
     static char *kwlist[] = {"time", "offset", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Od", kwlist, &timetmp, &self->offset))
-        return -1; 
+        Py_RETURN_NONE;
 
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Metro_getServer(Metro* self) { GET_SERVER };
@@ -298,7 +287,6 @@ static PyMemberDef Metro_members[] = {
 static PyMethodDef Metro_methods[] = {
 {"getServer", (PyCFunction)Metro_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Metro_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Metro_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Metro_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Metro_stop, METH_NOARGS, "Stops computing."},
 {"setTime", (PyCFunction)Metro_setTime, METH_O, "Sets time factor."},
@@ -388,7 +376,7 @@ Metro_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Metro_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Metro_new,                 /* tp_new */
 };
@@ -553,18 +541,17 @@ Seqer_clear(Seqer *self)
 static void
 Seqer_dealloc(Seqer* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer_streams);
     Seqer_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Seqer_deleteStream(Seqer *self) { DELETE_STREAM };
-
 static PyObject *
 Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *timetmp=NULL, *seqtmp=NULL;
     Seqer *self;
     self = (Seqer *)type->tp_alloc(type, 0);
     
@@ -589,19 +576,11 @@ Seqer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     self->sampleToSec = 1.0 / self->sr;
     self->currentTime = -1.0;
-    
-    return (PyObject *)self;
-}
 
-static int
-Seqer_init(Seqer *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *timetmp=NULL, *seqtmp=NULL;
-    
     static char *kwlist[] = {"time", "seq", "poly", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOi", kwlist, &timetmp, &seqtmp, &self->poly))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
@@ -611,15 +590,13 @@ Seqer_init(Seqer *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setSeq", "O", seqtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
 
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Seqer_getServer(Seqer* self) { GET_SERVER };
@@ -696,7 +673,6 @@ static PyMemberDef Seqer_members[] = {
 static PyMethodDef Seqer_methods[] = {
     {"getServer", (PyCFunction)Seqer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Seqer_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Seqer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Seqer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Seqer_stop, METH_NOARGS, "Stops computing."},
     {"setTime", (PyCFunction)Seqer_setTime, METH_O, "Sets time factor."},
@@ -741,7 +717,7 @@ PyTypeObject SeqerType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Seqer_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Seqer_new,                 /* tp_new */
 };
@@ -834,17 +810,16 @@ Seq_clear(Seq *self)
 static void
 Seq_dealloc(Seq* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Seq_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Seq_deleteStream(Seq *self) { DELETE_STREAM };
 
 static PyObject *
 Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     Seq *self;
     self = (Seq *)type->tp_alloc(type, 0);
     
@@ -855,31 +830,21 @@ Seq_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Seq_compute_next_data_frame);
     self->mode_func_ptr = Seq_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Seq_init(Seq *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Seqer *)maintmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Seq_getServer(Seq* self) { GET_SERVER };
@@ -913,7 +878,6 @@ static PyMemberDef Seq_members[] = {
 static PyMethodDef Seq_methods[] = {
     {"getServer", (PyCFunction)Seq_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Seq_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Seq_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Seq_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Seq_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Seq_stop, METH_NOARGS, "Stops computing."},
@@ -1003,7 +967,7 @@ PyTypeObject SeqType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Seq_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Seq_new,                 /* tp_new */
 };
@@ -1121,18 +1085,17 @@ Clouder_clear(Clouder *self)
 static void
 Clouder_dealloc(Clouder* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer_streams);
     Clouder_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Clouder_deleteStream(Clouder *self) { DELETE_STREAM };
-
 static PyObject *
 Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *densitytmp=NULL;
     Clouder *self;
     self = (Clouder *)type->tp_alloc(type, 0);
     
@@ -1146,25 +1109,16 @@ Clouder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->mode_func_ptr = Clouder_setProcMode;
     
     Stream_setStreamActive(self->stream, 0);
-    
-    return (PyObject *)self;
-}
 
-static int
-Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *densitytmp=NULL;
-    
     static char *kwlist[] = {"density", "poly", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &densitytmp, &self->poly))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (densitytmp) {
         PyObject_CallMethod((PyObject *)self, "setDensity", "O", densitytmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -1172,9 +1126,8 @@ Clouder_init(Clouder *self, PyObject *args, PyObject *kwds)
     Server_generateSeed((Server *)self->server, CLOUD_ID);
 
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, self->poly * self->bufsize * sizeof(MYFLT));
-       
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Clouder_getServer(Clouder* self) { GET_SERVER };
@@ -1227,7 +1180,6 @@ static PyMemberDef Clouder_members[] = {
 static PyMethodDef Clouder_methods[] = {
 {"getServer", (PyCFunction)Clouder_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Clouder_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Clouder_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Clouder_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Clouder_stop, METH_NOARGS, "Stops computing."},
 {"setDensity", (PyCFunction)Clouder_setDensity, METH_O, "Sets density factor."},
@@ -1271,7 +1223,7 @@ Clouder_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Clouder_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Clouder_new,                 /* tp_new */
 };
@@ -1364,17 +1316,16 @@ Cloud_clear(Cloud *self)
 static void
 Cloud_dealloc(Cloud* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Cloud_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Cloud_deleteStream(Cloud *self) { DELETE_STREAM };
 
 static PyObject *
 Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     Cloud *self;
     self = (Cloud *)type->tp_alloc(type, 0);
     
@@ -1385,31 +1336,21 @@ Cloud_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Cloud_compute_next_data_frame);
     self->mode_func_ptr = Cloud_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Cloud_init(Cloud *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Clouder *)maintmp;
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Cloud_getServer(Cloud* self) { GET_SERVER };
@@ -1443,7 +1384,6 @@ static PyMemberDef Cloud_members[] = {
 static PyMethodDef Cloud_methods[] = {
 {"getServer", (PyCFunction)Cloud_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Cloud_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Cloud_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Cloud_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Cloud_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Cloud_stop, METH_NOARGS, "Stops computing."},
@@ -1533,7 +1473,7 @@ Cloud_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Cloud_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Cloud_new,                 /* tp_new */
 };
@@ -1623,12 +1563,10 @@ Trig_clear(Trig *self)
 static void
 Trig_dealloc(Trig* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Trig_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Trig_deleteStream(Trig *self) { DELETE_STREAM };
 
 static PyObject *
 Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
@@ -1644,25 +1582,17 @@ Trig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Trig_compute_next_data_frame);
     self->mode_func_ptr = Trig_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Trig_init(Trig *self, PyObject *args, PyObject *kwds)
-{
     static char *kwlist[] = {NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "", kwlist))
-        return -1; 
+        Py_RETURN_NONE;
 
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Trig_getServer(Trig* self) { GET_SERVER };
@@ -1700,7 +1630,6 @@ static PyMemberDef Trig_members[] = {
 static PyMethodDef Trig_methods[] = {
 {"getServer", (PyCFunction)Trig_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Trig_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Trig_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Trig_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)Trig_stop, METH_NOARGS, "Stops computing."},
 {"setMul", (PyCFunction)Trig_setMul, METH_O, "Sets oscillator mul factor."},
@@ -1789,7 +1718,7 @@ Trig_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Trig_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Trig_new,                 /* tp_new */
 };
@@ -2243,22 +2172,22 @@ Beater_clear(Beater *self)
 static void
 Beater_dealloc(Beater* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer_streams);
     free(self->tap_buffer_streams);
     free(self->amp_buffer_streams);
     free(self->dur_buffer_streams);
     free(self->end_buffer_streams);
+    free(self->amplitudes);
     Beater_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Beater_deleteStream(Beater *self) { DELETE_STREAM };
 
 static PyObject *
 Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i, j;
+    PyObject *timetmp=NULL;
     Beater *self;
     self = (Beater *)type->tp_alloc(type, 0);
     
@@ -2293,26 +2222,16 @@ Beater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->currentTime = -1.0;
 
     Stream_setStreamActive(self->stream, 0);
-    
-    return (PyObject *)self;
-}
 
-static int
-Beater_init(Beater *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    PyObject *timetmp=NULL;
-    
     static char *kwlist[] = {"time", "taps", "weight1", "weight2", "weight3", "poly", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oiiiii", kwlist, &timetmp, &self->taps, &self->weight1, &self->weight2, &self->weight3, &self->poly))
-        return -1; 
+        Py_RETURN_NONE;
     
     if (timetmp) {
         PyObject_CallMethod((PyObject *)self, "setTime", "O", timetmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
@@ -2335,8 +2254,7 @@ Beater_init(Beater *self, PyObject *args, PyObject *kwds)
     Beater_makeTable(self, 0);
     Beater_makeSequence(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Beater_getServer(Beater* self) { GET_SERVER };
@@ -2520,7 +2438,6 @@ static PyMemberDef Beater_members[] = {
 static PyMethodDef Beater_methods[] = {
     {"getServer", (PyCFunction)Beater_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beater_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Beater_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Beater_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"stop", (PyCFunction)Beater_stop, METH_NOARGS, "Stops computing."},
     {"setTime", (PyCFunction)Beater_setTime, METH_O, "Sets tap duration."},
@@ -2572,7 +2489,7 @@ PyTypeObject BeaterType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Beater_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Beater_new,                 /* tp_new */
 };
@@ -2665,17 +2582,16 @@ Beat_clear(Beat *self)
 static void
 Beat_dealloc(Beat* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     Beat_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * Beat_deleteStream(Beat *self) { DELETE_STREAM };
 
 static PyObject *
 Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     Beat *self;
     self = (Beat *)type->tp_alloc(type, 0);
     
@@ -2686,31 +2602,21 @@ Beat_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Beat_compute_next_data_frame);
     self->mode_func_ptr = Beat_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Beat_init(Beat *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Beat_getServer(Beat* self) { GET_SERVER };
@@ -2744,7 +2650,6 @@ static PyMemberDef Beat_members[] = {
 static PyMethodDef Beat_methods[] = {
     {"getServer", (PyCFunction)Beat_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Beat_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Beat_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Beat_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Beat_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Beat_stop, METH_NOARGS, "Stops computing."},
@@ -2834,7 +2739,7 @@ PyTypeObject BeatType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Beat_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Beat_new,                 /* tp_new */
 };
@@ -2927,17 +2832,16 @@ BeatTapStream_clear(BeatTapStream *self)
 static void
 BeatTapStream_dealloc(BeatTapStream* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     BeatTapStream_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * BeatTapStream_deleteStream(BeatTapStream *self) { DELETE_STREAM };
 
 static PyObject *
 BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     BeatTapStream *self;
     self = (BeatTapStream *)type->tp_alloc(type, 0);
     
@@ -2948,31 +2852,21 @@ BeatTapStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatTapStream_compute_next_data_frame);
     self->mode_func_ptr = BeatTapStream_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-BeatTapStream_init(BeatTapStream *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * BeatTapStream_getServer(BeatTapStream* self) { GET_SERVER };
@@ -3006,7 +2900,6 @@ static PyMemberDef BeatTapStream_members[] = {
 static PyMethodDef BeatTapStream_methods[] = {
     {"getServer", (PyCFunction)BeatTapStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatTapStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)BeatTapStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)BeatTapStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatTapStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatTapStream_stop, METH_NOARGS, "Stops computing."},
@@ -3096,7 +2989,7 @@ PyTypeObject BeatTapStreamType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)BeatTapStream_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     BeatTapStream_new,                 /* tp_new */
 };
@@ -3189,17 +3082,16 @@ BeatAmpStream_clear(BeatAmpStream *self)
 static void
 BeatAmpStream_dealloc(BeatAmpStream* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     BeatAmpStream_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * BeatAmpStream_deleteStream(BeatAmpStream *self) { DELETE_STREAM };
 
 static PyObject *
 BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     BeatAmpStream *self;
     self = (BeatAmpStream *)type->tp_alloc(type, 0);
     
@@ -3210,31 +3102,21 @@ BeatAmpStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatAmpStream_compute_next_data_frame);
     self->mode_func_ptr = BeatAmpStream_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-BeatAmpStream_init(BeatAmpStream *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * BeatAmpStream_getServer(BeatAmpStream* self) { GET_SERVER };
@@ -3268,7 +3150,6 @@ static PyMemberDef BeatAmpStream_members[] = {
 static PyMethodDef BeatAmpStream_methods[] = {
     {"getServer", (PyCFunction)BeatAmpStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatAmpStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)BeatAmpStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)BeatAmpStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatAmpStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatAmpStream_stop, METH_NOARGS, "Stops computing."},
@@ -3358,7 +3239,7 @@ PyTypeObject BeatAmpStreamType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)BeatAmpStream_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     BeatAmpStream_new,                 /* tp_new */
 };
@@ -3451,17 +3332,16 @@ BeatDurStream_clear(BeatDurStream *self)
 static void
 BeatDurStream_dealloc(BeatDurStream* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     BeatDurStream_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * BeatDurStream_deleteStream(BeatDurStream *self) { DELETE_STREAM };
 
 static PyObject *
 BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     BeatDurStream *self;
     self = (BeatDurStream *)type->tp_alloc(type, 0);
     
@@ -3472,31 +3352,21 @@ BeatDurStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatDurStream_compute_next_data_frame);
     self->mode_func_ptr = BeatDurStream_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-BeatDurStream_init(BeatDurStream *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * BeatDurStream_getServer(BeatDurStream* self) { GET_SERVER };
@@ -3530,7 +3400,6 @@ static PyMemberDef BeatDurStream_members[] = {
 static PyMethodDef BeatDurStream_methods[] = {
     {"getServer", (PyCFunction)BeatDurStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatDurStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)BeatDurStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)BeatDurStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatDurStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatDurStream_stop, METH_NOARGS, "Stops computing."},
@@ -3620,7 +3489,7 @@ PyTypeObject BeatDurStreamType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)BeatDurStream_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     BeatDurStream_new,                 /* tp_new */
 };
@@ -3713,17 +3582,16 @@ BeatEndStream_clear(BeatEndStream *self)
 static void
 BeatEndStream_dealloc(BeatEndStream* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     BeatEndStream_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * BeatEndStream_deleteStream(BeatEndStream *self) { DELETE_STREAM };
 
 static PyObject *
 BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *maintmp=NULL;
     BeatEndStream *self;
     self = (BeatEndStream *)type->tp_alloc(type, 0);
     
@@ -3734,31 +3602,21 @@ BeatEndStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, BeatEndStream_compute_next_data_frame);
     self->mode_func_ptr = BeatEndStream_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-BeatEndStream_init(BeatEndStream *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *maintmp=NULL;
-    
     static char *kwlist[] = {"mainPlayer", "chnl", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &maintmp, &self->chnl))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->mainPlayer);
     Py_INCREF(maintmp);
     self->mainPlayer = (Beater *)maintmp;
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * BeatEndStream_getServer(BeatEndStream* self) { GET_SERVER };
@@ -3792,7 +3650,6 @@ static PyMemberDef BeatEndStream_members[] = {
 static PyMethodDef BeatEndStream_methods[] = {
     {"getServer", (PyCFunction)BeatEndStream_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)BeatEndStream_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)BeatEndStream_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)BeatEndStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)BeatEndStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)BeatEndStream_stop, METH_NOARGS, "Stops computing."},
@@ -3882,7 +3739,7 @@ PyTypeObject BeatEndStreamType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)BeatEndStream_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     BeatEndStream_new,                 /* tp_new */
 };

@@ -134,17 +134,16 @@ MatrixPointer_clear(MatrixPointer *self)
 static void
 MatrixPointer_dealloc(MatrixPointer* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     MatrixPointer_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
-
-static PyObject * MatrixPointer_deleteStream(MatrixPointer *self) { DELETE_STREAM };
 
 static PyObject *
 MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *matrixtmp, *xtmp, *ytmp, *multmp=NULL, *addtmp=NULL;
     MatrixPointer *self;
     self = (MatrixPointer *)type->tp_alloc(type, 0);
     
@@ -154,19 +153,11 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MatrixPointer_compute_next_data_frame);
     self->mode_func_ptr = MatrixPointer_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-MatrixPointer_init(MatrixPointer *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *matrixtmp, *xtmp, *ytmp, *multmp=NULL, *addtmp=NULL;
-    
     static char *kwlist[] = {"matrix", "x", "y", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &xtmp, &ytmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
@@ -187,13 +178,9 @@ MatrixPointer_init(MatrixPointer *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * MatrixPointer_getServer(MatrixPointer* self) { GET_SERVER };
@@ -318,7 +305,6 @@ static PyMethodDef MatrixPointer_methods[] = {
 {"getMatrix", (PyCFunction)MatrixPointer_getMatrix, METH_NOARGS, "Returns waveform matrix object."},
 {"getServer", (PyCFunction)MatrixPointer_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)MatrixPointer_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)MatrixPointer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)MatrixPointer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)MatrixPointer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)MatrixPointer_stop, METH_NOARGS, "Stops computing."},
@@ -411,7 +397,7 @@ MatrixPointer_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)MatrixPointer_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 MatrixPointer_new,                 /* tp_new */
 };

@@ -1613,6 +1613,7 @@ midiToTranspo(PyObject *self, PyObject *arg) {
 #define sampsToSec_info \
 "\nReturns the duration in seconds equivalent to the number of samples given as an argument.\n\nsampsToSec(x)\n\nParameters:\n\n    \
 x : int or float\n        Duration in samples. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+>>> s = Server().boot()\n    \
 >>> a = (64, 128, 256)\n    \
 >>> b = sampsToSec(a)\n    \
 >>> print b\n    \
@@ -1664,6 +1665,7 @@ sampsToSec(PyObject *self, PyObject *arg) {
 #define secToSamps_info \
 "\nReturns the number of samples equivalent to the duration in seconds given as an argument.\n\nsecToSamps(x)\n\nParameters:\n\n    \
 x : int or float\n        Duration in seconds. `x` can be a number, a list or a tuple, otherwise function returns None.\n\nExamples:\n\n    \
+>>> s = Server().boot()\n    \
 >>> a = (0.1, 0.25, 0.5, 1)\n    \
 >>> b = secToSamps(a)\n    \
 >>> print b\n    \

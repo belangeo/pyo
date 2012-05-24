@@ -103,7 +103,7 @@ class Fader(PyoObject):
         return ['fadein', 'fadeout', 'dur', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setFadein(self, x):
         """
@@ -262,7 +262,7 @@ class Adsr(PyoObject):
         return ['attack', 'decay', 'sustain', 'release', 'dur', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setAttack(self, x):
         """
@@ -439,7 +439,7 @@ class Linseg(PyoObject):
         return ['list', 'loop', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setList(self, x):
         """
@@ -625,7 +625,7 @@ class Expseg(PyoObject):
         return ['list', 'loop', 'exp', 'inverse', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setList(self, x):
         """

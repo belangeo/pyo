@@ -102,7 +102,7 @@ class Midictl(PyoObject):
         return ['ctlnumber', 'minscale', 'maxscale', 'channel', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setCtlNumber(self, x):
         """
@@ -267,7 +267,7 @@ class CtlScan(PyoObject):
         return []
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMul(self, x):
         pass
@@ -405,19 +405,6 @@ class Notein(PyoObject):
     def __dir__(self):
         return ['channel', 'mul', 'add']
 
-    def __del__(self):
-        if self._pitch_dummy:
-            [obj.deleteStream() for obj in self._pitch_dummy]
-        if self._velocity_dummy:
-            [obj.deleteStream() for obj in self._velocity_dummy]
-        self._pitch_dummy = []
-        self._velocity_dummy = []
-        for obj in self._base_objs:
-            obj.deleteStream()
-            del obj
-        self._base_handler.deleteStream()
-        del self._base_handler
-
     def __getitem__(self, str):
         if str == 'pitch':
             self._pitch_dummy.append(Dummy([self._base_objs[i*2] for i in range(self._poly)]))
@@ -482,17 +469,14 @@ class Notein(PyoObject):
                         
     def play(self, dur=0, delay=0):
         self._base_handler.play()
-        dur, delay, lmax = convertArgsToLists(dur, delay)
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
+        return PyoObject.play(self, dur, delay)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
-    
+        return self.play(dur, delay)
+
     def stop(self):
         self._base_handler.stop()
-        [obj.stop() for obj in self._base_objs]
-        return self
+        return PyoObject.stop(self)
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -567,7 +551,7 @@ class Bendin(PyoObject):
         return ['brange', 'scale', 'channel', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setBrange(self, x):
         """
@@ -699,7 +683,7 @@ class Touchin(PyoObject):
         return ['minscale', 'maxscale', 'channel', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setMinScale(self, x):
         """
@@ -812,7 +796,7 @@ class Programin(PyoObject):
         return ['channel', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setChannel(self, x):
         """
@@ -924,7 +908,7 @@ class MidiAdsr(PyoObject):
         return ['input', 'attack', 'decay', 'sustain', 'release', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1123,7 +1107,7 @@ class MidiDelAdsr(PyoObject):
         return ['input', 'delay', 'attack', 'decay', 'sustain', 'release', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
-        return self
+        return self.play(dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """

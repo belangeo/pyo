@@ -301,18 +301,17 @@ Delay_clear(Delay *self)
 static void
 Delay_dealloc(Delay* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer);
     Delay_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Delay_deleteStream(Delay *self) { DELETE_STREAM };
-
 static PyObject *
 Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
     Delay *self;
     self = (Delay *)type->tp_alloc(type, 0);
 
@@ -328,20 +327,11 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Delay_compute_next_data_frame);
     self->mode_func_ptr = Delay_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Delay_init(Delay *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i;
-    
     static char *kwlist[] = {"input", "delay", "feedback", "maxdelay", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &delaytmp, &feedbacktmp, &self->maxdelay, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
     INIT_INPUT_STREAM
 
@@ -361,7 +351,6 @@ Delay_init(Delay *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
             
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->size = (long)(self->maxdelay * self->sr + 0.5);
@@ -372,9 +361,8 @@ Delay_init(Delay *self, PyObject *args, PyObject *kwds)
     }    
 
     (*self->mode_func_ptr)(self);
-
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Delay_getServer(Delay* self) { GET_SERVER };
@@ -490,7 +478,6 @@ static PyMemberDef Delay_members[] = {
 static PyMethodDef Delay_methods[] = {
     {"getServer", (PyCFunction)Delay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Delay_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Delay_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Delay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Delay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Delay_stop, METH_NOARGS, "Stops computing."},
@@ -583,7 +570,7 @@ PyTypeObject DelayType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Delay_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Delay_new,                 /* tp_new */
 };
@@ -758,18 +745,17 @@ SDelay_clear(SDelay *self)
 static void
 SDelay_dealloc(SDelay* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer);
     SDelay_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * SDelay_deleteStream(SDelay *self) { DELETE_STREAM };
-
 static PyObject *
 SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *multmp=NULL, *addtmp=NULL;
     SDelay *self;
     self = (SDelay *)type->tp_alloc(type, 0);
     
@@ -783,20 +769,11 @@ SDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, SDelay_compute_next_data_frame);
     self->mode_func_ptr = SDelay_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-SDelay_init(SDelay *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *delaytmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i;
-    
     static char *kwlist[] = {"input", "delay", "maxdelay", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OFOO, kwlist, &inputtmp, &delaytmp, &self->maxdelay, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -812,7 +789,6 @@ SDelay_init(SDelay *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->size = (long)(self->maxdelay * self->sr + 0.5);
@@ -823,9 +799,8 @@ SDelay_init(SDelay *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-    
-    Py_INCREF(self);
-    return 0;
+
+    return (PyObject *)self;
 }
 
 static PyObject * SDelay_getServer(SDelay* self) { GET_SERVER };
@@ -906,7 +881,6 @@ static PyMemberDef SDelay_members[] = {
 static PyMethodDef SDelay_methods[] = {
     {"getServer", (PyCFunction)SDelay_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)SDelay_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)SDelay_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)SDelay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)SDelay_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)SDelay_stop, METH_NOARGS, "Stops computing."},
@@ -998,7 +972,7 @@ PyTypeObject SDelayType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)SDelay_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     SDelay_new,                 /* tp_new */
 };
@@ -1458,18 +1432,17 @@ Waveguide_clear(Waveguide *self)
 static void
 Waveguide_dealloc(Waveguide* self)
 {
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer);
     Waveguide_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Waveguide_deleteStream(Waveguide *self) { DELETE_STREAM };
-
 static PyObject *
 Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
     Waveguide *self;
     self = (Waveguide *)type->tp_alloc(type, 0);
     
@@ -1498,20 +1471,11 @@ Waveguide_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setFunctionPtr(self->stream, Waveguide_compute_next_data_frame);
     self->mode_func_ptr = Waveguide_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i;
-    
     static char *kwlist[] = {"input", "freq", "dur", "minfreq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &freqtmp, &durtmp, &self->minfreq, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -1531,7 +1495,6 @@ Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);
@@ -1542,9 +1505,8 @@ Waveguide_init(Waveguide *self, PyObject *args, PyObject *kwds)
     }    
     
     (*self->mode_func_ptr)(self);
-        
-    Py_INCREF(self);
-    return 0;
+    
+    return (PyObject *)self;
 }
 
 static PyObject * Waveguide_getServer(Waveguide* self) { GET_SERVER };
@@ -1649,7 +1611,6 @@ static PyMemberDef Waveguide_members[] = {
 static PyMethodDef Waveguide_methods[] = {
 {"getServer", (PyCFunction)Waveguide_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)Waveguide_getStream, METH_NOARGS, "Returns stream object."},
-{"deleteStream", (PyCFunction)Waveguide_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
 {"play", (PyCFunction)Waveguide_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)Waveguide_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)Waveguide_stop, METH_NOARGS, "Stops computing."},
@@ -1741,7 +1702,7 @@ Waveguide_members,             /* tp_members */
 0,                         /* tp_descr_get */
 0,                         /* tp_descr_set */
 0,                         /* tp_dictoffset */
-(initproc)Waveguide_init,      /* tp_init */
+0,      /* tp_init */
 0,                         /* tp_alloc */
 Waveguide_new,                 /* tp_new */
 };
@@ -2485,7 +2446,7 @@ static void
 AllpassWG_dealloc(AllpassWG* self)
 {
     int i;
-    free(self->data);
+    pyo_DEALLOC
     free(self->buffer);
     for(i=0; i<3; i++) {
         free(self->alpbuffer[i]);
@@ -2494,12 +2455,11 @@ AllpassWG_dealloc(AllpassWG* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * AllpassWG_deleteStream(AllpassWG *self) { DELETE_STREAM };
-
 static PyObject *
 AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    int i;
+    int i, j;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *feedtmp=NULL, *detunetmp=NULL, *multmp=NULL, *addtmp=NULL;
     AllpassWG *self;
     self = (AllpassWG *)type->tp_alloc(type, 0);
     
@@ -2522,20 +2482,11 @@ AllpassWG_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     Stream_setFunctionPtr(self->stream, AllpassWG_compute_next_data_frame);
     self->mode_func_ptr = AllpassWG_setProcMode;
-    
-    return (PyObject *)self;
-}
 
-static int
-AllpassWG_init(AllpassWG *self, PyObject *args, PyObject *kwds)
-{
-    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *feedtmp=NULL, *detunetmp=NULL, *multmp=NULL, *addtmp=NULL;
-    int i, j;
-    
     static char *kwlist[] = {"input", "freq", "feed", "detune", "minfreq", "mul", "add", NULL};
     
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOOFOO, kwlist, &inputtmp, &freqtmp, &feedtmp, &detunetmp, &self->minfreq, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
     
     INIT_INPUT_STREAM
     
@@ -2558,7 +2509,6 @@ AllpassWG_init(AllpassWG *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
     
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->size = (long)(1.0 / self->minfreq * self->sr + 0.5);    
@@ -2577,8 +2527,7 @@ AllpassWG_init(AllpassWG *self, PyObject *args, PyObject *kwds)
     
     (*self->mode_func_ptr)(self);
     
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * AllpassWG_getServer(AllpassWG* self) { GET_SERVER };
@@ -2718,7 +2667,6 @@ static PyMemberDef AllpassWG_members[] = {
 static PyMethodDef AllpassWG_methods[] = {
     {"getServer", (PyCFunction)AllpassWG_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)AllpassWG_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)AllpassWG_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)AllpassWG_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)AllpassWG_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)AllpassWG_stop, METH_NOARGS, "Stops computing."},
@@ -2811,7 +2759,7 @@ PyTypeObject AllpassWGType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)AllpassWG_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     AllpassWG_new,                 /* tp_new */
 };

@@ -396,19 +396,19 @@ Harmonizer_clear(Harmonizer *self)
 static void
 Harmonizer_dealloc(Harmonizer* self)
 {
-    free(self->data);   
+    pyo_DEALLOC
     free(self->buffer);
     free(self->envelope);
     Harmonizer_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
 
-static PyObject * Harmonizer_deleteStream(Harmonizer *self) { DELETE_STREAM };
-
 static PyObject *
 Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
+    MYFLT wintmp;
+    PyObject *inputtmp, *input_streamtmp, *transpotmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
     Harmonizer *self;
     self = (Harmonizer *)type->tp_alloc(type, 0);
 
@@ -426,20 +426,10 @@ Harmonizer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Stream_setFunctionPtr(self->stream, Harmonizer_compute_next_data_frame);
     self->mode_func_ptr = Harmonizer_setProcMode;
 
-    return (PyObject *)self;
-}
-
-static int
-Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
-{
-    int i;
-    MYFLT wintmp;
-    PyObject *inputtmp, *input_streamtmp, *transpotmp=NULL, *feedbacktmp=NULL, *multmp=NULL, *addtmp=NULL;
-
     static char *kwlist[] = {"input", "transpo", "feedback", "winsize", "mul", "add", NULL};
 
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOFOO, kwlist, &inputtmp, &transpotmp, &feedbacktmp, &wintmp, &multmp, &addtmp))
-        return -1; 
+        Py_RETURN_NONE;
 
 	INIT_INPUT_STREAM
 
@@ -459,7 +449,6 @@ Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
         PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
     }
  
-    Py_INCREF(self->stream);
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->buffer = (MYFLT *)realloc(self->buffer, (self->sr+1) * sizeof(MYFLT));
@@ -475,19 +464,12 @@ Harmonizer_init(Harmonizer *self, PyObject *args, PyObject *kwds)
     self->envelope = (MYFLT *)realloc(self->envelope, 8193 * sizeof(MYFLT));
     for (i=0; i<8192; i++) {
         self->envelope[i] = 0.5 + (MYCOS(TWOPI * (i - 4095) / 8192.0) * 0.5);
-        /* if (i < 4096) {
-            self->envelope[i] = MYSQRT(i / 4096.0);
-        }
-        else {
-            self->envelope[i] = MYSQRT((8191-i) / 4096.0);
-        } */
     }
     self->envelope[8192] = 0.0;
 
     (*self->mode_func_ptr)(self);
 
-    Py_INCREF(self);
-    return 0;
+    return (PyObject *)self;
 }
 
 static PyObject * Harmonizer_getServer(Harmonizer* self) { GET_SERVER };
@@ -608,7 +590,6 @@ static PyMemberDef Harmonizer_members[] = {
 static PyMethodDef Harmonizer_methods[] = {
     {"getServer", (PyCFunction)Harmonizer_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)Harmonizer_getStream, METH_NOARGS, "Returns stream object."},
-    {"deleteStream", (PyCFunction)Harmonizer_deleteStream, METH_NOARGS, "Remove stream from server and delete the object."},
     {"play", (PyCFunction)Harmonizer_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
     {"out", (PyCFunction)Harmonizer_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
     {"stop", (PyCFunction)Harmonizer_stop, METH_NOARGS, "Stops computing."},
@@ -701,7 +682,7 @@ PyTypeObject HarmonizerType = {
     0,                         /* tp_descr_get */
     0,                         /* tp_descr_set */
     0,                         /* tp_dictoffset */
-    (initproc)Harmonizer_init,      /* tp_init */
+    0,      /* tp_init */
     0,                         /* tp_alloc */
     Harmonizer_new,                 /* tp_new */
 };
