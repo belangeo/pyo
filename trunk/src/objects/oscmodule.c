@@ -90,14 +90,6 @@ OscReceiver_dealloc(OscReceiver* self)
 }
 
 static PyObject *
-OscReceiver_free_port(OscReceiver *self)
-{
-    lo_server_free(self->osc_server);
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *
 OscReceiver_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
@@ -192,7 +184,6 @@ static PyMemberDef OscReceiver_members[] = {
 static PyMethodDef OscReceiver_methods[] = {
 {"getServer", (PyCFunction)OscReceiver_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)OscReceiver_getStream, METH_NOARGS, "Returns stream object."},
-{"free_port", (PyCFunction)OscReceiver_free_port, METH_NOARGS, "Called on __del__ method to free osc port used by the object."},
 {"addAddress", (PyCFunction)OscReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
 {"delAddress", (PyCFunction)OscReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
 {NULL}  /* Sentinel */
@@ -982,14 +973,6 @@ OscDataReceive_dealloc(OscDataReceive* self)
 }
 
 static PyObject *
-OscDataReceive_free_port(OscDataReceive *self)
-{
-    lo_server_free(self->osc_server);
-	Py_INCREF(Py_None);
-	return Py_None;
-}
-
-static PyObject *
 OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     int i;
@@ -1071,7 +1054,6 @@ static PyMemberDef OscDataReceive_members[] = {
 static PyMethodDef OscDataReceive_methods[] = {
     {"getServer", (PyCFunction)OscDataReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscDataReceive_getStream, METH_NOARGS, "Returns stream object."},
-    {"free_port", (PyCFunction)OscDataReceive_free_port, METH_NOARGS, "Call on __del__ method to free osc port used by the object."},
     {"addAddress", (PyCFunction)OscDataReceive_addAddress, METH_O, "Add new paths to the object."},
     {"delAddress", (PyCFunction)OscDataReceive_delAddress, METH_O, "Remove path from the object."},
     {NULL}  /* Sentinel */
@@ -1184,13 +1166,6 @@ OscListReceiver_dealloc(OscListReceiver* self)
     pyo_DEALLOC
     OscListReceiver_clear(self);
     self->ob_type->tp_free((PyObject*)self);
-}
-
-static PyObject *
-OscListReceiver_free_port(OscListReceiver *self)
-{
-    lo_server_free(self->osc_server);
-    Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -1308,7 +1283,6 @@ static PyMemberDef OscListReceiver_members[] = {
 static PyMethodDef OscListReceiver_methods[] = {
     {"getServer", (PyCFunction)OscListReceiver_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscListReceiver_getStream, METH_NOARGS, "Returns stream object."},
-    {"free_port", (PyCFunction)OscListReceiver_free_port, METH_NOARGS, "Called on __del__ method to free osc port used by the object."},
     {"addAddress", (PyCFunction)OscListReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
     {"delAddress", (PyCFunction)OscListReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
     {NULL}  /* Sentinel */
