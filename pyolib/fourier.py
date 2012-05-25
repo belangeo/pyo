@@ -921,7 +921,7 @@ class FrameDelta(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -1062,7 +1062,7 @@ class FrameAccum(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
@@ -1207,7 +1207,7 @@ class Vectral(PyoObject):
         """
         self._framesize = x
         x, lmax = convertArgsToLists(x)
-        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+        [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setUp(self, x):
         """
@@ -1221,7 +1221,7 @@ class Vectral(PyoObject):
         """
         self._up = x
         x, lmax = convertArgsToLists(x)
-        [obj.setUp(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+        [obj.setUp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setDown(self, x):
         """
@@ -1235,7 +1235,7 @@ class Vectral(PyoObject):
         """
         self._down = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDown(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+        [obj.setDown(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def setDamp(self, x):
         """
@@ -1249,7 +1249,7 @@ class Vectral(PyoObject):
         """
         self._damp = x
         x, lmax = convertArgsToLists(x)
-        [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._main_players)]
+        [obj.setDamp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0., 1., "lin", "up", self._up),
