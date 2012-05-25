@@ -1,4 +1,9 @@
-2012-05-10 belangeo <belangeo@gmail.com>
+2012-05-25 belangeo <belangeo@gmail.com>
+
+    * Added debugging methods utilities: Server.getStreams(), Server.getNumberOfStreams() and Stream.getStreamObject().
+    - rev 976
+
+2012-05-24 belangeo <belangeo@gmail.com>
 
     * Fixed memory leak on object's deletion (refcount was always one more than expected).
     - rev 974

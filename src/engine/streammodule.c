@@ -152,6 +152,7 @@ Stream_getId(Stream *self) {
 static PyMethodDef Stream_methods[] = {
 {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
 {"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
+{"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, "Returns the object associated with this stream."},
 {NULL}  /* Sentinel */
 };
 
@@ -195,7 +196,10 @@ The first stream of this object contains the samples from the 250Hz waveform.\n\
 The second stream contains the samples from the 500Hz waveform, and so on.\n\n\
 User can call a specific stream of an object by giving the position of the stream\n\
 between brackets, beginning at 0. To retrieve only the third stream of our object:\n\n\
-    a[2].out()\n\
+    a[2].out()\n\n\
+The method getStreamObject() can be called on a Stream object to retrieve the \n\
+XXX_base object associated with this Stream. This method can be used by developers who\n\
+are debugging their programs!\n\n\
 ", /* tp_doc */
     0, /* tp_traverse */
     0, /* tp_clear */

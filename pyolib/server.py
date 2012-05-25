@@ -78,6 +78,8 @@ class Server(object):
     getGlobalSeed() : Returns the server's global seed.
     getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
     getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
+    getStreams() : Returns the list of Stream objects currently in the Server memory.
+    getNumberOfStreams() : Returns the number of streams currently in the Server memory.
 
     The next methods must be called before booting the server
 
@@ -495,6 +497,19 @@ class Server(object):
         """
         return self._server.getMidiActive()
 
+    def getStreams(self):
+        """
+        Returns the list of Stream objects currently in the Server memory.
+        
+        """
+        return self._server.getStreams()
+
+    def getNumberOfStreams(self):
+        """
+        Returns the number of streams currently in the Server memory.
+        
+        """
+        return len(self._server.getStreams())
 
     @property
     def amp(self):
