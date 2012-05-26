@@ -1,3 +1,8 @@
+2012-05-26 belangeo <belangeo@gmail.com>
+
+    * Added new function: savefileFromTable(). Used internally by PyoTableObject to save sound to disk.
+    - rev 983
+
 2012-05-25 belangeo <belangeo@gmail.com>
 
     * Added two methods to PyoObject class: isPlaying() and isOutputting().

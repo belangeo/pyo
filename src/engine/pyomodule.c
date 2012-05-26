@@ -668,12 +668,164 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         }    
     }    
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
-        printf ("savefile: not able to open output file %s.\n", recpath);
+        printf ("savefile: failed to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
     }
     SF_WRITE(recfile, sampsarray, size);
     sf_close(recfile);
     free(sampsarray);
+    
+    Py_RETURN_NONE;    
+}
+
+#define savefileFromTable_info \
+"\nCreates an audio file from the content of a table.\n\nsavefileFromTable(table, path, fileformat=0, sampletype=0)\n\nParameters:\n\n    \
+table : PyoTableObject\n        table from which to retrieve samples to write.\n    \
+path : string\n        Full path (including extension) of the new file.\n    \
+fileformat : int, optional\n        Format type of the new file. Defaults to 0. Supported formats are:\n    \
+0 : WAVE - Microsoft WAV format (little endian) {.wav, .wave}\n    \
+1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n    \
+sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0. Supported types are:\n    \
+0 : 16 bit int\n    \
+1 : 24 bit int\n    \
+2 : 32 bit int\n    \
+3 : 32 bit float\n    \
+4 : 64 bit float\n\n\
+Examples:\n\n    \
+>>> import os\n    \
+>>> home = os.path.expanduser('~')\n    \
+>>> path1 = SNDS_PATH + '/transparent.aif'\n    \
+>>> path2 = os.path.join(home, '/transparent2.aif')\n    \
+>>> t = SndTable(path1)\n    \
+>>> savefileFromTable(table=t, path=path, fileformat=1, sampletype=1)\n\n"
+
+static PyObject *
+savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
+    int i, j, size;
+    char *recpath;
+    PyObject *table;
+    PyObject *base_objs;
+    PyObject *tablestreamlist;
+    MYFLT *sampsarray;
+    int sr = 44100;
+    int channels = 1;
+    int fileformat = 0;
+    int sampletype = 0;
+    int count = 0;
+    int num_items = 0;
+    SNDFILE *recfile;
+    SF_INFO recinfo;
+    static char *kwlist[] = {"table", "path", "fileformat", "sampletype", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|ii", kwlist, &table, &recpath, &fileformat, &sampletype))
+        return PyInt_FromLong(-1);
+    
+    base_objs = PyObject_GetAttrString(table, "_base_objs");
+    channels = PyList_Size(base_objs);
+    tablestreamlist = PyList_New(channels);
+    for (i=0; i<channels; i++) {
+        PyList_SET_ITEM(tablestreamlist, i, PyObject_CallMethod(PyList_GetItem(base_objs, i), "getTableStream", NULL));
+    }
+    sr = (int)TableStream_getSamplingRate((PyObject *)PyList_GetItem(tablestreamlist, 0));
+    size = TableStream_getSize((PyObject *)PyList_GetItem(tablestreamlist, 0));
+    
+    recinfo.samplerate = sr;
+    recinfo.channels = channels;
+    switch (fileformat) {
+        case 0:
+            recinfo.format = SF_FORMAT_WAV;
+            break;
+        case 1:
+            recinfo.format = SF_FORMAT_AIFF;
+            break;
+    }
+    switch (sampletype) {
+        case 0:
+            recinfo.format = recinfo.format | SF_FORMAT_PCM_16;
+            break;
+        case 1:
+            recinfo.format = recinfo.format | SF_FORMAT_PCM_24;
+            break;
+        case 2:
+            recinfo.format = recinfo.format | SF_FORMAT_PCM_32;
+            break;
+        case 3:
+            recinfo.format = recinfo.format | SF_FORMAT_FLOAT;
+            break;
+        case 4:
+            recinfo.format = recinfo.format | SF_FORMAT_DOUBLE;
+            break;
+    }
+
+    if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
+        printf ("savefileFromTable: failed to open output file %s.\n", recpath);
+        Py_XDECREF(base_objs);
+        Py_XDECREF(tablestreamlist);
+        return PyInt_FromLong(-1);
+    }
+    
+    if (channels == 1) {
+        MYFLT *data;
+        if (size < (sr * 60)) {
+            data = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, 0));
+            sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
+            for (i=0; i<size; i++) {
+                sampsarray[i] = data[i];
+            }
+            SF_WRITE(recfile, sampsarray, size);
+        }
+        else {
+            data = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, 0));
+            num_items = sr * 30;
+            sampsarray = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+            do {
+                if ((size - count) < num_items)
+                    num_items = size - count;
+                for (i=0; i<num_items; i++) {
+                    sampsarray[i] = data[count++];
+                }
+                SF_WRITE(recfile, sampsarray, num_items);
+            } while (num_items == (sr * 30));
+        }
+    }
+    else {
+        MYFLT *data[channels];
+        if (size < (sr * 60)) {
+            for (j=0; j<channels; j++) {
+                data[j] = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, j));
+            }
+            sampsarray = (MYFLT *)malloc(size * channels * sizeof(MYFLT));
+            for (i=0; i<size; i++) {
+                for (j=0; j<channels; j++) {
+                    sampsarray[i*channels+j] = data[j][i];
+                }
+            }
+            SF_WRITE(recfile, sampsarray, size * channels);
+        }
+        else {
+            for (j=0; j<channels; j++) {
+                data[j] = TableStream_getData((PyObject *)PyList_GetItem(tablestreamlist, j));
+            }
+            num_items = sr * 30;
+            sampsarray = (MYFLT *)malloc(num_items * channels * sizeof(MYFLT));
+            do {
+                if ((size - count) < num_items)
+                    num_items = size - count;
+                for (i=0; i<num_items; i++) {
+                    for (j=0; j<channels; j++) {
+                        sampsarray[i*channels+j] = data[j][count];
+                    }
+                    count++;
+                }
+                SF_WRITE(recfile, sampsarray, num_items * channels);
+            } while (num_items == (sr * 30));
+        }
+    }    
+
+    sf_close(recfile);
+    free(sampsarray);
+    Py_XDECREF(base_objs);
+    Py_XDECREF(tablestreamlist);
     
     Py_RETURN_NONE;    
 }
@@ -1746,6 +1898,7 @@ static PyMethodDef pyo_functions[] = {
 {"pm_get_default_output", (PyCFunction)portmidi_get_default_output, METH_NOARGS, portmidi_get_default_output_info},
 {"sndinfo", (PyCFunction)sndinfo, METH_VARARGS|METH_KEYWORDS, sndinfo_info},
 {"savefile", (PyCFunction)savefile, METH_VARARGS|METH_KEYWORDS, savefile_info},
+{"savefileFromTable", (PyCFunction)savefileFromTable, METH_VARARGS|METH_KEYWORDS, savefileFromTable_info},
 {"upsamp", (PyCFunction)upsamp, METH_VARARGS|METH_KEYWORDS, upsamp_info},
 {"downsamp", (PyCFunction)downsamp, METH_VARARGS|METH_KEYWORDS, downsamp_info},
 {"reducePoints", (PyCFunction)reducePoints, METH_VARARGS|METH_KEYWORDS, reducePoints_info},
