@@ -22,7 +22,7 @@ TODO before releasing _pyo_ version 1.0.
 
 *Midi*
 
-- Midiout, !MidiFileIn, !MidiFileOut
+- Midiout, !MidiFileRead
 
 ----
 
@@ -36,7 +36,7 @@ TODO before releasing _pyo_ version 1.0.
 
   * Granulator2(multi-streams)
   * !TrigGrains(one-stream and multi-stream)
-  * Vocoder
+  * FreqShift
   * CrossPM, CrossFMPM
   * !TrigMarkov (!PyoTable)
   * !SfMarkerTrigger
@@ -45,3 +45,7 @@ TODO before releasing _pyo_ version 1.0.
   * !AttackDetector, !PitchTrack
   * !ExpFader
   * !TrigRec, !TrigRead 
+  * TrigVal
+  * Expander
+  * VoiceSynth
+  * STRev
