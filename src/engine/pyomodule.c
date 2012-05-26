@@ -117,8 +117,6 @@ portaudio_get_default_host_api(){
 	}
     else {
         i = Pa_GetDefaultHostApi();
-        const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
-        assert(info);
         return PyInt_FromLong(i);
     }
 }
@@ -295,8 +293,6 @@ portaudio_get_default_input(){
 	}
     else {
         i = Pa_GetDefaultInputDevice();
-        const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
-        assert(info);
         return PyInt_FromLong(i);        
     }
 
@@ -321,8 +317,6 @@ portaudio_get_default_output(){
 	}
     else {
         i = Pa_GetDefaultOutputDevice();
-        const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
-        assert(info);        
         return PyInt_FromLong(i);
         
     }
@@ -440,12 +434,8 @@ portmidi_get_default_input(){
     PmDeviceID i;
     
     i = Pm_GetDefaultInputDeviceID();
-    if (i >= 0) {
-        const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-    }
-    else {
+    if (i < 0)
         printf("pm_get_default_input: no midi input device found.\n");
-    }
     return PyInt_FromLong(i);
 }
 
@@ -460,12 +450,8 @@ static PyObject *
 portmidi_get_default_output(){
     PmDeviceID i;
     i = Pm_GetDefaultOutputDeviceID();
-    if (i >= 0) {
-        const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-    }
-    else {
+    if (i < 0)
         printf("pm_get_default_output: no midi output device found.\n");
-    }
     return PyInt_FromLong(i);
 }
 
