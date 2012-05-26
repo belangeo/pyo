@@ -119,9 +119,6 @@ portaudio_get_default_host_api(){
         i = Pa_GetDefaultHostApi();
         const PaHostApiInfo *info = Pa_GetHostApiInfo(i);
         assert(info);
-        
-        //fprintf(stdout, "index: %i, id: %i, name: %s, num devices: %i, default in: %i, default out: %i\n", i, (int)info->type, info->name, (int)info->deviceCount, (int)info->defaultInputDevice, (int)info->defaultOutputDevice);
-        
         return PyInt_FromLong(i);
     }
 }
@@ -227,10 +224,8 @@ portaudio_get_output_devices(){
         else {
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
-                assert(info);
-                
+                assert(info);                
                 if (info->maxOutputChannels > 0){
-                    //fprintf(stdout, "%i: OUT, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowOutputLatency);
                     PyList_Append(list, PyString_FromString(info->name));
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
@@ -270,10 +265,8 @@ portaudio_get_input_devices(){
         else {
             for (i=0; i < n; ++i){
                 const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
-                assert(info);
-                
+                assert(info);                
                 if (info->maxInputChannels > 0){
-                    //fprintf(stdout, "%i: IN, name: %s, host api index: %i, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->hostApi, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
                     PyList_Append(list, PyString_FromString(info->name));
                     PyList_Append(list_index, PyInt_FromLong(i));
                 }
@@ -304,10 +297,6 @@ portaudio_get_default_input(){
         i = Pa_GetDefaultInputDevice();
         const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
         assert(info);
-        
-        //if (info->maxInputChannels > 0)
-        //    fprintf(stdout, "%i: IN, name: %s, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
-
         return PyInt_FromLong(i);        
     }
 
@@ -333,11 +322,7 @@ portaudio_get_default_output(){
     else {
         i = Pa_GetDefaultOutputDevice();
         const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
-        assert(info);
-        
-        //if (info->maxOutputChannels > 0)
-        //    fprintf(stdout, "%i: OUT, name: %s, default sr: %i Hz, latency: %f s\n", i, info->name, (int)info->defaultSampleRate, (float)info->defaultLowInputLatency);
-        
+        assert(info);        
         return PyInt_FromLong(i);
         
     }
@@ -394,11 +379,9 @@ portmidi_list_devices(){
 static PyObject*
 portmidi_get_input_devices(){
 	int n, i;
-    
     PyObject *list, *list_index;
     list = PyList_New(0);
     list_index = PyList_New(0);
-
     n = Pm_CountDevices();
     if (n < 0){
         printf("Portmidi warning: No Midi interface found\n\n");
@@ -406,9 +389,7 @@ portmidi_get_input_devices(){
     else {
         for (i=0; i < n; i++){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        
             if (info->input){
-                //printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);
                 PyList_Append(list, PyString_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
@@ -427,11 +408,9 @@ portmidi_get_input_devices(){
 static PyObject*
 portmidi_get_output_devices(){
 	int n, i;
-    
     PyObject *list, *list_index;
     list = PyList_New(0);
     list_index = PyList_New(0);
-    
     n = Pm_CountDevices();
     if (n < 0){
         printf("Portmidi warning: No Midi interface found\n\n");
@@ -439,9 +418,7 @@ portmidi_get_output_devices(){
     else {
         for (i=0; i < n; i++){
             const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-            
             if (info->output){
-                //printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);
                 PyList_Append(list, PyString_FromString(info->name));
                 PyList_Append(list_index, PyInt_FromLong(i));
             }
@@ -465,13 +442,10 @@ portmidi_get_default_input(){
     i = Pm_GetDefaultInputDeviceID();
     if (i >= 0) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        //if (info->input) 
-        //    printf("%d: IN, name: %s, interface: %s\n", i, info->name, info->interf);        
     }
     else {
         printf("pm_get_default_input: no midi input device found.\n");
     }
-
     return PyInt_FromLong(i);
 }
 
@@ -485,17 +459,13 @@ portmidi_get_default_input(){
 static PyObject *
 portmidi_get_default_output(){
     PmDeviceID i;
-    
     i = Pm_GetDefaultOutputDeviceID();
     if (i >= 0) {
         const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-        //if (info->output) 
-        //    printf("%d: OUT, name: %s, interface: %s\n", i, info->name, info->interf);        
     }
     else {
         printf("pm_get_default_output: no midi output device found.\n");
     }
-    
     return PyInt_FromLong(i);
 }
 
@@ -537,7 +507,7 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
     info.format = 0;
     sf = sf_open(path, SFM_READ, &info);
     if (sf == NULL) {
-        printf("Failed to open the file.\n");
+        printf("sndinfo: failed to open the file.\n");
         Py_RETURN_NONE;
     }
     else {
@@ -686,7 +656,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     }
     else {
         if (PyList_Size(samples) != channels) {
-            printf("Samples list size and channels must be the same!\n");
+            printf("savefile: samples list size and channels must be the same!\n");
             return PyInt_FromLong(-1);
         }
         size = PyList_Size(PyList_GET_ITEM(samples, 0)) * channels;
@@ -698,7 +668,7 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
         }    
     }    
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
-        printf ("Not able to open output file %s.\n", recpath);
+        printf ("savefile: not able to open output file %s.\n", recpath);
         return PyInt_FromLong(-1);
     }
     SF_WRITE(recfile, sampsarray, size);
@@ -838,7 +808,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
     if (sf == NULL) {
-        printf("Failed to open the file.\n");
+        printf("upsamp: failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
     snd_size = info.frames;
@@ -891,7 +861,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }    
     
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
-        printf ("Not able to open output file %s.\n", outpath);
+        printf ("upsamp: failed to open output file %s.\n", outpath);
         free(tmp);
         for (i=0; i<snd_chnls; i++) {
             free(samples[i]);
@@ -941,7 +911,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     info.format = 0;
     sf = sf_open(inpath, SFM_READ, &info);
     if (sf == NULL) {
-        printf("Failed to open the file.\n");
+        printf("downsamp: failed to open the input file %s.\n", inpath);
         return PyInt_FromLong(-1);
     }
     snd_size = info.frames;
@@ -991,7 +961,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }    
     
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
-        printf ("Not able to open output file %s.\n", outpath);
+        printf("downsamp: failed to open the output file %s.\n", outpath);
         free(tmp);
         for (i=0; i<snd_chnls; i++) {
             free(samples[i]);
@@ -1753,7 +1723,7 @@ serverBooted(PyObject *self) {
             Py_RETURN_TRUE;
     }
     else {
-        printf("'serverBooted' called but there is no server created.\n");
+        printf("Warning: A Server must be created before calling `serverBooted` function.\n");
         Py_RETURN_FALSE;
     }
 }
