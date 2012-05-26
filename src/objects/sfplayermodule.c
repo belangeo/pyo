@@ -94,6 +94,19 @@ SfPlayer_readframes_i(SfPlayer *self) {
     MYFLT buffer2[self->sndChnls][buflen];
     
     if (sp > 0) { /* forward reading */
+        if (self->pointerPos >= self->sndSize) {
+            self->pointerPos -= self->sndSize - self->startPos;
+            if (self->loop == 0) {
+                PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
+                    self->samplesBuffer[i] = 0.0;
+                }    
+                for (i=0; i<self->bufsize; i++) {
+                    self->trigsBuffer[i] = 0.0;
+                }
+                return;
+            }
+        }        
         index = (int)self->pointerPos;
         sf_seek(self->sf, index, SEEK_SET); /* sets position pointer in the file */
 
@@ -136,17 +149,8 @@ SfPlayer_readframes_i(SfPlayer *self) {
             }    
             self->pointerPos += delta;
         }
-
-        if (self->pointerPos >= self->sndSize) {
+        if (self->pointerPos >= self->sndSize)
             self->trigsBuffer[0] = 1.0;
-            self->pointerPos -= self->sndSize - self->startPos;
-            if (self->loop == 0) {
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
-                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
-                    self->samplesBuffer[i] = 0.0;
-                }    
-            }
-        }
     }
     else if (sp < 0){ /* backward reading */
         startPos = self->startPos;
@@ -154,6 +158,21 @@ SfPlayer_readframes_i(SfPlayer *self) {
             startPos = self->sndSize - 1;
         if (self->pointerPos == 0.0)
             self->pointerPos = self->sndSize - 1;
+
+        if (self->pointerPos <= 0) {
+            self->pointerPos += startPos;
+            if (self->loop == 0) {
+                PyObject_CallMethod((PyObject *)self, "stop", NULL);
+                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
+                    self->samplesBuffer[i] = 0.0;
+                }    
+                for (i=0; i<self->bufsize; i++) {
+                    self->trigsBuffer[i] = 0.0;
+                }
+                return;
+            }
+        }
+        
         index = (int)self->pointerPos + 1;
         
         /* fill a buffer with enough samples to satisfy speed reading */
@@ -221,13 +240,6 @@ SfPlayer_readframes_i(SfPlayer *self) {
                 self->trigsBuffer[0] = 1.0;
             else
                 self->init = 0;
-            self->pointerPos += startPos;
-            if (self->loop == 0) {
-                PyObject_CallMethod((PyObject *)self, "stop", NULL);
-                for (i=0; i<(self->bufsize * self->sndChnls); i++) {
-                    self->samplesBuffer[i] = 0.0;
-                }    
-            }
         }
     }
     else { /* speed == 0.0 */
