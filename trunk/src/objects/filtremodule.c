@@ -5570,11 +5570,12 @@ static void
 Vocoder_filters_aii(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, spread, q, slope, output, amp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
 
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT freq = fr[0];
     spread = PyFloat_AS_DOUBLE(self->spread);
     q = PyFloat_AS_DOUBLE(self->q);
     if (q < 0.1)
@@ -5651,12 +5652,13 @@ static void
 Vocoder_filters_iai(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, q, slope, output, amp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     freq = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT spread = sprd[0];
     q = PyFloat_AS_DOUBLE(self->q);
     if (q < 0.1)
         q = 0.1;
@@ -5732,12 +5734,14 @@ static void
 Vocoder_filters_aai(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, q, slope, output, amp;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT freq = fr[0];
     MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT spread = sprd[0];
     q = PyFloat_AS_DOUBLE(self->q);
     if (q < 0.1)
         q = 0.1;
@@ -5815,14 +5819,14 @@ static void
 Vocoder_filters_iia(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, slope, output, amp = 1.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     freq = PyFloat_AS_DOUBLE(self->freq);
     spread = PyFloat_AS_DOUBLE(self->spread);
     MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
-    
+    MYFLT q = qstr[0];
     if (self->modebuffer[5] == 0)
         slope = PyFloat_AS_DOUBLE(self->slope);
     else
@@ -5897,14 +5901,15 @@ static void
 Vocoder_filters_aia(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, spread, slope, output, amp = 1.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT freq = fr[0];
     spread = PyFloat_AS_DOUBLE(self->spread);
     MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
-    
+    MYFLT q = qstr[0];
     if (self->modebuffer[5] == 0)
         slope = PyFloat_AS_DOUBLE(self->slope);
     else
@@ -5980,14 +5985,15 @@ static void
 Vocoder_filters_iaa(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, freq, slope, output, amp = 1.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     freq = PyFloat_AS_DOUBLE(self->freq);
     MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT spread = sprd[0];
     MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
-    
+    MYFLT q = qstr[0];
     if (self->modebuffer[5] == 0)
         slope = PyFloat_AS_DOUBLE(self->slope);
     else
@@ -6063,14 +6069,16 @@ static void
 Vocoder_filters_aaa(Vocoder *self) {
     int i, j, j2;
     int count = 0, maxcount = self->bufsize / 4;
-    MYFLT vin, vout, vin2, vout2, w, w2, freq, spread, q, slope, output, amp;
+    MYFLT vin, vout, vin2, vout2, w, w2, slope, output, amp = 1.0;
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT freq = fr[0];
     MYFLT *sprd = Stream_getData((Stream *)self->spread_stream);
+    MYFLT spread = sprd[0];
     MYFLT *qstr = Stream_getData((Stream *)self->q_stream);
-    
+    MYFLT q = qstr[0];
     if (self->modebuffer[5] == 0)
         slope = PyFloat_AS_DOUBLE(self->slope);
     else
