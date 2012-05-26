@@ -56,13 +56,6 @@ Stream_dealloc(Stream* self)
     self->ob_type->tp_free((PyObject*)self);
 }
 
-PyObject *
-Stream_getStreamObject(Stream *self)
-{
-    Py_INCREF(self->streamobject);
-    return self->streamobject;
-}
-
 int
 Stream_getStreamId(Stream *self)
 {
@@ -149,10 +142,37 @@ Stream_getId(Stream *self) {
     return Py_BuildValue("i", self->sid);
 }
 
+PyObject *
+Stream_getStreamObject(Stream *self)
+{
+    Py_INCREF(self->streamobject);
+    return self->streamobject;
+}
+
+PyObject *
+Stream_isPlaying(Stream *self)
+{
+    if (self->active || self->todac)
+        Py_RETURN_TRUE;
+    else 
+        Py_RETURN_FALSE;
+}
+
+PyObject *
+Stream_isOutputting(Stream *self)
+{
+    if (self->todac)
+        Py_RETURN_TRUE;
+    else 
+        Py_RETURN_FALSE;
+}
+
 static PyMethodDef Stream_methods[] = {
 {"getValue", (PyCFunction)Stream_getValue, METH_NOARGS, "Returns the first sample of the current buffer."},
 {"getId", (PyCFunction)Stream_getId, METH_NOARGS, "Returns the ID of assigned to this stream."},
 {"getStreamObject", (PyCFunction)Stream_getStreamObject, METH_NOARGS, "Returns the object associated with this stream."},
+{"isPlaying", (PyCFunction)Stream_isPlaying, METH_NOARGS, "Returns True if the stream is playing, otherwise, returns False."},
+{"isOutputting", (PyCFunction)Stream_isOutputting, METH_NOARGS, "Returns True if the stream outputs to dac, otherwise, returns False."},
 {NULL}  /* Sentinel */
 };
 

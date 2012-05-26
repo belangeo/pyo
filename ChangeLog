@@ -1,7 +1,12 @@
 2012-05-25 belangeo <belangeo@gmail.com>
 
+    * Added two methods to PyoObject class: isPlaying() and isOutputting().
+    - rev 979
+
+2012-05-25 belangeo <belangeo@gmail.com>
+
     * Added debugging methods utilities: Server.getStreams(), Server.getNumberOfStreams() and Stream.getStreamObject().
-    - rev 976
+    - rev 977
 
 2012-05-24 belangeo <belangeo@gmail.com>
 
