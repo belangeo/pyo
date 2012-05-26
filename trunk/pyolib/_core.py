@@ -297,6 +297,9 @@ class PyoObject(object):
     get(all) : Return the first sample of the current buffer as a float.
     dump() : Print current status of the object's attributes.
     getBaseObjects() : Return a list of audio Stream objects managed by the instance.
+    isPlaying(all) : Returns True if the object is playing, otherwise, returns False.
+    isOutputting(all) : Returns True if the object is sending samples to dac, 
+        otherwise, returns False.
 
     Attributes:
 
@@ -479,7 +482,43 @@ class PyoObject(object):
 
     def __repr__(self):
         return '< Instance of %s class >' % self.__class__.__name__
-        
+    
+    def isPlaying(self, all=False):
+        """
+        Returns True if the object is playing, otherwise, returns False.
+
+        Parameters:
+
+            all : boolean, optional
+                If True, the object returns a list with the state of all
+                streams managed by the object. If False, it return a 
+                boolean corresponding to the state of the first stream.
+                Defaults to False.
+
+        """
+        if all:
+            return [obj._getStream().isPlaying() for obj in self._base_objs]
+        else:
+            return self._base_objs[0]._getStream().isPlaying()
+
+    def isOutputting(self, all=False):
+        """
+        Returns True if the object is sending samples to dac, otherwise, returns False.
+
+        Parameters:
+
+            all : boolean, optional
+                If True, the object returns a list with the state of all
+                streams managed by the object. If False, it return a 
+                boolean corresponding to the state of the first stream.
+                Defaults to False.
+
+        """
+        if all:
+            return [obj._getStream().isOutputting() for obj in self._base_objs]
+        else:
+            return self._base_objs[0]._getStream().isOutputting()
+
     def dump(self):
         """
         Print the number of streams and the current status of the 
@@ -513,7 +552,7 @@ class PyoObject(object):
                 will be returned as a list. Otherwise, only the value
                 of the first object's stream will be returned as a float.
                 Defaults to False.
-                 
+
         """
         if not all:
             return self._base_objs[0]._getStream().getValue()
