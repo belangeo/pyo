@@ -428,7 +428,6 @@ Midictl_setInterpolation(Midictl *self, PyObject *arg)
 	}
 	
 	int isNum = PyInt_Check(arg);
-    printf("isNum : %i\n", isNum);
     
 	if (isNum == 1) {
 		tmp = PyInt_AsLong(arg);
@@ -437,7 +436,6 @@ Midictl_setInterpolation(Midictl *self, PyObject *arg)
         else
             self->interp = 1;
 	}
-    printf("self->interp : %i\n", self->interp);
     
 	Py_INCREF(Py_None);
 	return Py_None;

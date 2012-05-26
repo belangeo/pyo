@@ -3418,6 +3418,9 @@ class Editor(stc.StyledTextCtrl):
         if self.GetLineUTF8(prevline).strip().endswith(":"):
             indent = self.GetLineIndentation(prevline)
             self.addText(" "*(indent+4), False)
+        elif self.GetLineIndentation(prevline) != 0 and self.GetLineUTF8(prevline).strip() != "":
+            indent = self.GetLineIndentation(prevline)
+            self.addText(" "*indent, False)
 
     def processTab(self, currentword, autoCompActive, charat, pos):
         propagate = self.showAutoComp()

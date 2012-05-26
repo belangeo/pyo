@@ -922,12 +922,7 @@ class PyoTableObject(object):
                 4 : 64 bit float
 
         """
-        sr = int(self._base_objs[0].getServer().getSamplingRate())
-        if len(self._base_objs) == 1:
-            samples = self._base_objs[0].getTable()
-        else:
-            samples = [obj.getTable() for i, obj in enumerate(self._base_objs)]
-        savefile(samples, path, sr, len(self._base_objs), format, sampletype)
+        savefileFromTable(self, path, format, sampletype)
     
     def write(self, path, oneline=True):
         """
