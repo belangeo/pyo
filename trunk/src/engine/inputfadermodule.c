@@ -168,6 +168,10 @@ InputFader_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &inputtmp))
         Py_RETURN_NONE; 
 
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) {
+        PySys_WriteStderr("TypeError: 'input' argument must be a PyoObject.\n");
+        Py_Exit(-1);
+    }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input1);
     self->input1 = inputtmp;
