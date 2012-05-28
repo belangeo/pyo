@@ -536,6 +536,10 @@ extern PyTypeObject VectralType;
 
 /* INIT INPUT STREAM */
 #define INIT_INPUT_STREAM \
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "server") == 0 ) { \
+        PySys_WriteStderr("TypeError: 'input' argument must be a PyoObject.\n"); \
+        Py_Exit(-1); \
+    } \
     Py_INCREF(inputtmp); \
     Py_XDECREF(self->input); \
     self->input = inputtmp; \
