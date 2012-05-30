@@ -9,8 +9,8 @@ Olivier Belanger - 2012
 
 """
 from __future__ import with_statement
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random, time
-from types import UnicodeType, MethodType
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random, time, threading
+from types import UnicodeType, MethodType, ListType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
 import wx.lib.colourselect as csel
@@ -103,8 +103,11 @@ if WHICH_PYTHON == "":
 if OSX_APP_BUNDLED:
     tmphome = os.environ["PYTHONHOME"]
     tmppath = os.environ["PYTHONPATH"]
-    cmd = 'export -n PYTHONHOME PYTHONPATH;env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s' % (WHICH_PYTHON, tmphome, tmppath)
-    cmd2 = 'export -n PYTHONHOME PYTHONPATH;env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s' % (WHICH_PYTHON, tmphome, tmppath)
+    tmpexecpath = os.environ["EXECUTABLEPATH"]
+    tmprscpath = os.environ["RESOURCEPATH"]
+    tmpargv0 = os.environ["ARGVZERO"]
+    cmd = 'export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;env;%s -c "import pyo";export PYTHONHOME=%s;export PYTHONPATH=%s;export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0)
+    cmd2 = 'export -n PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO;env;%s -c "import wx";export PYTHONHOME=%s;export PYTHONPATH=%s;export EXECUTABLEPATH=%s;export RESOURCEPATH=%s;export ARGVZERO=%s' % (WHICH_PYTHON, tmphome, tmppath, tmpexecpath, tmprscpath, tmpargv0)
 else:
     cmd = '%s -c "import pyo"' % WHICH_PYTHON
     cmd2 = '%s -c "import wx"' % WHICH_PYTHON
@@ -254,56 +257,6 @@ def hex_to_rgb(value):
     value = value.lstrip('#')
     lv = len(value)
     return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
-
-################## AppleScript for Mac bundle ##################
-if OSX_APP_BUNDLED:
-    terminal_close_server_script = """tell application "Terminal" 
-    close window 1
-end tell
-    """
-    terminal_close_server_script = convert_line_endings(terminal_close_server_script, 1)
-    terminal_close_server_script_path = os.path.join(TEMP_PATH, "terminal_close_server_script.scpt")
-
-    terminal_server_script = """tell application "Terminal"
-    do script ""
-    set a to get id of front window
-    set custom title of window id a to "E-Pyo Output"
-    set custom title of tab 1 of window id a to "E-Pyo Output"
-    set current settings of first window to settings set "Homebrew"
-    set the number of columns of window 1 to 80
-    set the number of rows of window 1 to 30
-    set the position of window 1 to {810, 25}
-end tell
-    """
-    terminal_server_script = convert_line_endings(terminal_server_script, 1)
-    terminal_server_script_path = os.path.join(TEMP_PATH, "terminal_server_script.scpt")
-    f = open(terminal_server_script_path, "w")
-    f.write(terminal_server_script)
-    f.close()
-    pid = subprocess.Popen(["osascript", terminal_server_script_path]).pid
-    
-    terminal_client_script = """set my_path to quoted form of POSIX path of "%s"
-set my_file to quoted form of POSIX path of "%s"
-set which_python to quoted form of POSIX path of "%s"
-tell application "System Events"
-    tell application process "Terminal"
-    set frontmost to true
-    keystroke "clear"
-    keystroke return
-    delay 0.25
-    keystroke "cd " & my_path
-    keystroke return
-    delay 0.25
-    keystroke "%s" & which_python & " " & my_file & " &"
-    keystroke return
-    delay 0.25
-    end tell
-    tell application process "E-Pyo"
-    set frontmost to true
-    end tell
-end tell
-    """
-    terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
 ################## TEMPLATES ##################
 HEADER_TEMPLATE = """#!/usr/bin/env python
@@ -742,6 +695,74 @@ class Bidule:
 '''
 
 snip_faces = {'face': DEFAULT_FONT_FACE, 'size': FONT_SIZE}
+
+class RunningThread(threading.Thread):
+    def __init__(self, path, cwd, outputlog, removeProcess):
+        threading.Thread.__init__(self)
+        self.path = path
+        self.cwd = cwd
+        self.outputlog = outputlog
+        self.removeProcess = removeProcess
+        self.terminated = False
+        self.pid = None
+    
+    def setFileName(self, filename):
+        self.filename = filename
+
+    def setPID(self, pid):
+        self.pid = pid
+
+    def kill(self):
+        self.terminated = True
+        self.proc.terminate()
+
+    def run(self):
+        if OSX_APP_BUNDLED:
+            vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
+            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
+            if CALLER_NEED_TO_INVOKE_32_BIT:
+                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                self.proc = subprocess.Popen(["%s%s %s" % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            if CALLER_NEED_TO_INVOKE_32_BIT:
+                self.proc = subprocess.Popen(["%s%s %s" % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, 
+                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        while self.proc.poll() == None and not self.terminated:
+            time.sleep(.25)
+        stdout, stderr = self.proc.communicate()
+        header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, time.strftime('"%d %b %Y %H:%M:%S"', time.localtime()))
+        output = header + stdout + stderr
+        if "StartNotification name = default" in output:
+            output = output.replace("StartNotification name = default", "")
+        if "epyo_tempfile.py" in output:
+            findpos = output.find("epyo_tempfile.py")
+            pos = findpos
+            while (output[pos] != '"'):
+                pos -= 1
+            startpos = pos + 1
+            pos = findpos
+            while (output[pos] != '"'):
+                pos += 1
+            endpos = pos
+            output = output[:startpos] + self.filename + output[endpos:]
+            pos = startpos + len(self.filename)
+            slinepos = pos + 8
+            pos = slinepos
+            while (output[pos] != ','):
+                pos += 1
+            elinepos = pos
+            linenum = int(output[slinepos:elinepos].strip())
+            output = output[:slinepos] + str(linenum-2) + output[elinepos:]
+        if self.terminated:
+            output = output + "\n=== Process killed. ==="
+        self.outputlog(output)
+        self.removeProcess(self.pid, self.filename)
 
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
@@ -1632,6 +1653,9 @@ class MainFrame(wx.Frame):
         self.server_pipe = None
         self.back_server_started = False
 
+        self.processID = 0
+        self.processes = {}
+
         self.print_data = wx.PrintData()
         self.print_data.SetPaperId(wx.PAPER_LETTER)
 
@@ -1717,6 +1741,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.saveListPaste, id=202)
         menu2.Append(203, "Load Pasting List")
         self.Bind(wx.EVT_MENU, self.loadListPaste, id=203)
+        menu2.Append(204, "Edit Pasting List")
+        self.Bind(wx.EVT_MENU, self.editPastingList, id=204)
         menu2.AppendSeparator()
         menu2.Append(107, "Remove Trailing White Space")
         self.Bind(wx.EVT_MENU, self.removeTrailingWhiteSpace, id=107)
@@ -1785,6 +1811,8 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showHideFolderPanel, id=50)
         self.showMarkItem = menu4.Append(49, "Show Markers Panel", kind=wx.ITEM_CHECK)
         self.Bind(wx.EVT_MENU, self.showHideMarkersPanel, id=49)
+        self.showOutputItem = menu4.Append(48, "Show Output Panel", kind=wx.ITEM_CHECK)
+        self.Bind(wx.EVT_MENU, self.showHideOutputPanel, id=48)
         menu4.AppendSeparator()
         menu4.Append(190, "Open Documentation Frame\tShift+Ctrl+D")
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
@@ -1889,6 +1917,7 @@ class MainFrame(wx.Frame):
 
         self.showProjectTree(PREFERENCES.get("show_folder_panel", 0))
         self.showMarkersPanel(PREFERENCES.get("show_markers_panel", 0))
+        self.showOutputPanel(PREFERENCES.get("show_output_panel", 1))
 
         if INSTALLATION_ERROR_MESSAGE != "":
             report = wx.MessageDialog(self, INSTALLATION_ERROR_MESSAGE, "Installation Report", wx.OK|wx.ICON_INFORMATION|wx.STAY_ON_TOP)
@@ -2017,18 +2046,28 @@ class MainFrame(wx.Frame):
             if dlg.ShowModal() == wx.ID_OK:
                 path = ensureNFD(dlg.GetPath())
                 with open(path, "w") as f:
-                    for line in self.pastingList:
-                        if not line.endswith("\n"):
-                            line = line + "\n"
-                        f.write(line)
+                    f.write(str(self.pastingList))
 
     def loadListPaste(self, evt):
         dlg = wx.FileDialog(self, message="Choose a file", 
             defaultDir=os.path.expanduser("~"), style=wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             path = dlg.GetPath()
+            self.pastingList = []
             with open(path, "r") as f:
-                self.pastingList = f.readlines()
+                try:
+                    pastingList = eval(f.read())
+                    if type(pastingList) == ListType:
+                        self.pastingList = pastingList
+                except:
+                    f.seek(0)
+                    for line in f:
+                        if line.replace("\n", "").strip() != "":
+                            self.pastingList.append(line)
+
+    def editPastingList(self, evt):
+        f = PastingListEditorFrame(self, self.pastingList)
+        f.Show()
 
     def selectall(self, evt):
         self.panel.editor.SelectAll()
@@ -2051,8 +2090,10 @@ class MainFrame(wx.Frame):
     def zoom(self, evt):
         if evt.GetId() == wx.ID_ZOOM_IN:
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() + 1)
+            self.panel.outputlog.editor.SetZoom(self.panel.outputlog.editor.GetZoom() + 1)
         else:
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() - 1)
+            self.panel.outputlog.editor.SetZoom(self.panel.outputlog.editor.GetZoom() - 1)
 
     def showInvisibles(self, evt):
         state = evt.GetInt()
@@ -2206,6 +2247,7 @@ class MainFrame(wx.Frame):
             ed.setStyle()
         self.panel.project.setStyle()
         self.panel.markers.scroll.setStyle()
+        self.panel.outputlog.editor.setStyle()
 
         PREFERENCES["pref_style"] = st
 
@@ -2241,6 +2283,10 @@ class MainFrame(wx.Frame):
         state = evt.GetInt()
         self.showMarkersPanel(state)
 
+    def showHideOutputPanel(self, evt):
+        state = evt.GetInt()
+        self.showOutputPanel(state)
+
     def showProjectTree(self, state):
         self.showProjItem.Check(state)
         PREFERENCES["show_folder_panel"] = state
@@ -2248,7 +2294,7 @@ class MainFrame(wx.Frame):
             if self.panel.project.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.notebook, 175)
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 175)
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
                 self.panel.left_splitter.Unsplit(self.panel.markers)
@@ -2268,7 +2314,7 @@ class MainFrame(wx.Frame):
             if self.panel.markers.IsShownOnScreen():
                 return
             if not self.panel.splitter.IsSplit():
-                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.notebook, 175)
+                self.panel.splitter.SplitVertically(self.panel.left_splitter, self.panel.right_splitter, 175)
                 h = self.panel.GetSize()[1]
                 self.panel.left_splitter.SplitHorizontally(self.panel.project, self.panel.markers, h*3/4)
                 self.panel.left_splitter.Unsplit(self.panel.project)
@@ -2281,6 +2327,18 @@ class MainFrame(wx.Frame):
             else:
                 self.panel.splitter.Unsplit(self.panel.left_splitter)
 
+    def showOutputPanel(self, state):
+        self.showOutputItem.Check(state)
+        PREFERENCES["show_output_panel"] = state
+        if state:
+            if self.panel.outputlog.IsShownOnScreen():
+                return
+            h = self.panel.GetSize()[1]
+            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h*4/5)
+        else:
+            if not self.panel.outputlog.IsShownOnScreen():
+                return
+            self.panel.right_splitter.Unsplit(self.panel.outputlog)
 
     ### New / Open / Save / Delete ###
     def new(self, event):
@@ -2443,26 +2501,22 @@ class MainFrame(wx.Frame):
             newtext += line + "\n"
         return newtext
 
+    def appendLog(self, text):
+        self.panel.outputlog.setLog(text)
+
     def run(self, path):
         cwd = self.getCurrentWorkingDirectory()
-        if OSX_APP_BUNDLED:
-            if CALLER_NEED_TO_INVOKE_32_BIT:
-                script = terminal_client_script % (cwd, path, WHICH_PYTHON, SET_32_BIT_ARCH)
-            else:
-                script = terminal_client_script % (cwd, path, WHICH_PYTHON, "")
-            script = convert_line_endings(script, 1)
-            with codecs.open(terminal_client_script_path, "w", encoding="utf-8") as f:
-                f.write(script)
-            pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
-        elif PLATFORM == "darwin":
-            if CALLER_NEED_TO_INVOKE_32_BIT:
-                pid = subprocess.Popen(["%s%s %s" % (SET_32_BIT_ARCH, WHICH_PYTHON, path)], cwd=cwd, shell=True).pid
-            else:
-                pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
-        elif PLATFORM == "linux2":
-            pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
-        elif PLATFORM == "win32":
-            pid = subprocess.Popen([WHICH_PYTHON, path], cwd=cwd).pid
+        th = RunningThread(path, cwd, self.appendLog, self.panel.outputlog.removeProcess)
+        if "Untitled-" in self.panel.editor.path:
+            filename = self.panel.editor.path
+        else:
+            filename = os.path.split(self.panel.editor.path)[1]
+        th.setFileName(filename)
+        th.setPID(self.processID)
+        self.processes[self.processID] = [th, filename]
+        self.panel.outputlog.addProcess(self.processID, filename)
+        self.processID += 1
+        th.start()
 
     def runner(self, event):
         text = self.panel.editor.GetTextUTF8()
@@ -2629,10 +2683,6 @@ class MainFrame(wx.Frame):
         except:
             pass
         self.panel.OnQuit()
-        if OSX_APP_BUNDLED:
-            with open(terminal_close_server_script_path, "w") as f:
-                f.write(terminal_close_server_script)
-            subprocess.Popen(["osascript", terminal_close_server_script_path])
         self.Destroy()
 
     def getPrintData(self):
@@ -2685,15 +2735,19 @@ class MainPanel(wx.Panel):
         self.splitter.SetMinimumPaneSize(150)
 
         self.left_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
+        self.right_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
 
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.notebook = FNB.FlatNotebook(self.splitter, size=(0,-1), 
+        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(0,-1), 
                         style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
+        self.outputlog = OutputLogPanel(self.right_splitter, self)
 
-        self.splitter.SplitVertically(self.left_splitter, self.notebook, 175)
+        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, self.GetSize()[1]*4/5)
+
+        self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 175)
         self.splitter.Unsplit(self.left_splitter)
 
         mainBox.Add(self.splitter, 1, wx.EXPAND)
@@ -3769,6 +3823,205 @@ class Editor(stc.StyledTextCtrl):
                 line = line + 1
         return line
 
+class SimpleEditor(stc.StyledTextCtrl):
+    def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER):
+        stc.StyledTextCtrl.__init__(self, parent, ID, pos, size, style)
+
+        self.panel = parent
+
+        self.alphaStr = string.lowercase + string.uppercase + '0123456789'
+
+        self.Colourise(0, -1)
+        self.SetCurrentPos(0)
+        self.SetIndent(4)
+        self.SetBackSpaceUnIndents(True)
+        self.SetTabIndents(True)
+        self.SetTabWidth(4)
+        self.SetUseTabs(False)
+        self.SetEOLMode(wx.stc.STC_EOL_LF)
+        self.SetPasteConvertEndings(True)
+        self.SetControlCharSymbol(32)
+        self.SetLayoutCache(True)
+
+        self.SetViewWhiteSpace(0)
+        self.SetViewEOL(0)
+        self.SetEdgeMode(0)
+        self.SetWrapMode(stc.STC_WRAP_WORD)
+
+        self.SetUseAntiAliasing(True)
+        self.SetEdgeColour(STYLES["lineedge"]['colour'])
+        self.SetEdgeColumn(78)
+        self.SetReadOnly(True)
+        self.setStyle()
+
+    def setStyle(self):
+        def buildStyle(forekey, backkey=None, smallsize=False):
+            if smallsize:
+                st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size2'])
+            else:
+                st = "face:%s,fore:%s,size:%s" % (STYLES['face'], STYLES[forekey]['colour'], STYLES['size'])
+            if backkey:
+                st += ",back:%s" % STYLES[backkey]['colour']
+            if STYLES[forekey].has_key('bold'):
+                if STYLES[forekey]['bold']:
+                    st += ",bold"
+                if STYLES[forekey]['italic']:
+                    st += ",italic"
+                if STYLES[forekey]['underline']:
+                    st += ",underline"
+            return st
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
+        self.StyleClearAll()  # Reset all to be like the default
+
+        self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
+        self.StyleSetSpec(stc.STC_STYLE_LINENUMBER, buildStyle('linenumber', 'marginback', True))
+        self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR, buildStyle('default') + ",size:5")
+        self.SetEdgeColour(STYLES["lineedge"]['colour'])
+        self.SetCaretForeground(STYLES['caret']['colour'])
+        self.SetSelBackground(1, STYLES['selback']['colour'])
+        self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
+        self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
+
+class OutputLogEditor(SimpleEditor):
+    def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER):
+        SimpleEditor.__init__(self, parent=parent, ID=ID, pos=pos, size=size, style=style)
+
+    def setLog(self, text):
+        self.SetReadOnly(False)
+        self.SetText(text)
+        self.SetReadOnly(True)
+
+class OutputLogPanel(wx.Panel):
+    def __init__(self, parent, mainPanel, size=(175,400)):
+        wx.Panel.__init__(self, parent, wx.ID_ANY, size=size, style=wx.SUNKEN_BORDER)
+        self.mainPanel = mainPanel
+
+        self.running = 0
+        tsize = (24, 24)
+        close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
+
+        self.sizer = wx.BoxSizer(wx.VERTICAL)
+
+        toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
+        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar.SetToolBitmapSize(tsize)
+        self.toolbar.AddControl(wx.StaticText(self.toolbar, -1, "Output log panel"))
+        self.toolbar.AddSeparator()
+        self.processPopup = wx.Choice(self.toolbar, -1, choices=[])
+        self.toolbar.AddControl(self.processPopup)
+        self.processKill = wx.Button(self.toolbar, -1, label="Kill")
+        self.toolbar.AddControl(self.processKill)
+        self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
+        self.runningLabel = wx.StaticText(self.toolbar, -1, "Running: 0")
+        self.toolbar.AddControl(self.runningLabel)
+        self.toolbar.AddSeparator()
+        self.copyLog = wx.Button(self.toolbar, -1, label="Copy log")
+        self.toolbar.AddControl(self.copyLog)
+        self.copyLog.Bind(wx.EVT_BUTTON, self.onCopy)
+        self.toolbar.Realize()
+        toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
+
+        tb2 = wx.ToolBar(self, -1, size=(-1,36))
+        tb2.SetToolBitmapSize(tsize)
+        tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
+        tb2.Realize()
+        toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
+
+        wx.EVT_TOOL(self, 17, self.onCloseOutputPanel)
+
+        self.sizer.Add(toolbarbox, 0, wx.EXPAND)
+
+        self.editor = OutputLogEditor(self, size=(-1, -1))
+        self.sizer.Add(self.editor, 1, wx.EXPAND|wx.ALL, 0)
+
+        self.SetSizer(self.sizer)
+
+    def onCopy(self, evt):
+        self.editor.SelectAll()
+        self.editor.Copy()
+        self.editor.SetAnchor(0)
+
+    def addProcess(self, procID, filename):
+        self.processPopup.Append("%d::%s" % (procID, filename))
+        self.processPopup.SetStringSelection("%d::%s" % (procID, filename))
+        self.running += 1
+        self.runningLabel.SetLabel("Running: %d" % self.running)
+
+    def removeProcess(self, procID, filename):
+        str = "%d::%s" % (procID, filename)
+        del self.mainPanel.mainFrame.processes[procID]
+        self.processPopup.Delete(self.processPopup.GetItems().index(str))
+        self.running -= 1
+        self.runningLabel.SetLabel("Running: %d" % self.running)
+
+    def killProcess(self, evt):
+        str = self.processPopup.GetStringSelection()
+        if str != "":
+            procID = int(str.split("::")[0])
+            thread = self.mainPanel.mainFrame.processes[procID][0]
+            thread.kill()
+
+    def setLog(self, text):
+        self.editor.setLog(text)
+
+    def onCloseOutputPanel(self, evt):
+        self.mainPanel.mainFrame.showOutputPanel(False)
+
+class PastingListEditorFrame(wx.Frame):
+    def __init__(self, parent, pastingList):
+        wx.Frame.__init__(self, parent, wx.ID_ANY, title="Pasting List Editor ", size=(700,500))
+        self.parent = parent
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(351, "Close\tCtrl+W")
+        self.menuBar.Append(menu1, 'File')
+        self.SetMenuBar(self.menuBar)
+
+        self.Bind(wx.EVT_MENU, self.close, id=351)
+        self.Bind(wx.EVT_CLOSE, self.close)
+
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        panel = scrolled.ScrolledPanel(self)
+        self.editors = []
+        if PLATFORM == "darwin":
+            heightSum = 22
+        else:
+            heightSum = 50
+        if pastingList != []:
+            for line in pastingList:
+                editor = SimpleEditor(panel, style=wx.SUNKEN_BORDER)
+                editor.SetReadOnly(False)
+                height = editor.TextHeight(0) * len(line.splitlines()) + editor.TextHeight(0) * 2
+                heightSum += height
+                editor.SetMinSize((-1, height))
+                editor.SetMaxSize((-1, height))
+                mainSizer.Add(editor, 0, wx.EXPAND|wx.TOP|wx.BOTTOM, 0)
+                self.editors.append(editor)
+                if not line.endswith("\n"):
+                    line = line + "\n"
+                try:
+                    editor.AddTextUTF8(line)
+                except:
+                    editor.AddText(line)
+
+        Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
+        if heightSum > Y - 100:
+            self.SetSize((-1, Y - 100))
+        else:
+            self.SetSize((-1, heightSum))
+        panel.SetSizer(mainSizer)
+        panel.SetAutoLayout(1)
+        panel.SetupScrolling()
+
+    def close(self, evt):
+        pastingList = []
+        for editor in self.editors:
+            text = editor.GetTextUTF8()
+            if text.replace("\n", "").strip() != "":
+                pastingList.append(text)
+        self.parent.pastingList = pastingList
+        self.Destroy()
+ 
 TOOL_ADD_FILE_ID = 10
 TOOL_ADD_FOLDER_ID = 11
 class ProjectTree(wx.Panel):
