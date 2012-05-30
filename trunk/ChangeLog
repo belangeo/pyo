@@ -1,3 +1,8 @@
+2012-05-30 belangeo <belangeo@gmail.com>
+
+    * Fixed PyoObject.set() method bug.
+    - rev 987
+
 2012-05-26 belangeo <belangeo@gmail.com>
 
     * Added new function: savefileFromTable(). Used internally by PyoTableObject to save sound to disk.

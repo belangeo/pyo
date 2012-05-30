@@ -747,7 +747,7 @@ class PyoObject(object):
 
         x : float or PyoObject
             New inversed `add` attribute.
-        
+
         """
         self._mul = x
         x, lmax = convertArgsToLists(x)
@@ -756,11 +756,11 @@ class PyoObject(object):
     def set(self, attr, value, port=0.025):
         """
         Replace any attribute with portamento.
-        
+
         This method is intended to be applied on attributes that are not
         already assigned to PyoObjects. It will work only with floats or
         list of floats.
-                
+
         Parameters:
 
         attr : string
@@ -769,14 +769,21 @@ class PyoObject(object):
             New value.
         port : float, optional
             Time, in seconds, to reach the new value
-        
+
         """
         self._target_dict[attr] = value
-        self._signal_dict[attr] = VarPort(value, port, getattr(self, attr), self._reset_from_set, attr)
+        init = getattr(self, attr)
+        if self._signal_dict.has_key(attr):
+            if isinstance(self._signal_dict[attr], VarPort):
+                if self._signal_dict[attr].isPlaying():
+                    init = self._signal_dict[attr].get(True)
+                    self._signal_dict[attr].stop()
+        self._signal_dict[attr] = VarPort(value, port, init, self._reset_from_set, attr)
         setattr(self, attr, self._signal_dict[attr])
 
     def _reset_from_set(self, attr=None):
-        setattr(self, attr, self._target_dict[attr])
+        if isinstance(getattr(self, attr), VarPort):
+            setattr(self, attr, self._target_dict[attr])
         self._signal_dict[attr].stop()
         
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
@@ -787,7 +794,7 @@ class PyoObject(object):
 
         If a list of values are given to a parameter, a multisliders 
         will be used to control each stream independently.
-        
+
         Parameters:
 
         map_list : list of SLMap objects, optional
