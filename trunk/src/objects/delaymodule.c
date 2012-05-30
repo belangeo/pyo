@@ -1029,7 +1029,7 @@ Waveguide_process_ii(Waveguide *self) {
     /* lagrange coeffs and feedback coeff */
     if (fr != self->lastFreq) {
         self->lastFreq = fr;
-        sampdel = 1.0 / fr * self->sr - 0.5;
+        sampdel = self->sr / fr - 0.5;
         self->lastSampDel = sampdel;
         isamp = (int)sampdel;
         frac = sampdel - isamp;
@@ -1040,12 +1040,12 @@ Waveguide_process_ii(Waveguide *self) {
         self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
         
         self->lastDur = dur;
-        feed = MYPOW(100, -(1.0/fr)/dur);
+        feed = MYPOW(100, -1.0/(fr*dur));
         self->lastFeed = feed;
     } 
     else if (dur != self->lastDur) {
         self->lastDur = dur;
-        feed = MYPOW(100, -(1.0/fr)/dur);
+        feed = MYPOW(100, -1.0/(fr*dur));
         self->lastFeed = feed;
     }
     
@@ -1113,7 +1113,7 @@ Waveguide_process_ai(Waveguide *self) {
         /* lagrange coeffs and feedback coeff */
         if (freq != self->lastFreq) {
             self->lastFreq = freq;
-            sampdel = 1.0 / freq * self->sr - 0.5;
+            sampdel = self->sr / freq - 0.5;
             self->lastSampDel = sampdel;
             isamp = (int)sampdel;
             frac = sampdel - isamp;
@@ -1124,12 +1124,12 @@ Waveguide_process_ai(Waveguide *self) {
             self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
             
             self->lastDur = dur;
-            feed = MYPOW(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
         }
         else if (dur != self->lastDur) {
             self->lastDur = dur;
-            feed = MYPOW(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
         }
 
@@ -1191,7 +1191,7 @@ Waveguide_process_ia(Waveguide *self) {
     /* lagrange coeffs and feedback coeff */
     if (fr != self->lastFreq) {
         self->lastFreq = fr;
-        sampdel = 1.0 / fr * self->sr - 0.5;
+        sampdel = self->sr / fr - 0.5;
         self->lastSampDel = sampdel;
         isamp = (int)sampdel;
         frac = sampdel - isamp;
@@ -1211,7 +1211,7 @@ Waveguide_process_ia(Waveguide *self) {
             dur = 0.1;
         if (dur != self->lastDur) {
             self->lastDur = dur;
-            feed = MYPOW(100, -(1.0/fr)/dur);
+            feed = MYPOW(100, -1.0/(fr*dur));
             self->lastFeed = feed;
         }
         ind = self->in_count - isamp;
@@ -1276,7 +1276,7 @@ Waveguide_process_aa(Waveguide *self) {
         /* lagrange coeffs and feedback coeff */
         if (freq != self->lastFreq) {
             self->lastFreq = freq;
-            sampdel = 1.0 / freq * self->sr - 0.5;
+            sampdel = self->sr / freq - 0.5;
             self->lastSampDel = sampdel;
             isamp = (int)sampdel;
             frac = sampdel - isamp;
@@ -1287,12 +1287,12 @@ Waveguide_process_aa(Waveguide *self) {
             self->coeffs[4] = frac*(frac-1)*(frac-2)*(frac-3)/24.0;
             
             self->lastDur = dur;
-            feed = MYPOW(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
         }
         else if (dur != self->lastDur) {
             self->lastDur = dur;
-            feed = MYPOW(100, -(1.0/freq)/dur);
+            feed = MYPOW(100, -1.0/(freq*dur));
             self->lastFeed = feed;
         }
         
@@ -1764,7 +1764,7 @@ AllpassWG_process_iii(AllpassWG *self) {
     else if (detune > 1.0)
         detune = 1.0;
     
-    sampdel = 1.0 / (fr * freqshift) * self->sr;
+    sampdel = self->sr / (fr * freqshift);
     alpdetune = detune * self->alpsize;
 
     for (i=0; i<self->bufsize; i++) {
@@ -1842,7 +1842,7 @@ AllpassWG_process_aii(AllpassWG *self) {
             fr = self->nyquist;
         
         /* pick a new value in the delay line */
-        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
         if (xind < 0)
             xind += self->size;
@@ -1907,7 +1907,7 @@ AllpassWG_process_iai(AllpassWG *self) {
     else if (detune > 1.0)
         detune = 1.0;
     
-    sampdel = 1.0 / (fr * freqshift) * self->sr;
+    sampdel = self->sr / (fr * freqshift);
     alpdetune = detune * self->alpsize;
     
     for (i=0; i<self->bufsize; i++) {
@@ -1990,7 +1990,7 @@ AllpassWG_process_aai(AllpassWG *self) {
             feed = 0;
         
         /* pick a new value in the delay line */
-        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
         if (xind < 0)
             xind += self->size;
@@ -2064,7 +2064,7 @@ AllpassWG_process_iia(AllpassWG *self) {
             detune = 1.0;
         
         /* pick a new value in the delay line */
-        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
         if (xind < 0)
             xind += self->size;
@@ -2139,7 +2139,7 @@ AllpassWG_process_aia(AllpassWG *self) {
             detune = 1.0;
         
         /* pick a new value in the delay line */
-        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
         if (xind < 0)
             xind += self->size;
@@ -2214,7 +2214,7 @@ AllpassWG_process_iaa(AllpassWG *self) {
             detune = 1.0;
         
         /* pick a new value in the delay line */
-        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
         if (xind < 0)
             xind += self->size;
@@ -2288,7 +2288,7 @@ AllpassWG_process_aaa(AllpassWG *self) {
             detune = 1.0;
         
         /* pick a new value in the delay line */
-        sampdel = 1.0 / (fr * freqshift) * self->sr;
+        sampdel = self->sr / (fr * freqshift);
         xind = self->in_count - sampdel;
         if (xind < 0)
             xind += self->size;
