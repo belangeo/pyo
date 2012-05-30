@@ -1980,7 +1980,6 @@ Beater_generate_i(Beater *self) {
     }
     
     for (i=0; i<self->bufsize; i++) {
-        self->currentTime += self->sampleToSec;
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
         for (j=0; j<self->poly; j++) {
             self->amp_buffer_streams[i + j * self->bufsize] = self->amplitudes[j];
@@ -1988,7 +1987,7 @@ Beater_generate_i(Beater *self) {
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-2))
+            if (self->tapCount == (self->last_taps-1))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
@@ -2027,6 +2026,7 @@ Beater_generate_i(Beater *self) {
                 }    
             }
         }
+        self->currentTime += self->sampleToSec;
     }
 }
 
@@ -2050,7 +2050,6 @@ Beater_generate_a(Beater *self) {
     
     for (i=0; i<self->bufsize; i++) {
         tm = (double)time[i];
-        self->currentTime += self->sampleToSec;
         self->tap_buffer_streams[i + self->voiceCount * self->bufsize] = (MYFLT)self->currentTap;
         for (j=0; j<self->poly; j++) {
             self->amp_buffer_streams[i + j * self->bufsize] = self->amplitudes[j];
@@ -2058,7 +2057,7 @@ Beater_generate_a(Beater *self) {
         self->dur_buffer_streams[i + self->voiceCount * self->bufsize] = self->durations[self->tapCount];
         if (self->currentTime >= tm) {
             self->currentTime -= tm;
-            if (self->tapCount == (self->last_taps-2))
+            if (self->tapCount == (self->last_taps-1))
                 self->end_buffer_streams[i + self->voiceCount * self->bufsize] = 1.0;
             if (self->sequence[self->tapCount] == 1) {
                 self->currentTap = self->tapCount;
@@ -2098,6 +2097,7 @@ Beater_generate_a(Beater *self) {
                 }    
             }
         }
+        self->currentTime += self->sampleToSec;
     }
 }
 
