@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import with_statement
-import subprocess, threading
+import subprocess, threading, os
 import wx
 import wx.stc  as  stc
 from wx.lib.embeddedimage import PyEmbeddedImage
@@ -9,10 +9,7 @@ from pyo import *
 
 DOC_AS_SINGLE_APP = False
 
-if wx.Platform == '__WXMSW__':
-    TEMP_PATH = os.path.join(os.path.expanduser('~'), "My Documents", ".epyo")
-else:
-    TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
+TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 DOC_PATH = os.path.join(TEMP_PATH, 'doc')

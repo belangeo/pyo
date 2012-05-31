@@ -39,10 +39,8 @@ APP_NAME = 'E-Pyo'
 APP_VERSION = PYO_VERSION
 OSX_APP_BUNDLED = False
 WIN_APP_BUNDLED = False
-if PLATFORM == "win32":
-    TEMP_PATH = os.path.join(os.path.expanduser('~'), "My Documents", ".epyo")
-else:
-    TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
+
+TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
 
