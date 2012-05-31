@@ -36,7 +36,7 @@ ENCODING_DICT = {'cp-1250': 'cp1250', 'cp-1251': 'cp1251', 'cp-1252': 'cp1252', 
                 'utf_32_be', 'utf-32 (Little Endian)': 'utf_32_le'}
 
 APP_NAME = 'E-Pyo'
-APP_VERSION = '0.6.1'
+APP_VERSION = PYO_VERSION
 OSX_APP_BUNDLED = False
 WIN_APP_BUNDLED = False
 if PLATFORM == "win32":
@@ -55,6 +55,14 @@ with open(PREFERENCES_PATH, "r") as f:
     text = f.read()
 exec text in locals()
 PREFERENCES = copy.deepcopy(epyo_prefs)
+
+tmp_version = PREFERENCES.get("version", "no_version_pref")
+if tmp_version != APP_VERSION:
+    tmp_version = APP_VERSION
+    print "Erasing preferences..."
+    shutil.rmtree(os.path.join(TEMP_PATH, "doc"), True)
+    PREFERENCES = {}
+PREFERENCES["version"] = tmp_version
 
 RESOURCES_PATH = PREFERENCES.get("resources_path", TEMP_PATH)
 
@@ -731,7 +739,7 @@ class RunningThread(threading.Thread):
                 self.proc = subprocess.Popen(["%s%s %s" % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, 
+                self.proc = subprocess.Popen(["%s %s" % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)
