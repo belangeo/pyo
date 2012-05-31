@@ -1,3 +1,8 @@
+2012-05-31 belangeo <belangeo@gmail.com>
+
+    * E-Pyo now creates its resources folder in the user home directory.
+    - rev 991
+
 2012-05-30 belangeo <belangeo@gmail.com>
 
     * Fixed PyoObject.set() method bug.
