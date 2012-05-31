@@ -4444,6 +4444,8 @@ class PreferencesDialog(wx.Dialog):
         ctrlSizer = wx.BoxSizer(wx.HORIZONTAL)
         self.entry_exe = wx.TextCtrl(self, size=(500,-1), value=WHICH_PYTHON)
         self.entry_exe.SetFont(entryfont)
+        if PLATFORM == "win32":
+            self.entry_exe.SetEditable(False)
         ctrlSizer.Add(self.entry_exe, 0, wx.ALL|wx.EXPAND, 5)
         but = wx.Button(self, id=wx.ID_ANY, label="Choose...")
         but.Bind(wx.EVT_BUTTON, self.setExecutable)
@@ -4451,6 +4453,9 @@ class PreferencesDialog(wx.Dialog):
         but2 = wx.Button(self, id=wx.ID_ANY, label="Revert")
         but2.Bind(wx.EVT_BUTTON, self.revertExecutable)
         ctrlSizer.Add(but2, 0, wx.ALL, 5)
+        if PLATFORM == "win32":
+            but.Disable()
+            but2.Disable()
         mainSizer.Add(ctrlSizer, 0, wx.BOTTOM|wx.LEFT|wx.RIGHT, 5)
 
         lbl = wx.StaticText(self, label="Resources Folder:")
