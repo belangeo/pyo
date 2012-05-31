@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import with_statement
-import subprocess
+import subprocess, threading
 import wx
 import wx.stc  as  stc
 from wx.lib.embeddedimage import PyEmbeddedImage
@@ -33,29 +33,6 @@ else:
 DOC_FACES['size3'] = DOC_FACES['size2'] + 4
 for key, value in DOC_STYLES['Default'].items():
   DOC_FACES[key] = value
-
-terminal_client_script = """set my_path to quoted form of POSIX path of "%s"
-set my_file to quoted form of POSIX path of "%s"
-set which_python to quoted form of POSIX path of "%s"
-tell application "System Events"
-tell application process "Terminal"
-    set frontmost to true
-    keystroke "clear"
-    keystroke return
-    delay 0.25
-    keystroke "cd " & my_path
-    keystroke return
-    delay 0.25
-    keystroke %swhich_python & " " & my_file & " &"
-    keystroke return
-    delay 0.25
-    end tell
-    tell application process "E-Pyo"
-    set frontmost to true
-    end tell
-end tell
-"""
-terminal_client_script_path = os.path.join(TEMP_PATH, "terminal_client_script.scpt")
 
 # ***************** Catalog starts here *******************
 
@@ -651,7 +628,6 @@ class ManualPanel(wx.Treebook):
                     panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
                     panel.win.LoadFile(os.path.join(DOC_PATH, word))
                     panel.win.SetMarginWidth(1, 0)
-                    #panel.win.SetReadOnly(True)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
                     if self.searchKey != None:
                         words = complete_words_from_str(panel.win.GetText(), self.searchKey)
@@ -915,23 +891,44 @@ class ManualFrame(wx.Frame):
         text = self.doc_panel.getExampleScript()
         with open(DOC_EXAMPLE_PATH, "w") as f:
             f.write(text)
-        if not DOC_AS_SINGLE_APP and self.osx_app_bundled:
-            f = open(terminal_client_script_path, "w")
-            if self.caller_need_to_invoke_32_bit:
-                f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH, self.which_python, self.set_32_bit_arch))
-            else:
-                f.write(terminal_client_script % (TEMP_PATH, DOC_EXAMPLE_PATH, self.which_python, ""))
-            f.close()
-            pid = subprocess.Popen(["osascript", terminal_client_script_path]).pid
-        elif wx.Platform == '__WXMAC__':
-            if self.caller_need_to_invoke_32_bit:
-                pid = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, DOC_EXAMPLE_PATH)],
-                                        cwd=TEMP_PATH, shell=True).pid
-            else:
-                pid = subprocess.Popen([self.which_python, DOC_EXAMPLE_PATH], cwd=TEMP_PATH).pid
-        else:
-            pid = subprocess.Popen([self.which_python, DOC_EXAMPLE_PATH], cwd=TEMP_PATH).pid
+        th = RunningThread(DOC_EXAMPLE_PATH, TEMP_PATH, self.which_python, self.osx_app_bundled, self.caller_need_to_invoke_32_bit, self.set_32_bit_arch)
+        th.start()
         wx.FutureCall(8000, self.status.SetStatusText, "", 0)
+
+class RunningThread(threading.Thread):
+    def __init__(self, path, cwd, which_python, osx_app_bundled, caller_need_to_invoke_32_bit, set_32_bit_arch):
+        threading.Thread.__init__(self)
+        self.path = path
+        self.cwd = cwd
+        self.which_python = which_python
+        self.osx_app_bundled = osx_app_bundled
+        self.caller_need_to_invoke_32_bit = caller_need_to_invoke_32_bit
+        self.set_32_bit_arch = set_32_bit_arch
+        self.terminated = False
+
+    def kill(self):
+        self.terminated = True
+        self.proc.terminate()
+
+    def run(self):
+        if self.osx_app_bundled:
+            vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
+            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
+            if self.caller_need_to_invoke_32_bit:
+                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, self.set_32_bit_arch, self.which_python, self.path)], 
+                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                self.proc = subprocess.Popen(["%s%s %s" % (prelude, self.which_python, self.path)], cwd=self.cwd, 
+                                    shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            if self.caller_need_to_invoke_32_bit:
+                self.proc = subprocess.Popen(["%s%s %s" % (self.set_32_bit_arch, self.which_python, self.path)], 
+                                shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            else:
+                self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd, 
+                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        while self.proc.poll() == None and not self.terminated:
+            time.sleep(.25)
 
 if __name__ == "__main__":
     DOC_AS_SINGLE_APP = True
