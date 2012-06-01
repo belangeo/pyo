@@ -2096,10 +2096,8 @@ class MainFrame(wx.Frame):
     def zoom(self, evt):
         if evt.GetId() == wx.ID_ZOOM_IN:
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() + 1)
-            self.panel.outputlog.editor.SetZoom(self.panel.outputlog.editor.GetZoom() + 1)
         else:
             self.panel.editor.SetZoom(self.panel.editor.GetZoom() - 1)
-            self.panel.outputlog.editor.SetZoom(self.panel.outputlog.editor.GetZoom() - 1)
 
     def showInvisibles(self, evt):
         state = evt.GetInt()
@@ -3903,27 +3901,43 @@ class OutputLogPanel(wx.Panel):
         self.mainPanel = mainPanel
 
         self.running = 0
-        tsize = (24, 24)
+        tsize = (30, 30)
         close_panel_bmp = catalog['close_panel_icon.png'].GetBitmap()
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        font, psize = self.toolbar.GetFont(), self.toolbar.GetFont().GetPointSize()
+        font.SetPointSize(psize-1)
         self.toolbar.SetToolBitmapSize(tsize)
-        self.toolbar.AddControl(wx.StaticText(self.toolbar, -1, "Output log panel"))
+        title = wx.StaticText(self.toolbar, -1, "Output panel")
+        title.SetFont(font)
+        self.toolbar.AddControl(title)
         self.toolbar.AddSeparator()
         self.processPopup = wx.Choice(self.toolbar, -1, choices=[])
+        self.processPopup.SetFont(font)
         self.toolbar.AddControl(self.processPopup)
-        self.processKill = wx.Button(self.toolbar, -1, label="Kill")
+        self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40,-1))
+        self.processKill.SetFont(font)        
         self.toolbar.AddControl(self.processKill)
         self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
         self.runningLabel = wx.StaticText(self.toolbar, -1, "Running: 0")
+        self.runningLabel.SetFont(font)
         self.toolbar.AddControl(self.runningLabel)
         self.toolbar.AddSeparator()
-        self.copyLog = wx.Button(self.toolbar, -1, label="Copy log")
+        self.copyLog = wx.Button(self.toolbar, -1, label="Copy log", size=(70,-1))
+        self.copyLog.SetFont(font)
         self.toolbar.AddControl(self.copyLog)
         self.copyLog.Bind(wx.EVT_BUTTON, self.onCopy)
+        self.toolbar.AddSeparator()
+        zoomLabel = wx.StaticText(self.toolbar, -1, "Zoom:")
+        zoomLabel.SetFont(font)
+        self.toolbar.AddControl(zoomLabel)
+        self.zoomer = wx.SpinCtrl(self.toolbar, -1, "0", size=(60, -1))
+        self.zoomer.SetRange(-10,10)
+        self.toolbar.AddControl(self.zoomer)
+        self.zoomer.Bind(wx.EVT_SPINCTRL, self.onZoom)
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
@@ -3942,19 +3956,22 @@ class OutputLogPanel(wx.Panel):
 
         self.SetSizer(self.sizer)
 
+    def onZoom(self, evt):
+        self.editor.SetZoom(self.zoomer.GetValue())
+
     def onCopy(self, evt):
         self.editor.SelectAll()
         self.editor.Copy()
         self.editor.SetAnchor(0)
 
     def addProcess(self, procID, filename):
-        self.processPopup.Append("%d::%s" % (procID, filename))
-        self.processPopup.SetStringSelection("%d::%s" % (procID, filename))
+        self.processPopup.Append("%d :: %s" % (procID, filename))
+        self.processPopup.SetStringSelection("%d :: %s" % (procID, filename))
         self.running += 1
         self.runningLabel.SetLabel("Running: %d" % self.running)
 
     def removeProcess(self, procID, filename):
-        str = "%d::%s" % (procID, filename)
+        str = "%d :: %s" % (procID, filename)
         del self.mainPanel.mainFrame.processes[procID]
         self.processPopup.Delete(self.processPopup.GetItems().index(str))
         self.running -= 1
@@ -3963,7 +3980,7 @@ class OutputLogPanel(wx.Panel):
     def killProcess(self, evt):
         str = self.processPopup.GetStringSelection()
         if str != "":
-            procID = int(str.split("::")[0])
+            procID = int(str.split("::")[0].strip())
             thread = self.mainPanel.mainFrame.processes[procID][0]
             thread.kill()
 
@@ -5073,10 +5090,10 @@ if __name__ == '__main__':
 
     app = wx.PySimpleApp()
     X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
-    if X < 800: X -= 50
-    else: X = 800
-    if Y < 700: Y -= 50
-    else: Y = 700
+    if X < 850: X -= 50
+    else: X = 850
+    if Y < 750: Y -= 50
+    else: Y = 750
     frame = MainFrame(None, -1, title='E-Pyo Editor', pos=(10,25), size=(X, Y))
     frame.Show()
     app.MainLoop()
