@@ -725,7 +725,7 @@ class RunningThread(threading.Thread):
     def run(self):
         if OSX_APP_BUNDLED:
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
-            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;env;" % vars_to_remove
+            prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
             if CALLER_NEED_TO_INVOKE_32_BIT:
                 self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
