@@ -856,7 +856,7 @@ class PyoTableObject(object):
     copy() : Returns a deep copy of the object.
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
-    getBseObjects() : Return a list of table Stream objects managed by the instance.
+    getBaseObjects() : Return a list of table Stream objects managed by the instance.
     
     Notes:
     
