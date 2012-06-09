@@ -1,3 +1,8 @@
+2012-06-08 belangeo <belangeo@gmail.com>
+
+    * Added ChebyTable.getNormTable() method to retrieve the normalization function for the current polynomial.
+    - rev 996
+
 2012-05-31 belangeo <belangeo@gmail.com>
 
     * E-Pyo now creates its resources folder in the user home directory.

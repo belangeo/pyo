@@ -331,6 +331,8 @@ class ChebyTable(PyoTableObject):
         previously drawn waveform.
     replace(list) : Redraw the waveform according to the new `list` 
         parameter.
+    getNormTable() : Return a DataTable filled with the normalization
+        function corresponding to the current polynomial.
 
     Attributes:
 
@@ -384,10 +386,22 @@ class ChebyTable(PyoTableObject):
             Relative strengths of the fixed harmonic partial 
             numbers 1,2,3, ..., 12. Up to 12 partials can be specified.
 
-        """      
+        """ 
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
 
+    def getNormTable(self):
+        """
+        Return a DataTable filled with the normalization function 
+        corresponding to the current polynomial.
+        
+        """
+        if sum(self._list[1::2]) == 0:
+            data = self._base_objs[0].getNormTable(0)
+        else:
+            data = self._base_objs[0].getNormTable(1)
+        return DataTable(size=len(data), init=data).normalize()
+        
     @property
     def size(self):
         """int. Table size in samples.""" 

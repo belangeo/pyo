@@ -563,6 +563,73 @@ ChebyTable_replace(ChebyTable *self, PyObject *value)
     return Py_None;
 }
 
+static PyObject *
+ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
+{
+    int i;
+    int halfsize = self->size / 2;
+    MYFLT maxval = 0.0;
+    MYFLT val = 0.0, val2 = 0.0;
+    MYFLT last = 0.0;
+    long sym = PyInt_AS_LONG(value);
+    MYFLT samps[halfsize];
+    PyObject *samples = PyList_New(halfsize);
+    
+    if (sym == 0) {
+        for (i=0; i<self->size; i++) {
+            if (self->data[i] > maxval)
+                maxval = self->data[i];
+        }
+        if (maxval > 1.0) {
+            for (i=0; i<self->size; i++) {
+                self->data[i] /= maxval;
+            }
+        }
+        for (i=0; i<halfsize; i++) {
+            val = MYFABS(self->data[halfsize+i]);
+            if (val > 0.0)
+                samps[i] = 1. - val;
+            else
+                samps[i] = -1.;
+        }
+    }
+    else {
+        for (i=0; i<halfsize; i++) {
+            val = MYFABS(self->data[halfsize-i]);
+            val2 = MYFABS(self->data[halfsize+i]);
+            if (val2 > val)
+                val = val2;
+            if (val > 0.0)
+                samps[i] = 1. / val;
+            else
+                samps[i] = -1.;
+        }
+    }
+
+    maxval = 0.0;
+    for (i=0; i<halfsize; i++) {
+        val = samps[i];
+        if (val > maxval)
+            maxval = val;
+    }
+    
+    for (i=0; i<halfsize; i++) {
+        val = samps[i];
+        if (val == -1.0)
+            samps[i] = maxval;
+    }
+    
+    last = samps[0];
+    for (i=1; i<halfsize; i++) {
+        last = samps[i] = samps[i] + (last - samps[i]) * 0.95;
+    }
+    
+    for (i=0; i<halfsize; i++) {
+        PyList_SET_ITEM(samples, i, PyFloat_FromDouble(samps[i]));
+    }
+    return samples;
+}
+
 static PyMemberDef ChebyTable_members[] = {
 {"server", T_OBJECT_EX, offsetof(ChebyTable, server), 0, "Pyo server."},
 {"tablestream", T_OBJECT_EX, offsetof(ChebyTable, tablestream), 0, "Table stream object."},
@@ -586,6 +653,7 @@ static PyMethodDef ChebyTable_methods[] = {
 {"put", (PyCFunction)ChebyTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)ChebyTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"replace", (PyCFunction)ChebyTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+{"getNormTable", (PyCFunction)ChebyTable_getNormTable, METH_O, "Computes and returns the normalization function for the current polynomial"},
 {NULL}  /* Sentinel */
 };
 
