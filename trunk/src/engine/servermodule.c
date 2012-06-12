@@ -514,12 +514,13 @@ Server_pa_deinit(Server *self)
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
-        err = Pa_StopStream(be_data->stream);
-        portaudio_assert(err, "Pa_StopStream");
+        self->server_started == 0;
+        //err = Pa_StopStream(be_data->stream);
+        //portaudio_assert(err, "Pa_StopStream");
     }
     
-    err = Pa_CloseStream(be_data->stream);
-    portaudio_assert(err, "Pa_CloseStream");
+//    err = Pa_CloseStream(be_data->stream);
+//    portaudio_assert(err, "Pa_CloseStream");
     
     err = Pa_Terminate();
     portaudio_assert(err, "Pa_Terminate");

@@ -721,6 +721,8 @@ class RunningThread(threading.Thread):
     def kill(self):
         self.terminated = True
         self.proc.terminate()
+        if self.proc.poll() == None:
+            self.proc.kill()
 
     def run(self):
         if OSX_APP_BUNDLED:
@@ -747,24 +749,27 @@ class RunningThread(threading.Thread):
         if "StartNotification name = default" in output:
             output = output.replace("StartNotification name = default", "")
         if "epyo_tempfile.py" in output:
-            findpos = output.find("epyo_tempfile.py")
-            pos = findpos
-            while (output[pos] != '"'):
-                pos -= 1
-            startpos = pos + 1
-            pos = findpos
-            while (output[pos] != '"'):
-                pos += 1
-            endpos = pos
-            output = output[:startpos] + self.filename + output[endpos:]
-            pos = startpos + len(self.filename)
-            slinepos = pos + 8
-            pos = slinepos
-            while (output[pos] != ','):
-                pos += 1
-            elinepos = pos
-            linenum = int(output[slinepos:elinepos].strip())
-            output = output[:slinepos] + str(linenum-2) + output[elinepos:]
+            try:
+                findpos = output.find("epyo_tempfile.py")
+                pos = findpos
+                while (output[pos] != '"'):
+                    pos -= 1
+                startpos = pos + 1
+                pos = findpos
+                while (output[pos] != '"'):
+                    pos += 1
+                endpos = pos
+                output = output[:startpos] + self.filename + output[endpos:]
+                pos = startpos + len(self.filename)
+                slinepos = pos + 8
+                pos = slinepos
+                while (output[pos] != ',' and output[pos] != '\n'):
+                    pos += 1
+                elinepos = pos
+                linenum = int(output[slinepos:elinepos].strip())
+                output = output[:slinepos] + str(linenum-2) + output[elinepos:]
+            except:
+                pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
         self.outputlog(output)
