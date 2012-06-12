@@ -585,22 +585,28 @@ ChebyTable_getNormTable(ChebyTable *self, PyObject *value)
                 self->data[i] /= maxval;
             }
         }
+        maxval = -1;
         for (i=0; i<halfsize; i++) {
             val = MYFABS(self->data[halfsize+i]);
-            if (val > 0.0)
-                samps[i] = 1. - val;
+            if (val > maxval)
+                maxval = val;
+            if (maxval > 0.0)
+                samps[i] = 1. - maxval;
             else
                 samps[i] = -1.;
         }
     }
     else {
+        maxval = -1;
         for (i=0; i<halfsize; i++) {
             val = MYFABS(self->data[halfsize-i]);
             val2 = MYFABS(self->data[halfsize+i]);
             if (val2 > val)
                 val = val2;
-            if (val > 0.0)
-                samps[i] = 1. / val;
+            if (val > maxval)
+                maxval = val;
+            if (maxval > 0.0)
+                samps[i] = 1. / maxval;
             else
                 samps[i] = -1.;
         }
