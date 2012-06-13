@@ -1112,7 +1112,6 @@ Server_process_buffers(Server *server)
     float *out = server->output_buffer;    
     MYFLT buffer[server->nchnls][server->bufferSize];
     int i, j, chnl;
-    int count = server->stream_count;
     int nchnls = server->nchnls;
     MYFLT amp = server->amp;
     Stream *stream_tmp;
@@ -1120,7 +1119,7 @@ Server_process_buffers(Server *server)
 
     memset(&buffer, 0, sizeof(buffer));
     PyGILState_STATE s = PyGILState_Ensure();
-    for (i=0; i<count; i++) {
+    for (i=0; i<server->stream_count; i++) {
         stream_tmp = (Stream *)PyList_GET_ITEM(server->streams, i);
         if (Stream_getStreamActive(stream_tmp) == 1) {
             Stream_callFunction(stream_tmp);
@@ -2037,7 +2036,6 @@ Server_removeStream(Server *self, int id)
     int i, sid;
     Stream *stream_tmp;
     
-    Server_debug(self, "stream_count = %d, streams list size = %d\n", self->stream_count, PyList_Size(self->streams));
     for (i=0; i<self->stream_count; i++) {
         stream_tmp = (Stream *)PyList_GET_ITEM(self->streams, i);
         sid = Stream_getStreamId(stream_tmp);
@@ -2048,6 +2046,8 @@ Server_removeStream(Server *self, int id)
             break;
         }
     }
+    Server_debug(self, "stream_count = %d, streams list size = %d\n", self->stream_count, PyList_Size(self->streams));
+
     Py_INCREF(Py_None);
     return Py_None;    
 }
