@@ -274,6 +274,9 @@ class Snap(PyoObject):
     """
     def __init__(self, input, choice, scale=0, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(choice) != ListType:
+            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
+            exit()
         self._input = input
         self._choice = choice
         self._scale = scale
@@ -281,7 +284,12 @@ class Snap(PyoObject):
         self._add = add
         self._in_fader = InputFader(input)
         in_fader, scale, mul, add, lmax = convertArgsToLists(self._in_fader, scale, mul, add)
-        self._base_objs = [Snap_base(wrap(in_fader,i), choice, wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        if type(choice[0]) != ListType:
+            self._base_objs = [Snap_base(wrap(in_fader,i), choice, wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+        else:
+            choicelen = len(choice)
+            lmax = max(choicelen, lmax)
+            self._base_objs = [Snap_base(wrap(in_fader,i), wrap(choice,i), wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def __dir__(self):
         return ['input', 'choice', 'scale', 'mul', 'add']

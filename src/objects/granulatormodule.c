@@ -711,9 +711,23 @@ Granulator_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OO_OOOIFOO, kwlist, &tabletmp, &envtmp, &pitchtmp, &postmp, &durtmp, &self->ngrains, &self->basedur, &multmp, &addtmp))
         Py_RETURN_NONE;
 
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of Granulator must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
+    if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"env\" argument of Granulator must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
     
@@ -1850,6 +1864,13 @@ Looper_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOiiiiiOO", kwlist, &tabletmp, &pitchtmp, &starttmp, &durtmp, &xfadetmp, &self->tmpmode, &self->xfadeshape, &self->startfromloop, &self->interp, &self->autosmooth, &multmp, &addtmp))
         Py_RETURN_NONE;
     
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of Looper must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 

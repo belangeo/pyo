@@ -1,3 +1,8 @@
+2012-06-13 belangeo <belangeo@gmail.com>
+
+    * Fixed issue 34 : Better handling of type exceptions for arguments waiting for PyoObject, PyoTableObject or list.
+    - rev 1000
+
 2012-06-08 belangeo <belangeo@gmail.com>
 
     * Added ChebyTable.getNormTable() method to retrieve the normalization function for the current polynomial.

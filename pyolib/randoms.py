@@ -21,6 +21,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
 from types import StringType, ListType
@@ -293,6 +294,9 @@ class Choice(PyoObject):
     """
     def __init__(self, choice, freq=1., mul=1, add=0):
         PyoObject.__init__(self)
+        if type(choice) != ListType:
+            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
+            exit()
         self._choice = choice
         self._freq = freq
         self._mul = mul

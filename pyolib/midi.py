@@ -27,6 +27,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
 
@@ -259,6 +260,9 @@ class CtlScan(PyoObject):
     """
     def __init__(self, function, toprint=True):
         PyoObject.__init__(self)
+        if not callable(function):
+            print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+            exit()
         self._function = function
         self._toprint = toprint
         self._base_objs = [CtlScan_base(self._function, self._toprint)]

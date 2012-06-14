@@ -23,8 +23,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
+from types import ListType, TupleType
 
 class Pattern(PyoObject):
     """
@@ -73,6 +75,14 @@ class Pattern(PyoObject):
     """
     def __init__(self, function, time=1):
         PyoObject.__init__(self)
+        if type(function) == ListType or type(function) == TupleType:
+            if not callable(function[0]):
+                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+                exit()
+        else:
+            if not callable(function):
+                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+                exit()
         self._function = function
         self._time = time
         function, time, lmax = convertArgsToLists(function, time)
@@ -280,6 +290,14 @@ class CallAfter(PyoObject):
     """
     def __init__(self, function, time=1, arg=None):
         PyoObject.__init__(self)
+        if type(function) == ListType or type(function) == TupleType:
+            if not callable(function[0]):
+                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+                exit()
+        else:
+            if not callable(function):
+                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+                exit()
         self._function = function
         function, time, arg, lmax = convertArgsToLists(function, time, arg)
         self._base_objs = [CallAfter_base(wrap(function,i), wrap(time,i), wrap(arg,i)) for i in range(lmax)]

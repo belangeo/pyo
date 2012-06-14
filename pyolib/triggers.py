@@ -27,10 +27,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
 from _widgets import createGraphWindow
-from types import SliceType
+from types import SliceType, ListType, TupleType
 
 class Trig(PyoObject):
     """
@@ -236,6 +237,9 @@ class Seq(PyoObject):
     """
     def __init__(self, time=1, seq=[1], poly=1):
         PyoObject.__init__(self)
+        if type(seq) != ListType:
+            print >> sys.stderr, 'TypeError: "seq" argument of %s must be a list.\n' % self.__class__.__name__
+            exit()
         self._time = time
         self._seq = seq
         self._poly = poly
@@ -1084,6 +1088,9 @@ class TrigChoice(PyoObject):
     """
     def __init__(self, input, choice, port=0., init=0., mul=1, add=0):
         PyoObject.__init__(self)
+        if type(choice) != ListType:
+            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
+            exit()
         self._input = input
         self._choice = choice
         self._port = port
@@ -1221,6 +1228,14 @@ class TrigFunc(PyoObject):
     """
     def __init__(self, input, function, arg=None):
         PyoObject.__init__(self)
+        if type(function) == ListType or type(function) == TupleType:
+            if not callable(function[0]):
+                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+                exit()
+        else:
+            if not callable(function):
+                print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+                exit()
         self._input = input
         self._function = function
         self._arg = arg
@@ -1500,6 +1515,12 @@ class TrigLinseg(PyoObject):
     """
     def __init__(self, input, list, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(list) != ListType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
+        if type(list[0]) != TupleType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
         self._input = input
         self._list = list
         self._mul = mul
@@ -1675,6 +1696,12 @@ class TrigExpseg(PyoObject):
     """
     def __init__(self, input, list, exp=10, inverse=True, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(list) != ListType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
+        if type(list[0]) != TupleType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
         self._input = input
         self._list = list
         self._exp = exp
@@ -3012,6 +3039,9 @@ class Iter(PyoObject):
     """
     def __init__(self, input, choice, init=0., mul=1, add=0):
         PyoObject.__init__(self)
+        if type(choice) != ListType:
+            print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
+            exit()
         self._input = input
         self._choice = choice
         self._mul = mul

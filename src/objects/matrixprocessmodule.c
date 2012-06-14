@@ -240,9 +240,11 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
     
 	int isNumber = PyNumber_Check(arg);
 	if (isNumber == 1) {
-		printf("MatrixPointer x attributes must be a PyoObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+		PySys_WriteStderr("MatrixPointer x attributes must be a PyoObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
 	}
 	
 	tmp = arg;
@@ -271,9 +273,11 @@ MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
     
 	int isNumber = PyNumber_Check(arg);
 	if (isNumber == 1) {
-		printf("MatrixPointer y attributes must be a PyoObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+		PySys_WriteStderr("MatrixPointer y attributes must be a PyoObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
 	}
 	
 	tmp = arg;
