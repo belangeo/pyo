@@ -4365,27 +4365,26 @@ Counter_generates(Counter *self) {
     
     for (i=0; i<self->bufsize; i++) {
         if (in[i] == 1) {
+            self->value = (MYFLT)self->tmp;
             if (self->dir == 0) {
-                self->value = (MYFLT)self->tmp;
                 self->tmp++;
                 if (self->tmp >= self->max)
                     self->tmp = self->min;
             }    
             else if (self->dir == 1) {
-                self->value = (MYFLT)self->tmp;
                 self->tmp--;
                 if (self->tmp < self->min)
                     self->tmp = self->max - 1;
             }    
             else if (self->dir == 2) {
-                self->value = (MYFLT)self->tmp;
                 self->tmp = self->tmp + self->direction;
                 if (self->tmp >= self->max) {
                     self->direction = -1;
-                    self->tmp -= 2;
+                    self->tmp = self->max - 2;
                 }    
-                else if (self->tmp <= self->min) {
+                if (self->tmp <= self->min) {
                     self->direction = 1;
+                    self->tmp = self->min;
                 }    
             }
         }
