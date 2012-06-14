@@ -28,10 +28,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
 from _widgets import createGraphWindow
-from types import ListType
+from types import ListType, TupleType
 
 ######################################################################
 ### Controls
@@ -423,6 +424,12 @@ class Linseg(PyoObject):
     """
     def __init__(self, list, loop=False, initToFirstVal=False, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(list) != ListType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
+        if type(list[0]) != TupleType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
         self._list = list
         self._loop = loop
         self._mul = mul
@@ -607,6 +614,12 @@ class Expseg(PyoObject):
     """
     def __init__(self, list, loop=False, exp=10, inverse=True, initToFirstVal=False, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(list) != ListType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
+        if type(list[0]) != TupleType:
+            print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
+            exit()
         self._list = list
         self._loop = loop
         self._exp = exp

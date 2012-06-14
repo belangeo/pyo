@@ -31,8 +31,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
+from types import IntType
 
 ######################################################################
 ### Open Sound Control
@@ -176,6 +178,9 @@ class OscReceive(PyoObject):
 
     def __init__(self, port, address, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(port) != IntType:
+            print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
+            exit()
         self._mul = mul
         self._add = add
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
@@ -507,7 +512,13 @@ class OscDataReceive(PyoObject):
 
     def __init__(self, port, address, function, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(port) != IntType:
+            print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
+            exit()
         self._port = port
+        if not callable(function):
+            print >> sys.stderr, 'TypeError: "function" argument of %s must be callable.\n' % self.__class__.__name__
+            exit()
         self._function = function
         self._address, lmax = convertArgsToLists(address)
         # self._address is linked with list at C level
@@ -617,6 +628,12 @@ class OscListReceive(PyoObject):
 
     def __init__(self, port, address, num=8, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(port) != IntType:
+            print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
+            exit()
+        if type(num) != IntType:
+            print >> sys.stderr, 'TypeError: "num" argument of %s must be an integer.\n' % self.__class__.__name__
+            exit()
         self._num = num
         self._op_duplicate = self._num
         self._mul = mul

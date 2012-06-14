@@ -724,7 +724,7 @@ class Atan2(PyoObject):
     >>> lp = Tone(dist, freq=2000, mul=.1).out()
 
     """
-    def __init__(self, b=10, a=1, mul=1, add=0):
+    def __init__(self, b=1, a=1, mul=1, add=0):
         PyoObject.__init__(self)
         self._b = b
         self._a = a

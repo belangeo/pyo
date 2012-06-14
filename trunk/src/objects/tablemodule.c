@@ -4050,6 +4050,13 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     INIT_INPUT_STREAM
     
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of TableRec must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->table);
     self->table = (NewTable *)tabletmp;
     
@@ -4269,6 +4276,13 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     INIT_INPUT_STREAM
     
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of TableMorph must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->table);
     self->table = (PyObject *)tabletmp;
     
@@ -4558,6 +4572,13 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->trigger_stream);
     self->trigger_stream = (Stream *)trig_streamtmp;
     
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of TrigTableRec must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->table);
     self->table = (NewTable *)tabletmp;
     

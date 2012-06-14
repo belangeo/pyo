@@ -451,6 +451,13 @@ OscBank_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOOOOiiOO", kwlist, &tabletmp, &freqtmp, &spreadtmp, &slopetmp, &frndftmp, &frndatmp, &arndftmp, &arndatmp, &self->stages, &self->fjit, &multmp, &addtmp))
         Py_RETURN_NONE;
 
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of OscBank must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 

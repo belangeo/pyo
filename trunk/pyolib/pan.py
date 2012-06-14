@@ -23,9 +23,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import sys
 from _core import *
 from _maps import *
-from types import SliceType
+from types import SliceType, IntType
 
 class Pan(PyoObject):
     """
@@ -668,6 +669,12 @@ class Mixer(PyoObject):
     """
     def __init__(self, outs=2, chnls=1, time=0.025, mul=1, add=0):
         PyoObject.__init__(self)
+        if type(outs) != IntType:
+            print >> sys.stderr, 'TypeError: "outs" argument of %s must be an integer.\n' % self.__class__.__name__
+            exit()
+        if type(chnls) != IntType:
+            print >> sys.stderr, 'TypeError: "chnls" argument of %s must be an integer.\n' % self.__class__.__name__
+            exit()
         self._outs = outs
         self._chnls = chnls
         self._time = time
