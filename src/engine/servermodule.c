@@ -2046,7 +2046,6 @@ Server_removeStream(Server *self, int id)
             break;
         }
     }
-    Server_debug(self, "stream_count = %d, streams list size = %d\n", self->stream_count, PyList_Size(self->streams));
 
     Py_INCREF(Py_None);
     return Py_None;    
