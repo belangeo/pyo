@@ -729,18 +729,22 @@ class RunningThread(threading.Thread):
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(["%s%s%s %s" % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                self.proc = subprocess.Popen(['%s%s%s "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen(["%s%s %s" % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(['%s%s "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        else:
+        elif PLATFORM == "darwin":
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(["%s%s %s" % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                self.proc = subprocess.Popen(['%s%s "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen(["%s %s" % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(['%s "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+            self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, 
+                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)
         stdout, stderr = self.proc.communicate()
@@ -2343,7 +2347,7 @@ class MainFrame(wx.Frame):
             if self.panel.outputlog.IsShownOnScreen():
                 return
             h = self.panel.GetSize()[1]
-            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h*4/5)
+            self.panel.right_splitter.SplitHorizontally(self.panel.notebook, self.panel.outputlog, h*4/5 - h)
         else:
             if not self.panel.outputlog.IsShownOnScreen():
                 return
@@ -2745,16 +2749,17 @@ class MainPanel(wx.Panel):
 
         self.left_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
         self.right_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
+        #self.right_splitter.SetMinimumPaneSize(150)
 
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(0,-1), 
+        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1,-1), 
                         style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
-        self.outputlog = OutputLogPanel(self.right_splitter, self)
+        self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1,150))
 
-        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, self.GetSize()[1]*4/5)
+        self.right_splitter.SplitHorizontally(self.notebook, self.outputlog, (self.GetSize()[1]*4/5) - self.GetSize()[1])
 
         self.splitter.SplitVertically(self.left_splitter, self.right_splitter, 175)
         self.splitter.Unsplit(self.left_splitter)
