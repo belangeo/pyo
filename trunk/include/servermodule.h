@@ -41,7 +41,8 @@ typedef enum {
     PyoPortaudio = 0,
     PyoCoreaudio = 1,
     PyoJack,
-    PyoOffline
+    PyoOffline,
+    PyoOfflineNB
 } PyoAudioBackendType;
 
 typedef struct {

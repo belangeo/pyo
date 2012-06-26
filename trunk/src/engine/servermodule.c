@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <time.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "structmember.h"
 #include "portaudio.h"
@@ -1064,30 +1065,65 @@ Server_coreaudio_stop(Server *self)
 #endif
 
 int
-Server_offline_init (Server *self)
+Server_offline_init(Server *self)
 {
     return 0;
 }
 
 int
-Server_offline_deinit (Server *self)
+Server_offline_deinit(Server *self)
 {
     return 0;
 }
 
-int
-Server_offline_start (Server *self)
+void *Server_offline_thread(void *arg)
 {
+    PyObject *tuple = NULL, *result = NULL;
+    int numBlocks;
+    Server *self;
+    self = (Server *)arg;
+    
     if (self->recdur < 0) {
         Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
-        return -1;
+        return;
     }
     Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
-    int numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
+    numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
     Server_debug(self,"Number of blocks: %i\n", numBlocks);
     Server_start_rec_internal(self, self->recpath);
     while (numBlocks-- > 0 && self->server_stopped == 0) {
-        offline_process_block((Server *) self);   
+        offline_process_block((Server *) self); 
+    }
+    self->server_started = 0;
+    self->record = 0;
+    sf_close(self->recfile);
+    Server_message(self,"Offline Server rendering finished.\n"); 
+}
+
+int
+Server_offline_nb_start(Server *self)
+{
+    pthread_t offthread;
+    pthread_create(&offthread, NULL, Server_offline_thread, self);
+    return 0;
+}
+
+int
+Server_offline_start(Server *self)
+{
+    PyObject *tuple = NULL, *result = NULL;
+    int numBlocks;
+    
+    if (self->recdur < 0) {
+        Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
+        return;
+    }
+    Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
+    numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
+    Server_debug(self,"Number of blocks: %i\n", numBlocks);
+    Server_start_rec_internal(self, self->recpath);
+    while (numBlocks-- > 0 && self->server_stopped == 0) {
+        offline_process_block((Server *) self); 
     }
     self->server_started = 0;
     self->record = 0;
@@ -1097,7 +1133,7 @@ Server_offline_start (Server *self)
 }
 
 int
-Server_offline_stop (Server *self)
+Server_offline_stop(Server *self)
 {
     self->server_stopped = 1;
     return 0;
@@ -1289,6 +1325,9 @@ Server_shut_down(Server *self)
         case PyoOffline:
             ret = Server_offline_deinit(self);  
             break;         
+        case PyoOfflineNB:
+            ret = Server_offline_deinit(self);  
+            break;         
     }
     self->server_booted = 0;
     if (ret < 0) {
@@ -1391,6 +1430,9 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     else if (strcmp(audioType, "offline") == 0) {
         self->audio_be_type = PyoOffline;
     } 
+    else if (strcmp(audioType, "offline_nb") == 0) {
+        self->audio_be_type = PyoOfflineNB;
+    } 
     else {
         Server_warning(self, "Unknown audio type. Using Portaudio\n");
         self->audio_be_type = PyoPortaudio;
@@ -1405,7 +1447,6 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
 
     return 0;
 }
-
 
 static PyObject *
 Server_setInputDevice(Server *self, PyObject *arg)
@@ -1783,6 +1824,12 @@ Server_boot(Server *self)
                 Server_offline_deinit(self);
             }
             break;
+        case PyoOfflineNB:
+            audioerr = Server_offline_init(self);
+            if (audioerr < 0) {
+                Server_offline_deinit(self);
+            }
+            break;
     }
     // Must allocate buffer after initializing the audio backend in case parameters change there
     if (self->input_buffer) {
@@ -1864,6 +1911,9 @@ Server_start(Server *self)
         case PyoOffline:
             err = Server_offline_start(self);
             break;           
+        case PyoOfflineNB:
+            err = Server_offline_nb_start(self);
+            break;           
     }
     if (err) {
         Server_error(self, "Error starting server.\n");
@@ -1897,6 +1947,9 @@ Server_stop(Server *self)
 #endif            
             break;
         case PyoOffline:
+            err = Server_offline_stop(self);
+            break;    
+        case PyoOfflineNB:
             err = Server_offline_stop(self);
             break;    
     }
@@ -2165,8 +2218,8 @@ static PyMethodDef Server_methods[] = {
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
     {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
-    {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI object."},
-    {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME object."},
+    {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI callable object."},
+    {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME callable object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"setStartOffset", (PyCFunction)Server_setStartOffset, METH_O, "Sets starting time offset."},
     {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
