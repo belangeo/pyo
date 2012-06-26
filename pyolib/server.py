@@ -50,8 +50,14 @@ class Server(object):
     duplex : int {0, 1}, optional
         Input - output mode. 0 is output only and 1 is both ways. 
         Defaults to 1.
-    audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline'}, optional
+    audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb}, optional
         Audio backend to use. 'pa' is equivalent to 'portaudio'.
+        'offline' save the audio output in a soundfile as fast as possible in blocking mode, 
+        ie. the main program doesn't respond until the end of the computation.
+        'offline_nb' save the audio output in a soundfile as fast as possible in non-blocking 
+        mode, ie. the computation is executed in a separated thread, allowing the program to
+        respond while the computation goes on. It is the responsibility of the user to make
+        sure that the program doesn't exit before the computation is done.
         Default is 'portaudio'.
     jackname : string, optional
         Name of jack client. Defaults to 'pyo'
