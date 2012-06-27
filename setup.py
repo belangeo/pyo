@@ -68,8 +68,8 @@ source_files = source_files + [path + f for f in files]
 if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include']
-    library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo']
-    libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo']
+    library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
+    libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo', 'pthreadVC2']
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
 else:
@@ -85,7 +85,7 @@ else:
 setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
-        version = "0.6.1",
+        version = "0.6.2",
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
