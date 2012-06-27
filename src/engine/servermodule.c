@@ -515,7 +515,7 @@ Server_pa_deinit(Server *self)
     PyoPaBackendData *be_data = (PyoPaBackendData *) self->audio_be_data;
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
-        self->server_started == 0;
+        self->server_started = 0;
         //err = Pa_StopStream(be_data->stream);
         //portaudio_assert(err, "Pa_StopStream");
     }
@@ -1076,28 +1076,29 @@ Server_offline_deinit(Server *self)
     return 0;
 }
 
-void *Server_offline_thread(void *arg)
+void 
+*Server_offline_thread(void *arg)
 {
-    PyObject *tuple = NULL, *result = NULL;
     int numBlocks;
     Server *self;
     self = (Server *)arg;
     
     if (self->recdur < 0) {
         Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
-        return;
     }
-    Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
-    numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
-    Server_debug(self,"Number of blocks: %i\n", numBlocks);
-    Server_start_rec_internal(self, self->recpath);
-    while (numBlocks-- > 0 && self->server_stopped == 0) {
-        offline_process_block((Server *) self); 
+    else {
+        Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
+        numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
+        Server_debug(self,"Number of blocks: %i\n", numBlocks);
+        Server_start_rec_internal(self, self->recpath);
+        while (numBlocks-- > 0 && self->server_stopped == 0) {
+            offline_process_block((Server *) self); 
+        }
+        self->server_started = 0;
+        self->record = 0;
+        sf_close(self->recfile);
+        Server_message(self,"Offline Server rendering finished.\n");         
     }
-    self->server_started = 0;
-    self->record = 0;
-    sf_close(self->recfile);
-    Server_message(self,"Offline Server rendering finished.\n"); 
 }
 
 int
@@ -1111,12 +1112,11 @@ Server_offline_nb_start(Server *self)
 int
 Server_offline_start(Server *self)
 {
-    PyObject *tuple = NULL, *result = NULL;
     int numBlocks;
     
     if (self->recdur < 0) {
         Server_error(self,"Duration must be specified for Offline Server (see Server.recordOptions).");
-        return;
+        return -1;
     }
     Server_message(self,"Offline Server rendering file %s dur=%f\n", self->recpath, self->recdur);
     numBlocks = ceil(self->recdur * self->samplingRate/self->bufferSize);
