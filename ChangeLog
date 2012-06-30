@@ -1,3 +1,8 @@
+2012-06-30 belangeo <belangeo@gmail.com>
+
+    * Added new object: CtlScan2. Scan for Midi controller number and Midi channel in input.
+    - rev 1007
+
 2012-06-26 belangeo <belangeo@gmail.com>
 
     * Added "offline_nb" mode to the Server, allowing non-blocking bounce to disk.

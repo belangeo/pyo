@@ -215,6 +215,198 @@ PyTypeObject CtlScanType = {
     CtlScan_new,                 /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *callable;
+    int ctlnumber;
+    int midichnl;
+    int toprint;
+} CtlScan2;
+
+static void
+CtlScan2_setProcMode(CtlScan2 *self) {}
+
+static void
+CtlScan2_compute_next_data_frame(CtlScan2 *self)
+{   
+    PmEvent *buffer;
+    int i, count, midichnl;
+    
+    buffer = Server_getMidiEventBuffer((Server *)self->server);
+    count = Server_getMidiEventCount((Server *)self->server);
+    
+    if (count > 0) {
+        PyObject *tup;
+        for (i=count-1; i>=0; i--) {
+            int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
+            int number = Pm_MessageData1(buffer[i].message);
+            int value = Pm_MessageData2(buffer[i].message);
+            
+            if ((status & 0xF0) == 0xB0) {
+                midichnl = status - 0xB0 + 1;
+                if (number != self->ctlnumber || midichnl != self->midichnl) {
+                    self->ctlnumber = number;
+                    self->midichnl = midichnl;
+                    tup = PyTuple_New(2);
+                    PyTuple_SetItem(tup, 0, PyInt_FromLong(self->ctlnumber));
+                    PyTuple_SetItem(tup, 1, PyInt_FromLong(self->midichnl));
+                    PyObject_Call((PyObject *)self->callable, tup, NULL);
+                }
+                if (self->toprint == 1)
+                    printf("ctl number : %i, ctl value : %i, midi channel : %i\n", self->ctlnumber, value, midichnl);    
+            }
+        }
+    }
+}
+
+static int
+CtlScan2_traverse(CtlScan2 *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->callable);
+    return 0;
+}
+
+static int 
+CtlScan2_clear(CtlScan2 *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->callable);
+    return 0;
+}
+
+static void
+CtlScan2_dealloc(CtlScan2* self)
+{
+    pyo_DEALLOC
+    CtlScan2_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+CtlScan2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *calltmp=NULL;    
+    CtlScan2 *self;
+    self = (CtlScan2 *)type->tp_alloc(type, 0);
+    
+    self->ctlnumber = self->midichnl = -1;
+    self->toprint = 1;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, CtlScan2_compute_next_data_frame);
+    self->mode_func_ptr = CtlScan2_setProcMode;
+    
+    static char *kwlist[] = {"callable", "toprint", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|i", kwlist, &calltmp, &self->toprint))
+        Py_RETURN_NONE;
+    
+    if (calltmp) {
+        PyObject_CallMethod((PyObject *)self, "setFunction", "O", calltmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * CtlScan2_getServer(CtlScan2* self) { GET_SERVER };
+static PyObject * CtlScan2_getStream(CtlScan2* self) { GET_STREAM };
+
+static PyObject * CtlScan2_play(CtlScan2 *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CtlScan2_stop(CtlScan2 *self) { STOP };
+
+static PyObject *
+CtlScan2_setFunction(CtlScan2 *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The callable attribute must be a valid Python function.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    Py_XDECREF(self->callable);
+    Py_INCREF(tmp);
+    self->callable = tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+CtlScan2_setToprint(CtlScan2 *self, PyObject *arg)
+{
+	
+	if (PyInt_Check(arg)) {
+	    self->toprint = PyInt_AsLong(arg);
+    }
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+static PyMemberDef CtlScan2_members[] = {
+    {"server", T_OBJECT_EX, offsetof(CtlScan2, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(CtlScan2, stream), 0, "Stream object."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CtlScan2_methods[] = {
+    {"getServer", (PyCFunction)CtlScan2_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)CtlScan2_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)CtlScan2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)CtlScan2_stop, METH_NOARGS, "Stops computing."},
+    {"setFunction", (PyCFunction)CtlScan2_setFunction, METH_O, "Sets the function to be called."},
+    {"setToprint", (PyCFunction)CtlScan2_setToprint, METH_O, "If True, print values to the console."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject CtlScan2Type = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.CtlScan2_base",         /*tp_name*/
+    sizeof(CtlScan2),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CtlScan2_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "CtlScan2 objects. Retreive midi channel and controller numbers from a midi input.",           /* tp_doc */
+    (traverseproc)CtlScan2_traverse,   /* tp_traverse */
+    (inquiry)CtlScan2_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    CtlScan2_methods,             /* tp_methods */
+    CtlScan2_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    CtlScan2_new,                 /* tp_new */
+};
+
 
 typedef struct {
     pyo_audio_HEAD

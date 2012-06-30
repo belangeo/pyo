@@ -287,6 +287,7 @@ extern PyTypeObject HarmonizerType;
 
 extern PyTypeObject MidictlType;
 extern PyTypeObject CtlScanType;
+extern PyTypeObject CtlScan2Type;
 extern PyTypeObject MidiNoteType;
 extern PyTypeObject NoteinType;
 extern PyTypeObject BendinType;
