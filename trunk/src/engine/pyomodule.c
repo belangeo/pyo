@@ -2522,6 +2522,11 @@ init_pyo64(void)
     Py_INCREF(&CtlScanType);
     PyModule_AddObject(m, "CtlScan_base", (PyObject *)&CtlScanType);
 
+    if (PyType_Ready(&CtlScan2Type) < 0)
+        return;
+    Py_INCREF(&CtlScan2Type);
+    PyModule_AddObject(m, "CtlScan2_base", (PyObject *)&CtlScan2Type);
+    
     if (PyType_Ready(&MidiNoteType) < 0)
         return;
     Py_INCREF(&MidiNoteType);
