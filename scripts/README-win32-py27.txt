@@ -4,14 +4,6 @@ Pyo is a Python module written in C to help digital signal processing script cre
 
 http://www.python.org/download/
 
-When you install Python, You need to add Python27 folder path to the system 
-variable PATH. By doing this, the system will accept "python" as an internal 
-command.
-
-Add C:\Python27 to the list of paths in:
-
-system -> Advanced -> Environment Variables -> PATH
-
 To use the WxPython toolkit for widgets, you need to install wxPython2.8-win32-unicode-py27:
 
 http://www.wxpython.org/download.php#stable
