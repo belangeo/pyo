@@ -720,7 +720,13 @@ class RunningThread(threading.Thread):
 
     def kill(self):
         self.terminated = True
-        self.proc.terminate()
+        if PLATFORM == "win32":
+            try:
+                os.system("tskill %d" % self.proc.pid)
+            except:
+                print "'tskill' doesn't seem to be installed on the system. It is needed to be able to kill a process."
+        else:
+            self.proc.terminate()
         if self.proc.poll() == None:
             self.proc.kill()
 
@@ -741,6 +747,9 @@ class RunningThread(threading.Thread):
             else:
                 self.proc = subprocess.Popen(['%s "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        elif PLATFORM == "win32":
+            self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, shell=False, 
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
             self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -3918,20 +3927,31 @@ class OutputLogPanel(wx.Panel):
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar.SetMargins((5, 0))
         font, psize = self.toolbar.GetFont(), self.toolbar.GetFont().GetPointSize()
-        font.SetPointSize(psize-1)
+        if PLATFORM == "darwin":
+            font.SetPointSize(psize-1)
         self.toolbar.SetToolBitmapSize(tsize)
+        
+        if PLATFORM == "win32":
+            self.toolbar.AddSeparator()
         title = wx.StaticText(self.toolbar, -1, "Output panel")
         title.SetFont(font)
         self.toolbar.AddControl(title)
         self.toolbar.AddSeparator()
+        if PLATFORM == "win32":
+            self.toolbar.AddSeparator()
         self.processPopup = wx.Choice(self.toolbar, -1, choices=[])
         self.processPopup.SetFont(font)
         self.toolbar.AddControl(self.processPopup)
+        if PLATFORM == "win32":
+            self.toolbar.AddSeparator()
         self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40,-1))
         self.processKill.SetFont(font)        
         self.toolbar.AddControl(self.processKill)
         self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
+        if PLATFORM == "win32":
+            self.toolbar.AddSeparator()
         self.runningLabel = wx.StaticText(self.toolbar, -1, "Running: 0")
         self.runningLabel.SetFont(font)
         self.toolbar.AddControl(self.runningLabel)
@@ -3944,6 +3964,8 @@ class OutputLogPanel(wx.Panel):
         zoomLabel = wx.StaticText(self.toolbar, -1, "Zoom:")
         zoomLabel.SetFont(font)
         self.toolbar.AddControl(zoomLabel)
+        if PLATFORM == "win32":
+            self.toolbar.AddSeparator()
         self.zoomer = wx.SpinCtrl(self.toolbar, -1, "0", size=(60, -1))
         self.zoomer.SetRange(-10,10)
         self.toolbar.AddControl(self.zoomer)
