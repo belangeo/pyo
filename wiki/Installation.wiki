@@ -65,6 +65,8 @@ If you want to be able to use a 64-bit pyo (All platforms):
 --use-double
 }}}
 
+32-bit and 64-bit sample precision can live side-by-side without conflict.
+
 ==Compilation scripts==
 
 To compile both 32-bit and 64-bit resolutions on linux:
