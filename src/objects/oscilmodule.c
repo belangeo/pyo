@@ -950,8 +950,8 @@ PyTypeObject SineLoopType = {
 /***************/
 /* Osc objects */
 /***************/
-static MYFLT
-Osc_clip(MYFLT x, int size) {
+static double
+Osc_clip(double x, int size) {
     if (x < 0) {
         x += ((int)(-x / size) + 1) * size;
     }
@@ -969,14 +969,15 @@ typedef struct {
     PyObject *phase;
     Stream *phase_stream;
     int modebuffer[4];
-    MYFLT pointerPos;
+    double pointerPos;
     int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
     MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } Osc;
 
 static void
 Osc_readframes_ii(Osc *self) {
-    MYFLT fr, ph, pos, inc, fpart;
+    MYFLT fr, ph, fpart;
+    double inc, pos;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1000,7 +1001,8 @@ Osc_readframes_ii(Osc *self) {
 
 static void
 Osc_readframes_ai(Osc *self) {
-    MYFLT inc, ph, pos, fpart, sizeOnSr;
+    MYFLT ph, fpart, sizeOnSr;
+    double inc, pos;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1025,7 +1027,8 @@ Osc_readframes_ai(Osc *self) {
 
 static void
 Osc_readframes_ia(Osc *self) {
-    MYFLT fr, pha, pos, inc, fpart;
+    MYFLT fr, pha, fpart;
+    double inc, pos;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1049,7 +1052,8 @@ Osc_readframes_ia(Osc *self) {
 
 static void
 Osc_readframes_aa(Osc *self) {
-    MYFLT inc, pha, pos, fpart, sizeOnSr;
+    MYFLT pha, fpart, sizeOnSr;
+    double inc, pos;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
@@ -1500,7 +1504,7 @@ typedef struct {
     PyObject *feedback;
     Stream *feedback_stream;
     int modebuffer[4];
-    MYFLT pointerPos;
+    double pointerPos;
     MYFLT lastValue;
 } OscLoop;
 
@@ -2002,12 +2006,13 @@ typedef struct {
     PyObject *phase;
     Stream *phase_stream;
     int modebuffer[4];
-    MYFLT pointerPos;
+    double pointerPos;
 } Phasor;
 
 static void
 Phasor_readframes_ii(Phasor *self) {
-    MYFLT fr, ph, pos, inc;
+    MYFLT fr, ph;
+    double inc, pos;
     int i;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -2030,7 +2035,8 @@ Phasor_readframes_ii(Phasor *self) {
 
 static void
 Phasor_readframes_ai(Phasor *self) {
-    MYFLT inc, ph, pos, oneOnSr;
+    MYFLT ph, oneOnSr;
+    double inc, pos;
     int i;
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -2054,7 +2060,8 @@ Phasor_readframes_ai(Phasor *self) {
 
 static void
 Phasor_readframes_ia(Phasor *self) {
-    MYFLT fr, pha, pos, inc;
+    MYFLT fr, pha;
+    double inc, pos;
     int i;
     
     fr = PyFloat_AS_DOUBLE(self->freq);
@@ -2080,7 +2087,8 @@ Phasor_readframes_ia(Phasor *self) {
 
 static void
 Phasor_readframes_aa(Phasor *self) {
-    MYFLT pha, pos, inc, oneOnSr;
+    MYFLT pha, oneOnSr;
+    double inc, pos;
     int i;
     
     MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
@@ -2471,7 +2479,8 @@ typedef struct {
 
 static void
 Pointer_readframes_a(Pointer *self) {
-    MYFLT ph, fpart;
+    MYFLT fpart;
+    double ph;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);

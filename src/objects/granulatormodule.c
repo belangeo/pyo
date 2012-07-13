@@ -1121,7 +1121,7 @@ typedef struct {
     int init;
     int mode; /* 0 = no loop, 1 = forward, 2 = backward, 3 = back-and-forth */
     int tmpmode;
-    MYFLT pointerPos[2];
+    double pointerPos[2];
     int active[2];
     long loopstart[2];
     long loopend[2];
@@ -1281,7 +1281,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
 
 static void
 Looper_transform_i(Looper *self) {
-    MYFLT pit, fpart, amp, fr, b;
+    MYFLT fpart, amp, fr, b;
+    double pit;
     int i, j, ipart;
     
     MYFLT *tablelist = TableStream_getData(self->table);
@@ -1494,7 +1495,8 @@ Looper_transform_i(Looper *self) {
 
 static void
 Looper_transform_a(Looper *self) {
-    MYFLT fpart, amp, pit, fr, b;
+    MYFLT fpart, amp, fr, b;
+    double pit;
     int i, j, ipart;
     
     MYFLT *tablelist = TableStream_getData(self->table);
