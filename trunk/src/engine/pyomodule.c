@@ -2491,6 +2491,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&GateType);
     PyModule_AddObject(m, "Gate_base", (PyObject *)&GateType);
+
+    if (PyType_Ready(&BalanceType) < 0)
+        return;
+    Py_INCREF(&BalanceType);
+    PyModule_AddObject(m, "Balance_base", (PyObject *)&BalanceType);
     
     if (PyType_Ready(&DelayType) < 0)
         return;

@@ -1570,3 +1570,396 @@ PyTypeObject GateType = {
     Gate_new,                                     /* tp_new */
 };
 
+/************/
+/* Balance */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *input2;
+    Stream *input2_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+    MYFLT follow1;
+    MYFLT follow2;
+    MYFLT last_freq;
+    MYFLT factor;
+} Balance;
+
+static void
+Balance_filters_i(Balance *self) {
+    MYFLT absin, freq;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    
+    if (freq != self->last_freq) {
+        self->factor = MYEXP(-1.0 / (self->sr / freq));
+        self->last_freq = freq;    
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        absin = in[i];
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow1 = absin + self->factor * (self->follow1 - absin);
+        if (self->follow1 < 0.001)
+            self->follow1 = 0.001;
+        absin = in2[i];
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow2 = absin + self->factor * (self->follow2 - absin);        
+        self->data[i] = in[i] * (self->follow2 / self->follow1);
+    }
+}
+
+static void
+Balance_filters_a(Balance *self) {
+    MYFLT absin, freq;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *in2 = Stream_getData((Stream *)self->input2_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        if (freq < 0.1)
+            freq = 0.1;
+        
+        if (freq != self->last_freq) {
+            self->factor = MYEXP(-1.0 / (self->sr / freq));
+            self->last_freq = freq;    
+        }
+        absin = in[i];
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow1 = absin + self->factor * (self->follow1 - absin);
+        if (self->follow1 < 0.001)
+            self->follow1 = 0.001;
+        absin = in2[i];
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow2 = absin + self->factor * (self->follow2 - absin);        
+        self->data[i] = in[i] * (self->follow2 / self->follow1);
+    }
+}
+
+static void Balance_postprocessing_ii(Balance *self) { POST_PROCESSING_II };
+static void Balance_postprocessing_ai(Balance *self) { POST_PROCESSING_AI };
+static void Balance_postprocessing_ia(Balance *self) { POST_PROCESSING_IA };
+static void Balance_postprocessing_aa(Balance *self) { POST_PROCESSING_AA };
+static void Balance_postprocessing_ireva(Balance *self) { POST_PROCESSING_IREVA };
+static void Balance_postprocessing_areva(Balance *self) { POST_PROCESSING_AREVA };
+static void Balance_postprocessing_revai(Balance *self) { POST_PROCESSING_REVAI };
+static void Balance_postprocessing_revaa(Balance *self) { POST_PROCESSING_REVAA };
+static void Balance_postprocessing_revareva(Balance *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Balance_setProcMode(Balance *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Balance_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Balance_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Balance_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Balance_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Balance_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Balance_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Balance_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Balance_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Balance_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Balance_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Balance_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Balance_compute_next_data_frame(Balance *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Balance_traverse(Balance *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    return 0;
+}
+
+static int 
+Balance_clear(Balance *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    return 0;
+}
+
+static void
+Balance_dealloc(Balance* self)
+{
+    pyo_DEALLOC
+    Balance_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Balance_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Balance *self;
+    self = (Balance *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(10);
+    self->follow1 = self->follow2 = 0.0;
+    self->last_freq = -1.0;
+    self->factor = 0.99;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Balance_compute_next_data_frame);
+    self->mode_func_ptr = Balance_setProcMode;
+    
+    static char *kwlist[] = {"input", "input2", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOO", kwlist, &inputtmp, &input2tmp, &freqtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (Stream *)input2_streamtmp;
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * Balance_getServer(Balance* self) { GET_SERVER };
+static PyObject * Balance_getStream(Balance* self) { GET_STREAM };
+static PyObject * Balance_setMul(Balance *self, PyObject *arg) { SET_MUL };	
+static PyObject * Balance_setAdd(Balance *self, PyObject *arg) { SET_ADD };	
+static PyObject * Balance_setSub(Balance *self, PyObject *arg) { SET_SUB };	
+static PyObject * Balance_setDiv(Balance *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Balance_play(Balance *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Balance_out(Balance *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Balance_stop(Balance *self) { STOP };
+
+static PyObject * Balance_multiply(Balance *self, PyObject *arg) { MULTIPLY };
+static PyObject * Balance_inplace_multiply(Balance *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Balance_add(Balance *self, PyObject *arg) { ADD };
+static PyObject * Balance_inplace_add(Balance *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Balance_sub(Balance *self, PyObject *arg) { SUB };
+static PyObject * Balance_inplace_sub(Balance *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Balance_div(Balance *self, PyObject *arg) { DIV };
+static PyObject * Balance_inplace_div(Balance *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Balance_setFreq(Balance *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef Balance_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Balance, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Balance, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Balance, input), 0, "Input sound object."},
+    {"input2", T_OBJECT_EX, offsetof(Balance, input2), 0, "Comparator input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(Balance, freq), 0, "Cutoff frequency in cycle per second."},
+    {"mul", T_OBJECT_EX, offsetof(Balance, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Balance, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Balance_methods[] = {
+    {"getServer", (PyCFunction)Balance_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Balance_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Balance_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Balance_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Balance_stop, METH_NOARGS, "Stops computing."},
+    {"setFreq", (PyCFunction)Balance_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setMul", (PyCFunction)Balance_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)Balance_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Balance_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Balance_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Balance_as_number = {
+    (binaryfunc)Balance_add,                         /*nb_add*/
+    (binaryfunc)Balance_sub,                         /*nb_subtract*/
+    (binaryfunc)Balance_multiply,                    /*nb_multiply*/
+    (binaryfunc)Balance_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Balance_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Balance_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Balance_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Balance_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject BalanceType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Balance_base",                                   /*tp_name*/
+    sizeof(Balance),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Balance_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Balance_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Balance objects. The rms power of a signal is adjusted to match that of a comparator signal.",           /* tp_doc */
+    (traverseproc)Balance_traverse,                  /* tp_traverse */
+    (inquiry)Balance_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Balance_methods,                                 /* tp_methods */
+    Balance_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Balance_new,                                     /* tp_new */
+};
+

@@ -959,3 +959,131 @@ class Gate(PyoObject):
         return self._lookahead
     @lookahead.setter
     def lookahead(self, x): self.setLookAhead(x)
+
+class Balance(PyoObject):
+    """
+    Adjust rms power of an audio signal according to the rms power of another.
+
+    The rms power of a signal is adjusted to match that of a comparator signal.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    input2 : PyoObject
+        Comparator signal.
+    freq : float or PyoObject, optional
+        Cutoff frequency of the lowpass filter in hertz. Default to 10.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setInput2(x, fadetime) : Replace the `input2` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    input2 : PyoObject. Comparator signal.
+    freq : float or PyoObject. Cutoff frequency of the lowpass filter.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH + '/accord.aif', speed=[.99,1], loop=True, mul=.3)
+    >>> comp = SfPlayer(SNDS_PATH + '/transparent.aif', speed=[.99,1], loop=True, mul=.3)
+    >>> out = Balance(sf, comp, freq=10).out()
+
+    """
+    def __init__(self, input, input2, freq=10, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        self._freq = freq
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(input2)
+        in_fader, in_fader2, freq, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, mul, add)
+        self._base_objs = [Balance_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'input2', 'freq', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Input signal to process.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInput2(self, x, fadetime=0.05):
+        """
+        Replace the `input2` attribute.
+        
+        Comparator signal.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input2 = x
+        self._in_fader2.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Cutoff frequency of the lowpass filter, in Hertz.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.1, 100., "log", "freq", self._freq), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoObject. Comparator signal.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff frequency of the lowpass filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)

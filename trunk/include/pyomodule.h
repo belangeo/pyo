@@ -268,6 +268,7 @@ extern PyTypeObject BetweenType;
 extern PyTypeObject DegradeType;
 extern PyTypeObject CompressType;
 extern PyTypeObject GateType;
+extern PyTypeObject BalanceType;
 extern PyTypeObject DelayType;
 extern PyTypeObject SDelayType;
 extern PyTypeObject WaveguideType;
