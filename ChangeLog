@@ -1,3 +1,8 @@
+2012-07-31 belangeo <belangeo@gmail.com>
+
+    * Added new object: Balance: Adjust rms power of an audio signal according to the rms power of another.
+    - rev 1012
+
 -------------------------------------------------------------------------------------
 
 2012-06-30 belangeo <belangeo@gmail.com>
