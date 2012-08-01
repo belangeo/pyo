@@ -2060,6 +2060,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&LogTableType);
     PyModule_AddObject(m, "LogTable_base", (PyObject *)&LogTableType);
+
+    if (PyType_Ready(&CosLogTableType) < 0)
+        return;
+    Py_INCREF(&CosLogTableType);
+    PyModule_AddObject(m, "CosLogTable_base", (PyObject *)&CosLogTableType);
     
     if (PyType_Ready(&CosTableType) < 0)
         return;

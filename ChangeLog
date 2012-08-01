@@ -1,5 +1,10 @@
 2012-08-01 belangeo <belangeo@gmail.com>
 
+    * Added new object: CosLogTable: Construct a table from logarithmic-cosine segments in breakpoint fashion.
+    - rev 1014
+
+2012-08-01 belangeo <belangeo@gmail.com>
+
     * Added new object: LogTable: Construct a table from logarithmic segments in breakpoint fashion.
     - rev 1013
 

@@ -1059,6 +1059,167 @@ class LogTable(PyoTableObject):
     @list.setter
     def list(self, x): self.replace(x)
 
+class CosLogTable(PyoTableObject):
+    """
+    Construct a table from logarithmic-cosine segments in breakpoint fashion.
+
+    Parentclass: PyoTableObject
+
+    Parameters:
+
+    list : list, optional
+        List of tuples indicating location and value of each points 
+        in the table. The default, [(0,0.), (8191, 1.)], creates a 
+        logarithmic line from 0.0 at location 0 to 1.0 at the end of 
+        the table (size - 1). Location must be an integer.
+    size : int, optional
+        Table size in samples. Defaults to 8192.
+
+    Methods:
+
+    setSize(size) : Change the size of the table and rescale the envelope.
+    replace(list) : Draw a new envelope according to the `list` parameter.
+    loadRecFile(filename, tolerance) : Import an automation recording file.
+    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
+        the shape of the envelope.
+
+    Notes:
+
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros. 
+
+    Values must be greater than 0.0.
+
+    Attributes:
+
+    list : list, List of tuples [(location, value), ...].
+    size : int, Table size in samples.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = CosLogTable([(0,0), (4095,1), (8192,0)])
+    >>> a = Osc(table=t, freq=2, mul=.25)
+    >>> b = SineLoop(freq=[599,600], feedback=0.05, mul=a).out()
+
+    """
+    def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
+        PyoTableObject.__init__(self)
+        if size < list[-1][0]:
+            print "CosLogTable warning : size smaller than last point position."
+            print "                   Increased size to last point position + 1"
+            size = list[-1][0] + 1
+        self._size = size
+        self._base_objs = [CosLogTable_base(list, size)]
+
+    def __dir__(self):
+        return ['list', 'size']
+
+    def setSize(self, size):
+        """
+        Change the size of the table and rescale the envelope.
+
+        Parameters:
+
+        size : int
+            New table size in samples.
+
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
+
+    def replace(self, list):
+        """
+        Draw a new envelope according to the new `list` parameter.
+
+        Parameters:
+
+        list : list
+            List of tuples indicating location and value of each points 
+            in the table. Location must be integer.
+
+        """ 
+        self._list = list
+        [obj.replace(list) for obj in self._base_objs]
+
+    def loadRecFile(self, filename, tolerance=0.02):
+        """
+        Import an automation recording file in the table.
+
+        loadRecFile takes a recording file, usually from a ControlRec object,
+        as `filename` parameter, applies a filtering pre-processing to eliminate
+        redundancies and loads the result in the table as a list of points. 
+        Filtering process can be controled with the `tolerance` parameter. 
+
+        Parameters:
+
+        filename : string
+            Full path of an automation recording file.
+        tolerance : float, optional
+            Tolerance of the filter. A higher value will eliminate more points.
+            Defaults to 0.02.
+
+        """
+        _path, _name = os.path.split(filename)
+        # files = sorted([f for f in os.listdir(_path) if _name+"_" in f])
+        # if _name not in files: files.append(_name)
+        files = [filename]
+        for i, obj in enumerate(self._base_objs):
+            p = os.path.join(_path, wrap(files,i))
+            f = open(p, "r")
+            values = [(float(l.split()[0]), float(l.split()[1])) for l in f.readlines()]
+            scl = self._size / values[-1][0]
+            values = [(int(v[0]*scl), v[1]) for v in values]
+            f.close()
+            values = reducePoints(values, tolerance=tolerance)
+            self._list = values
+            obj.replace(values)
+
+    def getPoints(self):
+        return self._base_objs[0].getPoints()
+
+    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a grapher window to control the shape of the envelope.
+
+        When editing the grapher with the mouse, the new set of points
+        will be send to the object on mouse up. 
+
+        Ctrl+C with focus on the grapher will copy the list of points to the 
+        clipboard, giving an easy way to insert the new shape in a script.
+
+        Parameters:
+
+        yrange : tuple, optional
+            Set the min and max values of the Y axis of the graph.
+            Defaults to (0.0, 1.0).
+        title : string, optional
+            Title of the window. If none is provided, the name of the 
+            class is used.
+        wxnoserver : boolean, optional
+            With wxPython graphical toolkit, if True, tells the 
+            interpreter that there will be no server window and not 
+            to wait for it before showing the controller window. 
+            Defaults to False.
+
+        """
+        createGraphWindow(self, 5, self._size, yrange, title, wxnoserver)
+
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
+
+    @property
+    def list(self):
+        """list. List of tuples indicating location and value of each points in the table.""" 
+        return self.getPoints()
+    @list.setter
+    def list(self, x): self.replace(x)
+
 class CosTable(PyoTableObject):
     """
     Construct a table from cosine interpolated segments.

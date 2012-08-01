@@ -1198,6 +1198,37 @@ class Grapher(wx.Panel):
                     tmp.append((pt1[0]+i, pow(10, ratio * logrange + logmin)))
         return tmp
 
+    def getCosLogPoints(self, pt1, pt2):
+        tmp = []
+        if pt1[1] <= 0.0:
+            pt1 = (pt1[0], 0.000001)
+        if pt2[1] <= 0.0:
+            pt2 = (pt2[0], 0.000001)
+        if pt1[1] > pt2[1]:
+            low = pt2[1]
+            high = pt1[1]
+        else:
+            low = pt1[1]
+            high = pt2[1]
+
+        steps = pt2[0] - pt1[0]
+        if steps > 0:
+            lrange = high - low
+            logrange = math.log10(high) - math.log10(low)
+            logmin = math.log10(low)
+            diff = (float(pt2[1]) - pt1[1]) / steps
+            if lrange == 0:
+                for i in range(steps):
+                    tmp.append((pt1[0]+i, pt1[1]))
+            else:
+                for i in range(steps):
+                    mu = float(i) / steps
+                    mu = (1. - math.cos(mu*math.pi)) * 0.5
+                    mu = pt1[1] * (1. - mu) + pt2[1] * mu
+                    ratio = (mu - low) / lrange
+                    tmp.append((pt1[0]+i, pow(10, ratio * logrange + logmin)))
+        return tmp
+
     def getCosPoints(self, pt1, pt2):
         tmp = []
         steps = pt2[0] - pt1[0]
@@ -1371,6 +1402,24 @@ class Grapher(wx.Panel):
                     tmp[i] = (tmp[i][0], back_y_for_log[i])
                 for i in range(len(tmp)-1):
                     tmp2 = self.getLogPoints(tmp[i], tmp[i+1])
+                    for j in range(len(tmp2)):
+                        tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
+                    if i == 0 and len(tmp2) < 2:
+                        dc.DrawLinePoint(back_tmp[i], back_tmp[i+1])
+                    if last_p != None:
+                        dc.DrawLinePoint(last_p, back_tmp[i])
+                    for j in range(len(tmp2)-1):
+                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        last_p = tmp2[j+1]
+                if last_p != None:
+                    dc.DrawLinePoint(last_p, back_tmp[-1])
+                tmp = [p for p in back_tmp]
+            elif self.mode == 5:
+                back_tmp = [p for p in tmp]
+                for i in range(len(tmp)):
+                    tmp[i] = (tmp[i][0], back_y_for_log[i])
+                for i in range(len(tmp)-1):
+                    tmp2 = self.getCosLogPoints(tmp[i], tmp[i+1])
                     for j in range(len(tmp2)):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
