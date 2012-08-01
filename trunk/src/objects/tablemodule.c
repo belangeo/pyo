@@ -2369,6 +2369,310 @@ CosTable_new,                 /* tp_new */
 };
 
 /***********************/
+/* CosLogTable structure */
+/***********************/
+typedef struct {
+    pyo_table_HEAD
+    PyObject *pointslist;
+} CosLogTable;
+
+static void
+CosLogTable_generate(CosLogTable *self) {
+    Py_ssize_t i, j, steps;
+    Py_ssize_t listsize;
+    PyObject *tup, *tup2;
+    int x1, y1;
+    MYFLT x2, y2, range, logrange, logmin, ratio, low, high, mu;
+    
+    y1 = 0;
+    y2 = 0.0;
+    
+    listsize = PyList_Size(self->pointslist);
+    
+    for(i=0; i<(listsize-1); i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+        tup2 = PyList_GET_ITEM(self->pointslist, i+1);
+        y1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup2, 0)));
+        y2 = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup2, 1)));
+        if (x2 <= 0)
+            x2 = 0.000001;
+        if (y2 <= 0)
+            y2 = 0.000001;
+        if (x2 > y2) {
+            low = y2;
+            high = x2;
+        }
+        else {
+            low = x2;
+            high = y2;
+        }
+        
+        steps = y1 - x1;
+        range = high - low;
+        logrange = MYLOG10(high) - MYLOG10(low);
+        logmin = MYLOG10(low);
+        if (steps <= 0)
+            continue;
+        if (range == 0) {
+            for(j=0; j<steps; j++) {
+                self->data[x1+j] = x2;
+            }
+        }
+        else {
+            for(j=0; j<steps; j++) {
+                mu = (MYFLT)j / steps;
+                mu = (1.0-MYCOS(mu*PI))*0.5;
+                mu = x2 *(1.0-mu) + y2*mu;
+                ratio = (mu - low) / range;
+                self->data[x1+j] = MYPOW(10, ratio * logrange + logmin);
+            }            
+        }
+    }
+    if (y1 < (self->size-1)) {
+        self->data[y1] = y2;
+        for (i=y1; i<self->size; i++) {
+            self->data[i+1] = 0.0;
+        }
+        self->data[self->size] = 0.0;
+    }
+    else {
+        self->data[self->size-1] = y2;
+        self->data[self->size] = y2;
+    }    
+}
+
+static int
+CosLogTable_traverse(CosLogTable *self, visitproc visit, void *arg)
+{
+    pyo_table_VISIT
+    Py_VISIT(self->pointslist);
+    return 0;
+}
+
+static int 
+CosLogTable_clear(CosLogTable *self)
+{
+    pyo_table_CLEAR
+    Py_CLEAR(self->pointslist);
+    return 0;
+}
+
+static void
+CosLogTable_dealloc(CosLogTable* self)
+{
+    free(self->data);
+    CosLogTable_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+CosLogTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyObject *pointslist=NULL;
+    CosLogTable *self;
+    self = (CosLogTable *)type->tp_alloc(type, 0);
+    
+    self->server = PyServer_get_server();
+    
+    self->pointslist = PyList_New(0);
+    self->size = 8192;
+    
+    MAKE_NEW_TABLESTREAM(self->tablestream, &TableStreamType, NULL);
+    
+    static char *kwlist[] = {"list", "size", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|Oi", kwlist, &pointslist, &self->size))
+        Py_RETURN_NONE; 
+    
+    if (pointslist) {
+        Py_INCREF(pointslist);
+        Py_DECREF(self->pointslist);
+        self->pointslist = pointslist;
+    }
+    else {
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(0), PyFloat_FromDouble(0.)));
+        PyList_Append(self->pointslist, PyTuple_Pack(2, PyInt_FromLong(self->size), PyFloat_FromDouble(1.)));
+    }
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+    TableStream_setData(self->tablestream, self->data);
+    CosLogTable_generate(self);
+    
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    TableStream_setSamplingRate(self->tablestream, sr);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * CosLogTable_getServer(CosLogTable* self) { GET_SERVER };
+static PyObject * CosLogTable_getTableStream(CosLogTable* self) { GET_TABLE_STREAM };
+static PyObject * CosLogTable_setData(CosLogTable *self, PyObject *arg) { SET_TABLE_DATA };
+static PyObject * CosLogTable_normalize(CosLogTable *self) { NORMALIZE };
+static PyObject * CosLogTable_removeDC(CosLogTable *self) { REMOVE_DC };
+static PyObject * CosLogTable_reverse(CosLogTable *self) { REVERSE };
+static PyObject * CosLogTable_copy(CosLogTable *self, PyObject *arg) { COPY };
+static PyObject * CosLogTable_setTable(CosLogTable *self, PyObject *arg) { SET_TABLE };
+static PyObject * CosLogTable_getTable(CosLogTable *self) { GET_TABLE };
+static PyObject * CosLogTable_getViewTable(CosLogTable *self) { GET_VIEW_TABLE };
+static PyObject * CosLogTable_put(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
+static PyObject * CosLogTable_get(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
+
+static PyObject *
+CosLogTable_setSize(CosLogTable *self, PyObject *value)
+{
+    Py_ssize_t i;
+    PyObject *tup, *x2;
+    int old_size, x1;
+    MYFLT factor;
+    
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the size attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyInt_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The size attribute value must be an integer.");
+        return PyInt_FromLong(-1);
+    }
+    
+    old_size = self->size;
+    self->size = PyInt_AsLong(value); 
+    
+    factor = (MYFLT)(self->size) / old_size;
+    
+    self->data = (MYFLT *)realloc(self->data, (self->size+1) * sizeof(MYFLT));
+    TableStream_setSize(self->tablestream, self->size);
+    
+    Py_ssize_t listsize = PyList_Size(self->pointslist);
+    
+    PyObject *listtemp = PyList_New(0);
+    
+    for(i=0; i<(listsize); i++) {
+        tup = PyList_GET_ITEM(self->pointslist, i);
+        x1 = PyInt_AsLong(PyNumber_Long(PyTuple_GET_ITEM(tup, 0)));
+        x2 = PyNumber_Float(PyTuple_GET_ITEM(tup, 1));
+        PyList_Append(listtemp, PyTuple_Pack(2, PyInt_FromLong((int)(x1*factor)), x2));
+    }
+    
+    Py_INCREF(listtemp);
+    Py_DECREF(self->pointslist);
+    self->pointslist = listtemp;
+    
+    CosLogTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+CosLogTable_getSize(CosLogTable *self)
+{
+    return PyInt_FromLong(self->size);
+};
+
+static PyObject *
+CosLogTable_getPoints(CosLogTable *self)
+{
+    Py_INCREF(self->pointslist);
+    return self->pointslist;
+};
+
+static PyObject *
+CosLogTable_replace(CosLogTable *self, PyObject *value)
+{
+    if (value == NULL) {
+        PyErr_SetString(PyExc_TypeError, "Cannot delete the list attribute.");
+        return PyInt_FromLong(-1);
+    }
+    
+    if (! PyList_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "The amplitude list attribute value must be a list of tuples.");
+        return PyInt_FromLong(-1);
+    }
+    
+    Py_INCREF(value);
+    Py_DECREF(self->pointslist);
+    self->pointslist = value; 
+    
+    CosLogTable_generate(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef CosLogTable_members[] = {
+    {"server", T_OBJECT_EX, offsetof(CosLogTable, server), 0, "Pyo server."},
+    {"tablestream", T_OBJECT_EX, offsetof(CosLogTable, tablestream), 0, "Table stream object."},
+    {"pointslist", T_OBJECT_EX, offsetof(CosLogTable, pointslist), 0, "Harmonics amplitude values."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef CosLogTable_methods[] = {
+    {"getServer", (PyCFunction)CosLogTable_getServer, METH_NOARGS, "Returns server object."},
+    {"copy", (PyCFunction)CosLogTable_copy, METH_O, "Copy data from table given in argument."},
+    {"setTable", (PyCFunction)CosLogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
+    {"getTable", (PyCFunction)CosLogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
+    {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getTableStream", (PyCFunction)CosLogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
+    {"setData", (PyCFunction)CosLogTable_setData, METH_O, "Sets the table from samples in a text file."},
+    {"normalize", (PyCFunction)CosLogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
+    {"removeDC", (PyCFunction)CosLogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
+    {"reverse", (PyCFunction)CosLogTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"setSize", (PyCFunction)CosLogTable_setSize, METH_O, "Sets the size of the table in samples"},
+    {"getSize", (PyCFunction)CosLogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
+    {"put", (PyCFunction)CosLogTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
+    {"get", (PyCFunction)CosLogTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
+    {"getPoints", (PyCFunction)CosLogTable_getPoints, METH_NOARGS, "Return the list of points."},
+    {"replace", (PyCFunction)CosLogTable_replace, METH_O, "Sets the harmonics amplitude list and generates a new waveform table."},
+    {NULL}  /* Sentinel */
+};
+
+PyTypeObject CosLogTableType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.CosLogTable_base",         /*tp_name*/
+    sizeof(CosLogTable),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)CosLogTable_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    0,                         /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+    "CosLogTable objects. Generates a table filled with one or more Cosine-logarithmic lines.",  /* tp_doc */
+    (traverseproc)CosLogTable_traverse,   /* tp_traverse */
+    (inquiry)CosLogTable_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    CosLogTable_methods,             /* tp_methods */
+    CosLogTable_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    CosLogTable_new,                 /* tp_new */
+};
+
+/***********************/
 /* CurveTable structure */
 /***********************/
 typedef struct {
