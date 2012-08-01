@@ -318,6 +318,7 @@ extern PyTypeObject SincTableType;
 extern PyTypeObject WinTableType;
 extern PyTypeObject ParaTableType;
 extern PyTypeObject LinTableType;
+extern PyTypeObject LogTableType;
 extern PyTypeObject CosTableType;
 extern PyTypeObject CurveTableType;
 extern PyTypeObject ExpTableType;

@@ -1,3 +1,8 @@
+2012-08-01 belangeo <belangeo@gmail.com>
+
+    * Added new object: LogTable: Construct a table from logarithmic segments in breakpoint fashion.
+    - rev 1013
+
 2012-07-31 belangeo <belangeo@gmail.com>
 
     * Added new object: Balance: Adjust rms power of an audio signal according to the rms power of another.
