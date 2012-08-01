@@ -1165,8 +1165,38 @@ class Grapher(wx.Panel):
             if self.selected != None:
                 self.pos = self.pointClip(self.pos)
                 x, y = self.pixelsToPoint(self.pos)
+                if self.mode == 4 and y <= 0:
+                    y = 0.000001
                 self.points[self.selected] = (x, y)
         self.Refresh()
+
+    def getLogPoints(self, pt1, pt2):
+        tmp = []
+        if pt1[1] <= 0.0:
+            pt1 = (pt1[0], 0.000001)
+        if pt2[1] <= 0.0:
+            pt2 = (pt2[0], 0.000001)
+        if pt1[1] > pt2[1]:
+            low = pt2[1]
+            high = pt1[1]
+        else:
+            low = pt1[1]
+            high = pt2[1]
+        
+        steps = pt2[0] - pt1[0]
+        if steps > 0:
+            lrange = high - low
+            logrange = math.log10(high) - math.log10(low)
+            logmin = math.log10(low)
+            diff = (float(pt2[1]) - pt1[1]) / steps
+            if lrange == 0:
+                for i in range(steps):
+                    tmp.append((pt1[0]+i, pt1[1]))
+            else:
+                for i in range(steps):
+                    ratio = ((pt1[1] + diff * i) - low) / lrange
+                    tmp.append((pt1[0]+i, pow(10, ratio * logrange + logmin)))
+        return tmp
 
     def getCosPoints(self, pt1, pt2):
         tmp = []
@@ -1284,10 +1314,12 @@ class Grapher(wx.Panel):
         # Convert points in pixels
         w,h = w-OFF2-RAD2, h-OFF2-RAD2
         tmp = []
+        back_y_for_log = []
         for p in self.points:
             x = int(round(p[0] * w)) + OFF + RAD
             y = int(round((1.0-p[1]) * h)) + OFF + RAD
             tmp.append((x,y))
+            back_y_for_log.append(p[1])
 
         # Draw lines
         dc.SetPen(wx.Pen("#000000", 1))
@@ -1333,6 +1365,24 @@ class Grapher(wx.Panel):
                         last_p = tmp2[j+1]
                 if last_p != None:
                     dc.DrawLinePoint(last_p, tmp[-1])
+            elif self.mode == 4:
+                back_tmp = [p for p in tmp]
+                for i in range(len(tmp)):
+                    tmp[i] = (tmp[i][0], back_y_for_log[i])
+                for i in range(len(tmp)-1):
+                    tmp2 = self.getLogPoints(tmp[i], tmp[i+1])
+                    for j in range(len(tmp2)):
+                        tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
+                    if i == 0 and len(tmp2) < 2:
+                        dc.DrawLinePoint(back_tmp[i], back_tmp[i+1])
+                    if last_p != None:
+                        dc.DrawLinePoint(last_p, back_tmp[i])
+                    for j in range(len(tmp2)-1):
+                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        last_p = tmp2[j+1]
+                if last_p != None:
+                    dc.DrawLinePoint(last_p, back_tmp[-1])
+                tmp = [p for p in back_tmp]
 
         # Draw points
         for i,p in enumerate(tmp):

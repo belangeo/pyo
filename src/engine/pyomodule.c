@@ -2056,6 +2056,11 @@ init_pyo64(void)
     Py_INCREF(&LinTableType);
     PyModule_AddObject(m, "LinTable_base", (PyObject *)&LinTableType);
 
+    if (PyType_Ready(&LogTableType) < 0)
+        return;
+    Py_INCREF(&LogTableType);
+    PyModule_AddObject(m, "LogTable_base", (PyObject *)&LogTableType);
+    
     if (PyType_Ready(&CosTableType) < 0)
         return;
     Py_INCREF(&CosTableType);
