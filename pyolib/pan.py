@@ -23,7 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import sys
+import sys, random
 from _core import *
 from _maps import *
 from types import SliceType, IntType
@@ -639,6 +639,8 @@ class Mixer(PyoObject):
     addInput(voice, input) : Adds a new input to the mixer.
     delInput(voice) : Removes an input from the mixer.
     setAmp(vin, vout, amp) : Sets the amplitude of a mixing channel.
+    getChannels() : Returns the Mixer's channels dictionary.
+    getKeys() : Returns the list of current keys in the Mixer's channels dictionary.
 
     Attributes:
 
@@ -714,16 +716,27 @@ class Mixer(PyoObject):
         """
         Adds an audio object in the mixer's inputs.
 
+        This method returns the key (voice argument or generated key if voice=None).
+
         Parameters:
 
         voice : int or string
-            Key in the mixer dictionary for this input.
+            Key in the mixer dictionary for this input. If None, a unique key 
+            between 0 and 32767 will be automatically generated.
         input : PyoObject
             Audio object to add to the mixer.
 
         """
+        if voice == None:
+            voice = random.randint(0, 32767)
+            while self._inputs.has_key(voice):
+                voice = random.randint(0, 32767)
+        if self._inputs.has_key(voice):
+            print >> sys.stderr, "Mixer has already a key named %s" % voice
+            return
         self._inputs[voice] = input
         [obj.addInput(str(voice), wrap(input,i)) for i, obj in enumerate(self._base_players)]
+        return voice
 
     def delInput(self, voice):
         """
@@ -756,6 +769,20 @@ class Mixer(PyoObject):
         if self._inputs.has_key(vin) and vout < self._outs:
             [obj.setAmp(str(vin), vout, amp) for i, obj in enumerate(self._base_players)]
 
+    def getChannels(self):
+        """
+        Returns the Mixer's channels dictionary.
+        
+        """
+        return self._inputs
+
+    def getKeys(self):
+        """
+        Returns the list of current keys in the Mixer's channels dictionary.
+
+        """
+        return self._inputs.keys()
+        
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
