@@ -197,6 +197,7 @@ extern PyTypeObject LookupType;
 extern PyTypeObject TableReadType;
 extern PyTypeObject OscType;
 extern PyTypeObject OscLoopType;
+extern PyTypeObject OscTrigType;
 extern PyTypeObject OscBankType;
 extern PyTypeObject PulsarType;
 extern PyTypeObject NoiseType;

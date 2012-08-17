@@ -1,5 +1,10 @@
 2012-08-17 belangeo <belangeo@gmail.com>
 
+    * Added new object: OscTrig: An oscillator reading a waveform table with sample accurate reset signal.
+    - rev 1017
+
+2012-08-17 belangeo <belangeo@gmail.com>
+
     * Added new object: TrigVal: Outputs a previously defined value on a trigger signal.
     - rev 1016
 
