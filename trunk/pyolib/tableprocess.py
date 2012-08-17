@@ -313,6 +313,193 @@ class OscLoop(PyoObject):
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
 
+class OscTrig(PyoObject):
+    """
+    An oscillator reading a waveform table with sample accurate reset signal.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    table : PyoTableObject
+        Table containing the waveform samples.
+    trig : PyoObject
+        Trigger signal. Reset the table pointer position to zero on
+        each trig.
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 1000.
+    phase : float or PyoObject, optional
+        Phase of sampling, expressed as a fraction of a cycle (0 to 1). 
+        Defaults to 0.
+    interp : int, optional
+        Choice of the interpolation method. Defaults to 2.
+            1 : no interpolation
+            2 : linear
+            3 : cosinus
+            4 : cubic
+
+    Methods:
+
+    setTable(x) : Replace the `table` attribute.
+    setTrig(x) : Replace the `trig` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setPhase(x) : Replace the `phase` attribute.
+    setInterp(x) : Replace the `interp` attribute.
+    reset() : Resets the reading pointer to 0.
+
+    Attributes:
+
+    table : PyoTableObject. Table containing the waveform samples.
+    trig : PyoObject, Trigger signal, reset pointer position to zero.
+    freq : float or PyoObject, Frequency in cycles per second.
+    phase : float or PyoObject, Phase of sampling (0 -> 1).
+    interp : int {1, 2, 3, 4}, Interpolation method.
+
+    See also: Osc, Phasor, Sine
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> tab = SndTable(SNDS_PATH+"/transparent.aif")
+    >>> tim = Phasor([-0.2,-0.25], mul=tab.getDur()-0.005, add=0.005)
+    >>> rst = Metro(tim).play()
+    >>> a = OscTrig(tab, rst, freq=tab.getRate(), mul=.4).out()
+
+    """
+    def __init__(self, table, trig, freq=1000, phase=0, interp=2, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._table = table
+        self._trig = trig
+        self._freq = freq
+        self._phase = phase
+        self._interp = interp
+        self._mul = mul
+        self._add = add
+        table, trig, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, trig, freq, phase, interp, mul, add)
+        self._base_objs = [OscTrig_base(wrap(table,i), wrap(trig,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['table', 'trig', 'freq', 'phase', 'interp', 'mul', 'add']
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+
+        Parameters:
+
+        x : PyoTableObject
+            new `table` attribute.
+
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setTrig(self, x):
+        """
+        Replace the `trig` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            new `trig` attribute.
+
+        """
+        self._trig = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTrig(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setPhase(self, x):
+        """
+        Replace the `phase` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `phase` attribute.
+
+        """
+        self._phase = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPhase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+
+        Parameters:
+
+        x : int {1, 2, 3, 4}
+            new `interp` attribute.
+
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq),
+                          SLMapPhase(self._phase),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def trig(self):
+        """PyoObject. Trigger signal. Reset pointer position to zero""" 
+        return self._trig
+    @trig.setter
+    def trig(self, x): self.setTrig(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def phase(self): 
+        """float or PyoObject. Phase of sampling.""" 
+        return self._phase
+    @phase.setter
+    def phase(self, x): self.setPhase(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
+
 class OscBank(PyoObject):
     """
     Any number of oscillators reading a waveform table.

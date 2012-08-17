@@ -2302,6 +2302,11 @@ init_pyo64(void)
     Py_INCREF(&OscLoopType);
     PyModule_AddObject(m, "OscLoop_base", (PyObject *)&OscLoopType);
 
+    if (PyType_Ready(&OscTrigType) < 0)
+        return;
+    Py_INCREF(&OscTrigType);
+    PyModule_AddObject(m, "OscTrig_base", (PyObject *)&OscTrigType);
+    
     if (PyType_Ready(&OscBankType) < 0)
         return;
     Py_INCREF(&OscBankType);
