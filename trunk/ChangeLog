@@ -1,3 +1,8 @@
+2012-08-17 belangeo <belangeo@gmail.com>
+
+    * Added new object: TrigVal: Outputs a previously defined value on a trigger signal.
+    - rev 1016
+
 2012-08-01 belangeo <belangeo@gmail.com>
 
     * Added new object: CosLogTable: Construct a table from logarithmic-cosine segments in breakpoint fashion.

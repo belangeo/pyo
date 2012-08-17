@@ -3329,3 +3329,107 @@ class NextTrig(PyoObject):
     def input2(self): return self._input2
     @input2.setter
     def input2(self, x): self.setInput2(x)
+
+class TrigVal(PyoObject):
+    """
+    Outputs a previously defined value on a trigger signal.
+
+    Value defined at `value` argument is sent when a trigger signal
+    is detected in input.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal sending triggers.
+    value : float or PyoObject, optional
+        Next value. Defaults to 0.
+    init : float, optional
+        Initial value. Defaults to 0.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setValue(x) : Replace the `value` attribute.
+
+    Attributes:
+
+    input : PyoObject. Audio trigger signal.
+    value : float or PyoObject. Next value.
+
+    Notes:
+
+    The out() method is bypassed. TrigVal's signal can not be sent 
+    to audio outs.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> def newfreq():
+    ...     val.value = (val.value + 50) % 500 + 100
+    >>> tr = Metro(1).play()
+    >>> val = TrigVal(tr, value=250)
+    >>> a = SineLoop(val, feedback=.1, mul=.3).out()
+    >>> trfunc = TrigFunc(tr, newfreq)
+
+    """
+    def __init__(self, input, value=0., init=0., mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._value = value
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, value, init, mul, add, lmax = convertArgsToLists(self._in_fader, value, init, mul, add)
+        self._base_objs = [TrigVal_base(wrap(in_fader,i), wrap(value,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'value', 'mul', 'add']
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setValue(self, x):
+        """
+        Replace the `value` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `value` attribute.
+
+        """
+        self._value = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., 'lin', 'value', self._value),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self): return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+    @property
+    def value(self): return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)
