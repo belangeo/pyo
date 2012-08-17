@@ -2621,6 +2621,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&TrigRandIntType);
     PyModule_AddObject(m, "TrigRandInt_base", (PyObject *)&TrigRandIntType);
+
+    if (PyType_Ready(&TrigValType) < 0)
+        return;
+    Py_INCREF(&TrigValType);
+    PyModule_AddObject(m, "TrigVal_base", (PyObject *)&TrigValType);
     
     if (PyType_Ready(&TrigChoiceType) < 0)
         return;
