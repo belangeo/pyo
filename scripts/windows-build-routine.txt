@@ -1,19 +1,31 @@
+=== STEP 1 ===
 --- Install Python (2.5 -> 2.7)
 
+=== STEP 2 ===
 --- Install Slick SVN (Slick-Subversion-1.6.12-win32.msi)
 http://www.sliksvn.com/pub/Slik-Subversion-1.6.12-win32.msi
 
---- Install scons in the Python site-packages:
+=== STEP 3 ===
+--- Install scons 2.2.0 in the Python site-packages:
 http://www.scons.org/download.php
 
---- Install MinGW from sourceforge
+=== STEP 4 ===
+--- Install MinGW (minimalist) from sourceforge
 
---- Install pthreads (just copy files from ftp)
+=== STEP 5 ===
+--- Install pthreads (just copy files from ftp):
 ftp://sourceware.org/pub/pthreads-win32/dll-latest/
+C:\pthreads\bin, C:\pthreads\include, C:\pthreads\lib
 
-1 --- Update libsndfile from http://www.mega-nerd.com/libsndfile  to the most recent version that works, which may be pre-release or release; currently it is the latest stable release (1.0.20). Do not build from sources.
+=== STEP 6 === 
+--- Update libsndfile from http://www.mega-nerd.com/libsndfile  to the most recent version that works, 
+which may be pre-release or release; currently it is the latest stable release (1.0.25). 
+Do not build from sources.
 
-2 --- Update liblo tag 0.26 from the tarball at http://liblo.sourceforge.net (not SVN!), and build with this SConstruct:
+=== STEP 7 ===
+--- Update liblo tag 0.26 from the tarball at http://liblo.sourceforge.net (not SVN!), 
+copy build/config-msvc.h --> src/config.h,
+and build with this SConstruct:
 
 # S C O N S T R U C T   F O R   L I B L O . D L L
 # Michael Gogins
@@ -50,15 +62,24 @@ environment.Append(CFLAGS = Split('-O2 -g -DHAVE_CONFIG_H -D_WIN32_WINNT=0x0501'
 environment.Append(CPPPATH = Split(cppath))
 environment.Append(LIBPATH = Split(libpath))
 environment.Append(LIBS = Split('pthreadvc2 kernel32 gdi32 wsock32 ws2_32 ole32 uuid winmm pthreadvc2 kernel32 gdi32 wsock32 ws2_32 ole32 uuid winmm'))
-environment.Append(LINKFLAGS = ['-Wl,--enable-stdcall-fixup', '-Wl,-export-dynamic'])
-### -export-all-symbols ? ###
+environment.Append(LINKFLAGS = ['-Wl,--enable-stdcall-fixup', '-Wl, -export-all-symbols'])
+### -export-all-symbols or -export-dynamic ? ###
 
 liblo = environment.SharedLibrary('lo', Split(sources))
+#######################################################
 
-3 --- Update the PortAudio library http://portmedia.sourceforge.net from SVN and build it. Try the trunk version first, if that doesn't work use the most recent tag. 
---- Check the pa_win_hostapis.c file and make sure that it is configured like this to build the DirectSound, WMME, and ASIO drivers:
---- Install Directx 9.0
---- Download Asio sdk
+=== STEP 8 ===
+--- Install Directx 9.0 SDK
+
+=== STEP 9 ===
+--- Download Asio SDK
+
+===  STEP 10 ===
+--- Update the PortAudio library http://portmedia.sourceforge.net from SVN and build it. 
+Try the trunk version first, if that doesn't work use the most recent tag. 
+
+--- Check the pa_win_hostapis.c file and make sure that it is configured like this to build 
+the DirectSound, WMME, and ASIO drivers:
 
 PaUtilHostApiInitializer *paHostApiInitializers[] =
     {
@@ -84,6 +105,8 @@ PaUtilHostApiInitializer *paHostApiInitializers[] =
         0   /* NULL terminated array */
     };
 
+--- Need to removed "volatile" from function definitions in MinGW/include/winbase.h
+
 --- Build with this SConstruct:
 
 '''
@@ -108,21 +131,18 @@ commonEnvironment.Append(CPPFLAGS = Split('''
 -DKSAUDIO_SPEAKER_DIRECTOUT=0
 -DMETHOD_NEITHER=3
 -DFILE_ANY_ACCESS=0
+-DPA_USE_WMME
+-DPA_USE_DS
+-DPA_USE_ASIO
+-DPA_USE_WASAPI
 '''))
 
-commonEnvironment.Append(CPPPATH = Split('''
-.
-src/common
-src/hostapi
-src/os
-src/os/win
-include
-C:\portaudio\src\hostapi\wasapi\mingw-include
-C:/portaudio/src/hostapi/asio/ASIOSDK/host
-C:/portaudio/src/hostapi/asio/ASIOSDK/host/pc
-C:/portaudio/src/hostapi/asio/ASIOSDK/common
-C:/Directx/Include
-'''))
+commonEnvironment.Append(CPPPATH = [".", "src/common", "src/hostapi", "src/os", "src/os/win", "include",
+"C:/portaudio/src/hostapi/wasapi/mingw-include",
+"C:/portaudio/src/hostapi/asio/ASIOSDK/host",
+"C:/portaudio/src/hostapi/asio/ASIOSDK/host/pc",
+"C:/portaudio/src/hostapi/asio/ASIOSDK/common",
+"C:/Program Files (x86)/Microsoft DirectX SDK (April 2007)/Include"])
 
 commonEnvironment.Append(LIBS=Split('''
 setupapi
@@ -160,6 +180,7 @@ src/hostapi/wmme/pa_win_wmme.c
 src/os/win/pa_win_hostapis.c
 src/os/win/pa_win_util.c
 src/os/win/pa_win_waveformat.c
+src/os/win/pa_win_coinitialize.c
 src/hostapi/asio/ASIOSDK/common/asio.cpp
 src/hostapi/asio/ASIOSDK/common/combase.cpp
 src/hostapi/asio/ASIOSDK/common/debugmessage.cpp
@@ -173,7 +194,9 @@ src/hostapi/wasapi/pa_win_wasapi.c
 ''')
 
 portAudio = commonEnvironment.SharedLibrary('portaudio', portAudioSources)
+##########################################################################
 
+=== STEP 11 ===
 4 --- Update the PortMidi library http://portmedia.sourceforge.net from SVN and build it with this SConstruct:
 
 '''
@@ -219,7 +242,7 @@ winmm
 strmiids
 '''))
 commonEnvironment.Append(LIBPATH='.')
-commonEnvironment.Append(SHLINKFLAGS = Split('-mwindows -mno-cygwin -Wl,--enable-auto-import -Wl,--enable-runtime-pseudo-reloc'))
+commonEnvironment.Append(SHLINKFLAGS = Split('-mwindows -Wl,--enable-auto-import -Wl,--enable-runtime-pseudo-reloc'))
 
 portMidiSources = Split('''
 pm_common/pmutil.c
@@ -249,15 +272,18 @@ test = portMidiTestEnvironment.Program('test', portMidiTestSources)
 
 Depends(portmidi, porttime)
 Depends(test, portmidi)
+###########################
 
 --- Run the test program to ensure that the build works.
 
+=== STEP 12 ===
 --- create a file PythonXX/Lib/distutils/distutils.cfg with these lines in it:
 [build]
 compiler = mingw32
 
 *** For Python 2.5, comment line 428 to 434 in Python25/include/pyconfig.py
 
+=== STEP 13 ===
 --- Download pyo sources from svn and build it with:
 
 python setup.py install

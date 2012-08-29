@@ -66,9 +66,9 @@ files = ['randommodule.c', 'oscmodule.c', 'fftmodule.c', 'sfplayermodule.c', 'os
 source_files = source_files + [path + f for f in files]
     
 if sys.platform == "win32":
-    include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
+    include_dirs = ['C:\portaudio\include', 'C:\Program Files (x86)\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include']
-    library_dirs = ['C:\portaudio', 'C:\Program Files\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
+    library_dirs = ['C:\portaudio', 'C:\Program Files (x86)\Mega-Nerd\libsndfile', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
     libraries = ['portaudio', 'portmidi', 'sndfile-1', 'lo', 'pthreadVC2']
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
