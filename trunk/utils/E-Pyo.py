@@ -752,7 +752,7 @@ class RunningThread(threading.Thread):
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
             self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, 
-                                shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)
