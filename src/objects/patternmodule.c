@@ -314,15 +314,15 @@ typedef struct {
 
 static void
 Score_selector(Score *self) {
-    int i, inval, state, res;
+    int i, inval;
     
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
     for (i=0; i<self->bufsize; i++) {
         inval = (int)in[i];
         if (inval != self->last_value) {
-            res = sprintf(self->curfname, "%s%i()\n", self->fname, inval);
-            state = PyRun_SimpleString(self->curfname);
+            sprintf(self->curfname, "%s%i()\n", self->fname, inval);
+            PyRun_SimpleString(self->curfname);
             self->last_value = inval;
         }    
     }

@@ -3597,7 +3597,7 @@ TrigXnoiseMidi_triangle(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = -MYLOG(RANDOM_UNIFORM) / self->xx1;    
+    MYFLT val = -MYLOG10(RANDOM_UNIFORM) / self->xx1;    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3606,7 +3606,7 @@ TrigXnoiseMidi_expon_min(TrigXnoiseMidi *self) {
 static MYFLT
 TrigXnoiseMidi_expon_max(TrigXnoiseMidi *self) {
     if (self->xx1 <= 0.0) self->xx1 = 0.00001;
-    MYFLT val = 1.0 - (-MYLOG(RANDOM_UNIFORM) / self->xx1);    
+    MYFLT val = 1.0 - (-MYLOG10(RANDOM_UNIFORM) / self->xx1);    
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;
     else return val;
@@ -3626,7 +3626,7 @@ TrigXnoiseMidi_biexpon(TrigXnoiseMidi *self) {
     else
         polar = 1;
     
-    val = 0.5 * (polar * MYLOG(sum) / self->xx1) + 0.5;
+    val = 0.5 * (polar * MYLOG10(sum) / self->xx1) + 0.5;
     
     if (val < 0.0) return 0.0;
     else if (val > 1.0) return 1.0;

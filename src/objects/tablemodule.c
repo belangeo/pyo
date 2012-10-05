@@ -369,7 +369,7 @@ typedef struct {
 static void
 ChebyTable_generate(ChebyTable *self) {
     int i, j, ampsize, halfsize;
-    MYFLT factor, amplitude, val, ihalfsize, index, x;
+    MYFLT amplitude, val, ihalfsize, index, x;
     
     ampsize = PyList_Size(self->amplist);
     if (ampsize > 12)
@@ -381,7 +381,6 @@ ChebyTable_generate(ChebyTable *self) {
     
     halfsize = self->size / 2;
     ihalfsize = 1.0 / halfsize;
-    factor = 1. / (self->size * 0.5) * PI;
     
     x = 0.0;
     for(i=0; i<self->size; i++) {
@@ -3461,7 +3460,7 @@ static void
 SndTable_appendSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point, index, real_index;
+    unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point, index, real_index;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
     
@@ -3499,7 +3498,7 @@ SndTable_appendSound(SndTable *self) {
     tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
     
     sf_seek(sf, start, SEEK_SET);
-    num = SF_READ(sf, tmp, num_items);
+    SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
     for (i=0; i<self->size; i++) {
@@ -3553,7 +3552,7 @@ static void
 SndTable_prependSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point; 
+    unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size, cross_in_samps, cross_point; 
     unsigned int index = 0;
     MYFLT *tmp, *tmp_data;
     MYFLT cross_amp;
@@ -3592,7 +3591,7 @@ SndTable_prependSound(SndTable *self) {
     tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
     
     sf_seek(sf, start, SEEK_SET);
-    num = SF_READ(sf, tmp, num_items);
+    SF_READ(sf, tmp, num_items);
     sf_close(sf);
     
     for (i=0; i<self->size; i++) {
@@ -3645,7 +3644,7 @@ static void
 SndTable_insertSound(SndTable *self) {
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int i, num, num_items, num_chnls, snd_size, start, stop, to_load_size;
+    unsigned int i, num_items, num_chnls, snd_size, start, stop, to_load_size;
     unsigned int cross_in_samps, cross_point, insert_point, index; 
     unsigned int read_point = 0; 
     unsigned int real_index = 0;
@@ -3656,7 +3655,7 @@ SndTable_insertSound(SndTable *self) {
     sf = sf_open(self->path, SFM_READ, &info);
     if (sf == NULL)
     {
-        printf("SndTble failed to open the file.\n");
+        printf("SndTable failed to open the file.\n");
         return;
     }
     snd_size = info.frames;
@@ -3693,7 +3692,7 @@ SndTable_insertSound(SndTable *self) {
     tmp_data = (MYFLT *)malloc(self->size * sizeof(MYFLT));
     
     sf_seek(sf, start, SEEK_SET);
-    num = SF_READ(sf, tmp, num_items);
+    SF_READ(sf, tmp, num_items);
     sf_close(sf);
     
     for (i=0; i<self->size; i++) {
@@ -4559,7 +4558,7 @@ static void
 TableRec_compute_next_data_frame(TableRec *self)
 {
     int i, num, upBound;
-    MYFLT sclfade, val;
+    MYFLT val;
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
 
     for (i=0; i<self->bufsize; i++) {
@@ -4580,7 +4579,6 @@ TableRec_compute_next_data_frame(TableRec *self)
     }
     
     if (self->pointer < size) {   
-        sclfade = 1. / self->fadetime;
         upBound = (int)(size - self->fadeInSample);
         
         MYFLT buffer[num];

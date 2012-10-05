@@ -36,12 +36,11 @@ typedef struct {
 
 static void
 Select_selector(Select *self) {
-    MYFLT val, selval, inval;
+    MYFLT val, inval;
     int i;
 
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     
-    selval = (float)self->value;
     for (i=0; i<self->bufsize; i++) {
         inval = in[i];
         if (inval == self->value && inval != self->last_value)
