@@ -481,7 +481,7 @@ static void
 MatrixRec_compute_next_data_frame(MatrixRec *self)
 {
     int i, num, num2, upBound;
-    MYFLT sclfade, val;
+    MYFLT val;
     int width = NewMatrix_getWidth((NewMatrix *)self->matrix);
     int height = NewMatrix_getHeight((NewMatrix *)self->matrix);
     int size = width * height;
@@ -506,7 +506,6 @@ MatrixRec_compute_next_data_frame(MatrixRec *self)
     }
     
     if (self->pointer < size) {   
-        sclfade = 1. / self->fadetime;
         upBound = size - self->fadeInSample;
        
         if (off == 0)

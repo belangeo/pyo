@@ -421,7 +421,6 @@ Server_pa_init(Server *self)
     PaHostApiTypeId hostId;
     PaSampleFormat sampleFormat;
     PaStreamCallback *streamCallback;
-    double deviceDefaultSamplingRate;
 
     err = Pa_Initialize();
     portaudio_assert(err, "Pa_Initialize");
@@ -445,7 +444,6 @@ Server_pa_init(Server *self)
 
     /* Retrieve host api id and define sample and callback format*/
     deviceInfo = Pa_GetDeviceInfo(outDevice);
-    deviceDefaultSamplingRate = deviceInfo->defaultSampleRate;
     hostIndex = deviceInfo->hostApi;
     hostInfo = Pa_GetHostApiInfo(hostIndex);
     hostId = hostInfo->type;
@@ -516,12 +514,12 @@ Server_pa_deinit(Server *self)
 
     if (Pa_IsStreamActive(be_data->stream) || ! Pa_IsStreamStopped(be_data->stream)) {
         self->server_started = 0;
-        //err = Pa_StopStream(be_data->stream);
-        //portaudio_assert(err, "Pa_StopStream");
+        err = Pa_StopStream(be_data->stream);
+        portaudio_assert(err, "Pa_StopStream");
     }
     
-//    err = Pa_CloseStream(be_data->stream);
-//    portaudio_assert(err, "Pa_CloseStream");
+    err = Pa_CloseStream(be_data->stream);
+    portaudio_assert(err, "Pa_CloseStream");
     
     err = Pa_Terminate();
     portaudio_assert(err, "Pa_Terminate");
@@ -2107,7 +2105,7 @@ Server_removeStream(Server *self, int id)
 PyObject *
 Server_changeStreamPosition(Server *self, PyObject *args)
 {
-    int err, i, rsid, csid, sid;
+    int i, rsid, csid, sid;
     Stream *ref_stream_tmp, *cur_stream_tmp, *stream_tmp;
 
     if (! PyArg_ParseTuple(args, "OO", &ref_stream_tmp, &cur_stream_tmp))
@@ -2135,7 +2133,7 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     }
 
     Py_INCREF(cur_stream_tmp);
-    err = PyList_Insert(self->streams, i, (PyObject *)cur_stream_tmp);
+    PyList_Insert(self->streams, i, (PyObject *)cur_stream_tmp);
     self->stream_count++;
 
     Py_INCREF(Py_None);

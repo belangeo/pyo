@@ -233,6 +233,87 @@ portaudio_get_output_devices(){
     }
 }
 
+#define portaudio_get_output_max_channels_info \
+"\nRetrieve the maximum number of output channels for the specified device.\n\npa_get_output_max_channels(x)\n\nParameters:\n\n    \
+x: int\n        Device index as listed by Portaudio (see pa_get_output_devices).\n\nExamples:\n\n    \
+>>> device = 'HDA Intel PCH: STAC92xx Analog (hw:0,0)'\n    \
+>>> dev_list, dev_index =  pa_get_output_devices()\n    \
+>>> dev = dev_index[dev_list.index(device)]\n    \
+>>> print 'Device index:', dev\n    \
+>>> maxouts = pa_get_output_max_channels(dev)\n    \
+>>> maxins = pa_get_input_max_channels(dev)\n    \
+>>> print 'Max outputs:', maxouts\n    \
+>>> print 'Max inputs:', maxins\n    \
+>>> if maxouts >= 2 and maxins >= 2:\n    \
+...     nchnls = 2\n    \
+>>> else:\n    \
+...     nchnls = 1\n\n" 
+
+static PyObject*
+portaudio_get_output_max_channels(PyObject *self, PyObject *arg){
+    PaError err;
+    PaDeviceIndex n, i = PyInt_AsLong(arg);
+
+	err = Pa_Initialize();
+    if (err != paNoError) {
+        portaudio_assert(err, "Pa_Initialize");
+		Py_RETURN_NONE;
+	}
+    else {
+        n = Pa_GetDeviceCount();
+        if (n < 0){
+            portaudio_assert(n, "Pa_GetDeviceCount");
+            Py_RETURN_NONE;
+        }
+        else {
+            const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+            assert(info);         
+            return PyInt_FromLong(info->maxOutputChannels);
+        }        
+    }
+}
+
+#define portaudio_get_input_max_channels_info \
+"\nRetrieve the maximum number of input channels for the specified device.\n\npa_get_input_max_channels(x)\n\nParameters:\n\n    \
+x: int\n        Device index as listed by Portaudio (see pa_get_input_devices).\n\nExamples:\n\n    \
+>>> device = 'HDA Intel PCH: STAC92xx Analog (hw:0,0)'\n    \
+>>> dev_list, dev_index =  pa_get_output_devices()\n    \
+>>> dev = dev_index[dev_list.index(device)]\n    \
+>>> print 'Device index:', dev\n    \
+>>> maxouts = pa_get_output_max_channels(dev)\n    \
+>>> maxins = pa_get_input_max_channels(dev)\n    \
+>>> print 'Max outputs', maxouts\n    \
+>>> print 'Max inputs:', maxins\n    \
+>>> if maxouts >= 2 and maxins >= 2:\n    \
+...     nchnls = 2\n    \
+>>> else:\n    \
+...     nchnls = 1\n\n" 
+
+
+static PyObject*
+portaudio_get_input_max_channels(PyObject *self, PyObject *arg){
+    PaError err;
+    PaDeviceIndex n, i = PyInt_AsLong(arg);
+
+	err = Pa_Initialize();
+    if (err != paNoError) {
+        portaudio_assert(err, "Pa_Initialize");
+		Py_RETURN_NONE;
+	}
+    else {
+        n = Pa_GetDeviceCount();
+        if (n < 0){
+            portaudio_assert(n, "Pa_GetDeviceCount");
+            Py_RETURN_NONE;
+        }
+        else {
+            const PaDeviceInfo *info=Pa_GetDeviceInfo(i);
+            assert(info);         
+            return PyInt_FromLong(info->maxInputChannels);
+        }        
+    }
+}
+
 #define portaudio_get_input_devices_info \
 "\nReturns input devices (device names, device indexes) found by Portaudio.\n\npa_get_input_devices()\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortaudio index of each device.\n\nExamples:\n\n    \
 >>> ins = pa_get_input_devices()\n    \
@@ -932,7 +1013,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     char *outpath;
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int num, snd_size, snd_sr, snd_chnls, num_items;
+    unsigned int snd_size, snd_sr, snd_chnls, num_items;
     MYFLT *sincfunc;
     MYFLT *tmp;
     MYFLT **samples;
@@ -957,7 +1038,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     num_items = snd_size * snd_chnls;
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
     sf_seek(sf, 0, SEEK_SET);
-    num = SF_READ(sf, tmp, num_items);
+    SF_READ(sf, tmp, num_items);
     sf_close(sf);
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT));
     for(i=0; i<snd_chnls; i++)
@@ -1035,7 +1116,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     char *outpath;
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int num, snd_size, snd_sr, snd_chnls, num_items;
+    unsigned int snd_size, snd_sr, snd_chnls, num_items;
     MYFLT *sincfunc;
     MYFLT *tmp;
     MYFLT **samples;
@@ -1060,7 +1141,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     num_items = snd_size * snd_chnls;
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
     sf_seek(sf, 0, SEEK_SET);
-    num = SF_READ(sf, tmp, num_items);
+    SF_READ(sf, tmp, num_items);
     sf_close(sf);
     samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT));
     for(i=0; i<snd_chnls; i++)
@@ -1183,47 +1264,46 @@ reducePoints(PyObject *self, PyObject *args, PyObject *kwds)
     MYFLT *pPointsX, *pPointsY;
     int *pnUseFlag;
     MYFLT dTolerance = .02;
-    MYFLT xMax, yMin, yMax, yRange;;
-    
-    static char *kwlist[] = {"pointlist", "tolerance", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
-        return PyInt_FromLong(-1);
-    
-    nPointsCount = PyList_Size(pointlist);
-    
-    pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
-    pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
-    pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
-    
-    tup = PyList_GET_ITEM(pointlist, 0);
-    if (PyTuple_Check(tup) == 1) {
-        for (i=0; i<nPointsCount; i++) {
-            tup = PyList_GET_ITEM(pointlist, i);
-            pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
-            pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
-            pnUseFlag[i] = 0;
+        MYFLT xMax, yMin, yMax;
+        
+        static char *kwlist[] = {"pointlist", "tolerance", NULL};
+        
+        if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_F, kwlist, &pointlist, &dTolerance))
+            return PyInt_FromLong(-1);
+        
+        nPointsCount = PyList_Size(pointlist);
+        
+        pPointsX = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
+        pPointsY = (MYFLT *)malloc(nPointsCount * sizeof(MYFLT));
+        pnUseFlag = (int *)malloc(nPointsCount * sizeof(int));
+        
+        tup = PyList_GET_ITEM(pointlist, 0);
+        if (PyTuple_Check(tup) == 1) {
+            for (i=0; i<nPointsCount; i++) {
+                tup = PyList_GET_ITEM(pointlist, i);
+                pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 0)));
+                pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyTuple_GET_ITEM(tup, 1)));
+                pnUseFlag[i] = 0;
+            }
         }
-    }
-    else {
-        for (i=0; i<nPointsCount; i++) {
-            tup = PyList_GET_ITEM(pointlist, i);
-            pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 0)));
-            pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 1)));
-            pnUseFlag[i] = 0;
+        else {
+            for (i=0; i<nPointsCount; i++) {
+                tup = PyList_GET_ITEM(pointlist, i);
+                pPointsX[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 0)));
+                pPointsY[i] = PyFloat_AsDouble(PyNumber_Float(PyList_GET_ITEM(tup, 1)));
+                pnUseFlag[i] = 0;
+            }
         }
-    }
 
-    // rescale points between 0. and 1.
-    xMax = pPointsX[nPointsCount-1];
-    yMin = 9999999999.9; yMax = -999999.9;
-    for (i=0; i<nPointsCount; i++) {
-        if (pPointsY[i] < yMin)
-            yMin = pPointsY[i];
-        else if (pPointsY[i] > yMax)
-            yMax = pPointsY[i];
-    }    
-    yRange = yMax - yMin;
+        // rescale points between 0. and 1.
+        xMax = pPointsX[nPointsCount-1];
+        yMin = 9999999999.9; yMax = -999999.9;
+        for (i=0; i<nPointsCount; i++) {
+            if (pPointsY[i] < yMin)
+                yMin = pPointsY[i];
+            else if (pPointsY[i] > yMax)
+                yMax = pPointsY[i];
+        }    
     for (i=0; i<nPointsCount; i++) {
         pPointsX[i] = pPointsX[i] / xMax;
         pPointsY[i] = (pPointsY[i] - yMin) / yMax;
@@ -1872,6 +1952,8 @@ static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, portaudio_count_devices_info},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_apis, METH_NOARGS, portaudio_count_host_apis_info},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, portaudio_list_devices_info},
+{"pa_get_input_max_channels", (PyCFunction)portaudio_get_input_max_channels, METH_O, portaudio_get_input_max_channels_info},
+{"pa_get_output_max_channels", (PyCFunction)portaudio_get_output_max_channels, METH_O, portaudio_get_output_max_channels_info},
 {"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, portaudio_get_output_devices_info},
 {"pa_get_input_devices", (PyCFunction)portaudio_get_input_devices, METH_NOARGS, portaudio_get_input_devices_info},
 {"pa_list_host_apis", (PyCFunction)portaudio_list_host_apis, METH_NOARGS, portaudio_list_host_apis_info},

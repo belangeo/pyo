@@ -924,9 +924,13 @@ class RunningThread(threading.Thread):
             else:
                 self.proc = subprocess.Popen(["%s %s" % (self.which_python, self.path)], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        else:
+        elif wx.Platform == "__WXMSW__":
                 self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        else:
+                self.proc = subprocess.Popen([self.which_python, self.path], cwd=self.cwd, 
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
 
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)

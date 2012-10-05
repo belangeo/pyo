@@ -1,3 +1,8 @@
+2012-10-05 belangeo <belangeo@gmail.com>
+
+    * Added new functions: pa_get_input_max_channels and pa_get_output_max_channels.
+    - rev 1020
+
 2012-08-17 belangeo <belangeo@gmail.com>
 
     * Added new object: OscTrig: An oscillator reading a waveform table with sample accurate reset signal.
