@@ -45,7 +45,6 @@ TODO before releasing _pyo_ version 1.0.
   * !AttackDetector, !PitchTrack
   * !ExpFader
   * !TrigRec, !TrigRead 
-  * !TrigVal
   * Expander
   * !VoiceSynth
   * STRev
