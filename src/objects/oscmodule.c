@@ -172,6 +172,20 @@ OscReceiver_delAddress(OscReceiver *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+OscReceiver_setValue(OscReceiver *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *address, *value;
+    
+    static char *kwlist[] = {"address", "value", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &address, &value))
+        Py_RETURN_NONE;
+
+    PyDict_SetItem(self->dict, address, value);
+    Py_RETURN_NONE;
+}
+  
 static PyObject * OscReceiver_getServer(OscReceiver* self) { GET_SERVER };
 static PyObject * OscReceiver_getStream(OscReceiver* self) { GET_STREAM };
 
@@ -186,6 +200,7 @@ static PyMethodDef OscReceiver_methods[] = {
 {"_getStream", (PyCFunction)OscReceiver_getStream, METH_NOARGS, "Returns stream object."},
 {"addAddress", (PyCFunction)OscReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
 {"delAddress", (PyCFunction)OscReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
+{"setValue", (PyCFunction)OscReceiver_setValue, METH_VARARGS|METH_KEYWORDS, "Sets value for a specified address."},
 {NULL}  /* Sentinel */
 };
 
@@ -1271,6 +1286,20 @@ OscListReceiver_delAddress(OscListReceiver *self, PyObject *arg)
 	return Py_None;
 }
 
+static PyObject *
+OscListReceiver_setValue(OscListReceiver *self, PyObject *args, PyObject *kwds)
+{
+    PyObject *address, *value;
+
+    static char *kwlist[] = {"address", "value", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &address, &value))
+        Py_RETURN_NONE;
+    
+    PyDict_SetItem(self->dict, address, value);
+    Py_RETURN_NONE;
+}
+
 static PyObject * OscListReceiver_getServer(OscListReceiver* self) { GET_SERVER };
 static PyObject * OscListReceiver_getStream(OscListReceiver* self) { GET_STREAM };
 
@@ -1285,6 +1314,7 @@ static PyMethodDef OscListReceiver_methods[] = {
     {"_getStream", (PyCFunction)OscListReceiver_getStream, METH_NOARGS, "Returns stream object."},
     {"addAddress", (PyCFunction)OscListReceiver_addAddress, METH_O, "Add a new address to the dictionary."},
     {"delAddress", (PyCFunction)OscListReceiver_delAddress, METH_O, "Remove an address from the dictionary."},
+    {"setValue", (PyCFunction)OscListReceiver_setValue, METH_VARARGS|METH_KEYWORDS, "Sets value for a specified address."},
     {NULL}  /* Sentinel */
 };
 

@@ -34,7 +34,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import sys
 from _core import *
 from _maps import *
-from types import IntType
+from types import IntType, ListType
 
 ######################################################################
 ### Open Sound Control
@@ -156,6 +156,7 @@ class OscReceive(PyoObject):
     addAddress(path, mul, add) : Adds new address(es) to the object's handler.
     delAddress(path) : Removes address(es) from the object's handler.
     setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
+    setValue(path, value) : Sets value for the specified address.
 
     Notes:
 
@@ -256,6 +257,26 @@ class OscReceive(PyoObject):
         
         """
         [obj.setInterpolation(x) for obj in self._base_objs]
+
+    def setValue(self, path, value):
+        """
+        Sets value for a given address.
+        
+        Parameters:
+        
+        path : string
+            Address to which the value should be attributed.
+        value : float
+            Value to attribute to the given address.
+
+        """
+        path, value, lmax = convertArgsToLists(path, value)
+        for i in range(lmax):
+            p = wrap(path,i)
+            if p in self._address:
+                self._mainReceiver.setValue(p, wrap(value,i))
+            else:
+                print 'Error: OscReceive.setValue, Illegal address "%s"' % p 
 
     def get(self, identifier=None, all=False):
         """
@@ -605,6 +626,7 @@ class OscListReceive(PyoObject):
     addAddress(path, mul, add) : Adds new address(es) to the object's handler.
     delAddress(path) : Removes address(es) from the object's handler.
     setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
+    setValue(path, value) : Sets value for the specified address.
 
     Notes:
 
@@ -715,6 +737,33 @@ class OscListReceive(PyoObject):
 
         """
         [obj.setInterpolation(x) for obj in self._base_objs]
+
+    def setValue(self, path, value):
+        """
+        Sets value for a given address.
+        
+        Parameters:
+        
+        path : string
+            Address to which the value should be attributed.
+        value : list of floats
+            List of values to attribute to the given address.
+
+        """
+        path, lmax = convertArgsToLists(path)
+        for i in range(lmax):
+            p = wrap(path,i)
+            if p in self._address:
+                if type(value[0]) == ListType:
+                    val = wrap(value,i)
+                else:
+                    val = value
+                if len(val) == self._num:
+                    self._mainReceiver.setValue(p, val)
+                else:
+                    print 'Error: OscListReceive.setValue, value must be of the same length as the `num` attribute.'
+            else:
+                print 'Error: OscListReceive.setValue, Illegal address "%s"' % p 
 
     def get(self, identifier=None, all=False):
         """
