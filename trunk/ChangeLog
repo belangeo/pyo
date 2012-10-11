@@ -1,3 +1,8 @@
+2012-10-11 belangeo <belangeo@gmail.com>
+
+    * Added new method to OscReceive and OscListReceive: setValue(path, value) let the user to initialize the value for a given path.
+    - rev 1022
+
 2012-10-05 belangeo <belangeo@gmail.com>
 
     * Added new functions: pa_get_input_max_channels and pa_get_output_max_channels.
