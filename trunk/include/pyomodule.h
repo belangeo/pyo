@@ -199,6 +199,7 @@ extern PyTypeObject OscType;
 extern PyTypeObject OscLoopType;
 extern PyTypeObject OscTrigType;
 extern PyTypeObject OscBankType;
+extern PyTypeObject SumOscType;
 extern PyTypeObject PulsarType;
 extern PyTypeObject NoiseType;
 extern PyTypeObject PinkNoiseType;
