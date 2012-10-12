@@ -1240,3 +1240,144 @@ class LFO(PyoObject):
         return self._type
     @type.setter
     def type(self, x): self.setType(x)
+
+class SumOsc(PyoObject):
+    """
+    Discrete summation formulae to produce complex spectra.
+    
+    This object implements a discrete summation formulae taken from
+    the paper 'The synthesis of complex audio spectra by means of 
+    discrete summation formulae' by James A. Moorer. The formulae
+    used is of this form:
+        
+    sin(theta) - a * sin(theta - beta)
+    ----------------------------------
+       1 + a**2 - 2 * a * cos(beta)
+       
+    where 'theta' and 'beta' are periodic functions and 'a' is 
+    the modulation index, providing control over the damping of 
+    the partials.
+    
+    The resulting sound is related to the family of modulation
+    techniques but this formulae express 'one-sided' spectra,
+    useful to avoid aliasing from the negative frequencies.
+
+    Parentclass: PyoObject
+    
+    Parameters:
+    
+    freq : float or PyoObject, optional
+        Base frequency in cycles per second. Defaults to 100.
+    ratio : float or PyoObject, optional
+        A factor used to stretch or compress the partial serie by 
+        manipulating the frequency of the modulation oscillator. 
+        Integer ratios give harmonic spectra. Defaults to 0.5.
+    index : float or PyoObject, optional
+        Damping of successive partials, between 0 and 1. With a 
+        value of 0.5, each partial is 6dB lower than the previous
+        partial. Defaults to 5.
+        
+    Methods:
+    
+    setFreq(x) : Replace the `freq` attribute.
+    setRatio(x) : Replace the `ratio` attribute.
+    setIndex(x) : Replace the `index` attribute.
+    
+    Attributes:
+    
+    freq : float or PyoObject, Base frequency in cycles per second.
+    ratio : float or PyoObject, Base/modulator frequency ratio.
+    index : float or PyoObject, High frequency damping.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> ind = LinTable([(0,.3), (20,.85), (300,.7), (1000,.5), (8191,.3)])
+    >>> m = Metro(4).play()
+    >>> tr = TrigEnv(m, table=ind, dur=4)
+    >>> f = SumOsc(freq=[301,300], ratio=[.2498,.2503], index=tr, mul=.2).out()
+    
+    """
+    def __init__(self, freq=100, ratio=0.5, index=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._freq = freq
+        self._ratio = ratio
+        self._index = index
+        self._mul = mul
+        self._add = add
+        freq, ratio, index, mul, add, lmax = convertArgsToLists(freq, ratio, index, mul, add)
+        self._base_objs = [SumOsc_base(wrap(freq,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['freq', 'ratio', 'index', 'mul', 'add']
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+        
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setRatio(self, x):
+        """
+        Replace the `ratio` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `ratio` attribute.
+        
+        """
+        self._ratio = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRatio(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `index` attribute.
+        
+        """
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(10, 500, "lin", "freq", self._freq),
+                          SLMap(.01, 10, "lin", "ratio", self._ratio),
+                          SLMap(0, 1, "lin", "index", self._index),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+        
+    @property
+    def freq(self):
+        """float or PyoObject. Base frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def ratio(self):
+        """float or PyoObject. Base/modulator frequency ratio.""" 
+        return self._ratio
+    @ratio.setter
+    def ratio(self, x): self.setRatio(x)
+
+    @property
+    def index(self):
+        """float or PyoObject. Index, high frequency damping.""" 
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)

@@ -3533,7 +3533,7 @@ class Editor(stc.StyledTextCtrl):
             self.GotoLine(line)
             halfNumLinesOnScreen = self.LinesOnScreen() / 2
             self.ScrollToLine(line - halfNumLinesOnScreen)
-            self.GetParent().GetParent().GetParent().markers.setSelected(self.current_marker)
+            self.GetParent().GetParent().GetParent().GetParent().markers.setSelected(self.current_marker)
 
     def OnKeyDown(self, evt):
         if PLATFORM == "darwin":
@@ -3684,7 +3684,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "¬")
+        #             self.InsertTextUTF8(pos, "Â¬")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()
@@ -3716,13 +3716,13 @@ class Editor(stc.StyledTextCtrl):
         self.markers_dict = dic
         for line in self.markers_dict.keys():
             self.MarkerAdd(line, 0)
-        self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def addMarker(self, line):
         if line not in self.markers_dict.keys():
             self.MarkerAdd(line, 0)
             self.markers_dict[line] = ""
-            self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
             return True
         else:
             return False
@@ -3731,12 +3731,12 @@ class Editor(stc.StyledTextCtrl):
         if line in self.markers_dict.keys():
             del self.markers_dict[line]
             self.MarkerDelete(line, 0)
-            self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def deleteAllMarkers(self):
         self.markers_dict = {}
         self.MarkerDeleteAll(0)
-        self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+        self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def addMarkerComment(self, line):
         if line in self.markers_dict.keys():
@@ -3749,7 +3749,7 @@ class Editor(stc.StyledTextCtrl):
                 dlg.Destroy()
                 return
             self.markers_dict[line] = comment
-            self.GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
+            self.GetParent().GetParent().GetParent().GetParent().markers.setDict(self.markers_dict)
 
     def OnMarginClick(self, evt):
         if evt.GetMargin() == 0:

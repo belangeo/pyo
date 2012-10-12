@@ -1,3 +1,8 @@
+2012-10-12 belangeo <belangeo@gmail.com>
+
+    * Added new object: SumOsc: Discrete summation formulae to produce complex spectra.
+    - rev 1023
+
 2012-10-11 belangeo <belangeo@gmail.com>
 
     * Added new method to OscReceive and OscListReceive: setValue(path, value) let the user to initialize the value for a given path.

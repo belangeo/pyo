@@ -2393,6 +2393,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&OscBankType);
     PyModule_AddObject(m, "OscBank_base", (PyObject *)&OscBankType);
+
+    if (PyType_Ready(&SumOscType) < 0)
+        return;
+    Py_INCREF(&SumOscType);
+    PyModule_AddObject(m, "SumOsc_base", (PyObject *)&SumOscType);
     
     if (PyType_Ready(&TableReadType) < 0)
         return;
