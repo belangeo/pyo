@@ -193,6 +193,66 @@ portaudio_list_devices(){
     Py_RETURN_NONE;
 }
 
+#define portaudio_get_devices_infos_info \
+"\nReturns informations about all devices found by Portaudio.\n\npa_get_devices_infos()\n\n\
+This function returns two dictionaries, one containing a dictionary for each input device and one containing a dictionary for each output device.\
+Keys of outer dictionaries are the device index as returned by Portaudio. Keys of inner dictionaries are: 'name', 'host api index', 'default sr' and 'latency'.\n\nExamples:\n\n    \
+>>> inputs, outputs = pa_get_devices_infos()\n    \
+>>> print '- Inputs:'\n    \
+>>> for index in sorted(inputs.keys()):\n    \
+...     print '  Device index:', index\n    \
+...     for key in ['name', 'host api index', 'default sr', 'latency']:\n    \
+...         print '    %s:' % key, inputs[index][key]\n    \
+>>> print '- Outputs:'\n    \
+>>> for index in sorted(outputs.keys()):\n    \
+...     print '  Device index:', index\n    \
+...     for key in ['name', 'host api index', 'default sr', 'latency']:\n    \
+...         print '    %s:' % key, outputs[index][key]\n\n"
+
+static PyObject*
+portaudio_get_devices_infos(){
+    PaError err;
+    PaDeviceIndex n, i;
+    PyObject *inDict, *outDict, *tmpDict;
+    inDict = PyDict_New();
+    outDict = PyDict_New();
+
+	err = Pa_Initialize();
+    if (err != paNoError) {
+        portaudio_assert(err, "Pa_Initialize");
+		Py_RETURN_NONE;
+	}
+    else {
+        n = Pa_GetDeviceCount();
+        if (n < 0){
+            portaudio_assert(n, "Pa_GetDeviceCount");
+            Py_RETURN_NONE;
+        }
+        else {
+            for (i=0; i < n; ++i){
+                const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
+                assert(info);
+                tmpDict = PyDict_New();
+                if (info->maxInputChannels > 0) {
+                    PyDict_SetItemString(tmpDict, "name", PyString_FromString(info->name));
+                    PyDict_SetItemString(tmpDict, "host api index", PyInt_FromLong((int)info->hostApi));
+                    PyDict_SetItemString(tmpDict, "default sr", PyInt_FromLong((int)info->defaultSampleRate));
+                    PyDict_SetItemString(tmpDict, "latency", PyFloat_FromDouble((float)info->defaultLowInputLatency));
+                    PyDict_SetItem(inDict, PyInt_FromLong(i), PyDict_Copy(tmpDict));
+                }
+                if (info->maxOutputChannels > 0) {
+                    PyDict_SetItemString(tmpDict, "name", PyString_FromString(info->name));
+                    PyDict_SetItemString(tmpDict, "host api index", PyInt_FromLong((int)info->hostApi));
+                    PyDict_SetItemString(tmpDict, "default sr", PyInt_FromLong((int)info->defaultSampleRate));
+                    PyDict_SetItemString(tmpDict, "latency", PyFloat_FromDouble((float)info->defaultLowOutputLatency));
+                    PyDict_SetItem(outDict, PyInt_FromLong(i), PyDict_Copy(tmpDict));
+                }
+            }
+            return Py_BuildValue("(OO)", inDict, outDict);
+        }        
+    }
+}
+
 #define portaudio_get_output_devices_info \
 "\nReturns output devices (device names, device indexes) found by Portaudio.\n\npa_get_output_devices()\n\n`device names` is a list of strings and `device indexes` is a list of the actual\nPortaudio index of each device.\n\nExamples:\n\n    \
 >>> outs = pa_get_output_devices()\n    \
@@ -1952,6 +2012,7 @@ static PyMethodDef pyo_functions[] = {
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, portaudio_count_devices_info},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_apis, METH_NOARGS, portaudio_count_host_apis_info},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, portaudio_list_devices_info},
+{"pa_get_devices_infos", (PyCFunction)portaudio_get_devices_infos, METH_NOARGS, portaudio_get_devices_infos_info},
 {"pa_get_input_max_channels", (PyCFunction)portaudio_get_input_max_channels, METH_O, portaudio_get_input_max_channels_info},
 {"pa_get_output_max_channels", (PyCFunction)portaudio_get_output_max_channels, METH_O, portaudio_get_output_max_channels_info},
 {"pa_get_output_devices", (PyCFunction)portaudio_get_output_devices, METH_NOARGS, portaudio_get_output_devices_info},

@@ -1250,9 +1250,7 @@ class SumOsc(PyoObject):
     discrete summation formulae' by James A. Moorer. The formulae
     used is of this form:
         
-    sin(theta) - a * sin(theta - beta)
-    ----------------------------------
-       1 + a**2 - 2 * a * cos(beta)
+    (sin(theta) - a * sin(theta - beta)) / (1 + a**2 - 2 * a * cos(beta))
        
     where 'theta' and 'beta' are periodic functions and 'a' is 
     the modulation index, providing control over the damping of 
