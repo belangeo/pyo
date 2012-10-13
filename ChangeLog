@@ -1,3 +1,8 @@
+2012-10-13 belangeo <belangeo@gmail.com>
+
+    * Added new function: pa_get_devices_infos: Returns info about all devices found by Portaudio.
+    - rev 1024
+
 2012-10-12 belangeo <belangeo@gmail.com>
 
     * Added new object: SumOsc: Discrete summation formulae to produce complex spectra.
