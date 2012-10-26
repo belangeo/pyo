@@ -1,3 +1,9 @@
+-------------------------------------------------------------------------------------
+
+2012-10-26 belangeo <belangeo@gmail.com>
+
+    * rev 1025: Release tag: 0.6.3.
+
 2012-10-13 belangeo <belangeo@gmail.com>
 
     * Added new function: pa_get_devices_infos: Returns info about all devices found by Portaudio.

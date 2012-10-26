@@ -1,15 +1,5 @@
 echo off
 
-echo *** Compile for python2.5 - single precision ***
-C:\Python25\python.exe setup.py install
-
-RMDIR /S /Q build
-
-echo *** Compile for python2.5 - double precision ***
-C:\Python25\python.exe setup.py install --use-double
-
-RMDIR /S /Q build
-
 echo *** Compile for python2.6 - single precision ***
 C:\Python26\python.exe setup.py install
 
