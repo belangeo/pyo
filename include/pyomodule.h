@@ -329,8 +329,10 @@ extern PyTypeObject SndTableType;
 extern PyTypeObject DataTableType;
 extern PyTypeObject NewTableType;
 extern PyTypeObject TableRecType;
+extern PyTypeObject TableRecTimeStreamType;
 extern PyTypeObject TableMorphType;
 extern PyTypeObject TrigTableRecType;
+extern PyTypeObject TrigTableRecTimeStreamType;
 
 extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;

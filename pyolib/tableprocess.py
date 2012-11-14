@@ -1537,6 +1537,9 @@ class TableRec(PyoObject):
     >>> t = NewTable(length=1, chnls=1)
     >>> rec = TableRec(a, table=t, fadetime=0.01)
     >>> tr = TrigEnv(rec['trig'], table=t, dur=1).out()
+    
+    obj['time'] outputs an audio stream of the current recording time, 
+    in samples.
 
     See also: NewTable, TrigTableRec
 
@@ -1556,15 +1559,28 @@ class TableRec(PyoObject):
     """
     def __init__(self, input, table, fadetime=0):
         PyoObject.__init__(self)
+        self._time_dummy = []
         self._input = input
         self._table = table
         self._in_fader = InputFader(input)
         in_fader, table, fadetime, lmax = convertArgsToLists(self._in_fader, table, fadetime)
         self._base_objs = [TableRec_base(wrap(in_fader,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+        self._time_objs = [TableRecTimeStream_base(obj) for obj in self._base_objs]
 
     def __dir__(self):
         return ['input', 'table', 'mul', 'add']
+
+    def __getitem__(self, i):
+        if i == 'time':
+            self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
+            return self._time_dummy[-1]
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -2042,6 +2058,9 @@ class TrigTableRec(PyoObject):
     TrigTableRec will sends a trigger signal at the end of the recording. 
     User can retrieve the trigger streams by calling obj['trig'].
 
+    obj['time'] outputs an audio stream of the current recording time, 
+    in samples.
+
     See also: NewTable, TableRec
 
     Examples:
@@ -2058,6 +2077,7 @@ class TrigTableRec(PyoObject):
     """
     def __init__(self, input, trig, table, fadetime=0):
         PyoObject.__init__(self)
+        self._time_dummy = []
         self._input = input
         self._trig = trig
         self._table = table
@@ -2066,9 +2086,21 @@ class TrigTableRec(PyoObject):
         in_fader, in_fader2, table, fadetime, lmax = convertArgsToLists(self._in_fader, self._in_fader2, table, fadetime)
         self._base_objs = [TrigTableRec_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(table,i), wrap(fadetime,i)) for i in range(len(table))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+        self._time_objs = [TrigTableRecTimeStream_base(obj) for obj in self._base_objs]
 
     def __dir__(self):
         return ['input', 'trig', 'table', 'mul', 'add']
+
+    def __getitem__(self, i):
+        if i == 'time':
+            self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
+            return self._time_dummy[-1]
+        if type(i) == SliceType:
+            return self._base_objs[i]
+        if i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            print "'i' too large!"         
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
