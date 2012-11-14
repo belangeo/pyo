@@ -18,6 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
+import os
 from _core import *
 from _widgets import createServerGUI
         
@@ -119,6 +120,8 @@ class Server(object):
         
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
+        if os.environ.has_key("PYO_SERVER_AUDIO"):
+            audio = os.environ["PYO_SERVER_AUDIO"]
         self._nchnls = nchnls
         self._amp = 1.
         self._verbosity = 7

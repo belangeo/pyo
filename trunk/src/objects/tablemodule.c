@@ -4552,6 +4552,7 @@ typedef struct {
     MYFLT fadeInSample;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
+    MYFLT *time_buffer_streams;
 } TableRec;
 
 static void
@@ -4563,6 +4564,12 @@ TableRec_compute_next_data_frame(TableRec *self)
 
     for (i=0; i<self->bufsize; i++) {
         self->trigsBuffer[i] = 0.0;
+    }
+
+    if (!self->active) {
+        for (i=0; i<self->bufsize; i++) {
+            self->time_buffer_streams[i] = self->pointer;
+        }
     }
 
     if ((size - self->pointer) >= self->bufsize)
@@ -4577,7 +4584,7 @@ TableRec_compute_next_data_frame(TableRec *self)
             self->active = 0;
         }    
     }
-    
+
     if (self->pointer < size) {   
         upBound = (int)(size - self->fadeInSample);
         
@@ -4593,10 +4600,21 @@ TableRec_compute_next_data_frame(TableRec *self)
             else
                 val = 1.;
             buffer[i] = in[i] * val;
-            self->pointer++;
+            self->time_buffer_streams[i] = self->pointer++;
         }
         NewTable_recordChunk((NewTable *)self->table, buffer, num);
+        
+        if (num < self->bufsize) {
+            for (i=num; i<self->bufsize; i++) {
+                self->time_buffer_streams[i] = self->pointer;
+            }
+        }
     }    
+}
+
+static MYFLT *
+TableRec_getTimeBuffer(TableRec *self) {
+    return self->time_buffer_streams;
 }
 
 static int
@@ -4626,6 +4644,7 @@ TableRec_dealloc(TableRec* self)
 {
     pyo_DEALLOC
     free(self->trigsBuffer);
+    free(self->time_buffer_streams);
     TableRec_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -4667,9 +4686,10 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
-    
+    self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
+
     for (i=0; i<self->bufsize; i++) {
-        self->trigsBuffer[i] = 0.0;
+        self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }    
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
@@ -4777,6 +4797,250 @@ TableRec_members,             /* tp_members */
 0,      /* tp_init */
 0,                         /* tp_alloc */
 TableRec_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    TableRec *mainPlayer;
+    int modebuffer[2];
+} TableRecTimeStream;
+
+static void TableRecTimeStream_postprocessing_ii(TableRecTimeStream *self) { POST_PROCESSING_II };
+static void TableRecTimeStream_postprocessing_ai(TableRecTimeStream *self) { POST_PROCESSING_AI };
+static void TableRecTimeStream_postprocessing_ia(TableRecTimeStream *self) { POST_PROCESSING_IA };
+static void TableRecTimeStream_postprocessing_aa(TableRecTimeStream *self) { POST_PROCESSING_AA };
+static void TableRecTimeStream_postprocessing_ireva(TableRecTimeStream *self) { POST_PROCESSING_IREVA };
+static void TableRecTimeStream_postprocessing_areva(TableRecTimeStream *self) { POST_PROCESSING_AREVA };
+static void TableRecTimeStream_postprocessing_revai(TableRecTimeStream *self) { POST_PROCESSING_REVAI };
+static void TableRecTimeStream_postprocessing_revaa(TableRecTimeStream *self) { POST_PROCESSING_REVAA };
+static void TableRecTimeStream_postprocessing_revareva(TableRecTimeStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TableRecTimeStream_setProcMode(TableRecTimeStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TableRecTimeStream_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TableRecTimeStream_compute_next_data_frame(TableRecTimeStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    tmp = TableRec_getTimeBuffer((TableRec *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TableRecTimeStream_traverse(TableRecTimeStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TableRecTimeStream_clear(TableRecTimeStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TableRecTimeStream_dealloc(TableRecTimeStream* self)
+{
+    pyo_DEALLOC
+    TableRecTimeStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TableRecTimeStream *self;
+    self = (TableRecTimeStream *)type->tp_alloc(type, 0);
+    
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TableRecTimeStream_compute_next_data_frame);
+    self->mode_func_ptr = TableRecTimeStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TableRec *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TableRecTimeStream_getServer(TableRecTimeStream* self) { GET_SERVER };
+static PyObject * TableRecTimeStream_getStream(TableRecTimeStream* self) { GET_STREAM };
+static PyObject * TableRecTimeStream_setMul(TableRecTimeStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * TableRecTimeStream_setAdd(TableRecTimeStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * TableRecTimeStream_setSub(TableRecTimeStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * TableRecTimeStream_setDiv(TableRecTimeStream *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TableRecTimeStream_play(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TableRecTimeStream_out(TableRecTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TableRecTimeStream_stop(TableRecTimeStream *self) { STOP };
+
+static PyObject * TableRecTimeStream_multiply(TableRecTimeStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * TableRecTimeStream_inplace_multiply(TableRecTimeStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TableRecTimeStream_add(TableRecTimeStream *self, PyObject *arg) { ADD };
+static PyObject * TableRecTimeStream_inplace_add(TableRecTimeStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TableRecTimeStream_sub(TableRecTimeStream *self, PyObject *arg) { SUB };
+static PyObject * TableRecTimeStream_inplace_sub(TableRecTimeStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TableRecTimeStream_div(TableRecTimeStream *self, PyObject *arg) { DIV };
+static PyObject * TableRecTimeStream_inplace_div(TableRecTimeStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TableRecTimeStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TableRecTimeStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TableRecTimeStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TableRecTimeStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TableRecTimeStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableRecTimeStream_methods[] = {
+    {"getServer", (PyCFunction)TableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TableRecTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TableRecTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TableRecTimeStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TableRecTimeStream_as_number = {
+    (binaryfunc)TableRecTimeStream_add,                         /*nb_add*/
+    (binaryfunc)TableRecTimeStream_sub,                         /*nb_subtract*/
+    (binaryfunc)TableRecTimeStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)TableRecTimeStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TableRecTimeStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TableRecTimeStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TableRecTimeStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TableRecTimeStream_base",         /*tp_name*/
+    sizeof(TableRecTimeStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TableRecTimeStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TableRecTimeStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
+    (traverseproc)TableRecTimeStream_traverse,   /* tp_traverse */
+    (inquiry)TableRecTimeStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TableRecTimeStream_methods,             /* tp_methods */
+    TableRecTimeStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TableRecTimeStream_new,                 /* tp_new */
 };
 
 /******************************/
@@ -5021,6 +5285,7 @@ typedef struct {
     MYFLT fadeInSample;
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
+    MYFLT *time_buffer_streams;
 } TrigTableRec;
 
 static void
@@ -5065,13 +5330,20 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                 else
                     val = 1.;
                 buffer[i] = in[i] * val;
-                self->pointer++;
+                self->time_buffer_streams[i] = self->pointer++;
             }
             NewTable_recordChunk((NewTable *)self->table, buffer, num);
+        
+            if (num < self->bufsize) {
+                for (i=num; i<self->bufsize; i++) {
+                    self->time_buffer_streams[i] = self->pointer;
+                }
+            }
         }
     }
     else {
         for (j=0; j<self->bufsize; j++) {
+            self->time_buffer_streams[j] = self->pointer;
             if (trig[j] == 1.0) {
                 self->active = 1;
                 self->pointer = 0;
@@ -5102,13 +5374,24 @@ TrigTableRec_compute_next_data_frame(TrigTableRec *self)
                     else
                         val = 1.;
                     buffer[i] = in[i+j] * val;
-                    self->pointer++;
+                    self->time_buffer_streams[i+j] = self->pointer++;
                 }
                 NewTable_recordChunk((NewTable *)self->table, buffer, num);
+
+                if (num < (self->bufsize-j)) {
+                    for (i=num; i<(self->bufsize-j); i++) {
+                        self->time_buffer_streams[i+j] = self->pointer;
+                    }
+                }
                 break;
             }
         }
     }
+}
+
+static MYFLT *
+TrigTableRec_getTimeBuffer(TrigTableRec *self) {
+    return self->time_buffer_streams;
 }
 
 static int
@@ -5143,6 +5426,7 @@ TrigTableRec_dealloc(TrigTableRec* self)
     pyo_DEALLOC
     free(self->trigsBuffer);
     TrigTableRec_clear(self);
+    free(self->time_buffer_streams);
     self->ob_type->tp_free((PyObject*)self);
 }
 
@@ -5189,9 +5473,10 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+    self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
     
     for (i=0; i<self->bufsize; i++) {
-        self->trigsBuffer[i] = 0.0;
+        self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }    
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
@@ -5294,4 +5579,248 @@ PyTypeObject TrigTableRecType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     TrigTableRec_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    TrigTableRec *mainPlayer;
+    int modebuffer[2];
+} TrigTableRecTimeStream;
+
+static void TrigTableRecTimeStream_postprocessing_ii(TrigTableRecTimeStream *self) { POST_PROCESSING_II };
+static void TrigTableRecTimeStream_postprocessing_ai(TrigTableRecTimeStream *self) { POST_PROCESSING_AI };
+static void TrigTableRecTimeStream_postprocessing_ia(TrigTableRecTimeStream *self) { POST_PROCESSING_IA };
+static void TrigTableRecTimeStream_postprocessing_aa(TrigTableRecTimeStream *self) { POST_PROCESSING_AA };
+static void TrigTableRecTimeStream_postprocessing_ireva(TrigTableRecTimeStream *self) { POST_PROCESSING_IREVA };
+static void TrigTableRecTimeStream_postprocessing_areva(TrigTableRecTimeStream *self) { POST_PROCESSING_AREVA };
+static void TrigTableRecTimeStream_postprocessing_revai(TrigTableRecTimeStream *self) { POST_PROCESSING_REVAI };
+static void TrigTableRecTimeStream_postprocessing_revaa(TrigTableRecTimeStream *self) { POST_PROCESSING_REVAA };
+static void TrigTableRecTimeStream_postprocessing_revareva(TrigTableRecTimeStream *self) { POST_PROCESSING_REVAREVA };
+
+static void
+TrigTableRecTimeStream_setProcMode(TrigTableRecTimeStream *self) {
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = TrigTableRecTimeStream_postprocessing_revareva;
+            break;
+    }  
+}
+
+static void
+TrigTableRecTimeStream_compute_next_data_frame(TrigTableRecTimeStream *self)
+{
+    int i;
+    MYFLT *tmp;
+    tmp = TrigTableRec_getTimeBuffer((TrigTableRec *)self->mainPlayer);
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = tmp[i];
+    }    
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+TrigTableRecTimeStream_traverse(TrigTableRecTimeStream *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->mainPlayer);
+    return 0;
+}
+
+static int 
+TrigTableRecTimeStream_clear(TrigTableRecTimeStream *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->mainPlayer);    
+    return 0;
+}
+
+static void
+TrigTableRecTimeStream_dealloc(TrigTableRecTimeStream* self)
+{
+    pyo_DEALLOC
+    TrigTableRecTimeStream_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TrigTableRecTimeStream_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *maintmp=NULL;
+    TrigTableRecTimeStream *self;
+    self = (TrigTableRecTimeStream *)type->tp_alloc(type, 0);
+    
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TrigTableRecTimeStream_compute_next_data_frame);
+    self->mode_func_ptr = TrigTableRecTimeStream_setProcMode;
+
+    static char *kwlist[] = {"mainPlayer", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &maintmp))
+        Py_RETURN_NONE;
+    
+    Py_XDECREF(self->mainPlayer);
+    Py_INCREF(maintmp);
+    self->mainPlayer = (TrigTableRec *)maintmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TrigTableRecTimeStream_getServer(TrigTableRecTimeStream* self) { GET_SERVER };
+static PyObject * TrigTableRecTimeStream_getStream(TrigTableRecTimeStream* self) { GET_STREAM };
+static PyObject * TrigTableRecTimeStream_setMul(TrigTableRecTimeStream *self, PyObject *arg) { SET_MUL };	
+static PyObject * TrigTableRecTimeStream_setAdd(TrigTableRecTimeStream *self, PyObject *arg) { SET_ADD };	
+static PyObject * TrigTableRecTimeStream_setSub(TrigTableRecTimeStream *self, PyObject *arg) { SET_SUB };	
+static PyObject * TrigTableRecTimeStream_setDiv(TrigTableRecTimeStream *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TrigTableRecTimeStream_play(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TrigTableRecTimeStream_out(TrigTableRecTimeStream *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TrigTableRecTimeStream_stop(TrigTableRecTimeStream *self) { STOP };
+
+static PyObject * TrigTableRecTimeStream_multiply(TrigTableRecTimeStream *self, PyObject *arg) { MULTIPLY };
+static PyObject * TrigTableRecTimeStream_inplace_multiply(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TrigTableRecTimeStream_add(TrigTableRecTimeStream *self, PyObject *arg) { ADD };
+static PyObject * TrigTableRecTimeStream_inplace_add(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TrigTableRecTimeStream_sub(TrigTableRecTimeStream *self, PyObject *arg) { SUB };
+static PyObject * TrigTableRecTimeStream_inplace_sub(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TrigTableRecTimeStream_div(TrigTableRecTimeStream *self, PyObject *arg) { DIV };
+static PyObject * TrigTableRecTimeStream_inplace_div(TrigTableRecTimeStream *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef TrigTableRecTimeStream_members[] = {
+    {"server", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, stream), 0, "Stream object."},
+    {"mul", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(TrigTableRecTimeStream, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef TrigTableRecTimeStream_methods[] = {
+    {"getServer", (PyCFunction)TrigTableRecTimeStream_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)TrigTableRecTimeStream_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)TrigTableRecTimeStream_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)TrigTableRecTimeStream_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)TrigTableRecTimeStream_stop, METH_NOARGS, "Stops computing."},
+    {"setMul", (PyCFunction)TrigTableRecTimeStream_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)TrigTableRecTimeStream_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)TrigTableRecTimeStream_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)TrigTableRecTimeStream_setDiv, METH_O, "Sets inverse mul factor."},    
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TrigTableRecTimeStream_as_number = {
+    (binaryfunc)TrigTableRecTimeStream_add,                         /*nb_add*/
+    (binaryfunc)TrigTableRecTimeStream_sub,                         /*nb_subtract*/
+    (binaryfunc)TrigTableRecTimeStream_multiply,                    /*nb_multiply*/
+    (binaryfunc)TrigTableRecTimeStream_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)TrigTableRecTimeStream_inplace_add,                 /*inplace_add*/
+    (binaryfunc)TrigTableRecTimeStream_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)TrigTableRecTimeStream_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)TrigTableRecTimeStream_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject TrigTableRecTimeStreamType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.TrigTableRecTimeStream_base",         /*tp_name*/
+    sizeof(TrigTableRecTimeStream),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)TrigTableRecTimeStream_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &TrigTableRecTimeStream_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES,  /*tp_flags*/
+    "TrigTableRecTimeStream objects. Returns the current recording time, in samples, of a TableRec object.",           /* tp_doc */
+    (traverseproc)TrigTableRecTimeStream_traverse,   /* tp_traverse */
+    (inquiry)TrigTableRecTimeStream_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    TrigTableRecTimeStream_methods,             /* tp_methods */
+    TrigTableRecTimeStream_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    TrigTableRecTimeStream_new,                 /* tp_new */
 };

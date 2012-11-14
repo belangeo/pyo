@@ -2243,6 +2243,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&TableRecType);
     PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
+
+    if (PyType_Ready(&TableRecTimeStreamType) < 0)
+        return;
+    Py_INCREF(&TableRecTimeStreamType);
+    PyModule_AddObject(m, "TableRecTimeStream_base", (PyObject *)&TableRecTimeStreamType);
    
     if (PyType_Ready(&TableMorphType) < 0)
         return;
@@ -2253,6 +2258,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&TrigTableRecType);
     PyModule_AddObject(m, "TrigTableRec_base", (PyObject *)&TrigTableRecType);
+
+    if (PyType_Ready(&TrigTableRecTimeStreamType) < 0)
+        return;
+    Py_INCREF(&TrigTableRecTimeStreamType);
+    PyModule_AddObject(m, "TrigTableRecTimeStream_base", (PyObject *)&TrigTableRecTimeStreamType);
    
     /* Matrix objects */
     if (PyType_Ready(&MatrixStreamType) < 0)
