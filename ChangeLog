@@ -1,3 +1,8 @@
+2012-11-14 belangeo <belangeo@gmail.com>
+
+    * Added new object: TablePut: Writes values, without repetitions, from an audio stream into a DataTable.
+    - rev 1027
+
 -------------------------------------------------------------------------------------
 
 2012-10-26 belangeo <belangeo@gmail.com>

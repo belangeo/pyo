@@ -1503,7 +1503,7 @@ class TableRec(PyoObject):
 
     input : PyoObject
         Audio signal to write in the table.
-    table : PyoTableObject
+    table : NewTable
         The table where to write samples.
     fadetime : float, optional
         Fade time at the beginning and the end of the recording 
@@ -1520,7 +1520,7 @@ class TableRec(PyoObject):
     Attributes:
 
     input : PyoObject. Audio signal to write in the table.
-    table : PyoTableObject. The table where to write samples.
+    table : NewTable. The table where to write samples.
 
     Notes:
 
@@ -1569,7 +1569,7 @@ class TableRec(PyoObject):
         self._time_objs = [TableRecTimeStream_base(obj) for obj in self._base_objs]
 
     def __dir__(self):
-        return ['input', 'table', 'mul', 'add']
+        return ['input', 'table']
 
     def __getitem__(self, i):
         if i == 'time':
@@ -1633,7 +1633,7 @@ class TableRec(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. The table where to write samples."""
+        """NewTable. The table where to write samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
@@ -2031,7 +2031,7 @@ class TrigTableRec(PyoObject):
         Audio signal to write in the table.
     trig : PyoObject
         Audio signal sending triggers.
-    table : PyoTableObject
+    table : NewTable
         The table where to write samples.
     fadetime : float, optional
         Fade time at the beginning and the end of the recording 
@@ -2047,7 +2047,7 @@ class TrigTableRec(PyoObject):
 
     input : PyoObject. Audio signal to write in the table.
     trig : PyoObject. Audio signal sending triggers.
-    table : PyoTableObject. The table where to write samples.
+    table : NewTable. The table where to write samples.
 
     Notes:
 
@@ -2089,7 +2089,7 @@ class TrigTableRec(PyoObject):
         self._time_objs = [TrigTableRecTimeStream_base(obj) for obj in self._base_objs]
 
     def __dir__(self):
-        return ['input', 'trig', 'table', 'mul', 'add']
+        return ['input', 'trig', 'table']
 
     def __getitem__(self, i):
         if i == 'time':
@@ -2175,7 +2175,7 @@ class TrigTableRec(PyoObject):
 
     @property
     def table(self):
-        """PyoTableObject. The table where to write samples."""
+        """NewTable. The table where to write samples."""
         return self._table
     @table.setter
     def table(self, x): self.setTable(x)
@@ -2508,3 +2508,133 @@ class Looper(PyoObject):
         return self._autosmooth
     @autosmooth.setter
     def autosmooth(self, x): self.setAutoSmooth(x)
+    
+class TablePut(PyoObject):
+    """
+    Writes values, without repetitions, from an audio stream into a DataTable.
+
+    See `DataTable` to create an empty table.
+
+    TablePut takes an audio input and writes values into a DataTable but
+    only when value changes. This allow to record only new values, without
+    repetitions.
+
+    The play method is not called at the object creation time. It starts
+    the recording into the table until the table is full. Calling the 
+    play method again restarts the recording and overwrites previously
+    recorded values.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Audio signal to write in the table.
+    table : DataTable
+        The table where to write values.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setTable(x) : Replace the `table` attribute.
+    play() : Start the recording at the beginning of the table.
+    stop() : Stop the recording. Otherwise, record through the 
+        end of the table.
+
+    Attributes:
+
+    input : PyoObject. Audio signal to write in the table.
+    table : DataTable. The table where to write values.
+
+    Notes:
+
+    The out() method is bypassed. TablePut returns no signal.
+
+    TablePut has no `mul` and `add` attributes.
+
+    TablePut will sends a trigger signal at the end of the recording. 
+    User can retrieve the trigger streams by calling obj['trig'].
+
+    See also: DataTable, NewTable, TableRec
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = DataTable(size=16)
+    >>> rnd = Choice(range(200, 601, 50), freq=16)
+    >>> rec = TablePut(rnd, t).play()
+    >>> met = Metro(.125).play()
+    >>> ind = Counter(met, max=16)
+    >>> fr = TableIndex(t, ind, mul=[1,1.005])
+    >>> osc = SineLoop(fr, feedback=.08, mul=.3).out()
+
+    """
+    def __init__(self, input, table):
+        PyoObject.__init__(self)
+        self._input = input
+        self._table = table
+        self._in_fader = InputFader(input)
+        in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
+        self._base_objs = [TablePut_base(wrap(in_fader,i), wrap(table,i)) for i in range(len(table))]
+        self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
+
+    def __dir__(self):
+        return ['input', 'table']
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass    
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        Parameters:
+
+        x : DataTable
+            new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+      
+    @property
+    def input(self):
+        """PyoObject. Audio signal to write in the table.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def table(self):
+        """DataTable. The table where to write values."""
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
