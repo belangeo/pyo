@@ -702,13 +702,28 @@ class Bidule:
 
 snip_faces = {'face': DEFAULT_FONT_FACE, 'size': FONT_SIZE}
 
+##### Data Event for processing events from the running thread #####
+wxDATA_EVENT = wx.NewEventType()
+
+def EVT_DATA_EVENT(win, func):
+    win.Connect(-1, -1, wxDATA_EVENT, func)
+
+class DataEvent(wx.PyEvent):
+    def __init__(self, data):
+        wx.PyEvent.__init__(self)
+        self.SetEventType(wxDATA_EVENT)
+        self.data = data
+
+    def Clone (self): 
+        self.__class__ (self.GetId())
+
+
 class RunningThread(threading.Thread):
-    def __init__(self, path, cwd, outputlog, removeProcess):
+    def __init__(self, path, cwd, event_receiver):
         threading.Thread.__init__(self)
         self.path = path
         self.cwd = cwd
-        self.outputlog = outputlog
-        self.removeProcess = removeProcess
+        self.event_receiver = event_receiver
         self.terminated = False
         self.pid = None
     
@@ -785,8 +800,8 @@ class RunningThread(threading.Thread):
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        self.outputlog(output)
-        self.removeProcess(self.pid, self.filename)
+        data_event = DataEvent({"log": output, "pid": self.pid, "filename": self.filename})
+        wx.PostEvent(self.event_receiver, data_event)
 
 class KeyCommandsFrame(wx.Frame):
     def __init__(self, parent):
@@ -1669,6 +1684,8 @@ class MainFrame(wx.Frame):
 
         self.Bind(wx.EVT_CLOSE, self.OnClose)
 
+        EVT_DATA_EVENT(self, self.format_outputLog)
+
         self.snippet_frame = SnippetFrame(self, title='Snippet Editor', pos=(25,25), size=(700,450))
         self.style_frame = ColourEditor(self, title='Style Editor', pos=(100,100), size=(500,550))
         self.style_frame.setCurrentStyle(PREF_STYLE)
@@ -2523,12 +2540,14 @@ class MainFrame(wx.Frame):
             newtext += line + "\n"
         return newtext
 
-    def appendLog(self, text):
-        self.panel.outputlog.setLog(text)
+    def format_outputLog(self, evt):
+        data = evt.data
+        self.panel.outputlog.setLog(data["log"])
+        self.panel.outputlog.removeProcess(data["pid"], data["filename"])
 
     def run(self, path):
         cwd = self.getCurrentWorkingDirectory()
-        th = RunningThread(path, cwd, self.appendLog, self.panel.outputlog.removeProcess)
+        th = RunningThread(path, cwd, self)
         if "Untitled-" in self.panel.editor.path:
             filename = self.panel.editor.path
         else:
