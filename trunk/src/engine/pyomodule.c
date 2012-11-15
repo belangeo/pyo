@@ -2263,6 +2263,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&TrigTableRecTimeStreamType);
     PyModule_AddObject(m, "TrigTableRecTimeStream_base", (PyObject *)&TrigTableRecTimeStreamType);
+
+    if (PyType_Ready(&TablePutType) < 0)
+        return;
+    Py_INCREF(&TablePutType);
+    PyModule_AddObject(m, "TablePut_base", (PyObject *)&TablePutType);
    
     /* Matrix objects */
     if (PyType_Ready(&MatrixStreamType) < 0)

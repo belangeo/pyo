@@ -4385,6 +4385,12 @@ typedef struct {
     int pointer;
 } DataTable;
 
+static void
+DataTable_record(DataTable *self, int pos, MYFLT value)
+{
+    self->data[pos] = value;
+}
+
 static int
 DataTable_traverse(DataTable *self, visitproc visit, void *arg)
 {
@@ -5824,3 +5830,217 @@ PyTypeObject TrigTableRecTimeStreamType = {
     0,                         /* tp_alloc */
     TrigTableRecTimeStream_new,                 /* tp_new */
 };
+
+/******************************/
+/* TablePut object definition */
+/******************************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    DataTable *table;
+    int pointer;
+    int active;
+    MYFLT last_value;
+    MYFLT *trigsBuffer;
+    TriggerStream *trig_stream;
+} TablePut;
+
+static void
+TablePut_compute_next_data_frame(TablePut *self)
+{
+    int i;
+    int size = PyInt_AsLong(DataTable_getSize((DataTable *)self->table));
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }
+
+    if (self->active == 1) {
+        for (i=0; i<self->bufsize; i++) {
+            if (in[i] != self->last_value) {
+                self->last_value = in[i];
+                DataTable_record((DataTable *)self->table, self->pointer++, self->last_value);
+                if (self->pointer >= size) {
+                    self->active = 0;
+                    self->trigsBuffer[i] = 1.0;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+static int
+TablePut_traverse(TablePut *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->table);
+    Py_VISIT(self->trig_stream);    
+    return 0;
+}
+
+static int 
+TablePut_clear(TablePut *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->trig_stream);    
+    return 0;
+}
+
+static void
+TablePut_dealloc(TablePut* self)
+{
+    pyo_DEALLOC
+    free(self->trigsBuffer);
+    TablePut_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp;
+    TablePut *self;
+    self = (TablePut *)type->tp_alloc(type, 0);
+    
+    self->pointer = 0;
+    self->active = 1;
+    self->last_value = 0.0;
+    
+    INIT_OBJECT_COMMON
+
+    Stream_setFunctionPtr(self->stream, TablePut_compute_next_data_frame);
+    Stream_setStreamActive(self->stream, 0);
+
+    static char *kwlist[] = {"input", "table", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &tabletmp))
+        Py_RETURN_NONE; 
+    
+    INIT_INPUT_STREAM
+    
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of TablePut must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_XDECREF(self->table);
+    self->table = (DataTable *)tabletmp;
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
+
+    for (i=0; i<self->bufsize; i++) {
+        self->trigsBuffer[i] = 0.0;
+    }    
+
+    MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
+    TriggerStream_setData(self->trig_stream, self->trigsBuffer);
+
+    return (PyObject *)self;
+}
+
+static PyObject * TablePut_getServer(TablePut* self) { GET_SERVER };
+static PyObject * TablePut_getStream(TablePut* self) { GET_STREAM };
+static PyObject * TablePut_getTriggerStream(TablePut* self) { GET_TRIGGER_STREAM };
+
+static PyObject * TablePut_play(TablePut *self, PyObject *args, PyObject *kwds) 
+{ 
+    self->pointer = 0;
+    self->active = 1;
+    PLAY 
+};
+
+static PyObject * TablePut_stop(TablePut *self) { STOP };
+
+static PyObject *
+TablePut_setTable(TablePut *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+    Py_INCREF(tmp);
+	Py_DECREF(self->table);
+    self->table = (DataTable *)tmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef TablePut_members[] = {
+{"server", T_OBJECT_EX, offsetof(TablePut, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TablePut, stream), 0, "Stream object."},
+{"trig_stream", T_OBJECT_EX, offsetof(TablePut, trig_stream), 0, "Trigger Stream object."},
+{"input", T_OBJECT_EX, offsetof(TablePut, input), 0, "Input sound object."},
+{"table", T_OBJECT_EX, offsetof(TablePut, table), 0, "Table to record in."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TablePut_methods[] = {
+{"getServer", (PyCFunction)TablePut_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TablePut_getStream, METH_NOARGS, "Returns stream object."},
+{"_getTriggerStream", (PyCFunction)TablePut_getTriggerStream, METH_NOARGS, "Returns trigger stream object."},
+{"setTable", (PyCFunction)TablePut_setTable, METH_O, "Sets a new data table."},
+{"play", (PyCFunction)TablePut_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)TablePut_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject TablePutType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TablePut_base",         /*tp_name*/
+sizeof(TablePut),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TablePut_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+0,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TablePut objects. Record new value in input in a data table object.",           /* tp_doc */
+(traverseproc)TablePut_traverse,   /* tp_traverse */
+(inquiry)TablePut_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TablePut_methods,             /* tp_methods */
+TablePut_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+TablePut_new,                 /* tp_new */
+};
+
