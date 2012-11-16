@@ -1379,3 +1379,132 @@ class SumOsc(PyoObject):
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
+
+class SuperSaw(PyoObject):
+    """
+    Roland JP-8000 Supersaw emulator.
+    
+    This object implements an emulation of the Roland JP-8000 Supersaw algorithm.
+    The shape of the waveform is produced from 7 sawtooth oscillators detuned 
+    against each other over a period of time. It allows control over the depth
+    of the detuning and the balance between central and sideband oscillators.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 100.
+    detune : float or PyoObject, optional
+        Depth of the detuning, between 0 and 1. 0 means all oscillators are
+        tuned to the same frequency and 1 means sideband oscillators are at
+        maximum detuning regarding the central frequency. Defaults to 0.5. 
+    bal : float or PyoObject, optional
+        Balance between central oscillator and sideband oscillators. A value 
+        of 0 outputs only the central oscillator while a value of 1 gives a
+        mix of all oscillators with the central one lower than the sidebands.
+        Defaults to 0.7.
+        
+    Methods:
+    
+    setFreq(x) : Replace the `freq` attribute.
+    setDetune(x) : Replace the `detune` attribute.
+    setBal() : Replace the `bal` attribute.
+
+    Attributes:
+    
+    freq : float or PyoObject, Frequency in cycles per second.
+    detune : float or PyoObject, Depth of the detuning (0 -> 1).
+    bal : float or PyoObject, Balance between central and sideband oscillators.
+    
+    See also: Phasor, SineLoop
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> lfd = Sine([.4,.3], mul=.2, add=.5)
+    >>> a = SuperSaw(freq=[49,50], detune=lfd, bal=0.7, mul=0.2).out()
+    
+    """
+    def __init__(self, freq=100, detune=0.5, bal=0.7, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._freq = freq
+        self._detune = detune
+        self._bal = bal
+        self._mul = mul
+        self._add = add
+        freq, detune, bal, mul, add, lmax = convertArgsToLists(freq, detune, bal, mul, add)
+        self._base_objs = [SuperSaw_base(wrap(freq,i), wrap(detune,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['freq', 'detune', 'bal', 'mul', 'add']
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+        
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setDetune(self, x):
+        """
+        Replace the `detune` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `detune` attribute.
+        
+        """
+        self._detune = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDetune(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setBal(self, x):
+        """
+        Replace the `bal` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `bal` attribute.
+        
+        """
+        self._bal = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBal(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), 
+                          SLMap(0, 1, "lin", "detune", self._detune), 
+                          SLMap(0, 1, "lin", "bal", self._bal), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+        
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def detune(self):
+        """float or PyoObject. Depth of the detuning.""" 
+        return self._detune
+    @detune.setter
+    def detune(self, x): self.setDetune(x)
+
+    @property
+    def bal(self):
+        """float or PyoObject. Balance between central and sideband oscillators.""" 
+        return self._bal
+    @bal.setter
+    def bal(self, x): self.setBal(x)

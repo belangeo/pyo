@@ -2540,6 +2540,11 @@ init_pyo64(void)
     Py_INCREF(&PhasorType);
     PyModule_AddObject(m, "Phasor_base", (PyObject *)&PhasorType);
 
+    if (PyType_Ready(&SuperSawType) < 0)
+        return;
+    Py_INCREF(&SuperSawType);
+    PyModule_AddObject(m, "SuperSaw_base", (PyObject *)&SuperSawType);
+
     if (PyType_Ready(&PointerType) < 0)
         return;
     Py_INCREF(&PointerType);
