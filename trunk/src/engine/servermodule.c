@@ -1097,6 +1097,7 @@ void
         sf_close(self->recfile);
         Server_message(self,"Offline Server rendering finished.\n");         
     }
+    return NULL;
 }
 
 int
