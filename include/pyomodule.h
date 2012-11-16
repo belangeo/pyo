@@ -191,6 +191,7 @@ extern PyTypeObject RosslerAltType;
 extern PyTypeObject LorenzType;
 extern PyTypeObject LorenzAltType;
 extern PyTypeObject PhasorType;
+extern PyTypeObject SuperSawType;
 extern PyTypeObject PointerType;
 extern PyTypeObject TableIndexType;
 extern PyTypeObject LookupType;

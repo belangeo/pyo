@@ -1,3 +1,8 @@
+2012-11-15 belangeo <belangeo@gmail.com>
+
+    * Added new object: SuperSaw: Roland JP-8000 Supersaw emulator.
+    - rev 1029
+
 2012-11-14 belangeo <belangeo@gmail.com>
 
     * Added new object: TablePut: Writes values, without repetitions, from an audio stream into a DataTable.
