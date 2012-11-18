@@ -3269,6 +3269,376 @@ Tone_new,                                     /* tp_new */
 };
 
 /************/
+/* Atone */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+    MYFLT lastFreq;
+    MYFLT nyquist;
+    // sample memories
+    MYFLT y1;
+    // variables
+    MYFLT c1;
+    MYFLT c2;
+} Atone;
+
+static void
+Atone_filters_i(Atone *self) {
+    MYFLT val, b;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+        
+    if (fr != self->lastFreq) {
+        if (fr <= 1.0)
+            fr = 1.0;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;        
+        self->lastFreq = fr;
+        b = 2.0 - MYCOS(TWOPI * fr / self->sr);
+        self->c2 = (b - MYSQRT(b * b - 1.0));
+        self->c1 = 1.0 - self->c2;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->y1 = val = self->c1 * in[i] + self->c2 * self->y1;
+        self->data[i] = in[i] - val;
+    }
+}
+
+static void
+Atone_filters_a(Atone *self) {
+    MYFLT val, freq, b;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];        
+        if (freq != self->lastFreq) {
+            if (freq <= 1.0)
+                freq = 1.0;
+            else if (freq >= self->nyquist)
+                freq = self->nyquist;            
+            self->lastFreq = freq;
+            b = 2.0 - MYCOS(TWOPI * freq / self->sr);
+            self->c2 = (b - MYSQRT(b * b - 1.0));
+            self->c1 = 1.0 - self->c2;
+        }
+        self->y1 = val = self->c1 * in[i] + self->c2 * self->y1;
+        self->data[i] = in[i] - val;
+    }
+}
+
+static void Atone_postprocessing_ii(Atone *self) { POST_PROCESSING_II };
+static void Atone_postprocessing_ai(Atone *self) { POST_PROCESSING_AI };
+static void Atone_postprocessing_ia(Atone *self) { POST_PROCESSING_IA };
+static void Atone_postprocessing_aa(Atone *self) { POST_PROCESSING_AA };
+static void Atone_postprocessing_ireva(Atone *self) { POST_PROCESSING_IREVA };
+static void Atone_postprocessing_areva(Atone *self) { POST_PROCESSING_AREVA };
+static void Atone_postprocessing_revai(Atone *self) { POST_PROCESSING_REVAI };
+static void Atone_postprocessing_revaa(Atone *self) { POST_PROCESSING_REVAA };
+static void Atone_postprocessing_revareva(Atone *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Atone_setProcMode(Atone *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Atone_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Atone_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Atone_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Atone_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Atone_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Atone_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Atone_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Atone_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Atone_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Atone_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Atone_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Atone_compute_next_data_frame(Atone *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Atone_traverse(Atone *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    return 0;
+}
+
+static int 
+Atone_clear(Atone *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    return 0;
+}
+
+static void
+Atone_dealloc(Atone* self)
+{
+    pyo_DEALLOC
+    Atone_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Atone_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Atone *self;
+    self = (Atone *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->lastFreq = -1.0;
+    self->y1 = self->c1 = self->c2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+
+    self->nyquist = (MYFLT)self->sr * 0.49;
+
+    Stream_setFunctionPtr(self->stream, Atone_compute_next_data_frame);
+    self->mode_func_ptr = Atone_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Atone_getServer(Atone* self) { GET_SERVER };
+static PyObject * Atone_getStream(Atone* self) { GET_STREAM };
+static PyObject * Atone_setMul(Atone *self, PyObject *arg) { SET_MUL };	
+static PyObject * Atone_setAdd(Atone *self, PyObject *arg) { SET_ADD };	
+static PyObject * Atone_setSub(Atone *self, PyObject *arg) { SET_SUB };	
+static PyObject * Atone_setDiv(Atone *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Atone_play(Atone *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Atone_out(Atone *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Atone_stop(Atone *self) { STOP };
+
+static PyObject * Atone_multiply(Atone *self, PyObject *arg) { MULTIPLY };
+static PyObject * Atone_inplace_multiply(Atone *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Atone_add(Atone *self, PyObject *arg) { ADD };
+static PyObject * Atone_inplace_add(Atone *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Atone_sub(Atone *self, PyObject *arg) { SUB };
+static PyObject * Atone_inplace_sub(Atone *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Atone_div(Atone *self, PyObject *arg) { DIV };
+static PyObject * Atone_inplace_div(Atone *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Atone_setFreq(Atone *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef Atone_members[] = {
+{"server", T_OBJECT_EX, offsetof(Atone, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Atone, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Atone, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(Atone, freq), 0, "Cutoff frequency in cycle per second."},
+{"mul", T_OBJECT_EX, offsetof(Atone, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Atone, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Atone_methods[] = {
+{"getServer", (PyCFunction)Atone_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Atone_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Atone_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Atone_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Atone_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)Atone_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+{"setMul", (PyCFunction)Atone_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Atone_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Atone_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Atone_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Atone_as_number = {
+(binaryfunc)Atone_add,                         /*nb_add*/
+(binaryfunc)Atone_sub,                         /*nb_subtract*/
+(binaryfunc)Atone_multiply,                    /*nb_multiply*/
+(binaryfunc)Atone_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Atone_inplace_add,                 /*inplace_add*/
+(binaryfunc)Atone_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Atone_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Atone_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject AtoneType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Atone_base",                                   /*tp_name*/
+sizeof(Atone),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Atone_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Atone_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Atone objects. One-pole recursive lowpass filter.",           /* tp_doc */
+(traverseproc)Atone_traverse,                  /* tp_traverse */
+(inquiry)Atone_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Atone_methods,                                 /* tp_methods */
+Atone_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Atone_new,                                     /* tp_new */
+};
+
+/************/
 /* DCBlock */
 /************/
 typedef struct {

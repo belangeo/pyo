@@ -899,6 +899,98 @@ class Tone(PyoObject):
     @freq.setter
     def freq(self, x): self.setFreq(x)
 
+class Atone(PyoObject):
+    """
+    A first-order recursive high-pass filter with variable frequency response.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    freq : float or PyoObject, optional
+        Cutoff frequency of the filter in hertz. Default to 1000.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    freq : float or PyoObject. Cutoff frequency of the filter.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> n = Noise(.3)
+    >>> lf = Sine(freq=.2, mul=5000, add=6000)
+    >>> f = Atone(n, lf).mix(2).out()
+
+    """
+    def __init__(self, input, freq=1000, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._freq = freq
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
+        self._base_objs = [Atone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'freq', 'mul', 'add']
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
 class Port(PyoObject):
     """
     Exponential portamento.

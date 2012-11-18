@@ -256,6 +256,7 @@ extern PyTypeObject BiquadxType;
 extern PyTypeObject BiquadaType;
 extern PyTypeObject EQType;
 extern PyTypeObject ToneType;
+extern PyTypeObject AtoneType;
 extern PyTypeObject DCBlockType;
 extern PyTypeObject PortType;
 extern PyTypeObject AllpassType;
