@@ -2600,6 +2600,11 @@ init_pyo64(void)
     Py_INCREF(&ToneType);
     PyModule_AddObject(m, "Tone_base", (PyObject *)&ToneType);
 
+    if (PyType_Ready(&AtoneType) < 0)
+        return;
+    Py_INCREF(&AtoneType);
+    PyModule_AddObject(m, "Atone_base", (PyObject *)&AtoneType);
+
     if (PyType_Ready(&DCBlockType) < 0)
         return;
     Py_INCREF(&DCBlockType);
