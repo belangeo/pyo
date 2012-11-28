@@ -439,6 +439,9 @@ static void
 Adsr_generate_wait(Adsr *self) {
     MYFLT val;
     int i;
+
+    if (self->fademode == 1 && self->currentTime > self->release)
+        Adsr_internal_stop((Adsr *)self);
     
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
@@ -452,16 +455,15 @@ Adsr_generate_wait(Adsr *self) {
             self->topValue = val;
         }    
         else {  
-            if (self->currentTime <= self->release)
+            if (self->currentTime <= self->release) {
                 val = self->topValue * (1. - self->currentTime / self->release);
+            }
             else 
                 val = 0.;
         }    
         self->data[i] = val;
         self->currentTime += self->sampleToSec;    
     }
-    if (self->fademode == 1 && self->currentTime > self->release)
-        Adsr_internal_stop((Adsr *)self);
 }
 
 static void Adsr_postprocessing_ii(Adsr *self) { POST_PROCESSING_II };
