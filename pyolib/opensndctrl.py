@@ -66,6 +66,8 @@ class OscSend(PyoObject):
     Methods:
 
     setInput(x, fadetime) : Replace the `input` attribute.
+    setBufferRate(x) : Sets how many buffers to wait before sending 
+        a new value.
 
     Notes:
 
@@ -115,6 +117,19 @@ class OscSend(PyoObject):
         
     def setAdd(self, x):
         pass    
+
+    def setBufferRate(self, x):
+        """
+        Sets how many buffers to wait before sending a new value.
+        
+        Parameters:
+
+        x : int
+            Changes the data output frequency in multiples of the buffer size.
+            Should be greater or equal to 1.
+
+        """
+        [obj.setBufferRate(x) for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
