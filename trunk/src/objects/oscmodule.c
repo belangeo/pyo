@@ -551,19 +551,25 @@ typedef struct {
     lo_address address;
     char *host;
     int port;
+    int count;
+    int bufrate;
 } OscSend;
 
 static void
 OscSend_compute_next_data_frame(OscSend *self)
 {
-    MYFLT *in = Stream_getData((Stream *)self->input_stream);
-    float value = (float)in[0];
+    self->count++;
+    if (self->count >= self->bufrate) {
+        self->count = 0;
+        MYFLT *in = Stream_getData((Stream *)self->input_stream);
+        float value = (float)in[0];
     
-    char *path  = PyString_AsString(self->address_path);
+        char *path  = PyString_AsString(self->address_path);
     
-    if (lo_send(self->address, path, "f", value) == -1) {
-        printf("OSC error %d: %s\n", lo_address_errno(self->address), lo_address_errstr(self->address));
-    }    
+        if (lo_send(self->address, path, "f", value) == -1) {
+            printf("OSC error %d: %s\n", lo_address_errno(self->address), lo_address_errstr(self->address));
+        }
+    }
 }
 
 static int
@@ -603,6 +609,8 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self = (OscSend *)type->tp_alloc(type, 0);
     
     self->host = NULL;
+    self->count = 0;
+    self->bufrate = 1;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, OscSend_compute_next_data_frame);
@@ -632,6 +640,22 @@ OscSend_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     return (PyObject *)self;
 }
 
+static PyObject *
+OscSend_setBufferRate(OscSend *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    self->bufrate = PyInt_AsLong(arg);
+    if (self->bufrate < 1)
+        self->bufrate = 1;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyObject * OscSend_getServer(OscSend* self) { GET_SERVER };
 static PyObject * OscSend_getStream(OscSend* self) { GET_STREAM };
 
@@ -650,6 +674,7 @@ static PyMethodDef OscSend_methods[] = {
 {"_getStream", (PyCFunction)OscSend_getStream, METH_NOARGS, "Returns stream object."},
 {"play", (PyCFunction)OscSend_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)OscSend_stop, METH_NOARGS, "Stops computing."},
+{"setBufferRate", (PyCFunction)OscSend_setBufferRate, METH_O, "Set how many buffers to wait before sending a new value."},
 {NULL}  /* Sentinel */
 };
 
