@@ -1575,12 +1575,7 @@ class TableRec(PyoObject):
         if i == 'time':
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
             return self._time_dummy[-1]
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large!"         
+        return PyoObject.__getitem__(self, i)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -2095,12 +2090,7 @@ class TrigTableRec(PyoObject):
         if i == 'time':
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
             return self._time_dummy[-1]
-        if type(i) == SliceType:
-            return self._base_objs[i]
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large!"         
+        return PyoObject.__getitem__(self, i)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
