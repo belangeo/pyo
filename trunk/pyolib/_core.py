@@ -857,7 +857,8 @@ class PyoTableObject(object):
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
     getBaseObjects() : Return a list of table Stream objects managed by the instance.
-    
+    getTable(all) : Returns the content of the table as list of floats.
+
     Notes:
     
     Operations allowed on all table objects :
@@ -1033,6 +1034,24 @@ class PyoTableObject(object):
         values = [obj.get(pos) for obj in self._base_objs]
         if len(values) == 1: return values[0]
         else: return values
+
+    def getTable(self, all=False):
+        """
+        Returns the content of the table as list of floats.
+        
+        Parameters:
+            
+        all : boolean, optional
+            If True, all sub tables are retrieved and returned as a list
+            of list of floats. Otherwise, a single list containing the
+            content of the first subtable (or the only one) is returned.
+            Defaults to False.
+
+        """
+        if all:
+            return [obj.getTable() for obj in self._base_objs]
+        else:
+            return self._base_objs[0].getTable()
 
     def normalize(self):
         """
