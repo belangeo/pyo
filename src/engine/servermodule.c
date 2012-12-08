@@ -1412,6 +1412,7 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     
     char *audioType = "portaudio";
     char *serverName = "pyo";
+    char *recpath;
 
     //Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
@@ -1440,9 +1441,11 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     if (strlen(serverName) > 31) {
         self->serverName[31] = '\0';
     }
-    self->recpath = getenv("HOME");
-    if (self->recpath != NULL)
+    recpath = getenv("HOME");
+    if (recpath != NULL) {
+        strcpy(self->recpath, recpath);
         strncat(self->recpath, "/pyo_rec.wav", strlen("/pyo_rec.wav")); 
+    }
 
     return 0;
 }
