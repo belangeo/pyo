@@ -97,7 +97,7 @@ typedef struct {
     
     /* rendering settings */
     double recdur;
-    char recpath[2048];
+    char *recpath;
     int recformat;
     int rectype;
     SNDFILE *recfile;
