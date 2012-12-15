@@ -120,7 +120,7 @@ class Server(object):
         
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
-        if os.environ.has_key("PYO_SERVER_AUDIO"):
+        if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._nchnls = nchnls
         self._amp = 1.
@@ -131,6 +131,7 @@ class Server(object):
         self._fileformat = 0
         self._sampletype = 0
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
+        self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
 
     def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
         """
@@ -456,7 +457,7 @@ class Server(object):
         
         """
         self._server.recstop()
-        
+
     def getStreams(self):
         """
         Return the list of streams loaded in the server.

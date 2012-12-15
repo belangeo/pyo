@@ -1412,7 +1412,6 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     
     char *audioType = "portaudio";
     char *serverName = "pyo";
-    char *recpath;
 
     //Server_debug(self, "Server_init. Compiled " TIMESTAMP "\n");  // Only for debugging purposes
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
@@ -1441,13 +1440,20 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     if (strlen(serverName) > 31) {
         self->serverName[31] = '\0';
     }
-    recpath = getenv("HOME");
-    if (recpath != NULL) {
-        strcpy(self->recpath, recpath);
-        strncat(self->recpath, "/pyo_rec.wav", strlen("/pyo_rec.wav")); 
-    }
 
     return 0;
+}
+
+static PyObject *
+Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
+{
+    static char *kwlist[] = {"path", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "s", kwlist, &self->recpath))
+        return PyInt_FromLong(-1);
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
@@ -2245,6 +2251,7 @@ static PyMethodDef Server_methods[] = {
     {"getIsBooted", (PyCFunction)Server_getIsBooted, METH_NOARGS, "Returns 1 if the server is booted, otherwise returns 0."},
     {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
     {"getMidiActive", (PyCFunction)Server_getMidiActive, METH_NOARGS, "Returns 1 if midi callback is active, otherwise returns 0."},
+    {"_setDefaultRecPath", (PyCFunction)Server_setDefaultRecPath, METH_VARARGS|METH_KEYWORDS, "Sets the default recording path."},
     {NULL}  /* Sentinel */
 };
 
