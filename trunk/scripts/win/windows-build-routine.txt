@@ -61,15 +61,15 @@ C:/pthreads/lib
 environment.Append(CFLAGS = Split('-O2 -g -DHAVE_CONFIG_H -D_WIN32_WINNT=0x0501'))
 environment.Append(CPPPATH = Split(cppath))
 environment.Append(LIBPATH = Split(libpath))
-environment.Append(LIBS = Split('pthreadvc2 kernel32 gdi32 wsock32 ws2_32 ole32 uuid winmm pthreadvc2 kernel32 gdi32 wsock32 ws2_32 ole32 uuid winmm'))
-environment.Append(LINKFLAGS = ['-Wl,--enable-stdcall-fixup', '-Wl, -export-all-symbols'])
+environment.Append(LIBS = Split('pthreadvc2 kernel32 gdi32 wsock32 ws2_32 ole32 uuid winmm'))
+environment.Append(LINKFLAGS = ['-Wl,--enable-stdcall-fixup', '-Wl,--export-all-symbols'])
 ### -export-all-symbols or -export-dynamic ? ###
 
 liblo = environment.SharedLibrary('lo', Split(sources))
 #######################################################
 
 === STEP 8 ===
---- Install Directx 9.0 SDK
+--- Install Directx 9.0 SDK (april 2007)
 
 === STEP 9 ===
 --- Download Asio SDK
@@ -78,32 +78,10 @@ liblo = environment.SharedLibrary('lo', Split(sources))
 --- Update the PortAudio library http://portmedia.sourceforge.net from SVN and build it. 
 Try the trunk version first, if that doesn't work use the most recent tag. 
 
---- Check the pa_win_hostapis.c file and make sure that it is configured like this to build 
+--- Copy ASIOSDK to portaudio/src/hostapi/asio
+
+--- Check the pa_win_hostapis.c file and make sure that it is configured to build 
 the DirectSound, WMME, and ASIO drivers:
-
-PaUtilHostApiInitializer *paHostApiInitializers[] =
-    {
-#ifndef PA_NO_WMME
-        PaWinMme_Initialize,
-#endif
-#ifndef PA_NO_DS
-        PaWinDs_Initialize,
-#endif
-#ifndef PA_NO_ASIO
-        PaAsio_Initialize,
-#endif
-/*
-#ifndef PA_NO_WASAPI
-        PaWinWasapi_Initialize,
-#endif
-
-#ifndef PA_NO_WDMKS
-       PaWinWdm_Initialize,
-#endif
-*/
-        PaSkeleton_Initialize, /* just for testing */
-        0   /* NULL terminated array */
-    };
 
 --- Need to removed "volatile" from function definitions in MinGW/include/winbase.h
 
@@ -142,7 +120,7 @@ commonEnvironment.Append(CPPPATH = [".", "src/common", "src/hostapi", "src/os", 
 "C:/portaudio/src/hostapi/asio/ASIOSDK/host",
 "C:/portaudio/src/hostapi/asio/ASIOSDK/host/pc",
 "C:/portaudio/src/hostapi/asio/ASIOSDK/common",
-"C:/Program Files (x86)/Microsoft DirectX SDK (April 2007)/Include"])
+"C:/Program Files/Microsoft DirectX SDK (April 2007)/Include"])
 
 commonEnvironment.Append(LIBS=Split('''
 setupapi
@@ -171,12 +149,12 @@ src/common/pa_dither.c
 src/common/pa_front.c
 src/common/pa_process.c
 src/common/pa_ringbuffer.c
-src/common/pa_skeleton.c
 src/common/pa_stream.c
 src/common/pa_trace.c
 src/hostapi/dsound/pa_win_ds.c
 src/hostapi/dsound/pa_win_ds_dynlink.c
 src/hostapi/wmme/pa_win_wmme.c
+src/hostapi/skeleton/pa_hostapi_skeleton.c
 src/os/win/pa_win_hostapis.c
 src/os/win/pa_win_util.c
 src/os/win/pa_win_waveformat.c
