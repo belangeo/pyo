@@ -87,6 +87,7 @@ class Server(object):
     getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
     getStreams() : Returns the list of Stream objects currently in the Server memory.
     getNumberOfStreams() : Returns the number of streams currently in the Server memory.
+    sendMidiNote(pitch, velocity, channel) : Send a MIDI note message to the selected output device.
 
     The next methods must be called before booting the server
 
@@ -94,6 +95,7 @@ class Server(object):
     setInputDevice(x) : Set the audio input device number. See `pa_list_devices()`.
     setOutputDevice(x) : Set the audio output device number. See `pa_list_devices()`.
     setMidiInputDevice(x) : Set the MIDI input device number. See `pm_list_devices()`.
+    setMidiOutputDevice(x) : Set the MIDI output device number. See `pm_list_devices()`.
     setSamplingRate(x) : Set the sampling rate used by the server.
     setBufferSize(x) : Set the buffer size used by the server.
     setNchnls(x) : Set the number of channels used by the server.
@@ -233,6 +235,18 @@ class Server(object):
 
         """
         self._server.setMidiInputDevice(x)
+
+    def setMidiOutputDevice(self, x):
+        """
+        Set the Midi output device number. See `pm_list_devices()`.
+        
+        Parameters:
+
+        x : int
+            Number of the Midi device listed by Portmidi.
+
+        """
+        self._server.setMidiOutputDevice(x)
  
     def setSamplingRate(self, x):
         """
@@ -457,6 +471,23 @@ class Server(object):
         
         """
         self._server.recstop()
+
+    def sendMidiNote(self, pitch, velocity, channel=0, timestamp=0):
+        """
+        Send a MIDI note message to the selected output device. 
+        
+        Parameters:
+        
+        pitch : int
+            Midi pitch, between 0 and 127.
+        velocity : int
+            Amplitude of the note, between 0 and 127. A note
+            with a velocity of 0 is equivalent to a note off.
+        channel : int, optional
+            The Midi channel, between 1 and 16, on which the 
+            note is sent. A channel of 0 means all channels. 
+        """
+        self._server.sendMidiNote(pitch, velocity, channel, timestamp)
 
     def getStreams(self):
         """
