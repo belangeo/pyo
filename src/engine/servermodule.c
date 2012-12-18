@@ -1744,8 +1744,6 @@ Server_setStartOffset(Server *self, PyObject *arg)
     return Py_None;
 }
 
-void timer_poll(PtTimestamp timestamp, void *userData) {}
-
 int
 Server_pm_init(Server *self)
 {
@@ -1791,9 +1789,7 @@ Server_pm_init(Server *self)
                 self->midi_output = Pm_GetDefaultOutputDeviceID();
             const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
             if (outinfo->output) {
-                printf("Starts porttime timer\n");
-                Pt_Start(1, timer_poll, 0); /* start a timer with millisecond accuracy */
-                printf("Porttime timer started\n");
+                Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
                 pmerr = Pm_OpenOutput(&self->out, self->midi_output, NULL, 0, NULL, NULL, 1);
                 if (pmerr) {
                     Server_warning(self, 
