@@ -29,6 +29,7 @@
 #include "structmember.h"
 #include "portaudio.h"
 #include "portmidi.h"
+#include "porttime.h"
 #include "sndfile.h"
 #include "streammodule.h"
 #include "pyomodule.h"
@@ -1333,10 +1334,14 @@ Server_shut_down(Server *self)
         Server_error(self, "Error closing audio backend.\n");
     }
     
-    if (self->withPortMidi == 1) {
+    if (self->withPortMidi == 1)
         Pm_Close(self->in);
+
+    if (self->withPortMidiOut == 1)
+        Pm_Close(self->out);
+    
+    if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
         Pm_Terminate();
-    }
     
     Py_INCREF(Py_None);
     return Py_None;
@@ -1390,6 +1395,7 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input = -1;
     self->output = -1;
     self->midi_input = -1;
+    self->midi_output = -1;
     self->amp = self->resetAmp = 1.;
     self->currentAmp = self->lastAmp = 0.;
     self->withGUI = 0;
@@ -1455,7 +1461,7 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
     Py_INCREF(Py_None);
     return Py_None;
 }
-
+    
 static PyObject *
 Server_setInputDevice(Server *self, PyObject *arg)
 {
@@ -1496,6 +1502,17 @@ Server_setMidiInputDevice(Server *self, PyObject *arg)
 	if (arg != NULL) {
         if (PyInt_Check(arg))
             self->midi_input = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setMidiOutputDevice(Server *self, PyObject *arg)
+{
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->midi_output = PyInt_AsLong(arg);
     }
     Py_INCREF(Py_None);
     return Py_None;
@@ -1737,18 +1754,20 @@ Server_pm_init(Server *self)
     if (pmerr) {
         Server_warning(self, "PortMidi warning: could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
         self->withPortMidi = 0;
+        self->withPortMidiOut = 0;
         return -1;
     }    
     else {
         Server_debug(self, "PortMidi initialized.\n");
         self->withPortMidi = 1;
+        self->withPortMidiOut = 1;
     }    
 
     if (self->withPortMidi == 1) {
         int num_devices = Pm_CountDevices();
         if (num_devices > 0) {
             if (self->midi_input == -1 || self->midi_input >= num_devices)
-                self->midi_input = 0;
+                self->midi_input = Pm_GetDefaultInputDeviceID();
             const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
             if (info->input) {
                 pmerr = Pm_OpenInput(&self->in, self->midi_input, NULL, 100, NULL, NULL);
@@ -1757,7 +1776,6 @@ Server_pm_init(Server *self)
                                  "PortMidi warning: could not open midi input %d (%s): %s\nPortmidi closed\n",
                                  0, info->name, Pm_GetErrorText(pmerr));
                     self->withPortMidi = 0;
-                    Pm_Terminate();
                 }    
                 else
                     Server_debug(self, "Midi Input (%s) opened.\n", info->name);
@@ -1765,12 +1783,35 @@ Server_pm_init(Server *self)
             else {
                 Server_warning(self, "PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
                 self->withPortMidi = 0;
+            } 
+            
+            if (self->midi_output == -1 || self->midi_output >= num_devices)
+                self->midi_output = Pm_GetDefaultOutputDeviceID();
+            const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
+            if (outinfo->output) {
+                Pt_Start(1, 0, 0); /* start a timer with millisecond accuracy */
+                pmerr = Pm_OpenOutput(&self->out, self->midi_output, NULL, 0, NULL, NULL, 1);
+                if (pmerr) {
+                    Server_warning(self, 
+                                 "PortMidi warning: could not open midi output %d (%s): %s\nPortmidi closed\n",
+                                 0, outinfo->name, Pm_GetErrorText(pmerr));
+                    self->withPortMidiOut = 0;
+                }    
+                else
+                    Server_debug(self, "Midi Output (%s) opened.\n", outinfo->name);
+            }
+            else {
+                Server_warning(self, "PortMidi warning: Something wrong with midi device!\nPortmidi closed\n");
+                self->withPortMidiOut = 0;
+            }
+            
+            if (self->withPortMidi == 0 && self->withPortMidiOut == 0)
                 Pm_Terminate();
-            }    
         }    
         else {
             Server_warning(self, "PortMidi warning: No midi device found!\nPortmidi closed\n");
             self->withPortMidi = 0;
+            self->withPortMidiOut = 0;
             Pm_Terminate();
         }    
     }
@@ -2150,6 +2191,28 @@ Server_changeStreamPosition(Server *self, PyObject *args)
     return Py_None;    
 }
 
+PyObject *
+Server_sendMidiNote(Server *self, PyObject *args)
+{
+    int pit, vel, chan, curtime;
+    PmEvent buffer[1];
+    PmTimestamp timestamp;
+
+    if (! PyArg_ParseTuple(args, "iiii", &pit, &vel, &chan, &timestamp))
+        return PyInt_FromLong(-1); 
+
+    curtime = Pt_Time();
+    buffer[0].timestamp = curtime + timestamp;
+    if (chan == 0)
+        buffer[0].message = Pm_Message(0x90, pit, vel);
+    else
+        buffer[0].message = Pm_Message(0x90 | (chan - 1), pit, vel);
+    Pm_Write(self->out, buffer, 1);
+
+    Py_INCREF(Py_None);
+    return Py_None;    
+}
+
 MYFLT *
 Server_getInputBuffer(Server *self) {
     return (MYFLT *)self->input_buffer;
@@ -2220,6 +2283,7 @@ static PyMethodDef Server_methods[] = {
     {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
     {"setInOutDevice", (PyCFunction)Server_setInOutDevice, METH_O, "Sets both audio input and output device."},
     {"setMidiInputDevice", (PyCFunction)Server_setMidiInputDevice, METH_O, "Sets MIDI input device."},
+    {"setMidiOutputDevice", (PyCFunction)Server_setMidiOutputDevice, METH_O, "Sets MIDI output device."},
     {"setSamplingRate", (PyCFunction)Server_setSamplingRate, METH_O, "Sets the server's sampling rate."},
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
@@ -2243,6 +2307,7 @@ static PyMethodDef Server_methods[] = {
                                                                 This is for internal use and must never be called by the user."},
     {"changeStreamPosition", (PyCFunction)Server_changeStreamPosition, METH_VARARGS, "Puts an audio stream before another in the stack. \
                                                                 This is for internal use and must never be called by the user."},
+    {"sendMidiNote", (PyCFunction)Server_sendMidiNote, METH_VARARGS, "Send a Midi note to Portmidi output stream."},
     {"getStreams", (PyCFunction)Server_getStreams, METH_NOARGS, "Returns the list of streams added to the server."},
     {"getSamplingRate", (PyCFunction)Server_getSamplingRate, METH_NOARGS, "Returns the server's sampling rate."},
     {"getNchnls", (PyCFunction)Server_getNchnls, METH_NOARGS, "Returns the server's current number of channels."},

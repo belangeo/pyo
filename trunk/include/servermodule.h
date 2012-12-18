@@ -64,6 +64,7 @@ typedef struct {
     void *audio_be_data;
     char *serverName; /* Only used for jack client name */
     PmStream *in;
+    PmStream *out;
     PmEvent midiEvents[200];
     int midi_count;
     double samplingRate;
@@ -73,7 +74,9 @@ typedef struct {
     int input;
     int output;
     int midi_input;
+    int midi_output;
     int withPortMidi;
+    int withPortMidiOut;
     int server_started;
     int server_stopped; /* for fadeout */
     int server_booted;
