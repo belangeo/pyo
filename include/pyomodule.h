@@ -180,6 +180,10 @@
 #endif
 #endif
 
+#ifdef COMPILE_EXTERNALS
+#include "externalmodule.h"
+#endif
+
 extern PyTypeObject SineType;
 extern PyTypeObject SineLoopType;
 extern PyTypeObject FmType;
@@ -710,7 +714,7 @@ extern PyTypeObject VectralType;
  \
     return samples;
 
-/* Table remove DC */
+/* Table reverse */
 #define REVERSE \
     int i, j; \
     MYFLT tmp; \

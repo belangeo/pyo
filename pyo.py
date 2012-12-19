@@ -94,6 +94,9 @@ from pyolib.utils import *
 import pyolib.fourier as fourier
 from pyolib.fourier import *
 from pyolib._core import *
+if WITH_EXTERNALS:
+    import pyolib.external as external
+    from pyolib.external import *
 
 # Temporary objects, need to be coded in C
 class FreqShift(PyoObject):

@@ -2045,6 +2045,15 @@ static PyMethodDef pyo_functions[] = {
 {NULL, NULL, 0, NULL},
 };
 
+static PyObject *
+module_add_object(PyObject *module, const char *name, PyTypeObject *type) {
+    if (PyType_Ready(type) < 0)
+        Py_RETURN_NONE;
+    Py_INCREF(type);
+    PyModule_AddObject(module, name, (PyObject *)type);
+    Py_RETURN_NONE;
+}
+
 PyMODINIT_FUNC
 #ifndef USE_DOUBLE
 init_pyo(void)
@@ -3219,5 +3228,11 @@ init_pyo64(void)
         return;
     Py_INCREF(&VectralType);
     PyModule_AddObject(m, "Vectral_base", (PyObject *)&VectralType);
-    
+
+#ifdef COMPILE_EXTERNALS
+    EXTERNAL_OBJECTS
+    PyModule_AddIntConstant(m, "WITH_EXTERNALS", 1);
+#else
+    PyModule_AddIntConstant(m, "WITH_EXTERNALS", 0);
+#endif
 }

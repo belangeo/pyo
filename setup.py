@@ -25,6 +25,7 @@ import os, sys, getopt
 import time
 
 build_osx_with_jack_support = False
+compile_externals = False
 
 macros = []
 if '--use-double' in sys.argv: 
@@ -50,21 +51,31 @@ if '--no-messages' in sys.argv:
     sys.argv.remove('--no-messages') 
     macros.append(('NO_MESSAGES',None))
 
+if '--compile-externals' in sys.argv:
+    compile_externals = True
+    sys.argv.remove('--compile-externals') 
+    macros.append(('COMPILE_EXTERNALS',None))
+
 path = 'src/engine/'
 files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
         'interpolation.c', 'fft.c', "wind.c"]
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['oscilmodule.c', 'randommodule.c', 'oscmodule.c', 'fftmodule.c', 'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
+files = ['oscilmodule.c', 'randommodule.c', 'oscmodule.c', 'fftmodule.c', 
+        'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
          'matrixmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'delaymodule.c','recordmodule.c', 'granulatormodule.c', 
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
         'selectmodule.c', 'freeverbmodule.c', 'compressmodule.c', 'analysismodule.c', 'utilsmodule.c',
         'convolvemodule.c', 'wgverbmodule.c', 'arithmeticmodule.c', 'sigmodule.c',
         'matrixprocessmodule.c', 'harmonizermodule.c', 'chorusmodule.c']
-source_files = source_files + [path + f for f in files]
-    
+
+if compile_externals:
+    source_files = source_files + ["externals/externalmodule.c"] + [path + f for f in files]
+else:
+    source_files = source_files + [path + f for f in files]
+  
 if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include',
@@ -82,7 +93,11 @@ else:
         libraries.append('jack')
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
                 extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
-       
+
+if compile_externals:
+    include_dirs.append('externals')
+    os.system('cp externals/external.py pyolib')
+
 setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
@@ -95,4 +110,7 @@ setup(  name = "pyo",
         data_files=[(get_python_lib(), main_files),
         (os.path.join(get_python_lib(), 'pyolib', 'snds'), ['pyolib/snds/'+ f for f in os.listdir('pyolib/snds') if f.endswith('aif')])],
         ext_modules = extension )
-      
+
+if compile_externals:
+    os.system('rm pyolib/external.py')
+
