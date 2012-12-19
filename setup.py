@@ -20,7 +20,6 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 from distutils.core import setup, Extension
-from distutils.sysconfig import get_python_lib
 import os, sys, getopt
 import time
 
@@ -32,10 +31,10 @@ if '--use-double' in sys.argv:
     sys.argv.remove('--use-double') 
     macros.append(('USE_DOUBLE',None))
     extension_name = "_pyo64"
-    main_files = ['pyo.py', 'pyo64.py']
+    main_modules = ['pyo', 'pyo64']
 else:
     extension_name = "_pyo"
-    main_files = ['pyo.py']
+    main_modules = ['pyo']
     
 if '--use-jack' in sys.argv: 
     sys.argv.remove('--use-jack') 
@@ -105,10 +104,10 @@ setup(  name = "pyo",
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",
-        license="GPLv3",
-        packages=['pyolib', 'pyolib.snds'],
-        data_files=[(get_python_lib(), main_files),
-        (os.path.join(get_python_lib(), 'pyolib', 'snds'), ['pyolib/snds/'+ f for f in os.listdir('pyolib/snds') if f.endswith('aif')])],
+        license = "GPLv3",
+        packages = ['pyolib', 'pyolib.snds'],
+        py_modules = main_modules,
+        package_data = {'pyolib.snds': [f for f in os.listdir('pyolib/snds') if f.endswith('aif')]},
         ext_modules = extension )
 
 if compile_externals:

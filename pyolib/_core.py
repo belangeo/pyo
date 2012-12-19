@@ -21,7 +21,6 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 from types import ListType, SliceType, FloatType, StringType, UnicodeType
 import random, os, sys, inspect, tempfile
 from subprocess import call
-from distutils.sysconfig import get_python_lib
 
 PYO_VERSION = '0.6.3'
 
@@ -39,7 +38,7 @@ from _widgets import createCtrlWindow, createViewTableWindow, createViewMatrixWi
 ######################################################################
 ### Utilities
 ######################################################################
-SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
+SNDS_PATH = os.path.join(os.path.dirname(current_pyo.__file__), "pyolib", "snds")
 XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3, 
                 'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
                 'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
