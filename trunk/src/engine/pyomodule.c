@@ -2304,6 +2304,8 @@ init_pyo64(void)
     module_add_object(m, "FrameAccumMain_base", &FrameAccumMainType);
     module_add_object(m, "VectralMain_base", &VectralMainType);
     module_add_object(m, "Vectral_base", &VectralType);
+    module_add_object(m, "Min_base", &MinType);
+    module_add_object(m, "Max_base", &MaxType);
 
 #ifdef COMPILE_EXTERNALS
     EXTERNAL_OBJECTS

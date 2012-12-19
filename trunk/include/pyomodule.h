@@ -216,7 +216,6 @@ extern PyTypeObject SfMarkerShufflerType;
 extern PyTypeObject SfMarkerShuffleType;
 extern PyTypeObject SfMarkerLooperType;
 extern PyTypeObject SfMarkerLoopType;
-
 extern PyTypeObject TrigType;
 extern PyTypeObject NextTrigType;
 extern PyTypeObject MetroType;
@@ -237,14 +236,11 @@ extern PyTypeObject ChangeType;
 extern PyTypeObject ThreshType;
 extern PyTypeObject PercentType;
 extern PyTypeObject TimerType;
-
 extern PyTypeObject ScoreType;
-
 extern PyTypeObject FaderType;
 extern PyTypeObject AdsrType;
 extern PyTypeObject LinsegType;
 extern PyTypeObject ExpsegType;
-
 extern PyTypeObject RandiType;
 extern PyTypeObject RandhType;
 extern PyTypeObject RandDurType;
@@ -254,7 +250,6 @@ extern PyTypeObject XnoiseType;
 extern PyTypeObject XnoiseMidiType;
 extern PyTypeObject XnoiseDurType;
 extern PyTypeObject UrnType;
-
 extern PyTypeObject BiquadType;
 extern PyTypeObject BiquadxType;
 extern PyTypeObject BiquadaType;
@@ -289,11 +284,9 @@ extern PyTypeObject IRWinSincType;
 extern PyTypeObject IRPulseType;
 extern PyTypeObject IRAverageType;
 extern PyTypeObject IRFMType;
-
 extern PyTypeObject GranulatorType;
 extern PyTypeObject LooperType;
 extern PyTypeObject HarmonizerType;
-
 extern PyTypeObject MidictlType;
 extern PyTypeObject CtlScanType;
 extern PyTypeObject CtlScan2Type;
@@ -304,7 +297,6 @@ extern PyTypeObject TouchinType;
 extern PyTypeObject PrograminType;
 extern PyTypeObject MidiAdsrType;
 extern PyTypeObject MidiDelAdsrType;
-
 extern PyTypeObject DummyType;
 extern PyTypeObject TriggerDummyType;
 extern PyTypeObject RecordType;
@@ -318,7 +310,6 @@ extern PyTypeObject SigType;
 extern PyTypeObject SigToType;
 extern PyTypeObject VarPortType;
 extern PyTypeObject InputFaderType;
-
 extern PyTypeObject HarmTableType;
 extern PyTypeObject ChebyTableType;
 extern PyTypeObject HannTableType;
@@ -340,13 +331,11 @@ extern PyTypeObject TableMorphType;
 extern PyTypeObject TrigTableRecType;
 extern PyTypeObject TrigTableRecTimeStreamType;
 extern PyTypeObject TablePutType;
-
 extern PyTypeObject NewMatrixType;
 extern PyTypeObject MatrixPointerType;
 extern PyTypeObject MatrixRecType;
 extern PyTypeObject MatrixRecLoopType;
 extern PyTypeObject MatrixMorphType;
-
 extern PyTypeObject OscSendType;
 extern PyTypeObject OscReceiveType;
 extern PyTypeObject OscReceiverType;
@@ -354,7 +343,6 @@ extern PyTypeObject OscDataSendType;
 extern PyTypeObject OscDataReceiveType;
 extern PyTypeObject OscListReceiveType;
 extern PyTypeObject OscListReceiverType;
-
 extern PyTypeObject TrigRandIntType;
 extern PyTypeObject TrigValType;
 extern PyTypeObject TrigRandType;
@@ -366,22 +354,17 @@ extern PyTypeObject TrigExpsegType;
 extern PyTypeObject TrigFuncType;
 extern PyTypeObject TrigXnoiseType;
 extern PyTypeObject TrigXnoiseMidiType;
-
 extern PyTypeObject PatternType;
 extern PyTypeObject CallAfterType;
-
 extern PyTypeObject BandSplitterType;
 extern PyTypeObject BandSplitType;
 extern PyTypeObject FourBandMainType;
 extern PyTypeObject FourBandType;
-
 extern PyTypeObject HilbertMainType;
 extern PyTypeObject HilbertType;
-
 extern PyTypeObject FollowerType;
 extern PyTypeObject Follower2Type;
 extern PyTypeObject ZCrossType;
-
 extern PyTypeObject SPannerType;
 extern PyTypeObject SPanType;
 extern PyTypeObject PannerType;
@@ -392,7 +375,6 @@ extern PyTypeObject SelectorType;
 extern PyTypeObject VoiceManagerType;
 extern PyTypeObject MixerType;
 extern PyTypeObject MixerVoiceType;
-
 extern PyTypeObject PrintType;
 extern PyTypeObject SnapType;
 extern PyTypeObject InterpType;
@@ -404,7 +386,6 @@ extern PyTypeObject CentsToTranspoType;
 extern PyTypeObject TranspoToCentsType;
 extern PyTypeObject MToFType;
 extern PyTypeObject MToTType;
-
 extern PyTypeObject M_SinType;
 extern PyTypeObject M_CosType;
 extern PyTypeObject M_TanType;
@@ -418,7 +399,6 @@ extern PyTypeObject M_Atan2Type;
 extern PyTypeObject M_FloorType;
 extern PyTypeObject M_CeilType;
 extern PyTypeObject M_RoundType;
-
 extern PyTypeObject FFTMainType;
 extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;
@@ -430,6 +410,8 @@ extern PyTypeObject FrameAccumMainType;
 extern PyTypeObject FrameAccumType;
 extern PyTypeObject VectralMainType;
 extern PyTypeObject VectralType;
+extern PyTypeObject MinType;
+extern PyTypeObject MaxType;
 
 /* Constants */
 #define E M_E
