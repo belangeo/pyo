@@ -67,7 +67,8 @@ source_files = source_files + [path + f for f in files]
     
 if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
-                    'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include']
+                    'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include',
+                    'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:/Program Files/Mega-Nerd/libsndfile/bin', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
     libraries = ['portaudio', 'portmidi', 'libsndfile-1', 'lo', 'pthreadVC2']
     extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
