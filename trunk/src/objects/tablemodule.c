@@ -3432,6 +3432,7 @@ SndTable_loadSound(SndTable *self) {
                 }  
             }
         } while (num == num_items);
+        sf_close(sf);
     }
     /* For sound shorter than 1 minute, load sound in one pass. */
     else {
