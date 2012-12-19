@@ -2391,3 +2391,668 @@ Degrade_members,             /* tp_members */
 Degrade_new,                 /* tp_new */
 };
 
+/************/
+/* Min */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *comp;
+    Stream *comp_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Min;
+
+static void
+Min_process_i(Min *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT cp = PyFloat_AS_DOUBLE(self->comp);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = in[i] < cp ? in[i] : cp;
+    }
+}
+
+static void
+Min_process_a(Min *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *cp = Stream_getData((Stream *)self->comp_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = in[i] < cp[i] ? in[i] : cp[i];
+    }
+}
+
+static void Min_postprocessing_ii(Min *self) { POST_PROCESSING_II };
+static void Min_postprocessing_ai(Min *self) { POST_PROCESSING_AI };
+static void Min_postprocessing_ia(Min *self) { POST_PROCESSING_IA };
+static void Min_postprocessing_aa(Min *self) { POST_PROCESSING_AA };
+static void Min_postprocessing_ireva(Min *self) { POST_PROCESSING_IREVA };
+static void Min_postprocessing_areva(Min *self) { POST_PROCESSING_AREVA };
+static void Min_postprocessing_revai(Min *self) { POST_PROCESSING_REVAI };
+static void Min_postprocessing_revaa(Min *self) { POST_PROCESSING_REVAA };
+static void Min_postprocessing_revareva(Min *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Min_setProcMode(Min *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Min_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Min_process_a;
+            break;
+    } 
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Min_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Min_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Min_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Min_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Min_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Min_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Min_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Min_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Min_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Min_compute_next_data_frame(Min *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Min_traverse(Min *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->comp);    
+    Py_VISIT(self->comp_stream);    
+    return 0;
+}
+
+static int 
+Min_clear(Min *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->comp);    
+    Py_CLEAR(self->comp_stream);    
+    return 0;
+}
+
+static void
+Min_dealloc(Min* self)
+{
+    pyo_DEALLOC
+    Min_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Min_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *comptmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Min *self;
+    self = (Min *)type->tp_alloc(type, 0);
+    
+    self->comp = PyFloat_FromDouble(0.5);
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+
+    Stream_setFunctionPtr(self->stream, Min_compute_next_data_frame);
+    self->mode_func_ptr = Min_setProcMode;
+
+    static char *kwlist[] = {"input", "comp", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    if (comptmp) {
+        PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Min_getServer(Min* self) { GET_SERVER };
+static PyObject * Min_getStream(Min* self) { GET_STREAM };
+static PyObject * Min_setMul(Min *self, PyObject *arg) { SET_MUL };    
+static PyObject * Min_setAdd(Min *self, PyObject *arg) { SET_ADD };    
+static PyObject * Min_setSub(Min *self, PyObject *arg) { SET_SUB };    
+static PyObject * Min_setDiv(Min *self, PyObject *arg) { SET_DIV };    
+
+static PyObject * Min_play(Min *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Min_out(Min *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Min_stop(Min *self) { STOP };
+
+static PyObject * Min_multiply(Min *self, PyObject *arg) { MULTIPLY };
+static PyObject * Min_inplace_multiply(Min *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Min_add(Min *self, PyObject *arg) { ADD };
+static PyObject * Min_inplace_add(Min *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Min_sub(Min *self, PyObject *arg) { SUB };
+static PyObject * Min_inplace_sub(Min *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Min_div(Min *self, PyObject *arg) { DIV };
+static PyObject * Min_inplace_div(Min *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Min_setComp(Min *self, PyObject *arg)
+{
+    PyObject *tmp, *streamtmp;
+    
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isNumber = PyNumber_Check(arg);
+    
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->comp);
+    if (isNumber == 1) {
+        self->comp = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+    }
+    else {
+        self->comp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->comp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->comp_stream);
+        self->comp_stream = (Stream *)streamtmp;
+        self->modebuffer[2] = 1;
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef Min_members[] = {
+{"server", T_OBJECT_EX, offsetof(Min, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Min, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Min, input), 0, "Input sound object."},
+{"comp", T_OBJECT_EX, offsetof(Min, comp), 0, "Comparator."},
+{"mul", T_OBJECT_EX, offsetof(Min, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Min, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Min_methods[] = {
+{"getServer", (PyCFunction)Min_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Min_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Min_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Min_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Min_stop, METH_NOARGS, "Stops computing."},
+{"setComp", (PyCFunction)Min_setComp, METH_O, "Sets comparator."},
+{"setMul", (PyCFunction)Min_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Min_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Min_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Min_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Min_as_number = {
+(binaryfunc)Min_add,                         /*nb_add*/
+(binaryfunc)Min_sub,                         /*nb_subtract*/
+(binaryfunc)Min_multiply,                    /*nb_multiply*/
+(binaryfunc)Min_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Min_inplace_add,                 /*inplace_add*/
+(binaryfunc)Min_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Min_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Min_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject MinType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Min_base",                                   /*tp_name*/
+sizeof(Min),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Min_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Min_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Min objects. Outputs the minimum of two values.",           /* tp_doc */
+(traverseproc)Min_traverse,                  /* tp_traverse */
+(inquiry)Min_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Min_methods,                                 /* tp_methods */
+Min_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Min_new,                                     /* tp_new */
+};
+
+/************/
+/* Max */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *comp;
+    Stream *comp_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+} Max;
+
+static void
+Max_process_i(Max *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT cp = PyFloat_AS_DOUBLE(self->comp);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = in[i] > cp ? in[i] : cp;
+    }
+}
+
+static void
+Max_process_a(Max *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *cp = Stream_getData((Stream *)self->comp_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = in[i] > cp[i] ? in[i] : cp[i];
+    }
+}
+
+static void Max_postprocessing_ii(Max *self) { POST_PROCESSING_II };
+static void Max_postprocessing_ai(Max *self) { POST_PROCESSING_AI };
+static void Max_postprocessing_ia(Max *self) { POST_PROCESSING_IA };
+static void Max_postprocessing_aa(Max *self) { POST_PROCESSING_AA };
+static void Max_postprocessing_ireva(Max *self) { POST_PROCESSING_IREVA };
+static void Max_postprocessing_areva(Max *self) { POST_PROCESSING_AREVA };
+static void Max_postprocessing_revai(Max *self) { POST_PROCESSING_REVAI };
+static void Max_postprocessing_revaa(Max *self) { POST_PROCESSING_REVAA };
+static void Max_postprocessing_revareva(Max *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Max_setProcMode(Max *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Max_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Max_process_a;
+            break;
+    } 
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Max_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Max_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Max_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Max_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Max_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Max_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Max_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Max_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Max_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Max_compute_next_data_frame(Max *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Max_traverse(Max *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->comp);    
+    Py_VISIT(self->comp_stream);    
+    return 0;
+}
+
+static int 
+Max_clear(Max *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->comp);    
+    Py_CLEAR(self->comp_stream);    
+    return 0;
+}
+
+static void
+Max_dealloc(Max* self)
+{
+    pyo_DEALLOC
+    Max_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Max_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *comptmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Max *self;
+    self = (Max *)type->tp_alloc(type, 0);
+    
+    self->comp = PyFloat_FromDouble(0.5);
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+
+    Stream_setFunctionPtr(self->stream, Max_compute_next_data_frame);
+    self->mode_func_ptr = Max_setProcMode;
+
+    static char *kwlist[] = {"input", "comp", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &comptmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    if (comptmp) {
+        PyObject_CallMethod((PyObject *)self, "setComp", "O", comptmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Max_getServer(Max* self) { GET_SERVER };
+static PyObject * Max_getStream(Max* self) { GET_STREAM };
+static PyObject * Max_setMul(Max *self, PyObject *arg) { SET_MUL };    
+static PyObject * Max_setAdd(Max *self, PyObject *arg) { SET_ADD };    
+static PyObject * Max_setSub(Max *self, PyObject *arg) { SET_SUB };    
+static PyObject * Max_setDiv(Max *self, PyObject *arg) { SET_DIV };    
+
+static PyObject * Max_play(Max *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Max_out(Max *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Max_stop(Max *self) { STOP };
+
+static PyObject * Max_multiply(Max *self, PyObject *arg) { MULTIPLY };
+static PyObject * Max_inplace_multiply(Max *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Max_add(Max *self, PyObject *arg) { ADD };
+static PyObject * Max_inplace_add(Max *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Max_sub(Max *self, PyObject *arg) { SUB };
+static PyObject * Max_inplace_sub(Max *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Max_div(Max *self, PyObject *arg) { DIV };
+static PyObject * Max_inplace_div(Max *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Max_setComp(Max *self, PyObject *arg)
+{
+    PyObject *tmp, *streamtmp;
+    
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isNumber = PyNumber_Check(arg);
+    
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->comp);
+    if (isNumber == 1) {
+        self->comp = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+    }
+    else {
+        self->comp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->comp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->comp_stream);
+        self->comp_stream = (Stream *)streamtmp;
+        self->modebuffer[2] = 1;
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef Max_members[] = {
+{"server", T_OBJECT_EX, offsetof(Max, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Max, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Max, input), 0, "Input sound object."},
+{"comp", T_OBJECT_EX, offsetof(Max, comp), 0, "Comparator."},
+{"mul", T_OBJECT_EX, offsetof(Max, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Max, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Max_methods[] = {
+{"getServer", (PyCFunction)Max_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Max_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Max_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Max_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Max_stop, METH_NOARGS, "Stops computing."},
+{"setComp", (PyCFunction)Max_setComp, METH_O, "Sets comparator."},
+{"setMul", (PyCFunction)Max_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Max_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Max_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Max_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Max_as_number = {
+(binaryfunc)Max_add,                         /*nb_add*/
+(binaryfunc)Max_sub,                         /*nb_subtract*/
+(binaryfunc)Max_multiply,                    /*nb_multiply*/
+(binaryfunc)Max_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Max_inplace_add,                 /*inplace_add*/
+(binaryfunc)Max_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Max_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Max_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject MaxType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Max_base",                                   /*tp_name*/
+sizeof(Max),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Max_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Max_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Max objects. Outputs the Maximum of two values.",           /* tp_doc */
+(traverseproc)Max_traverse,                  /* tp_traverse */
+(inquiry)Max_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Max_methods,                                 /* tp_methods */
+Max_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Max_new,                                     /* tp_new */
+};

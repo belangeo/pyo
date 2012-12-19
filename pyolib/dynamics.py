@@ -1087,3 +1087,193 @@ class Balance(PyoObject):
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
+
+class Min(PyoObject):
+    """
+    Outputs the minimum of two values.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    comp : float or PyoObject, optional
+        Comparison value. If input is lower than this value,
+        input is send to the output, otherwise, comp is outputted.
+        Defaults to 0.5.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setComp(x) : Replace the `comp` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    comp : float or PyoObject. Comparison value.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Triangle wave
+    >>> a = Phasor([249,250])
+    >>> b = Min(a, comp=a*-1+1, mul=4, add=-1)
+    >>> c = Tone(b, freq=1500, mul=.5).out()
+
+    """
+    def __init__(self, input, comp=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._comp = comp
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
+        self._base_objs = [Min_base(wrap(in_fader,i), wrap(comp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'comp', 'mul', 'add']
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setComp(self, x):
+        """
+        Replace the `comp` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `comp` attribute.
+
+        """
+        self._comp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setComp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0,1,"lin", "comp", self._comp), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def comp(self):
+        """float or PyoObject. Comparison value.""" 
+        return self._comp
+    @comp.setter
+    def comp(self, x): self.setComp(x)
+
+class Max(PyoObject):
+    """
+    Outputs the maximum of two values.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    comp : float or PyoObject, optional
+        Comparison value. If input is higher than this value,
+        input is send to the output, otherwise, comp is outputted.
+        Defaults to 0.5.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setComp(x) : Replace the `comp` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    comp : float or PyoObject. Comparison value.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Assimetrical clipping
+    >>> a = Phasor(500, mul=2, add=-1)
+    >>> b = Max(a, comp=-0.3)
+    >>> c = Tone(b, freq=1500, mul=.5).out()
+
+    """
+    def __init__(self, input, comp=0.5, mul=1, add=0):
+        PyoObject.__init__(self)
+        self._input = input
+        self._comp = comp
+        self._mul = mul
+        self._add = add
+        self._in_fader = InputFader(input)
+        in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
+        self._base_objs = [Max_base(wrap(in_fader,i), wrap(comp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def __dir__(self):
+        return ['input', 'comp', 'mul', 'add']
+        
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setComp(self, x):
+        """
+        Replace the `comp` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `comp` attribute.
+
+        """
+        self._comp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setComp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0,1,"lin", "comp", self._comp), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def comp(self):
+        """float or PyoObject. Comparison value.""" 
+        return self._comp
+    @comp.setter
+    def comp(self, x): self.setComp(x)

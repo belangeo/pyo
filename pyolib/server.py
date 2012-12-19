@@ -87,7 +87,8 @@ class Server(object):
     getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
     getStreams() : Returns the list of Stream objects currently in the Server memory.
     getNumberOfStreams() : Returns the number of streams currently in the Server memory.
-    sendMidiNote(pitch, velocity, channel) : Send a MIDI note message to the selected output device.
+    sendMidiNote(pitch, velocity, channel, timestamp) : Send a MIDI note message to the 
+        selected output device.
 
     The next methods must be called before booting the server
 
