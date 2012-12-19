@@ -17,7 +17,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-from distutils.sysconfig import get_python_lib
 import os
 
 import sys
@@ -293,5 +292,4 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']
 
-SNDS_PATH = os.path.join(get_python_lib(), "pyolib", "snds")
 DEMOS_PATH = SNDS_PATH
