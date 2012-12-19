@@ -281,7 +281,7 @@ jack_srate_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
     s->samplingRate = (double) nframes;
-    Server_debug(s, "the sample rate is now %lu/sec\n", (unsigned long) nframes);
+    Server_debug(s, "The sample rate is now %lu/sec\n", (unsigned long) nframes);
     return 0;
 }
 
@@ -290,7 +290,7 @@ jack_bufsize_cb (jack_nframes_t nframes, void *arg)
 {
     Server *s = (Server *) arg;
     s->bufferSize = (int) nframes;
-    Server_debug(s, "the buffer size is now %lu/sec\n", (unsigned long) nframes);
+    Server_debug(s, "The buffer size is now %lu/sec\n", (unsigned long) nframes);
     return 0;
 }
 
@@ -1752,13 +1752,13 @@ Server_pm_init(Server *self)
 
     pmerr = Pm_Initialize();
     if (pmerr) {
-        Server_warning(self, "PortMidi warning: could not initialize PortMidi: %s\n", Pm_GetErrorText(pmerr));
+        Server_warning(self, "Portmidi warning: could not initialize Portmidi: %s\n", Pm_GetErrorText(pmerr));
         self->withPortMidi = 0;
         self->withPortMidiOut = 0;
         return -1;
     }    
     else {
-        Server_debug(self, "PortMidi initialized.\n");
+        Server_debug(self, "Portmidi initialized.\n");
         self->withPortMidi = 1;
         self->withPortMidiOut = 1;
     }    
@@ -1768,33 +1768,33 @@ Server_pm_init(Server *self)
         if (num_devices > 0) {
             if (self->midi_input == -1 || self->midi_input >= num_devices)
                 self->midi_input = Pm_GetDefaultInputDeviceID();
-            Server_debug(self, "Midi input device :%d.\n", self->midi_input);
+            Server_debug(self, "Midi input device : %d.\n", self->midi_input);
             const PmDeviceInfo *info = Pm_GetDeviceInfo(self->midi_input);
             if (info != NULL) {
                 if (info->input) {
                     pmerr = Pm_OpenInput(&self->in, self->midi_input, NULL, 100, NULL, NULL);
                     if (pmerr) {
                         Server_warning(self, 
-                                 "PortMidi warning: could not open midi input %d (%s): %s\n",
+                                 "Portmidi warning: could not open midi input %d (%s): %s\n",
                                  0, info->name, Pm_GetErrorText(pmerr));
                         self->withPortMidi = 0;
                     }    
                     else
-                        Server_debug(self, "Midi Input (%s) opened.\n", info->name);
+                        Server_debug(self, "Midi input (%s) opened.\n", info->name);
                 }
                 else {
-                    Server_warning(self, "PortMidi warning: Something wrong with midi input device!\n");
+                    Server_warning(self, "Portmidi warning: something wrong with midi input device!\n");
                     self->withPortMidi = 0;
                 }
             }
             else {
-                    Server_warning(self, "PortMidi warning: No input device!\n");
+                    Server_warning(self, "Portmidi warning: no input device!\n");
                     self->withPortMidi = 0;
             }
             
             if (self->midi_output == -1 || self->midi_output >= num_devices)
                 self->midi_output = Pm_GetDefaultOutputDeviceID();
-            Server_debug(self, "Midi output device :%d.\n", self->midi_output);
+            Server_debug(self, "Midi output device : %d.\n", self->midi_output);
             const PmDeviceInfo *outinfo = Pm_GetDeviceInfo(self->midi_output);
             if (outinfo != NULL) {
                 if (outinfo->output) {
@@ -1802,30 +1802,30 @@ Server_pm_init(Server *self)
                     pmerr = Pm_OpenOutput(&self->out, self->midi_output, NULL, 0, NULL, NULL, 1);
                     if (pmerr) {
                         Server_warning(self, 
-                                 "PortMidi warning: could not open midi output %d (%s): %s\n",
+                                 "Portmidi warning: could not open midi output %d (%s): %s\n",
                                  0, outinfo->name, Pm_GetErrorText(pmerr));
                         self->withPortMidiOut = 0;
                     }    
                     else
-                        Server_debug(self, "Midi Output (%s) opened.\n", outinfo->name);
+                        Server_debug(self, "Midi output (%s) opened.\n", outinfo->name);
                 }
                 else {
-                    Server_warning(self, "PortMidi warning: Something wrong with midi output device!\n");
+                    Server_warning(self, "Portmidi warning: something wrong with midi output device!\n");
                     self->withPortMidiOut = 0;
                 }
             }
             else {
-                    Server_warning(self, "PortMidi warning: No output device!\n");
+                    Server_warning(self, "Portmidi warning: no output device!\n");
                     self->withPortMidi = 0;
             }
             
             if (self->withPortMidi == 0 && self->withPortMidiOut == 0) {
                 Pm_Terminate();
-                Server_warning(self, "Portmidi closed\n");
+                Server_warning(self, "Portmidi closed.\n");
             }
         }    
         else {
-            Server_warning(self, "PortMidi warning: No midi device found!\nPortmidi closed\n");
+            Server_warning(self, "Portmidi warning: no midi device found!\nPortmidi closed.\n");
             self->withPortMidi = 0;
             self->withPortMidiOut = 0;
             Pm_Terminate();
