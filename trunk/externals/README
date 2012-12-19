@@ -1,0 +1,48 @@
+Welcome to this quick guide for those of you who want to write their 
+own pyo objects. These few steps explain how to add custom objects, 
+written in C, to the pyo library.
+
+In this folder, there is three self-documented files that can be used 
+as a template to build an effect processor (I intend to write examples 
+for more object's types in the future). These files can be used as is 
+to compile a "Gain" object, which is modifying the volume of a signal 
+according to a value, static or audio, given in decibel.
+
+Files are:
+    - externalmodule-template.c : C part of the object. Here is defined 
+    all the DSP and the python object structure using the Python-C API. 
+    It creates an object called "Gain_base".
+
+    - externalmodule-template.h : This file indicates to the "_pyo" 
+    module which objects to compile.
+
+    - external-template.py : Python part of the object. Here is defined 
+    the user interface of the object. An audio processor is a class that 
+    inherits from the PyoObject. In this example, the object is simply 
+    called "Gain" and uses "Gain_base" as the real processing part and 
+    for multi-channel expansion purpose.
+
+=== Steps to compile the "Gain" objects ===
+
+1. All three files must be copied and renamed respectively:
+    - externalmodule.c
+    - externalmodule.h
+    - external.py
+
+2. Compile pyo with the flag --compile-externals
+
+That's it! The setup.py will add these files to the compilation chain 
+and create a "Gain" object in the pyo library.
+
+To add other processing objects, all you have to do is to copy everthing 
+about the "Gain" object and then change the name, attributes, methods 
+and the processing part according to your new functionnality.
+
+* VERY IMPORTANT *
+Only these three files are added to the compilation, so, for the time 
+being, all objects MUST be written in those files. Perhaps one day, 
+it will be possible to write new objects in separated files but actually, 
+it's not possible.
+
+For questions and comments, please write to the pyo-discuss mailing list:
+pyo-discuss(at)googlegroups(dot)com 
