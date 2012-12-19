@@ -2073,1161 +2073,237 @@ init_pyo64(void)
 #endif
 #endif
 
-    if (PyType_Ready(&ServerType) < 0)
-        return;
-    Py_INCREF(&ServerType);
-    PyModule_AddObject(m, "Server_base", (PyObject *)&ServerType);
-
-    if (PyType_Ready(&StreamType) < 0)
-        return;
-    Py_INCREF(&StreamType);
-    PyModule_AddObject(m, "Stream", (PyObject *)&StreamType);
-
-    if (PyType_Ready(&TriggerStreamType) < 0)
-        return;
-    Py_INCREF(&TriggerStreamType);
-    PyModule_AddObject(m, "TriggerStream", (PyObject *)&TriggerStreamType);
-    
-    if (PyType_Ready(&DummyType) < 0)
-        return;
-    Py_INCREF(&DummyType);
-    PyModule_AddObject(m, "Dummy_base", (PyObject *)&DummyType);
-
-    if (PyType_Ready(&TriggerDummyType) < 0)
-        return;
-    Py_INCREF(&TriggerDummyType);
-    PyModule_AddObject(m, "TriggerDummy_base", (PyObject *)&TriggerDummyType);
-    
-    if (PyType_Ready(&RecordType) < 0)
-        return;
-    Py_INCREF(&RecordType);
-    PyModule_AddObject(m, "Record_base", (PyObject *)&RecordType);
-
-    if (PyType_Ready(&ControlRecType) < 0)
-        return;
-    Py_INCREF(&ControlRecType);
-    PyModule_AddObject(m, "ControlRec_base", (PyObject *)&ControlRecType);
-
-    if (PyType_Ready(&ControlReadType) < 0)
-        return;
-    Py_INCREF(&ControlReadType);
-    PyModule_AddObject(m, "ControlRead_base", (PyObject *)&ControlReadType);
-
-    if (PyType_Ready(&NoteinRecType) < 0)
-        return;
-    Py_INCREF(&NoteinRecType);
-    PyModule_AddObject(m, "NoteinRec_base", (PyObject *)&NoteinRecType);
-
-    if (PyType_Ready(&NoteinReadType) < 0)
-        return;
-    Py_INCREF(&NoteinReadType);
-    PyModule_AddObject(m, "NoteinRead_base", (PyObject *)&NoteinReadType);
-
-    if (PyType_Ready(&CompareType) < 0)
-        return;
-    Py_INCREF(&CompareType);
-    PyModule_AddObject(m, "Compare_base", (PyObject *)&CompareType);
-    
-    if (PyType_Ready(&MixType) < 0)
-        return;
-    Py_INCREF(&MixType);
-    PyModule_AddObject(m, "Mix_base", (PyObject *)&MixType);
-
-    if (PyType_Ready(&SigType) < 0)
-        return;
-    Py_INCREF(&SigType);
-    PyModule_AddObject(m, "Sig_base", (PyObject *)&SigType);
-
-    if (PyType_Ready(&SigToType) < 0)
-        return;
-    Py_INCREF(&SigToType);
-    PyModule_AddObject(m, "SigTo_base", (PyObject *)&SigToType);
-
-    if (PyType_Ready(&VarPortType) < 0)
-        return;
-    Py_INCREF(&VarPortType);
-    PyModule_AddObject(m, "VarPort_base", (PyObject *)&VarPortType);
-    
-    if (PyType_Ready(&InputFaderType) < 0)
-        return;
-    Py_INCREF(&InputFaderType);
-    PyModule_AddObject(m, "InputFader_base", (PyObject *)&InputFaderType);
-
-    if (PyType_Ready(&AdsrType) < 0)
-        return;
-    Py_INCREF(&AdsrType);
-    PyModule_AddObject(m, "Adsr_base", (PyObject *)&AdsrType);
-
-    if (PyType_Ready(&LinsegType) < 0)
-        return;
-    Py_INCREF(&LinsegType);
-    PyModule_AddObject(m, "Linseg_base", (PyObject *)&LinsegType);
-
-    if (PyType_Ready(&ExpsegType) < 0)
-        return;
-    Py_INCREF(&ExpsegType);
-    PyModule_AddObject(m, "Expseg_base", (PyObject *)&ExpsegType);
-    
-    if (PyType_Ready(&TableStreamType) < 0)
-        return;
-    Py_INCREF(&TableStreamType);
-    PyModule_AddObject(m, "TableStream", (PyObject *)&TableStreamType);
-    
-    if (PyType_Ready(&HarmTableType) < 0)
-        return;
-    Py_INCREF(&HarmTableType);
-    PyModule_AddObject(m, "HarmTable_base", (PyObject *)&HarmTableType);
-
-    if (PyType_Ready(&ChebyTableType) < 0)
-        return;
-    Py_INCREF(&ChebyTableType);
-    PyModule_AddObject(m, "ChebyTable_base", (PyObject *)&ChebyTableType);
-    
-    if (PyType_Ready(&HannTableType) < 0)
-        return;
-    Py_INCREF(&HannTableType);
-    PyModule_AddObject(m, "HannTable_base", (PyObject *)&HannTableType);
-
-    if (PyType_Ready(&SincTableType) < 0)
-        return;
-    Py_INCREF(&SincTableType);
-    PyModule_AddObject(m, "SincTable_base", (PyObject *)&SincTableType);
-    
-    if (PyType_Ready(&WinTableType) < 0)
-        return;
-    Py_INCREF(&WinTableType);
-    PyModule_AddObject(m, "WinTable_base", (PyObject *)&WinTableType);
-
-    if (PyType_Ready(&ParaTableType) < 0)
-        return;
-    Py_INCREF(&ParaTableType);
-    PyModule_AddObject(m, "ParaTable_base", (PyObject *)&ParaTableType);
-    
-    if (PyType_Ready(&LinTableType) < 0)
-        return;
-    Py_INCREF(&LinTableType);
-    PyModule_AddObject(m, "LinTable_base", (PyObject *)&LinTableType);
-
-    if (PyType_Ready(&LogTableType) < 0)
-        return;
-    Py_INCREF(&LogTableType);
-    PyModule_AddObject(m, "LogTable_base", (PyObject *)&LogTableType);
-
-    if (PyType_Ready(&CosLogTableType) < 0)
-        return;
-    Py_INCREF(&CosLogTableType);
-    PyModule_AddObject(m, "CosLogTable_base", (PyObject *)&CosLogTableType);
-    
-    if (PyType_Ready(&CosTableType) < 0)
-        return;
-    Py_INCREF(&CosTableType);
-    PyModule_AddObject(m, "CosTable_base", (PyObject *)&CosTableType);
-
-    if (PyType_Ready(&CurveTableType) < 0)
-        return;
-    Py_INCREF(&CurveTableType);
-    PyModule_AddObject(m, "CurveTable_base", (PyObject *)&CurveTableType);
-
-    if (PyType_Ready(&ExpTableType) < 0)
-        return;
-    Py_INCREF(&ExpTableType);
-    PyModule_AddObject(m, "ExpTable_base", (PyObject *)&ExpTableType);
-    
-    if (PyType_Ready(&SndTableType) < 0)
-        return;
-    Py_INCREF(&SndTableType);
-    PyModule_AddObject(m, "SndTable_base", (PyObject *)&SndTableType);
-
-    if (PyType_Ready(&DataTableType) < 0)
-        return;
-    Py_INCREF(&DataTableType);
-    PyModule_AddObject(m, "DataTable_base", (PyObject *)&DataTableType);
-    
-    if (PyType_Ready(&NewTableType) < 0)
-        return;
-    Py_INCREF(&NewTableType);
-    PyModule_AddObject(m, "NewTable_base", (PyObject *)&NewTableType);
-
-    if (PyType_Ready(&TableRecType) < 0)
-        return;
-    Py_INCREF(&TableRecType);
-    PyModule_AddObject(m, "TableRec_base", (PyObject *)&TableRecType);
-
-    if (PyType_Ready(&TableRecTimeStreamType) < 0)
-        return;
-    Py_INCREF(&TableRecTimeStreamType);
-    PyModule_AddObject(m, "TableRecTimeStream_base", (PyObject *)&TableRecTimeStreamType);
-   
-    if (PyType_Ready(&TableMorphType) < 0)
-        return;
-    Py_INCREF(&TableMorphType);
-    PyModule_AddObject(m, "TableMorph_base", (PyObject *)&TableMorphType);
-
-    if (PyType_Ready(&TrigTableRecType) < 0)
-        return;
-    Py_INCREF(&TrigTableRecType);
-    PyModule_AddObject(m, "TrigTableRec_base", (PyObject *)&TrigTableRecType);
-
-    if (PyType_Ready(&TrigTableRecTimeStreamType) < 0)
-        return;
-    Py_INCREF(&TrigTableRecTimeStreamType);
-    PyModule_AddObject(m, "TrigTableRecTimeStream_base", (PyObject *)&TrigTableRecTimeStreamType);
-
-    if (PyType_Ready(&TablePutType) < 0)
-        return;
-    Py_INCREF(&TablePutType);
-    PyModule_AddObject(m, "TablePut_base", (PyObject *)&TablePutType);
-   
-    /* Matrix objects */
-    if (PyType_Ready(&MatrixStreamType) < 0)
-        return;
-    Py_INCREF(&MatrixStreamType);
-    PyModule_AddObject(m, "MatrixStream", (PyObject *)&MatrixStreamType);
-    
-    if (PyType_Ready(&NewMatrixType) < 0)
-        return;
-    Py_INCREF(&NewMatrixType);
-    PyModule_AddObject(m, "NewMatrix_base", (PyObject *)&NewMatrixType);
-
-    if (PyType_Ready(&MatrixPointerType) < 0)
-        return;
-    Py_INCREF(&MatrixPointerType);
-    PyModule_AddObject(m, "MatrixPointer_base", (PyObject *)&MatrixPointerType);
-
-    if (PyType_Ready(&MatrixRecType) < 0)
-        return;
-    Py_INCREF(&MatrixRecType);
-    PyModule_AddObject(m, "MatrixRec_base", (PyObject *)&MatrixRecType);
-
-    if (PyType_Ready(&MatrixRecLoopType) < 0)
-        return;
-    Py_INCREF(&MatrixRecLoopType);
-    PyModule_AddObject(m, "MatrixRecLoop_base", (PyObject *)&MatrixRecLoopType);
-    
-    if (PyType_Ready(&MatrixMorphType) < 0)
-        return;
-    Py_INCREF(&MatrixMorphType);
-    PyModule_AddObject(m, "MatrixMorph_base", (PyObject *)&MatrixMorphType);
-    
-    if (PyType_Ready(&InputType) < 0)
-        return;
-    Py_INCREF(&InputType);
-    PyModule_AddObject(m, "Input_base", (PyObject *)&InputType);
-
-    if (PyType_Ready(&TrigType) < 0)
-        return;
-    Py_INCREF(&TrigType);
-    PyModule_AddObject(m, "Trig_base", (PyObject *)&TrigType);
-
-    if (PyType_Ready(&NextTrigType) < 0)
-        return;
-    Py_INCREF(&NextTrigType);
-    PyModule_AddObject(m, "NextTrig_base", (PyObject *)&NextTrigType);
-
-    if (PyType_Ready(&MetroType) < 0)
-        return;
-    Py_INCREF(&MetroType);
-    PyModule_AddObject(m, "Metro_base", (PyObject *)&MetroType);
-
-    if (PyType_Ready(&SeqerType) < 0)
-        return;
-    Py_INCREF(&SeqerType);
-    PyModule_AddObject(m, "Seqer_base", (PyObject *)&SeqerType);
-
-    if (PyType_Ready(&SeqType) < 0)
-        return;
-    Py_INCREF(&SeqType);
-    PyModule_AddObject(m, "Seq_base", (PyObject *)&SeqType);
-    
-    if (PyType_Ready(&ClouderType) < 0)
-        return;
-    Py_INCREF(&ClouderType);
-    PyModule_AddObject(m, "Clouder_base", (PyObject *)&ClouderType);
-
-    if (PyType_Ready(&CloudType) < 0)
-        return;
-    Py_INCREF(&CloudType);
-    PyModule_AddObject(m, "Cloud_base", (PyObject *)&CloudType);
-
-    if (PyType_Ready(&BeaterType) < 0)
-        return;
-    Py_INCREF(&BeaterType);
-    PyModule_AddObject(m, "Beater_base", (PyObject *)&BeaterType);
-    
-    if (PyType_Ready(&BeatType) < 0)
-        return;
-    Py_INCREF(&BeatType);
-    PyModule_AddObject(m, "Beat_base", (PyObject *)&BeatType);
-
-    if (PyType_Ready(&BeatTapStreamType) < 0)
-        return;
-    Py_INCREF(&BeatTapStreamType);
-    PyModule_AddObject(m, "BeatTapStream_base", (PyObject *)&BeatTapStreamType);
-    
-    if (PyType_Ready(&BeatAmpStreamType) < 0)
-        return;
-    Py_INCREF(&BeatAmpStreamType);
-    PyModule_AddObject(m, "BeatAmpStream_base", (PyObject *)&BeatAmpStreamType);
-
-    if (PyType_Ready(&BeatDurStreamType) < 0)
-        return;
-    Py_INCREF(&BeatDurStreamType);
-    PyModule_AddObject(m, "BeatDurStream_base", (PyObject *)&BeatDurStreamType);
-
-    if (PyType_Ready(&BeatEndStreamType) < 0)
-        return;
-    Py_INCREF(&BeatEndStreamType);
-    PyModule_AddObject(m, "BeatEndStream_base", (PyObject *)&BeatEndStreamType);
-    
-    if (PyType_Ready(&FaderType) < 0)
-        return;
-    Py_INCREF(&FaderType);
-    PyModule_AddObject(m, "Fader_base", (PyObject *)&FaderType);
-
-    if (PyType_Ready(&RandiType) < 0)
-        return;
-    Py_INCREF(&RandiType);
-    PyModule_AddObject(m, "Randi_base", (PyObject *)&RandiType);
-
-    if (PyType_Ready(&RandhType) < 0)
-        return;
-    Py_INCREF(&RandhType);
-    PyModule_AddObject(m, "Randh_base", (PyObject *)&RandhType);
-
-    if (PyType_Ready(&ChoiceType) < 0)
-        return;
-    Py_INCREF(&ChoiceType);
-    PyModule_AddObject(m, "Choice_base", (PyObject *)&ChoiceType);
-
-    if (PyType_Ready(&RandDurType) < 0)
-        return;
-    Py_INCREF(&RandDurType);
-    PyModule_AddObject(m, "RandDur_base", (PyObject *)&RandDurType);
-    
-    if (PyType_Ready(&XnoiseType) < 0)
-        return;
-    Py_INCREF(&XnoiseType);
-    PyModule_AddObject(m, "Xnoise_base", (PyObject *)&XnoiseType);
-
-    if (PyType_Ready(&XnoiseMidiType) < 0)
-        return;
-    Py_INCREF(&XnoiseMidiType);
-    PyModule_AddObject(m, "XnoiseMidi_base", (PyObject *)&XnoiseMidiType);
-
-    if (PyType_Ready(&XnoiseDurType) < 0)
-        return;
-    Py_INCREF(&XnoiseDurType);
-    PyModule_AddObject(m, "XnoiseDur_base", (PyObject *)&XnoiseDurType);
-    
-    if (PyType_Ready(&RandIntType) < 0)
-        return;
-    Py_INCREF(&RandIntType);
-    PyModule_AddObject(m, "RandInt_base", (PyObject *)&RandIntType);
-
-    if (PyType_Ready(&UrnType) < 0)
-        return;
-    Py_INCREF(&UrnType);
-    PyModule_AddObject(m, "Urn_base", (PyObject *)&UrnType);
-    
-    if (PyType_Ready(&SfPlayerType) < 0)
-        return;
-    Py_INCREF(&SfPlayerType);
-    PyModule_AddObject(m, "SfPlayer_base", (PyObject *)&SfPlayerType);
-
-    if (PyType_Ready(&SfPlayType) < 0)
-        return;
-    Py_INCREF(&SfPlayType);
-    PyModule_AddObject(m, "SfPlay_base", (PyObject *)&SfPlayType);
-   
-    if (PyType_Ready(&SfMarkerShufflerType) < 0)
-        return;
-    Py_INCREF(&SfMarkerShufflerType);
-    PyModule_AddObject(m, "SfMarkerShuffler_base", (PyObject *)&SfMarkerShufflerType);
-    
-    if (PyType_Ready(&SfMarkerShuffleType) < 0)
-        return;
-    Py_INCREF(&SfMarkerShuffleType);
-    PyModule_AddObject(m, "SfMarkerShuffle_base", (PyObject *)&SfMarkerShuffleType);
-
-    if (PyType_Ready(&SfMarkerLooperType) < 0)
-        return;
-    Py_INCREF(&SfMarkerLooperType);
-    PyModule_AddObject(m, "SfMarkerLooper_base", (PyObject *)&SfMarkerLooperType);
-    
-    if (PyType_Ready(&SfMarkerLoopType) < 0)
-        return;
-    Py_INCREF(&SfMarkerLoopType);
-    PyModule_AddObject(m, "SfMarkerLoop_base", (PyObject *)&SfMarkerLoopType);
-    
-    if (PyType_Ready(&OscType) < 0)
-        return;
-    Py_INCREF(&OscType);
-    PyModule_AddObject(m, "Osc_base", (PyObject *)&OscType);
-
-    if (PyType_Ready(&OscLoopType) < 0)
-        return;
-    Py_INCREF(&OscLoopType);
-    PyModule_AddObject(m, "OscLoop_base", (PyObject *)&OscLoopType);
-
-    if (PyType_Ready(&OscTrigType) < 0)
-        return;
-    Py_INCREF(&OscTrigType);
-    PyModule_AddObject(m, "OscTrig_base", (PyObject *)&OscTrigType);
-    
-    if (PyType_Ready(&OscBankType) < 0)
-        return;
-    Py_INCREF(&OscBankType);
-    PyModule_AddObject(m, "OscBank_base", (PyObject *)&OscBankType);
-
-    if (PyType_Ready(&SumOscType) < 0)
-        return;
-    Py_INCREF(&SumOscType);
-    PyModule_AddObject(m, "SumOsc_base", (PyObject *)&SumOscType);
-    
-    if (PyType_Ready(&TableReadType) < 0)
-        return;
-    Py_INCREF(&TableReadType);
-    PyModule_AddObject(m, "TableRead_base", (PyObject *)&TableReadType);
-    
-    if (PyType_Ready(&PulsarType) < 0)
-        return;
-    Py_INCREF(&PulsarType);
-    PyModule_AddObject(m, "Pulsar_base", (PyObject *)&PulsarType);
-    
-    if (PyType_Ready(&SineType) < 0)
-        return;
-    Py_INCREF(&SineType);
-    PyModule_AddObject(m, "Sine_base", (PyObject *)&SineType);
-
-    if (PyType_Ready(&SineLoopType) < 0)
-        return;
-    Py_INCREF(&SineLoopType);
-    PyModule_AddObject(m, "SineLoop_base", (PyObject *)&SineLoopType);
-    
-    if (PyType_Ready(&FmType) < 0)
-        return;
-    Py_INCREF(&FmType);
-    PyModule_AddObject(m, "Fm_base", (PyObject *)&FmType);
-
-    if (PyType_Ready(&CrossFmType) < 0)
-        return;
-    Py_INCREF(&CrossFmType);
-    PyModule_AddObject(m, "CrossFm_base", (PyObject *)&CrossFmType);
-
-    if (PyType_Ready(&LFOType) < 0)
-        return;
-    Py_INCREF(&LFOType);
-    PyModule_AddObject(m, "LFO_base", (PyObject *)&LFOType);
-    
-    if (PyType_Ready(&BlitType) < 0)
-        return;
-    Py_INCREF(&BlitType);
-    PyModule_AddObject(m, "Blit_base", (PyObject *)&BlitType);
-
-    if (PyType_Ready(&RosslerType) < 0)
-        return;
-    Py_INCREF(&RosslerType);
-    PyModule_AddObject(m, "Rossler_base", (PyObject *)&RosslerType);
-    
-    if (PyType_Ready(&RosslerAltType) < 0)
-        return;
-    Py_INCREF(&RosslerAltType);
-    PyModule_AddObject(m, "RosslerAlt_base", (PyObject *)&RosslerAltType);
-
-    if (PyType_Ready(&LorenzType) < 0)
-        return;
-    Py_INCREF(&LorenzType);
-    PyModule_AddObject(m, "Lorenz_base", (PyObject *)&LorenzType);
-
-    if (PyType_Ready(&LorenzAltType) < 0)
-        return;
-    Py_INCREF(&LorenzAltType);
-    PyModule_AddObject(m, "LorenzAlt_base", (PyObject *)&LorenzAltType);
-    
-    if (PyType_Ready(&PhasorType) < 0)
-        return;
-    Py_INCREF(&PhasorType);
-    PyModule_AddObject(m, "Phasor_base", (PyObject *)&PhasorType);
-
-    if (PyType_Ready(&SuperSawType) < 0)
-        return;
-    Py_INCREF(&SuperSawType);
-    PyModule_AddObject(m, "SuperSaw_base", (PyObject *)&SuperSawType);
-
-    if (PyType_Ready(&PointerType) < 0)
-        return;
-    Py_INCREF(&PointerType);
-    PyModule_AddObject(m, "Pointer_base", (PyObject *)&PointerType);
-
-    if (PyType_Ready(&TableIndexType) < 0)
-        return;
-    Py_INCREF(&TableIndexType);
-    PyModule_AddObject(m, "TableIndex_base", (PyObject *)&TableIndexType);
-    
-    if (PyType_Ready(&LookupType) < 0)
-        return;
-    Py_INCREF(&LookupType);
-    PyModule_AddObject(m, "Lookup_base", (PyObject *)&LookupType);
-    
-    if (PyType_Ready(&NoiseType) < 0)
-        return;
-    Py_INCREF(&NoiseType);
-    PyModule_AddObject(m, "Noise_base", (PyObject *)&NoiseType);
-
-    if (PyType_Ready(&PinkNoiseType) < 0)
-        return;
-    Py_INCREF(&PinkNoiseType);
-    PyModule_AddObject(m, "PinkNoise_base", (PyObject *)&PinkNoiseType);
-
-    if (PyType_Ready(&BrownNoiseType) < 0)
-        return;
-    Py_INCREF(&BrownNoiseType);
-    PyModule_AddObject(m, "BrownNoise_base", (PyObject *)&BrownNoiseType);
-    
-    if (PyType_Ready(&BiquadType) < 0)
-        return;
-    Py_INCREF(&BiquadType);
-    PyModule_AddObject(m, "Biquad_base", (PyObject *)&BiquadType);
-
-    if (PyType_Ready(&BiquadxType) < 0)
-        return;
-    Py_INCREF(&BiquadxType);
-    PyModule_AddObject(m, "Biquadx_base", (PyObject *)&BiquadxType);
-    
-    if (PyType_Ready(&BiquadaType) < 0)
-        return;
-    Py_INCREF(&BiquadaType);
-    PyModule_AddObject(m, "Biquada_base", (PyObject *)&BiquadaType);
-    
-    if (PyType_Ready(&EQType) < 0)
-        return;
-    Py_INCREF(&EQType);
-    PyModule_AddObject(m, "EQ_base", (PyObject *)&EQType);
-    
-    if (PyType_Ready(&ToneType) < 0)
-        return;
-    Py_INCREF(&ToneType);
-    PyModule_AddObject(m, "Tone_base", (PyObject *)&ToneType);
-
-    if (PyType_Ready(&AtoneType) < 0)
-        return;
-    Py_INCREF(&AtoneType);
-    PyModule_AddObject(m, "Atone_base", (PyObject *)&AtoneType);
-
-    if (PyType_Ready(&DCBlockType) < 0)
-        return;
-    Py_INCREF(&DCBlockType);
-    PyModule_AddObject(m, "DCBlock_base", (PyObject *)&DCBlockType);
-
-    if (PyType_Ready(&AllpassType) < 0)
-        return;
-    Py_INCREF(&AllpassType);
-    PyModule_AddObject(m, "Allpass_base", (PyObject *)&AllpassType);
-
-    if (PyType_Ready(&Allpass2Type) < 0)
-        return;
-    Py_INCREF(&Allpass2Type);
-    PyModule_AddObject(m, "Allpass2_base", (PyObject *)&Allpass2Type);
-
-    if (PyType_Ready(&PhaserType) < 0)
-        return;
-    Py_INCREF(&PhaserType);
-    PyModule_AddObject(m, "Phaser_base", (PyObject *)&PhaserType);    
-
-    if (PyType_Ready(&VocoderType) < 0)
-        return;
-    Py_INCREF(&VocoderType);
-    PyModule_AddObject(m, "Vocoder_base", (PyObject *)&VocoderType);
-    
-    if (PyType_Ready(&PortType) < 0)
-        return;
-    Py_INCREF(&PortType);
-    PyModule_AddObject(m, "Port_base", (PyObject *)&PortType);
-    
-    if (PyType_Ready(&DenormType) < 0)
-        return;
-    Py_INCREF(&DenormType);
-    PyModule_AddObject(m, "Denorm_base", (PyObject *)&DenormType);
-    
-    if (PyType_Ready(&DistoType) < 0)
-        return;
-    Py_INCREF(&DistoType);
-    PyModule_AddObject(m, "Disto_base", (PyObject *)&DistoType);
-
-    if (PyType_Ready(&ClipType) < 0)
-        return;
-    Py_INCREF(&ClipType);
-    PyModule_AddObject(m, "Clip_base", (PyObject *)&ClipType);
-
-    if (PyType_Ready(&MirrorType) < 0)
-        return;
-    Py_INCREF(&MirrorType);
-    PyModule_AddObject(m, "Mirror_base", (PyObject *)&MirrorType);
-
-    if (PyType_Ready(&WrapType) < 0)
-        return;
-    Py_INCREF(&WrapType);
-    PyModule_AddObject(m, "Wrap_base", (PyObject *)&WrapType);
-    
-    if (PyType_Ready(&BetweenType) < 0)
-        return;
-    Py_INCREF(&BetweenType);
-    PyModule_AddObject(m, "Between_base", (PyObject *)&BetweenType);
-    
-    if (PyType_Ready(&DegradeType) < 0)
-        return;
-    Py_INCREF(&DegradeType);
-    PyModule_AddObject(m, "Degrade_base", (PyObject *)&DegradeType);
-    
-    if (PyType_Ready(&CompressType) < 0)
-        return;
-    Py_INCREF(&CompressType);
-    PyModule_AddObject(m, "Compress_base", (PyObject *)&CompressType);
-
-    if (PyType_Ready(&GateType) < 0)
-        return;
-    Py_INCREF(&GateType);
-    PyModule_AddObject(m, "Gate_base", (PyObject *)&GateType);
-
-    if (PyType_Ready(&BalanceType) < 0)
-        return;
-    Py_INCREF(&BalanceType);
-    PyModule_AddObject(m, "Balance_base", (PyObject *)&BalanceType);
-    
-    if (PyType_Ready(&DelayType) < 0)
-        return;
-    Py_INCREF(&DelayType);
-    PyModule_AddObject(m, "Delay_base", (PyObject *)&DelayType);
-
-    if (PyType_Ready(&SDelayType) < 0)
-        return;
-    Py_INCREF(&SDelayType);
-    PyModule_AddObject(m, "SDelay_base", (PyObject *)&SDelayType);
-    
-    if (PyType_Ready(&WaveguideType) < 0)
-        return;
-    Py_INCREF(&WaveguideType);
-    PyModule_AddObject(m, "Waveguide_base", (PyObject *)&WaveguideType);
-
-    if (PyType_Ready(&AllpassWGType) < 0)
-        return;
-    Py_INCREF(&AllpassWGType);
-    PyModule_AddObject(m, "AllpassWG_base", (PyObject *)&AllpassWGType);
-    
-    if (PyType_Ready(&MidictlType) < 0)
-        return;
-    Py_INCREF(&MidictlType);
-    PyModule_AddObject(m, "Midictl_base", (PyObject *)&MidictlType);
-
-    if (PyType_Ready(&CtlScanType) < 0)
-        return;
-    Py_INCREF(&CtlScanType);
-    PyModule_AddObject(m, "CtlScan_base", (PyObject *)&CtlScanType);
-
-    if (PyType_Ready(&CtlScan2Type) < 0)
-        return;
-    Py_INCREF(&CtlScan2Type);
-    PyModule_AddObject(m, "CtlScan2_base", (PyObject *)&CtlScan2Type);
-    
-    if (PyType_Ready(&MidiNoteType) < 0)
-        return;
-    Py_INCREF(&MidiNoteType);
-    PyModule_AddObject(m, "MidiNote_base", (PyObject *)&MidiNoteType);
-
-    if (PyType_Ready(&NoteinType) < 0)
-        return;
-    Py_INCREF(&NoteinType);
-    PyModule_AddObject(m, "Notein_base", (PyObject *)&NoteinType);
-
-    if (PyType_Ready(&BendinType) < 0)
-        return;
-    Py_INCREF(&BendinType);
-    PyModule_AddObject(m, "Bendin_base", (PyObject *)&BendinType);
-
-    if (PyType_Ready(&TouchinType) < 0)
-        return;
-    Py_INCREF(&TouchinType);
-    PyModule_AddObject(m, "Touchin_base", (PyObject *)&TouchinType);
-
-    if (PyType_Ready(&PrograminType) < 0)
-        return;
-    Py_INCREF(&PrograminType);
-    PyModule_AddObject(m, "Programin_base", (PyObject *)&PrograminType);
-    
-    if (PyType_Ready(&MidiAdsrType) < 0)
-        return;
-    Py_INCREF(&MidiAdsrType);
-    PyModule_AddObject(m, "MidiAdsr_base", (PyObject *)&MidiAdsrType);
-
-    if (PyType_Ready(&MidiDelAdsrType) < 0)
-        return;
-    Py_INCREF(&MidiDelAdsrType);
-    PyModule_AddObject(m, "MidiDelAdsr_base", (PyObject *)&MidiDelAdsrType);
-    
-    if (PyType_Ready(&OscSendType) < 0)
-        return;
-    Py_INCREF(&OscSendType);
-    PyModule_AddObject(m, "OscSend_base", (PyObject *)&OscSendType);
-
-    if (PyType_Ready(&OscDataSendType) < 0)
-        return;
-    Py_INCREF(&OscDataSendType);
-    PyModule_AddObject(m, "OscDataSend_base", (PyObject *)&OscDataSendType);
-    
-    if (PyType_Ready(&OscReceiveType) < 0)
-        return;
-    Py_INCREF(&OscReceiveType);
-    PyModule_AddObject(m, "OscReceive_base", (PyObject *)&OscReceiveType);
-
-    if (PyType_Ready(&OscReceiverType) < 0)
-        return;
-    Py_INCREF(&OscReceiverType);
-    PyModule_AddObject(m, "OscReceiver_base", (PyObject *)&OscReceiverType);
-
-    if (PyType_Ready(&OscListReceiveType) < 0)
-        return;
-    Py_INCREF(&OscListReceiveType);
-    PyModule_AddObject(m, "OscListReceive_base", (PyObject *)&OscListReceiveType);
-    
-    if (PyType_Ready(&OscListReceiverType) < 0)
-        return;
-    Py_INCREF(&OscListReceiverType);
-    PyModule_AddObject(m, "OscListReceiver_base", (PyObject *)&OscListReceiverType);
-    
-    if (PyType_Ready(&OscDataReceiveType) < 0)
-        return;
-    Py_INCREF(&OscDataReceiveType);
-    PyModule_AddObject(m, "OscDataReceive_base", (PyObject *)&OscDataReceiveType);
-    
-    if (PyType_Ready(&TrigRandType) < 0)
-        return;
-    Py_INCREF(&TrigRandType);
-    PyModule_AddObject(m, "TrigRand_base", (PyObject *)&TrigRandType);
-
-    if (PyType_Ready(&TrigRandIntType) < 0)
-        return;
-    Py_INCREF(&TrigRandIntType);
-    PyModule_AddObject(m, "TrigRandInt_base", (PyObject *)&TrigRandIntType);
-
-    if (PyType_Ready(&TrigValType) < 0)
-        return;
-    Py_INCREF(&TrigValType);
-    PyModule_AddObject(m, "TrigVal_base", (PyObject *)&TrigValType);
-    
-    if (PyType_Ready(&TrigChoiceType) < 0)
-        return;
-    Py_INCREF(&TrigChoiceType);
-    PyModule_AddObject(m, "TrigChoice_base", (PyObject *)&TrigChoiceType);
-
-    if (PyType_Ready(&IterType) < 0)
-        return;
-    Py_INCREF(&IterType);
-    PyModule_AddObject(m, "Iter_base", (PyObject *)&IterType);
-    
-    if (PyType_Ready(&TrigEnvType) < 0)
-        return;
-    Py_INCREF(&TrigEnvType);
-    PyModule_AddObject(m, "TrigEnv_base", (PyObject *)&TrigEnvType);
-
-    if (PyType_Ready(&TrigLinsegType) < 0)
-        return;
-    Py_INCREF(&TrigLinsegType);
-    PyModule_AddObject(m, "TrigLinseg_base", (PyObject *)&TrigLinsegType);
-
-    if (PyType_Ready(&TrigExpsegType) < 0)
-        return;
-    Py_INCREF(&TrigExpsegType);
-    PyModule_AddObject(m, "TrigExpseg_base", (PyObject *)&TrigExpsegType);
-    
-    if (PyType_Ready(&TrigFuncType) < 0)
-        return;
-    Py_INCREF(&TrigFuncType);
-    PyModule_AddObject(m, "TrigFunc_base", (PyObject *)&TrigFuncType);
-
-    if (PyType_Ready(&TrigXnoiseType) < 0)
-        return;
-    Py_INCREF(&TrigXnoiseType);
-    PyModule_AddObject(m, "TrigXnoise_base", (PyObject *)&TrigXnoiseType);
-
-    if (PyType_Ready(&TrigXnoiseMidiType) < 0)
-        return;
-    Py_INCREF(&TrigXnoiseMidiType);
-    PyModule_AddObject(m, "TrigXnoiseMidi_base", (PyObject *)&TrigXnoiseMidiType);
-    
-    if (PyType_Ready(&PatternType) < 0)
-        return;
-    Py_INCREF(&PatternType);
-    PyModule_AddObject(m, "Pattern_base", (PyObject *)&PatternType);
-
-    if (PyType_Ready(&CallAfterType) < 0)
-        return;
-    Py_INCREF(&CallAfterType);
-    PyModule_AddObject(m, "CallAfter_base", (PyObject *)&CallAfterType);
-    
-    if (PyType_Ready(&BandSplitterType) < 0)
-        return;
-    Py_INCREF(&BandSplitterType);
-    PyModule_AddObject(m, "BandSplitter_base", (PyObject *)&BandSplitterType);
-
-    if (PyType_Ready(&BandSplitType) < 0)
-        return;
-    Py_INCREF(&BandSplitType);
-    PyModule_AddObject(m, "BandSplit_base", (PyObject *)&BandSplitType);
-
-    if (PyType_Ready(&FourBandMainType) < 0)
-        return;
-    Py_INCREF(&FourBandMainType);
-    PyModule_AddObject(m, "FourBandMain_base", (PyObject *)&FourBandMainType);
-    
-    if (PyType_Ready(&FourBandType) < 0)
-        return;
-    Py_INCREF(&FourBandType);
-    PyModule_AddObject(m, "FourBand_base", (PyObject *)&FourBandType);
-    
-    if (PyType_Ready(&HilbertMainType) < 0)
-        return;
-    Py_INCREF(&HilbertMainType);
-    PyModule_AddObject(m, "HilbertMain_base", (PyObject *)&HilbertMainType);
-
-    if (PyType_Ready(&HilbertType) < 0)
-        return;
-    Py_INCREF(&HilbertType);
-    PyModule_AddObject(m, "Hilbert_base", (PyObject *)&HilbertType);
-
-    if (PyType_Ready(&FollowerType) < 0)
-        return;
-    Py_INCREF(&FollowerType);
-    PyModule_AddObject(m, "Follower_base", (PyObject *)&FollowerType);
-
-    if (PyType_Ready(&Follower2Type) < 0)
-        return;
-    Py_INCREF(&Follower2Type);
-    PyModule_AddObject(m, "Follower2_base", (PyObject *)&Follower2Type);
-    
-    if (PyType_Ready(&ZCrossType) < 0)
-        return;
-    Py_INCREF(&ZCrossType);
-    PyModule_AddObject(m, "ZCross_base", (PyObject *)&ZCrossType);
-    
-    if (PyType_Ready(&SPannerType) < 0)
-        return;
-    Py_INCREF(&SPannerType);
-    PyModule_AddObject(m, "SPanner_base", (PyObject *)&SPannerType);
-    
-    if (PyType_Ready(&PannerType) < 0)
-        return;
-    Py_INCREF(&PannerType);
-    PyModule_AddObject(m, "Panner_base", (PyObject *)&PannerType);
-
-    if (PyType_Ready(&PanType) < 0)
-        return;
-    Py_INCREF(&PanType);
-    PyModule_AddObject(m, "Pan_base", (PyObject *)&PanType);
-
-    if (PyType_Ready(&SPanType) < 0)
-        return;
-    Py_INCREF(&SPanType);
-    PyModule_AddObject(m, "SPan_base", (PyObject *)&SPanType);
-
-    if (PyType_Ready(&SwitcherType) < 0)
-        return;
-    Py_INCREF(&SwitcherType);
-    PyModule_AddObject(m, "Switcher_base", (PyObject *)&SwitcherType);
-    
-    if (PyType_Ready(&SwitchType) < 0)
-        return;
-    Py_INCREF(&SwitchType);
-    PyModule_AddObject(m, "Switch_base", (PyObject *)&SwitchType);
-
-    if (PyType_Ready(&SelectorType) < 0)
-        return;
-    Py_INCREF(&SelectorType);
-    PyModule_AddObject(m, "Selector_base", (PyObject *)&SelectorType);
-
-    if (PyType_Ready(&VoiceManagerType) < 0)
-        return;
-    Py_INCREF(&VoiceManagerType);
-    PyModule_AddObject(m, "VoiceManager_base", (PyObject *)&VoiceManagerType);
-
-    if (PyType_Ready(&MixerType) < 0)
-        return;
-    Py_INCREF(&MixerType);
-    PyModule_AddObject(m, "Mixer_base", (PyObject *)&MixerType);
-    
-    if (PyType_Ready(&MixerVoiceType) < 0)
-        return;
-    Py_INCREF(&MixerVoiceType);
-    PyModule_AddObject(m, "MixerVoice_base", (PyObject *)&MixerVoiceType);
-    
-    if (PyType_Ready(&CounterType) < 0)
-        return;
-    Py_INCREF(&CounterType);
-    PyModule_AddObject(m, "Counter_base", (PyObject *)&CounterType);
-
-    if (PyType_Ready(&CountType) < 0)
-        return;
-    Py_INCREF(&CountType);
-    PyModule_AddObject(m, "Count_base", (PyObject *)&CountType);
-    
-    if (PyType_Ready(&ThreshType) < 0)
-        return;
-    Py_INCREF(&ThreshType);
-    PyModule_AddObject(m, "Thresh_base", (PyObject *)&ThreshType);
-
-    if (PyType_Ready(&PercentType) < 0)
-        return;
-    Py_INCREF(&PercentType);
-    PyModule_AddObject(m, "Percent_base", (PyObject *)&PercentType);
-
-    if (PyType_Ready(&TimerType) < 0)
-        return;
-    Py_INCREF(&TimerType);
-    PyModule_AddObject(m, "Timer_base", (PyObject *)&TimerType);
-    
-    if (PyType_Ready(&SelectType) < 0)
-        return;
-    Py_INCREF(&SelectType);
-    PyModule_AddObject(m, "Select_base", (PyObject *)&SelectType);
-
-    if (PyType_Ready(&ChangeType) < 0)
-        return;
-    Py_INCREF(&ChangeType);
-    PyModule_AddObject(m, "Change_base", (PyObject *)&ChangeType);
-
-    if (PyType_Ready(&ScoreType) < 0)
-        return;
-    Py_INCREF(&ScoreType);
-    PyModule_AddObject(m, "Score_base", (PyObject *)&ScoreType);
-    
-    if (PyType_Ready(&FreeverbType) < 0)
-        return;
-    Py_INCREF(&FreeverbType);
-    PyModule_AddObject(m, "Freeverb_base", (PyObject *)&FreeverbType);
-
-    if (PyType_Ready(&WGVerbType) < 0)
-        return;
-    Py_INCREF(&WGVerbType);
-    PyModule_AddObject(m, "WGVerb_base", (PyObject *)&WGVerbType);
-
-    if (PyType_Ready(&ChorusType) < 0)
-        return;
-    Py_INCREF(&ChorusType);
-    PyModule_AddObject(m, "Chorus_base", (PyObject *)&ChorusType);
-    
-    if (PyType_Ready(&ConvolveType) < 0)
-        return;
-    Py_INCREF(&ConvolveType);
-    PyModule_AddObject(m, "Convolve_base", (PyObject *)&ConvolveType);
-
-    if (PyType_Ready(&IRWinSincType) < 0)
-        return;
-    Py_INCREF(&IRWinSincType);
-    PyModule_AddObject(m, "IRWinSinc_base", (PyObject *)&IRWinSincType);
-
-    if (PyType_Ready(&IRPulseType) < 0)
-        return;
-    Py_INCREF(&IRPulseType);
-    PyModule_AddObject(m, "IRPulse_base", (PyObject *)&IRPulseType);
-    
-    if (PyType_Ready(&IRAverageType) < 0)
-        return;
-    Py_INCREF(&IRAverageType);
-    PyModule_AddObject(m, "IRAverage_base", (PyObject *)&IRAverageType);
-
-    if (PyType_Ready(&IRFMType) < 0)
-        return;
-    Py_INCREF(&IRFMType);
-    PyModule_AddObject(m, "IRFM_base", (PyObject *)&IRFMType);
-    
-    if (PyType_Ready(&GranulatorType) < 0)
-        return;
-    Py_INCREF(&GranulatorType);
-    PyModule_AddObject(m, "Granulator_base", (PyObject *)&GranulatorType);
-
-    if (PyType_Ready(&LooperType) < 0)
-        return;
-    Py_INCREF(&LooperType);
-    PyModule_AddObject(m, "Looper_base", (PyObject *)&LooperType);
-    
-	if (PyType_Ready(&HarmonizerType) < 0)
-        return;
-    Py_INCREF(&HarmonizerType);
-    PyModule_AddObject(m, "Harmonizer_base", (PyObject *)&HarmonizerType);
-	
-    if (PyType_Ready(&PrintType) < 0)
-        return;
-    Py_INCREF(&PrintType);
-    PyModule_AddObject(m, "Print_base", (PyObject *)&PrintType);
-
-    if (PyType_Ready(&M_SinType) < 0)
-        return;
-    Py_INCREF(&M_SinType);
-    PyModule_AddObject(m, "M_Sin_base", (PyObject *)&M_SinType);    
-
-    if (PyType_Ready(&M_CosType) < 0)
-        return;
-    Py_INCREF(&M_CosType);
-    PyModule_AddObject(m, "M_Cos_base", (PyObject *)&M_CosType);    
-
-    if (PyType_Ready(&M_TanType) < 0)
-        return;
-    Py_INCREF(&M_TanType);
-    PyModule_AddObject(m, "M_Tan_base", (PyObject *)&M_TanType);
-
-    if (PyType_Ready(&M_AbsType) < 0)
-        return;
-    Py_INCREF(&M_AbsType);
-    PyModule_AddObject(m, "M_Abs_base", (PyObject *)&M_AbsType);    
-
-    if (PyType_Ready(&M_SqrtType) < 0)
-        return;
-    Py_INCREF(&M_SqrtType);
-    PyModule_AddObject(m, "M_Sqrt_base", (PyObject *)&M_SqrtType);    
-
-    if (PyType_Ready(&M_LogType) < 0)
-        return;
-    Py_INCREF(&M_LogType);
-    PyModule_AddObject(m, "M_Log_base", (PyObject *)&M_LogType);    
-
-    if (PyType_Ready(&M_Log2Type) < 0)
-        return;
-    Py_INCREF(&M_Log2Type);
-    PyModule_AddObject(m, "M_Log2_base", (PyObject *)&M_Log2Type);    
-
-    if (PyType_Ready(&M_Log10Type) < 0)
-        return;
-    Py_INCREF(&M_Log10Type);
-    PyModule_AddObject(m, "M_Log10_base", (PyObject *)&M_Log10Type);    
-
-    if (PyType_Ready(&M_PowType) < 0)
-        return;
-    Py_INCREF(&M_PowType);
-    PyModule_AddObject(m, "M_Pow_base", (PyObject *)&M_PowType);    
-
-    if (PyType_Ready(&M_Atan2Type) < 0)
-        return;
-    Py_INCREF(&M_Atan2Type);
-    PyModule_AddObject(m, "M_Atan2_base", (PyObject *)&M_Atan2Type);    
-
-    if (PyType_Ready(&M_FloorType) < 0)
-        return;
-    Py_INCREF(&M_FloorType);
-    PyModule_AddObject(m, "M_Floor_base", (PyObject *)&M_FloorType);    
-
-    if (PyType_Ready(&M_CeilType) < 0)
-        return;
-    Py_INCREF(&M_CeilType);
-    PyModule_AddObject(m, "M_Ceil_base", (PyObject *)&M_CeilType);    
-    
-    if (PyType_Ready(&M_RoundType) < 0)
-        return;
-    Py_INCREF(&M_RoundType);
-    PyModule_AddObject(m, "M_Round_base", (PyObject *)&M_RoundType);    
-    
-    if (PyType_Ready(&SnapType) < 0)
-        return;
-    Py_INCREF(&SnapType);
-    PyModule_AddObject(m, "Snap_base", (PyObject *)&SnapType);
-
-    if (PyType_Ready(&InterpType) < 0)
-        return;
-    Py_INCREF(&InterpType);
-    PyModule_AddObject(m, "Interp_base", (PyObject *)&InterpType);
-
-    if (PyType_Ready(&SampHoldType) < 0)
-        return;
-    Py_INCREF(&SampHoldType);
-    PyModule_AddObject(m, "SampHold_base", (PyObject *)&SampHoldType);
-
-    if (PyType_Ready(&DBToAType) < 0)
-        return;
-    Py_INCREF(&DBToAType);
-    PyModule_AddObject(m, "DBToA_base", (PyObject *)&DBToAType);
-
-    if (PyType_Ready(&AToDBType) < 0)
-        return;
-    Py_INCREF(&AToDBType);
-    PyModule_AddObject(m, "AToDB_base", (PyObject *)&AToDBType);
-
-    if (PyType_Ready(&ScaleType) < 0)
-        return;
-    Py_INCREF(&ScaleType);
-    PyModule_AddObject(m, "Scale_base", (PyObject *)&ScaleType);
-
-    if (PyType_Ready(&CentsToTranspoType) < 0)
-        return;
-    Py_INCREF(&CentsToTranspoType);
-    PyModule_AddObject(m, "CentsToTranspo_base", (PyObject *)&CentsToTranspoType);
-
-    if (PyType_Ready(&TranspoToCentsType) < 0)
-        return;
-    Py_INCREF(&TranspoToCentsType);
-    PyModule_AddObject(m, "TranspoToCents_base", (PyObject *)&TranspoToCentsType);
-
-    if (PyType_Ready(&MToFType) < 0)
-        return;
-    Py_INCREF(&MToFType);
-    PyModule_AddObject(m, "MToF_base", (PyObject *)&MToFType);
-
-    if (PyType_Ready(&MToTType) < 0)
-        return;
-    Py_INCREF(&MToTType);
-    PyModule_AddObject(m, "MToT_base", (PyObject *)&MToTType);
-    
-    if (PyType_Ready(&FFTMainType) < 0)
-        return;
-    Py_INCREF(&FFTMainType);
-    PyModule_AddObject(m, "FFTMain_base", (PyObject *)&FFTMainType);
-
-    if (PyType_Ready(&FFTType) < 0)
-        return;
-    Py_INCREF(&FFTType);
-    PyModule_AddObject(m, "FFT_base", (PyObject *)&FFTType);
-
-    if (PyType_Ready(&IFFTType) < 0)
-        return;
-    Py_INCREF(&IFFTType);
-    PyModule_AddObject(m, "IFFT_base", (PyObject *)&IFFTType);
-
-    if (PyType_Ready(&CarToPolType) < 0)
-        return;
-    Py_INCREF(&CarToPolType);
-    PyModule_AddObject(m, "CarToPol_base", (PyObject *)&CarToPolType);
-
-    if (PyType_Ready(&PolToCarType) < 0)
-        return;
-    Py_INCREF(&PolToCarType);
-    PyModule_AddObject(m, "PolToCar_base", (PyObject *)&PolToCarType);
-
-    if (PyType_Ready(&FrameDeltaMainType) < 0)
-        return;
-    Py_INCREF(&FrameDeltaMainType);
-    PyModule_AddObject(m, "FrameDeltaMain_base", (PyObject *)&FrameDeltaMainType);
-    
-    if (PyType_Ready(&FrameDeltaType) < 0)
-        return;
-    Py_INCREF(&FrameDeltaType);
-    PyModule_AddObject(m, "FrameDelta_base", (PyObject *)&FrameDeltaType);
-
-    if (PyType_Ready(&FrameAccumType) < 0)
-        return;
-    Py_INCREF(&FrameAccumType);
-    PyModule_AddObject(m, "FrameAccum_base", (PyObject *)&FrameAccumType);
-
-    if (PyType_Ready(&FrameAccumMainType) < 0)
-        return;
-    Py_INCREF(&FrameAccumMainType);
-    PyModule_AddObject(m, "FrameAccumMain_base", (PyObject *)&FrameAccumMainType);
-
-    if (PyType_Ready(&VectralMainType) < 0)
-        return;
-    Py_INCREF(&VectralMainType);
-    PyModule_AddObject(m, "VectralMain_base", (PyObject *)&VectralMainType);
-    
-    if (PyType_Ready(&VectralType) < 0)
-        return;
-    Py_INCREF(&VectralType);
-    PyModule_AddObject(m, "Vectral_base", (PyObject *)&VectralType);
+    module_add_object(m, "Server_base", &ServerType);
+    module_add_object(m, "Stream", &StreamType);
+    module_add_object(m, "TriggerStream", &TriggerStreamType);
+    module_add_object(m, "Dummy_base", &DummyType);
+    module_add_object(m, "TriggerDummy_base", &TriggerDummyType);
+    module_add_object(m, "TableStream", &TableStreamType);
+    module_add_object(m, "MatrixStream", &MatrixStreamType);
+    module_add_object(m, "Record_base", &RecordType);
+    module_add_object(m, "ControlRec_base", &ControlRecType);
+    module_add_object(m, "ControlRead_base", &ControlReadType);
+    module_add_object(m, "NoteinRec_base", &NoteinRecType);
+    module_add_object(m, "NoteinRead_base", &NoteinReadType);
+    module_add_object(m, "Compare_base", &CompareType);
+    module_add_object(m, "Mix_base", &MixType);
+    module_add_object(m, "Sig_base", &SigType);
+    module_add_object(m, "SigTo_base", &SigToType);
+    module_add_object(m, "VarPort_base", &VarPortType);
+    module_add_object(m, "InputFader_base", &InputFaderType);
+    module_add_object(m, "Adsr_base", &AdsrType);
+    module_add_object(m, "Linseg_base", &LinsegType);
+    module_add_object(m, "Expseg_base", &ExpsegType);
+    module_add_object(m, "HarmTable_base", &HarmTableType);
+    module_add_object(m, "ChebyTable_base", &ChebyTableType);
+    module_add_object(m, "HannTable_base", &HannTableType);
+    module_add_object(m, "SincTable_base", &SincTableType);
+    module_add_object(m, "WinTable_base", &WinTableType);
+    module_add_object(m, "ParaTable_base", &ParaTableType);
+    module_add_object(m, "LinTable_base", &LinTableType);
+    module_add_object(m, "LogTable_base", &LogTableType);
+    module_add_object(m, "CosLogTable_base", &CosLogTableType);
+    module_add_object(m, "CosTable_base", &CosTableType);
+    module_add_object(m, "CurveTable_base", &CurveTableType);
+    module_add_object(m, "ExpTable_base", &ExpTableType);
+    module_add_object(m, "SndTable_base", &SndTableType);
+    module_add_object(m, "DataTable_base", &DataTableType);
+    module_add_object(m, "NewTable_base", &NewTableType);
+    module_add_object(m, "TableRec_base", &TableRecType);
+    module_add_object(m, "TableRecTimeStream_base", &TableRecTimeStreamType);
+    module_add_object(m, "TableMorph_base", &TableMorphType);
+    module_add_object(m, "TrigTableRec_base", &TrigTableRecType);
+    module_add_object(m, "TrigTableRecTimeStream_base", &TrigTableRecTimeStreamType);
+    module_add_object(m, "TablePut_base", &TablePutType);
+    module_add_object(m, "NewMatrix_base", &NewMatrixType);
+    module_add_object(m, "MatrixPointer_base", &MatrixPointerType);
+    module_add_object(m, "MatrixRec_base", &MatrixRecType);
+    module_add_object(m, "MatrixRecLoop_base", &MatrixRecLoopType);
+    module_add_object(m, "MatrixMorph_base", &MatrixMorphType);
+    module_add_object(m, "Input_base", &InputType);
+    module_add_object(m, "Trig_base", &TrigType);
+    module_add_object(m, "NextTrig_base", &NextTrigType);
+    module_add_object(m, "Metro_base", &MetroType);
+    module_add_object(m, "Seqer_base", &SeqerType);
+    module_add_object(m, "Seq_base", &SeqType);
+    module_add_object(m, "Clouder_base", &ClouderType);
+    module_add_object(m, "Cloud_base", &CloudType);
+    module_add_object(m, "Beater_base", &BeaterType);
+    module_add_object(m, "Beat_base", &BeatType);
+    module_add_object(m, "BeatTapStream_base", &BeatTapStreamType);
+    module_add_object(m, "BeatAmpStream_base", &BeatAmpStreamType);
+    module_add_object(m, "BeatDurStream_base", &BeatDurStreamType);
+    module_add_object(m, "BeatEndStream_base", &BeatEndStreamType);
+    module_add_object(m, "Fader_base", &FaderType);
+    module_add_object(m, "Randi_base", &RandiType);
+    module_add_object(m, "Randh_base", &RandhType);
+    module_add_object(m, "Choice_base", &ChoiceType);
+    module_add_object(m, "RandDur_base", &RandDurType);
+    module_add_object(m, "Xnoise_base", &XnoiseType);
+    module_add_object(m, "XnoiseMidi_base", &XnoiseMidiType);
+    module_add_object(m, "XnoiseDur_base", &XnoiseDurType);
+    module_add_object(m, "RandInt_base", &RandIntType);
+    module_add_object(m, "Urn_base", &UrnType);
+    module_add_object(m, "SfPlayer_base", &SfPlayerType);
+    module_add_object(m, "SfPlay_base", &SfPlayType);
+    module_add_object(m, "SfMarkerShuffler_base", &SfMarkerShufflerType);
+    module_add_object(m, "SfMarkerShuffle_base", &SfMarkerShuffleType);
+    module_add_object(m, "SfMarkerLooper_base", &SfMarkerLooperType);
+    module_add_object(m, "SfMarkerLoop_base", &SfMarkerLoopType);
+    module_add_object(m, "Osc_base", &OscType);
+    module_add_object(m, "OscLoop_base", &OscLoopType);
+    module_add_object(m, "OscTrig_base", &OscTrigType);
+    module_add_object(m, "OscBank_base", &OscBankType);
+    module_add_object(m, "SumOsc_base", &SumOscType);
+    module_add_object(m, "TableRead_base", &TableReadType);
+    module_add_object(m, "Pulsar_base", &PulsarType);
+    module_add_object(m, "Sine_base", &SineType);
+    module_add_object(m, "SineLoop_base", &SineLoopType);
+    module_add_object(m, "Fm_base", &FmType);
+    module_add_object(m, "CrossFm_base", &CrossFmType);
+    module_add_object(m, "LFO_base", &LFOType);
+    module_add_object(m, "Blit_base", &BlitType);
+    module_add_object(m, "Rossler_base", &RosslerType);
+    module_add_object(m, "RosslerAlt_base", &RosslerAltType);
+    module_add_object(m, "Lorenz_base", &LorenzType);
+    module_add_object(m, "LorenzAlt_base", &LorenzAltType);
+    module_add_object(m, "Phasor_base", &PhasorType);
+    module_add_object(m, "SuperSaw_base", &SuperSawType);
+    module_add_object(m, "Pointer_base", &PointerType);
+    module_add_object(m, "TableIndex_base", &TableIndexType);
+    module_add_object(m, "Lookup_base", &LookupType);
+    module_add_object(m, "Noise_base", &NoiseType);
+    module_add_object(m, "PinkNoise_base", &PinkNoiseType);
+    module_add_object(m, "BrownNoise_base", &BrownNoiseType);
+    module_add_object(m, "Biquad_base", &BiquadType);
+    module_add_object(m, "Biquadx_base", &BiquadxType);
+    module_add_object(m, "Biquada_base", &BiquadaType);
+    module_add_object(m, "EQ_base", &EQType);
+    module_add_object(m, "Tone_base", &ToneType);
+    module_add_object(m, "Atone_base", &AtoneType);
+    module_add_object(m, "DCBlock_base", &DCBlockType);
+    module_add_object(m, "Allpass_base", &AllpassType);
+    module_add_object(m, "Allpass2_base", &Allpass2Type);
+    module_add_object(m, "Phaser_base", &PhaserType);
+    module_add_object(m, "Vocoder_base", &VocoderType);
+    module_add_object(m, "Port_base", &PortType);
+    module_add_object(m, "Denorm_base", &DenormType);
+    module_add_object(m, "Disto_base", &DistoType);
+    module_add_object(m, "Clip_base", &ClipType);
+    module_add_object(m, "Mirror_base", &MirrorType);
+    module_add_object(m, "Wrap_base", &WrapType);
+    module_add_object(m, "Between_base", &BetweenType);
+    module_add_object(m, "Degrade_base", &DegradeType);
+    module_add_object(m, "Compress_base", &CompressType);
+    module_add_object(m, "Gate_base", &GateType);
+    module_add_object(m, "Balance_base", &BalanceType);
+    module_add_object(m, "Delay_base", &DelayType);
+    module_add_object(m, "SDelay_base", &SDelayType);
+    module_add_object(m, "Waveguide_base", &WaveguideType);
+    module_add_object(m, "AllpassWG_base", &AllpassWGType);
+    module_add_object(m, "Midictl_base", &MidictlType);
+    module_add_object(m, "CtlScan_base", &CtlScanType);
+    module_add_object(m, "CtlScan2_base", &CtlScan2Type);
+    module_add_object(m, "MidiNote_base", &MidiNoteType);
+    module_add_object(m, "Notein_base", &NoteinType);
+    module_add_object(m, "Bendin_base", &BendinType);
+    module_add_object(m, "Touchin_base", &TouchinType);
+    module_add_object(m, "Programin_base", &PrograminType);
+    module_add_object(m, "MidiAdsr_base", &MidiAdsrType);
+    module_add_object(m, "MidiDelAdsr_base", &MidiDelAdsrType);
+    module_add_object(m, "OscSend_base", &OscSendType);
+    module_add_object(m, "OscDataSend_base", &OscDataSendType);
+    module_add_object(m, "OscReceive_base", &OscReceiveType);
+    module_add_object(m, "OscReceiver_base", &OscReceiverType);
+    module_add_object(m, "OscListReceive_base", &OscListReceiveType);
+    module_add_object(m, "OscListReceiver_base", &OscListReceiverType);
+    module_add_object(m, "OscDataReceive_base", &OscDataReceiveType);
+    module_add_object(m, "TrigRand_base", &TrigRandType);
+    module_add_object(m, "TrigRandInt_base", &TrigRandIntType);
+    module_add_object(m, "TrigVal_base", &TrigValType);
+    module_add_object(m, "TrigChoice_base", &TrigChoiceType);
+    module_add_object(m, "Iter_base", &IterType);
+    module_add_object(m, "TrigEnv_base", &TrigEnvType);
+    module_add_object(m, "TrigLinseg_base", &TrigLinsegType);
+    module_add_object(m, "TrigExpseg_base", &TrigExpsegType);
+    module_add_object(m, "TrigFunc_base", &TrigFuncType);
+    module_add_object(m, "TrigXnoise_base", &TrigXnoiseType);
+    module_add_object(m, "TrigXnoiseMidi_base", &TrigXnoiseMidiType);
+    module_add_object(m, "Pattern_base", &PatternType);
+    module_add_object(m, "CallAfter_base", &CallAfterType);
+    module_add_object(m, "BandSplitter_base", &BandSplitterType);
+    module_add_object(m, "BandSplit_base", &BandSplitType);
+    module_add_object(m, "FourBandMain_base", &FourBandMainType);
+    module_add_object(m, "FourBand_base", &FourBandType);
+    module_add_object(m, "HilbertMain_base", &HilbertMainType);
+    module_add_object(m, "Hilbert_base", &HilbertType);
+    module_add_object(m, "Follower_base", &FollowerType);
+    module_add_object(m, "Follower2_base", &Follower2Type);
+    module_add_object(m, "ZCross_base", &ZCrossType);
+    module_add_object(m, "SPanner_base", &SPannerType);
+    module_add_object(m, "Panner_base", &PannerType);
+    module_add_object(m, "Pan_base", &PanType);
+    module_add_object(m, "SPan_base", &SPanType);
+    module_add_object(m, "Switcher_base", &SwitcherType);
+    module_add_object(m, "Switch_base", &SwitchType);
+    module_add_object(m, "Selector_base", &SelectorType);
+    module_add_object(m, "VoiceManager_base", &VoiceManagerType);
+    module_add_object(m, "Mixer_base", &MixerType);
+    module_add_object(m, "MixerVoice_base", &MixerVoiceType);
+    module_add_object(m, "Counter_base", &CounterType);
+    module_add_object(m, "Count_base", &CountType);
+    module_add_object(m, "Thresh_base", &ThreshType);
+    module_add_object(m, "Percent_base", &PercentType);
+    module_add_object(m, "Timer_base", &TimerType);
+    module_add_object(m, "Select_base", &SelectType);
+    module_add_object(m, "Change_base", &ChangeType);
+    module_add_object(m, "Score_base", &ScoreType);
+    module_add_object(m, "Freeverb_base", &FreeverbType);
+    module_add_object(m, "WGVerb_base", &WGVerbType);
+    module_add_object(m, "Chorus_base", &ChorusType);
+    module_add_object(m, "Convolve_base", &ConvolveType);
+    module_add_object(m, "IRWinSinc_base", &IRWinSincType);
+    module_add_object(m, "IRPulse_base", &IRPulseType);
+    module_add_object(m, "IRAverage_base", &IRAverageType);
+    module_add_object(m, "IRFM_base", &IRFMType);
+    module_add_object(m, "Granulator_base", &GranulatorType);
+    module_add_object(m, "Looper_base", &LooperType);
+    module_add_object(m, "Harmonizer_base", &HarmonizerType);
+    module_add_object(m, "Print_base", &PrintType);
+    module_add_object(m, "M_Sin_base", &M_SinType);
+    module_add_object(m, "M_Cos_base", &M_CosType);
+    module_add_object(m, "M_Tan_base", &M_TanType);
+    module_add_object(m, "M_Abs_base", &M_AbsType);
+    module_add_object(m, "M_Sqrt_base", &M_SqrtType);
+    module_add_object(m, "M_Log_base", &M_LogType);
+    module_add_object(m, "M_Log2_base", &M_Log2Type);
+    module_add_object(m, "M_Log10_base", &M_Log10Type);
+    module_add_object(m, "M_Pow_base", &M_PowType);
+    module_add_object(m, "M_Atan2_base", &M_Atan2Type);
+    module_add_object(m, "M_Floor_base", &M_FloorType);
+    module_add_object(m, "M_Ceil_base", &M_CeilType);
+    module_add_object(m, "M_Round_base", &M_RoundType);
+    module_add_object(m, "Snap_base", &SnapType);
+    module_add_object(m, "Interp_base", &InterpType);
+    module_add_object(m, "SampHold_base", &SampHoldType);
+    module_add_object(m, "DBToA_base", &DBToAType);
+    module_add_object(m, "AToDB_base", &AToDBType);
+    module_add_object(m, "Scale_base", &ScaleType);
+    module_add_object(m, "CentsToTranspo_base", &CentsToTranspoType);
+    module_add_object(m, "TranspoToCents_base", &TranspoToCentsType);
+    module_add_object(m, "MToF_base", &MToFType);
+    module_add_object(m, "MToT_base", &MToTType);
+    module_add_object(m, "FFTMain_base", &FFTMainType);
+    module_add_object(m, "FFT_base", &FFTType);
+    module_add_object(m, "IFFT_base", &IFFTType);
+    module_add_object(m, "CarToPol_base", &CarToPolType);
+    module_add_object(m, "PolToCar_base", &PolToCarType);
+    module_add_object(m, "FrameDeltaMain_base", &FrameDeltaMainType);
+    module_add_object(m, "FrameDelta_base", &FrameDeltaType);
+    module_add_object(m, "FrameAccum_base", &FrameAccumType);
+    module_add_object(m, "FrameAccumMain_base", &FrameAccumMainType);
+    module_add_object(m, "VectralMain_base", &VectralMainType);
+    module_add_object(m, "Vectral_base", &VectralType);
 
 #ifdef COMPILE_EXTERNALS
     EXTERNAL_OBJECTS
