@@ -97,9 +97,8 @@ def wrap(arg, i):
     else:
         return x
 
-if sys.version_info[:2] <= (2, 5):
-    def example(cls, dur=5, toprint=True, double=False):
-        """
+def example(cls, dur=5, toprint=True, double=False):
+    """
     Execute the example given in the documentation of the object as an argument.
 
     example(cls, dur=5)
@@ -121,84 +120,36 @@ if sys.version_info[:2] <= (2, 5):
 
     >>> example(Sine)
 
-        """
-        doc = cls.__doc__.split("Examples:")
-        if len(doc) < 2:
-            print "There is no manual example for %s object." % cls.__name__
-            return
-        if "Server" in doc[1]:
-            with_server = True
-        else:
-            with_server = False
-        lines = doc[1].splitlines()
-        ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-        if hasattr(__builtin__, 'pyo_use_double') or double:
-            ex = "import time\nfrom pyo64 import *\n"
-        else:
-            ex = "import time\nfrom pyo import *\n"
-        for line in ex_lines:
-            if ">>>" in line: line = line.lstrip(">>> ")
-            if "..." in line: line = "    " +  line.lstrip("... ")
-            ex += line + "\n"
-        if with_server:
-            ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+    """
+    doc = cls.__doc__.split("Examples:")
+    if len(doc) < 2:
+        print "There is no manual example for %s object." % cls.__name__
+        return
+    if "Server" in doc[1]:
+        with_server = True
+    else:
+        with_server = False
+    lines = doc[1].splitlines()
+    ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
+    if hasattr(__builtin__, 'pyo_use_double') or double:
+        ex = "import time\nfrom pyo64 import *\n"
+    else:
+        ex = "import time\nfrom pyo import *\n"
+    for line in ex_lines:
+        if ">>>" in line: line = line.lstrip(">>> ")
+        if "..." in line: line = "    " +  line.lstrip("... ")
+        ex += line + "\n"
+    if with_server:
+        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+    if sys.version_info[:2] <= (2, 5):
         f = open('/tmp/pyo_example.py', 'w')
-        if toprint:
-            f.write('print """\n%s\n"""\n' % ex)
-        f.write(ex)
-        f.close()    
-        p = call(["python", '/tmp/pyo_example.py'])
-else:
-    def example(cls, dur=5, toprint=True, double=False):
-        """
-    Execute the example given in the documentation of the object as an argument.
-
-    example(cls, dur=5)
-
-    Parameters:
-
-    cls : PyoObject class
-        Class reference of the desired object example.
-    dur : float, optional
-        Duration of the example.
-    toprint : boolean, optional
-        If True, the example script will be printed to the console.
-        Defaults to True.
-    double : boolean, optional
-        If True, force the example to run in double precision (64-bit)
-        Defaults to False.
-
-    Examples:
-
-    >>> example(Sine)
-
-        """
-        doc = cls.__doc__.split("Examples:")
-        if len(doc) < 2:
-            print "There is no manual example for %s object." % cls.__name__
-            return
-        if "Server" in doc[1]:
-            with_server = True
-        else:
-            with_server = False
-        lines = doc[1].splitlines()
-        ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
-        if hasattr(__builtin__, 'pyo_use_double') or double:
-            ex = "import time\nfrom pyo64 import *\n"
-        else:
-            ex = "import time\nfrom pyo import *\n"
-        for line in ex_lines:
-            if ">>>" in line: line = line.lstrip(">>> ")
-            if "..." in line: line = "    " +  line.lstrip("... ")
-            ex += line + "\n"
-        if with_server:
-            ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+    else:
         f = tempfile.NamedTemporaryFile(delete=False)
-        if toprint:
-            f.write('print """\n%s\n"""\n' % ex)
-        f.write(ex)
-        f.close()    
-        p = call(["python", f.name])
+    if toprint:
+        f.write('print """\n%s\n"""\n' % ex)
+    f.write(ex)
+    f.close()    
+    p = call(["python", f.name])
       
 def removeExtraDecimals(x):
     if type(x) == FloatType:
