@@ -10,16 +10,7 @@ fi
 
 echo
 echo "**************************************************"
-echo "********** build floating-point library **********"
-echo "**************************************************"
-echo
-
-sudo python setup.py install --use-coreaudio --use-jack
-sudo rm -rf build
-
-echo
-echo "**************************************************"
-echo "************** build double library **************"
+echo "****************** build library *****************"
 echo "**************************************************"
 echo
 

@@ -27,14 +27,14 @@ build_osx_with_jack_support = False
 compile_externals = False
 
 macros = []
+extension_names = ['_pyo']
+main_modules = ['pyo']
+extra_macros_per_extension = [[]]
 if '--use-double' in sys.argv: 
     sys.argv.remove('--use-double') 
-    macros.append(('USE_DOUBLE',None))
-    extension_name = "_pyo64"
-    main_modules = ['pyo', 'pyo64']
-else:
-    extension_name = "_pyo"
-    main_modules = ['pyo']
+    extension_names.append('_pyo64')
+    main_modules.append('pyo64')
+    extra_macros_per_extension.append([('USE_DOUBLE',None)])
     
 if '--use-jack' in sys.argv: 
     sys.argv.remove('--use-jack') 
@@ -74,24 +74,28 @@ if compile_externals:
     source_files = source_files + ["externals/externalmodule.c"] + [path + f for f in files]
 else:
     source_files = source_files + [path + f for f in files]
-  
+
+# Platform-specific build settings for the pyo extension(s).  
 if sys.platform == "win32":
     include_dirs = ['C:\portaudio\include', 'C:\Program Files\Mega-Nerd\libsndfile\include',
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include',
                     'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:/Program Files/Mega-Nerd/libsndfile/bin', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
     libraries = ['portaudio', 'portmidi', 'libsndfile-1', 'lo', 'pthreadVC2']
-    extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
-                library_dirs=library_dirs, extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
 else:
     tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
     macros.append(('TIMESTAMP', tsrt))
     include_dirs = ['include', '/usr/local/include']
+    library_dirs = []
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
     if build_osx_with_jack_support:
         libraries.append('jack')
-    extension = [Extension(extension_name, source_files, include_dirs=include_dirs, libraries=libraries, 
-                extra_compile_args=["-Wno-strict-prototypes", "-O3"], define_macros=macros)]
+
+extensions = []
+for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
+    extensions.append(Extension(extension_name, source_files, include_dirs=include_dirs,
+                                libraries=libraries, extra_compile_args=['-Wno-strict-prototypes', '-O3'],
+                                define_macros=macros + extra_macros))
 
 if compile_externals:
     include_dirs.append('externals')
@@ -108,7 +112,7 @@ setup(  name = "pyo",
         packages = ['pyolib', 'pyolib.snds'],
         py_modules = main_modules,
         package_data = {'pyolib.snds': [f for f in os.listdir('pyolib/snds') if f.endswith('aif')]},
-        ext_modules = extension )
+        ext_modules = extensions )
 
 if compile_externals:
     os.system('rm pyolib/external.py')
