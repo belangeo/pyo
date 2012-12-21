@@ -77,13 +77,11 @@ class Osc(PyoObject):
      
     """
     def __init__(self, table, freq=1000, phase=0, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._freq = freq
         self._phase = phase
         self._interp = interp
-        self._mul = mul
-        self._add = add
         table, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, freq, phase, interp, mul, add)
         self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -232,12 +230,10 @@ class OscLoop(PyoObject):
 
     """
     def __init__(self, table, freq=1000, feedback=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._freq = freq
         self._feedback = feedback
-        self._mul = mul
-        self._add = add
         table, freq, feedback, mul, add, lmax = convertArgsToLists(table, freq, feedback, mul, add)
         self._base_objs = [OscLoop_base(wrap(table,i), wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -368,14 +364,12 @@ class OscTrig(PyoObject):
 
     """
     def __init__(self, table, trig, freq=1000, phase=0, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._trig = trig
         self._freq = freq
         self._phase = phase
         self._interp = interp
-        self._mul = mul
-        self._add = add
         table, trig, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, trig, freq, phase, interp, mul, add)
         self._base_objs = [OscTrig_base(wrap(table,i), wrap(trig,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -601,7 +595,7 @@ class OscBank(PyoObject):
 
     """
     def __init__(self, table, freq=100, spread=1, slope=.9, frndf=1, frnda=0, arndf=1, arnda=0, num=24, fjit=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._freq = freq
         self._spread = spread
@@ -612,8 +606,6 @@ class OscBank(PyoObject):
         self._arnda = arnda
         self._fjit = fjit
         self._num = num
-        self._mul = mul
-        self._add = add
         table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add, lmax = convertArgsToLists(table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add)
         self._base_objs = [OscBank_base(wrap(table,i), wrap(freq,i), wrap(spread,i), wrap(slope,i), wrap(frndf,i), wrap(frnda,i), wrap(arndf,i), wrap(arnda,i), wrap(num,i), wrap(fjit,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -883,13 +875,11 @@ class TableRead(PyoObject):
 
     """
     def __init__(self, table, freq=1, loop=0, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._freq = freq
         self._loop = loop
         self._interp = interp
-        self._mul = mul
-        self._add = add
         table, freq, loop, interp, mul, add, lmax = convertArgsToLists(table, freq, loop, interp, mul, add)
         self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
@@ -1058,15 +1048,13 @@ class Pulsar(PyoObject):
      
     """
     def __init__(self, table, env, freq=100, frac=0.5, phase=0, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._env = env
         self._freq = freq
         self._frac = frac
         self._phase = phase
         self._interp = interp
-        self._mul = mul
-        self._add = add
         table, env, freq, frac, phase, interp, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, interp, mul, add)
         self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1240,11 +1228,9 @@ class Pointer(PyoObject):
 
     """
     def __init__(self, table, index, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
-        self._mul = mul
-        self._add = add
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1334,11 +1320,9 @@ class TableIndex(PyoObject):
 
     """
     def __init__(self, table, index, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
-        self._mul = mul
-        self._add = add
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [TableIndex_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1429,11 +1413,9 @@ class Lookup(PyoObject):
 
     """
     def __init__(self, table, index, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
-        self._mul = mul
-        self._add = add
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Lookup_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1838,7 +1820,7 @@ class Granulator(PyoObject):
 
     """
     def __init__(self, table, env, pitch=1, pos=0, dur=.1, grains=8, basedur=.1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._env = env
         self._pitch = pitch
@@ -1846,8 +1828,6 @@ class Granulator(PyoObject):
         self._dur = dur
         self._grains = grains
         self._basedur = basedur
-        self._mul = mul
-        self._add = add
         table, env, pitch, pos, dur, grains, basedur, mul, add, lmax = convertArgsToLists(table, env, pitch, 
                                                                         pos, dur, grains, basedur, mul, add)
         self._base_objs = [Granulator_base(wrap(table,i), wrap(env,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), 
@@ -2261,7 +2241,7 @@ class Looper(PyoObject):
 
     """
     def __init__(self, table, pitch=1, start=0, dur=1., xfade=20, mode=1, xfadeshape=0, startfromloop=False, interp=2, autosmooth=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._table = table
         self._pitch = pitch
         self._start = start
@@ -2272,8 +2252,6 @@ class Looper(PyoObject):
         self._startfromloop = startfromloop
         self._interp = interp
         self._autosmooth = autosmooth
-        self._mul = mul
-        self._add = add
         table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add, lmax = convertArgsToLists(
                                         table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
         self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i), 

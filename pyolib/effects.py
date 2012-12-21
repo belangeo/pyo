@@ -67,12 +67,10 @@ class Disto(PyoObject):
 
     """
     def __init__(self, input, drive=.75, slope=.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._drive = drive
         self._slope = slope
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, drive, slope, mul, add, lmax = convertArgsToLists(self._in_fader, drive, slope, mul, add)
         self._base_objs = [Disto_base(wrap(in_fader,i), wrap(drive,i), wrap(slope,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -192,13 +190,11 @@ class Delay(PyoObject):
 
     """
     def __init__(self, input, delay=0.25, feedback=0, maxdelay=1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._delay = delay
         self._feedback = feedback
         self._maxdelay = maxdelay
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Delay_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -321,12 +317,10 @@ class SDelay(PyoObject):
 
     """
     def __init__(self, input, delay=0.25, maxdelay=1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._delay = delay
         self._maxdelay = maxdelay
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, delay, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, maxdelay, mul, add)
         self._base_objs = [SDelay_base(wrap(in_fader,i), wrap(delay,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -434,12 +428,10 @@ class Waveguide(PyoObject):
 
     """
     def __init__(self, input, freq=100, dur=10, minfreq=20, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
         self._dur = dur
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, freq, dur, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, dur, minfreq, mul, add)
         self._base_objs = [Waveguide_base(wrap(in_fader,i), wrap(freq,i), wrap(dur,i), wrap(minfreq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -569,13 +561,11 @@ class AllpassWG(PyoObject):
 
     """
     def __init__(self, input, freq=100, feed=0.95, detune=0.5, minfreq=20, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
         self._feed = feed
         self._detune = detune
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, freq, feed, detune, minfreq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, feed, detune, minfreq, mul, add)
         self._base_objs = [AllpassWG_base(wrap(in_fader,i), wrap(freq,i), wrap(feed,i), wrap(detune,i), wrap(minfreq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -724,13 +714,11 @@ class Freeverb(PyoObject):
 
     """
     def __init__(self, input, size=.5, damp=.5, bal=.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._size = size
         self._damp = damp
         self._bal = bal
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, size, damp, bal, mul, add, lmax = convertArgsToLists(self._in_fader, size, damp, bal, mul, add)
         self._base_objs = [Freeverb_base(wrap(in_fader,i), wrap(size,i), wrap(damp,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -879,12 +867,10 @@ class Convolve(PyoObject):
 
     """
     def __init__(self, input, table, size, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._table = table
         self._size = size
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, table, size, mul, add, lmax = convertArgsToLists(self._in_fader, table, size, mul, add)                     
         self._base_objs = [Convolve_base(wrap(in_fader,i), wrap(table,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -989,13 +975,11 @@ class WGVerb(PyoObject):
 
     """
     def __init__(self, input, feedback=0.5, cutoff=5000, bal=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._feedback = feedback
         self._cutoff = cutoff
         self._bal = bal
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, feedback, cutoff, bal, mul, add, lmax = convertArgsToLists(self._in_fader, feedback, cutoff, bal, mul, add)
         self._base_objs = [WGVerb_base(wrap(in_fader,i), wrap(feedback,i), wrap(cutoff,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1141,13 +1125,11 @@ class Chorus(PyoObject):
 
     """
     def __init__(self, input, depth=1, feedback=0.25, bal=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._depth = depth
         self._feedback = feedback
         self._bal = bal
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, depth, feedback, bal, mul, add, lmax = convertArgsToLists(self._in_fader, depth, feedback, bal, mul, add)
         self._base_objs = [Chorus_base(wrap(in_fader,i), wrap(depth,i), wrap(feedback,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1290,13 +1272,11 @@ class Harmonizer(PyoObject):
 
     """
     def __init__(self, input, transpo=-7.0, feedback=0, winsize=0.1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._transpo = transpo
         self._feedback = feedback
         self._winsize = winsize
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, transpo, feedback, winsize, mul, add, lmax = convertArgsToLists(self._in_fader, transpo, feedback, winsize, mul, add)
         self._base_objs = [Harmonizer_base(wrap(in_fader,i), wrap(transpo,i), wrap(feedback,i), wrap(winsize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

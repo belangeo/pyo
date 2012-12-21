@@ -70,11 +70,9 @@ class Follower(PyoObject):
 
     """
     def __init__(self, input, freq=20, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._freq = freq
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Follower_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -176,12 +174,10 @@ class Follower2(PyoObject):
 
     """
     def __init__(self, input, risetime=0.01, falltime=0.1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._risetime = risetime
         self._falltime = falltime
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, risetime, falltime, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, mul, add)
         self._base_objs = [Follower2_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime, i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -303,10 +299,8 @@ class ZCross(PyoObject):
 
     """
     def __init__(self, input, thresh=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._thresh = thresh
         self._in_fader = InputFader(input)
         in_fader, thresh, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, mul, add)

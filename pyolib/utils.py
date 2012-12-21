@@ -273,15 +273,13 @@ class Snap(PyoObject):
 
     """
     def __init__(self, input, choice, scale=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(choice) != ListType:
             print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
             exit()
         self._input = input
         self._choice = choice
         self._scale = scale
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, scale, mul, add, lmax = convertArgsToLists(self._in_fader, scale, mul, add)
         if type(choice[0]) != ListType:
@@ -399,12 +397,10 @@ class Interp(PyoObject):
 
     """
     def __init__(self, input, input2, interp=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
         self._interp = interp
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, interp, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, interp, mul, add)
@@ -524,12 +520,10 @@ class SampHold(PyoObject):
 
     """
     def __init__(self, input, controlsig, value=0.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._controlsig = controlsig
         self._value = value
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(controlsig)
         in_fader, in_fader2, value, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, value, mul, add)
@@ -651,12 +645,10 @@ class Compare(PyoObject):
 
     """
     def __init__(self, input, comp, mode="<", mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._comp = comp
         self._mode = mode
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
         in_fader, comp, mode, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mode, mul, add)
@@ -862,10 +854,8 @@ class Denorm(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [Denorm_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1063,14 +1053,12 @@ class ControlRead(PyoObject):
 
     """
     def __init__(self, filename, rate=1000, loop=False, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._filename = filename
         self._path, self._name = os.path.split(filename)
         self._rate = rate
         self._loop = loop
         self._interp = interp
-        self._mul = mul
-        self._add = add
         files = sorted([f for f in os.listdir(self._path) if self._name+"_" in f])
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = []
@@ -1293,14 +1281,12 @@ class NoteinRead(PyoObject):
 
     """
     def __init__(self, filename, loop=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._pitch_dummy = []
         self._velocity_dummy = []
         self._filename = filename
         self._path, self._name = os.path.split(filename)
         self._loop = loop
-        self._mul = mul
-        self._add = add
         files = sorted([f for f in os.listdir(self._path) if self._name+"_" in f])
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = []
@@ -1421,10 +1407,8 @@ class DBToA(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [DBToA_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1494,10 +1478,8 @@ class AToDB(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [AToDB_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1588,15 +1570,13 @@ class Scale(PyoObject):
 
     """
     def __init__(self, input, inmin=0, inmax=1, outmin=0, outmax=1, exp=1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._inmin = inmin
         self._inmax = inmax
         self._outmin = outmin
         self._outmax = outmax
         self._exp = exp
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, inmin, inmax, outmin, outmax, exp, mul, add, lmax = convertArgsToLists(self._in_fader, inmin, inmax, outmin, outmax, exp, mul, add)
         self._base_objs = [Scale_base(wrap(in_fader,i), wrap(inmin,i), wrap(inmax,i), wrap(outmin,i), wrap(outmax,i), wrap(exp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1773,10 +1753,8 @@ class CentsToTranspo(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [CentsToTranspo_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1844,10 +1822,8 @@ class TranspoToCents(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [TranspoToCents_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1915,10 +1891,8 @@ class MToF(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [MToF_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1994,11 +1968,9 @@ class MToT(PyoObject):
     """
 
     def __init__(self, input, centralkey=60.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._centralkey = centralkey
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, centralkey, mul, add, lmax = convertArgsToLists(self._in_fader, centralkey, mul, add)
         self._base_objs = [MToT_base(wrap(in_fader,i), wrap(centralkey,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2093,12 +2065,10 @@ class Between(PyoObject):
 
     """
     def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Between_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

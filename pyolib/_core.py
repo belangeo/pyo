@@ -65,34 +65,23 @@ def convertArgsToLists(*args):
     Return new args and maximum list length.
     
     """
-    first = True
+    converted = []
     for i in args:
-        if isinstance(i, PyoObject): pass  
-        elif isinstance(i, PyoTableObject): pass 
-        elif isinstance(i, PyoMatrixObject): pass 
-        elif type(i) != ListType: i = [i]
+        if isinstance(i, PyoObjectBase) or type(i) == ListType:
+            converted.append(i)
+        else:
+            converted.append([i])
             
-        if first: tup = (i,)
-        else: tup = tup + (i,)
-        
-        first = False
-        
-    lengths = [len(i) for i in tup]
-    max_length = max(lengths)
-    tup = tup + (max_length, )  
-    return tup
+    max_length = max(len(i) for i in converted)
+    return tuple(converted + [max_length])
 
 def wrap(arg, i):
     """
     Return value at position `i` from `arg` with wrap around `arg` length.
     
-    """    
+    """
     x = arg[i % len(arg)]
-    if isinstance(x, PyoObject):
-        return x[0]
-    elif isinstance(x, PyoTableObject):
-        return x[0]
-    elif isinstance(x, PyoMatrixObject):
+    if isinstance(x, PyoObjectBase):
         return x[0]
     else:
         return x
@@ -219,14 +208,93 @@ def getVersion():
     major, minor, rev = PYO_VERSION.split('.')
     return (int(major), int(minor), int(rev))
 
+class PyoError(Exception):
+    """Base class for all pyo exceptions."""
+
+class PyoServerStateException(PyoError):
+    """Error raised when an operation requires the server to be booted."""
+
+######################################################################
+### PyoObjectBase -> abstract class for pyo objects
+######################################################################
+class PyoObjectBase(object):
+    """
+    Base class for all pyo objects.
+
+    This object encapsulates some common behaviors for all pyo objects.
+    One typically inherits from a more specific subclass of this class
+    instead of using it directly.
+    
+    Methods:
+    
+    dump() : Print infos about the current state of the object.
+    getBaseObjects() : Return a list of Stream objects managed by the instance.
+
+    """
+
+    # Descriptive word for this kind of object, for use in printing
+    # descriptions of the object. Subclasses need to set this.
+    _STREAM_TYPE = ''
+    
+    def __init__(self):
+        if not serverCreated():
+            raise PyoServerStateException("You must create and boot a Server before creating any audio object.")
+        if not serverBooted():
+            raise PyoServerStateException("The Server must be booted before creating any audio object.")
+
+    def dump(self):
+        """
+        Print infos about the current state of the object.
+
+        Print the number of Stream objects managed by the instance 
+        and the current status of the object's attributes.
+
+        """
+        attrs = dir(self)
+        pp =  '< Instance of %s class >' % self.__class__.__name__
+        pp += '\n-----------------------------'
+        pp += '\nNumber of %s streams: %d' % (self._STREAM_TYPE, len(self))
+        pp += '\n--- Attributes ---'
+        for attr in attrs:
+            pp += '\n' + attr + ': ' + str(getattr(self, attr))
+        pp += '\n-----------------------------'
+        return pp
+
+    def getBaseObjects(self):
+        """
+        Return a list of Stream objects managed by the instance.
+
+        """
+        return self._base_objs
+
+    def __getitem__(self, i):
+        if i == 'trig':
+            return self._trig_objs
+        if type(i) == SliceType or i < len(self._base_objs):
+            return self._base_objs[i]
+        else:
+            if type(i) == StringType:
+                print "Object %s has no stream named '%s'!" % (self.__class__.__name__, i)
+            else:
+                print "'i' too large in slicing %s object %s!" % (self._STREAM_TYPE, self.__class__.__name__)
+
+    def __len__(self):
+        return len(self._base_objs)
+
+    def __repr__(self):
+        return '< Instance of %s class >' % self.__class__.__name__
+
+
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
 ######################################################################
-class PyoObject(object):
+class PyoObject(PyoObjectBase):
     """
     Base class for all pyo objects that manipulate vectors of samples.
     
     The user should never instantiate an object of this class.
+    
+    Parentclass: PyoObjectBase
 
     Methods:
 
@@ -245,8 +313,6 @@ class PyoObject(object):
     set(attr, value, port) : Replace any attribute with portamento. 
     ctrl(map_list, title) : Opens a sliders window to control parameters.
     get(all) : Return the first sample of the current buffer as a float.
-    dump() : Print current status of the object's attributes.
-    getBaseObjects() : Return a list of audio Stream objects managed by the instance.
     isPlaying(all) : Returns True if the object is playing, otherwise, returns False.
     isOutputting(all) : Returns True if the object is sending samples to dac, 
         otherwise, returns False.
@@ -281,19 +347,16 @@ class PyoObject(object):
     `a *= 0.5` replaces the `mul` attribute of `a`.
     
     """
-    def __init__(self):
-        if not serverCreated():
-            print "\nPYO Error: You must create and boot a Server before creating any audio object.\n"
-            exit()
-        else:
-            if not serverBooted():
-                print "\nPYO Error: The Server must be booted before creating any audio object.\n"
-                exit()
+    
+    _STREAM_TYPE = 'audio'
+
+    def __init__(self, mul=1.0, add=0.0):
+        PyoObjectBase.__init__(self)
         self._target_dict = {}
         self._signal_dict = {}
         self._keep_trace = []
-        self._mul = 1.0
-        self._add = 0.0
+        self._mul = mul
+        self._add = add
         self._op_duplicate = 1
 
     def __add__(self, x):
@@ -415,24 +478,7 @@ class PyoObject(object):
     def __idiv__(self, x):
         self.setDiv(x)
         return self
-        
-    def __getitem__(self, i):
-        if i == 'trig':
-            return self._trig_objs
-        if type(i) == SliceType or i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            if type(i) == StringType:
-                print "Object %s has no stream named '%s'!" % (self.__class__, i)
-            else:
-                print "'i' too large in slicing object %s!" % self.__class__.__name__
- 
-    def __len__(self):
-        return len(self._base_objs)
 
-    def __repr__(self):
-        return '< Instance of %s class >' % self.__class__.__name__
-    
     def isPlaying(self, all=False):
         """
         Returns True if the object is playing, otherwise, returns False.
@@ -468,22 +514,6 @@ class PyoObject(object):
             return [obj._getStream().isOutputting() for obj in self._base_objs]
         else:
             return self._base_objs[0]._getStream().isOutputting()
-
-    def dump(self):
-        """
-        Print the number of streams and the current status of the 
-        object's attributes.
-        
-        """
-        attrs = dir(self)
-        pp =  '< Instance of %s class >' % self.__class__.__name__
-        pp += '\n-----------------------------'
-        pp += '\nNumber of audio streams: %d' % len(self)
-        pp += '\n--- Attributes ---'
-        for attr in attrs:
-            pp += '\n' + attr + ': ' + str(getattr(self, attr))
-        pp += '\n-----------------------------'
-        return pp    
             
     def get(self, all=False):
         """
@@ -508,14 +538,7 @@ class PyoObject(object):
             return self._base_objs[0]._getStream().getValue()
         else:
             return [obj._getStream().getValue() for obj in self._base_objs]
-            
-    def getBaseObjects(self):
-        """
-        Return a list of audio Stream objects managed by the instance.
-        
-        """
-        return self._base_objs
-        
+
     def play(self, dur=0, delay=0):
         """
         Start processing without sending samples to output. 
@@ -784,19 +807,20 @@ class PyoObject(object):
 ######################################################################
 ### PyoTableObject -> base class for pyo table objects
 ######################################################################
-class PyoTableObject(object):
+class PyoTableObject(PyoObjectBase):
     """
     Base class for all pyo table objects. 
     
     A table object is a buffer memory to store precomputed samples. 
     
     The user should never instantiate an object of this class.
+    
+    Parentclass: PyoObjectBase
  
     Methods:
     
     getSize() : Return table size in samples.
     view() : Opens a window showing the contents of the table.
-    dump() : Print current status of the object's attributes.
     save(path, format, sampletype) : Writes the content of the table in an audio file.
     write(path, oneline) : Writes the content of the table in a text file.
     read(path) : Sets the content of the table from a text file.
@@ -806,7 +830,6 @@ class PyoTableObject(object):
     copy() : Returns a deep copy of the object.
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
-    getBaseObjects() : Return a list of table Stream objects managed by the instance.
     getTable(all) : Returns the content of the table as list of floats.
 
     Notes:
@@ -818,42 +841,11 @@ class PyoTableObject(object):
         from 0 to len(obj) - 1.
 
     """
+    
+    _STREAM_TYPE = 'table'
+
     def __init__(self):
-        if not serverCreated():
-            print "\nPYO Error: You must create and boot a Server before creating any audio object.\n"
-            exit()
-        else:
-            if not serverBooted():
-                print "\nPYO Error: The Server must be booted before creating any audio object.\n"
-                exit()
-
-    def __getitem__(self, i):
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large in slicing table %s!" % self.__class__.__name__
- 
-    def __len__(self):
-        return len(self._base_objs)
-
-    def __repr__(self):
-        return '< Instance of %s class >' % self.__class__.__name__
-        
-    def dump(self):
-        """
-        Print the number of streams and the current status of the 
-        object's attributes.
-        
-        """
-        attrs = dir(self)
-        pp =  '< Instance of %s class >' % self.__class__.__name__
-        pp += '\n-----------------------------'
-        pp += '\nNumber of table streams: %d' % len(self)
-        pp += '\n--- Attributes ---'
-        for attr in attrs:
-            pp += '\n' + attr + ': ' + str(getattr(self, attr))
-        pp += '\n-----------------------------'
-        return pp    
+        PyoObjectBase.__init__(self)
 
     def save(self, path, format=0, sampletype=0):
         """
@@ -934,13 +926,6 @@ class PyoTableObject(object):
         f_len = len(f_list)
         f.close()
         [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
-        
-    def getBaseObjects(self):
-        """
-        Return a list of table Stream objects managed by the instance.
-        
-        """
-        return self._base_objs
 
     def getSize(self):
         """
@@ -1069,7 +1054,7 @@ class PyoTableObject(object):
 ######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
 ######################################################################
-class PyoMatrixObject(object):
+class PyoMatrixObject(PyoObjectBase):
     """
     Base class for all pyo matrix objects. 
     
@@ -1077,12 +1062,13 @@ class PyoMatrixObject(object):
     precomputed samples. 
     
     The user should never instantiate an object of this class.
+    
+    Parentclass: PyoObjectBase
  
     Methods:
     
     getSize() : Return matrix size in samples (x, y).
     view() : Opens a window showing the contents of the matrix.
-    dump() : Print current status of the object's attributes.
     write(path) : Writes the content of the matrix in a text file.
     read(path) : Sets the content of the matrix from a text file.
     normalize() : Normalize matrix samples between -1 and 1.
@@ -1090,7 +1076,6 @@ class PyoMatrixObject(object):
     boost(min, max, boost) : Boost the contrast of values in the matrix.
     put(value, x, y) : Puts a value at specified position in the matrix.
     get(x, y) : Returns the value at specified position in the matrix.
-    getBaseObjects() : Returns a list of matrix stream objects managed by the instance.
     
     Notes:
     
@@ -1101,42 +1086,11 @@ class PyoMatrixObject(object):
         from 0 to len(obj) - 1.
 
     """
+    
+    _STREAM_TYPE = 'matrix'
+
     def __init__(self):
-        if not serverCreated():
-            print "\nPYO Error: You must create and boot a Server before creating any audio object.\n"
-            exit()
-        else:
-            if not serverBooted():
-                print "\nPYO Error: The Server must be booted before creating any audio object.\n"
-                exit()
-
-    def __getitem__(self, i):
-        if i < len(self._base_objs):
-            return self._base_objs[i]
-        else:
-            print "'i' too large in slicing matrix %s!" % self.__class__.__name__
- 
-    def __len__(self):
-        return len(self._base_objs)
-
-    def __repr__(self):
-        return '< Instance of %s class >' % self.__class__.__name__
-        
-    def dump(self):
-        """
-        Print the number of streams and the current status of the 
-        object's attributes.
-        
-        """
-        attrs = dir(self)
-        pp =  '< Instance of %s class >' % self.__class__.__name__
-        pp += '\n-----------------------------'
-        pp += '\nNumber of matrix streams: %d' % len(self)
-        pp += '\n--- Attributes ---'
-        for attr in attrs:
-            pp += '\n' + attr + ': ' + str(getattr(self, attr))
-        pp += '\n-----------------------------'
-        return pp    
+        PyoObjectBase.__init__(self)
 
     def write(self, path):
         """
@@ -1171,13 +1125,6 @@ class PyoMatrixObject(object):
         f_len = len(f_list)
         f.close()
         [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
-        
-    def getBaseObjects(self):
-        """
-        Returns a list of matrix stream objects managed by the instance.
-        
-        """
-        return self._base_objs
 
     def getSize(self):
         """
@@ -1319,10 +1266,8 @@ class Mix(PyoObject):
 
     """
     def __init__(self, input, voices=1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
         if type(input) == ListType:
             input_objs = []
@@ -1396,8 +1341,6 @@ class Dummy(PyoObject):
     def __init__(self, objs_list):
         PyoObject.__init__(self)
         self._objs_list = objs_list
-        self._mul = 1
-        self._add = 0
         tmp_list = []
         for x in objs_list:
             if isinstance(x, Dummy):
@@ -1509,10 +1452,8 @@ class Sig(PyoObject):
 
     """
     def __init__(self, value, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._value = value
-        self._mul = mul
-        self._add = add
         value, mul ,add, lmax = convertArgsToLists(value, mul, add)
         self._base_objs = [Sig_base(wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1596,11 +1537,9 @@ class VarPort(PyoObject):
 
     """
     def __init__(self, value, time=0.025, init=0.0, function=None, arg=None, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
-        self._mul = mul
-        self._add = add
         value, time, init, function, arg, mul ,add, lmax = convertArgsToLists(value, time, init, function, arg, mul, add)
         self._base_objs = [VarPort_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(function,i), wrap(arg,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 

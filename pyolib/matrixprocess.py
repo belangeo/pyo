@@ -335,12 +335,10 @@ class MatrixPointer(PyoObject):
 
     """
     def __init__(self, matrix, x, y, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._matrix = matrix
         self._x = x
         self._y = y
-        self._mul = mul
-        self._add = add
         matrix, x, y, mul, add, lmax = convertArgsToLists(matrix, x, y, mul, add)
         self._base_objs = [MatrixPointer_base(wrap(matrix,i), wrap(x,i), wrap(y,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
