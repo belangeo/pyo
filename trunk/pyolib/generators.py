@@ -66,11 +66,9 @@ class Sine(PyoObject):
     
     """
     def __init__(self, freq=1000, phase=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._phase = phase
-        self._mul = mul
-        self._add = add
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Sine_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -169,11 +167,9 @@ class SineLoop(PyoObject):
 
     """
     def __init__(self, freq=1000, feedback=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._feedback = feedback
-        self._mul = mul
-        self._add = add
         freq, feedback, mul, add, lmax = convertArgsToLists(freq, feedback, mul, add)
         self._base_objs = [SineLoop_base(wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -264,11 +260,9 @@ class Phasor(PyoObject):
     
     """
     def __init__(self, freq=100, phase=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._phase = phase
-        self._mul = mul
-        self._add = add
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Phasor_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -353,10 +347,8 @@ class Input(PyoObject):
     
     """
     def __init__(self, chnl=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._chnl = chnl
-        self._mul = mul
-        self._add = add
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -389,10 +381,8 @@ class Noise(PyoObject):
         
     """
     def __init__(self, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._type = 0
-        self._mul = mul
-        self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -445,9 +435,7 @@ class PinkNoise(PyoObject):
 
     """
     def __init__(self, mul=1, add=0):
-        PyoObject.__init__(self)
-        self._mul = mul
-        self._add = add
+        PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [PinkNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -475,9 +463,7 @@ class BrownNoise(PyoObject):
 
     """
     def __init__(self, mul=1, add=0):
-        PyoObject.__init__(self)
-        self._mul = mul
-        self._add = add
+        PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [BrownNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -530,12 +516,10 @@ class FM(PyoObject):
     
     """
     def __init__(self, carrier=100, ratio=0.5, index=5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._carrier = carrier
         self._ratio = ratio
         self._index = index
-        self._mul = mul
-        self._add = add
         carrier, ratio, index, mul, add, lmax = convertArgsToLists(carrier, ratio, index, mul, add)
         self._base_objs = [Fm_base(wrap(carrier,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -664,13 +648,11 @@ class CrossFM(PyoObject):
 
     """
     def __init__(self, carrier=100, ratio=0.5, ind1=2, ind2=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._carrier = carrier
         self._ratio = ratio
         self._ind1 = ind1
         self._ind2 = ind2
-        self._mul = mul
-        self._add = add
         carrier, ratio, ind1, ind2, mul, add, lmax = convertArgsToLists(carrier, ratio, ind1, ind2, mul, add)
         self._base_objs = [CrossFm_base(wrap(carrier,i), wrap(ratio,i), wrap(ind1,i), wrap(ind2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -805,11 +787,9 @@ class Blit(PyoObject):
 
     """
     def __init__(self, freq=100, harms=40, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._harms = harms
-        self._mul = mul
-        self._add = add
         freq, harms, mul, add, lmax = convertArgsToLists(freq, harms, mul, add)
         self._base_objs = [Blit_base(wrap(freq,i), wrap(harms,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -913,12 +893,10 @@ class Rossler(PyoObject):
 
     """
     def __init__(self, pitch=0.25, chaos=0.5, stereo=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._pitch = pitch
         self._chaos = chaos
         self._stereo = stereo
-        self._mul = mul
-        self._add = add
         pitch, chaos, mul, add, lmax = convertArgsToLists(pitch, chaos, mul, add)
         self._base_objs = []
         self._alt_objs = []
@@ -1032,12 +1010,10 @@ class Lorenz(PyoObject):
 
     """
     def __init__(self, pitch=0.25, chaos=0.5, stereo=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._pitch = pitch
         self._chaos = chaos
         self._stereo = stereo
-        self._mul = mul
-        self._add = add
         pitch, chaos, mul, add, lmax = convertArgsToLists(pitch, chaos, mul, add)
         self._base_objs = []
         self._alt_objs = []
@@ -1150,12 +1126,10 @@ class LFO(PyoObject):
 
     """
     def __init__(self, freq=100, sharp=0.5, type=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._sharp = sharp
         self._type = type
-        self._mul = mul
-        self._add = add
         freq, sharp, type, mul, add, lmax = convertArgsToLists(freq, sharp, type, mul, add)
         self._base_objs = [LFO_base(wrap(freq,i), wrap(sharp,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1298,12 +1272,10 @@ class SumOsc(PyoObject):
     
     """
     def __init__(self, freq=100, ratio=0.5, index=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._ratio = ratio
         self._index = index
-        self._mul = mul
-        self._add = add
         freq, ratio, index, mul, add, lmax = convertArgsToLists(freq, ratio, index, mul, add)
         self._base_objs = [SumOsc_base(wrap(freq,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1428,12 +1400,10 @@ class SuperSaw(PyoObject):
     
     """
     def __init__(self, freq=100, detune=0.5, bal=0.7, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._freq = freq
         self._detune = detune
         self._bal = bal
-        self._mul = mul
-        self._add = add
         freq, detune, bal, mul, add, lmax = convertArgsToLists(freq, detune, bal, mul, add)
         self._base_objs = [SuperSaw_base(wrap(freq,i), wrap(detune,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 

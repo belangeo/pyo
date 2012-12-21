@@ -196,6 +196,7 @@ language.
 Overview:
 
 Server : Main processing audio loop callback handler. 
+PyoObjectBase : Base class for all pyo objects.
 PyoObject : Base class for all pyo objects that manipulate vectors of samples.
 PyoTableObject : Base class for all pyo table objects.
 PyoMatrixObject : Base class for all pyo matrix objects.
@@ -205,7 +206,7 @@ functions : Miscellaneous functions.
 
 _DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 
                  'See also', 'Parentclass', 'Overview', 'Initline', 'Description']
-_HEADERS = ["Server", "PyoObject", "PyoTableObject", "PyoMatrixObject", "Map", "Stream", "TableStream", "functions"]
+_HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions"]
 _KEYWORDS_LIST = []
 _KEYWORDS_LIST.extend(_HEADERS)
 _KEYWORDS_LIST.append("SLMap")
@@ -215,8 +216,15 @@ for k1 in _HEADERS:
     if type(OBJECTS_TREE[k1]) == type({}):
         _NUM_PAGES += len(OBJECTS_TREE[k1].keys())
         for k2 in OBJECTS_TREE[k1].keys():
-            _KEYWORDS_LIST.extend(OBJECTS_TREE[k1][k2])
-            _NUM_PAGES += len(OBJECTS_TREE[k1][k2])
+            _NUM_PAGES += 1
+            _KEYWORDS_LIST.append(k2)
+            if type(OBJECTS_TREE[k1][k2]) == type({}):
+                for k3 in OBJECTS_TREE[k1][k2].keys():
+                    _KEYWORDS_LIST.extend(OBJECTS_TREE[k1][k2][k3])
+                    _NUM_PAGES += len(OBJECTS_TREE[k1][k2][k3])
+            else:
+                _KEYWORDS_LIST.extend(OBJECTS_TREE[k1][k2])
+                _NUM_PAGES += len(OBJECTS_TREE[k1][k2])
     else:
         _KEYWORDS_LIST.extend(OBJECTS_TREE[k1])
         _NUM_PAGES += len(OBJECTS_TREE[k1])
@@ -317,21 +325,36 @@ class ManualPanel(wx.Treebook):
                     if self.needToParse and count <= _NUM_PAGES:
                         (keepGoing, skip) = dlg.Update(count)
             else:
-                if key == "PyoObject":
+                if key == "PyoObjectBase":
                     count += 1
-                    head = "PyoObj - "
-                    win = self.makePanel("PyoObject")
-                    self.AddPage(win, "PyoObject")
-                    for key2 in sorted(OBJECTS_TREE[key]):
-                        count += 1
-                        win = self.makePanel("%s" % key2)
-                        self.AddPage(win, "PyoObj - %s" % key2)
-                        for obj in OBJECTS_TREE[key][key2]:
+                    win = self.makePanel("PyoObjectBase")
+                    self.AddPage(win, "PyoObjectBase")
+                    for key2 in OBJECTS_TREE[key]:
+                        if type(OBJECTS_TREE[key][key2]) == type([]):
                             count += 1
-                            win = self.makePanel(obj)
-                            self.AddSubPage(win, obj)
-                            if self.needToParse and count <= _NUM_PAGES:
-                                (keepGoing, skip) = dlg.Update(count)
+                            win = self.makePanel(key2)
+                            self.AddPage(win, key2)
+                            for obj in OBJECTS_TREE[key][key2]:
+                                count += 1
+                                win = self.makePanel(obj)
+                                self.AddSubPage(win, obj)
+                                if self.needToParse and count <= _NUM_PAGES:
+                                    (keepGoing, skip) = dlg.Update(count)
+                        else:
+                            count += 1
+                            head = "PyoObj - "
+                            win = self.makePanel("PyoObject")
+                            self.AddPage(win, "PyoObject")
+                            for key3 in sorted(OBJECTS_TREE[key][key2]):
+                                count += 1
+                                win = self.makePanel("%s" % key3)
+                                self.AddPage(win, "PyoObj - %s" % key3)
+                                for obj in OBJECTS_TREE[key][key2][key3]:
+                                    count += 1
+                                    win = self.makePanel(obj)
+                                    self.AddSubPage(win, obj)
+                                    if self.needToParse and count <= _NUM_PAGES:
+                                        (keepGoing, skip) = dlg.Update(count)
                 else:
                     count += 2
                     win = self.makePanel("Map")
@@ -372,24 +395,42 @@ class ManualPanel(wx.Treebook):
                         self.AddSubPage(win, obj)
                     self.ExpandNode(node, True)
             else:
-                if key == "PyoObject":
-                    head = "PyoObj - "
-                    if keyword in "pyoobject":
-                        win = self.makePanel("PyoObject")
-                        self.AddPage(win, "PyoObject")
-                    for key2 in sorted(OBJECTS_TREE[key]):
-                        objs = []
-                        for obj in OBJECTS_TREE[key][key2]:
-                            if keyword in obj.lower():
-                                objs.append(obj)
-                        if objs != []:
-                            win = self.makePanel("%s" % key2)
-                            self.AddPage(win, "PyoObj - %s" % key2)
-                            node = self.GetPageCount()-1
-                            for obj in objs:
-                                win = self.makePanel(obj)
-                                self.AddSubPage(win, obj)
-                            self.ExpandNode(node, True)
+                if key == "PyoObjectBase":
+                    if keyword in "pyoobjectbase":
+                        win = self.makePanel("PyoObjectBase")
+                        self.AddPage(win, "PyoObjectBase")
+                    for key2 in OBJECTS_TREE[key].keys():
+                        if type(OBJECTS_TREE[key][key2]) == type([]):
+                            objs = []
+                            for obj in OBJECTS_TREE[key][key2]:
+                                if keyword in obj.lower():
+                                    objs.append(obj)
+                            if objs != []:
+                                win = self.makePanel(key2)
+                                self.AddPage(win, key2)
+                                node = self.GetPageCount()-1
+                                for obj in objs:
+                                    win = self.makePanel(obj)
+                                    self.AddSubPage(win, obj)
+                                self.ExpandNode(node, True)
+                        else:
+                            head = "PyoObj - "
+                            if keyword in "pyoobject":
+                                win = self.makePanel("PyoObject")
+                                self.AddPage(win, "PyoObject")
+                            for key3 in sorted(OBJECTS_TREE[key][key2]):
+                                objs = []
+                                for obj in OBJECTS_TREE[key][key2][key3]:
+                                    if keyword in obj.lower():
+                                        objs.append(obj)
+                                if objs != []:
+                                    win = self.makePanel("%s" % key3)
+                                    self.AddPage(win, "PyoObj - %s" % key3)
+                                    node = self.GetPageCount()-1
+                                    for obj in objs:
+                                        win = self.makePanel(obj)
+                                        self.AddSubPage(win, obj)
+                                    self.ExpandNode(node, True)
                 else:
                     if keyword in "map":
                         win = self.makePanel("Map")
@@ -433,28 +474,45 @@ class ManualPanel(wx.Treebook):
                         self.AddSubPage(win, obj)
                     self.ExpandNode(node, True)
             else:
-                if key == "PyoObject":
-                    head = "PyoObj - "
-                    with open(os.path.join(DOC_PATH, "PyoObject"), "r") as f:
-                        text = f.read().lower()
-                    if keyword in text:
-                        win = self.makePanel("PyoObject")
-                        self.AddPage(win, "PyoObject")
-                    for key2 in sorted(OBJECTS_TREE[key]):
-                        objs = []
-                        for obj in OBJECTS_TREE[key][key2]:
-                            with open(os.path.join(DOC_PATH, obj), "r") as f:
+                if key == "PyoObjectBase":
+                    for key2 in OBJECTS_TREE[key].keys():
+                        if type(OBJECTS_TREE[key][key2]) == type([]):
+                            objs = []
+                            for obj in OBJECTS_TREE[key][key2]:
+                                with open(os.path.join(DOC_PATH, obj), "r") as f:
+                                    text = f.read().lower()
+                                if keyword in text:
+                                    objs.append(obj)
+                            if objs != []:
+                                win = self.makePanel(key2)
+                                self.AddPage(win, key2)
+                                node = self.GetPageCount()-1
+                                for obj in objs:
+                                    win = self.makePanel(obj)
+                                    self.AddSubPage(win, obj)
+                                self.ExpandNode(node, True)
+                        else:
+                            head = "PyoObj - "
+                            with open(os.path.join(DOC_PATH, "PyoObject"), "r") as f:
                                 text = f.read().lower()
                             if keyword in text:
-                                objs.append(obj)
-                        if objs != []:
-                            win = self.makePanel("%s" % key2)
-                            self.AddPage(win, "PyoObj - %s" % key2)
-                            node = self.GetPageCount()-1
-                            for obj in objs:
-                                win = self.makePanel(obj)
-                                self.AddSubPage(win, obj)
-                            self.ExpandNode(node, True)
+                                win = self.makePanel("PyoObject")
+                                self.AddPage(win, "PyoObject")
+                            for key3 in sorted(OBJECTS_TREE[key][key2]):
+                                objs = []
+                                for obj in OBJECTS_TREE[key][key2][key3]:
+                                    with open(os.path.join(DOC_PATH, obj), "r") as f:
+                                        text = f.read().lower()
+                                    if keyword in text:
+                                        objs.append(obj)
+                                if objs != []:
+                                    win = self.makePanel("%s" % key3)
+                                    self.AddPage(win, "PyoObj - %s" % key3)
+                                    node = self.GetPageCount()-1
+                                    for obj in objs:
+                                        win = self.makePanel(obj)
+                                        self.AddSubPage(win, obj)
+                                    self.ExpandNode(node, True)
                 else:
                     with open(os.path.join(DOC_PATH, "Map"), "r") as f:
                         text = f.read().lower()
@@ -554,9 +612,9 @@ class ManualPanel(wx.Treebook):
                                 text += o + ": " + self.getDocFirstLine(o)
                         else:
                             text = "\nNot documented yet...\n\n"
-                    if obj in OBJECTS_TREE["PyoObject"].keys():
+                    if obj in OBJECTS_TREE["PyoObjectBase"]["PyoObject"].keys():
                         text += "\nOverview:\n"
-                        for o in OBJECTS_TREE["PyoObject"][obj]:
+                        for o in OBJECTS_TREE["PyoObjectBase"]["PyoObject"][obj]:
                             text += o + ": " + self.getDocFirstLine(o)
                         obj = "PyoObj - " + obj
                     panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)

@@ -204,20 +204,31 @@ and others creative sound manipulations. pyo supports OSC protocol (Open Sound C
 between softwares, and MIDI protocol, for generating sound events and controlling process parameters. pyo allows
 creation of sophisticated signal processing chains with all the benefits of a mature, and wild used, general programming language.
 """)  
-for key in sorted(OBJECTS_TREE.keys()):
-    f.write('\section[%s</A> : %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
+for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map', 'functions']:
+    f.write('\chapter[%s</A> : %s]{%s}\n\n' % (key, getDocFirstLine(key), key))
     f.write(getDoc(key))
     if type(OBJECTS_TREE[key]) == ListType:
         for obj in OBJECTS_TREE[key]:
-            f.write('\subsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
+            f.write('\section[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
             f.write(getDoc(obj))
     else:
-        for key2 in sorted(OBJECTS_TREE[key]):
-            f.write('\subsection[%s</A> : %s]{%s}\n\n' % (key2, getDocFirstLine(key2), key2))
+        if key == 'Map': key2list = ['SLMap']
+        else: key2list = ['PyoMatrixObject', 'PyoTableObject', 'PyoObject']
+        for key2 in key2list:
+            f.write('\section[%s</A> : %s]{%s}\n\n' % (key2, getDocFirstLine(key2), key2))
             f.write(getDoc(key2))
-            for obj in OBJECTS_TREE[key][key2]:
-                f.write('\subsubsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
-                f.write(getDoc(obj))
+            if type(OBJECTS_TREE[key][key2]) == ListType:
+                for obj in OBJECTS_TREE[key][key2]:
+                    f.write('\subsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
+                    f.write(getDoc(obj))
+            else:
+                for key3 in sorted(OBJECTS_TREE[key][key2]):
+                    f.write('\subsection[%s</A> : %s]{%s}\n\n' % (key3, getDocFirstLine(key3), key3))
+                    f.write(getDoc(key3))
+                    for obj in OBJECTS_TREE[key][key2][key3]:
+                        f.write('\subsubsection[%s</A> : %s]{%s}\n\n' % (obj, getDocFirstLine(obj), obj))
+                        f.write(getDoc(obj))
+                
   
 f.write('\end{document}\n')
 f.close()

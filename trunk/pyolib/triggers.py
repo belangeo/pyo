@@ -839,11 +839,9 @@ class TrigRandInt(PyoObject):
 
     """
     def __init__(self, input, max=100., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._max = max
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, max, mul, add, lmax = convertArgsToLists(self._in_fader, max, mul, add)
         self._base_objs = [TrigRandInt_base(wrap(in_fader,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -947,13 +945,11 @@ class TrigRand(PyoObject):
 
     """
     def __init__(self, input, min=0., max=1., port=0., init=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
         self._port = port
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, port, init, mul, add)
         self._base_objs = [TrigRand_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(port,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1087,15 +1083,13 @@ class TrigChoice(PyoObject):
 
     """
     def __init__(self, input, choice, port=0., init=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(choice) != ListType:
             print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
             exit()
         self._input = input
         self._choice = choice
         self._port = port
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, port, init, mul, add, lmax = convertArgsToLists(self._in_fader, port, init, mul, add)
         if type(choice[0]) != ListType:
@@ -1371,13 +1365,11 @@ class TrigEnv(PyoObject):
 
     """
     def __init__(self, input, table, dur=1, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._table = table
         self._dur = dur
         self._interp = interp
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, table, dur, interp, mul, add, lmax = convertArgsToLists(self._in_fader, table, dur, interp, mul, add)
         self._base_objs = [TrigEnv_base(wrap(in_fader,i), wrap(table,i), wrap(dur,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1514,7 +1506,7 @@ class TrigLinseg(PyoObject):
 
     """
     def __init__(self, input, list, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(list) != ListType:
             print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
             exit()
@@ -1523,8 +1515,6 @@ class TrigLinseg(PyoObject):
             exit()
         self._input = input
         self._list = list
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [TrigLinseg_base(wrap(in_fader,i), list, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1695,7 +1685,7 @@ class TrigExpseg(PyoObject):
 
     """
     def __init__(self, input, list, exp=10, inverse=True, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(list) != ListType:
             print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
             exit()
@@ -1706,8 +1696,6 @@ class TrigExpseg(PyoObject):
         self._list = list
         self._exp = exp
         self._inverse = inverse
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, exp, inverse, mul, add, lmax = convertArgsToLists(self._in_fader, exp, inverse, mul, add)
         self._base_objs = [TrigExpseg_base(wrap(in_fader,i), list, wrap(exp,i), wrap(inverse,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1954,13 +1942,11 @@ class TrigXnoise(PyoObject):
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._dist = dist
         self._x1 = x1
         self._x2 = x2
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, mul, add)
         for i, t in enumerate(dist):
@@ -2163,15 +2149,13 @@ class TrigXnoiseMidi(PyoObject):
 
     """
     def __init__(self, input, dist=0, x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._dist = dist
         self._x1 = x1
         self._x2 = x2
         self._scale = scale
-        self._mrange = mrange        
-        self._mul = mul
-        self._add = add
+        self._mrange = mrange
         self._in_fader = InputFader(input)
         in_fader, dist, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(self._in_fader, dist, x1, x2, scale, mrange, mul, add)
         for i, t in enumerate(dist):
@@ -2360,13 +2344,11 @@ class Counter(PyoObject):
 
     """
     def __init__(self, input, min=0, max=100, dir=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
         self._dir = dir
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, dir, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, dir, mul, add)
         self._base_objs = [Counter_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(dir,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2517,11 +2499,9 @@ class Select(PyoObject):
 
     """
     def __init__(self, input, value=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._value = value
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, value, mul, add, lmax = convertArgsToLists(self._in_fader, value, mul, add)
         self._base_objs = [Select_base(wrap(in_fader,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2610,10 +2590,8 @@ class Change(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [Change_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2707,10 +2685,8 @@ class Thresh(PyoObject):
     
     """
     def __init__(self, input, threshold=0., dir=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._threshold = threshold
         self._dir = dir
         self._in_fader = InputFader(input)
@@ -2829,11 +2805,9 @@ class Percent(PyoObject):
 
     """
     def __init__(self, input, percent=50., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._percent = percent
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, percent, mul, add, lmax = convertArgsToLists(self._in_fader, percent, mul, add)
         self._base_objs = [Percent_base(wrap(in_fader,i), wrap(percent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -2933,11 +2907,9 @@ class Timer(PyoObject):
 
     """
     def __init__(self, input, input2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
@@ -3038,14 +3010,12 @@ class Iter(PyoObject):
 
     """
     def __init__(self, input, choice, init=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(choice) != ListType:
             print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
             exit()
         self._input = input
         self._choice = choice
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, init, mul, add, lmax = convertArgsToLists(self._in_fader, init, mul, add)
         if type(choice[0]) != ListType:
@@ -3156,12 +3126,10 @@ class Count(PyoObject):
 
     """
     def __init__(self, input, min=0, max=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Count_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -3273,11 +3241,9 @@ class NextTrig(PyoObject):
 
     """
     def __init__(self, input, input2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
@@ -3376,11 +3342,9 @@ class TrigVal(PyoObject):
 
     """
     def __init__(self, input, value=0., init=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._value = value
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, value, init, mul, add, lmax = convertArgsToLists(self._in_fader, value, init, mul, add)
         self._base_objs = [TrigVal_base(wrap(in_fader,i), wrap(value,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

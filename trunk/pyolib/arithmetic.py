@@ -57,10 +57,8 @@ class Sin(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Sin_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -125,10 +123,8 @@ class Cos(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Cos_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -200,10 +196,8 @@ class Tan(PyoObject):
 
     """
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Tan_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -270,10 +264,8 @@ class Abs(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Abs_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -345,10 +337,8 @@ class Sqrt(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Sqrt_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -416,10 +406,8 @@ class Log(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Log_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -487,10 +475,8 @@ class Log2(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Log2_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -558,10 +544,8 @@ class Log10(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Log10_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -629,11 +613,9 @@ class Pow(PyoObject):
 
     """
     def __init__(self, base=10, exponent=1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._base = base
         self._exponent = exponent
-        self._mul = mul
-        self._add = add
         base, exponent, mul, add, lmax = convertArgsToLists(base, exponent, mul, add)
         self._base_objs = [M_Pow_base(wrap(base,i), wrap(exponent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -725,11 +707,9 @@ class Atan2(PyoObject):
 
     """
     def __init__(self, b=1, a=1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._b = b
         self._a = a
-        self._mul = mul
-        self._add = add
         b, a, mul, add, lmax = convertArgsToLists(b, a, mul, add)
         self._base_objs = [M_Atan2_base(wrap(b,i), wrap(a,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -816,10 +796,8 @@ class Floor(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Floor_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -887,10 +865,8 @@ class Ceil(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Ceil_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -958,10 +934,8 @@ class Round(PyoObject):
     """
 
     def __init__(self, input, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Round_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

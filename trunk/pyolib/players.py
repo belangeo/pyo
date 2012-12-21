@@ -99,14 +99,12 @@ class SfPlayer(PyoObject):
     
     """
     def __init__(self, path, speed=1, loop=False, offset=0, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._path = path
         self._speed = speed
         self._loop = loop
         self._offset = offset
         self._interp = interp
-        self._mul = mul
-        self._add = add
         path, speed, loop, offset, interp, mul, add, lmax = convertArgsToLists(path, speed, loop, offset, interp, mul, add)
         self._base_players = []
         self._base_objs = []
@@ -328,11 +326,9 @@ class SfMarkerShuffler(PyoObject):
     
     """
     def __init__(self, path, speed=1, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._speed = speed
         self._interp = interp
-        self._mul = mul
-        self._add = add
         path, speed, interp, mul, add, lmax = convertArgsToLists(path, speed, interp, mul, add)
         self._base_players = []
         self._base_objs = []
@@ -465,12 +461,10 @@ class SfMarkerLooper(PyoObject):
 
     """
     def __init__(self, path, speed=1, mark=0, interp=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._speed = speed
         self._mark = mark
         self._interp = interp
-        self._mul = mul
-        self._add = add
         path, speed, mark, interp, mul, add, lmax = convertArgsToLists(path, speed, mark, interp, mul, add)
         self._base_players = []
         self._base_objs = []

@@ -193,12 +193,10 @@ class OscReceive(PyoObject):
     """
 
     def __init__(self, port, address, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(port) != IntType:
             print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
             exit()
-        self._mul = mul
-        self._add = add
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
         self._address = address
         self._mainReceiver = OscReceiver_base(port, address)
@@ -546,7 +544,7 @@ class OscDataReceive(PyoObject):
 
     """
 
-    def __init__(self, port, address, function, mul=1, add=0):
+    def __init__(self, port, address, function):
         PyoObject.__init__(self)
         if type(port) != IntType:
             print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
@@ -562,6 +560,12 @@ class OscDataReceive(PyoObject):
 
     def __dir__(self):
         return []
+
+    def setMul(self, x):
+        pass
+        
+    def setAdd(self, x):
+        pass
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -664,7 +668,7 @@ class OscListReceive(PyoObject):
     """
 
     def __init__(self, port, address, num=8, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(port) != IntType:
             print >> sys.stderr, 'TypeError: "port" argument of %s must be an integer.\n' % self.__class__.__name__
             exit()
@@ -673,8 +677,6 @@ class OscListReceive(PyoObject):
             exit()
         self._num = num
         self._op_duplicate = self._num
-        self._mul = mul
-        self._add = add
         address, mul, add, lmax = convertArgsToLists(address, mul, add)
         self._address = address
         self._mainReceiver = OscListReceiver_base(port, address, num)

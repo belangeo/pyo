@@ -91,12 +91,10 @@ class Fader(PyoObject):
     
     """
     def __init__(self, fadein=0.01, fadeout=0.1, dur=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._fadein = fadein
         self._fadeout = fadeout
         self._dur = dur
-        self._mul = mul
-        self._add = add
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -248,14 +246,12 @@ class Adsr(PyoObject):
     
     """
     def __init__(self, attack=0.01, decay=0.05, sustain=0.707, release=0.1, dur=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._attack = attack
         self._decay = decay
         self._sustain = sustain
         self._release = release
         self._dur = dur
-        self._mul = mul
-        self._add = add
         attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(attack, decay, sustain, release, dur, mul, add)
         self._base_objs = [Adsr_base(wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -423,7 +419,7 @@ class Linseg(PyoObject):
     
     """
     def __init__(self, list, loop=False, initToFirstVal=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(list) != ListType:
             print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
             exit()
@@ -432,8 +428,6 @@ class Linseg(PyoObject):
             exit()
         self._list = list
         self._loop = loop
-        self._mul = mul
-        self._add = add
         initToFirstVal, loop, mul, add, lmax = convertArgsToLists(initToFirstVal, loop, mul, add)
         if type(list[0]) != ListType:
             self._base_objs = [Linseg_base(list, wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -613,7 +607,7 @@ class Expseg(PyoObject):
 
     """
     def __init__(self, list, loop=False, exp=10, inverse=True, initToFirstVal=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(list) != ListType:
             print >> sys.stderr, 'TypeError: "list" argument of %s must be a list of tuples.\n' % self.__class__.__name__
             exit()
@@ -624,8 +618,6 @@ class Expseg(PyoObject):
         self._loop = loop
         self._exp = exp
         self._inverse = inverse
-        self._mul = mul
-        self._add = add
         loop, exp, inverse, initToFirstVal, mul, add, lmax = convertArgsToLists(loop, exp, inverse, initToFirstVal, mul, add)
         if type(list[0]) != ListType:
             self._base_objs = [Expseg_base(list, wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -835,11 +827,9 @@ class SigTo(PyoObject):
 
     """
     def __init__(self, value, time=0.025, init=0.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
-        self._mul = mul
-        self._add = add
         value, time, init, mul ,add, lmax = convertArgsToLists(value, time, init, mul, add)
         self._base_objs = [SigTo_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 

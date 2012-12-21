@@ -89,13 +89,11 @@ class Midictl(PyoObject):
         
     """
     def __init__(self, ctlnumber, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._ctlnumber = ctlnumber
         self._minscale = minscale
         self._maxscale = maxscale
         self._channel = channel
-        self._mul = mul
-        self._add = add
         ctlnumber, minscale, maxscale, init, channel, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, init, channel, mul, add)
         self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -505,7 +503,7 @@ class Notein(PyoObject):
     
     """
     def __init__(self, poly=10, scale=0, first=0, last=127, channel=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._pitch_dummy = []
         self._velocity_dummy = []
         self._poly = poly
@@ -513,8 +511,6 @@ class Notein(PyoObject):
         self._first = first
         self._last = last
         self._channel = channel
-        self._mul = mul
-        self._add = add
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_handler = MidiNote_base(self._poly, self._scale, self._first, self._last, self._channel)
         self._base_objs = []
@@ -658,12 +654,10 @@ class Bendin(PyoObject):
 
     """
     def __init__(self, brange=2, scale=0, channel=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._brange = brange
         self._scale = scale
         self._channel = channel
-        self._mul = mul
-        self._add = add
         brange, scale, channel, mul, add, lmax = convertArgsToLists(brange, scale, channel, mul, add)
         self._base_objs = [Bendin_base(wrap(brange,i), wrap(scale,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -790,12 +784,10 @@ class Touchin(PyoObject):
 
     """
     def __init__(self, minscale=0, maxscale=1, init=0, channel=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._minscale = minscale
         self._maxscale = maxscale
         self._channel = channel
-        self._mul = mul
-        self._add = add
         minscale, maxscale, init, channel, mul, add, lmax = convertArgsToLists(minscale, maxscale, init, channel, mul, add)
         self._base_objs = [Touchin_base(wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -905,10 +897,8 @@ class Programin(PyoObject):
 
     """
     def __init__(self, channel=0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._channel = channel
-        self._mul = mul
-        self._add = add
         channel, mul, add, lmax = convertArgsToLists(channel, mul, add)
         self._base_objs = [Programin_base(wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1012,14 +1002,12 @@ class MidiAdsr(PyoObject):
 
     """
     def __init__(self, input, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._attack = attack
         self._decay = decay
         self._sustain = sustain
         self._release = release
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, attack, decay, sustain, release, mul, add)
         self._base_objs = [MidiAdsr_base(wrap(in_fader,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1210,15 +1198,13 @@ class MidiDelAdsr(PyoObject):
 
     """
     def __init__(self, input, delay=0, attack=0.01, decay=0.05, sustain=0.7, release=0.1, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._delay = delay
         self._attack = attack
         self._decay = decay
         self._sustain = sustain
         self._release = release
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, delay, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, delay, attack, decay, sustain, release, mul, add)
         self._base_objs = [MidiDelAdsr_base(wrap(in_fader,i), wrap(delay,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

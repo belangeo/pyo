@@ -115,8 +115,6 @@ class FFT(PyoObject):
     """
     def __init__(self, input, size=1024, overlaps=4, wintype=2):
         PyoObject.__init__(self)
-        mul = 1
-        add = 0
         self._real_dummy = []
         self._imag_dummy = []
         self._bin_dummy = []
@@ -124,8 +122,6 @@ class FFT(PyoObject):
         self._size = size
         self._overlaps = overlaps
         self._wintype = wintype
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, size, wintype, lmax = convertArgsToLists(self._in_fader, size, wintype)
         self._base_players = []
@@ -137,9 +133,9 @@ class FFT(PyoObject):
         self._imag_objs = []
         self._bin_objs = []
         for j in range(len(self._base_players)):
-            self._real_objs.append(FFT_base(wrap(self._base_players,j), 0, mul, add))
-            self._imag_objs.append(FFT_base(wrap(self._base_players,j), 1, mul, add))
-            self._bin_objs.append(FFT_base(wrap(self._base_players,j), 2, mul, add))
+            self._real_objs.append(FFT_base(wrap(self._base_players,j), 0, self._mul, self._add))
+            self._imag_objs.append(FFT_base(wrap(self._base_players,j), 1, self._mul, self._add))
+            self._bin_objs.append(FFT_base(wrap(self._base_players,j), 2, self._mul, self._add))
             
     def __dir__(self):
         return ['input', 'size', 'wintype', 'mul', 'add']
@@ -356,14 +352,12 @@ class IFFT(PyoObject):
 
     """
     def __init__(self, inreal, inimag, size=1024, overlaps=4, wintype=2, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._inreal = inreal
         self._inimag = inimag
         self._size = size
         self._overlaps = overlaps
         self._wintype = wintype
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(inreal)
         self._in_fader2 = InputFader(inimag)
         in_fader, in_fader2, size, wintype, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, size, wintype, mul, add)
@@ -533,13 +527,11 @@ class CarToPol(PyoObject):
 
     """
     def __init__(self, inreal, inimag, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._mag_dummy = []
         self._ang_dummy = []
         self._inreal = inreal
         self._inimag = inimag
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(inreal)
         self._in_fader2 = InputFader(inimag)
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
@@ -697,13 +689,11 @@ class PolToCar(PyoObject):
 
     """
     def __init__(self, inmag, inang, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._real_dummy = []
         self._imag_dummy = []
         self._inmag = inmag
         self._inang = inang
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(inmag)
         self._in_fader2 = InputFader(inang)
         in_fader, in_fader2, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, mul, add)
@@ -866,12 +856,10 @@ class FrameDelta(PyoObject):
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._framesize = framesize
         self._overlaps = overlaps
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps
@@ -1007,12 +995,10 @@ class FrameAccum(PyoObject):
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._framesize = framesize
         self._overlaps = overlaps
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps
@@ -1149,15 +1135,13 @@ class Vectral(PyoObject):
 
     """
     def __init__(self, input, framesize=1024, overlaps=4, up=1.0, down=0.7, damp=0.9, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._framesize = framesize
         self._overlaps = overlaps
         self._up = up
         self._down = down
         self._damp = damp
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, framesize, overlaps, up, down, damp, mul, add, lmax = convertArgsToLists(self._in_fader, framesize, overlaps, up, down, damp, mul, add)
         num_of_mains = len(self._in_fader) / self._overlaps

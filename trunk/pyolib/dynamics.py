@@ -63,12 +63,10 @@ class Clip(PyoObject):
 
     """
     def __init__(self, input, min=-1.0, max=1.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Clip_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -192,12 +190,10 @@ class Mirror(PyoObject):
 
     """
     def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Mirror_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -325,12 +321,10 @@ class Wrap(PyoObject):
 
     """
     def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._min = min
         self._max = max
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Wrap_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -452,12 +446,10 @@ class Degrade(PyoObject):
     
     """
     def __init__(self, input, bitdepth=16, srscale=1.0, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._bitdepth = bitdepth
         self._srscale = srscale
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, bitdepth, srscale, mul, add, lmax = convertArgsToLists(self._in_fader, bitdepth, srscale, mul, add)
         self._base_objs = [Degrade_base(wrap(in_fader,i), wrap(bitdepth,i), wrap(srscale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -602,7 +594,7 @@ class Compress(PyoObject):
     
     """
     def __init__(self, input, thresh=-20, ratio=2, risetime=0.01, falltime=0.1, lookahead=5.0, knee=0, outputAmp=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._thresh = thresh
         self._ratio = ratio
@@ -610,8 +602,6 @@ class Compress(PyoObject):
         self._falltime = falltime
         self._lookahead = lookahead
         self._knee = knee
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add)
         self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(knee,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -832,14 +822,12 @@ class Gate(PyoObject):
 
     """
     def __init__(self, input, thresh=-70, risetime=0.01, falltime=0.05, lookahead=5.0, outputAmp=False, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._thresh = thresh
         self._risetime = risetime
         self._falltime = falltime
         self._lookahead = lookahead
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add)
         self._base_objs = [Gate_base(wrap(in_fader,i), wrap(thresh,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -999,12 +987,10 @@ class Balance(PyoObject):
 
     """
     def __init__(self, input, input2, freq=10, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._input2 = input2
         self._freq = freq
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, freq, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, mul, add)
@@ -1124,11 +1110,9 @@ class Min(PyoObject):
 
     """
     def __init__(self, input, comp=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._comp = comp
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
         self._base_objs = [Min_base(wrap(in_fader,i), wrap(comp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -1219,11 +1203,9 @@ class Max(PyoObject):
 
     """
     def __init__(self, input, comp=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._comp = comp
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
         self._base_objs = [Max_base(wrap(in_fader,i), wrap(comp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]

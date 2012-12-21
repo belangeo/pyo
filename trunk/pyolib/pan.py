@@ -70,13 +70,11 @@ class Pan(PyoObject):
     
     """ 
     def __init__(self, input, outs=2, pan=0.5, spread=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._pan = pan
         self._outs = outs
         self._spread = spread
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, pan, spread, mul, add, lmax = convertArgsToLists(self._in_fader, pan, spread, mul, add)
         self._base_players = [Panner_base(wrap(in_fader,i), outs, wrap(pan,i), wrap(spread,i)) for i in range(lmax)]
@@ -194,12 +192,10 @@ class SPan(PyoObject):
 
     """
     def __init__(self, input, outs=2, pan=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._outs = outs
         self._pan = pan
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, pan, mul, add, lmax = convertArgsToLists(self._in_fader, pan, mul, add)
         self._base_players = [SPanner_base(wrap(in_fader,i), outs, wrap(pan,i)) for i in range(lmax)]
@@ -303,12 +299,10 @@ class Switch(PyoObject):
 
     """
     def __init__(self, input, outs=2, voice=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._outs = outs
         self._voice = voice
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, voice, mul, add, lmax = convertArgsToLists(self._in_fader, voice, mul, add)
         self._base_players = [Switcher_base(wrap(in_fader,i), outs, wrap(voice,i)) for i in range(lmax)]
@@ -406,11 +400,9 @@ class Selector(PyoObject):
 
     """
     def __init__(self, inputs, voice=0., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._inputs = inputs
         self._voice = voice
-        self._mul = mul
-        self._add = add
         voice, mul, add, self._lmax = convertArgsToLists(voice, mul, add)
         self._length = 1
         for obj in self._inputs:
@@ -533,11 +525,9 @@ class VoiceManager(PyoObject):
     
     """
     def __init__(self, input, triggers=None, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._triggers = triggers
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         if triggers != None:
@@ -670,7 +660,7 @@ class Mixer(PyoObject):
 
     """
     def __init__(self, outs=2, chnls=1, time=0.025, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(outs) != IntType:
             print >> sys.stderr, 'TypeError: "outs" argument of %s must be an integer.\n' % self.__class__.__name__
             exit()
@@ -680,8 +670,6 @@ class Mixer(PyoObject):
         self._outs = outs
         self._chnls = chnls
         self._time = time
-        self._mul = mul
-        self._add = add
         self._inputs = {}
         time, mul, add, lmax = convertArgsToLists(time, mul, add)
         self._base_players = [Mixer_base(outs, wrap(time,i)) for i in range(chnls)]

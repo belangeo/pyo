@@ -67,12 +67,10 @@ class Randi(PyoObject):
    
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
         self._freq = freq
-        self._mul = mul
-        self._add = add
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [Randi_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -182,12 +180,10 @@ class Randh(PyoObject):
     
     """
     def __init__(self, min=0., max=1., freq=1., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
         self._freq = freq
-        self._mul = mul
-        self._add = add
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [Randh_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -293,14 +289,12 @@ class Choice(PyoObject):
     
     """
     def __init__(self, choice, freq=1., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         if type(choice) != ListType:
             print >> sys.stderr, 'TypeError: "choice" argument of %s must be a list.\n' % self.__class__.__name__
             exit()
         self._choice = choice
         self._freq = freq
-        self._mul = mul
-        self._add = add
         freq, mul, add, lmax = convertArgsToLists(freq, mul, add)
         if type(choice[0]) != ListType:
             self._base_objs = [Choice_base(choice, wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
@@ -392,11 +386,9 @@ class RandInt(PyoObject):
     
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._max = max
         self._freq = freq
-        self._mul = mul
-        self._add = add
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
         self._base_objs = [RandInt_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -486,11 +478,9 @@ class RandDur(PyoObject):
 
     """
     def __init__(self, min=0., max=1., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._min = min
         self._max = max
-        self._mul = mul
-        self._add = add
         min, max, mul, add, lmax = convertArgsToLists(min, max, mul, add)
         self._base_objs = [RandDur_base(wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -637,13 +627,11 @@ class Xnoise(PyoObject):
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._dist = dist
         self._freq = freq
         self._x1 = x1
         self._x2 = x2
-        self._mul = mul
-        self._add = add
         dist, freq, x1, x2, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, mul, add)
         for i, t in enumerate(dist):
             if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
@@ -842,15 +830,13 @@ class XnoiseMidi(PyoObject):
 
     """
     def __init__(self, dist=0, freq=1., x1=0.5, x2=0.5, scale=0, mrange=(0,127), mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._dist = dist
         self._freq = freq
         self._x1 = x1
         self._x2 = x2
         self._scale = scale
         self._mrange = mrange
-        self._mul = mul
-        self._add = add
         dist, freq, x1, x2, scale, mrange, mul, add, lmax = convertArgsToLists(dist, freq, x1, x2, scale, mrange, mul, add)
         for i, t in enumerate(dist):
             if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
@@ -1085,14 +1071,12 @@ class XnoiseDur(PyoObject):
 
     """
     def __init__(self, dist=0, min=0., max=1., x1=0.5, x2=0.5, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._dist = dist
         self._min = min
         self._max = max
         self._x1 = x1
         self._x2 = x2
-        self._mul = mul
-        self._add = add
         dist, min, max, x1, x2, mul, add, lmax = convertArgsToLists(dist, min, max, x1, x2, mul, add)
         for i, t in enumerate(dist):
             if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
@@ -1246,11 +1230,9 @@ class Urn(PyoObject):
     
     """
     def __init__(self, max=100, freq=1., mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._max = max
         self._freq = freq
-        self._mul = mul
-        self._add = add
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
         self._base_objs = [Urn_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
