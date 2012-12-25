@@ -1135,10 +1135,6 @@ class DCBlock(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -1535,10 +1531,6 @@ class Hilbert(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2468,10 +2460,6 @@ class IRAverage(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

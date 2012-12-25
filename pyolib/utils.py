@@ -187,10 +187,6 @@ class Print(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Input signal.""" 
@@ -333,11 +329,6 @@ class Snap(PyoObject):
         self._scale = x
         x, lmax = convertArgsToLists(x)
         [obj.setScale(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): return self._input
@@ -564,10 +555,6 @@ class SampHold(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Input signal.""" 
@@ -690,10 +677,6 @@ class Compare(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMode(self.comp_dict[wrap(x,i)]) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Input signal.""" 
@@ -798,10 +781,6 @@ class Record(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
 class Denorm(PyoObject):
     """
     Mixes low level noise to an input signal.
@@ -856,10 +835,6 @@ class Denorm(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -958,10 +933,6 @@ class ControlRec(PyoObject):
             f = open(os.path.join(self._path, "%s_%03d" % (self._name, i)), "w")
             [f.write("%f %f\n" % p) for p in obj.getData()]
             f.close()
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
 class ControlRead(PyoObject):
     """
@@ -1091,10 +1062,6 @@ class ControlRead(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def rate(self):
         """int. Sampling frequency in cycles per second.""" 
@@ -1194,10 +1161,6 @@ class NoteinRec(PyoObject):
             [f.write("%f %f %f\n" % p) for p in obj.getData()]
             f.close()
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-    
 class NoteinRead(PyoObject):
     """
     Reads Notein values previously stored in text files.
@@ -1328,10 +1291,6 @@ class NoteinRead(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setLoop(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def loop(self): 
         """boolean. Looping mode.""" 
@@ -1394,10 +1353,6 @@ class DBToA(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1462,10 +1417,6 @@ class AToDB(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1732,10 +1683,6 @@ class CentsToTranspo(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -1798,10 +1745,6 @@ class TranspoToCents(PyoObject):
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -1863,10 +1806,6 @@ class MToF(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -1952,10 +1891,6 @@ class MToT(PyoObject):
         self._centralkey = x
         x, lmax = convertArgsToLists(x)
         [obj.setCentralKey(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

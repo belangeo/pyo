@@ -331,11 +331,7 @@ class ZCross(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
+     
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 

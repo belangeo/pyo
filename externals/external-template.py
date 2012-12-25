@@ -90,7 +90,8 @@ class Gain(PyoObject):
 
     # ctrl method shows to slider window of the object.
     # Look the man page of SLMap for the object's configuration.
-    # self._map_list is the default list of SLMap objects (if none is provided). 
+    # self._map_list is the default list of SLMap objects.
+    # This method must be defined only if the object uses slider controls. 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-120,18,"lin", "db", self._db), SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)

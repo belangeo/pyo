@@ -128,10 +128,6 @@ class OscSend(PyoObject):
         """
         [obj.setBufferRate(x) for obj in self._base_objs]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal.""" 
@@ -315,10 +311,6 @@ class OscReceive(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-        
 class OscDataSend(PyoObject):
     """
     Sends data values over a network via the Open Sound Control protocol.
@@ -473,10 +465,6 @@ class OscDataSend(PyoObject):
         else:
             self._addresses[address].send(msg)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
 class OscDataReceive(PyoObject):
     """
     Receives data values over a network via the Open Sound Control protocol.
@@ -594,10 +582,6 @@ class OscDataReceive(PyoObject):
         for p in path:
             index = self._address.index(p)
             self._base_objs[0].delAddress(index)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
 class OscListReceive(PyoObject):
     """
@@ -802,7 +786,3 @@ class OscListReceive(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)

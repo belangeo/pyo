@@ -145,10 +145,6 @@ class MatrixRec(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Audio signal to record in the matrix.""" 
@@ -265,10 +261,6 @@ class MatrixRecLoop(PyoObject):
         self._matrix = x
         x, lmax = convertArgsToLists(x)
         [obj.setMatrix(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -519,10 +511,6 @@ class MatrixMorph(PyoObject):
         self._sources = x
         self._base_sources = [source[0] for source in x]
         [obj.setSources(self._base_sources) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):

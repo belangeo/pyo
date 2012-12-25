@@ -182,10 +182,6 @@ class Midictl(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def ctlnumber(self): return self._ctlnumber
     @ctlnumber.setter
@@ -305,10 +301,6 @@ class CtlScan(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def function(self): return self._function
     @function.setter
@@ -417,10 +409,6 @@ class CtlScan2(PyoObject):
         self._toprint = x
         x, lmax = convertArgsToLists(x)
         [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def function(self): return self._function
@@ -582,10 +570,6 @@ class Notein(PyoObject):
         self._base_handler.stop()
         return PyoObject.stop(self)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def channel(self): return self._channel
     @channel.setter
@@ -693,10 +677,6 @@ class Bendin(PyoObject):
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def brange(self): 
@@ -821,10 +801,6 @@ class Touchin(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def minscale(self): return self._minscale
     @minscale.setter
@@ -900,10 +876,6 @@ class Programin(PyoObject):
         self._channel = x
         x, lmax = convertArgsToLists(x)
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def channel(self): return self._channel
@@ -1064,10 +1036,6 @@ class MidiAdsr(PyoObject):
         self._release = x
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def attack(self):
@@ -1272,10 +1240,6 @@ class MidiDelAdsr(PyoObject):
         self._release = x
         x, lmax = convertArgsToLists(x)
         [obj.setRelease(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def delay(self):

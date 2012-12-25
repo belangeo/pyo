@@ -362,6 +362,7 @@ class PyoObject(PyoObjectBase):
         self._mul = mul
         self._add = add
         self._op_duplicate = 1
+        self._map_list = []
 
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
@@ -1562,10 +1563,6 @@ class VarPort(PyoObject):
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def value(self):
