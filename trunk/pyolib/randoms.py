@@ -680,10 +680,6 @@ class Xnoise(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def dist(self): return self._dist
     @dist.setter
@@ -918,10 +914,6 @@ class XnoiseMidi(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def dist(self): return self._dist
     @dist.setter
@@ -1132,10 +1124,6 @@ class XnoiseDur(PyoObject):
         self._x2= x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def dist(self): return self._dist

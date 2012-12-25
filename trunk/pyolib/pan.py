@@ -570,10 +570,6 @@ class VoiceManager(PyoObject):
                 t_streams = None
         [obj.setTriggers(t_streams) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Trigger stream asking for new voice numbers.""" 

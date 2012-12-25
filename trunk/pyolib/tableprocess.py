@@ -1567,10 +1567,6 @@ class TableRec(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table.""" 
@@ -1698,10 +1694,6 @@ class TableMorph(PyoObject):
         self._base_sources = [source[0] for source in x]
         [obj.setSources(self._base_sources) for i, obj in enumerate(self._base_objs)]
         
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Morphing index between 0 and 1.""" 
@@ -2085,10 +2077,6 @@ class TrigTableRec(PyoObject):
         self._table = x
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
@@ -2543,10 +2531,6 @@ class TablePut(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Audio signal to write in the table.""" 

@@ -84,10 +84,6 @@ class Trig(PyoObject):
     def setDiv(self, x):
         pass
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
 class Metro(PyoObject):
     """
     Generates isochronous trigger signals.
@@ -1123,10 +1119,6 @@ class TrigChoice(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setPort(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -1264,10 +1256,6 @@ class TrigFunc(PyoObject):
         self._arg = x
         x, lmax = convertArgsToLists(x)
         [obj.setArg(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): return self._input
@@ -1976,10 +1964,6 @@ class TrigXnoise(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -2218,10 +2202,6 @@ class TrigXnoiseMidi(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -2385,10 +2365,6 @@ class Counter(PyoObject):
         value, lmax = convertArgsToLists(value)
         [obj.reset(wrap(value,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -2493,10 +2469,6 @@ class Select(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -2565,10 +2537,6 @@ class Change(PyoObject):
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): return self._input
@@ -2687,10 +2655,6 @@ class Thresh(PyoObject):
         self._dir = x
         x, lmax = convertArgsToLists(x)
         [obj.setDir(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): return self._input
@@ -2888,10 +2852,6 @@ class Timer(PyoObject):
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Timer stop signal.""" 
@@ -3008,10 +2968,6 @@ class Iter(PyoObject):
         """
         [obj.reset(x) for obj in self._base_objs]
         
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -3114,10 +3070,6 @@ class Count(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self): return self._input
     @input.setter
@@ -3212,10 +3164,6 @@ class NextTrig(PyoObject):
         """
         self._input2 = x
         self._in_fader2.setInput(x, fadetime)
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): return self._input

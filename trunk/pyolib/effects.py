@@ -886,10 +886,6 @@ class Convolve(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-      
     @property
     def input(self):
         """PyoObject. Input signal to filter.""" 

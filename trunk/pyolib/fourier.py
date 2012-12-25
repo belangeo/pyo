@@ -242,10 +242,6 @@ class FFT(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Input signal to process.""" 
@@ -601,10 +597,6 @@ class CarToPol(PyoObject):
         self._inimag = x
         self._in_fader2.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def inreal(self):
         """PyoObject. Real input signal.""" 
@@ -760,10 +752,6 @@ class PolToCar(PyoObject):
         self._inang = x
         self._in_fader2.setInput(x, fadetime)
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def inmag(self):
         """PyoObject. Magnitude input signal.""" 
@@ -896,10 +884,6 @@ class FrameDelta(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
-
     @property
     def input(self):
         """PyoObject. Phase input signal.""" 
@@ -1031,10 +1015,6 @@ class FrameAccum(PyoObject):
         self._framesize = x
         x, lmax = convertArgsToLists(x)
         [obj.setFrameSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
-
-    def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = []
-        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self):
