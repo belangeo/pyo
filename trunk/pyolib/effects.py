@@ -1340,3 +1340,64 @@ class Harmonizer(PyoObject):
         return self._winsize
     @winsize.setter
     def winsize(self, x): self.setWinsize(x)
+
+class Delay1(PyoObject):
+    """
+    Delays a signal by one sample.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # 50th order FIR lowpass filter
+    >>> order = 50
+    >>> objs = [Noise(.3)]
+    >>> for i in range(order):
+    ...     objs.append(Delay1(objs[-1], add=objs[-1]))
+    ...     objs.append(objs[-1] * 0.5)    
+    >>> out = Sig(objs[-1]).out()
+
+    """
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [Delay1_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)

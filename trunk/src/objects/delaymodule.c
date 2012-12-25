@@ -2763,3 +2763,271 @@ PyTypeObject AllpassWGType = {
     0,                         /* tp_alloc */
     AllpassWG_new,                 /* tp_new */
 };
+
+/************/
+/* Delay1 */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2]; // need at least 2 slots for mul & add 
+    MYFLT x1;
+} Delay1;
+
+static void
+Delay1_filters(Delay1 *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->x1;
+        self->x1 = in[i];
+    }
+}
+
+static void Delay1_postprocessing_ii(Delay1 *self) { POST_PROCESSING_II };
+static void Delay1_postprocessing_ai(Delay1 *self) { POST_PROCESSING_AI };
+static void Delay1_postprocessing_ia(Delay1 *self) { POST_PROCESSING_IA };
+static void Delay1_postprocessing_aa(Delay1 *self) { POST_PROCESSING_AA };
+static void Delay1_postprocessing_ireva(Delay1 *self) { POST_PROCESSING_IREVA };
+static void Delay1_postprocessing_areva(Delay1 *self) { POST_PROCESSING_AREVA };
+static void Delay1_postprocessing_revai(Delay1 *self) { POST_PROCESSING_REVAI };
+static void Delay1_postprocessing_revaa(Delay1 *self) { POST_PROCESSING_REVAA };
+static void Delay1_postprocessing_revareva(Delay1 *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Delay1_setProcMode(Delay1 *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+       
+    self->proc_func_ptr = Delay1_filters;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Delay1_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Delay1_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Delay1_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Delay1_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Delay1_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Delay1_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Delay1_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Delay1_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Delay1_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Delay1_compute_next_data_frame(Delay1 *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Delay1_traverse(Delay1 *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+Delay1_clear(Delay1 *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Delay1_dealloc(Delay1* self)
+{
+    pyo_DEALLOC
+    Delay1_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Delay1_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    Delay1 *self;
+    self = (Delay1 *)type->tp_alloc(type, 0);
+    
+    self->x1 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Delay1_compute_next_data_frame);
+    self->mode_func_ptr = Delay1_setProcMode;
+
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Delay1_getServer(Delay1* self) { GET_SERVER };
+static PyObject * Delay1_getStream(Delay1* self) { GET_STREAM };
+static PyObject * Delay1_setMul(Delay1 *self, PyObject *arg) { SET_MUL };	
+static PyObject * Delay1_setAdd(Delay1 *self, PyObject *arg) { SET_ADD };	
+static PyObject * Delay1_setSub(Delay1 *self, PyObject *arg) { SET_SUB };	
+static PyObject * Delay1_setDiv(Delay1 *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Delay1_play(Delay1 *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Delay1_out(Delay1 *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Delay1_stop(Delay1 *self) { STOP };
+
+static PyObject * Delay1_multiply(Delay1 *self, PyObject *arg) { MULTIPLY };
+static PyObject * Delay1_inplace_multiply(Delay1 *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Delay1_add(Delay1 *self, PyObject *arg) { ADD };
+static PyObject * Delay1_inplace_add(Delay1 *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Delay1_sub(Delay1 *self, PyObject *arg) { SUB };
+static PyObject * Delay1_inplace_sub(Delay1 *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Delay1_div(Delay1 *self, PyObject *arg) { DIV };
+static PyObject * Delay1_inplace_div(Delay1 *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef Delay1_members[] = {
+{"server", T_OBJECT_EX, offsetof(Delay1, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Delay1, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Delay1, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(Delay1, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Delay1, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Delay1_methods[] = {
+{"getServer", (PyCFunction)Delay1_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Delay1_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Delay1_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Delay1_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Delay1_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)Delay1_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Delay1_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Delay1_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)Delay1_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Delay1_as_number = {
+(binaryfunc)Delay1_add,                         /*nb_add*/
+(binaryfunc)Delay1_sub,                         /*nb_subtract*/
+(binaryfunc)Delay1_multiply,                    /*nb_multiply*/
+(binaryfunc)Delay1_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)Delay1_inplace_add,                 /*inplace_add*/
+(binaryfunc)Delay1_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)Delay1_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)Delay1_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject Delay1Type = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Delay1_base",                                   /*tp_name*/
+sizeof(Delay1),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Delay1_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Delay1_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Delay1 objects. Delays a signal by one sample.",           /* tp_doc */
+(traverseproc)Delay1_traverse,                  /* tp_traverse */
+(inquiry)Delay1_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Delay1_methods,                                 /* tp_methods */
+Delay1_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Delay1_new,                                     /* tp_new */
+};

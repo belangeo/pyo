@@ -2306,6 +2306,7 @@ init_pyo64(void)
     module_add_object(m, "Vectral_base", &VectralType);
     module_add_object(m, "Min_base", &MinType);
     module_add_object(m, "Max_base", &MaxType);
+    module_add_object(m, "Delay1_base", &Delay1Type);
 
 #ifdef COMPILE_EXTERNALS
     EXTERNAL_OBJECTS
