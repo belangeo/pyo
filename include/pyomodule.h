@@ -412,6 +412,7 @@ extern PyTypeObject VectralMainType;
 extern PyTypeObject VectralType;
 extern PyTypeObject MinType;
 extern PyTypeObject MaxType;
+extern PyTypeObject Delay1Type;
 
 /* Constants */
 #define E M_E
