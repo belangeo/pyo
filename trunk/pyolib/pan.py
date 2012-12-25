@@ -83,9 +83,6 @@ class Pan(PyoObject):
             for j in range(outs):
                 self._base_objs.append(Pan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['input', 'pan', 'spread', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -204,9 +201,6 @@ class SPan(PyoObject):
             for j in range(outs):
                 self._base_objs.append(SPan_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['input', 'pan', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -310,9 +304,6 @@ class Switch(PyoObject):
         for j in range(outs):
             for i in range(lmax):
                 self._base_objs.append(Switch_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['input', 'voice', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -420,9 +411,6 @@ class Selector(PyoObject):
                     except:
                         choice.append(obj)            
                 self._base_objs.append(Selector_base(choice, wrap(voice,i), wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['inputs', 'voice', 'mul', 'add']
 
     def setInputs(self, x):
         """
@@ -543,9 +531,6 @@ class VoiceManager(PyoObject):
         else:
             t_streams = None
         self._base_objs = [VoiceManager_base(wrap(in_fader,i), t_streams, wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'triggers', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -675,9 +660,6 @@ class Mixer(PyoObject):
         self._base_players = [Mixer_base(outs, wrap(time,i)) for i in range(chnls)]
         self._base_objs = [MixerVoice_base(self._base_players[j], i, wrap(mul,i), wrap(add,i)) for i in range(outs) for j in range(chnls)]
         
-    def __dir__(self):
-        return ["time", "mul", "add"]
-
     def __getitem__(self, x):
         if type(x) == SliceType:
             return [self._base_objs[j*self._chnls+i] for j in range(x.start or 0, x.stop or sys.maxint, x.step or 1) for i in range(self._chnls)]

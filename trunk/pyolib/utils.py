@@ -127,9 +127,6 @@ class Print(PyoObject):
         in_fader, method, interval, message, lmax = convertArgsToLists(self._in_fader, method, interval, message)
         self._base_objs = [Print_base(wrap(in_fader,i), wrap(method,i), wrap(interval,i), wrap(message,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'method', 'interval', 'message']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -289,9 +286,6 @@ class Snap(PyoObject):
             lmax = max(choicelen, lmax)
             self._base_objs = [Snap_base(wrap(in_fader,i), wrap(choice,i), wrap(scale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'choice', 'scale', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -406,9 +400,6 @@ class Interp(PyoObject):
         in_fader, in_fader2, interp, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, interp, mul, add)
         self._base_objs = [Interp_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'input2', 'interp', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -529,9 +520,6 @@ class SampHold(PyoObject):
         in_fader, in_fader2, value, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, value, mul, add)
         self._base_objs = [SampHold_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'controlsig', 'value', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -653,9 +641,6 @@ class Compare(PyoObject):
         self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
         in_fader, comp, mode, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mode, mul, add)
         self._base_objs = [Compare_base(wrap(in_fader,i), wrap(comp,i), self.comp_dict[wrap(mode,i)], wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'comp', 'mode', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -813,9 +798,6 @@ class Record(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def __dir__(self):
-        return []
-
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = []
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -859,9 +841,6 @@ class Denorm(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [Denorm_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -970,9 +949,6 @@ class ControlRec(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def __dir__(self):
-        return []
-
     def write(self):
         """
         Writes recorded values in text files on the disk.
@@ -1069,9 +1045,6 @@ class ControlRead(PyoObject):
             f.close()
             self._base_objs.append(ControlRead_base(values, rate, loop, interp, wrap(mul,i), wrap(add,i)))
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
-
-    def __dir__(self):
-        return ['rate', 'loop', 'interp', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1211,9 +1184,6 @@ class NoteinRec(PyoObject):
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
-    def __dir__(self):
-        return []
-
     def write(self):
         """
         Writes recorded values in text files on the disk.
@@ -1304,9 +1274,6 @@ class NoteinRead(PyoObject):
             self._base_objs.append(NoteinRead_base(amps, timestamps, loop, wrap(mul,i), wrap(add,i)))
             _trig_objs_tmp.append(TriggerDummy_base(self._base_objs[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
-
-    def __dir__(self):
-        return ['loop', 'mul', 'add']
 
     def __getitem__(self, str):
         if str == 'trig':
@@ -1413,9 +1380,6 @@ class DBToA(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [DBToA_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1483,9 +1447,6 @@ class AToDB(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [AToDB_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1580,9 +1541,6 @@ class Scale(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, inmin, inmax, outmin, outmax, exp, mul, add, lmax = convertArgsToLists(self._in_fader, inmin, inmax, outmin, outmax, exp, mul, add)
         self._base_objs = [Scale_base(wrap(in_fader,i), wrap(inmin,i), wrap(inmax,i), wrap(outmin,i), wrap(outmax,i), wrap(exp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'inmin', 'inmax', 'outmin', 'outmax', 'exp', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1759,9 +1717,6 @@ class CentsToTranspo(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [CentsToTranspo_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1828,9 +1783,6 @@ class TranspoToCents(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [TranspoToCents_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1896,9 +1848,6 @@ class MToF(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [MToF_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1974,9 +1923,6 @@ class MToT(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, centralkey, mul, add, lmax = convertArgsToLists(self._in_fader, centralkey, mul, add)
         self._base_objs = [MToT_base(wrap(in_fader,i), wrap(centralkey,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'centralkey', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2072,9 +2018,6 @@ class Between(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Between_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'min', 'max', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """

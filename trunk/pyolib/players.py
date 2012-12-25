@@ -117,9 +117,6 @@ class SfPlayer(PyoObject):
                 _trig_objs_tmp.append(TriggerDummy_base(self._base_players[-1]))
         self._trig_objs = Dummy(_trig_objs_tmp)
 
-    def __dir__(self):
-        return ['path', 'speed', 'loop', 'offset', 'interp', 'mul', 'add']
-        
     def setPath(self, path):
         """
         Sets a new sound to read.
@@ -346,9 +343,6 @@ class SfMarkerShuffler(PyoObject):
             j = i / self._snd_chnls
             self._base_objs.append(SfMarkerShuffle_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
 
-    def __dir__(self):
-        return ['speed', 'interp', 'mul', 'add']
-
     def setSpeed(self, x):
         """
         Replace the `speed` attribute.
@@ -481,9 +475,6 @@ class SfMarkerLooper(PyoObject):
         for i in range(lmax * self._snd_chnls):
             j = i / self._snd_chnls
             self._base_objs.append(SfMarkerLoop_base(wrap(self._base_players,j), i % self._snd_chnls, wrap(mul,j), wrap(add,j)))
-
-    def __dir__(self):
-        return ['speed', 'mark', 'interp', 'mul', 'add']
 
     def setSpeed(self, x):
         """

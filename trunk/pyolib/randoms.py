@@ -74,9 +74,6 @@ class Randi(PyoObject):
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [Randi_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['min', 'max', 'freq', 'mul', 'add']
-  
     def setMin(self, x):
         """
         Replace the `min` attribute.
@@ -187,9 +184,6 @@ class Randh(PyoObject):
         min, max, freq, mul, add, lmax = convertArgsToLists(min, max, freq, mul, add)
         self._base_objs = [Randh_base(wrap(min,i), wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['min', 'max', 'freq', 'mul', 'add']
-  
     def setMin(self, x):
         """
         Replace the `min` attribute.
@@ -303,9 +297,6 @@ class Choice(PyoObject):
             lmax = max(choicelen, lmax)
             self._base_objs = [Choice_base(wrap(choice,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
             
-    def __dir__(self):
-        return ['choice', 'freq', 'mul', 'add']
-
     def setChoice(self, x):
         """
         Replace the `choice` attribute.
@@ -391,9 +382,6 @@ class RandInt(PyoObject):
         self._freq = freq
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
         self._base_objs = [RandInt_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['max', 'freq', 'mul', 'add']
 
     def setMax(self, x):
         """
@@ -483,9 +471,6 @@ class RandDur(PyoObject):
         self._max = max
         min, max, mul, add, lmax = convertArgsToLists(min, max, mul, add)
         self._base_objs = [RandDur_base(wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['min', 'max', 'mul', 'add']
 
     def setMin(self, x):
         """
@@ -636,9 +621,6 @@ class Xnoise(PyoObject):
         for i, t in enumerate(dist):
             if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [Xnoise_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['dist', 'freq', 'x1', 'x2', 'mul', 'add']
 
     def setDist(self, x):
         """
@@ -841,9 +823,6 @@ class XnoiseMidi(PyoObject):
         for i, t in enumerate(dist):
             if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [XnoiseMidi_base(wrap(dist,i), wrap(freq,i), wrap(x1,i), wrap(x2,i), wrap(scale,i), wrap(mrange,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['dist', 'freq', 'x1', 'x2', 'scale', 'mul', 'add']
 
     def setDist(self, x):
         """
@@ -1082,9 +1061,6 @@ class XnoiseDur(PyoObject):
             if type(t) == StringType: dist[i] = XNOISE_DICT.get(t, 0)
         self._base_objs = [XnoiseDur_base(wrap(dist,i), wrap(min,i), wrap(max,i), wrap(x1,i), wrap(x2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['dist', 'min', 'max', 'x1', 'x2', 'mul', 'add']
-
     def setDist(self, x):
         """
         Replace the `dist` attribute.
@@ -1236,9 +1212,6 @@ class Urn(PyoObject):
         max, freq, mul, add, lmax = convertArgsToLists(max, freq, mul, add)
         self._base_objs = [Urn_base(wrap(max,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
-
-    def __dir__(self):
-        return ['max', 'freq', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self

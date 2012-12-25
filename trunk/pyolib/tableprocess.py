@@ -85,9 +85,6 @@ class Osc(PyoObject):
         table, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, freq, phase, interp, mul, add)
         self._base_objs = [Osc_base(wrap(table,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['table', 'freq', 'phase', 'interp', 'mul', 'add']
-
     def setTable(self, x):
         """
         Replace the `table` attribute.
@@ -237,9 +234,6 @@ class OscLoop(PyoObject):
         table, freq, feedback, mul, add, lmax = convertArgsToLists(table, freq, feedback, mul, add)
         self._base_objs = [OscLoop_base(wrap(table,i), wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['table', 'freq', 'feedback', 'mul', 'add']
-
     def setTable(self, x):
         """
         Replace the `table` attribute.
@@ -372,9 +366,6 @@ class OscTrig(PyoObject):
         self._interp = interp
         table, trig, freq, phase, interp, mul, add, lmax = convertArgsToLists(table, trig, freq, phase, interp, mul, add)
         self._base_objs = [OscTrig_base(wrap(table,i), wrap(trig,i), wrap(freq,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'trig', 'freq', 'phase', 'interp', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -608,9 +599,6 @@ class OscBank(PyoObject):
         self._num = num
         table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add, lmax = convertArgsToLists(table, freq, spread, slope, frndf, frnda, arndf, arnda, num, fjit, mul, add)
         self._base_objs = [OscBank_base(wrap(table,i), wrap(freq,i), wrap(spread,i), wrap(slope,i), wrap(frndf,i), wrap(frnda,i), wrap(arndf,i), wrap(arnda,i), wrap(num,i), wrap(fjit,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'freq', 'spread', 'slope', 'frndf', 'frnda', 'arndf', 'arnda', 'fjit', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -884,9 +872,6 @@ class TableRead(PyoObject):
         self._base_objs = [TableRead_base(wrap(table,i), wrap(freq,i), wrap(loop,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
-    def __dir__(self):
-        return ['table', 'freq', 'loop', 'interp', 'mul', 'add']
-       
     def setTable(self, x):
         """
         Replace the `table` attribute.
@@ -1057,9 +1042,6 @@ class Pulsar(PyoObject):
         self._interp = interp
         table, env, freq, frac, phase, interp, mul, add, lmax = convertArgsToLists(table, env, freq, frac, phase, interp, mul, add)
         self._base_objs = [Pulsar_base(wrap(table,i), wrap(env,i), wrap(freq,i), wrap(frac,i), wrap(phase,i), wrap(interp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'env', 'freq', 'frac', 'phase', 'interp', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -1234,9 +1216,6 @@ class Pointer(PyoObject):
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['table', 'index', 'mul', 'add']
-
     def setTable(self, x):
         """
         Replace the `table` attribute.
@@ -1325,9 +1304,6 @@ class TableIndex(PyoObject):
         self._index = index
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [TableIndex_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'index', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -1418,9 +1394,6 @@ class Lookup(PyoObject):
         self._index = index
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Lookup_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'index', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -1550,9 +1523,6 @@ class TableRec(PyoObject):
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._time_objs = [TableRecTimeStream_base(obj) for obj in self._base_objs]
 
-    def __dir__(self):
-        return ['input', 'table']
-
     def __getitem__(self, i):
         if i == 'time':
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
@@ -1675,9 +1645,6 @@ class TableMorph(PyoObject):
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
         self._base_sources = [source[0] for source in sources]
         self._base_objs = [TableMorph_base(wrap(in_fader,i), wrap(table,i), self._base_sources) for i in range(len(table))]
-
-    def __dir__(self):
-        return ['input', 'table', 'sources', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1832,9 +1799,6 @@ class Granulator(PyoObject):
                                                                         pos, dur, grains, basedur, mul, add)
         self._base_objs = [Granulator_base(wrap(table,i), wrap(env,i), wrap(pitch,i), wrap(pos,i), wrap(dur,i), 
                           wrap(grains,i), wrap(basedur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'env', 'pitch', 'pos', 'dur', 'grains', 'basedur', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -2063,9 +2027,6 @@ class TrigTableRec(PyoObject):
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
         self._time_objs = [TrigTableRecTimeStream_base(obj) for obj in self._base_objs]
 
-    def __dir__(self):
-        return ['input', 'trig', 'table']
-
     def __getitem__(self, i):
         if i == 'time':
             self._time_dummy.append(Dummy([obj for obj in self._time_objs]))
@@ -2256,9 +2217,6 @@ class Looper(PyoObject):
                                         table, pitch, start, dur, xfade, mode, xfadeshape, startfromloop, interp, autosmooth, mul, add)
         self._base_objs = [Looper_base(wrap(table,i), wrap(pitch,i), wrap(start,i), wrap(dur,i), wrap(xfade,i), wrap(mode,i), 
             wrap(xfadeshape,i), wrap(startfromloop,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['table', 'pitch', 'start', 'dur', 'xfade', 'mode', 'xfadeshape', 'startfromloop', 'interp', 'autosmooth', 'mul', 'add']
 
     def setTable(self, x):
         """
@@ -2546,9 +2504,6 @@ class TablePut(PyoObject):
         in_fader, table, lmax = convertArgsToLists(self._in_fader, table)
         self._base_objs = [TablePut_base(wrap(in_fader,i), wrap(table,i)) for i in range(len(table))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
-
-    def __dir__(self):
-        return ['input', 'table']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

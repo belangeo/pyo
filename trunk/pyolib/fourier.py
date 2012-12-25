@@ -137,9 +137,6 @@ class FFT(PyoObject):
             self._imag_objs.append(FFT_base(wrap(self._base_players,j), 1, self._mul, self._add))
             self._bin_objs.append(FFT_base(wrap(self._base_players,j), 2, self._mul, self._add))
             
-    def __dir__(self):
-        return ['input', 'size', 'wintype', 'mul', 'add']
-
     def __len__(self):
         return len(self._real_objs)
 
@@ -367,9 +364,6 @@ class IFFT(PyoObject):
             hopsize = wrap(size,i) * ((i/ratio)%overlaps) / overlaps
             self._base_objs.append(IFFT_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(size,i), hopsize, wrap(wintype,i), wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['inreal', 'inimag', 'size', 'wintype', 'mul', 'add']
-
     def __len__(self):
         return len(self._inreal)
         
@@ -540,9 +534,6 @@ class CarToPol(PyoObject):
             self._base_objs.append(CarToPol_base(wrap(in_fader,i), wrap(in_fader2,i), 0, wrap(mul,i), wrap(add,i)))
             self._base_objs.append(CarToPol_base(wrap(in_fader,i), wrap(in_fader2,i), 1, wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['inreal', 'inimag', 'mul', 'add']
-
     def __len__(self):
         return len(self._inreal)
 
@@ -701,9 +692,6 @@ class PolToCar(PyoObject):
         for i in range(lmax):
             self._base_objs.append(PolToCar_base(wrap(in_fader,i), wrap(in_fader2,i), 0, wrap(mul,i), wrap(add,i)))
             self._base_objs.append(PolToCar_base(wrap(in_fader,i), wrap(in_fader2,i), 1, wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['inmag', 'inang', 'mul', 'add']
 
     def __len__(self):
         return len(self._inmag)
@@ -876,9 +864,6 @@ class FrameDelta(PyoObject):
             overlap = i / num_of_mains
             self._base_objs.append(FrameDelta_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['input', 'framesize', 'mul', 'add']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -1014,9 +999,6 @@ class FrameAccum(PyoObject):
             base_player = i % num_of_mains
             overlap = i / num_of_mains
             self._base_objs.append(FrameAccum_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['input', 'framesize', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1157,9 +1139,6 @@ class Vectral(PyoObject):
             base_player = i % num_of_mains
             overlap = i / num_of_mains
             self._base_objs.append(Vectral_base(self._base_players[base_player], overlap, wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['input', 'framesize', 'up', 'down', 'damp', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

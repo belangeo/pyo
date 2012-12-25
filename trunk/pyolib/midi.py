@@ -97,9 +97,6 @@ class Midictl(PyoObject):
         ctlnumber, minscale, maxscale, init, channel, mul, add, lmax = convertArgsToLists(ctlnumber, minscale, maxscale, init, channel, mul, add)
         self._base_objs = [Midictl_base(wrap(ctlnumber,i), wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['ctlnumber', 'minscale', 'maxscale', 'channel', 'mul', 'add']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -265,9 +262,6 @@ class CtlScan(PyoObject):
         self._toprint = toprint
         self._base_objs = [CtlScan_base(self._function, self._toprint)]
 
-    def __dir__(self):
-        return []
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -380,9 +374,6 @@ class CtlScan2(PyoObject):
         self._function = function
         self._toprint = toprint
         self._base_objs = [CtlScan2_base(self._function, self._toprint)]
-
-    def __dir__(self):
-        return []
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -517,9 +508,6 @@ class Notein(PyoObject):
         for i in range(lmax * poly):
             self._base_objs.append(Notein_base(self._base_handler, i, 0, 1, 0))
             self._base_objs.append(Notein_base(self._base_handler, i, 1, wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['channel', 'mul', 'add']
 
     def __getitem__(self, str):
         if str == 'pitch':
@@ -661,9 +649,6 @@ class Bendin(PyoObject):
         brange, scale, channel, mul, add, lmax = convertArgsToLists(brange, scale, channel, mul, add)
         self._base_objs = [Bendin_base(wrap(brange,i), wrap(scale,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['brange', 'scale', 'channel', 'mul', 'add']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -791,9 +776,6 @@ class Touchin(PyoObject):
         minscale, maxscale, init, channel, mul, add, lmax = convertArgsToLists(minscale, maxscale, init, channel, mul, add)
         self._base_objs = [Touchin_base(wrap(minscale,i), wrap(maxscale,i), wrap(init,i), wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['minscale', 'maxscale', 'channel', 'mul', 'add']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -902,9 +884,6 @@ class Programin(PyoObject):
         channel, mul, add, lmax = convertArgsToLists(channel, mul, add)
         self._base_objs = [Programin_base(wrap(channel,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['channel', 'mul', 'add']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -1011,9 +990,6 @@ class MidiAdsr(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, attack, decay, sustain, release, mul, add)
         self._base_objs = [MidiAdsr_base(wrap(in_fader,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'attack', 'decay', 'sustain', 'release', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -1208,9 +1184,6 @@ class MidiDelAdsr(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, attack, decay, sustain, release, mul, add, lmax = convertArgsToLists(self._in_fader, delay, attack, decay, sustain, release, mul, add)
         self._base_objs = [MidiDelAdsr_base(wrap(in_fader,i), wrap(delay,i), wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'delay', 'attack', 'decay', 'sustain', 'release', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)

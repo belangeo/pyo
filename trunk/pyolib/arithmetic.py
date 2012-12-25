@@ -63,9 +63,6 @@ class Sin(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Sin_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -128,9 +125,6 @@ class Cos(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Cos_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -202,9 +196,6 @@ class Tan(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Tan_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -269,9 +260,6 @@ class Abs(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Abs_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -343,9 +331,6 @@ class Sqrt(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Sqrt_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -411,9 +396,6 @@ class Log(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Log_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -481,9 +463,6 @@ class Log2(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Log2_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -550,9 +529,6 @@ class Log10(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Log10_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -618,9 +594,6 @@ class Pow(PyoObject):
         self._exponent = exponent
         base, exponent, mul, add, lmax = convertArgsToLists(base, exponent, mul, add)
         self._base_objs = [M_Pow_base(wrap(base,i), wrap(exponent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['base', 'exponent', 'mul', 'add']
 
     def setBase(self, x):
         """
@@ -713,9 +686,6 @@ class Atan2(PyoObject):
         b, a, mul, add, lmax = convertArgsToLists(b, a, mul, add)
         self._base_objs = [M_Atan2_base(wrap(b,i), wrap(a,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['b', 'a', 'mul', 'add']
-
     def setB(self, x):
         """
         Replace the `b` attribute.
@@ -802,9 +772,6 @@ class Floor(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Floor_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -871,9 +838,6 @@ class Ceil(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Ceil_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -939,9 +903,6 @@ class Round(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [M_Round_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """

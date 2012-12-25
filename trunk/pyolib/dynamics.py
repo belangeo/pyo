@@ -71,9 +71,6 @@ class Clip(PyoObject):
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Clip_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'min', 'max', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -197,9 +194,6 @@ class Mirror(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Mirror_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'min', 'max', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -329,9 +323,6 @@ class Wrap(PyoObject):
         in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
         self._base_objs = [Wrap_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'min', 'max', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -453,9 +444,6 @@ class Degrade(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, bitdepth, srscale, mul, add, lmax = convertArgsToLists(self._in_fader, bitdepth, srscale, mul, add)
         self._base_objs = [Degrade_base(wrap(in_fader,i), wrap(bitdepth,i), wrap(srscale,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'bitdepth', 'srscale', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -605,9 +593,6 @@ class Compress(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, ratio, risetime, falltime, lookahead, knee, outputAmp, mul, add)
         self._base_objs = [Compress_base(wrap(in_fader,i), wrap(thresh,i), wrap(ratio,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(knee,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'thresh', 'ratio', 'risetime', 'falltime', 'lookahead', 'knee', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -832,9 +817,6 @@ class Gate(PyoObject):
         in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add, lmax = convertArgsToLists(self._in_fader, thresh, risetime, falltime, lookahead, outputAmp, mul, add)
         self._base_objs = [Gate_base(wrap(in_fader,i), wrap(thresh,i), wrap(risetime,i), wrap(falltime,i), wrap(lookahead,i), wrap(outputAmp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'thresh', 'risetime', 'falltime', 'lookahead', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -996,9 +978,6 @@ class Balance(PyoObject):
         in_fader, in_fader2, freq, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, mul, add)
         self._base_objs = [Balance_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'input2', 'freq', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1117,9 +1096,6 @@ class Min(PyoObject):
         in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
         self._base_objs = [Min_base(wrap(in_fader,i), wrap(comp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'comp', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1210,9 +1186,6 @@ class Max(PyoObject):
         in_fader, comp, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mul, add)
         self._base_objs = [Max_base(wrap(in_fader,i), wrap(comp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'comp', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.

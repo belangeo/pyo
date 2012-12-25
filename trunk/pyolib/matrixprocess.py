@@ -107,9 +107,6 @@ class MatrixRec(PyoObject):
         self._base_objs = [MatrixRec_base(wrap(in_fader,i), wrap(matrix,i), wrap(fadetime,i), wrap(delay,i)) for i in range(len(matrix))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
-    def __dir__(self):
-        return ['input', 'matrix']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -231,9 +228,6 @@ class MatrixRecLoop(PyoObject):
         self._base_objs = [MatrixRecLoop_base(wrap(in_fader,i), wrap(matrix,i)) for i in range(len(matrix))]
         self._trig_objs = Dummy([TriggerDummy_base(obj) for obj in self._base_objs])
 
-    def __dir__(self):
-        return ['input', 'matrix']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -341,9 +335,6 @@ class MatrixPointer(PyoObject):
         self._y = y
         matrix, x, y, mul, add, lmax = convertArgsToLists(matrix, x, y, mul, add)
         self._base_objs = [MatrixPointer_base(wrap(matrix,i), wrap(x,i), wrap(y,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['matrix', 'x', 'y', 'mul', 'add']
 
     def setMatrix(self, x):
         """
@@ -476,9 +467,6 @@ class MatrixMorph(PyoObject):
         in_fader, matrix, lmax = convertArgsToLists(self._in_fader, matrix)
         self._base_sources = [source[0] for source in sources]
         self._base_objs = [MatrixMorph_base(wrap(in_fader,i), wrap(matrix,i), self._base_sources) for i in range(len(matrix))]
-
-    def __dir__(self):
-        return ['input', 'matrix', 'sources', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
