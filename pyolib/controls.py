@@ -98,9 +98,6 @@ class Fader(PyoObject):
         fadein, fadeout, dur, mul, add, lmax = convertArgsToLists(fadein, fadeout, dur, mul, add)
         self._base_objs = [Fader_base(wrap(fadein,i), wrap(fadeout,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['fadein', 'fadeout', 'dur', 'mul', 'add']
-
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
 
@@ -254,9 +251,6 @@ class Adsr(PyoObject):
         self._dur = dur
         attack, decay, sustain, release, dur, mul, add, lmax = convertArgsToLists(attack, decay, sustain, release, dur, mul, add)
         self._base_objs = [Adsr_base(wrap(attack,i), wrap(decay,i), wrap(sustain,i), wrap(release,i), wrap(dur,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['attack', 'decay', 'sustain', 'release', 'dur', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -435,9 +429,6 @@ class Linseg(PyoObject):
             listlen = len(list)
             lmax = max(listlen, lmax)
             self._base_objs = [Linseg_base(wrap(list,i), wrap(loop,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['list', 'loop', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -625,9 +616,6 @@ class Expseg(PyoObject):
             listlen = len(list)
             lmax = max(listlen, lmax)
             self._base_objs = [Expseg_base(wrap(list,i), wrap(loop,i), wrap(exp,i), wrap(inverse,i), wrap(initToFirstVal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['list', 'loop', 'exp', 'inverse', 'mul', 'add']
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
@@ -832,9 +820,6 @@ class SigTo(PyoObject):
         self._time = time
         value, time, init, mul ,add, lmax = convertArgsToLists(value, time, init, mul, add)
         self._base_objs = [SigTo_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['value', 'time', 'mul', 'add']
 
     def setValue(self, x):
         """

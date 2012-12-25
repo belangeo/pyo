@@ -75,9 +75,6 @@ class NewMatrix(PyoMatrixObject):
         else:
             self._base_objs = [NewMatrix_base(width, height, init)]
             
-    def __dir__(self):
-        return []
-
     def replace(self, x):
         """
         Replaces the actual matrix.

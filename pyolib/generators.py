@@ -72,9 +72,6 @@ class Sine(PyoObject):
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Sine_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['freq', 'phase', 'mul', 'add']
-        
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -173,9 +170,6 @@ class SineLoop(PyoObject):
         freq, feedback, mul, add, lmax = convertArgsToLists(freq, feedback, mul, add)
         self._base_objs = [SineLoop_base(wrap(freq,i), wrap(feedback,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['freq', 'feedback', 'mul', 'add']
-
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -266,9 +260,6 @@ class Phasor(PyoObject):
         freq, phase, mul, add, lmax = convertArgsToLists(freq, phase, mul, add)
         self._base_objs = [Phasor_base(wrap(freq,i), wrap(phase,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['freq', 'phase', 'mul', 'add']
-
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -352,9 +343,6 @@ class Input(PyoObject):
         chnl, mul, add, lmax = convertArgsToLists(chnl, mul, add)
         self._base_objs = [Input_base(wrap(chnl,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['mul', 'add']
-
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -385,9 +373,6 @@ class Noise(PyoObject):
         self._type = 0
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [Noise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['mul', 'add']
 
     def setType(self, x):
         """
@@ -439,9 +424,6 @@ class PinkNoise(PyoObject):
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [PinkNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['mul', 'add']
-
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -466,9 +448,6 @@ class BrownNoise(PyoObject):
         PyoObject.__init__(self, mul, add)
         mul, add, lmax = convertArgsToLists(mul, add)
         self._base_objs = [BrownNoise_base(wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['mul', 'add']
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -523,9 +502,6 @@ class FM(PyoObject):
         carrier, ratio, index, mul, add, lmax = convertArgsToLists(carrier, ratio, index, mul, add)
         self._base_objs = [Fm_base(wrap(carrier,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['carrier', 'ratio', 'index', 'mul', 'add']
-        
     def setCarrier(self, x):
         """
         Replace the `carrier` attribute.
@@ -655,9 +631,6 @@ class CrossFM(PyoObject):
         self._ind2 = ind2
         carrier, ratio, ind1, ind2, mul, add, lmax = convertArgsToLists(carrier, ratio, ind1, ind2, mul, add)
         self._base_objs = [CrossFm_base(wrap(carrier,i), wrap(ratio,i), wrap(ind1,i), wrap(ind2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['carrier', 'ratio', 'ind1', 'ind2', 'mul', 'add']
 
     def setCarrier(self, x):
         """
@@ -793,9 +766,6 @@ class Blit(PyoObject):
         freq, harms, mul, add, lmax = convertArgsToLists(freq, harms, mul, add)
         self._base_objs = [Blit_base(wrap(freq,i), wrap(harms,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['freq', 'harms', 'mul', 'add']
-
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -904,9 +874,6 @@ class Rossler(PyoObject):
             self._base_objs.append(Rossler_base(wrap(pitch,i), wrap(chaos,i), wrap(mul,i), wrap(add,i)))
             if self._stereo:
                 self._base_objs.append(RosslerAlt_base(self._base_objs[-1], wrap(mul,i), wrap(add,i)))
-
-    def __dir__(self):
-        return ['pitch', 'chaos', 'mul', 'add']
 
     def setPitch(self, x):
         """
@@ -1022,9 +989,6 @@ class Lorenz(PyoObject):
             if self._stereo:
                 self._base_objs.append(LorenzAlt_base(self._base_objs[-1], wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['pitch', 'chaos', 'mul', 'add']
-
     def setPitch(self, x):
         """
         Replace the `pitch` attribute.
@@ -1132,9 +1096,6 @@ class LFO(PyoObject):
         self._type = type
         freq, sharp, type, mul, add, lmax = convertArgsToLists(freq, sharp, type, mul, add)
         self._base_objs = [LFO_base(wrap(freq,i), wrap(sharp,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['freq', 'sharp', 'type', 'mul', 'add']
 
     def setFreq(self, x):
         """
@@ -1279,9 +1240,6 @@ class SumOsc(PyoObject):
         freq, ratio, index, mul, add, lmax = convertArgsToLists(freq, ratio, index, mul, add)
         self._base_objs = [SumOsc_base(wrap(freq,i), wrap(ratio,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['freq', 'ratio', 'index', 'mul', 'add']
-        
     def setFreq(self, x):
         """
         Replace the `freq` attribute.
@@ -1406,9 +1364,6 @@ class SuperSaw(PyoObject):
         self._bal = bal
         freq, detune, bal, mul, add, lmax = convertArgsToLists(freq, detune, bal, mul, add)
         self._base_objs = [SuperSaw_base(wrap(freq,i), wrap(detune,i), wrap(bal,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['freq', 'detune', 'bal', 'mul', 'add']
 
     def setFreq(self, x):
         """

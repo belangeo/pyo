@@ -72,9 +72,6 @@ class HarmTable(PyoTableObject):
         self._size = size
         self._base_objs = [HarmTable_base(list, size)]
 
-    def __dir__(self):
-        return ['list', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table. This will erase the previously 
@@ -162,9 +159,6 @@ class SawTable(PyoTableObject):
         list = [1./i for i in range(1,(order+1))]
         self._base_objs = [HarmTable_base(list, size)]
 
-    def __dir__(self):
-        return ['order', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table. This will erase the previously 
@@ -256,9 +250,6 @@ class SquareTable(PyoTableObject):
                 list.append(0.)    
         self._base_objs = [HarmTable_base(list, size)]
 
-    def __dir__(self):
-        return ['order', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table. This will erase the previously 
@@ -357,9 +348,6 @@ class ChebyTable(PyoTableObject):
         self._size = size
         self._base_objs = [ChebyTable_base(list, size)]
 
-    def __dir__(self):
-        return ['list', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table. This will erase the previously 
@@ -451,9 +439,6 @@ class HannTable(PyoTableObject):
         self._size = size
         self._base_objs = [HannTable_base(size)]
 
-    def __dir__(self):
-        return ['size']
-
     def setSize(self, size):
         """
         Change the size of the table. This will redraw the envelope.
@@ -519,9 +504,6 @@ class SincTable(PyoTableObject):
         self._windowed = windowed
         self._size = size
         self._base_objs = [SincTable_base(freq, windowed, size)]
-
-    def __dir__(self):
-        return ['freq', 'windowed', 'size']
 
     def setFreq(self, x):
         """
@@ -632,9 +614,6 @@ class WinTable(PyoTableObject):
         self._size = size
         self._base_objs = [WinTable_base(type, size)]
 
-    def __dir__(self):
-        return ['type', 'size']
-
     def setType(self, type):
         """
         Sets the windowing function.
@@ -713,9 +692,6 @@ class ParaTable(PyoTableObject):
         self._size = size
         self._base_objs = [ParaTable_base(size)]
 
-    def __dir__(self):
-        return ['size']
-
     def setSize(self, size):
         """
         Change the size of the table. This will redraw the envelope.
@@ -791,9 +767,6 @@ class LinTable(PyoTableObject):
         self._size = size
         self._base_objs = [LinTable_base(list, size)]
 
-    def __dir__(self):
-        return ['list', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table and rescale the envelope.
@@ -952,9 +925,6 @@ class LogTable(PyoTableObject):
         self._size = size
         self._base_objs = [LogTable_base(list, size)]
 
-    def __dir__(self):
-        return ['list', 'size']
-
     def setSize(self, size):
         """
         Change the size of the table and rescale the envelope.
@@ -1112,9 +1082,6 @@ class CosLogTable(PyoTableObject):
             size = list[-1][0] + 1
         self._size = size
         self._base_objs = [CosLogTable_base(list, size)]
-
-    def __dir__(self):
-        return ['list', 'size']
 
     def setSize(self, size):
         """
@@ -1275,9 +1242,6 @@ class CosTable(PyoTableObject):
         self._size = size
         self._base_objs = [CosTable_base(list, size)]
 
-    def __dir__(self):
-        return ['list', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table and rescale the envelope.
@@ -1461,9 +1425,6 @@ class CurveTable(PyoTableObject):
         self._bias = bias
         self._base_objs = [CurveTable_base(list, tension, bias, size)]
 
-    def __dir__(self):
-        return ['list', 'tension', 'bias', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table and rescale the envelope.
@@ -1681,9 +1642,6 @@ class ExpTable(PyoTableObject):
         self._inverse = inverse
         self._base_objs = [ExpTable_base(list, exp, inverse, size)]
 
-    def __dir__(self):
-        return ['list', 'exp', 'inverse', 'size']
-        
     def setSize(self, size):
         """
         Change the size of the table and rescale the envelope.
@@ -1909,9 +1867,6 @@ class SndTable(PyoTableObject):
             if lmax == 1:
                 self._size = self._base_objs[-1].getSize()
                 self._dur = self._size / float(_snd_sr)
-
-    def __dir__(self):
-        return ['path', 'chnl', 'start', 'stop']
 
     def setSound(self, path, start=0, stop=None):
         """
@@ -2244,9 +2199,6 @@ class NewTable(PyoTableObject):
                 init = [init]
             self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
 
-    def __dir__(self):
-        return ['length', 'chnls', 'init', 'feedback']
-
     def replace(self, x):
         """
         Replaces the actual table.
@@ -2403,9 +2355,6 @@ class DataTable(PyoTableObject):
                 init = [init]
             self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
 
-
-    def __dir__(self):
-        return ['size', 'chnls', 'init']
 
     def replace(self, x):
         """

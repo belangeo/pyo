@@ -284,6 +284,10 @@ class PyoObjectBase(object):
     def __repr__(self):
         return '< Instance of %s class >' % self.__class__.__name__
 
+    def __dir__(self):
+        args, varargs, varkw, defaults = inspect.getargspec(getattr(self.__class__, "__init__"))
+        args = [a for a in args if hasattr(self.__class__, a) and a != "self"]
+        return args
 
 ######################################################################
 ### PyoObject -> base class for pyo sound objects
@@ -1292,9 +1296,6 @@ class Mix(PyoObject):
             sub_lists[i % voices].append(obj)
         self._base_objs = [Mix_base(l, wrap(mul,i), wrap(add,i)) for i, l in enumerate(sub_lists)]
 
-    def __dir__(self):
-        return ['mul', 'add']
-
 class Dummy(PyoObject):
     """
     Dummy object used to perform arithmetics on PyoObject.
@@ -1348,9 +1349,6 @@ class Dummy(PyoObject):
             else:
                 tmp_list.append(x)
         self._base_objs = tmp_list
-
-    def __dir__(self):
-        return ['mul', 'add']
         
 class InputFader(PyoObject):
     """
@@ -1391,9 +1389,6 @@ class InputFader(PyoObject):
         self._input = input
         input, lmax = convertArgsToLists(input)
         self._base_objs = [InputFader_base(wrap(input,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1456,9 +1451,6 @@ class Sig(PyoObject):
         self._value = value
         value, mul ,add, lmax = convertArgsToLists(value, mul, add)
         self._base_objs = [Sig_base(wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['value', 'mul', 'add']
 
     def setValue(self, x):
         """
@@ -1542,9 +1534,6 @@ class VarPort(PyoObject):
         self._time = time
         value, time, init, function, arg, mul ,add, lmax = convertArgsToLists(value, time, init, function, arg, mul, add)
         self._base_objs = [VarPort_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(function,i), wrap(arg,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['value', 'time', 'mul', 'add']
 
     def setValue(self, x):
         """

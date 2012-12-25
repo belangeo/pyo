@@ -94,9 +94,6 @@ class Biquad(PyoObject):
         in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
         self._base_objs = [Biquad_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'freq', 'q', 'type', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -252,9 +249,6 @@ class Biquadx(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, q, type, stages, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, stages, mul, add)
         self._base_objs = [Biquadx_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'freq', 'q', 'type', 'stages', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -445,9 +439,6 @@ class Biquada(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, b0, b1, b2, a0, a1, a2, mul, add, lmax = convertArgsToLists(self._in_fader, self._b0, self._b1, self._b2, self._a0, self._a1, self._a2, mul, add)
         self._base_objs = [Biquada_base(wrap(in_fader,i), wrap(b0,i), wrap(b1,i), wrap(b2,i), wrap(a0,i), wrap(a1,i), wrap(a2,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'b0', 'b1', 'b2', 'a0', 'a1', 'a2', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -683,9 +674,6 @@ class EQ(PyoObject):
         in_fader, freq, q, boost, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, boost, type, mul, add)
         self._base_objs = [EQ_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(boost,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'freq', 'q', 'boost', 'type', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -839,9 +827,6 @@ class Tone(PyoObject):
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Tone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'freq', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -929,9 +914,6 @@ class Atone(PyoObject):
         in_fader, freq, mul, add, lmax = convertArgsToLists(self._in_fader, freq, mul, add)
         self._base_objs = [Atone_base(wrap(in_fader,i), wrap(freq,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'freq', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1033,9 +1015,6 @@ class Port(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, risetime, falltime, init, mul, add, lmax = convertArgsToLists(self._in_fader, risetime, falltime, init, mul, add)
         self._base_objs = [Port_base(wrap(in_fader,i), wrap(risetime,i), wrap(falltime,i), wrap(init,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'risetime', 'falltime', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1141,9 +1120,6 @@ class DCBlock(PyoObject):
         in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
         self._base_objs = [DCBlock_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-        
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -1233,9 +1209,6 @@ class BandSplit(PyoObject):
         for j in range(num):
             for i in range(lmax):
                 self._base_objs.append(BandSplit_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
-
-    def __dir__(self):
-        return ['input', 'q', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1350,9 +1323,6 @@ class FourBand(PyoObject):
         for j in range(4):
             for i in range(lmax):
                 self._base_objs.append(FourBand_base(wrap(self._base_players,i), j, wrap(mul,j), wrap(add,j)))
-
-    def __dir__(self):
-        return ['input', 'freq1', 'freq2', 'freq3', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1517,9 +1487,6 @@ class Hilbert(PyoObject):
                 self._base_objs.append(Hilbert_base(wrap(self._base_players,j), 0, wrap(mul,i), wrap(add,i)))
                 self._base_objs.append(Hilbert_base(wrap(self._base_players,j), 1, wrap(mul,i), wrap(add,i)))
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def __getitem__(self, str):
         if str == 'real':
             self._real_dummy.append(Dummy([obj for i, obj in enumerate(self._base_objs) if (i%2) == 0]))
@@ -1641,9 +1608,6 @@ class Allpass(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, delay, feedback, maxdelay, mul, add, lmax = convertArgsToLists(self._in_fader, delay, feedback, maxdelay, mul, add)
         self._base_objs = [Allpass_base(wrap(in_fader,i), wrap(delay,i), wrap(feedback,i), wrap(maxdelay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'delay', 'feedback', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1768,9 +1732,6 @@ class Allpass2(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, bw, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, mul, add)
         self._base_objs = [Allpass2_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'freq', 'bw', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -1905,9 +1866,6 @@ class Phaser(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, spread, q, feedback, num, mul, add, lmax = convertArgsToLists(self._in_fader, freq, spread, q, feedback, num, mul, add)
         self._base_objs = [Phaser_base(wrap(in_fader,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(feedback,i), wrap(num,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'freq', 'spread', 'q', 'feedback', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2111,9 +2069,6 @@ class Vocoder(PyoObject):
         self._in_fader2 = InputFader(input2)
         in_fader, in_fader2, freq, spread, q, slope, stages, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, freq, spread, q, slope, stages, mul, add)
         self._base_objs = [Vocoder_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(freq,i), wrap(spread,i), wrap(q,i), wrap(slope,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'input2', 'freq', 'spread', 'q', 'slope', 'stages', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2351,9 +2306,6 @@ class IRWinSinc(PyoObject):
         in_fader, freq, bw, type, order, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, type, order, mul, add)                     
         self._base_objs = [IRWinSinc_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(type,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'freq', 'bw', 'type', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -2502,9 +2454,6 @@ class IRAverage(PyoObject):
         in_fader, order, mul, add, lmax = convertArgsToLists(self._in_fader, order, mul, add)                     
         self._base_objs = [IRAverage_base(wrap(in_fader,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
-    def __dir__(self):
-        return ['input', 'mul', 'add']
-
     def setInput(self, x, fadetime=0.05):
         """
         Replace the `input` attribute.
@@ -2608,9 +2557,6 @@ class IRPulse(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, freq, bw, type, order, mul, add, lmax = convertArgsToLists(self._in_fader, freq, bw, type, order, mul, add)                     
         self._base_objs = [IRPulse_base(wrap(in_fader,i), wrap(freq,i), wrap(bw,i), wrap(type,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'freq', 'bw', 'type', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -2780,9 +2726,6 @@ class IRFM(PyoObject):
         self._in_fader = InputFader(input)
         in_fader, carrier, ratio, index, order, mul, add, lmax = convertArgsToLists(self._in_fader, carrier, ratio, index, order, mul, add)                     
         self._base_objs = [IRFM_base(wrap(in_fader,i), wrap(carrier,i), wrap(ratio,i), wrap(index,i), wrap(order,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    def __dir__(self):
-        return ['input', 'carrier', 'ratio', 'index', 'mul', 'add']
 
     def setInput(self, x, fadetime=0.05):
         """

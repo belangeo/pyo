@@ -53,10 +53,6 @@ class Gain(PyoObject):
         in_fader, db, mul, add, lmax = convertArgsToLists(self._in_fader, db, mul, add)
         # self._base_objs contains the list of XXX_base objects. Use "wrap" function to prevent "out of range" errors.
         self._base_objs = [Gain_base(wrap(in_fader,i), wrap(db,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
-
-    # __dir__ method returns a list of the object's attributes
-    def __dir__(self):
-        return ['input', 'db', 'mul', 'add']
     
     # # setInput uses the "setInput" method of InputFader to set the crossfade time.
     def setInput(self, x, fadetime=0.05):
