@@ -641,8 +641,13 @@ PYO_WORDLIST = []
 for k1 in tree.keys():
     if type(tree[k1]) == type({}):
         for k2 in tree[k1].keys():
-            for val in tree[k1][k2]:
-                PYO_WORDLIST.append(val)
+            if type(tree[k1][k2]) == type({}):
+                for k3 in tree[k1][k2].keys():
+                    for val in tree[k1][k2][k3]:
+                        PYO_WORDLIST.append(val)
+            else:
+                for val in tree[k1][k2]:
+                    PYO_WORDLIST.append(val)
     else:
         for val in tree[k1]:
             PYO_WORDLIST.append(val)
