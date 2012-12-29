@@ -1864,6 +1864,9 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
         menu4.Append(180, "Open Documentation for Pyo Object Under Caret\tCtrl+D")
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
+        menu4.AppendSeparator()
+        menu4.Append(185, "Rebuild Documentation")
+        self.Bind(wx.EVT_MENU, self.rebuildDoc, id=185)
         self.menuBar.Append(menu4, 'View')
 
         self.menu5 = wx.Menu()
@@ -1928,8 +1931,12 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.onHelpAbout, helpItem)
         helpmenu.Append(999, 'Show Editor Key Commands')
         self.Bind(wx.EVT_MENU, self.onShowEditorKeyCommands, id=999)
-        helpmenu.Append(998, 'Tutorial: How to Create a Custom PyoObject')
+        helpmenu.Append(998, 'Tutorial: How to Create a Custom PyoObject - RingMod')
         self.Bind(wx.EVT_MENU, self.openTutorial, id=998)
+        helpmenu.Append(997, 'Tutorial: How to Create a Custom PyoObject - Flanger')
+        self.Bind(wx.EVT_MENU, self.openTutorial, id=997)
+        helpmenu.Append(996, 'Tutorial: How to Create a Custom PyoTableObject - TriTable')
+        self.Bind(wx.EVT_MENU, self.openTutorial, id=996)
         self.menuBar.Append(helpmenu, '&Help')
 
         self.SetMenuBar(self.menuBar)
@@ -2459,12 +2466,11 @@ class MainFrame(wx.Frame):
         self.panel.addPage(ensureNFD(path))
 
     def openTutorial(self, event):
-        id = event.GetId()
-        if id == 998:
-            if WIN_APP_BUNDLED:
-                self.panel.addPage(os.path.join(os.getcwd(), "Resources", "Tutorial_Custom_PyoObject.py"))
-            else:
-                self.panel.addPage(os.path.join(os.getcwd(), "Tutorial_Custom_PyoObject.py"))
+        filename = {998: "Tutorial_01_RingMod.py", 997: "Tutorial_02_Flanger.py", 996: "Tutorial_03_TriTable.py"}[event.GetId()]
+        if WIN_APP_BUNDLED:
+            self.panel.addPage(os.path.join(os.getcwd(), "Resources", filename))
+        else:
+            self.panel.addPage(os.path.join(os.getcwd(), filename))
         
     def openFolder(self, event):
         dlg = wx.DirDialog(self, message="Choose a folder", 
@@ -2694,6 +2700,14 @@ class MainFrame(wx.Frame):
         if not self.doc_frame.IsShown():
             self.doc_frame.Show()
 
+    def rebuildDoc(self, evt):
+        shutil.rmtree(os.path.join(os.path.expanduser("~"), ".epyo", "doc"), True)
+        try:
+            self.doc_frame.Destroy()
+        except:
+            pass
+        self.buildDoc()
+        
     def onShowEditorKeyCommands(self, evt):
         if not self.keyCommandsFrame.IsShown():
             self.keyCommandsFrame.CenterOnParent()
