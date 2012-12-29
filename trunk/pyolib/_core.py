@@ -824,6 +824,8 @@ class PyoTableObject(PyoObjectBase):
  
     Methods:
     
+    setSize(size) : Change the size of the table. This will erase the 
+        previously drawn waveform.
     getSize() : Return table size in samples.
     view() : Opens a window showing the contents of the table.
     save(path, format, sampletype) : Writes the content of the table in an audio file.
@@ -837,6 +839,11 @@ class PyoTableObject(PyoObjectBase):
     get(pos) : Returns the value at specified position in the table.
     getTable(all) : Returns the content of the table as list of floats.
 
+    Attributes:
+
+    size : int, optional
+        Table size in samples.
+
     Notes:
     
     Operations allowed on all table objects :
@@ -849,8 +856,9 @@ class PyoTableObject(PyoObjectBase):
     
     _STREAM_TYPE = 'table'
 
-    def __init__(self):
+    def __init__(self, size=0):
         PyoObjectBase.__init__(self)
+        self._size = size
 
     def save(self, path, format=0, sampletype=0):
         """
@@ -931,6 +939,20 @@ class PyoTableObject(PyoObjectBase):
         f_len = len(f_list)
         f.close()
         [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
+
+    def setSize(self, size):
+        """
+        Change the size of the table. This will erase the previously 
+        drawn waveform.
+        
+        Parameters:
+        
+        size : int
+            New table size in samples.
+        
+        """
+        self._size = size
+        [obj.setSize(size) for obj in self._base_objs]
 
     def getSize(self):
         """
@@ -1055,6 +1077,13 @@ class PyoTableObject(PyoObjectBase):
         """
         samples = self._base_objs[0].getViewTable()
         createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__)
+
+    @property
+    def size(self):
+        """int. Table size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)
         
 ######################################################################
 ### PyoMatrixObject -> base class for pyo matrix objects
