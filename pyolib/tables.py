@@ -45,8 +45,6 @@ class HarmTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table. This will erase the 
-        previously drawn waveform.
     replace(list) : Redraw the waveform according to the new `list` 
         parameter.
 
@@ -54,8 +52,6 @@ class HarmTable(PyoTableObject):
 
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers.
-    size : int, optional
-        Table size in samples.
 
     Examples:
 
@@ -67,24 +63,9 @@ class HarmTable(PyoTableObject):
 
     """
     def __init__(self, list=[1., 0.], size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         self._list = list
-        self._size = size
         self._base_objs = [HarmTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will erase the previously 
-        drawn waveform.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
     
     def replace(self, list):
         """
@@ -100,13 +81,6 @@ class HarmTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
-
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
     @property
     def list(self): 
@@ -134,15 +108,11 @@ class SawTable(PyoTableObject):
     Methods:
 
     setOrder(x) : Change the `order` attribute and redraw the waveform.
-    setSize(size) : Change the size of the table. This will erase the 
-        previously drawn waveform.
 
     Attributes:
 
     order : int, optional
         Number of harmonics sawtooth is made of.
-    size : int, optional
-        Table size in samples.
 
     Examples:
 
@@ -153,25 +123,10 @@ class SawTable(PyoTableObject):
 
     """
     def __init__(self, order=10, size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         self._order = order
-        self._size = size
         list = [1./i for i in range(1,(order+1))]
         self._base_objs = [HarmTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will erase the previously 
-        drawn waveform.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
     
     def setOrder(self, x):
         """
@@ -186,13 +141,6 @@ class SawTable(PyoTableObject):
         self._order = x
         list = [1./i for i in range(1,(self._order+1))]
         [obj.replace(list) for obj in self._base_objs]
-
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
     @property
     def order(self): 
@@ -220,15 +168,11 @@ class SquareTable(PyoTableObject):
     Methods:
 
     setOrder(x) : Change the `order` attribute and redraw the waveform.
-    setSize(size) : Change the size of the table. This will erase the 
-        previously drawn waveform.
 
     Attributes:
 
     order : int, optional
         Number of harmonics square waveform is made of.
-    size : int, optional
-        Table size in samples.
 
     Examples:
 
@@ -239,9 +183,8 @@ class SquareTable(PyoTableObject):
 
     """
     def __init__(self, order=10, size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         self._order = order
-        self._size = size
         list = []
         for i in range(1,(order*2)):
             if i%2 == 1:
@@ -249,20 +192,6 @@ class SquareTable(PyoTableObject):
             else:
                 list.append(0.)    
         self._base_objs = [HarmTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will erase the previously 
-        drawn waveform.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
     
     def setOrder(self, x):
         """
@@ -282,13 +211,6 @@ class SquareTable(PyoTableObject):
             else:
                 list.append(0.)    
         [obj.replace(list) for obj in self._base_objs]
-
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
     @property
     def order(self): 
@@ -318,8 +240,6 @@ class ChebyTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table. This will erase the 
-        previously drawn waveform.
     replace(list) : Redraw the waveform according to the new `list` 
         parameter.
     getNormTable() : Return a DataTable filled with the normalization
@@ -329,8 +249,6 @@ class ChebyTable(PyoTableObject):
 
     list : list, optional
         Relative strengths of the fixed harmonic partial numbers.
-    size : int, optional
-        Table size in samples.
 
     Examples:
 
@@ -343,24 +261,9 @@ class ChebyTable(PyoTableObject):
 
     """
     def __init__(self, list=[1., 0.], size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         self._list = list
-        self._size = size
         self._base_objs = [ChebyTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will erase the previously 
-        drawn waveform.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
     
     def replace(self, list):
         """
@@ -389,13 +292,6 @@ class ChebyTable(PyoTableObject):
         else:
             data = self._base_objs[0].getNormTable(1)
         return DataTable(size=len(data), init=data).normalize()
-        
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
     @property
     def list(self): 
@@ -415,15 +311,6 @@ class HannTable(PyoTableObject):
     size : int, optional
         Table size in samples. Defaults to 8192.
 
-    Methods:
-
-    setSize(size) : Change the size of the table. This will redraw the envelope.
-
-    Attributes:
-
-    size : int
-        Table size in samples.
-
     Examples:
 
     >>> s = Server().boot()
@@ -435,29 +322,8 @@ class HannTable(PyoTableObject):
 
     """
     def __init__(self, size=8192):
-        PyoTableObject.__init__(self)
-        self._size = size
+        PyoTableObject.__init__(self, size)
         self._base_objs = [HannTable_base(size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will redraw the envelope.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
-
-    @property
-    def size(self): 
-        """int. Table size in samples."""
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
 class SincTable(PyoTableObject):
     """
@@ -478,7 +344,6 @@ class SincTable(PyoTableObject):
 
     setFreq(x) : Change the frequency of the sinc function. This will redraw the envelope.
     setWindowed(x) : Change the windowed flag. This will redraw the envelope.
-    setSize(size) : Change the size of the table. This will redraw the envelope.
 
     Attributes:
 
@@ -486,8 +351,6 @@ class SincTable(PyoTableObject):
         Frequency, in radians, of the sinc function.
     windowed : boolean
         If True, an hanning window is applied on the sinc function.
-    size : int
-        Table size in samples.
 
     Examples:
 
@@ -499,10 +362,9 @@ class SincTable(PyoTableObject):
 
     """
     def __init__(self, freq=pi*2, windowed=False, size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         self._freq = freq
         self._windowed = windowed
-        self._size = size
         self._base_objs = [SincTable_base(freq, windowed, size)]
 
     def setFreq(self, x):
@@ -531,19 +393,6 @@ class SincTable(PyoTableObject):
         self._windowed = x
         [obj.setWindowed(x) for obj in self._base_objs]
 
-    def setSize(self, size):
-        """
-        Change the size of the table. This will redraw the envelope.
-
-        Parameters:
-
-        size : int
-            New table size in samples.
-
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
-
     @property
     def freq(self): 
         """float. Frequency of the sinc function."""
@@ -556,12 +405,6 @@ class SincTable(PyoTableObject):
         return self._windowed
     @windowed.setter
     def windowed(self, x): self.setWindowed(x)
-    @property
-    def size(self): 
-        """int. Table size in samples."""
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
 class WinTable(PyoTableObject):
     """
@@ -589,14 +432,11 @@ class WinTable(PyoTableObject):
     Methods:
 
     setType(x) : Sets the windowing function.
-    setSize(size) : Change the size of the table. This will redraw the envelope.
 
     Attributes:
   
     type : int
         Windowing function.
-    size : int
-        Table size in samples.
 
     Examples:
 
@@ -609,9 +449,8 @@ class WinTable(PyoTableObject):
 
     """
     def __init__(self, type=2, size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         self._type = type
-        self._size = size
         self._base_objs = [WinTable_base(type, size)]
 
     def setType(self, type):
@@ -626,33 +465,12 @@ class WinTable(PyoTableObject):
         self._type = type
         [obj.setType(type) for obj in self._base_objs]
 
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will redraw the envelope.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
-
     @property
     def type(self): 
         """int. Windowing function."""
         return self._type
     @type.setter
     def type(self, x): self.setType(x)
-
-    @property
-    def size(self): 
-        """int. Table size in samples."""
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
 class ParaTable(PyoTableObject):
     """
@@ -668,15 +486,6 @@ class ParaTable(PyoTableObject):
     size : int, optional
         Table size in samples. Defaults to 8192.
 
-    Methods:
-
-    setSize(size) : Change the size of the table. This will redraw the envelope.
-
-    Attributes:
-
-    size : int
-        Table size in samples.
-
     Examples:
 
     >>> s = Server().boot()
@@ -688,29 +497,8 @@ class ParaTable(PyoTableObject):
 
     """
     def __init__(self, size=8192):
-        PyoTableObject.__init__(self)
-        self._size = size
+        PyoTableObject.__init__(self, size)
         self._base_objs = [ParaTable_base(size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table. This will redraw the envelope.
-
-        Parameters:
-
-        size : int
-            New table size in samples.
-
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
-
-    @property
-    def size(self): 
-        """int. Table size in samples."""
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
 class LinTable(PyoTableObject):
     """
@@ -730,23 +518,20 @@ class LinTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros. 
-
     Attributes:
 
     list : list
         List of tuples [(location, value), ...].
-    size : int, optional
-        Table size in samples.
+
+    Notes:
+
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros. 
 
     Examples:
 
@@ -759,26 +544,13 @@ class LinTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "LinTable warning : size smaller than last point position."
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
-        self._size = size
+            self._size = size
         self._base_objs = [LinTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table and rescale the envelope.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
     
     def replace(self, list):
         """
@@ -858,13 +630,6 @@ class LinTable(PyoTableObject):
         createGraphWindow(self, 0, self._size, yrange, title, wxnoserver)
 
     @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
-
-    @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table.""" 
         return self.getPoints()
@@ -889,11 +654,14 @@ class LogTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
+
+    Attributes:
+
+    list : list, List of tuples [(location, value), ...].
 
     Notes:
 
@@ -901,11 +669,6 @@ class LogTable(PyoTableObject):
     is less than size, the rest of the table will be filled with zeros. 
     
     Values must be greater than 0.0.
-
-    Attributes:
-
-    list : list, List of tuples [(location, value), ...].
-    size : int, Table size in samples.
 
     Examples:
 
@@ -917,26 +680,13 @@ class LogTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "LogTable warning : size smaller than last point position."
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
-        self._size = size
+            self._size = size
         self._base_objs = [LogTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table and rescale the envelope.
-
-        Parameters:
-
-        size : int
-            New table size in samples.
-
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
 
     def replace(self, list):
         """
@@ -1016,13 +766,6 @@ class LogTable(PyoTableObject):
         createGraphWindow(self, 4, self._size, yrange, title, wxnoserver)
 
     @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
-
-    @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table.""" 
         return self.getPoints()
@@ -1047,11 +790,14 @@ class CosLogTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
+
+    Attributes:
+
+    list : list, List of tuples [(location, value), ...].
 
     Notes:
 
@@ -1059,11 +805,6 @@ class CosLogTable(PyoTableObject):
     is less than size, the rest of the table will be filled with zeros. 
 
     Values must be greater than 0.0.
-
-    Attributes:
-
-    list : list, List of tuples [(location, value), ...].
-    size : int, Table size in samples.
 
     Examples:
 
@@ -1075,26 +816,13 @@ class CosLogTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "CosLogTable warning : size smaller than last point position."
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
-        self._size = size
+            self._size = size
         self._base_objs = [CosLogTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table and rescale the envelope.
-
-        Parameters:
-
-        size : int
-            New table size in samples.
-
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
 
     def replace(self, list):
         """
@@ -1174,13 +902,6 @@ class CosLogTable(PyoTableObject):
         createGraphWindow(self, 5, self._size, yrange, title, wxnoserver)
 
     @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
-
-    @property
     def list(self):
         """list. List of tuples indicating location and value of each points in the table.""" 
         return self.getPoints()
@@ -1205,23 +926,20 @@ class CosTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table and rescale the envelope.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros. 
-
     Attributes:
 
     list : list
         List of tuples [(location, value), ...].
-    size : int, optional
-        Table size in samples.
+
+    Notes:
+
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros. 
 
     Examples:
 
@@ -1234,26 +952,13 @@ class CosTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "CosTable warning : size smaller than last point position."
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
-        self._size = size
+            self._size = size
         self._base_objs = [CosTable_base(list, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table and rescale the envelope.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
     
     def replace(self, list):
         """
@@ -1331,13 +1036,6 @@ class CosTable(PyoTableObject):
 
         """
         createGraphWindow(self, 1, self._size, yrange, title, wxnoserver)
-        
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
     @property
     def list(self):
@@ -1377,21 +1075,12 @@ class CurveTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table and rescale the envelope.
     setTension(x) : Replace the `tension` attribute.
     setTension(x) : Replace the `bias` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros.
-
-    High tension or bias values can create unstable or very loud table,
-    use normalize method to keep the curve between -1 and 1.
 
     Attributes:
 
@@ -1401,8 +1090,14 @@ class CurveTable(PyoTableObject):
         Curvature tension.
     bias : float
         Curve attraction.
-    size : int, optional
-        Table size in samples.
+
+    Notes:
+
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros.
+
+    High tension or bias values can create unstable or very loud table,
+    use normalize method to keep the curve between -1 and 1.
 
     Examples:
 
@@ -1415,28 +1110,15 @@ class CurveTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8191, 1.)], tension=0, bias=0, size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "CurveTable warning : size smaller than last point position."
             print "                     Increased size to last point position + 1"
             size = list[-1][0] + 1
-        self._size = size
+            self._size = size
         self._tension = tension
         self._bias = bias
         self._base_objs = [CurveTable_base(list, tension, bias, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table and rescale the envelope.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
 
     def setTension(self, x):
         """
@@ -1545,13 +1227,6 @@ class CurveTable(PyoTableObject):
 
         """
         createGraphWindow(self, 3, self._size, yrange, title, wxnoserver)
-        
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
 
     @property
     def tension(self):
@@ -1598,18 +1273,12 @@ class ExpTable(PyoTableObject):
 
     Methods:
 
-    setSize(size) : Change the size of the table and rescale the envelope.
     setExp(x) : Replace the `exp` attribute.
     setInverse(x) : Replace the `inverse` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros.
 
     Attributes:
 
@@ -1619,8 +1288,11 @@ class ExpTable(PyoTableObject):
         Exponent factor.
     inverse : boolean
         Inversion of downward slope.
-    size : int, optional
-        Table size in samples.
+
+    Notes:
+
+    Locations in the list must be in increasing order. If the last value 
+    is less than size, the rest of the table will be filled with zeros.
 
     Examples:
 
@@ -1632,28 +1304,15 @@ class ExpTable(PyoTableObject):
 
     """
     def __init__(self, list=[(0, 0.), (8192, 1.)], exp=10, inverse=True, size=8192):
-        PyoTableObject.__init__(self)
+        PyoTableObject.__init__(self, size)
         if size < list[-1][0]:
             print "ExpTable warning : size smaller than last point position."
             print "                   Increased size to last point position + 1"
             size = list[-1][0] + 1
-        self._size = size
+            self._size = size
         self._exp = exp
         self._inverse = inverse
         self._base_objs = [ExpTable_base(list, exp, inverse, size)]
-
-    def setSize(self, size):
-        """
-        Change the size of the table and rescale the envelope.
-        
-        Parameters:
-        
-        size : int
-            New table size in samples.
-        
-        """
-        self._size = size
-        [obj.setSize(size) for obj in self._base_objs]
 
     def setExp(self, x):
         """
@@ -1758,12 +1417,6 @@ class ExpTable(PyoTableObject):
         """
         createGraphWindow(self, 2, self._size, yrange, title, wxnoserver)
 
-    @property
-    def size(self):
-        """int. Table size in samples.""" 
-        return self._size
-    @size.setter
-    def size(self, x): self.setSize(x)
     @property
     def exp(self):
         """float. Exponent factor.""" 
@@ -2043,6 +1696,9 @@ class SndTable(PyoTableObject):
             else:
                 return _dur
 
+    def setSize(self, x):
+        print "SndTable has no setSize method!"
+
     def getSize(self, all=True):
         """
         Return the size of the table in samples.
@@ -2109,30 +1765,40 @@ class SndTable(PyoTableObject):
         return self._path
     @sound.setter
     def sound(self, x): self.setSound(x)
+
     @property
     def path(self):
         """string. Full path of the sound.""" 
         return self._path
     @path.setter
     def path(self, x): self.setSound(x)
+
     @property
     def chnl(self):
         """int. Channel to read in.""" 
         return self._chnl
     @chnl.setter
     def chnl(self, x): print "'chnl' attribute is read-only."
+
     @property
     def start(self):
         """float. Start point, in seconds, to read into the file.""" 
         return self._start
     @start.setter
     def start(self, x): print "'start' attribute is read-only."
+
     @property
     def stop(self):
         """float. Stop point, in seconds, to read into the file.""" 
         return self._stop
     @stop.setter
     def stop(self, x): print "SndTable 'stop' attribute is read-only."
+
+    @property
+    def size(self):
+        return self._size
+    @size.setter
+    def size(self, x): print "SndTable 'size' attribute is read-only."
 
 class NewTable(PyoTableObject):
     """
@@ -2158,7 +1824,6 @@ class NewTable(PyoTableObject):
 
     Methods:
 
-    getSize() : Returns the length of the table in samples.
     getLength() : Returns the length of the table in seconds.
     getDur() : Returns the length of the table in seconds.
     getRate() : Returns the frequency (cycle per second) to give 
@@ -2198,6 +1863,7 @@ class NewTable(PyoTableObject):
             if type(init[0]) != ListType: 
                 init = [init]
             self._base_objs = [NewTable_base(length, wrap(init,i), feedback) for i in range(chnls)]
+        self._size = self._base_objs[0].getSize()
 
     def replace(self, x):
         """
@@ -2227,13 +1893,6 @@ class NewTable(PyoTableObject):
         """
         self._feedback = x
         [obj.setFeedback(x) for i, obj in enumerate(self._base_objs)]
-        
-    def getSize(self):
-        """
-        Returns the length of the table in samples.
-        
-        """
-        return self._base_objs[0].getSize()
 
     def getLength(self):
         """
@@ -2283,24 +1942,33 @@ class NewTable(PyoTableObject):
         return self._length
     @length.setter
     def length(self, x): print "'length' attribute is read-only."
+
     @property
     def chnls(self):
         """int. Number of channels that will be handled by the table.""" 
         return self._chnls
     @chnls.setter
     def chnls(self, x): print "'chnls' attribute is read-only."
+
     @property
     def init(self):
         """list of floats. Initial table.""" 
         return self._init
     @init.setter
     def init(self, x): print "'init' attribute is read-only."
+
     @property
     def feedback(self):
         """float. Amount of old data to mix with a new recording.""" 
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
+
+    @property
+    def size(self):
+        return self._size
+    @size.setter
+    def size(self, x): print "NewTable 'size' attribute is read-only."
 
 class DataTable(PyoTableObject):
     """
@@ -2324,7 +1992,6 @@ class DataTable(PyoTableObject):
 
     Methods:
 
-    getSize() : Returns the length of the table in samples.
     getRate() : Returns the frequency (cycle per second) to give 
         to an oscillator to read the sound at its original pitch.
     replace() : Replaces the actual table.
@@ -2344,8 +2011,7 @@ class DataTable(PyoTableObject):
 
     """
     def __init__(self, size, chnls=1, init=None):
-        PyoTableObject.__init__(self)
-        self._size = size
+        PyoTableObject.__init__(self, size)
         self._chnls = chnls
         self._init = init
         if init == None:
@@ -2354,7 +2020,6 @@ class DataTable(PyoTableObject):
             if type(init[0]) != ListType:
                 init = [init]
             self._base_objs = [DataTable_base(size, wrap(init,i)) for i in range(chnls)]
-
 
     def replace(self, x):
         """
@@ -2372,13 +2037,6 @@ class DataTable(PyoTableObject):
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def getSize(self):
-        """
-        Returns the length of the table in samples.
-
-        """
-        return self._base_objs[0].getSize()
-
     def getRate(self):
         """
         Returns the frequency (cycle per second) to give to an 
@@ -2392,17 +2050,18 @@ class DataTable(PyoTableObject):
         """int. Length of the table in samples.""" 
         return self._size
     @size.setter
-    def size(self, x): print "'size' attribute is read-only."
+    def size(self, x): print "DataTable 'size' attribute is read-only."
+
     @property
     def chnls(self):
         """int. Number of channels that will be handled by the table.""" 
         return self._chnls
     @chnls.setter
     def chnls(self, x): print "'chnls' attribute is read-only."
+
     @property
     def init(self):
         """list of floats. Initial table.""" 
         return self._init
     @init.setter
     def init(self, x): print "'init' attribute is read-only."
-
