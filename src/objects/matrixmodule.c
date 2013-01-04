@@ -243,7 +243,7 @@ NewMatrix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii|O", kwlist, &self->width, &self->height, &inittmp))
         Py_RETURN_NONE; 
     
-    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT));
+    self->data = (MYFLT **)realloc(self->data, (self->height + 1) * sizeof(MYFLT *));
     
     for (i=0; i<(self->height+1); i++) {
         self->data[i] = (MYFLT *)malloc((self->width + 1) * sizeof(MYFLT));
