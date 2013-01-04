@@ -2081,7 +2081,7 @@ VoiceManager_setTriggers(VoiceManager *self, PyObject *arg)
 	}
     
     self->maxVoices = PyList_Size(arg);
-    self->trigger_streams = (Stream **)realloc(self->trigger_streams, self->maxVoices * sizeof(Stream));
+    self->trigger_streams = (Stream **)realloc(self->trigger_streams, self->maxVoices * sizeof(Stream *));
     self->voices = (int *)realloc(self->voices, self->maxVoices * sizeof(int));
     for (i=0; i<self->maxVoices; i++) {
         self->trigger_streams[i] = (Stream *)PyObject_CallMethod((PyObject *)PyList_GET_ITEM(arg, i), "_getStream", NULL);

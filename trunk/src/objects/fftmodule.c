@@ -62,7 +62,7 @@ FFTMain_realloc_memories(FFTMain *self) {
     self->buffer_streams = (MYFLT *)realloc(self->buffer_streams, 3 * self->bufsize * sizeof(MYFLT));
     for (i=0; i<(self->bufsize*3); i++)
         self->buffer_streams[i] = 0.0;
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT));
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
     for(i=0; i<4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -593,7 +593,7 @@ IFFT_realloc_memories(IFFT *self) {
     self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));    
     for (i=0; i<self->size; i++)
         self->inframe[i] = self->outframe[i] = 0.0;
-    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT));
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
     for(i=0; i<4; i++)
         self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
     fft_compute_split_twiddle(self->twiddle, self->size);
@@ -1652,7 +1652,7 @@ FrameDeltaMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->hopsize = self->frameSize / self->overlaps;
-    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
     for(i=0; i<self->overlaps; i++) {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
         for (j=0; j<self->frameSize; j++) {
@@ -1707,7 +1707,7 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
-            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
             for(i=0; i<self->overlaps; i++) {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
                 for (j=0; j<self->frameSize; j++) {
@@ -2161,7 +2161,7 @@ FrameAccumMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->hopsize = self->frameSize / self->overlaps;
-    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
     for(i=0; i<self->overlaps; i++) {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
         for (j=0; j<self->frameSize; j++) {
@@ -2216,7 +2216,7 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
             
-            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
             for(i=0; i<self->overlaps; i++) {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
                 for (j=0; j<self->frameSize; j++) {
@@ -2748,7 +2748,7 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->hopsize = self->frameSize / self->overlaps;
-    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+    self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
     for(i=0; i<self->overlaps; i++) {
         self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
         for (j=0; j<self->frameSize; j++) {
@@ -2803,7 +2803,7 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
             self->frameSize = tmp;
             self->hopsize = self->frameSize / self->overlaps;
 
-            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT));
+            self->frameBuffer = (MYFLT **)realloc(self->frameBuffer, self->overlaps * sizeof(MYFLT *));
             for(i=0; i<self->overlaps; i++) {
                 self->frameBuffer[i] = (MYFLT *)malloc(self->frameSize * sizeof(MYFLT));
                 for (j=0; j<self->frameSize; j++) {
