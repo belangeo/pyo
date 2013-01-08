@@ -350,6 +350,28 @@ class PyoObject(PyoObjectBase):
     These operations will replace the `mul` or `add` factor of the object. 
     `a *= 0.5` replaces the `mul` attribute of `a`.
     
+    Next operators can be used with PyoObject (not with XXX_base objects).
+    
+    Exponent and modulo:
+
+    `a ** 10` returns a Pow object created as : Pow(a, 10)
+    `10 ** a` returns a Pow object created as : Pow(10, a)
+    `a % 4` returns a Wrap object created as : Wrap(a, 0, 4)
+    `a % b` returns a Wrap object created as : Wrap(a, 0, b)
+
+    Unary negative (-):
+    
+    `-a` returns a Dummy object with negative values of streams in `a`.
+    
+    Comparison operators:
+        
+    `a < b` returns a Compare object created as : Compare(a, comp=b, mode="<")
+    `a <= b` returns a Compare object created as : Compare(a, comp=b, mode="<=")
+    `a == b` returns a Compare object created as : Compare(a, comp=b, mode="==")
+    `a != b` returns a Compare object created as : Compare(a, comp=b, mode="!=")
+    `a > b` returns a Compare object created as : Compare(a, comp=b, mode=">")
+    `a >= b` returns a Compare object created as : Compare(a, comp=b, mode=">=")
+
     """
     
     _STREAM_TYPE = 'audio'
@@ -363,6 +385,7 @@ class PyoObject(PyoObjectBase):
         self._add = add
         self._op_duplicate = 1
         self._map_list = []
+        self._zeros = None
 
     def __add__(self, x):
         x, lmax = convertArgsToLists(x)
@@ -483,6 +506,38 @@ class PyoObject(PyoObjectBase):
     def __idiv__(self, x):
         self.setDiv(x)
         return self
+
+    def __pow__(self, x):
+        return Pow(self, x)
+
+    def __rpow__(self, x):
+        return Pow(x, self)
+
+    def __mod__(self, x):
+        return Wrap(self, 0, x)
+    
+    def __neg__(self):
+        if self._zeros == None:
+            self._zeros = Sig(0)
+        return self._zeros - self
+
+    def __lt__(self, x):
+        return Compare(self, comp=x, mode="<")
+
+    def __le__(self, x):
+        return Compare(self, comp=x, mode="<=")
+
+    def __eq__(self, x):
+        return Compare(self, comp=x, mode="==")
+
+    def __ne__(self, x):
+        return Compare(self, comp=x, mode="!=")
+
+    def __gt__(self, x):
+        return Compare(self, comp=x, mode=">")
+
+    def __ge__(self, x):
+        return Compare(self, comp=x, mode=">=")
 
     def isPlaying(self, all=False):
         """
@@ -1606,3 +1661,335 @@ class VarPort(PyoObject):
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)
+
+class Pow(PyoObject):
+    """
+    Performs a power function on audio signal.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    base : float or PyoObject, optional
+        Base composant. Defaults to 10.
+    exponent : float or PyoObject, optional
+        Exponent composant. Defaults to 1.
+
+    Methods:
+
+    setBase(x) : Replace the `base` attribute.
+    setExponent(x) : Replace the `exponent` attribute.
+
+    Attributes:
+
+    base : float or PyoObject, Base composant.
+    exponent : float or PyoObject, Exponent composant.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Exponential amplitude envelope
+    >>> a = LFO(freq=1, type=3, mul=0.5, add=0.5)
+    >>> b = Pow(Clip(a, 0, 1), 4, mul=.3)
+    >>> c = SineLoop(freq=[300,301], feedback=0.05, mul=b).out()
+
+    """
+    def __init__(self, base=10, exponent=1, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._base = base
+        self._exponent = exponent
+        base, exponent, mul, add, lmax = convertArgsToLists(base, exponent, mul, add)
+        self._base_objs = [M_Pow_base(wrap(base,i), wrap(exponent,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setBase(self, x):
+        """
+        Replace the `base` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `base` attribute.
+
+        """
+        self._base = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBase(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setExponent(self, x):
+        """
+        Replace the `exponent` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `exponent` attribute.
+
+        """
+        self._exponent = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setExponent(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def base(self):
+        """float or PyoObject. Base composant.""" 
+        return self._base
+    @base.setter
+    def base(self, x): self.setBase(x)
+
+    @property
+    def exponent(self):
+        """float or PyoObject. Exponent composant.""" 
+        return self._exponent
+    @exponent.setter
+    def exponent(self, x): self.setExponent(x)
+    
+class Wrap(PyoObject):
+    """
+    Wraps-around the signal that exceeds the `min` and `max` thresholds.
+
+    This object is useful for table indexing, phase shifting or for 
+    clipping and modeling an audio signal.
+
+    Parentclass : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    min : float or PyoObject, optional
+        Minimum possible value. Defaults to 0.
+    max : float or PyoObject, optional
+        Maximum possible value. Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setMin(x) : Replace the `min` attribute.
+    setMax(x) : Replace the `max` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    min : float or PyoObject. Minimum possible value.
+    max : float or PyoObject. Maximum possible value.
+
+    Notes:
+
+    If `min` is higher than `max`, then the output will be the average of the two.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> # Time-varying overlaping envelopes
+    >>> env = HannTable()
+    >>> lff = Sine(.5, mul=3, add=4)
+    >>> ph1 = Phasor(lff)
+    >>> ph2 = Wrap(ph1+0.5, min=0, max=1)
+    >>> amp1 = Pointer(env, ph1, mul=.25)
+    >>> amp2 = Pointer(env, ph2, mul=.25)
+    >>> a = SineLoop(250, feedback=.1, mul=amp1).out()
+    >>> b = SineLoop(300, feedback=.1, mul=amp2).out(1)
+
+    """
+    def __init__(self, input, min=0.0, max=1.0, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._min = min
+        self._max = max
+        self._in_fader = InputFader(input)
+        in_fader, min, max, mul, add, lmax = convertArgsToLists(self._in_fader, min, max, mul, add)
+        self._base_objs = [Wrap_base(wrap(in_fader,i), wrap(min,i), wrap(max,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setMin(self, x):
+        """
+        Replace the `min` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `min` attribute.
+
+        """
+        self._min = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMin(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMax(self, x):
+        """
+        Replace the `max` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `max` attribute.
+
+        """
+        self._max = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., 'lin', 'min', self._min),
+                          SLMap(0., 1., 'lin', 'max', self._max),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def min(self):
+        """float or PyoObject. Minimum possible value.""" 
+        return self._min
+    @min.setter
+    def min(self, x): self.setMin(x)
+
+    @property
+    def max(self):
+        """float or PyoObject. Maximum possible value.""" 
+        return self._max
+    @max.setter
+    def max(self, x): self.setMax(x)
+
+class Compare(PyoObject):
+    """
+    Comparison object.
+
+    Compare evaluates a comparison between a PyoObject and a number or
+    between two PyoObjects and outputs 1.0, as audio stream, if the
+    comparison is true, otherwise outputs 0.0.
+
+    Parentclass: PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal.
+    comp : float or PyoObject
+        comparison signal.
+    mode : string, optional
+        Comparison operator as a string. Allowed operator are "<", "<=",
+        ">", ">=", "==", "!=". Default to "<".
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setComp(x, fadetime) : Replace the `comp` attribute.
+    setMode(x) : Replace the `mode` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal.
+    comp : float or PyoObject. Comparison signal.
+    mode : string. Comparison operator.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SineLoop(freq=[199,200], feedback=.1, mul=.2)
+    >>> b = SineLoop(freq=[149,150], feedback=.1, mul=.2)
+    >>> ph = Phasor(freq=1)
+    >>> ch = Compare(input=ph, comp=0.5, mode="<=")
+    >>> out = Selector(inputs=[a,b], voice=Port(ch)).out()
+
+    """
+    def __init__(self, input, comp, mode="<", mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._comp = comp
+        self._mode = mode
+        self._in_fader = InputFader(input)
+        self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
+        in_fader, comp, mode, mul, add, lmax = convertArgsToLists(self._in_fader, comp, mode, mul, add)
+        self._base_objs = [Compare_base(wrap(in_fader,i), wrap(comp,i), self.comp_dict[wrap(mode,i)], wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setComp(self, x):
+        """
+        Replace the `comp` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New comparison signal.
+
+        """
+        self._comp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setComp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setMode(self, x):
+        """
+        Replace the `mode` attribute. 
+        
+        Allowed operator are "<", "<=", ">", ">=", "==", "!=".
+        
+        Parameters:
+
+        x : string
+            New `mode` attribute.
+
+        """
+        self._mode = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMode(self.comp_dict[wrap(x,i)]) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoObject. Input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def comp(self):
+        """PyoObject. Comparison signal.""" 
+        return self._comp
+    @comp.setter
+    def comp(self, x): self.setComp(x)
+
+    @property
+    def mode(self):
+        """string. Comparison operator.""" 
+        return self._mode
+    @mode.setter
+    def mode(self, x): self.setMode(x)
