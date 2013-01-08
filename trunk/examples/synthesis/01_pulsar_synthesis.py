@@ -20,8 +20,7 @@ frac = Sig(.5)
 frac.ctrl(title="Pulsar duty cycle")
 
 # Pulsar synthesis
-b = Compare(input=a, comp=frac, mode="<=")
-scl = a * b * (1. / frac)
+scl = a * (a <= frac) * (1. / frac)
 c = Pointer(table=HannTable(), index=scl, mul=.05)
 d = Pointer(table=t, index=scl, mul=c).out()
 
