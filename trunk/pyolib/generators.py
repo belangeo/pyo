@@ -1433,3 +1433,102 @@ class SuperSaw(PyoObject):
         return self._bal
     @bal.setter
     def bal(self, x): self.setBal(x)
+
+class RCOsc(PyoObject):
+    """
+    Waveform aproximation of a RC circuit.
+    
+    A RC circuit is a capacitor and a resistor in series, giving a logarithmic
+    growth followed by an exponential decay.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    freq : float or PyoObject, optional
+        Frequency in cycles per second. Defaults to 100.
+    sharp : float or PyoObject, optional
+        Slope of the attack and decay of the waveform, between 0 and 1.
+        A value of 0 gives a triangular waveform and 1 gives almost a
+        square wave. Defaults to 0.25.
+        
+    Methods:
+    
+    setFreq(x) : Replace the `freq` attribute.
+    setSharp(x) : Replace the `sharp` attribute.
+    reset() : Resets the current phase to 0.
+ 
+    Attributes:
+    
+    freq : float or PyoObject, Frequency in cycles per second.
+    sharp : float or PyoObject, Sharpness of the waveform (0 -> 1).
+    
+    See also: Osc, LFO, SineLoop, SumOsc 
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> fr = RCOsc(freq=[.48,.5], sharp=.2, mul=300, add=600)
+    >>> a = RCOsc(freq=fr, sharp=.1, mul=.2).out()
+    
+    """
+    def __init__(self, freq=100, sharp=0.25, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._freq = freq
+        self._sharp = sharp
+        freq, sharp, mul, add, lmax = convertArgsToLists(freq, sharp, mul, add)
+        self._base_objs = [RCOsc_base(wrap(freq,i), wrap(sharp,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `freq` attribute.
+        
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        
+    def setSharp(self, x):
+        """
+        Replace the `sharp` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            new `sharp` attribute.
+        
+        """
+        self._sharp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSharp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets current phase to 0.
+
+        """
+        [obj.reset() for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), SLMap(0,1,"lin","sharp",self._sharp), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+        
+    @property
+    def freq(self):
+        """float or PyoObject. Frequency in cycles per second.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def sharp(self):
+        """float or PyoObject. Sharpness of the waveform.""" 
+        return self._sharp
+    @sharp.setter
+    def sharp(self, x): self.setSharp(x)
