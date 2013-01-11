@@ -1,3 +1,8 @@
+2013-01-11 belangeo <belangeo@gmail.com>
+
+    * Added new object: RCOsc. Waveform aproximation of a RC circuit.
+    - rev 1063
+
 2012-12-25 belangeo <belangeo@gmail.com>
 
     * Added new object: Delay1. Delays a signal by one sample.

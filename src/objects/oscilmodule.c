@@ -10339,3 +10339,483 @@ SuperSaw_members,             /* tp_members */
 0,                         /* tp_alloc */
 SuperSaw_new,                 /* tp_new */
 };
+
+/**************/
+/* RCOsc object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *sharp;
+    Stream *sharp_stream;
+    int modebuffer[4];
+    MYFLT pointerPos;
+} RCOsc;
+
+static void
+RCOsc_readframes_ii(RCOsc *self) {
+    MYFLT fr, sh, inc, down_phase, up_phase;
+    int i;
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    sh = _clip(PyFloat_AS_DOUBLE(self->sharp));
+    sh = sh * sh * 99.0 + 1.0;
+    inc = fr * 2 / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        if (self->pointerPos < 1) {
+            down_phase = 1.0 - self->pointerPos;
+            up_phase = 1.0;
+        }
+        else {
+            down_phase = 0.0;
+            up_phase = 2.0 - self->pointerPos;
+        }
+        self->data[i] = ( (1.0 - MYPOW(down_phase, sh)) + (MYPOW(up_phase, sh)) ) * 2.0 - 3.0;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos += 2.0;
+        else if (self->pointerPos >= 2)
+            self->pointerPos -= 2.0;
+    }
+}
+
+static void
+RCOsc_readframes_ai(RCOsc *self) {
+    MYFLT sh, down_phase, up_phase, twoOverSr;
+    int i;
+    
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    sh = _clip(PyFloat_AS_DOUBLE(self->sharp));
+    sh = sh * sh * 99.0 + 1.0;
+    
+    twoOverSr = 2.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        if (self->pointerPos < 1) {
+            down_phase = 1.0 - self->pointerPos;
+            up_phase = 1.0;
+        }
+        else {
+            down_phase = 0.0;
+            up_phase = 2.0 - self->pointerPos;
+        }
+        self->data[i] = ( (1.0 - MYPOW(down_phase, sh)) + (MYPOW(up_phase, sh)) ) * 2.0 - 3.0;
+        self->pointerPos += fr[i] * twoOverSr;
+        if (self->pointerPos < 0)
+            self->pointerPos += 2.0;
+        else if (self->pointerPos >= 2)
+            self->pointerPos -= 2.0;
+    }
+}
+
+static void
+RCOsc_readframes_ia(RCOsc *self) {
+    MYFLT fr, sh, inc, down_phase, up_phase;
+    int i;
+    
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *sharp = Stream_getData((Stream *)self->sharp_stream);
+    inc = fr * 2 / self->sr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        sh = _clip(sharp[i]);
+        sh = sh * sh * 99.0 + 1.0;        
+        if (self->pointerPos < 1) {
+            down_phase = 1.0 - self->pointerPos;
+            up_phase = 1.0;
+        }
+        else {
+            down_phase = 0.0;
+            up_phase = 2.0 - self->pointerPos;
+        }
+        self->data[i] = ( (1.0 - MYPOW(down_phase, sh)) + (MYPOW(up_phase, sh)) ) * 2.0 - 3.0;
+        self->pointerPos += inc;
+        if (self->pointerPos < 0)
+            self->pointerPos += 2.0;
+        else if (self->pointerPos >= 2)
+            self->pointerPos -= 2.0;
+    }
+}
+
+static void
+RCOsc_readframes_aa(RCOsc *self) {
+    MYFLT sh, down_phase, up_phase, twoOverSr;
+    int i;
+    
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *sharp = Stream_getData((Stream *)self->sharp_stream);
+    
+    twoOverSr = 2.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        sh = _clip(sharp[i]);
+        sh = sh * sh * 99.0 + 1.0;        
+        if (self->pointerPos < 1) {
+            down_phase = 1.0 - self->pointerPos;
+            up_phase = 1.0;
+        }
+        else {
+            down_phase = 0.0;
+            up_phase = 2.0 - self->pointerPos;
+        }
+        self->data[i] = ( (1.0 - MYPOW(down_phase, sh)) + (MYPOW(up_phase, sh)) ) * 2.0 - 3.0;
+        self->pointerPos += fr[i] * twoOverSr;
+        if (self->pointerPos < 0)
+            self->pointerPos += 2.0;
+        else if (self->pointerPos >= 2)
+            self->pointerPos -= 2.0;
+    }
+}
+
+static void RCOsc_postprocessing_ii(RCOsc *self) { POST_PROCESSING_II };
+static void RCOsc_postprocessing_ai(RCOsc *self) { POST_PROCESSING_AI };
+static void RCOsc_postprocessing_ia(RCOsc *self) { POST_PROCESSING_IA };
+static void RCOsc_postprocessing_aa(RCOsc *self) { POST_PROCESSING_AA };
+static void RCOsc_postprocessing_ireva(RCOsc *self) { POST_PROCESSING_IREVA };
+static void RCOsc_postprocessing_areva(RCOsc *self) { POST_PROCESSING_AREVA };
+static void RCOsc_postprocessing_revai(RCOsc *self) { POST_PROCESSING_REVAI };
+static void RCOsc_postprocessing_revaa(RCOsc *self) { POST_PROCESSING_REVAA };
+static void RCOsc_postprocessing_revareva(RCOsc *self) { POST_PROCESSING_REVAREVA };
+
+static void
+RCOsc_setProcMode(RCOsc *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:        
+            self->proc_func_ptr = RCOsc_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = RCOsc_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = RCOsc_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = RCOsc_readframes_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = RCOsc_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = RCOsc_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = RCOsc_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = RCOsc_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = RCOsc_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = RCOsc_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = RCOsc_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = RCOsc_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = RCOsc_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+RCOsc_compute_next_data_frame(RCOsc *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+RCOsc_traverse(RCOsc *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->sharp);    
+    Py_VISIT(self->sharp_stream);    
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    return 0;
+}
+
+static int 
+RCOsc_clear(RCOsc *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->sharp);    
+    Py_CLEAR(self->sharp_stream);    
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    return 0;
+}
+
+static void
+RCOsc_dealloc(RCOsc* self)
+{
+    pyo_DEALLOC
+    RCOsc_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+RCOsc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *freqtmp=NULL, *sharptmp=NULL, *multmp=NULL, *addtmp=NULL;
+    RCOsc *self;
+    self = (RCOsc *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(100);
+    self->sharp = PyFloat_FromDouble(0.25);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    self->pointerPos = 0.;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, RCOsc_compute_next_data_frame);
+    self->mode_func_ptr = RCOsc_setProcMode;
+
+    static char *kwlist[] = {"freq", "sharp", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|OOOO", kwlist, &freqtmp, &sharptmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (sharptmp) {
+        PyObject_CallMethod((PyObject *)self, "setSharp", "O", sharptmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * RCOsc_getServer(RCOsc* self) { GET_SERVER };
+static PyObject * RCOsc_getStream(RCOsc* self) { GET_STREAM };
+static PyObject * RCOsc_setMul(RCOsc *self, PyObject *arg) { SET_MUL };	
+static PyObject * RCOsc_setAdd(RCOsc *self, PyObject *arg) { SET_ADD };	
+static PyObject * RCOsc_setSub(RCOsc *self, PyObject *arg) { SET_SUB };	
+static PyObject * RCOsc_setDiv(RCOsc *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * RCOsc_play(RCOsc *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * RCOsc_out(RCOsc *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * RCOsc_stop(RCOsc *self) { STOP };
+
+static PyObject * RCOsc_multiply(RCOsc *self, PyObject *arg) { MULTIPLY };
+static PyObject * RCOsc_inplace_multiply(RCOsc *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * RCOsc_add(RCOsc *self, PyObject *arg) { ADD };
+static PyObject * RCOsc_inplace_add(RCOsc *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * RCOsc_sub(RCOsc *self, PyObject *arg) { SUB };
+static PyObject * RCOsc_inplace_sub(RCOsc *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * RCOsc_div(RCOsc *self, PyObject *arg) { DIV };
+static PyObject * RCOsc_inplace_div(RCOsc *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+RCOsc_setFreq(RCOsc *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+RCOsc_setSharp(RCOsc *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->sharp);
+	if (isNumber == 1) {
+		self->sharp = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->sharp = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->sharp, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->sharp_stream);
+        self->sharp_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject * 
+RCOsc_reset(RCOsc *self) 
+{
+    self->pointerPos = 0.0;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef RCOsc_members[] = {
+{"server", T_OBJECT_EX, offsetof(RCOsc, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(RCOsc, stream), 0, "Stream object."},
+{"freq", T_OBJECT_EX, offsetof(RCOsc, freq), 0, "Frequency in cycle per second."},
+{"sharp", T_OBJECT_EX, offsetof(RCOsc, sharp), 0, "RCOscillator sharp."},
+{"mul", T_OBJECT_EX, offsetof(RCOsc, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(RCOsc, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef RCOsc_methods[] = {
+{"getServer", (PyCFunction)RCOsc_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)RCOsc_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)RCOsc_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)RCOsc_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)RCOsc_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)RCOsc_setFreq, METH_O, "Sets oscillator frequency in cycle per second."},
+{"setSharp", (PyCFunction)RCOsc_setSharp, METH_O, "Sets oscillator sharp."},
+{"reset", (PyCFunction)RCOsc_reset, METH_NOARGS, "Resets pointer position to 0."},
+{"setMul", (PyCFunction)RCOsc_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)RCOsc_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)RCOsc_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)RCOsc_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods RCOsc_as_number = {
+(binaryfunc)RCOsc_add,                      /*nb_add*/
+(binaryfunc)RCOsc_sub,                 /*nb_subtract*/
+(binaryfunc)RCOsc_multiply,                 /*nb_multiply*/
+(binaryfunc)RCOsc_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)RCOsc_inplace_add,              /*inplace_add*/
+(binaryfunc)RCOsc_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)RCOsc_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)RCOsc_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject RCOscType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.RCOsc_base",         /*tp_name*/
+sizeof(RCOsc),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)RCOsc_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&RCOsc_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"RCOsc objects. Waveform simulation of of a RC circuit.",           /* tp_doc */
+(traverseproc)RCOsc_traverse,   /* tp_traverse */
+(inquiry)RCOsc_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+RCOsc_methods,             /* tp_methods */
+RCOsc_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+RCOsc_new,                 /* tp_new */
+};
