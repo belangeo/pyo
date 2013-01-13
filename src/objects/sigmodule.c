@@ -739,8 +739,6 @@ typedef struct {
     MYFLT stepVal;
     long timeCount;
     int modebuffer[2];
-    MYFLT y1;
-    MYFLT factor;
     int flag;
 } VarPort;
 
@@ -752,19 +750,20 @@ VarPort_generates_i(VarPort *self) {
     if (self->value != self->lastValue) {
         self->flag = 1;
         self->timeCount = 0;
-        self->stepVal = (self->value - self->currentValue) / self->timeStep;
+        self->stepVal = (self->value - self->currentValue) / (self->timeStep+1);
         self->lastValue = self->value;
     }    
    
     if (self->flag == 1) { 
         for (i=0; i<self->bufsize; i++) {
-            if (self->timeCount >= (self->timeStep - 1))
+            if (self->timeCount >= self->timeStep)
                 self->currentValue = self->value;
-            else if (self->timeCount < self->timeStep)
+            else if (self->timeCount < self->timeStep) {
                 self->currentValue += self->stepVal;
+            }
 
             self->timeCount++;
-            self->data[i] = self->y1 = self->y1 + (self->currentValue - self->y1) * self->factor;
+            self->data[i] = self->currentValue;
         }
     }
     else {
@@ -899,8 +898,6 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, VarPort_compute_next_data_frame);
     self->mode_func_ptr = VarPort_setProcMode;
-    
-    self->factor = 1. / (.1 * self->sr);
 
     static char *kwlist[] = {"value", "time", "init", "callable", "arg", "mul", "add", NULL};
     
@@ -937,7 +934,7 @@ VarPort_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
-    self->lastValue = self->currentValue = self->y1 = inittmp;
+    self->lastValue = self->currentValue = inittmp;
     
     (*self->mode_func_ptr)(self);
     
