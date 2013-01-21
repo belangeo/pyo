@@ -18,7 +18,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
-import os
+import os, time
 from _core import *
 from _widgets import createServerGUI
         
@@ -84,6 +84,7 @@ class Server(object):
     getBufferSize() : Returns the current buffer size.
     getGlobalSeed() : Returns the server's global seed.
     getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
+    getIsBooted() : Returns 1 if the server is booted, otherwise returns 0.
     getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
     getStreams() : Returns the list of Stream objects currently in the Server memory.
     getNumberOfStreams() : Returns the number of streams currently in the Server memory.
@@ -125,6 +126,7 @@ class Server(object):
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
         if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
+        self._time = time
         self._nchnls = nchnls
         self._amp = 1.
         self._verbosity = 7
@@ -135,6 +137,14 @@ class Server(object):
         self._sampletype = 0
         self._server = Server_base(sr, nchnls, buffersize, duplex, audio, jackname)
         self._server._setDefaultRecPath(os.path.join(os.path.expanduser("~"), "pyo_rec.wav"))
+
+    def __del__(self):
+        if self.getIsBooted():
+            if self.getIsStarted():
+                self.stop()
+                self._time.sleep(.25)
+            self.shutdown()
+            self._time.sleep(.25)
 
     def reinit(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
         """
@@ -531,6 +541,13 @@ class Server(object):
         
         """
         return self._server.getIsStarted()
+
+    def getIsBooted(self):
+        """
+        Returns 1 if the server is booted, otherwise returns 0.
+        
+        """
+        return self._server.getIsBooted()
 
     def getMidiActive(self):
         """
