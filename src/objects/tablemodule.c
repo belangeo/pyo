@@ -3502,16 +3502,20 @@ SndTable_appendSound(SndTable *self) {
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
 
-    for (i=0; i<self->size; i++) {
-        tmp_data[i] = self->data[i];
+    if (cross_in_samps != 0) {
+        for (i=0; i<self->size; i++) {
+            tmp_data[i] = self->data[i];
+        }
     }
-    
+
     cross_point = self->size - cross_in_samps;
     self->size = self->size + to_load_size - cross_in_samps;
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
     
-    for (i=0; i<cross_point; i++) {
-        self->data[i] = tmp_data[i];
+    if (cross_in_samps != 0) {
+        for (i=0; i<cross_point; i++) {
+            self->data[i] = tmp_data[i];
+        }
     }
 
     if (self->crossfade == 0.0) {
