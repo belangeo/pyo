@@ -1,7 +1,9 @@
 mkdir Resources
 cp PyoDoc.py Resources/
 cp FlatNoteBook.py Resources/
-cp Tutorial_Custom_PyoObject.py Resources/
+cp Tutorial_01_RingMod.py Resources/
+cp Tutorial_02_Flanger.py Resources/
+cp Tutorial_03_TriTable.py Resources/
 cp *.icns Resources/
 svn export ../examples examples/
 cp -R examples Resources/
@@ -31,6 +33,12 @@ mv E-Pyo-i386.app E-Pyo.app
 
 cd ..
 cp -R E-Pyo_OSX/E-Pyo.app .
+
+# Fixed wrong path in Info.plist
+cd E-Pyo.app/Contents
+awk '{gsub("Library/Frameworks/Python.framework/Versions/2.6/Resources/Python.app/Contents/MacOS/Python", "@executable_path/../Frameworks/Python.framework/Versions/2.6/Python")}1' Info.plist > Info.plist_tmp && mv Info.plist_tmp Info.plist
+
+cd ../..
 #tar -cjvf E-Pyo_OSX-0.6.1.tar.bz2 E-Pyo.app
 #rm -rf E-Pyo.app
 rm -rf E-Pyo_OSX
