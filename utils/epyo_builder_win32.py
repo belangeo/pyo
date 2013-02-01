@@ -5,7 +5,9 @@ version = sys.version_info[:2]
 os.mkdir("Resources")
 shutil.copy("PyoDoc.py", "Resources")
 shutil.copy("FlatNoteBook.py", "Resources")
-shutil.copy("Tutorial_Custom_PyoObject.py", "Resources")
+shutil.copy("Tutorial_01_RingMod.py", "Resources")
+shutil.copy("Tutorial_02_Flanger.py", "Resources")
+shutil.copy("Tutorial_03_TriTable.py", "Resources")
 shutil.copy("E-PyoIcon.ico", "Resources")
 shutil.copy("E-PyoIconDoc.ico", "Resources")
 
