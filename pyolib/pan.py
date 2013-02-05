@@ -701,6 +701,7 @@ class Mixer(PyoObject):
             print >> sys.stderr, "Mixer has already a key named %s" % voice
             return
         self._inputs[voice] = input
+        input, lmax = convertArgsToLists(input)
         [obj.addInput(str(voice), wrap(input,i)) for i, obj in enumerate(self._base_players)]
         return voice
 
