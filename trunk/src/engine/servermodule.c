@@ -562,7 +562,7 @@ Server_jack_autoconnect (Server *self)
     int ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
-        JackPortIsPhysical|JackPortIsOutput)) == NULL) {
+        JackPortIsOutput)) == NULL) {
         Server_error(self, "Jack: Cannot find any physical capture ports\n");
         ret = -1;
     }
@@ -577,7 +577,7 @@ Server_jack_autoconnect (Server *self)
     free (ports);
     
     if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
-        JackPortIsPhysical|JackPortIsInput)) == NULL) {
+        JackPortIsInput)) == NULL) {
         Server_error(self, "Jack: Cannot find any physical playback ports\n");
         ret = -1;
     }
