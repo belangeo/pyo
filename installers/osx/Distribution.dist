@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<installer-gui-script minSpecVersion="1">
+
+    <title>Python-pyo module</title>
+    <options customize="both" allow-external-scripts="no"/>
+    <domains enable_anywhere="true" enable_localSystem="true"/>
+    <welcome file="Welcome.rtf" />
+    <readme file="ReadMe.rtf" />
+    <license file="License.rtf" />
+    
+    <pkg-ref id="com.iact.umontreal.ca.pyo.tmp.pkg"/>
+    <pkg-ref id="com.iact.umontreal.ca.pyo.usr.pkg"/>
+    <choices-outline>
+        <line choice="com.iact.umontreal.ca.pyo.tmp.pkg"/>
+        <line choice="com.iact.umontreal.ca.pyo.usr.pkg"/>
+    </choices-outline>
+    
+    <choice id="com.iact.umontreal.ca.pyo.tmp.pkg"
+    visible="true"
+    title="Python-pyo module">
+        <pkg-ref id="com.iact.umontreal.ca.pyo.tmp.pkg"/>
+    </choice>
+    <choice id="com.iact.umontreal.ca.pyo.usr.pkg"
+    visible="true"
+    title="Support Libraries">
+        <pkg-ref id="com.iact.umontreal.ca.pyo.usr.pkg"/>
+    </choice>
+    
+<pkg-ref id="com.iact.umontreal.ca.pyo.tmp.pkg" version="1" onConclusion="none" auth="root">PyoModule.pkg</pkg-ref>
+<pkg-ref id="com.iact.umontreal.ca.pyo.usr.pkg" version="1" onConclusion="none" auth="root">SupportLibs.pkg</pkg-ref>
+</installer-gui-script>
