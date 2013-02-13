@@ -2315,4 +2315,9 @@ init_pyo64(void)
 #else
     PyModule_AddIntConstant(m, "WITH_EXTERNALS", 0);
 #endif
+#ifndef USE_DOUBLE
+    PyModule_AddIntConstant(m, "USE_DOUBLE", 0);
+#else
+    PyModule_AddIntConstant(m, "USE_DOUBLE", 1);
+#endif
 }
