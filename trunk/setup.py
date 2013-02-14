@@ -23,6 +23,7 @@ from distutils.core import setup, Extension
 import os, sys, getopt
 import time
 
+pyo_version = "0.6.4"
 build_osx_with_jack_support = False
 compile_externals = False
 
@@ -104,7 +105,7 @@ if compile_externals:
 setup(  name = "pyo",
         author = "Olivier Belanger",
         author_email = "belangeo@gmail.com",
-        version = "0.6.3",
+        version = pyo_version,
         description = "Python dsp module.",
         long_description = "pyo is a Python module written in C to help digital signal processing script creation.",
         url = "http://code.google.com/p/pyo/",

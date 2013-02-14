@@ -22,8 +22,6 @@ from types import ListType, SliceType, FloatType, StringType, UnicodeType
 import random, os, sys, inspect, tempfile
 from subprocess import call
 
-PYO_VERSION = '0.6.3'
-
 import __builtin__
 if hasattr(__builtin__, 'pyo_use_double'):
     import pyo64 as current_pyo
