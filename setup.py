@@ -82,7 +82,7 @@ if sys.platform == "win32":
                     'C:\portmidi\pm_common', 'C:\liblo', 'C:\pthreads\include', 'include',
                     'C:\portmidi\porttime']
     library_dirs = ['C:\portaudio', 'C:/Program Files/Mega-Nerd/libsndfile/bin', 'C:\portmidi', 'C:\liblo', 'C:\pthreads\lib']
-    libraries = ['portaudio', 'portmidi', 'libsndfile-1', 'lo', 'pthreadVC2']
+    libraries = ['portaudio', 'portmidi', 'porttime', 'libsndfile-1', 'lo', 'pthreadVC2']
 else:
     tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
     macros.append(('TIMESTAMP', tsrt))
@@ -94,7 +94,7 @@ else:
 
 extensions = []
 for extension_name, extra_macros in zip(extension_names, extra_macros_per_extension):
-    extensions.append(Extension(extension_name, source_files, include_dirs=include_dirs,
+    extensions.append(Extension(extension_name, source_files, include_dirs=include_dirs, library_dirs=library_dirs,
                                 libraries=libraries, extra_compile_args=['-Wno-strict-prototypes', '-O3'],
                                 define_macros=macros + extra_macros))
 

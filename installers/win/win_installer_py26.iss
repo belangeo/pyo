@@ -16,7 +16,7 @@ DefaultDirName={sd}\Python26
 DisableDirPage=yes
 DefaultGroupName=pyo
 AllowNoIcons=yes
-InfoBeforeFile=C:\Documents and Settings\user\svn\pyo\scripts\win\\README-win32-py26.txt
+InfoBeforeFile=C:\Documents and Settings\user\svn\pyo\installers\win\\README-win32-py26.txt
 OutputBaseFilename=pyo_0.6.4_py2.6_setup
 Compression=lzma
 SolidCompression=yes
@@ -44,7 +44,7 @@ Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{sd}\Python26\Lib\site-pack
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{sd}\Python26\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python26\Lib\site-packages\pyo-0.6.4-py2.6.egg-info"; DestDir: "{sd}\Python26\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Documents and Settings\user\svn\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples\"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Documents and Settings\user\svn\pyo\scripts\win\README-win32-py26.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
+Source: "C:\Documents and Settings\user\svn\pyo\installers\win\README-win32-py26.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 ; E-Pyo stuff
