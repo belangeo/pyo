@@ -77,6 +77,8 @@ else
     sudo cp -r /tmp/python27/* .
 fi
 
+sudo rm -rf /tmp/python2*
+
 # Add /usr/local/lib in .bash_profile if not already done
 searchString="/usr/local/lib"
 
