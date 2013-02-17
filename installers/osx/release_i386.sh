@@ -35,7 +35,7 @@ sudo cp -R build/lib.macosx-10.3-fat-2.6 $PYO_MODULE_DIR/python26
 echo "building pyo for python 2.7 (32-bit)..."
 sudo /usr/local/bin/python2.7 setup.py install --use-coreaudio --use-double
 
-sudo cp -R build/lib.macosx-10.6-intel-2.7 $PYO_MODULE_DIR/python27
+sudo cp -R build/lib.macosx-10.3-fat-2.7 $PYO_MODULE_DIR/python27
 
 cd ..
 
