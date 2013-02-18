@@ -1,7 +1,27 @@
+2013-02-17 belangeo <belangeo@gmail.com>
+
+    * Release tag: 0.6.4.
+    - rev 1078
+
+2013-02-13 belangeo <belangeo@gmail.com>
+
+    * Added pyo.USE_DOUBLE constant. 'import pyo' sets this constant to 0 and 'import pyo64' sets it to 1
+    - rev 1073
+
+2013-01-21 belangeo <belangeo@gmail.com>
+
+    * Added __del__ method to the Server object with checks and necessary actions if the server is already started and/or booted.
+    - rev 1065
+
 2013-01-11 belangeo <belangeo@gmail.com>
 
     * Added new object: RCOsc. Waveform aproximation of a RC circuit.
     - rev 1063
+
+2013-01-07 belangeo <belangeo@gmail.com>
+
+    * Added new operators on To PyoObject. **, %, - (negative) and comparison operators.
+    - rev 1062
 
 2012-12-25 belangeo <belangeo@gmail.com>
 
