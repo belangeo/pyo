@@ -2815,6 +2815,7 @@ class MainPanel(wx.Panel):
         self.SetSizer(mainBox)
 
         self.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
+        self.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
 
     def addNewPage(self):
         title = "Untitled-%i.py" % self.new_inc
@@ -2862,6 +2863,9 @@ class MainPanel(wx.Panel):
                 text = f.read()
             exec text in locals()
             self.editor.setMarkers(copy.deepcopy(markers))
+
+    def onClosingPage(self, evt):
+        action = self.editor.closeNoCancel()
 
     def deletePage(self):
         select = self.notebook.GetSelection()
@@ -3256,6 +3260,30 @@ class Editor(stc.StyledTextCtrl):
             for line in lines:
                 f.write("%s=%s\n" % (line[0], line[1]))
 
+    def closeNoCancel(self):
+        if self.GetModify():
+            if not self.path: f = "Untitled"
+            else: f = self.path
+            dlg = wx.MessageDialog(None, 'file ' + f + ' has been modified. Do you want to save?', 
+                                   'Warning!', wx.YES | wx.NO)
+            but = dlg.ShowModal()
+            if but == wx.ID_YES:
+                dlg.Destroy()
+                if not self.path or "Untitled-" in self.path:
+                    dlg2 = wx.FileDialog(None, message="Save file as ... (the file will be closed even if you pressed Cancel!)", defaultDir=os.getcwd(), 
+                                         defaultFile="", style=wx.SAVE|wx.FD_OVERWRITE_PROMPT)
+                    dlg2.SetFilterIndex(0)
+                    if dlg2.ShowModal() == wx.ID_OK:
+                        path = dlg2.GetPath()
+                        self.SaveFile(path)
+                        dlg2.Destroy()
+                    else:
+                        dlg2.Destroy()
+                else:
+                    self.SaveFile(self.path)
+            elif but == wx.ID_NO:
+                dlg.Destroy()
+
     def close(self):
         if self.GetModify():
             if not self.path: f = "Untitled"
@@ -3265,9 +3293,9 @@ class Editor(stc.StyledTextCtrl):
             but = dlg.ShowModal()
             if but == wx.ID_YES:
                 dlg.Destroy()
-                if not self.path:
+                if not self.path or "Untitled-" in self.path:
                     dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(), 
-                                         defaultFile="", style=wx.SAVE)
+                                         defaultFile="", style=wx.SAVE|wx.FD_OVERWRITE_PROMPT)
                     dlg2.SetFilterIndex(0)
                     if dlg2.ShowModal() == wx.ID_OK:
                         path = dlg2.GetPath()
@@ -3296,9 +3324,9 @@ class Editor(stc.StyledTextCtrl):
                                    'Warning!', wx.YES | wx.NO)
             if dlg.ShowModal() == wx.ID_YES:
                 dlg.Destroy()
-                if not self.path:
+                if not self.path or "Untitled-" in self.path:
                     dlg2 = wx.FileDialog(None, message="Save file as ...", defaultDir=os.getcwd(),
-                                         defaultFile="", style=wx.SAVE)
+                                         defaultFile="", style=wx.SAVE|wx.FD_OVERWRITE_PROMPT)
                     dlg2.SetFilterIndex(0)
 
                     if dlg2.ShowModal() == wx.ID_OK:
