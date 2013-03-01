@@ -1,3 +1,10 @@
+2013-02-28 belangeo <belangeo@gmail.com>
+
+    * Graphical display of table objects now updates in real-time.
+    - rev 1080
+
+-------------------------------------------------------------------------------------
+
 2013-02-17 belangeo <belangeo@gmail.com>
 
     * Release tag: 0.6.4.

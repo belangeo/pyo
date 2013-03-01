@@ -26,7 +26,7 @@ def change():
     val = c.get()
     t.setBias(val)
     t.normalize()
-    print "Curve bias:", val
+    t.refreshView()
 
 p = Pattern(change, .1).play()
 

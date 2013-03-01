@@ -704,37 +704,51 @@ class PyoObjectControl(wx.Frame):
 ######################################################################
 ### View window for PyoTableObject
 ######################################################################
-class ViewTable_withPIL(wx.Frame):
-    def __init__(self, parent, samples=None, tableclass=None):
+class ViewTable(wx.Frame):
+    def __init__(self, parent, samples=None, tableclass=None, object=None):
         wx.Frame.__init__(self, parent)
-        self.menubar = wx.MenuBar()        
-        self.fileMenu = wx.Menu()
-        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
-        self.menubar.Append(self.fileMenu, "&File")
-        self.SetMenuBar(self.menubar)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        menubar = wx.MenuBar()        
+        fileMenu = wx.Menu()
+        closeItem = fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
+        menubar.Append(fileMenu, "&File")
+        self.SetMenuBar(menubar)
+        self.tableclass = tableclass
+        self.object = object
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.width = 500
-        self.height = 200
+        self.Bind(wx.EVT_CLOSE, self._destroy)
+        self.width, self.height = 500, 200
         self.half_height = self.height / 2
-        if sys.platform == "linux2":
-            Y_OFF = 25
-        elif sys.platform == "win32":
-            Y_OFF = 55
+        if self._WITH_PIL:
+            Y_OFF = {'linux2': 25, 'win32': 55, 'darwin': 30}[sys.platform]
         else:
-            Y_OFF = 30
+            Y_OFF = {'linux2': 35, 'win32': 40, 'darwin': 40}[sys.platform]
         self.SetSize((self.width+10, self.height+Y_OFF))
         self.SetMinSize((self.width+10, self.height+Y_OFF))
         self.SetMaxSize((self.width+10, self.height+Y_OFF))
+        self.draw(samples)
+
+    def update(self, samples):
+        wx.CallAfter(self.draw, samples)
+
+    def _destroy(self, evt):
+        self.object._setViewFrame(None)
+        self.Destroy()
+        
+class ViewTable_withPIL(ViewTable):
+    _WITH_PIL = True
+    def __init__(self, parent, samples=None, tableclass=None, object=None):
+        ViewTable.__init__(self, parent, samples, tableclass, object)
+
+    def draw(self, samples):
         im = Image.new("L", (self.width, self.height), 255)
         draw = ImageDraw.Draw(im)
         draw.line(samples, fill=0, width=1)
         image = wx.EmptyImage(self.width, self.height)
         image.SetData(im.convert("RGB").tostring())
         self.img = wx.BitmapFromImage(image)
-
-    def _destroy(self, evt):
-        self.Destroy()
+        self.Refresh()
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
@@ -742,38 +756,20 @@ class ViewTable_withPIL(wx.Frame):
         dc.SetPen(wx.Pen('#BBBBBB', width=1, style=wx.SOLID))  
         dc.DrawLine(0, self.half_height+1, self.width, self.half_height+1)
 
-class ViewTable_withoutPIL(wx.Frame):
-    def __init__(self, parent, samples=None, tableclass=None):
-        wx.Frame.__init__(self, parent)
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
-        self.menubar = wx.MenuBar()        
-        self.fileMenu = wx.Menu()
-        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
-        self.menubar.Append(self.fileMenu, "&File")
-        self.SetMenuBar(self.menubar)
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.width = 500
-        self.height = 200
-        self.half_height = self.height / 2
-        if sys.platform == "linux2":
-            Y_OFF = 35
-        else:
-            Y_OFF = 40
-        self.SetSize((self.width+10, self.height+Y_OFF))
-        self.SetMinSize((self.width+10, self.height+Y_OFF))
-        self.SetMaxSize((self.width+10, self.height+Y_OFF))
-        self.tableclass = tableclass
+class ViewTable_withoutPIL(ViewTable):
+    _WITH_PIL = False
+    def __init__(self, parent, samples=None, tableclass=None, object=None):
+        ViewTable.__init__(self, parent, samples, tableclass, object)
+        
+    def draw(self, samples):
         if sys.platform == 'win32':
-            if tableclass == 'SndTable':
+            if self.tableclass == 'SndTable':
                 self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
             else:    
                 self.samples = [(samples[i], samples[i+1]) for i in range(0, len(samples), 2)]
         else:        
             self.samples = [(samples[i], samples[i+1], samples[i+2], samples[i+3]) for i in range(0, len(samples), 4)]
-
-    def _destroy(self, evt):
-        self.Destroy()
+        self.Refresh()
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
@@ -810,7 +806,11 @@ class SndViewTable(wx.Frame):
         self.chnls = len(self.obj)
         self.mouse_callback = mouse_callback
 
+    def update(self):
+        wx.CallAfter(self.setImage)
+
     def _destroy(self, evt):
+        self.obj._setViewFrame(None)
         self.Destroy()
 
     def OnSize(self, evt):
@@ -871,6 +871,7 @@ class SndViewTable_withPIL(SndViewTable):
             image = wx.EmptyImage(w, imgHeight)
             image.SetData(im.convert("RGB").tostring())
             self.img.append(wx.BitmapFromImage(image))
+        self.Refresh()
 
     def OnPaint(self, evt):
         w, h = self.GetSize()
@@ -903,6 +904,7 @@ class SndViewTable_withoutPIL(SndViewTable):
             else:
                 samples = [(samples[i], samples[i+1]+off, samples[i+2], samples[i+3]+off) for i in range(0, len(samples), 4)]
             self.img.append(samples)
+        self.Refresh()
 
     def OnPaint(self, evt):
         w,h = self.GetSize()

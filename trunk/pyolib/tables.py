@@ -81,6 +81,7 @@ class HarmTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     @property
     def list(self): 
@@ -141,6 +142,7 @@ class SawTable(PyoTableObject):
         self._order = x
         list = [1./i for i in range(1,(self._order+1))]
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     @property
     def order(self): 
@@ -211,6 +213,7 @@ class SquareTable(PyoTableObject):
             else:
                 list.append(0.)    
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     @property
     def order(self): 
@@ -280,6 +283,7 @@ class ChebyTable(PyoTableObject):
         """ 
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def getNormTable(self):
         """
@@ -379,6 +383,7 @@ class SincTable(PyoTableObject):
         """
         self._freq = x
         [obj.setFreq(x) for obj in self._base_objs]
+        self.refreshView()
 
     def setWindowed(self, x):
         """
@@ -392,6 +397,7 @@ class SincTable(PyoTableObject):
         """
         self._windowed = x
         [obj.setWindowed(x) for obj in self._base_objs]
+        self.refreshView()
 
     @property
     def freq(self): 
@@ -464,6 +470,7 @@ class WinTable(PyoTableObject):
         """
         self._type = type
         [obj.setType(type) for obj in self._base_objs]
+        self.refreshView()
 
     @property
     def type(self): 
@@ -520,6 +527,7 @@ class LinTable(PyoTableObject):
 
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
+    getPoints() : Returns list of points of the current table.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -565,6 +573,7 @@ class LinTable(PyoTableObject):
         """ 
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         """
@@ -598,8 +607,13 @@ class LinTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
+        self.refreshView()
 
     def getPoints(self):
+        """
+        Returns list of points of the current table.
+
+        """
         return self._base_objs[0].getPoints()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
@@ -656,6 +670,7 @@ class LogTable(PyoTableObject):
 
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
+    getPoints() : Returns list of points of the current table.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -701,6 +716,7 @@ class LogTable(PyoTableObject):
         """ 
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         """
@@ -734,8 +750,13 @@ class LogTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
+        self.refreshView()
 
     def getPoints(self):
+        """
+        Returns list of points of the current table.
+
+        """
         return self._base_objs[0].getPoints()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
@@ -792,6 +813,7 @@ class CosLogTable(PyoTableObject):
 
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
+    getPoints() : Returns list of points of the current table.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -837,6 +859,7 @@ class CosLogTable(PyoTableObject):
         """ 
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         """
@@ -870,8 +893,13 @@ class CosLogTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
+        self.refreshView()
 
     def getPoints(self):
+        """
+        Returns list of points of the current table.
+
+        """
         return self._base_objs[0].getPoints()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
@@ -928,6 +956,7 @@ class CosTable(PyoTableObject):
 
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
+    getPoints() : Returns list of points of the current table.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -973,6 +1002,7 @@ class CosTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         """
@@ -1006,8 +1036,13 @@ class CosTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
+        self.refreshView()
 
     def getPoints(self):
+        """
+        Returns list of points of the current table.
+
+        """
         return self._base_objs[0].getPoints()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
@@ -1079,6 +1114,7 @@ class CurveTable(PyoTableObject):
     setTension(x) : Replace the `bias` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
+    getPoints() : Returns list of points of the current table.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -1134,6 +1170,7 @@ class CurveTable(PyoTableObject):
         """
         self._tension = x
         [obj.setTension(x) for obj in self._base_objs]
+        self.refreshView()
 
     def setBias(self, x):
         """
@@ -1150,6 +1187,7 @@ class CurveTable(PyoTableObject):
         """
         self._bias = x
         [obj.setBias(x) for obj in self._base_objs]
+        self.refreshView()
      
     def replace(self, list):
         """
@@ -1164,6 +1202,7 @@ class CurveTable(PyoTableObject):
         """      
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         """
@@ -1197,8 +1236,13 @@ class CurveTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
+        self.refreshView()
         
     def getPoints(self):
+        """
+        Returns list of points of the current table.
+
+        """
         return self._base_objs[0].getPoints()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
@@ -1277,6 +1321,7 @@ class ExpTable(PyoTableObject):
     setInverse(x) : Replace the `inverse` attribute.
     replace(list) : Draw a new envelope according to the `list` parameter.
     loadRecFile(filename, tolerance) : Import an automation recording file.
+    getPoints() : Returns list of points of the current table.
     graph(yrange, title, wxnoserver) : Opens a grapher window to control 
         the shape of the envelope.
 
@@ -1326,6 +1371,7 @@ class ExpTable(PyoTableObject):
         """
         self._exp = x
         [obj.setExp(x) for obj in self._base_objs]
+        self.refreshView()
 
     def setInverse(self, x):
         """
@@ -1339,6 +1385,7 @@ class ExpTable(PyoTableObject):
         """
         self._inverse = x
         [obj.setInverse(x) for obj in self._base_objs]
+        self.refreshView()
   
     def replace(self, list):
         """
@@ -1353,6 +1400,7 @@ class ExpTable(PyoTableObject):
         """
         self._list = list
         [obj.replace(list) for obj in self._base_objs]
+        self.refreshView()
 
     def loadRecFile(self, filename, tolerance=0.02):
         """
@@ -1386,8 +1434,13 @@ class ExpTable(PyoTableObject):
             values = reducePoints(values, tolerance=tolerance)
             self._list = values
             obj.replace(values)
+        self.refreshView()
         
     def getPoints(self):
+        """
+        Returns list of points of the current table.
+
+        """
         return self._base_objs[0].getPoints()
 
     def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
@@ -1563,6 +1616,7 @@ class SndTable(PyoTableObject):
                 [obj.setSound(path, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.setSound(path, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
 
     def append(self, path, crossfade=0, start=0, stop=None):
         """
@@ -1608,6 +1662,7 @@ class SndTable(PyoTableObject):
                 [obj.append(path, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.append(path, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
 
     def insert(self, path, pos=0, crossfade=0, start=0, stop=None):
         """
@@ -1659,6 +1714,7 @@ class SndTable(PyoTableObject):
                 [obj.insert(path, pos, crossfade, (i%_snd_chnls), start) for i, obj in enumerate(self._base_objs)]
             else:
                 [obj.insert(path, pos, crossfade, (i%_snd_chnls), start, stop) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
 
     def getRate(self):
         """
@@ -1758,6 +1814,10 @@ class SndTable(PyoTableObject):
 
         """
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
+
+    def refreshView(self):
+        if self.viewFrame != None:
+            self.viewFrame.update()
 
     @property
     def sound(self):
@@ -1880,6 +1940,7 @@ class NewTable(PyoTableObject):
         if type(x[0]) != ListType: 
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
 
     def setFeedback(self, x):
         """
@@ -1935,6 +1996,10 @@ class NewTable(PyoTableObject):
 
         """
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
+
+    def refreshView(self):
+        if self.viewFrame != None:
+            self.viewFrame.update()
 
     @property
     def length(self):
@@ -2036,6 +2101,7 @@ class DataTable(PyoTableObject):
         if type(x[0]) != ListType: 
             x = [x]
         [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
 
     def getRate(self):
         """

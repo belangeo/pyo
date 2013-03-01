@@ -891,6 +891,7 @@ class PyoTableObject(PyoObjectBase):
     put(value, pos) : Puts a value at specified position in the table.
     get(pos) : Returns the value at specified position in the table.
     getTable(all) : Returns the content of the table as list of floats.
+    refreshView() : Updates the graphical display of the table, if applicable.
 
     Attributes:
 
@@ -912,6 +913,7 @@ class PyoTableObject(PyoObjectBase):
     def __init__(self, size=0):
         PyoObjectBase.__init__(self)
         self._size = size
+        self.viewFrame = None
 
     def save(self, path, format=0, sampletype=0):
         """
@@ -1129,7 +1131,19 @@ class PyoTableObject(PyoObjectBase):
         
         """
         samples = self._base_objs[0].getViewTable()
-        createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__)
+        createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__, self)
+
+    def _setViewFrame(self, frame):
+        self.viewFrame = frame
+        
+    def refreshView(self):
+        """
+        Updates the graphical display of the table, if applicable.
+
+        """
+        if self.viewFrame != None:
+            samples = self._base_objs[0].getViewTable()
+            self.viewFrame.update(samples)
 
     @property
     def size(self):
