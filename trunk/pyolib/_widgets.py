@@ -176,8 +176,9 @@ def wxCreateDelayedSndTableWindows():
 def wxCreateDelayedMatrixWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in MATRIXWINDOWS:
-        if WITH_PIL: f = ViewMatrix_withPIL(None, win[0], win[1])
-        else: f = ViewMatrix_withoutPIL(None, win[0], win[1])
+        object = win[3]
+        if WITH_PIL: f = ViewMatrix_withPIL(None, win[0], win[1], object)
+        else: f = ViewMatrix_withoutPIL(None, win[0], win[1], object)
         f.SetTitle(win[2])
         x, y = f.GetSize()
         if y + NEXT_Y < Y:
@@ -190,6 +191,8 @@ def wxCreateDelayedMatrixWindows():
             f.SetPosition((px, py))
         else:
             f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        if object != None:
+            object._setViewFrame(f)
         f.Show()
     
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
@@ -285,7 +288,7 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
         else:
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
         
-def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False):
+def createViewMatrixWindow(samples, size, title="Matrix viewer", wxnoserver=False, object=None):
     if not WITH_PIL: print """The Python Imaging Library is not installed. 
 It helps a lot to speed up matrix drawing!"""
     if not PYO_USE_WX:
@@ -305,8 +308,10 @@ It helps a lot to speed up matrix drawing!"""
             else: f = ViewMatrix_withoutPIL(None, samples, size)
             f.Show()
             f.SetTitle(title)
+            if object != None:
+                object._setViewFrame(f)
         else:
-            MATRIXWINDOWS.append([samples,size,title])    
+            MATRIXWINDOWS.append([samples,size,title, object])    
         
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp):
     global X, Y, MAX_X, NEXT_Y

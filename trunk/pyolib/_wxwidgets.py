@@ -931,9 +931,10 @@ class SndViewTable_withoutPIL(SndViewTable):
 ######################################################################
 ## View window for PyoMatrixObject
 #####################################################################
-class ViewMatrix_withPIL(wx.Frame):
-    def __init__(self, parent, samples=None, size=None):
+class ViewMatrix(wx.Frame):
+    def __init__(self, parent, size=None, object=None):
         wx.Frame.__init__(self, parent)
+        self.object = object
         self.menubar = wx.MenuBar()        
         self.fileMenu = wx.Menu()
         closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
@@ -942,52 +943,51 @@ class ViewMatrix_withPIL(wx.Frame):
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        if sys.platform == "linux2":
-            Y_OFF = 0
-        elif sys.platform == "win32":
-            Y_OFF = 45
+        if self._WITH_PIL:
+            Y_OFF = {'linux2': 0, 'win32': 45, 'darwin': 22}[sys.platform]
         else:
-            Y_OFF = 22
+            Y_OFF = {'linux2': 0, 'win32': 22, 'darwin': 22}[sys.platform]
         self.SetSize((size[0], size[1]+Y_OFF))
         self.SetMinSize((size[0], size[1]+Y_OFF))
         self.SetMaxSize((size[0], size[1]+Y_OFF))
-        im = Image.new("L", size, None)
-        im.putdata(samples)
-        image = wx.EmptyImage(size[0], size[1])
-        image.SetData(im.convert("RGB").tostring())
-        self.img = wx.BitmapFromImage(image)
+
+    def update(self, samples):
+        wx.CallAfter(self.setImage, samples)
 
     def _destroy(self, evt):
+        self.object._setViewFrame(None)
         self.Destroy()
+
+class ViewMatrix_withPIL(ViewMatrix):
+    _WITH_PIL = True
+    def __init__(self, parent, samples=None, size=None, object=None):
+        ViewMatrix.__init__(self, parent, size, object)
+        self.size = size
+        self.setImage(samples)
+        
+    def setImage(self, samples):
+        im = Image.new("L", self.size, None)
+        im.putdata(samples)
+        image = wx.EmptyImage(self.size[0], self.size[1])
+        image.SetData(im.convert("RGB").tostring())
+        self.img = wx.BitmapFromImage(image)
+        self.Refresh()
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
         dc.DrawBitmap(self.img, 0, 0)
 
-class ViewMatrix_withoutPIL(wx.Frame):
-    def __init__(self, parent, samples=None, size=None):
-        wx.Frame.__init__(self, parent)
-        self.menubar = wx.MenuBar()        
-        self.fileMenu = wx.Menu()
-        closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
-        self.menubar.Append(self.fileMenu, "&File")
-        self.SetMenuBar(self.menubar)
-        self.Bind(wx.EVT_CLOSE, self._destroy)
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        if sys.platform == "linux2":
-            Y_OFF = 0
-        else:
-            Y_OFF = 22
-        self.SetSize((size[0], size[1]+Y_OFF))
-        self.SetMinSize((size[0], size[1]+Y_OFF))
-        self.SetMaxSize((size[0], size[1]+Y_OFF))
+class ViewMatrix_withoutPIL(ViewMatrix):
+    _WITH_PIL = False
+    def __init__(self, parent, samples=None, size=None, object=None):
+        ViewMatrix.__init__(self, parent, size, object)
         self.width = size[0]
         self.height = size[1]
+        self.setImage(samples)
+    
+    def setImage(self, samples):
         self.samples = samples
-
-    def _destroy(self, evt):
-        self.Destroy()
+        self.Refresh()
 
     def OnPaint(self, evt):
         dc = wx.PaintDC(self)
