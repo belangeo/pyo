@@ -793,10 +793,11 @@ class SndViewTable(wx.Frame):
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.menubar = wx.MenuBar()        
         self.fileMenu = wx.Menu()
-        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
+        self.Bind(wx.EVT_CLOSE, self._destroy)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.Bind(wx.EVT_LEFT_DOWN, self.OnMouseDown)
@@ -810,6 +811,7 @@ class SndViewTable(wx.Frame):
         wx.CallAfter(self.setImage)
 
     def _destroy(self, evt):
+        print "caca"
         self.obj._setViewFrame(None)
         self.Destroy()
 
@@ -934,10 +936,11 @@ class ViewMatrix_withPIL(wx.Frame):
         wx.Frame.__init__(self, parent)
         self.menubar = wx.MenuBar()        
         self.fileMenu = wx.Menu()
-        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
+        self.Bind(wx.EVT_CLOSE, self._destroy)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         if sys.platform == "linux2":
             Y_OFF = 0
@@ -966,10 +969,11 @@ class ViewMatrix_withoutPIL(wx.Frame):
         wx.Frame.__init__(self, parent)
         self.menubar = wx.MenuBar()        
         self.fileMenu = wx.Menu()
-        self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
-        self.fileMenu.Bind(wx.EVT_MENU, self._destroy)
+        closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
+        self.Bind(wx.EVT_CLOSE, self._destroy)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         if sys.platform == "linux2":
             Y_OFF = 0
