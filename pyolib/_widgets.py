@@ -134,8 +134,9 @@ def wxCreateDelayedGraphWindows():
 def wxCreateDelayedTableWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in TABLEWINDOWS:
-        if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1])
-        else: f = ViewTable_withoutPIL(None, win[0], win[1])
+        object = win[3]
+        if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1], object)
+        else: f = ViewTable_withoutPIL(None, win[0], win[1], object)
         f.SetTitle(win[2])
         x, y = f.GetSize()
         if y + NEXT_Y < Y:
@@ -148,6 +149,8 @@ def wxCreateDelayedTableWindows():
             f.SetPosition((px, py))
         else:
             f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        if object != None:
+            object._setViewFrame(f)
         f.Show()
 
 def wxCreateDelayedSndTableWindows():
@@ -167,6 +170,7 @@ def wxCreateDelayedSndTableWindows():
             f.SetPosition((px, py))
         else:
             f.SetPosition((random.randint(250,500), random.randint(200,400)))
+        win[0]._setViewFrame(f)
         f.Show()
 
 def wxCreateDelayedMatrixWindows():
@@ -236,7 +240,7 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
         else:
             GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])   
         
-def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None):
+def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None, object=None):
     if not PYO_USE_WX:
         createRootWindow()
         win = tkCreateToplevelWindow()
@@ -254,8 +258,10 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
             else: f = ViewTable_withoutPIL(None, samples, tableclass)
             f.Show()
             f.SetTitle(title)
+            if object != None:
+                object._setViewFrame(f)
         else:
-            TABLEWINDOWS.append([samples, tableclass, title])    
+            TABLEWINDOWS.append([samples, tableclass, title, object])    
 
 def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tableclass=None, mouse_callback=None):
     if not PYO_USE_WX:
@@ -275,6 +281,7 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
             else: f = SndViewTable_withoutPIL(None, obj, tableclass, mouse_callback)
             f.Show()
             f.SetTitle(title)
+            obj._setViewFrame(f)
         else:
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
         
