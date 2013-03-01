@@ -1,3 +1,8 @@
+2013-03-01 belangeo <belangeo@gmail.com>
+
+    * Graphical display of NewMatrix object now updates in real-time.
+    - rev 1082
+
 2013-02-28 belangeo <belangeo@gmail.com>
 
     * Graphical display of table objects now updates in real-time.

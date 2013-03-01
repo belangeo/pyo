@@ -1192,6 +1192,7 @@ class PyoMatrixObject(PyoObjectBase):
 
     def __init__(self):
         PyoObjectBase.__init__(self)
+        self.viewFrame = None
 
     def write(self, path):
         """
@@ -1321,7 +1322,19 @@ class PyoMatrixObject(PyoObjectBase):
         
         """        
         samples = self._base_objs[0].getViewData()
-        createViewMatrixWindow(samples, self.getSize(), title, wxnoserver)
+        createViewMatrixWindow(samples, self.getSize(), title, wxnoserver, self)
+
+    def _setViewFrame(self, frame):
+        self.viewFrame = frame
+        
+    def refreshView(self):
+        """
+        Updates the graphical display of the table, if applicable.
+
+        """
+        if self.viewFrame != None:
+            samples = self._base_objs[0].getViewData()
+            self.viewFrame.update(samples)
         
 ######################################################################
 ### Internal classes -> Used by pyo

@@ -86,7 +86,8 @@ class NewMatrix(PyoMatrixObject):
 
         """
         [obj.setMatrix(x) for obj in self._base_objs]
-         
+        self.refreshView()
+
     def getRate(self):
         """
         Returns the frequency (cycle per second) to give to an 
@@ -110,4 +111,5 @@ class NewMatrix(PyoMatrixObject):
 
         """
         [obj.genSineTerrain(freq, phase) for obj in self._base_objs]
+        self.refreshView()
 
