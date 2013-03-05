@@ -69,7 +69,7 @@ def createRootWindow():
             return None
     else:        
         if wx.GetApp() == None: 
-            win = wx.PySimpleApp() 
+            win = wx.App() 
             return win
         else:
             return None
@@ -91,45 +91,43 @@ def tkCreateToplevelWindow():
     win.bind("<Escape>", tkCloseWindowFromKeyboard)
     return win
 
-def wxCreateDelayedCtrlWindows():
+def wxDisplayWindow(f, title):
     global CURRENT_X, MAX_X, NEXT_Y
+    f.SetTitle(title)
+    x, y = f.GetSize()
+    if sys.platform == "linux2":
+        y += 25
+    if y + NEXT_Y < Y:
+        px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
+        if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
+        f.SetPosition((px, py))
+    elif x + MAX_X < X:
+        px, py, NEXT_Y, CURRENT_X = MAX_X, 50, 50 + y, MAX_X
+        if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
+        f.SetPosition((px, py))
+    else:
+        f.SetPosition((random.randint(250,500), random.randint(200,400)))
+    f.Show()
+
+def wxShowWindow(f, title, root):
+    f.SetTitle(title)
+    f.Show()
+    if root != None:
+        root.MainLoop()
+    
+def wxCreateDelayedCtrlWindows():
     for win in CTRLWINDOWS:
         f = PyoObjectControl(None, win[0], win[1])
         if win[2] == None: title = win[0].__class__.__name__
         else: title = win[2]
-        f.SetTitle(title)
-        x, y = f.GetSize()
-        if y + NEXT_Y < Y:
-            px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        elif x + MAX_X < X:
-            px, py, NEXT_Y, CURRENT_X = MAX_X, 50, 50 + y, MAX_X
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        else:
-            f.SetPosition((random.randint(250,500), random.randint(200,400)))
-        f.Show()
+        wxDisplayWindow(f, title)
 
 def wxCreateDelayedGraphWindows():
-    global CURRENT_X, MAX_X, NEXT_Y
     for win in GRAPHWINDOWS:
         f = TableGrapher(None, win[0], win[1], win[2], win[3])
         if win[4] == None: title = win[0].__class__.__name__
         else: title = win[4]
-        f.SetTitle(title)
-        x, y = f.GetSize()
-        if y + NEXT_Y < Y:
-            px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        elif x + MAX_X < X:
-            px, py, NEXT_Y, CURRENT_X = MAX_X, 50, 50 + y, MAX_X
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        else:
-            f.SetPosition((random.randint(250,500), random.randint(200,400)))
-        f.Show()
+        wxDisplayWindow(f, title)
 
 def wxCreateDelayedTableWindows():
     global CURRENT_X, MAX_X, NEXT_Y
@@ -137,41 +135,17 @@ def wxCreateDelayedTableWindows():
         object = win[3]
         if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1], object)
         else: f = ViewTable_withoutPIL(None, win[0], win[1], object)
-        f.SetTitle(win[2])
-        x, y = f.GetSize()
-        if y + NEXT_Y < Y:
-            px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        elif x + MAX_X < X:
-            px, py, NEXT_Y, CURRENT_X = MAX_X, 50, 50 + y, MAX_X
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        else:
-            f.SetPosition((random.randint(250,500), random.randint(200,400)))
         if object != None:
             object._setViewFrame(f)
-        f.Show()
+        wxDisplayWindow(f, win[2])
 
 def wxCreateDelayedSndTableWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in SNDTABLEWINDOWS:
         if WITH_PIL: f = SndViewTable_withPIL(None, win[0], win[1], win[3])
         else: f = SndViewTable_withoutPIL(None, win[0], win[1], win[3])
-        f.SetTitle(win[2])
-        x, y = f.GetSize()
-        if y + NEXT_Y < Y:
-            px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        elif x + MAX_X < X:
-            px, py, NEXT_Y, CURRENT_X = MAX_X, 50, 50 + y, MAX_X
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        else:
-            f.SetPosition((random.randint(250,500), random.randint(200,400)))
         win[0]._setViewFrame(f)
-        f.Show()
+        wxDisplayWindow(f, win[2])
 
 def wxCreateDelayedMatrixWindows():
     global CURRENT_X, MAX_X, NEXT_Y
@@ -179,21 +153,9 @@ def wxCreateDelayedMatrixWindows():
         object = win[3]
         if WITH_PIL: f = ViewMatrix_withPIL(None, win[0], win[1], object)
         else: f = ViewMatrix_withoutPIL(None, win[0], win[1], object)
-        f.SetTitle(win[2])
-        x, y = f.GetSize()
-        if y + NEXT_Y < Y:
-            px, py, NEXT_Y = CURRENT_X, NEXT_Y, NEXT_Y + y
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        elif x + MAX_X < X:
-            px, py, NEXT_Y, CURRENT_X = MAX_X, 50, 50 + y, MAX_X
-            if x + CURRENT_X > MAX_X: MAX_X = x + CURRENT_X
-            f.SetPosition((px, py))
-        else:
-            f.SetPosition((random.randint(250,500), random.randint(200,400)))
         if object != None:
             object._setViewFrame(f)
-        f.Show()
+        wxDisplayWindow(f, win[2])
     
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
     if not PYO_USE_WX:
@@ -205,41 +167,22 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
         win.title(title)
     else:
         if wxnoserver or wx.GetApp() != None:
-            if wx.GetApp() == None:
-                root = createRootWindow()
-            else:
-                root = None    
+            root = createRootWindow()
             f = PyoObjectControl(None, obj, map_list)
             if title == None: title = obj.__class__.__name__
-            f.SetTitle(title)
-            f.Show()
-            if root != None:
-                root.MainLoop()
+            wxShowWindow(f, title, root)
         else:
             CTRLWINDOWS.append([obj, map_list, title])
 
 def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
-        print "WxPython must be installed to use the 'graph' method."
-        if 0:
-            createRootWindow()
-            win = tkCreateToplevelWindow()
-            f = PyoObjectControl(win, obj, map_list)
-            win.resizable(True, False)
-            if title == None: title = obj.__class__.__name__
-            win.title(title)
+        print "WxPython must be installed to use the 'graph()' method."
     else:
         if wxnoserver or wx.GetApp() != None:
-            if wx.GetApp() == None:
-                root = createRootWindow()
-            else:
-                root = None    
+            root = createRootWindow()
             f = TableGrapher(None, obj, mode, xlen, yrange)
             if title == None: title = obj.__class__.__name__
-            f.SetTitle(title)
-            f.Show()
-            if root != None:
-                root.MainLoop()
+            wxShowWindow(f, title, root)
         else:
             GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])   
         
@@ -253,14 +196,10 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
         win.title(title)
     else:
         if wxnoserver or wx.GetApp() != None:
-            if wx.GetApp() == None:
-                root = createRootWindow()
-            else:
-                root = None    
+            root = createRootWindow()
             if WITH_PIL: f = ViewTable_withPIL(None, samples, tableclass)
             else: f = ViewTable_withoutPIL(None, samples, tableclass)
-            f.Show()
-            f.SetTitle(title)
+            wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
         else:
@@ -276,14 +215,11 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
         win.title(title)
     else:
         if wxnoserver or wx.GetApp() != None:
-            if wx.GetApp() == None:
-                root = createRootWindow()
-            else:
-                root = None    
+            root = createRootWindow()
             if WITH_PIL: f = SndViewTable_withPIL(None, obj, tableclass, mouse_callback)
             else: f = SndViewTable_withoutPIL(None, obj, tableclass, mouse_callback)
-            f.Show()
-            f.SetTitle(title)
+            if title == None: title = obj.__class__.__name__
+            wxShowWindow(f, title, root)
             obj._setViewFrame(f)
         else:
             SNDTABLEWINDOWS.append([obj, tableclass, title, mouse_callback])
@@ -300,14 +236,10 @@ It helps a lot to speed up matrix drawing!"""
         win.title(title)
     else:
         if wxnoserver or wx.GetApp() != None:
-            if wx.GetApp() == None:
-                root = createRootWindow()
-            else:
-                root = None    
+            root = createRootWindow()
             if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size)
             else: f = ViewMatrix_withoutPIL(None, samples, size)
-            f.Show()
-            f.SetTitle(title)
+            wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
         else:
@@ -328,12 +260,15 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         f.SetPosition((30, 30))
         f.Show()
         X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X)-50, wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)-50
-        MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+30
-        wx.CallAfter(wxCreateDelayedCtrlWindows)
-        wx.CallAfter(wxCreateDelayedGraphWindows)
+        if sys.platform == "linux2":
+            MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+55
+        else:
+            MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+30
         wx.CallAfter(wxCreateDelayedTableWindows)
+        wx.CallAfter(wxCreateDelayedGraphWindows)
         wx.CallAfter(wxCreateDelayedSndTableWindows)
         wx.CallAfter(wxCreateDelayedMatrixWindows)
+        wx.CallAfter(wxCreateDelayedCtrlWindows)
         wx.CallAfter(f.Raise)
     return f, win
         

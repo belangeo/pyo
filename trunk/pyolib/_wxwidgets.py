@@ -1460,7 +1460,7 @@ class Grapher(wx.Panel):
 
 class TableGrapher(wx.Frame):
     def __init__(self, parent=None, obj=None, mode=0, xlen=8192, yrange=(0.0, 1.0)):
-        wx.Frame.__init__(self, parent)
+        wx.Frame.__init__(self, parent, size=(500,250))
         pts = obj.getPoints()
         self.yrange = yrange
         for i in range(len(pts)):
