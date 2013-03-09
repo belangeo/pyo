@@ -42,6 +42,7 @@
 #define TYPE_O_FO "O|fO"
 #define TYPE__OF "|Of"
 #define TYPE_O_FOO "O|fOO"
+#define TYPE_O_FIOO "O|fiOO"
 #define TYPE_I_FFOO "i|ffOO"
 #define TYPE_I_FFFOO "i|fffOO"
 #define TYPE_I_FFFIOO "i|fffiOO"
@@ -71,6 +72,7 @@
 #define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
 #define TYPE_O_IFFO "O|iffO"
+#define TYPE_O_FFFFIOO "O|ffffiOO"
 #define TYPE_OO_FOO "OO|fOO"
 #define TYPE_OO_FFOO "OO|ffOO"
 #define TYPE_O_IFIOO "O|ifiOO"
@@ -117,6 +119,7 @@
 #define TYPE_O_FO "O|dO"
 #define TYPE__OF "|Od"
 #define TYPE_O_FOO "O|dOO"
+#define TYPE_O_FIOO "O|diOO"
 #define TYPE_I_FFOO "i|ddOO"
 #define TYPE_I_FFFOO "i|dddOO"
 #define TYPE_I_FFFIOO "i|dddiOO"
@@ -146,6 +149,7 @@
 #define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
 #define TYPE_O_IFFO "O|iddO"
+#define TYPE_O_FFFFIOO "O|ddddiOO"
 #define TYPE_OO_FOO "OO|dOO"
 #define TYPE_OO_FFOO "OO|ddOO"
 #define TYPE_O_IFIOO "O|idiOO"
@@ -414,6 +418,7 @@ extern PyTypeObject MinType;
 extern PyTypeObject MaxType;
 extern PyTypeObject Delay1Type;
 extern PyTypeObject RCOscType;
+extern PyTypeObject YinType;
 
 /* Constants */
 #define E M_E
