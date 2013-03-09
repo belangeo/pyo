@@ -346,3 +346,186 @@ class ZCross(PyoObject):
     @thresh.setter
     def thresh(self, x): self.setThresh(x)
 
+class Yin(PyoObject):
+    """
+    Pitch tracker using the Yin algorithm.
+    
+    Pitch tracker using the Yin algorithm based on the implementation in C of aubio.
+    This algorithm was developped by A. de Cheveigne and H. Kawahara and published in
+    
+    de Cheveigne, A., Kawahara, H. (2002) 'YIN, a fundamental frequency estimator for
+    speech and music', J. Acoust. Soc. Am. 111, 1917-1930.
+    
+    The audio output of the object is the estimated frequency, in Hz, of the input sound.
+ 
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    tolerance : float, optional
+        Parameter for minima selection, between 0 and 1. Defaults to 0.2.
+    minfreq : float, optional
+        Minimum estimated frequency in Hz. Frequency below this threshold will 
+        be ignored. Defaults to 40.
+    maxfreq : float, optional
+        Maximum estimated frequency in Hz. Frequency above this threshold will 
+        be ignored. Defaults to 1000.
+    cutoff : float, optional
+        Cutoff frequency, in Hz, of the lowpass filter applied on the input sound. 
+        This helps the detector to detect the fundamental frequency by filtering
+        higher harmonics. Defaults to 1000.
+    winsize : int, optional
+        Size, in samples, of the analysis window. Must be higher that two period
+        of the lowest desired frequency. Available at initialization time only.
+        Defaults to 1024.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setTolerance(x) : Replace the `tolerance` attribute.
+    setMinfreq(x) : Replace the `minfreq` attribute.
+    setMaxfreq(x) : Replace the `maxfreq` attribute.
+    setCutoff(x) : Replace the `cutoff` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    tolerance : float. Parameter for minima selection, between 0 and 1.
+    minfreq : float. Minimum estimated frequency in Hz.
+    maxfreq : float. Maximum estimated frequency in Hz.
+    cutoff : float. Cutoff frequency of the lowpass filter.
+    
+    Examples:
+    
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> lfo = Randh(min=100, max=500, freq=3)
+    >>> src = SineLoop(freq=lfo, feedback=0.1, mul=.3).out()
+    >>> pit = Yin(src, tolerance=0.2, winsize=1024)
+    >>> freq = Tone(pit, freq=10)
+    >>> # fifth above
+    >>> a = LFO(freq*1.5, type=2, mul=0.2).out(1)
+
+    """
+    def __init__(self, input, tolerance=0.2, minfreq=40, maxfreq=1000, cutoff=1000, winsize=1024, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._tolerance = tolerance
+        self._minfreq = minfreq
+        self._maxfreq = maxfreq
+        self._cutoff = cutoff
+        self._in_fader = InputFader(input)
+        in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add, lmax = convertArgsToLists(self._in_fader, tolerance, minfreq, maxfreq, cutoff, winsize, mul, add)
+        self._base_objs = [Yin_base(wrap(in_fader,i), wrap(tolerance,i), wrap(minfreq,i), wrap(maxfreq,i), wrap(cutoff,i), wrap(winsize,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setTolerance(self, x):
+        """
+        Replace the `tolerance` attribute.
+        
+        Parameters:
+
+        x : float
+            New parameter for minima selection, between 0 and 1.
+
+        """
+        self._tolerance = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTolerance(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMinfreq(self, x):
+        """
+        Replace the `minfreq` attribute.
+        
+        Parameters:
+
+        x : float
+            New minimum frequency detected.
+
+        """
+        self._minfreq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMinfreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMaxfreq(self, x):
+        """
+        Replace the `maxfreq` attribute.
+        
+        Parameters:
+
+        x : float
+            New maximum frequency detected.
+
+        """
+        self._maxfreq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMaxfreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setCutoff(self, x):
+        """
+        Replace the `cutoff` attribute.
+        
+        Parameters: 
+
+        x : float
+            New input lowpass filter cutoff frequency.
+
+        """
+        self._cutoff = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+     
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def tolerance(self):
+        """float. Parameter for minima selection.""" 
+        return self._tolerance
+    @tolerance.setter
+    def tolerance(self, x): self.setTolerance(x)
+
+    @property
+    def minfreq(self):
+        """float. Minimum frequency detected.""" 
+        return self._minfreq
+    @minfreq.setter
+    def minfreq(self, x): self.setMinfreq(x)
+
+    @property
+    def maxfreq(self):
+        """float. Maximum frequency detected.""" 
+        return self._maxfreq
+    @maxfreq.setter
+    def maxfreq(self, x): self.setMaxfreq(x)
+
+    @property
+    def cutoff(self):
+        """float. Input lowpass filter cutoff frequency.""" 
+        return self._cutoff
+    @cutoff.setter
+    def cutoff(self, x): self.setCutoff(x)
+

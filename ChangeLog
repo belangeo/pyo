@@ -1,3 +1,8 @@
+2013-03-08 belangeo <belangeo@gmail.com>
+
+    * Added new object: Yin, pitch tracker using the Yin algorithm.
+    - rev 1084
+
 2013-03-01 belangeo <belangeo@gmail.com>
 
     * Graphical display of NewMatrix object now updates in real-time.

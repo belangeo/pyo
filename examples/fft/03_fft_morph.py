@@ -39,4 +39,9 @@ car = PolToCar(mag, pha)
 fout = IFFT(car["real"], car["imag"], size=size, overlaps=olaps)
 ffout = fout.mix(2).out()
 
+def siz(size=1024):
+    fin1.size = size
+    fin2.size = size
+    fout.size = size
+
 s.gui(locals())
