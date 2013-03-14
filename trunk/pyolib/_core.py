@@ -370,6 +370,9 @@ class PyoObject(PyoObjectBase):
     `a > b` returns a Compare object created as : Compare(a, comp=b, mode=">")
     `a >= b` returns a Compare object created as : Compare(a, comp=b, mode=">=")
 
+    A special case concerns the comparison of a PyoObject with None. All operators
+    return False except `a != None`, which returns True.
+
     """
     
     _STREAM_TYPE = 'audio'
@@ -520,22 +523,28 @@ class PyoObject(PyoObjectBase):
         return self._zeros - self
 
     def __lt__(self, x):
-        return Compare(self, comp=x, mode="<")
+        return self.__do_comp__(comp=x, mode="<")
 
     def __le__(self, x):
-        return Compare(self, comp=x, mode="<=")
+        return self.__do_comp__(comp=x, mode="<=")
 
     def __eq__(self, x):
-        return Compare(self, comp=x, mode="==")
+        return self.__do_comp__(comp=x, mode="==")
 
     def __ne__(self, x):
-        return Compare(self, comp=x, mode="!=")
+        return self.__do_comp__(comp=x, mode="!=", default=True)
 
     def __gt__(self, x):
-        return Compare(self, comp=x, mode=">")
+        return self.__do_comp__(comp=x, mode=">")
 
     def __ge__(self, x):
-        return Compare(self, comp=x, mode=">=")
+        return self.__do_comp__(comp=x, mode=">=")
+
+    def __do_comp__(self, comp, mode, default=False):
+        if comp == None:
+            return default
+        else:
+            return Compare(self, comp=comp, mode=mode)
 
     def isPlaying(self, all=False):
         """
