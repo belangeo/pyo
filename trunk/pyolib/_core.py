@@ -894,6 +894,7 @@ class PyoTableObject(PyoObjectBase):
     write(path, oneline) : Writes the content of the table in a text file.
     read(path) : Sets the content of the table from a text file.
     normalize() : Normalize table samples between -1 and 1.
+    reset() : Resets table samples to 0.0.
     removeDC() : Remove DC offset from the table's data.
     reverse() : Reverse the table's data.
     copy() : Returns a deep copy of the object.
@@ -1003,6 +1004,7 @@ class PyoTableObject(PyoObjectBase):
         f_len = len(f_list)
         f.close()
         [obj.setData(f_list[i%f_len]) for i, obj in enumerate(self._base_objs)]
+        self.refreshView()
 
     def setSize(self, size):
         """
@@ -1017,6 +1019,7 @@ class PyoTableObject(PyoObjectBase):
         """
         self._size = size
         [obj.setSize(size) for obj in self._base_objs]
+        self.refreshView()
 
     def getSize(self):
         """
@@ -1042,6 +1045,7 @@ class PyoTableObject(PyoObjectBase):
         
         """
         [obj.put(value, pos) for obj in self._base_objs]
+        self.refreshView()
 
     def get(self, pos):
         """
@@ -1085,6 +1089,16 @@ class PyoTableObject(PyoObjectBase):
 
         """
         [obj.normalize() for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def reset(self):
+        """
+        Resets table samples to 0.0.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+        self.refreshView()
         return self
 
     def removeDC(self):
@@ -1093,6 +1107,7 @@ class PyoTableObject(PyoObjectBase):
 
         """
         [obj.removeDC() for obj in self._base_objs]
+        self.refreshView()
         return self
 
     def reverse(self):
@@ -1101,6 +1116,7 @@ class PyoTableObject(PyoObjectBase):
 
         """
         [obj.reverse() for obj in self._base_objs]
+        self.refreshView()
         return self
 
     def copy(self):

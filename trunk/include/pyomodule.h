@@ -717,6 +717,15 @@ extern PyTypeObject YinType;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+/* Table reset */
+#define TABLE_RESET \
+    int i; \
+    for (i=0; i<self->size; i++) { \
+        self->data[i] = 0.0; \
+    } \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
 /* Table remove DC */
 #define REMOVE_DC \
     int i; \
