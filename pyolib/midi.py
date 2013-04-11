@@ -450,6 +450,7 @@ class Notein(PyoObject):
 
     setChannel(x) : Replace the `channel` attribute.
     setCentralKey(x) : Set the midi key where there is no transposition.
+    setStealing(x) : Activates the stealing mode if True. Defaults to False.
     get(identifier, all) : Return the first sample of the current 
         buffer as a float.
 
@@ -532,6 +533,22 @@ class Notein(PyoObject):
 
         """
         self._base_handler.setCentralKey(x)
+
+    def setStealing(self, x):
+        """
+        Activates the stealing mode if True. Defaults to False.
+        
+        In stealing mode, a new note will overwrite the oldest one
+        according to the polyphony. In non-stealing mode, if the
+        polyphony is already full, the new notes will be ignored.
+
+        Parameters:
+
+        x : boolean
+            True for stealing mode, False for non-stealing.
+
+        """
+        self._base_handler.setStealing(x)
 
     def get(self, identifier="pitch", all=False):
         """

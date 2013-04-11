@@ -2701,7 +2701,7 @@ class MainFrame(wx.Frame):
             self.doc_frame.Show()
 
     def rebuildDoc(self, evt):
-        shutil.rmtree(os.path.join(os.path.expanduser("~"), ".epyo", "doc"), True)
+        shutil.rmtree(os.path.join(TEMP_PATH, "doc"), True)
         try:
             self.doc_frame.Destroy()
         except:
