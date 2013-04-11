@@ -1904,6 +1904,7 @@ typedef struct {
     int last;
     int centralkey;
     int channel;
+    int stealing;
 } MidiNote;
 
 static void
@@ -1986,12 +1987,19 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
         if (ok == 1) {
             if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
-                voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
-                if (voice != -1) {
-                    self->vcount = voice;
-                    self->notebuf[voice*2] = pitch;
-                    self->notebuf[voice*2+1] = velocity;
-                }    
+                if (!self->stealing) {
+                    voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
+                    if (voice != -1) {
+                        self->vcount = voice;
+                        self->notebuf[voice*2] = pitch;
+                        self->notebuf[voice*2+1] = velocity;
+                    }
+                }
+                else {
+                    self->vcount = (self->vcount + 1) % self->voices;
+                    self->notebuf[self->vcount*2] = pitch;
+                    self->notebuf[self->vcount*2+1] = velocity;
+                }
             }    
             else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
@@ -2058,6 +2066,7 @@ MidiNote_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->first = 0;
     self->last = 127;
     self->channel = 0;
+    self->stealing = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, MidiNote_compute_next_data_frame);
@@ -2153,6 +2162,23 @@ MidiNote_setCentralKey(MidiNote *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+MidiNote_setStealing(MidiNote *self, PyObject *arg)
+{	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1)
+		self->stealing = PyInt_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef MidiNote_members[] = {
 {"server", T_OBJECT_EX, offsetof(MidiNote, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(MidiNote, stream), 0, "Stream object."},
@@ -2166,6 +2192,7 @@ static PyMethodDef MidiNote_methods[] = {
 {"stop", (PyCFunction)MidiNote_stop, METH_NOARGS, "Stops computing."},
 {"setChannel", (PyCFunction)MidiNote_setChannel, METH_O, "Sets the midi channel."},
 {"setCentralKey", (PyCFunction)MidiNote_setCentralKey, METH_O, "Sets the midi key where there is no transposition."},
+{"setStealing", (PyCFunction)MidiNote_setStealing, METH_O, "Sets the stealing mode."},
 {NULL}  /* Sentinel */
 };
 
