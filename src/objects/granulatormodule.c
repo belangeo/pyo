@@ -1226,8 +1226,8 @@ Looper_reset(Looper *self, int x, int which, int init) {
             }            
             break;
         case 2:
-            self->loopstart[which] = (long)(start * tableSr);
-            self->loopend[which] = (long)((start - dur) * tableSr);
+            self->loopstart[which] = (long)((start + dur) * tableSr);
+            self->loopend[which] = (long)((start) * tableSr);
             self->crossfadedur[which] = (long)((self->loopstart[which] - self->loopend[which]) * xfade * 0.01);
             if (self->crossfadedur[which] < 5)
                 self->crossfadedur[which] = 5;
