@@ -1,3 +1,18 @@
+2013-04-12 belangeo <belangeo@gmail.com>
+
+    * Added new object: SVF, State Variable Filter with continuous filter type change.
+    - rev 1089
+
+2013-10-11 belangeo <belangeo@gmail.com>
+
+    * Added a setStealing() method to the Notein object.
+    - rev 1087
+
+2013-10-10 belangeo <belangeo@gmail.com>
+
+    * Added a reset() method to the PyoTableObject.
+    - rev 1086
+
 2013-03-08 belangeo <belangeo@gmail.com>
 
     * Added new object: Yin, pitch tracker using the Yin algorithm.

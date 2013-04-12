@@ -7035,3 +7035,815 @@ PyTypeObject VocoderType = {
     Vocoder_new,                                     /* tp_new */
 };
 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    PyObject *type;
+    Stream *type_stream;
+    int modebuffer[5]; // need at least 2 slots for mul & add 
+    MYFLT srOverSix;
+    MYFLT last_freq;
+    MYFLT piOverSr;
+    // sample memories
+    MYFLT y1;
+    MYFLT y2;
+    MYFLT y3;
+    MYFLT y4;
+    // variables
+    MYFLT w;
+} SVF;
+
+static void
+SVF_filters_iii(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+    type = PyFloat_AS_DOUBLE(self->type);
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->srOverSix)
+        freq = self->srOverSix;
+    
+    if (freq != self->last_freq) {
+        self->last_freq = freq;
+        self->w = 2.0 * MYSIN(freq * self->piOverSr);
+    }
+    
+    if (q < 0.5)
+        q = 0.5;
+    q1 = 1.0 / q;
+    
+    if (type < 0.0)
+        type = 0.0;
+    else if (type > 1.0)
+        type = 1.0;
+
+    lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+    highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+    bandgain = (type <= 0.5) ? type : (1.0 - type);
+    for (i=0; i<self->bufsize; i++) {
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_aii(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    type = PyFloat_AS_DOUBLE(self->type);
+
+    if (q < 0.5)
+        q = 0.5;
+    q1 = 1.0 / q;
+    
+    if (type < 0.0)
+        type = 0.0;
+    else if (type > 1.0)
+        type = 1.0;
+
+    lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+    highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+    bandgain = (type <= 0.5) ? type : (1.0 - type);
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        if (freq < 0.1)
+            freq = 0.1;
+        else if (freq > self->srOverSix)
+            freq = self->srOverSix;
+        
+        if (freq != self->last_freq) {
+            self->last_freq = freq;
+            self->w = 2.0 * MYSIN(freq * self->piOverSr);
+        }
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_iai(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    type = PyFloat_AS_DOUBLE(self->type);
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->srOverSix)
+        freq = self->srOverSix;
+    
+    if (freq != self->last_freq) {
+        self->last_freq = freq;
+        self->w = 2.0 * MYSIN(freq * self->piOverSr);
+    }
+
+    if (type < 0.0)
+        type = 0.0;
+    else if (type > 1.0)
+        type = 1.0;
+
+    lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+    highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+    bandgain = (type <= 0.5) ? type : (1.0 - type);
+    for (i=0; i<self->bufsize; i++) {
+        q = qst[i];
+        if (q < 0.5)
+            q = 0.5;
+        q1 = 1.0 / q;
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_aai(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    type = PyFloat_AS_DOUBLE(self->type);
+    
+    if (type < 0.0)
+        type = 0.0;
+    else if (type > 1.0)
+        type = 1.0;
+
+    lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+    highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+    bandgain = (type <= 0.5) ? type : (1.0 - type);
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        q = qst[i];
+        if (freq < 0.1)
+            freq = 0.1;
+        else if (freq > self->srOverSix)
+            freq = self->srOverSix;
+        
+        if (freq != self->last_freq) {
+            self->last_freq = freq;
+            self->w = 2.0 * MYSIN(freq * self->piOverSr);
+        }
+        if (q < 0.5)
+            q = 0.5;
+        q1 = 1.0 / q;
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_iia(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+    MYFLT *tp = Stream_getData((Stream *)self->type_stream);
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->srOverSix)
+        freq = self->srOverSix;
+    
+    if (freq != self->last_freq) {
+        self->last_freq = freq;
+        self->w = 2.0 * MYSIN(freq * self->piOverSr);
+    }
+    
+    if (q < 0.5)
+        q = 0.5;
+    q1 = 1.0 / q;
+
+    for (i=0; i<self->bufsize; i++) {
+        type = tp[i];
+        if (type < 0.0)
+            type = 0.0;
+        else if (type > 1.0)
+            type = 1.0;
+        lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+        highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+        bandgain = (type <= 0.5) ? type : (1.0 - type);
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_aia(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+    MYFLT *tp = Stream_getData((Stream *)self->type_stream);
+
+    if (q < 0.5)
+        q = 0.5;
+    q1 = 1.0 / q;
+
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        type = tp[i];
+        if (freq < 0.1)
+            freq = 0.1;
+        else if (freq > self->srOverSix)
+            freq = self->srOverSix;
+        
+        if (freq != self->last_freq) {
+            self->last_freq = freq;
+            self->w = 2.0 * MYSIN(freq * self->piOverSr);
+        }
+        if (type < 0.0)
+            type = 0.0;
+        else if (type > 1.0)
+            type = 1.0;
+        lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+        highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+        bandgain = (type <= 0.5) ? type : (1.0 - type);        
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_iaa(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    MYFLT *tp = Stream_getData((Stream *)self->type_stream);
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->srOverSix)
+        freq = self->srOverSix;
+    
+    if (freq != self->last_freq) {
+        self->last_freq = freq;
+        self->w = 2.0 * MYSIN(freq * self->piOverSr);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        q = qst[i];
+        type = tp[i];
+        if (q < 0.5)
+            q = 0.5;
+        q1 = 1.0 / q;
+        if (type < 0.0)
+            type = 0.0;
+        else if (type > 1.0)
+            type = 1.0;
+        lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+        highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+        bandgain = (type <= 0.5) ? type : (1.0 - type);
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void
+SVF_filters_aaa(SVF *self) {
+    int i;
+    MYFLT val, freq, q, type, q1, low, high, band, lowgain, highgain, bandgain;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    MYFLT *tp = Stream_getData((Stream *)self->type_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        q = qst[i];
+        type = tp[i];
+        if (freq < 0.1)
+            freq = 0.1;
+        else if (freq > self->srOverSix)
+            freq = self->srOverSix;
+        
+        if (freq != self->last_freq) {
+            self->last_freq = freq;
+            self->w = 2.0 * MYSIN(freq * self->piOverSr);
+        }
+        if (q < 0.5)
+            q = 0.5;
+        q1 = 1.0 / q;
+        if (type < 0.0)
+            type = 0.0;
+        else if (type > 1.0)
+            type = 1.0;
+        lowgain = (type <= 0.5) ? (0.5 - type) : 0.0;
+        highgain = (type >= 0.5) ? (type - 0.5) : 0.0;
+        bandgain = (type <= 0.5) ? type : (1.0 - type);        
+        low = self->y2 + self->w * self->y1;
+        high = in[i] - low - q1 * self->y1;
+        band = self->w * high + self->y1;
+        self->y1 = band;
+        self->y2 = low;
+        val = low * lowgain + high * highgain + band * bandgain;
+        low = self->y4 + self->w * self->y3;
+        high = val - low - q1 * self->y3;
+        band = self->w * high + self->y3;
+        self->y3 = band;
+        self->y4 = low;
+        self->data[i] = low * lowgain + high * highgain + band * bandgain;
+    }
+}
+
+static void SVF_postprocessing_ii(SVF *self) { POST_PROCESSING_II };
+static void SVF_postprocessing_ai(SVF *self) { POST_PROCESSING_AI };
+static void SVF_postprocessing_ia(SVF *self) { POST_PROCESSING_IA };
+static void SVF_postprocessing_aa(SVF *self) { POST_PROCESSING_AA };
+static void SVF_postprocessing_ireva(SVF *self) { POST_PROCESSING_IREVA };
+static void SVF_postprocessing_areva(SVF *self) { POST_PROCESSING_AREVA };
+static void SVF_postprocessing_revai(SVF *self) { POST_PROCESSING_REVAI };
+static void SVF_postprocessing_revaa(SVF *self) { POST_PROCESSING_REVAA };
+static void SVF_postprocessing_revareva(SVF *self) { POST_PROCESSING_REVAREVA };
+
+static void
+SVF_setProcMode(SVF *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10 + self->modebuffer[4] * 100;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = SVF_filters_iii;
+            break;
+        case 1:    
+            self->proc_func_ptr = SVF_filters_aii;
+            break;
+        case 10:        
+            self->proc_func_ptr = SVF_filters_iai;
+            break;
+        case 11:    
+            self->proc_func_ptr = SVF_filters_aai;
+            break;
+        case 100:    
+            self->proc_func_ptr = SVF_filters_iia;
+            break;
+        case 101:    
+            self->proc_func_ptr = SVF_filters_aia;
+            break;
+        case 110:        
+            self->proc_func_ptr = SVF_filters_iaa;
+            break;
+        case 111:    
+            self->proc_func_ptr = SVF_filters_aaa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = SVF_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = SVF_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = SVF_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = SVF_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = SVF_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = SVF_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = SVF_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = SVF_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = SVF_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+SVF_compute_next_data_frame(SVF *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+SVF_traverse(SVF *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    Py_VISIT(self->type);    
+    Py_VISIT(self->type_stream);    
+    return 0;
+}
+
+static int 
+SVF_clear(SVF *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    Py_CLEAR(self->type);    
+    Py_CLEAR(self->type_stream);    
+    return 0;
+}
+
+static void
+SVF_dealloc(SVF* self)
+{
+    pyo_DEALLOC
+    SVF_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+SVF_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *typetmp=NULL, *multmp=NULL, *addtmp=NULL;
+    SVF *self;
+    self = (SVF *)type->tp_alloc(type, 0);
+        
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->type = PyFloat_FromDouble(0);
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+    self->y1 = self->y2 = self->y3 = self->y4 = self->w = 0.0;
+    self->last_freq = -1.0;
+
+    INIT_OBJECT_COMMON
+    
+    self->srOverSix = (MYFLT)self->sr / 6.0;
+    self->piOverSr = PI / self->sr;
+    
+    Stream_setFunctionPtr(self->stream, SVF_compute_next_data_frame);
+    self->mode_func_ptr = SVF_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "q", "type", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &typetmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+
+    if (typetmp) {
+        PyObject_CallMethod((PyObject *)self, "setType", "O", typetmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+            
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * SVF_getServer(SVF* self) { GET_SERVER };
+static PyObject * SVF_getStream(SVF* self) { GET_STREAM };
+static PyObject * SVF_setMul(SVF *self, PyObject *arg) { SET_MUL };	
+static PyObject * SVF_setAdd(SVF *self, PyObject *arg) { SET_ADD };	
+static PyObject * SVF_setSub(SVF *self, PyObject *arg) { SET_SUB };	
+static PyObject * SVF_setDiv(SVF *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * SVF_play(SVF *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * SVF_out(SVF *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * SVF_stop(SVF *self) { STOP };
+
+static PyObject * SVF_multiply(SVF *self, PyObject *arg) { MULTIPLY };
+static PyObject * SVF_inplace_multiply(SVF *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * SVF_add(SVF *self, PyObject *arg) { ADD };
+static PyObject * SVF_inplace_add(SVF *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * SVF_sub(SVF *self, PyObject *arg) { SUB };
+static PyObject * SVF_inplace_sub(SVF *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * SVF_div(SVF *self, PyObject *arg) { DIV };
+static PyObject * SVF_inplace_div(SVF *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+SVF_setFreq(SVF *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+SVF_setQ(SVF *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+SVF_setType(SVF *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->type);
+	if (isNumber == 1) {
+		self->type = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->type = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->type, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->type_stream);
+        self->type_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef SVF_members[] = {
+    {"server", T_OBJECT_EX, offsetof(SVF, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(SVF, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(SVF, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(SVF, freq), 0, "Cutoff frequency in cycle per second."},
+    {"q", T_OBJECT_EX, offsetof(SVF, q), 0, "Q factor."},
+    {"type", T_OBJECT_EX, offsetof(SVF, type), 0, "Filter type."},
+    {"mul", T_OBJECT_EX, offsetof(SVF, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(SVF, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef SVF_methods[] = {
+    {"getServer", (PyCFunction)SVF_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)SVF_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)SVF_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)SVF_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)SVF_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)SVF_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setQ", (PyCFunction)SVF_setQ, METH_O, "Sets filter Q factor."},
+    {"setType", (PyCFunction)SVF_setType, METH_O, "Sets filter type factor."},
+	{"setMul", (PyCFunction)SVF_setMul, METH_O, "Sets mul factor."},
+	{"setAdd", (PyCFunction)SVF_setAdd, METH_O, "Sets add factor."},
+    {"setSub", (PyCFunction)SVF_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)SVF_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods SVF_as_number = {
+    (binaryfunc)SVF_add,                         /*nb_add*/
+    (binaryfunc)SVF_sub,                         /*nb_subtract*/
+    (binaryfunc)SVF_multiply,                    /*nb_multiply*/
+    (binaryfunc)SVF_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)SVF_inplace_add,                 /*inplace_add*/
+    (binaryfunc)SVF_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)SVF_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)SVF_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject SVFType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.SVF_base",                                   /*tp_name*/
+    sizeof(SVF),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)SVF_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &SVF_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "SVF objects. Generates a state variable filter.",           /* tp_doc */
+    (traverseproc)SVF_traverse,                  /* tp_traverse */
+    (inquiry)SVF_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    SVF_methods,                                 /* tp_methods */
+    SVF_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    SVF_new,                                     /* tp_new */
+};

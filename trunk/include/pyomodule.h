@@ -419,6 +419,7 @@ extern PyTypeObject MaxType;
 extern PyTypeObject Delay1Type;
 extern PyTypeObject RCOscType;
 extern PyTypeObject YinType;
+extern PyTypeObject SVFType;
 
 /* Constants */
 #define E M_E

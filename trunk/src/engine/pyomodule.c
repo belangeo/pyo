@@ -2309,6 +2309,7 @@ init_pyo64(void)
     module_add_object(m, "Delay1_base", &Delay1Type);
     module_add_object(m, "RCOsc_base", &RCOscType);
     module_add_object(m, "Yin_base", &YinType);
+    module_add_object(m, "SVF_base", &SVFType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
