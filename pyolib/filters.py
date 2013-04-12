@@ -2806,3 +2806,157 @@ class IRFM(PyoObject):
     @index.setter
     def index(self, x): self.setIndex(x)
 
+class SVF(PyoObject):
+    """
+    Fourth-order state variable filter allowing continuous change of the filter type. 
+    
+    Parentclass : PyoObject
+    
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    freq : float or PyoObject, optional
+        Cutoff or center frequency of the filter. Because this filter becomes
+        unstable at higher frequencies, the `freq` parameter is limited to
+        one-sixth of the sampling rate (7350 Hz at sr=44100). Defaults to 1000.
+    q : float or PyoObject, optional
+        Q of the filter, defined (for bandpass filters) as freq/bandwidth. 
+        Should be between 0.5 and 50. Defaults to 1.
+    type : float or PyoObject, optional
+        This value, in the range 0 to 1, controls the filter type crossfade 
+        on the continuum lowpass-bandpass-highpass.
+            0.0 = lowpass (default)
+            0.5 = bandpass
+            1.0 = highpass
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setType(x) : Replace the `type` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to process.
+    freq : float or PyoObject. Cutoff or center frequency of the filter.
+    q : float or PyoObject. Q of the filter.
+    type : float or PyoObject. Crossfade between filter types.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(.2)
+    >>> lf1 = Sine([.22,.25]).range(500, 2000)
+    >>> lf2 = Sine([.17,.15]).range(1, 4)
+    >>> lf3 = Sine([.23,.2]).range(0, 1)
+    >>> b = SVF(a, freq=lf1, q=lf2, type=lf3).out()
+
+    """
+    def __init__(self, input, freq=1000, q=1, type=0, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._type = type
+        self._in_fader = InputFader(input)
+        in_fader, freq, q, type, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, type, mul, add)
+        self._base_objs = [SVF_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(type,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute. Limited in the upper bound to
+        one-sixth of the sampling rate.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 0.5 and 50.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setType(self, x):
+        """
+        Replace the `type` attribute. Must be in the range 0 to 1.
+        
+        This value allows the filter type to sweep from a lowpass (0) 
+        to a bandpass (0.5) and then, from the bandpass to a highpass (1). 
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `type` attribute. 
+
+        """
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(20, 7350, "log", "freq", self._freq), 
+                          SLMap(0.5, 10, "log", "q", self._q),
+                          SLMap(0, 1, "lin", "type", self._type),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Cutoff or center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q of the filter.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def type(self):
+        """float or PyoObject. Crossfade between filter types.""" 
+        return self._type
+    @type.setter
+    def type(self, x): self.setType(x)
