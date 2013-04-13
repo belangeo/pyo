@@ -420,6 +420,7 @@ extern PyTypeObject Delay1Type;
 extern PyTypeObject RCOscType;
 extern PyTypeObject YinType;
 extern PyTypeObject SVFType;
+extern PyTypeObject AverageType;
 
 /* Constants */
 #define E M_E

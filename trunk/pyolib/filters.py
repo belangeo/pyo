@@ -2960,3 +2960,96 @@ class SVF(PyoObject):
         return self._type
     @type.setter
     def type(self, x): self.setType(x)
+
+class Average(PyoObject):
+    """
+    Moving average filter.
+    
+    As the name implies, the moving average filter operates by averaging a number
+    of points from the input signal to produce each point in the output signal.
+    In spite of its simplicity, the moving average filter is optimal for
+    a common task: reducing random noise while retaining a sharp step response.
+
+    Parentclass: PyoObject
+   
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    size : int, optional
+        Filter kernel size, which is the number of samples used in the 
+        moving average. Default to 10.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setSize(x) : Replace the `size` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    size : int. Filter kernel size in samples.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(.025)
+    >>> b = Sine(250, mul=0.3)
+    >>> c = Average(a+b, size=100).out()
+
+    """
+    def __init__(self, input, size=10, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._size = size
+        self._in_fader = InputFader(input)
+        in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
+        self._base_objs = [Average_base(wrap(in_fader,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setSize(self, x):
+        """
+        Replace the `size` attribute.
+        
+        Parameters:
+
+        x : int
+            New `size` attribute.
+
+        """
+        self._size = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+      
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def size(self):
+        """int. Filter kernel size in samples.""" 
+        return self._size
+    @size.setter
+    def size(self, x): self.setSize(x)

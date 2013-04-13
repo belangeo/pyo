@@ -7847,3 +7847,349 @@ PyTypeObject SVFType = {
     0,                                              /* tp_alloc */
     SVF_new,                                     /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int size;
+    int halfSize;
+    int in_count;
+    int init;
+    double currentValue;
+    double oneOnSize;
+    int modebuffer[2];
+    MYFLT *buffer; // samples memory
+} Average;
+
+static void
+Average_process_i(Average *self) {
+    int i; 
+
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    if (self->init) {
+        for (i=0; i<self->bufsize; i++) {
+            if (self->init) {
+                self->buffer[self->in_count] = in[i];
+                self->currentValue += (double)in[i];
+                self->in_count++;
+                if (self->in_count < self->halfSize)
+                    self->data[i] = 0.0;
+                else
+                    self->data[i] = (MYFLT)(self->currentValue * self->oneOnSize);
+                if (self->in_count >= self->size) {
+                    self->in_count = 0;
+                    self->init = 0;
+                }
+            }
+            else {
+                self->buffer[self->in_count] = in[i];
+                self->currentValue += (double)in[i];
+                self->in_count++;
+                if (self->in_count >= self->size)
+                    self->in_count = 0;
+                self->currentValue -= (double)self->buffer[self->in_count];
+                self->data[i] = (MYFLT)(self->currentValue * self->oneOnSize);
+            }
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            self->buffer[self->in_count] = in[i];
+            self->currentValue += (double)in[i];
+            self->in_count++;
+            if (self->in_count >= self->size)
+                self->in_count = 0;
+            self->currentValue -= (double)self->buffer[self->in_count];
+            self->data[i] = (MYFLT)(self->currentValue * self->oneOnSize);
+        }
+    }
+}
+
+static void Average_postprocessing_ii(Average *self) { POST_PROCESSING_II };
+static void Average_postprocessing_ai(Average *self) { POST_PROCESSING_AI };
+static void Average_postprocessing_ia(Average *self) { POST_PROCESSING_IA };
+static void Average_postprocessing_aa(Average *self) { POST_PROCESSING_AA };
+static void Average_postprocessing_ireva(Average *self) { POST_PROCESSING_IREVA };
+static void Average_postprocessing_areva(Average *self) { POST_PROCESSING_AREVA };
+static void Average_postprocessing_revai(Average *self) { POST_PROCESSING_REVAI };
+static void Average_postprocessing_revaa(Average *self) { POST_PROCESSING_REVAA };
+static void Average_postprocessing_revareva(Average *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Average_setProcMode(Average *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+ 
+    self->proc_func_ptr = Average_process_i;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Average_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Average_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Average_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Average_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Average_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Average_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Average_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Average_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Average_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Average_compute_next_data_frame(Average *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Average_traverse(Average *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);       
+    return 0;
+}
+
+static int 
+Average_clear(Average *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);      
+    return 0;
+}
+
+static void
+Average_dealloc(Average* self)
+{
+    pyo_DEALLOC
+    free(self->buffer);
+    Average_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Average_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    Average *self;
+    self = (Average *)type->tp_alloc(type, 0);
+    
+    self->size = 10;
+    self->init = 1;
+    self->in_count = 0;
+    self->currentValue = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Average_compute_next_data_frame);
+    self->mode_func_ptr = Average_setProcMode;
+
+    static char *kwlist[] = {"input", "size", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    self->halfSize = (int)(self->size / 2);
+    self->oneOnSize = 1.0 / (double)self->size;
+    
+    self->buffer = (MYFLT *)realloc(self->buffer, (self->size) * sizeof(MYFLT));
+    for (i=0; i<(self->size); i++) {
+        self->buffer[i] = 0.;
+    }    
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Average_getServer(Average* self) { GET_SERVER };
+static PyObject * Average_getStream(Average* self) { GET_STREAM };
+static PyObject * Average_setMul(Average *self, PyObject *arg) { SET_MUL };	
+static PyObject * Average_setAdd(Average *self, PyObject *arg) { SET_ADD };	
+static PyObject * Average_setSub(Average *self, PyObject *arg) { SET_SUB };	
+static PyObject * Average_setDiv(Average *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Average_play(Average *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Average_out(Average *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Average_stop(Average *self) { STOP };
+
+static PyObject * Average_multiply(Average *self, PyObject *arg) { MULTIPLY };
+static PyObject * Average_inplace_multiply(Average *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Average_add(Average *self, PyObject *arg) { ADD };
+static PyObject * Average_inplace_add(Average *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Average_sub(Average *self, PyObject *arg) { SUB };
+static PyObject * Average_inplace_sub(Average *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Average_div(Average *self, PyObject *arg) { DIV };
+static PyObject * Average_inplace_div(Average *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Average_setSize(Average *self, PyObject *arg)
+{
+	int i;
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		self->size = PyInt_AsLong(arg);
+        self->halfSize = (int)(self->size / 2);
+        self->oneOnSize = 1.0 / (double)self->size;
+        self->init = 1;
+        self->in_count = 0;
+        self->currentValue = 0.0;        
+        self->buffer = (MYFLT *)realloc(self->buffer, (self->size) * sizeof(MYFLT));
+        for (i=0; i<(self->size); i++) {
+            self->buffer[i] = 0.;
+        }    
+	}
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Average_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Average, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Average, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Average, input), 0, "Input sound object."},
+    {"mul", T_OBJECT_EX, offsetof(Average, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Average, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Average_methods[] = {
+    {"getServer", (PyCFunction)Average_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Average_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Average_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Average_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Average_stop, METH_NOARGS, "Stops computing."},
+	{"setSize", (PyCFunction)Average_setSize, METH_O, "Sets filter kernel size."},
+	{"setMul", (PyCFunction)Average_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Average_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Average_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Average_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Average_as_number = {
+    (binaryfunc)Average_add,                      /*nb_add*/
+    (binaryfunc)Average_sub,                 /*nb_subtract*/
+    (binaryfunc)Average_multiply,                 /*nb_multiply*/
+    (binaryfunc)Average_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Average_inplace_add,              /*inplace_add*/
+    (binaryfunc)Average_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Average_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Average_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject AverageType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
+    "_pyo.Average_base",         /*tp_name*/
+    sizeof(Average),         /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
+    (destructor)Average_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Average_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Average objects. Moving average filter.",           /* tp_doc */
+    (traverseproc)Average_traverse,   /* tp_traverse */
+    (inquiry)Average_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Average_methods,             /* tp_methods */
+    Average_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Average_new,                 /* tp_new */
+};
