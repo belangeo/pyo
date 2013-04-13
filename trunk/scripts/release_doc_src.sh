@@ -5,7 +5,7 @@
 # 2. Execute from pyo folder : ./scripts/release_doc_src.sh
 #
 
-version=0.6.4
+version=0.6.5
 replace=XXX
 
 doc_rep=pyo_XXX-doc
