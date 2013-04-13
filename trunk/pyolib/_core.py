@@ -1202,6 +1202,7 @@ class PyoMatrixObject(PyoObjectBase):
     boost(min, max, boost) : Boost the contrast of values in the matrix.
     put(value, x, y) : Puts a value at specified position in the matrix.
     get(x, y) : Returns the value at specified position in the matrix.
+    refreshView() : Updates the graphical display of the matrix, if applicable.
     
     Notes:
     
@@ -1354,7 +1355,7 @@ class PyoMatrixObject(PyoObjectBase):
         
     def refreshView(self):
         """
-        Updates the graphical display of the table, if applicable.
+        Updates the graphical display of the matrix, if applicable.
 
         """
         if self.viewFrame != None:
