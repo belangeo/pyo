@@ -1,8 +1,8 @@
 #!/bin/sh
 
-export PACKAGE_NAME=pyo_0.6.4_x86_64.pkg
-export DMG_DIR="pyo 0.6.4 Universal"
-export DMG_NAME="pyo_0.6.4_OSX-universal.dmg"
+export PACKAGE_NAME=pyo_0.6.5_x86_64.pkg
+export DMG_DIR="pyo 0.6.5 Universal"
+export DMG_NAME="pyo_0.6.5_OSX-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
