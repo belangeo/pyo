@@ -1,5 +1,10 @@
 2013-04-12 belangeo <belangeo@gmail.com>
 
+    * Added new object: Average, Moving average filter.
+    - rev 1090
+
+2013-04-12 belangeo <belangeo@gmail.com>
+
     * Added new object: SVF, State Variable Filter with continuous filter type change.
     - rev 1089
 
