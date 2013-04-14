@@ -21,7 +21,10 @@ svn export ../.. installer/pyo-build
 cd installer/pyo-build
 
 echo "building pyo for python 2.6 (64-bit)..."
-sudo /usr/bin/python setup.py install --use-coreaudio --use-double
+sudo /usr/bin/python setup.py install --use-coreaudio
+
+sudo rm -rf build/temp.macosx-10.6-universal-2.6
+sudo /usr/bin/python setup.py install --use-coreaudio --only-double
 
 sudo cp -R build/lib.macosx-10.6-universal-2.6 $PYO_MODULE_DIR/python26
 
