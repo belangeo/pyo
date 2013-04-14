@@ -31,7 +31,13 @@ macros = []
 extension_names = ['_pyo']
 main_modules = ['pyo']
 extra_macros_per_extension = [[]]
-if '--use-double' in sys.argv: 
+if '--only-double' in sys.argv:
+    sys.argv.remove('--only-double') 
+    extension_names = ['_pyo64']
+    main_modules = ['pyo64']
+    extra_macros_per_extension = [[('USE_DOUBLE',None)]]
+    
+if '--use-double' in sys.argv and not '--only-double' in sys.argv: 
     sys.argv.remove('--use-double') 
     extension_names.append('_pyo64')
     main_modules.append('pyo64')
