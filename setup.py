@@ -68,7 +68,7 @@ files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mi
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['oscilmodule.c', 'randommodule.c', 'oscmodule.c', 'fftmodule.c', 'analysismodule.c', 
+files = [ 'fftmodule.c', 'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
         'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
          'matrixmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'delaymodule.c','recordmodule.c', 'granulatormodule.c', 
@@ -118,7 +118,7 @@ setup(  name = "pyo",
         license = "GPLv3",
         packages = ['pyolib', 'pyolib.snds'],
         py_modules = main_modules,
-        package_data = {'pyolib.snds': [f for f in os.listdir('pyolib/snds') if f.endswith('aif')]},
+        package_data = {'pyolib.snds': [f for f in os.listdir('pyolib/snds') if f.endswith('aif') or f.endswith('wav')]},
         ext_modules = extensions )
 
 if compile_externals:

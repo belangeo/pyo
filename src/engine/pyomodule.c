@@ -2311,6 +2311,7 @@ init_pyo64(void)
     module_add_object(m, "Yin_base", &YinType);
     module_add_object(m, "SVF_base", &SVFType);
     module_add_object(m, "Average_base", &AverageType);
+    module_add_object(m, "CvlVerb_base", &CvlVerbType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

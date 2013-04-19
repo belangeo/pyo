@@ -1235,3 +1235,113 @@ class Vectral(PyoObject):
         return self._damp
     @damp.setter
     def damp(self, x): self.setDamp(x)
+    
+class CvlVerb(PyoObject):
+    """
+    Convolution based reverb.
+
+    CvlVerb implements convolution based on a uniformly partitioned overlap-save 
+    algorithm. This object can be used to convolve an input signal with an 
+    impulse response soundfile to simulate real acoustic spaces.
+    
+    Parentclass : PyoObject
+    
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    impulse : string, optional
+        Path to the impulse response soundfile. The file must have the same 
+        sampling rate as the server to get the proper convolution. Available at
+        initialization time only. Defaults to 'IRMediumHallStereo.wav', located 
+        in pyolib SNDS_PATH folder.
+    size : int {pow-of-two}, optional
+        The size in samples of each partition of the impulse file. Small size means
+        smaller latency but more computation time. If not a power-of-2, the object
+        will find the next power-of-2 greater and use that as the actual partition size.
+        This value must also be greater or equal than the server's buffer size.
+        Available at initialization time only. Defaults to 1024.
+    bal : float or PyoObject, optional
+        Balance between wet and dry signal, between 0 and 1. 0 means no 
+        reverb. Defaults to 0.25.
+
+    Methods:
+    
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setBal(x) : Replace the `bal` attribute.
+
+    Attributes:
+    
+    input : PyoObject. Input signal to process.
+    bal : float or PyoObject. Balance between wet and dry signal.
+        
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
+    >>> cv = CvlVerb(sf, SNDS_PATH+"/IRMediumHallStereo.wav", size=1024, bal=0.4).out()
+
+    """
+    def __init__(self, input, impulse=SNDS_PATH+"/IRMediumHallStereo.wav", bal=0.25, size=1024, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._impulse = impulse
+        self._bal = bal
+        self._size = size
+        self._in_fader = InputFader(input)
+        in_fader, bal, size, mul, add, lmax = convertArgsToLists(self._in_fader, bal, size, mul, add)
+        impulse, lmax2 = convertArgsToLists(impulse)
+        self._base_objs = []
+        for file in impulse:
+            _size, _dur, _snd_sr, _snd_chnls, _format, _type = sndinfo(file)
+            lmax3 = max(lmax, _snd_chnls)
+            self._base_objs.extend([CvlVerb_base(wrap(in_fader,i), file, wrap(bal,i), wrap(size,i), i%_snd_chnls, wrap(mul,i), wrap(add,i)) for i in range(lmax3)])
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setBal(self, x):
+        """
+        Replace the `bal` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            new `bal` attribute.
+
+        """
+        self._bal = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBal(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., "lin", "bal", self._bal),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def bal(self):
+        """float or PyoObject. Wet / dry balance.""" 
+        return self._bal
+    @bal.setter
+    def bal(self, x): self.setBal(x)

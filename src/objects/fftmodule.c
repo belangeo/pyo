@@ -27,6 +27,7 @@
 #include "dummymodule.h"
 #include "fft.h"
 #include "wind.h"
+#include "sndfile.h"
 
 static int 
 isPowerOfTwo(int x) {
@@ -3235,4 +3236,600 @@ PyTypeObject VectralType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     Vectral_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *bal;
+    Stream *bal_stream;
+    char *impulse_path;
+    int chnl;
+    int size;
+    int size2;
+    int hsize;
+    int incount;
+    int num_iter;
+    int current_iter;
+    int impulse_len;
+    MYFLT *inframe;
+    MYFLT *outframe;
+    MYFLT *last_half_frame;
+    MYFLT **twiddle;
+    MYFLT *input_buffer;
+    MYFLT *output_buffer;
+    MYFLT **impulse_real;
+    MYFLT **impulse_imag;
+    MYFLT **accum_real;
+    MYFLT **accum_imag;
+    MYFLT *real;
+    MYFLT *imag;
+    int modebuffer[3];
+} CvlVerb;
+
+static void
+CvlVerb_alloc_memories(CvlVerb *self) {
+    int i, n8;
+    self->hsize = self->size / 2;
+    self->size2 = self->size * 2;
+    n8 = self->size2 >> 3;
+    self->real = (MYFLT *)realloc(self->real, self->size * sizeof(MYFLT));    
+    self->imag = (MYFLT *)realloc(self->imag, self->size * sizeof(MYFLT));    
+    self->inframe = (MYFLT *)realloc(self->inframe, self->size2 * sizeof(MYFLT));
+    self->outframe = (MYFLT *)realloc(self->outframe, self->size2 * sizeof(MYFLT));       
+    self->last_half_frame = (MYFLT *)realloc(self->last_half_frame, self->size * sizeof(MYFLT));    
+    self->input_buffer = (MYFLT *)realloc(self->output_buffer, self->size * sizeof(MYFLT));    
+    self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->size2 * sizeof(MYFLT));    
+    for (i=0; i<self->size2; i++)
+        self->inframe[i] = self->outframe[i] = self->output_buffer[i] = 0.0;
+    for (i=0; i<self->size; i++)
+        self->last_half_frame[i] = self->input_buffer[i] = 0.0;
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(self->twiddle, self->size2);
+}
+
+static void
+CvlVerb_analyse_impulse(CvlVerb *self) {
+    SNDFILE *sf;
+    SF_INFO info;
+    int i, j, snd_size, snd_sr, snd_chnls, num_items, num;
+    MYFLT *tmp, *tmp2, *inframe, *outframe;
+
+    info.format = 0;
+    sf = sf_open(self->impulse_path, SFM_READ, &info);
+    if (sf == NULL) {
+        printf("CvlVerb failed to open the impulse file %s.\n", self->impulse_path);
+        return;
+    }
+    snd_size = info.frames;
+    snd_sr = info.samplerate;
+    snd_chnls = info.channels;
+    num_items = snd_size * snd_chnls;
+    
+    if (snd_sr != self->sr) {
+        printf("CvlVerb warning : Impulse sampling rate does't match the sampling rate of the server.\n");
+    }
+
+    self->num_iter = (int)MYCEIL((MYFLT)snd_size / self->size);
+    self->impulse_len = self->num_iter * self->size;
+
+    printf("num iter ; %d, impulse len ; %d\n", self->num_iter, self->impulse_len);
+
+    tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
+    tmp2 = (MYFLT *)malloc(self->impulse_len * sizeof(MYFLT));
+
+    sf_seek(sf, 0, SEEK_SET);
+    num = SF_READ(sf, tmp, num_items);
+    sf_close(sf);
+    for (i=0; i<snd_size; i++) {
+        tmp2[i] = tmp[i*snd_chnls+self->chnl];
+    }
+    for (i=snd_size; i<self->impulse_len; i++) {
+        tmp2[i] = 0.0;
+    }
+
+    self->impulse_real = (MYFLT **)realloc(self->impulse_real, self->num_iter * sizeof(MYFLT *));
+    self->impulse_imag = (MYFLT **)realloc(self->impulse_imag, self->num_iter * sizeof(MYFLT *));
+    self->accum_real = (MYFLT **)realloc(self->accum_real, self->num_iter * sizeof(MYFLT *));    
+    self->accum_imag = (MYFLT **)realloc(self->accum_imag, self->num_iter * sizeof(MYFLT *)); 
+    for(i=0; i<self->num_iter; i++) {
+        self->impulse_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+        self->impulse_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+        self->accum_real[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+        self->accum_imag[i] = (MYFLT *)malloc(self->size * sizeof(MYFLT));
+        for (j=0; j<self->size; j++) {
+            self->accum_real[i][j] = 0.0;
+            self->accum_imag[i][j] = 0.0;
+        }
+    }
+
+    inframe = (MYFLT *)malloc(self->size2 * sizeof(MYFLT));
+    outframe = (MYFLT *)malloc(self->size2 * sizeof(MYFLT));
+    
+    for (j=0; j<self->num_iter; j++) {
+        num = j * self->size;
+        for (i=0; i<self->size; i++) {
+            inframe[i] = tmp2[num+i];
+        }
+        for (i=self->size; i<self->size2; i++) {
+            inframe[i] = 0.0;
+        }        
+        realfft_split(inframe, outframe, self->size2, self->twiddle);
+        self->impulse_real[j][0] = outframe[0];
+        self->impulse_imag[j][0] = 0.0;
+        for (i=1; i<self->size; i++) {
+            self->impulse_real[j][i] = outframe[i];
+            self->impulse_imag[j][i] = outframe[self->size2 - i];
+        }
+    }
+    
+    free(tmp);
+    free(tmp2);
+    free(inframe);
+    free(outframe);
+}
+
+static void
+CvlVerb_process_i(CvlVerb *self) {
+    int i, j, k;
+    MYFLT gdry;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT bal = PyFloat_AS_DOUBLE(self->bal);
+    if (bal < 0)
+        bal = 0.0;
+    else if (bal > 1)
+        bal = 1.0;
+    gdry = 1.0 - bal;
+
+    for (i=0; i<self->bufsize; i++) {
+        self->input_buffer[self->incount] = in[i];
+        self->data[i] = (self->output_buffer[self->incount] * 100 * bal) + (in[i] * gdry);
+        
+        self->incount++;
+        if (self->incount == self->size) {
+            self->incount = 0;
+            
+            k = self->current_iter - 1;
+            if (k < 0)
+                k += self->num_iter;
+            for (i=0; i<self->size; i++) {
+                self->accum_real[k][i] = self->accum_imag[k][i] = 0.0;
+                self->inframe[i] = self->last_half_frame[i];
+                self->inframe[i+self->size] = self->last_half_frame[i] = self->input_buffer[i];
+            }
+            realfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
+            self->real[0] = self->outframe[0];
+            self->imag[0] = 0.0;
+            for (i=1; i<self->size; i++) {
+                self->real[i] = self->outframe[i];
+                self->imag[i] = self->outframe[self->size2 - i];
+            }
+            for (j=0; j<self->num_iter; j++) {
+                k = self->current_iter + j;
+                if (k >= self->num_iter)
+                    k -= self->num_iter;
+                for (i=0; i<self->size; i++) {
+                    self->accum_real[k][i] += self->real[i] * self->impulse_real[j][i] - self->imag[i] * self->impulse_imag[j][i];
+                    self->accum_imag[k][i] += self->real[i] * self->impulse_imag[j][i] + self->imag[i] * self->impulse_real[j][i];
+                }
+            }
+            self->inframe[0] = self->accum_real[self->current_iter][0];
+            self->inframe[self->size] = 0.0;
+            for (i=1; i<self->size; i++) {
+                self->inframe[i] = self->accum_real[self->current_iter][i];
+                self->inframe[self->size2 - i] = self->accum_imag[self->current_iter][i];
+            }
+            irealfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
+
+            for (i=0; i<self->size; i++) {
+                self->output_buffer[i] = self->outframe[i+self->size];
+            }
+
+            self->current_iter++;
+            if (self->current_iter == self->num_iter)
+                self->current_iter = 0;
+        }
+    } 
+}
+
+static void
+CvlVerb_process_a(CvlVerb *self) {
+    int i, j, k;
+    MYFLT gwet, gdry;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *bal = Stream_getData((Stream *)self->bal_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        gwet = bal[i];
+        if (gwet < 0)
+            gwet = 0.0;
+        else if (gwet > 1)
+            gwet = 1.0;
+        gdry = 1.0 - gwet;
+        self->input_buffer[self->incount] = in[i];
+        self->data[i] = (self->output_buffer[self->incount] * 100 * gwet) + in[i] * gdry;
+        
+        self->incount++;
+        if (self->incount == self->size) {
+            self->incount = 0;
+            
+            k = self->current_iter - 1;
+            if (k < 0)
+                k += self->num_iter;
+            for (i=0; i<self->size; i++) {
+                self->accum_real[k][i] = self->accum_imag[k][i] = 0.0;
+                self->inframe[i] = self->last_half_frame[i];
+                self->inframe[i+self->size] = self->last_half_frame[i] = self->input_buffer[i];
+            }
+            realfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
+            self->real[0] = self->outframe[0];
+            self->imag[0] = 0.0;
+            for (i=1; i<self->size; i++) {
+                self->real[i] = self->outframe[i];
+                self->imag[i] = self->outframe[self->size2 - i];
+            }
+            for (j=0; j<self->num_iter; j++) {
+                k = self->current_iter + j;
+                if (k >= self->num_iter)
+                    k -= self->num_iter;
+                for (i=0; i<self->size; i++) {
+                    self->accum_real[k][i] += self->real[i] * self->impulse_real[j][i] - self->imag[i] * self->impulse_imag[j][i];
+                    self->accum_imag[k][i] += self->real[i] * self->impulse_imag[j][i] + self->imag[i] * self->impulse_real[j][i];
+                }
+            }
+            self->inframe[0] = self->accum_real[self->current_iter][0];
+            self->inframe[self->size] = 0.0;
+            for (i=1; i<self->size; i++) {
+                self->inframe[i] = self->accum_real[self->current_iter][i];
+                self->inframe[self->size2 - i] = self->accum_imag[self->current_iter][i];
+            }
+            irealfft_split(self->inframe, self->outframe, self->size2, self->twiddle);
+
+            for (i=0; i<self->size; i++) {
+                self->output_buffer[i] = self->outframe[i+self->size];
+            }
+
+            self->current_iter++;
+            if (self->current_iter == self->num_iter)
+                self->current_iter = 0;
+        }
+    } 
+}
+
+static void CvlVerb_postprocessing_ii(CvlVerb *self) { POST_PROCESSING_II };
+static void CvlVerb_postprocessing_ai(CvlVerb *self) { POST_PROCESSING_AI };
+static void CvlVerb_postprocessing_ia(CvlVerb *self) { POST_PROCESSING_IA };
+static void CvlVerb_postprocessing_aa(CvlVerb *self) { POST_PROCESSING_AA };
+static void CvlVerb_postprocessing_ireva(CvlVerb *self) { POST_PROCESSING_IREVA };
+static void CvlVerb_postprocessing_areva(CvlVerb *self) { POST_PROCESSING_AREVA };
+static void CvlVerb_postprocessing_revai(CvlVerb *self) { POST_PROCESSING_REVAI };
+static void CvlVerb_postprocessing_revaa(CvlVerb *self) { POST_PROCESSING_REVAA };
+static void CvlVerb_postprocessing_revareva(CvlVerb *self) { POST_PROCESSING_REVAREVA };
+
+static void
+CvlVerb_setProcMode(CvlVerb *self)
+{        
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = CvlVerb_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = CvlVerb_process_a;
+            break;
+    }     
+      
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = CvlVerb_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = CvlVerb_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = CvlVerb_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = CvlVerb_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = CvlVerb_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = CvlVerb_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = CvlVerb_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = CvlVerb_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = CvlVerb_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+CvlVerb_compute_next_data_frame(CvlVerb *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+CvlVerb_traverse(CvlVerb *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->bal);
+    Py_VISIT(self->bal_stream);
+    return 0;
+}
+
+static int 
+CvlVerb_clear(CvlVerb *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->bal);
+    Py_CLEAR(self->bal_stream);
+    return 0;
+}
+
+static void
+CvlVerb_dealloc(CvlVerb* self)
+{
+    int i;
+    pyo_DEALLOC
+    free(self->inframe);
+    free(self->outframe);
+    free(self->input_buffer);
+    free(self->output_buffer);
+    free(self->last_half_frame);
+    for(i=0; i<4; i++) {
+        free(self->twiddle[i]);
+    }
+    free(self->twiddle);
+    for(i=0; i<self->num_iter; i++) {
+        free(self->impulse_real[i]);
+        free(self->impulse_imag[i]);
+        free(self->accum_real[i]);
+        free(self->accum_imag[i]);
+    }    
+    free(self->impulse_real);
+    free(self->impulse_imag);
+    free(self->accum_real);
+    free(self->accum_imag);
+    free(self->real);
+    free(self->imag);
+    CvlVerb_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i, k;
+    PyObject *inputtmp, *input_streamtmp, *baltmp=NULL, *multmp=NULL, *addtmp=NULL;
+    CvlVerb *self;
+    self = (CvlVerb *)type->tp_alloc(type, 0);
+    
+    self->bal = PyFloat_FromDouble(0.25);
+    self->size = 1024;
+    self->chnl = 0;
+    self->incount = 0;
+    self->current_iter = 0;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, CvlVerb_compute_next_data_frame);
+    self->mode_func_ptr = CvlVerb_setProcMode;
+
+    static char *kwlist[] = {"input", "impulse", "bal", "size", "chnl", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "Os|OiiOO", kwlist, &inputtmp, &self->impulse_path, &baltmp, &self->size, &self->chnl, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if (self->size < self->bufsize) {
+        printf("Warning : CvlVerb size less than buffer size!\nCvlVerb size set to buffersize: %d\n", self->bufsize);
+        self->size = self->bufsize;
+    }
+    
+    k = 1;
+    while (k < self->size)
+        k <<= 1;
+    self->size = k;
+
+    INIT_INPUT_STREAM
+
+    if (baltmp) {
+        PyObject_CallMethod((PyObject *)self, "setBal", "O", baltmp);
+    }
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    CvlVerb_alloc_memories(self);
+    CvlVerb_analyse_impulse(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject *
+CvlVerb_setBal(CvlVerb *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->bal);
+	if (isNumber == 1) {
+		self->bal = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->bal = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->bal, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->bal_stream);
+        self->bal_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject * CvlVerb_getServer(CvlVerb* self) { GET_SERVER };
+static PyObject * CvlVerb_getStream(CvlVerb* self) { GET_STREAM };
+static PyObject * CvlVerb_setMul(CvlVerb *self, PyObject *arg) { SET_MUL };	
+static PyObject * CvlVerb_setAdd(CvlVerb *self, PyObject *arg) { SET_ADD };	
+static PyObject * CvlVerb_setSub(CvlVerb *self, PyObject *arg) { SET_SUB };	
+static PyObject * CvlVerb_setDiv(CvlVerb *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * CvlVerb_play(CvlVerb *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * CvlVerb_out(CvlVerb *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * CvlVerb_stop(CvlVerb *self) { STOP };
+
+static PyObject * CvlVerb_multiply(CvlVerb *self, PyObject *arg) { MULTIPLY };
+static PyObject * CvlVerb_inplace_multiply(CvlVerb *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * CvlVerb_add(CvlVerb *self, PyObject *arg) { ADD };
+static PyObject * CvlVerb_inplace_add(CvlVerb *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * CvlVerb_sub(CvlVerb *self, PyObject *arg) { SUB };
+static PyObject * CvlVerb_inplace_sub(CvlVerb *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * CvlVerb_div(CvlVerb *self, PyObject *arg) { DIV };
+static PyObject * CvlVerb_inplace_div(CvlVerb *self, PyObject *arg) { INPLACE_DIV };
+
+
+static PyMemberDef CvlVerb_members[] = {
+{"server", T_OBJECT_EX, offsetof(CvlVerb, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(CvlVerb, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(CvlVerb, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(CvlVerb, add), 0, "Add factor."},
+{"input", T_OBJECT_EX, offsetof(CvlVerb, input), 0, "Input sound object."},
+{"bal", T_OBJECT_EX, offsetof(CvlVerb, bal), 0, "Wet/dry balance."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef CvlVerb_methods[] = {
+{"getServer", (PyCFunction)CvlVerb_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)CvlVerb_getStream, METH_NOARGS, "Returns stream object."},
+{"out", (PyCFunction)CvlVerb_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"play", (PyCFunction)CvlVerb_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)CvlVerb_stop, METH_NOARGS, "Stops computing."},
+{"setBal", (PyCFunction)CvlVerb_setBal, METH_O, "Sets wet/dry balance."},
+{"setMul", (PyCFunction)CvlVerb_setMul, METH_O, "Sets CvlVerb mul factor."},
+{"setAdd", (PyCFunction)CvlVerb_setAdd, METH_O, "Sets CvlVerb add factor."},
+{"setSub", (PyCFunction)CvlVerb_setSub, METH_O, "Sets CvlVerb add factor."},
+{"setDiv", (PyCFunction)CvlVerb_setDiv, METH_O, "Sets CvlVerb mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods CvlVerb_as_number = {
+    (binaryfunc)CvlVerb_add,                      /*nb_add*/
+    (binaryfunc)CvlVerb_sub,                 /*nb_subtract*/
+    (binaryfunc)CvlVerb_multiply,                 /*nb_multiply*/
+    (binaryfunc)CvlVerb_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)CvlVerb_inplace_add,              /*inplace_add*/
+    (binaryfunc)CvlVerb_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)CvlVerb_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)CvlVerb_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject CvlVerbType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.CvlVerb_base",                                   /*tp_name*/
+sizeof(CvlVerb),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)CvlVerb_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&CvlVerb_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"CvlVerb objects. FFT transform.",           /* tp_doc */
+(traverseproc)CvlVerb_traverse,                  /* tp_traverse */
+(inquiry)CvlVerb_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+CvlVerb_methods,                                 /* tp_methods */
+CvlVerb_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+CvlVerb_new,                                     /* tp_new */
 };
