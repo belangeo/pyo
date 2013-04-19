@@ -421,6 +421,7 @@ extern PyTypeObject RCOscType;
 extern PyTypeObject YinType;
 extern PyTypeObject SVFType;
 extern PyTypeObject AverageType;
+extern PyTypeObject CvlVerbType;
 
 /* Constants */
 #define E M_E
