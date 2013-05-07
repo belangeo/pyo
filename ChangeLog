@@ -1,5 +1,10 @@
 2013-04-19 belangeo <belangeo@gmail.com>
 
+    * Added new object: Spectrum, Frequency spectrum analyzer.
+    - rev 1095
+
+2013-04-19 belangeo <belangeo@gmail.com>
+
     * Added new object: CvlVerb, convolution based reverb.
     - rev 1094
 

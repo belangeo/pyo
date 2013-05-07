@@ -422,6 +422,7 @@ extern PyTypeObject YinType;
 extern PyTypeObject SVFType;
 extern PyTypeObject AverageType;
 extern PyTypeObject CvlVerbType;
+extern PyTypeObject SpectrumType;
 
 /* Constants */
 #define E M_E
