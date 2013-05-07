@@ -3833,3 +3833,477 @@ CvlVerb_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 CvlVerb_new,                                     /* tp_new */
 };
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int size;
+    int hsize;
+    int wintype;
+    int incount;
+    int freqone;
+    int freqtwo;
+    int width;
+    int height;
+    int fscaling; /* frequency scaling : 0 = lin, 1 = log */
+    int mscaling; /* magnitude scaling : 0 = lin, 1 = log */
+    MYFLT gain;
+    MYFLT oneOverSr;
+    MYFLT freqPerBin;
+    MYFLT *input_buffer;
+    MYFLT *inframe;
+    MYFLT *outframe;
+    MYFLT *magnitude;    
+    MYFLT *last_magnitude;    
+    MYFLT *tmpmag;    
+    MYFLT *window;
+    MYFLT **twiddle;
+} Spectrum;
+
+static void
+Spectrum_realloc_memories(Spectrum *self) {
+    int i, n8;
+    self->hsize = self->size / 2;
+    n8 = self->size >> 3;
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));
+    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));    
+    for (i=0; i<self->size; i++)
+        self->input_buffer[i] = self->inframe[i] = self->outframe[i] = 0.0;
+    self->magnitude = (MYFLT *)realloc(self->magnitude, self->hsize * sizeof(MYFLT));    
+    self->last_magnitude = (MYFLT *)realloc(self->last_magnitude, self->hsize * sizeof(MYFLT));    
+    self->tmpmag = (MYFLT *)realloc(self->tmpmag, (self->hsize+6) * sizeof(MYFLT));    
+    for (i=0; i<self->hsize; i++)
+        self->magnitude[i] = self->last_magnitude[i] = self->tmpmag[i+3] = 0.0;
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(self->twiddle, self->size);
+    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    gen_window(self->window, self->size, self->wintype);
+    self->incount = self->hsize;
+    self->freqPerBin = self->sr / self->size;
+}
+
+static PyObject *
+Spectrum_display(Spectrum *self) {
+    int i, p1, b1, b2, bins;
+    MYFLT pos, step, frac, iw, mag, h4;
+    MYFLT logmin, logrange;
+    PyObject *points, *tuple;
+    
+    b1 = (int)(self->freqone / self->freqPerBin);
+    b2 = (int)(self->freqtwo / self->freqPerBin);
+    bins = b2 - b1;
+    step = bins / (MYFLT)(self->width);
+    iw = 1.0 / (MYFLT)(self->width);
+    h4 = self->height * 0.75;
+
+    points = PyList_New(self->width+2);
+
+    tuple = PyTuple_New(2);
+    PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(0));
+    PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height));
+    PyList_SET_ITEM(points, 0, tuple);
+    tuple = PyTuple_New(2);
+    PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(self->width));
+    PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height));
+    PyList_SET_ITEM(points, self->width+1, tuple);
+    if (!self->fscaling && !self->mscaling) {
+        for (i=0; i<self->width; i++) {
+            pos = i * step + b1;
+            p1 = (int)pos;
+            frac = pos - p1;
+            tuple = PyTuple_New(2);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
+            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyList_SET_ITEM(points, i+1, tuple);
+        }
+    }
+    else if (!self->fscaling && self->mscaling) {
+        for (i=0; i<self->width; i++) {
+            pos = i * step + b1;
+            p1 = (int)pos;
+            frac = pos - p1;
+            tuple = PyTuple_New(2);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
+            mag = mag > 0.001 ? mag : 0.001;
+            mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * h4; 
+            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyList_SET_ITEM(points, i+1, tuple);
+        }
+    }
+    else if (self->fscaling && !self->mscaling) {
+        if (self->freqone <= 20.0)
+            self->freqone = 20.0;
+        logmin = MYLOG10(self->freqone);
+        logrange = MYLOG10(self->freqtwo) - logmin;
+        for (i=0; i<self->width; i++) {
+            pos = MYPOW(10.0, i * iw * logrange + logmin) / self->freqPerBin;
+            p1 = (int)pos;
+            frac = pos - p1;
+            tuple = PyTuple_New(2);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * self->gain * 4 * h4);
+            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyList_SET_ITEM(points, i+1, tuple);
+        }
+    }
+    else {
+        if (self->freqone <= 20.0)
+            self->freqone = 20.0;
+        logmin = MYLOG10(self->freqone);
+        logrange = MYLOG10(self->freqtwo) - logmin;
+        for (i=0; i<self->width; i++) {
+            pos = MYPOW(10.0, i * iw * logrange + logmin) / self->freqPerBin;
+            p1 = (int)pos;
+            frac = pos - p1;
+            tuple = PyTuple_New(2);
+            mag = ((self->magnitude[p1] + (self->magnitude[p1+1] - self->magnitude[p1]) * frac) * 0.7 * self->gain);
+            mag = mag > 0.001 ? mag : 0.001;
+            mag = (60.0 + (20.0 * MYLOG10(mag))) * 0.01666 * self->height; 
+            PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(self->height - (int)mag));
+            PyList_SET_ITEM(points, i+1, tuple);
+        }
+    }
+    
+    return points;
+}
+
+static void
+Spectrum_filters(Spectrum *self) {
+    int i, j = 0, impos = 0;
+    MYFLT tmp = 0.0;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->input_buffer[self->incount] = in[i];
+        self->incount++;
+        if (self->incount == self->size) {
+            for (j=0; j<self->size; j++) {
+                self->inframe[j] = self->input_buffer[j] * self->window[j];
+            }
+            self->incount = self->hsize;
+            realfft_split(self->inframe, self->outframe, self->size, self->twiddle);
+            self->tmpmag[0] = self->tmpmag[1] = self->tmpmag[2] = 0.0;
+            self->tmpmag[self->hsize] = self->tmpmag[self->hsize+1] = self->tmpmag[self->hsize+2] = 0.0;
+            self->tmpmag[3] = MYSQRT(self->outframe[0]*self->outframe[0]);
+            for (j=1; j<self->hsize; j++) {
+                impos = self->size - j;
+                tmp = MYSQRT(self->outframe[j]*self->outframe[j] + self->outframe[impos]*self->outframe[impos]) * 2;
+                self->tmpmag[j+3] = self->last_magnitude[j] = tmp + self->last_magnitude[j] * 0.5;
+            }
+            for (j=0; j<self->hsize; j++) {
+                tmp =   (self->tmpmag[j] + self->tmpmag[j+6]) * 0.05 + 
+                        (self->tmpmag[j+1] + self->tmpmag[j+5]) * 0.15 + 
+                        (self->tmpmag[j+2] + self->tmpmag[j+4])* 0.3 + 
+                        self->tmpmag[j+3] * 0.5;
+                self->magnitude[j] = tmp;
+                self->input_buffer[j] = self->input_buffer[j+self->hsize];
+            }
+        }
+    }
+}
+
+static void
+Spectrum_setProcMode(Spectrum *self)
+{        
+    self->proc_func_ptr = Spectrum_filters;  
+}
+
+static void
+Spectrum_compute_next_data_frame(Spectrum *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+Spectrum_traverse(Spectrum *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+Spectrum_clear(Spectrum *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Spectrum_dealloc(Spectrum* self)
+{
+    int i;
+    pyo_DEALLOC
+    free(self->input_buffer);
+    free(self->inframe);
+    free(self->outframe);
+    free(self->window);
+    free(self->magnitude);
+    free(self->last_magnitude);
+    free(self->tmpmag);
+    for(i=0; i<4; i++) {
+        free(self->twiddle[i]);
+    }
+    free(self->twiddle);
+    Spectrum_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Spectrum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i, k;
+    PyObject *inputtmp, *input_streamtmp;
+    Spectrum *self;
+    self = (Spectrum *)type->tp_alloc(type, 0);
+    
+    self->size = 1024;
+    self->wintype = 2;
+
+    INIT_OBJECT_COMMON
+
+    self->gain = 1.0;
+    self->oneOverSr = 1.0 / self->sr;
+    self->freqone = 0.0;
+    self->freqtwo = self->sr * 0.5;
+    self->width = 500;
+    self->height = 400;
+    self->fscaling = 0;
+    self->mscaling = 1;
+    
+    Stream_setFunctionPtr(self->stream, Spectrum_compute_next_data_frame);
+    self->mode_func_ptr = Spectrum_setProcMode;
+
+    static char *kwlist[] = {"input", "size", "wintype", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|ii", kwlist, &inputtmp, &self->size, &self->wintype))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (!isPowerOfTwo(self->size)) {
+        k = 1;
+        while (k < self->size)
+            k *= 2;
+        self->size = k;
+        printf("size must be a power-of-2, using the next power-of-2 greater than size : %d\n", self->size);
+    }
+
+    Spectrum_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Spectrum_getServer(Spectrum* self) { GET_SERVER };
+static PyObject * Spectrum_getStream(Spectrum* self) { GET_STREAM };
+static PyObject * Spectrum_play(Spectrum *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Spectrum_stop(Spectrum *self) { STOP };
+
+static PyObject *
+Spectrum_setSize(Spectrum *self, PyObject *arg)
+{	
+    int tmp;
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        tmp = PyInt_AsLong(arg);
+        if (isPowerOfTwo(tmp)) {
+            self->size = tmp;
+            Spectrum_realloc_memories(self);
+        }
+        else
+            printf("FFT size must be a power of two!\n");
+    }    
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Spectrum_setWinType(Spectrum *self, PyObject *arg)
+{	
+	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->wintype = PyLong_AsLong(arg);
+        gen_window(self->window, self->size, self->wintype);
+    }    
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Spectrum_setLowbound(Spectrum *self, PyObject *arg)
+{	
+    MYFLT tmp;
+	if (PyNumber_Check(arg)) {
+        tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        if (tmp >= 0.0 && tmp <= 0.5)
+            self->freqone = tmp * self->sr;
+        else
+            self->freqone = 0.0;
+    }    
+    else
+        self->freqone = 0.0;
+
+    return PyFloat_FromDouble(MYFLOOR(self->freqone / self->freqPerBin) * self->freqPerBin);
+}
+
+static PyObject *
+Spectrum_getLowfreq(Spectrum *self)
+{
+    return PyFloat_FromDouble(self->freqone);
+}
+
+static PyObject *
+Spectrum_setHighbound(Spectrum *self, PyObject *arg)
+{	
+    MYFLT tmp;
+	if (PyNumber_Check(arg)) {
+        tmp = PyFloat_AsDouble(PyNumber_Float(arg));
+        if (tmp >= 0.0 && tmp <= 0.5)
+            self->freqtwo = tmp * self->sr;
+        else
+            self->freqtwo = self->sr * 0.5;
+    }
+    else
+        self->freqtwo = self->sr * 0.5;
+    
+    return PyFloat_FromDouble(MYFLOOR(self->freqtwo / self->freqPerBin) * self->freqPerBin);
+}
+
+static PyObject *
+Spectrum_getHighfreq(Spectrum *self)
+{
+    return PyFloat_FromDouble(self->freqtwo);
+}
+
+static PyObject *
+Spectrum_setWidth(Spectrum *self, PyObject *arg)
+{	
+	if (PyInt_Check(arg) || PyLong_Check(arg))
+        self->width = PyLong_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Spectrum_setHeight(Spectrum *self, PyObject *arg)
+{	
+	if (PyInt_Check(arg) || PyLong_Check(arg))
+        self->height = PyLong_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Spectrum_setFscaling(Spectrum *self, PyObject *arg)
+{	
+	if (PyInt_Check(arg) || PyLong_Check(arg))
+        self->fscaling = PyLong_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Spectrum_setMscaling(Spectrum *self, PyObject *arg)
+{	
+	if (PyInt_Check(arg) || PyLong_Check(arg))
+        self->mscaling = PyLong_AsLong(arg);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Spectrum_setGain(Spectrum *self, PyObject *arg)
+{	
+	if (PyNumber_Check(arg))
+        self->gain = PyFloat_AsDouble(PyNumber_Float(arg));
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef Spectrum_members[] = {
+{"server", T_OBJECT_EX, offsetof(Spectrum, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Spectrum, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(Spectrum, input), 0, "FFT sound object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Spectrum_methods[] = {
+{"getServer", (PyCFunction)Spectrum_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Spectrum_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Spectrum_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Spectrum_stop, METH_NOARGS, "Stops computing."},
+{"setSize", (PyCFunction)Spectrum_setSize, METH_O, "Sets a new FFT size."},
+{"setWinType", (PyCFunction)Spectrum_setWinType, METH_O, "Sets a new window."},
+{"setLowbound", (PyCFunction)Spectrum_setLowbound, METH_O, "Sets the first frequency to display."},
+{"setHighbound", (PyCFunction)Spectrum_setHighbound, METH_O, "Sets the last frequency to display."},
+{"setWidth", (PyCFunction)Spectrum_setWidth, METH_O, "Sets the width of the display."},
+{"setHeight", (PyCFunction)Spectrum_setHeight, METH_O, "Sets the height of the display."},
+{"setFscaling", (PyCFunction)Spectrum_setFscaling, METH_O, "Sets the frequency scaling of the display."},
+{"setMscaling", (PyCFunction)Spectrum_setMscaling, METH_O, "Sets the magnitude scaling of the display."},
+{"setGain", (PyCFunction)Spectrum_setGain, METH_O, "Sets the magnitude gain of the display."},
+{"display", (PyCFunction)Spectrum_display, METH_NOARGS, "Gets points to display."},
+{"getLowfreq", (PyCFunction)Spectrum_getLowfreq, METH_NOARGS, "Returns the lowest frequency to display."},
+{"getHighfreq", (PyCFunction)Spectrum_getHighfreq, METH_NOARGS, "Returns the highest frequency to display."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject SpectrumType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Spectrum_base",                                   /*tp_name*/
+sizeof(Spectrum),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Spectrum_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Spectrum objects. FFT spectrum analyser.",           /* tp_doc */
+(traverseproc)Spectrum_traverse,                  /* tp_traverse */
+(inquiry)Spectrum_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Spectrum_methods,                                 /* tp_methods */
+Spectrum_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Spectrum_new,                                     /* tp_new */
+};

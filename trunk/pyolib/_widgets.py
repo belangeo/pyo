@@ -58,6 +58,7 @@ GRAPHWINDOWS = []
 TABLEWINDOWS = []
 SNDTABLEWINDOWS = []
 MATRIXWINDOWS = []
+SPECTRUMWINDOWS = []
 
 def createRootWindow():
     if not PYO_USE_WX:
@@ -69,7 +70,7 @@ def createRootWindow():
             return None
     else:        
         if wx.GetApp() == None: 
-            win = wx.App() 
+            win = wx.App(False) 
             return win
         else:
             return None
@@ -156,6 +157,15 @@ def wxCreateDelayedMatrixWindows():
         if object != None:
             object._setViewFrame(f)
         wxDisplayWindow(f, win[2])
+
+def wxCreateDelayedSpectrumWindows():
+    for win in SPECTRUMWINDOWS:
+        f = SpectrumDisplay(None, win[0])
+        if win[1] == None: title = win[0].__class__.__name__
+        else: title = win[1]
+        if win[0] != None:
+            win[0]._setViewFrame(f)
+        wxDisplayWindow(f, title)
     
 def createCtrlWindow(obj, map_list, title, wxnoserver=False):
     if not PYO_USE_WX:
@@ -244,6 +254,20 @@ It helps a lot to speed up matrix drawing!"""
                 object._setViewFrame(f)
         else:
             MATRIXWINDOWS.append([samples,size,title, object])    
+
+def createSpectrumWindow(object, title, wxnoserver=False):
+    if not PYO_USE_WX:
+        print "WxPython must be installed to use the Spectrum display."
+    else:
+        if wxnoserver or wx.GetApp() != None:
+            root = createRootWindow()
+            f = SpectrumDisplay(None, object)
+            if title == None: title = object.__class__.__name__
+            wxShowWindow(f, title, root)
+            if object != None:
+                object._setViewFrame(f)
+        else:
+            SPECTRUMWINDOWS.append([object, title])   
         
 def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp):
     global X, Y, MAX_X, NEXT_Y
@@ -269,6 +293,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         wx.CallAfter(wxCreateDelayedSndTableWindows)
         wx.CallAfter(wxCreateDelayedMatrixWindows)
         wx.CallAfter(wxCreateDelayedCtrlWindows)
+        wx.CallAfter(wxCreateDelayedSpectrumWindows)
         wx.CallAfter(f.Raise)
     return f, win
         

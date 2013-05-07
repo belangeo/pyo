@@ -608,6 +608,248 @@ class VuMeter(wx.Panel):
     def OnClose(self, evt):
         self.Destroy()
 
+class RangeSlider(wx.Panel):
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15), 
+                 valtype='int', log=False, function=None):
+        wx.Panel.__init__(self, parent=parent, id=wx.ID_ANY, pos=pos, size=size, style=wx.NO_BORDER)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.SetMinSize(self.GetSize())
+        self.sliderHeight = 15
+        self.borderWidth = 1
+        self.action = None
+        self.fillcolor = "#AAAAAA" #SLIDER_BACK_COLOUR
+        self.knobcolor = "#333333" #SLIDER_KNOB_COLOUR
+        self.handlecolor = wx.Colour(int(self.knobcolor[1:3])-10, int(self.knobcolor[3:5])-10, int(self.knobcolor[5:7])-10)
+        self.outFunction = function
+        if valtype.startswith('i'): self.myType = IntType
+        else: self.myType = FloatType
+        self.log = log
+        self.SetRange(minvalue, maxvalue)
+        self.handles = [minvalue, maxvalue]
+        if init != None:
+            if type(init) in [ListType, TupleType]:
+                if len(init) == 1:
+                    self.SetValue([init[0],init[0]])
+                else:
+                    self.SetValue([init[0],init[1]])    
+            else: 
+                self.SetValue([minvalue,maxvalue])
+        else: 
+            self.SetValue([minvalue,maxvalue])
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.MouseRightDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
+        self.Bind(wx.EVT_RIGHT_UP, self.MouseUp)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SIZE, self.OnResize)
+
+    def createSliderBitmap(self):
+        w, h = self.GetSize()
+        b = wx.EmptyBitmap(w,h)
+        dc = wx.MemoryDC(b)
+        dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=1))
+        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR))
+        dc.DrawRectangle(0,0,w,h)
+        dc.SetBrush(wx.Brush("#777777"))
+        dc.SetPen(wx.Pen("#FFFFFF", width=1))
+        h2 = self.sliderHeight / 4
+        dc.DrawRoundedRectangle(0, h2, w, self.sliderHeight, 4)
+        dc.SelectObject(wx.NullBitmap)
+        b.SetMaskColour("#777777")
+        self.sliderMask = b
+
+    def setFillColour(self, col1, col2):
+        self.fillcolor = col1
+        self.knobcolor = col2
+        self.handlecolor = wx.Colour(self.knobcolor[0]*0.35, self.knobcolor[1]*0.35, self.knobcolor[2]*0.35)
+        self.createSliderBitmap()
+
+    def SetRange(self, minvalue, maxvalue):   
+        self.minvalue = minvalue
+        self.maxvalue = maxvalue
+
+    def scale(self, pos):
+        tmp = []
+        for p in pos:
+            inter = tFromValue(p, 1, self.GetSize()[0]-1)
+            inter2 = interpFloat(inter, self.minvalue, self.maxvalue)
+            tmp.append(inter2)
+        return tmp
+
+    def MouseRightDown(self, evt):
+        size = self.GetSize()
+        xpos = evt.GetPosition()[0]
+        if xpos > (self.handlePos[0]-5) and xpos < (self.handlePos[1]+5):
+            self.lastpos = xpos
+            self.length = self.handlePos[1] - self.handlePos[0]
+            self.action = 'drag'
+            self.handles = self.scale(self.handlePos)
+            self.CaptureMouse()
+            self.Refresh()
+        
+    def MouseDown(self, evt):
+        size = self.GetSize()
+        xpos = evt.GetPosition()[0]
+        self.middle = (self.handlePos[1] - self.handlePos[0]) / 2 + self.handlePos[0]
+        midrec = wx.Rect(self.middle-7, 4, 15, size[1]-9)
+        if midrec.Contains(evt.GetPosition()):
+            self.lastpos = xpos
+            self.length = self.handlePos[1] - self.handlePos[0]
+            self.action = 'drag'
+        elif xpos < self.middle:
+            self.handlePos[0] = clamp(xpos, 1, self.handlePos[1])
+            self.action = 'left'
+        elif xpos > self.middle:
+            self.handlePos[1] = clamp(xpos, self.handlePos[0], size[0]-1)
+            self.action = 'right'
+        self.handles = self.scale(self.handlePos)
+        self.CaptureMouse()
+        self.Refresh()
+
+    def MouseMotion(self, evt):
+        size = self.GetSize()
+        if evt.Dragging() and self.HasCapture() and evt.LeftIsDown() or evt.RightIsDown():
+            xpos = evt.GetPosition()[0]
+            if self.action == 'drag':
+                off = xpos - self.lastpos
+                self.lastpos = xpos
+                self.handlePos[0] = clamp(self.handlePos[0] + off, 1, size[0]-self.length) 
+                self.handlePos[1] = clamp(self.handlePos[1] + off, self.length, size[0]-1)
+            if self.action == 'left':
+                self.handlePos[0] = clamp(xpos, 1, self.handlePos[1]-20)
+            elif self.action == 'right':
+                self.handlePos[1] = clamp(xpos, self.handlePos[0]+20, size[0]-1)
+            self.handles = self.scale(self.handlePos)
+            self.Refresh()
+
+    def MouseUp(self, evt):
+        while self.HasCapture():
+            self.ReleaseMouse()
+
+    def OnResize(self, evt):
+        self.createSliderBitmap()
+        self.createBackgroundBitmap()
+        self.clampHandlePos()
+        self.Refresh()
+
+    def clampHandlePos(self):
+        size = self.GetSize()
+        tmp = []
+        for handle in [min(self.handles), max(self.handles)]:
+            pos = tFromValue(handle, self.minvalue, self.maxvalue) * size[0]
+            pos = clamp(pos, 1, size[0]-1)
+            tmp.append(pos)
+        self.handlePos = tmp
+
+class HRangeSlider(RangeSlider):
+    def __init__(self, parent, minvalue, maxvalue, init=None, pos=(0,0), size=(200,15), 
+                 valtype='int', log=False, function=None):
+        RangeSlider.__init__(self, parent, minvalue, maxvalue, init, pos, size, valtype, log, function)
+        self.SetMinSize((50, 15))
+        self.createSliderBitmap()
+        #self.createBackgroundBitmap()
+        self.clampHandlePos()
+
+    def setSliderHeight(self, height):
+        self.sliderHeight = height
+        self.createSliderBitmap()
+        #self.createBackgroundBitmap()
+        self.Refresh()
+
+    def createBackgroundBitmap(self):
+        w,h = self.GetSize()
+        self.backgroundBitmap = wx.EmptyBitmap(w,h)
+        dc = wx.MemoryDC(self.backgroundBitmap)
+
+        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR, wx.SOLID))
+        dc.Clear()
+
+        # Draw background
+        dc.SetPen(wx.Pen(BACKGROUND_COLOUR, width=self.borderWidth, style=wx.SOLID))
+        dc.DrawRectangle(0, 0, w, h)
+
+        # Draw inner part
+        h2 = self.sliderHeight / 4
+        rec = wx.Rect(0, h2, w, self.sliderHeight)
+        dc.GradientFillLinear(rec, "#666666", self.fillcolor, wx.BOTTOM)
+        dc.DrawBitmap(self.sliderMask, 0, 0, True)
+        dc.SelectObject(wx.NullBitmap)
+
+    def SetOneValue(self, value, which):
+        self.lasthandles = self.handles
+        value = clamp(value, self.minvalue, self.maxvalue)
+        if self.log:
+            t = toLog(value, self.minvalue, self.maxvalue)
+            value = interpFloat(t, self.minvalue, self.maxvalue)
+        else:
+            t = tFromValue(value, self.minvalue, self.maxvalue)
+            value = interpFloat(t, self.minvalue, self.maxvalue)
+        if self.myType == IntType:
+            value = int(value)
+        self.handles[which] = value
+        self.OnResize(None)
+
+    def SetValue(self, values):
+        self.lasthandles = self.handles
+        tmp = []
+        for val in values:
+            value = clamp(val, self.minvalue, self.maxvalue)
+            if self.log:
+                t = toLog(value, self.minvalue, self.maxvalue)
+                value = interpFloat(t, self.minvalue, self.maxvalue)
+            else:
+                t = tFromValue(value, self.minvalue, self.maxvalue)
+                value = interpFloat(t, self.minvalue, self.maxvalue)
+            if self.myType == IntType:
+                value = int(value)
+            tmp.append(value)
+        self.handles = tmp        
+        self.OnResize(None)
+
+    def GetValue(self):
+        tmp = []
+        for value in self.handles:
+            if self.log:
+                t = tFromValue(value, self.minvalue, self.maxvalue)
+                val = toExp(t, self.minvalue, self.maxvalue)
+            else:
+                val = value
+            if self.myType == IntType:
+                val = int(val)
+            tmp.append(val)
+        tmp = [min(tmp), max(tmp)]    
+        return tmp
+
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.AutoBufferedPaintDC(self)
+
+        # Draw background
+        dc.SetBrush(wx.Brush(BACKGROUND_COLOUR))
+        dc.Clear()
+        dc.SetPen(wx.Pen(BACKGROUND_COLOUR))
+        dc.DrawRectangle(0, 0, w, h)
+        
+        #dc.DrawBitmap(self.backgroundBitmap, 0, 0)
+
+        # Draw handles
+        dc.SetPen(wx.Pen(self.handlecolor, width=1, style=wx.SOLID))
+        dc.SetBrush(wx.Brush(self.handlecolor))
+        
+        rec = wx.Rect(self.handlePos[0], 3, self.handlePos[1]-self.handlePos[0], h-7)  
+        dc.DrawRoundedRectangleRect(rec, 4)
+        dc.SetPen(wx.Pen(self.fillcolor, width=1, style=wx.SOLID))
+        dc.SetBrush(wx.Brush(self.fillcolor))
+        mid = (self.handlePos[1]-self.handlePos[0]) / 2 + self.handlePos[0]
+        rec = wx.Rect(mid-4, 4, 8, h-9)
+        dc.DrawRoundedRectangleRect(rec, 3)
+
+        # Send value
+        if self.outFunction:
+            self.outFunction(self.GetValue())
+
 ######################################################################
 ### Control window for PyoObject
 ######################################################################
@@ -811,7 +1053,6 @@ class SndViewTable(wx.Frame):
         wx.CallAfter(self.setImage)
 
     def _destroy(self, evt):
-        print "caca"
         self.obj._setViewFrame(None)
         self.Destroy()
 
@@ -899,7 +1140,7 @@ class SndViewTable_withoutPIL(SndViewTable):
             off = h/self.chnls*j
             samples = self.obj._base_objs[j].getViewTable((w, imgHeight))
             if sys.platform == 'win32':
-                if tableclass == 'SndTable':
+                if self.tableclass == 'SndTable':
                     samples = [(samples[i], samples[i+1]+off, samples[i+2], samples[i+3]+off) for i in range(0, len(samples), 4)]
                 else:
                     samples = [(samples[i], samples[i+1]+off) for i in range(0, len(samples), 2)]
@@ -1001,6 +1242,314 @@ class ViewMatrix_withoutPIL(ViewMatrix):
             amp = "#%s%s%s" % (amp, amp, amp)
             dc.SetPen(wx.Pen(amp, width=1, style=wx.SOLID))  
             dc.DrawPoint(x, y)
+
+######################################################################
+## Spectrum Display
+######################################################################
+class SpectrumDisplay(wx.Frame):
+    def __init__(self, parent, obj=None):
+        wx.Frame.__init__(self, parent, size=(600,350))
+        self.SetMinSize((400,240))
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self._destroy, closeItem)
+        self.menubar.Append(self.fileMenu, "&File")
+        pollMenu = wx.Menu()
+        pollID = 20000
+        self.availableSpeeds = [.01, .025, .05, .1, .25, .5, 1]
+        for speed in self.availableSpeeds:
+            pollMenu.Append(pollID, "%.3f" % speed, kind=wx.ITEM_RADIO)
+            if speed == 0.05:
+                pollMenu.Check(pollID, True)
+            self.Bind(wx.EVT_MENU, self.setPollTime, id=pollID)
+            pollID += 1
+        self.menubar.Append(pollMenu, "&Polling Speed")
+        self.SetMenuBar(self.menubar)
+        self.Bind(wx.EVT_CLOSE, self._destroy)
+        self.obj = obj
+        self.panel = wx.Panel(self)
+        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.mainBox = wx.BoxSizer(wx.VERTICAL)
+        self.toolBox = wx.BoxSizer(wx.HORIZONTAL)
+        tw, th = self.GetTextExtent("Start")
+        self.activeTog = wx.ToggleButton(self.panel, -1, label="Start", size=(tw+16, th+10))
+        self.activeTog.SetValue(1)
+        self.activeTog.Bind(wx.EVT_TOGGLEBUTTON, self.activate)
+        self.toolBox.Add(self.activeTog, 0, wx.TOP|wx.LEFT, 5)
+        #self.timeSlider = ControlSlider(self.panel, 0.01, 1.0, init=0.05, log=True, size=(100, 16), outFunction=self.setPollTime)
+        #self.toolBox.Add(self.timeSlider, 0, wx.TOP|wx.LEFT|wx.RIGHT, 10)
+        tw, th = self.GetTextExtent("Freq Log")
+        self.freqTog = wx.ToggleButton(self.panel, -1, label="Freq Log", size=(tw+16, th+10))
+        self.freqTog.SetValue(0)
+        self.freqTog.Bind(wx.EVT_TOGGLEBUTTON, self.setFreqScale)
+        self.toolBox.Add(self.freqTog, 0, wx.TOP|wx.LEFT, 5)
+        tw, th = self.GetTextExtent("Mag Log")
+        self.magTog = wx.ToggleButton(self.panel, -1, label="Mag Log", size=(tw+16, th+10))
+        self.magTog.SetValue(1)
+        self.magTog.Bind(wx.EVT_TOGGLEBUTTON, self.setMagScale)
+        self.toolBox.Add(self.magTog, 0, wx.TOP|wx.LEFT, 5)        
+        tw, th = self.GetTextExtent("Blackman 3-term")
+        self.winPopup = wx.Choice(self.panel, -1, choices=["Rectangular", "Hamming", "Hanning", "Bartlett", "Blackman 3-term",
+                                    "Blackman-Harris 4-term", "Blackman-Harris 7-term", "Tuckey", "Half-sine"], size=(tw+16, th+10))
+        self.winPopup.SetSelection(2)
+        self.winPopup.Bind(wx.EVT_CHOICE, self.setWinType)
+        self.toolBox.Add(self.winPopup, 0, wx.TOP|wx.LEFT, 5)
+        tw, th = self.GetTextExtent("16384")
+        self.sizePopup = wx.Choice(self.panel, -1, choices=["64", "128", "256", "512", "1024",
+                                    "2048", "4096", "8192", "16384"], size=(-1, th+10))
+        self.sizePopup.SetSelection(4)
+        self.sizePopup.Bind(wx.EVT_CHOICE, self.setSize)
+        self.toolBox.Add(self.sizePopup, 0, wx.TOP|wx.LEFT, 5)
+        self.mainBox.Add(self.toolBox, 0, wx.EXPAND)
+        self.dispBox = wx.BoxSizer(wx.HORIZONTAL)
+        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.spectrumPanel = SpectrumPanel(self.panel, len(self.obj), self.obj.getLowfreq(), self.obj.getHighfreq(),
+                                            self.obj.getFscaling(), self.obj.getMscaling())
+        self.box.Add(self.spectrumPanel, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, 5)
+        self.zoomH = HRangeSlider(self.panel, minvalue=0, maxvalue=0.5, init=None, pos=(0,0), size=(200,15), 
+                 valtype='float', log=False, function=self.setZoomH)
+        self.box.Add(self.zoomH, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
+        self.dispBox.Add(self.box, 1, wx.EXPAND, 0)
+        self.gainSlider = wx.Slider(self.panel, -1, 0, -24, 24, style=wx.SL_VERTICAL|wx.SL_INVERSE)
+        self.gainSlider.Bind(wx.EVT_SLIDER, self.setGain)
+        self.dispBox.Add(self.gainSlider, 0, wx.EXPAND|wx.BOTTOM, 15)
+        self.dispBox.AddSpacer(5)  
+        self.mainBox.Add(self.dispBox, 1, wx.EXPAND) 
+        self.panel.SetSizer(self.mainBox)
+
+    def activate(self, evt):
+        if evt.GetInt() == 1:
+            self.obj.poll(1)
+        else:
+            self.obj.poll(0)
+
+    def setPollTime(self, evt):
+        value = self.availableSpeeds[evt.GetId()-20000]
+        self.obj.polltime(value)
+
+    def setFreqScale(self, evt):
+        if evt.GetInt() == 1:
+            self.obj.setFscaling(1)
+        else:
+            self.obj.setFscaling(0)
+
+    def setMagScale(self, evt):
+        if evt.GetInt() == 1:
+            self.obj.setMscaling(1)
+        else:
+            self.obj.setMscaling(0)
+
+    def setWinType(self, evt):
+        self.obj.wintype = evt.GetInt()
+
+    def setSize(self, evt):
+        size = 1 << (evt.GetInt() + 6)
+        self.obj.size = size
+
+    def setGain(self, evt):
+        self.obj.setGain(pow(10.0, evt.GetInt() * 0.05))
+
+    def setZoomH(self, values):
+        self.spectrumPanel.setLowFreq(self.obj.setLowbound(values[0]))
+        self.spectrumPanel.setHighFreq(self.obj.setHighbound(values[1]))
+        wx.CallAfter(self.spectrumPanel.Refresh)
+
+    def setDisplaySize(self, size):
+        self.obj.setWidth(size[0])
+        self.obj.setHeight(size[1])
+        
+    def update(self, points):
+        wx.CallAfter(self.spectrumPanel.setImage, points)
+
+    def setFscaling(self, x):
+        self.spectrumPanel.setFscaling(x)
+        wx.CallAfter(self.spectrumPanel.Refresh)
+
+    def setMscaling(self, x):
+        self.spectrumPanel.setMscaling(x)
+        wx.CallAfter(self.spectrumPanel.Refresh)
+
+    def _destroy(self, evt):
+        self.obj._setViewFrame(None)
+        self.Destroy()
+
+class SpectrumPanel(wx.Panel):
+    def __init__(self, parent, chnls, lowfreq, highfreq, fscaling, mscaling):
+        wx.Panel.__init__(self, parent)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.chnls = chnls
+        self.img = None
+        self.lowfreq = lowfreq
+        self.highfreq = highfreq
+        self.fscaling = fscaling
+        self.mscaling = mscaling
+        if self.chnls == 1:
+            self.pens = [wx.Pen(wx.Colour(100,0,0))]
+            self.brushes = [wx.Brush(wx.Colour(166,4,0))]
+        else:
+            self.pens = [wx.Pen(wx.Colour(166,4,0)), wx.Pen(wx.Colour(8,11,116)), wx.Pen(wx.Colour(0,204,0)),
+                        wx.Pen(wx.Colour(255,167,0)), wx.Pen(wx.Colour(133,0,75)), wx.Pen(wx.Colour(255,236,0)),
+                        wx.Pen(wx.Colour(1,147,154)), wx.Pen(wx.Colour(162,239,0))]
+            self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
+                            wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
+                            wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
+
+    def OnSize(self, evt):
+        self.GetParent().GetParent().setDisplaySize(self.GetSize())
+        self.Refresh()
+
+    def setImage(self, points):
+        self.img = [points[i] for i in range(self.chnls)]
+        self.Refresh()
+
+    def setFscaling(self, x):
+        self.fscaling = x
+
+    def setMscaling(self, x):
+        self.mscaling = x
+
+    def setLowFreq(self, x):
+        self.lowfreq = x
+
+    def setHighFreq(self, x):
+        self.highfreq = x
+
+    def OnPaint(self, evt):
+        w,h = self.GetSize()
+        dc = wx.PaintDC(self)
+        gc = wx.GraphicsContext_Create(dc)
+        tw, th = dc.GetTextExtent("0")
+
+        # background
+        background = gc.CreatePath()
+        background.AddRectangle(0,0,w,h)
+        gc.SetPen(wx.BLACK_PEN)
+        gc.SetBrush(wx.WHITE_BRUSH)
+        gc.DrawPath(background)
+
+        dc.SetTextForeground("#555555")
+        dc.SetPen(wx.Pen("#555555", style=wx.DOT))
+
+        # frequency linear grid
+        if not self.fscaling:
+            text = str(int(self.lowfreq))
+            tw, th = dc.GetTextExtent(text)
+            step = (self.highfreq - self.lowfreq) / 8
+            dc.DrawText(text, 2, 2)
+            w8 = w / 8
+            for i in range(1,8):
+                pos = w8*i
+                dc.DrawLine(pos, th+4, pos, h-2)
+                text = str(int(self.lowfreq+step*i))
+                tw, th = dc.GetTextExtent(text)
+                dc.DrawText(text, pos-tw/2, 2)
+        # frequency logarithmic grid
+        else:
+            if self.lowfreq < 20:
+                lf = math.log10(20)
+            else:
+                lf = math.log10(self.lowfreq)
+            
+            hf = math.log10(self.highfreq)
+            lrange = hf - lf
+            mag = pow(10.0, math.floor(lf))
+            if lrange > 6:
+                t = pow(10.0, math.ceil(lf))
+                base = pow(10.0, math.floor(lrange/6))
+                def inc(t, floor_t):
+                    return t*base-t
+            else:
+                t = math.ceil(pow(10.0,lf)/mag)*mag
+                def inc(t, floor_t):
+                    return pow(10.0, floor_t)
+
+            majortick = int(math.log10(mag))
+            while t <= pow(10,hf):
+                floor_t = int(math.floor(math.log10(t)+1e-16))
+                if majortick != floor_t:
+                    majortick = floor_t
+                    ticklabel = '1e%d'%majortick
+                    ticklabel = str(int(float(ticklabel)))
+                    tw, th = dc.GetTextExtent(ticklabel)
+                else:
+                    if hf-lf < 2:
+                        minortick = int(t/pow(10.0,majortick)+.5)
+                        ticklabel = '%de%d'%(minortick,majortick)
+                        ticklabel = str(int(float(ticklabel)))
+                        tw, th = dc.GetTextExtent(ticklabel)
+                        if not minortick%2 == 0:
+                            ticklabel = ''
+                    else:
+                        ticklabel = ''
+                pos = (math.log10(t) - lf) / lrange * w
+                if pos < (w-25):
+                    dc.DrawLine(pos, th+4, pos, h-2)
+                    dc.DrawText(ticklabel, pos-tw/2, 2)
+                t += inc(t, floor_t)
+
+        # magnitude linear grid
+        if not self.mscaling:
+            h4 = h * 0.75
+            step = h4 * 0.1
+            for i in range(1, 11):
+                pos = int(h - i * step)
+                text = "%.1f" % (i * 0.1)
+                tw, th = dc.GetTextExtent(text)
+                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawLine(0, pos, w-tw-4, pos)
+            dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
+            dc.DrawLine(0, pos, w-tw-4, pos)
+            dc.SetPen(wx.Pen("#555555", style=wx.DOT))
+            i += 1
+            while (i*step < (h-th-5)):
+                pos = int(h - i * step)
+                text = "%.1f" % (i * 0.1)
+                tw, th = dc.GetTextExtent(text)
+                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawLine(0, pos, w-tw-4, pos)
+                i += 1
+        # magnitude logarithmic grid
+        else:
+            mw, mh = dc.GetTextExtent("-54")
+            h4 = h * 0.75
+            step = h4 * 0.1
+            for i in range(1, 11):
+                pos = int(h - i * step)
+                mval = int((10-i) * -6.0)
+                if mval == -0:
+                    mval = 0
+                text = "%d" % mval
+                tw, th = dc.GetTextExtent(text)
+                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawLine(0, pos, w-mw-4, pos)
+            dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
+            dc.DrawLine(0, pos, w-mw-4, pos)
+            dc.SetPen(wx.Pen("#555555", style=wx.DOT))
+            i += 1
+            while (i*step < (h-th-5)):
+                pos = int(h - i * step)
+                text = "%d" % int((10-i) * -6.0)
+                tw, th = dc.GetTextExtent(text)
+                dc.DrawText(text, w-tw-2, pos-th/2)
+                dc.DrawLine(0, pos, w-mw-4, pos)
+                i += 1
+
+        last_tw = tw
+        # legend
+        tw, th = dc.GetTextExtent("chan 8")
+        for i in range(self.chnls):
+            dc.SetTextForeground(self.pens[i].GetColour())
+            dc.DrawText("chan %d" % (i+1), w-tw-20-last_tw, i*th+th+7)
+
+        # spectrum
+        if self.img != None:
+            for i, samples in enumerate(self.img):
+                gc.SetPen(self.pens[i])  
+                gc.SetBrush(self.brushes[i])
+                gc.DrawLines(samples)
 
 ######################################################################
 ## Grapher window for PyoTableObject control
