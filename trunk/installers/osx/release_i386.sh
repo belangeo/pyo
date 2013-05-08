@@ -7,9 +7,9 @@
 # 4. cd utils and build E-Pyo
 # 5. cd installer/osx and build the realease
 
-export PACKAGE_NAME=pyo_0.6.5_i386.pkg
-export DMG_DIR="pyo 0.6.5 Intel"
-export DMG_NAME="pyo_0.6.5_OSX-Intel.dmg"
+export PACKAGE_NAME=pyo_0.6.6_i386.pkg
+export DMG_DIR="pyo 0.6.6 Intel"
+export DMG_NAME="pyo_0.6.6_OSX-Intel.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
