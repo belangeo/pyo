@@ -1964,7 +1964,7 @@ int whichVoice(int *buf, int pitch, int len) {
 // Take MIDI events and keep track of notes
 void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
 {
-    int i, ok, voice;
+    int i, ok, voice, kind;
     
     for (i=0; i<count; i++) {
         int status = Pm_MessageStatus(buffer[i].message);	// Temp note event holders
@@ -1985,7 +1985,14 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
         }
         
         if (ok == 1) {
-            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && velocity > 0 && pitch >= self->first && pitch <= self->last) {
+            if ((status & 0xF0) == 0x80)
+                kind = 0;
+            else if ((status & 0xF0) == 0x90 && velocity == 0)
+                kind = 0;
+            else
+                kind = 1;
+
+            if (pitchIsIn(self->notebuf, pitch, self->voices) == 0 && kind == 1 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
                 if (!self->stealing) {
                     voice = nextEmptyVoice(self->notebuf, self->vcount, self->voices);
@@ -2001,13 +2008,7 @@ void grabMidiNotes(MidiNote *self, PmEvent *buffer, int count)
                     self->notebuf[self->vcount*2+1] = velocity;
                 }
             }    
-            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && velocity == 0 && pitch >= self->first && pitch <= self->last) {
-                //printf("%i, %i, %i\n", status, pitch, velocity);
-                voice = whichVoice(self->notebuf, pitch, self->voices);
-                self->notebuf[voice*2] = -1;
-                self->notebuf[voice*2+1] = 0.;
-            }
-            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && (status & 0xF0) == 0x80 && pitch >= self->first && pitch <= self->last) {
+            else if (pitchIsIn(self->notebuf, pitch, self->voices) == 1 && kind == 0 && pitch >= self->first && pitch <= self->last) {
                 //printf("%i, %i, %i\n", status, pitch, velocity);
                 voice = whichVoice(self->notebuf, pitch, self->voices);
                 self->notebuf[voice*2] = -1;
