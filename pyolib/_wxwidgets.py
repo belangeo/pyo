@@ -1396,6 +1396,10 @@ class SpectrumPanel(wx.Panel):
             self.brushes = [wx.Brush(wx.Colour(166,4,0,128)), wx.Brush(wx.Colour(8,11,116,128)), wx.Brush(wx.Colour(0,204,0,128)),
                             wx.Brush(wx.Colour(255,167,0,128)), wx.Brush(wx.Colour(133,0,75,128)), wx.Brush(wx.Colour(255,236,0,128)),
                             wx.Brush(wx.Colour(1,147,154,128)), wx.Brush(wx.Colour(162,239,0,128))]
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
 
     def OnSize(self, evt):
         self.GetParent().GetParent().setDisplaySize(self.GetSize())
@@ -1419,7 +1423,7 @@ class SpectrumPanel(wx.Panel):
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
-        dc = wx.BufferedPaintDC(self)
+        dc = self.dcref(self)
         gc = wx.GraphicsContext_Create(dc)
         tw, th = dc.GetTextExtent("0")
 
@@ -1501,7 +1505,7 @@ class SpectrumPanel(wx.Panel):
                 dc.DrawText(text, w-tw-2, pos-th/2)
                 dc.DrawLine(0, pos, w-tw-4, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
-            dc.DrawLine(0, pos, w-tw-4, pos)
+            dc.DrawLine(0, pos, w-tw-6, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.DOT))
             i += 1
             while (i*step < (h-th-5)):
@@ -1509,7 +1513,7 @@ class SpectrumPanel(wx.Panel):
                 text = "%.1f" % (i * 0.1)
                 tw, th = dc.GetTextExtent(text)
                 dc.DrawText(text, w-tw-2, pos-th/2)
-                dc.DrawLine(0, pos, w-tw-4, pos)
+                dc.DrawLine(0, pos, w-tw-6, pos)
                 i += 1
         # magnitude logarithmic grid
         else:
@@ -1524,7 +1528,7 @@ class SpectrumPanel(wx.Panel):
                 text = "%d" % mval
                 tw, th = dc.GetTextExtent(text)
                 dc.DrawText(text, w-tw-2, pos-th/2)
-                dc.DrawLine(0, pos, w-mw-4, pos)
+                dc.DrawLine(0, pos, w-mw-6, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.SOLID))
             dc.DrawLine(0, pos, w-mw-4, pos)
             dc.SetPen(wx.Pen("#555555", style=wx.DOT))
@@ -1534,7 +1538,7 @@ class SpectrumPanel(wx.Panel):
                 text = "%d" % int((10-i) * -6.0)
                 tw, th = dc.GetTextExtent(text)
                 dc.DrawText(text, w-tw-2, pos-th/2)
-                dc.DrawLine(0, pos, w-mw-4, pos)
+                dc.DrawLine(0, pos, w-mw-6, pos)
                 i += 1
 
         last_tw = tw
