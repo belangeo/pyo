@@ -1,3 +1,15 @@
+-------------------------------------------------------------------------------------
+
+2013-04-13 belangeo <belangeo@gmail.com>
+
+    * Release tag: 0.6.6.
+    - rev 2000
+
+2013-04-19 belangeo <belangeo@gmail.com>
+
+    * Fixed Notein bug when receiving note-off message with positive velocity.
+    - rev 1096
+
 2013-04-19 belangeo <belangeo@gmail.com>
 
     * Added new object: Spectrum, Frequency spectrum analyzer.
