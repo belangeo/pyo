@@ -1419,7 +1419,7 @@ class SpectrumPanel(wx.Panel):
 
     def OnPaint(self, evt):
         w,h = self.GetSize()
-        dc = wx.PaintDC(self)
+        dc = wx.BufferedPaintDC(self)
         gc = wx.GraphicsContext_Create(dc)
         tw, th = dc.GetTextExtent("0")
 
