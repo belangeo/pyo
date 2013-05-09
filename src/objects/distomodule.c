@@ -1451,6 +1451,8 @@ Wrap_transform_ii(Wrap *self) {
             else if (tmp < 0) {
                 tmp += (int)(-tmp) + 1;
                 val = tmp * rng + mi;
+                if (val == ma)
+                    val = mi;
             }    
             self->data[i] = val;
         }
@@ -1482,6 +1484,8 @@ Wrap_transform_ai(Wrap *self) {
             else if (tmp < 0) {
                 tmp += (int)(-tmp) + 1;
                 val = tmp * rng + mi;
+                if (val == ma)
+                    val = mi;
             }    
             self->data[i] = val;            
         }
@@ -1513,6 +1517,8 @@ Wrap_transform_ia(Wrap *self) {
             else if (tmp < 0) {
                 tmp += (int)(-tmp) + 1;
                 val = tmp * rng + mi;
+                if (val == ma)
+                    val = mi;
             }    
             self->data[i] = val;            
         }
@@ -1545,6 +1551,8 @@ Wrap_transform_aa(Wrap *self) {
             else if (tmp < 0) {
                 tmp += (int)(-tmp) + 1;
                 val = tmp * rng + mi;
+                if (val == ma)
+                    val = mi;
             }    
             self->data[i] = val;            
         }
