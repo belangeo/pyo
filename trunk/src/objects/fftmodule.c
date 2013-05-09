@@ -3316,8 +3316,6 @@ CvlVerb_analyse_impulse(CvlVerb *self) {
     self->num_iter = (int)MYCEIL((MYFLT)snd_size / self->size);
     self->impulse_len = self->num_iter * self->size;
 
-    printf("num iter ; %d, impulse len ; %d\n", self->num_iter, self->impulse_len);
-
     tmp = (MYFLT *)malloc(num_items * sizeof(MYFLT));
     tmp2 = (MYFLT *)malloc(self->impulse_len * sizeof(MYFLT));
 
