@@ -80,7 +80,7 @@ class Biquad(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Noise(mul=.7)
-    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1000)
+    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
     >>> f = Biquad(a, freq=lfo, q=5, type=2).out()
 
     """
@@ -3053,3 +3053,272 @@ class Average(PyoObject):
         return self._size
     @size.setter
     def size(self, x): self.setSize(x)
+
+class Reson(PyoObject):
+    """
+    A second-order resonant bandpass filter. 
+    
+    Reson implements a classic resonant bandpass filter, as described in:
+        
+    Dodge, C., Jerse, T., "Computer Music, Synthesis, Composition and Performance".
+    
+    Reson uses less CPU than the equivalent filter with a Biquad object.
+    
+    Parentclass : PyoObject
+    
+    Parameters:
+    
+    input : PyoObject
+        Input signal to process.
+    freq : float or PyoObject, optional
+        Center frequency of the filter. Defaults to 1000.
+    q : float or PyoObject, optional
+        Q of the filter, defined as freq/bandwidth. 
+        Should be between 1 and 500. Defaults to 1.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setQ(x) : Replace the `q` attribute.
+    
+    Attributes:
+    
+    input : PyoObject. Input signal to process.
+    freq : float or PyoObject. Cutoff or center frequency of the filter.
+    q : float or PyoObject. Q of the filter.
+    
+    Examples:
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.7)
+    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
+    >>> f = Reson(a, freq=lfo, q=5).out()
+
+    """
+    def __init__(self, input, freq=1000, q=10, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._in_fader = InputFader(input)
+        in_fader, freq, q, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, mul, add)
+        self._base_objs = [Reson_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 1 and 500.
+        
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q of the filter.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+class Resonx(PyoObject):
+    """
+    A multi-stages second-order resonant bandpass filter. 
+    
+    Resonx implements a stack of the classic resonant bandpass filter, as described in:
+        
+    Dodge, C., Jerse, T., "Computer Music, Synthesis, Composition and Performance".
+    
+    Resonx is equivalent to a filter consisting of more layers of Reson
+    with the same arguments, serially connected. It is faster than using
+    a large number of instances of the Reson object, it uses less memory 
+    and allows filters with sharper cutoff.
+
+    Parentclass : PyoObject
+
+    Parameters:
+
+    input : PyoObject
+        Input signal to process.
+    freq : float or PyoObject, optional
+        Center frequency of the filter. Defaults to 1000.
+    q : float or PyoObject, optional
+        Q of the filter, defined as freq/bandwidth. 
+        Should be between 1 and 500. Defaults to 1.
+    stages : int, optional
+        The number of filtering stages in the filter stack. Defaults to 4.
+
+    Methods:
+
+    setInput(x, fadetime) : Replace the `input` attribute.
+    setFreq(x) : Replace the `freq` attribute.
+    setQ(x) : Replace the `q` attribute.
+    setStages(x) : Replace the `stages` attribute.
+
+    Attributes:
+
+    input : PyoObject. Input signal to process.
+    freq : float or PyoObject. Center frequency of the filter.
+    q : float or PyoObject. Q of the filter.
+    stages : int. The number of filtering stages.
+
+    Examples:
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = Noise(mul=.7)
+    >>> lfo = Sine(freq=[.2, .25], mul=1000, add=1500)
+    >>> f = Resonx(a, freq=lfo, q=5).out()
+
+    """
+    def __init__(self, input, freq=1000, q=1, stages=4, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._freq = freq
+        self._q = q
+        self._stages = stages
+        self._in_fader = InputFader(input)
+        in_fader, freq, q, stages, mul, add, lmax = convertArgsToLists(self._in_fader, freq, q, stages, mul, add)
+        self._base_objs = [Resonx_base(wrap(in_fader,i), wrap(freq,i), wrap(q,i), wrap(stages,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+
+        Parameters:
+
+        x : PyoObject
+            New signal to process.
+        fadetime : float, optional
+            Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setQ(self, x):
+        """
+        Replace the `q` attribute. Should be between 1 and 500.
+
+        Parameters:
+
+        x : float or PyoObject
+            New `q` attribute.
+
+        """
+        self._q = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setQ(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setStages(self, x):
+        """
+        Replace the `stages` attribute.
+
+        Parameters:
+
+        x : int
+            New `stages` attribute. 
+
+        """
+        self._stages = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def q(self):
+        """float or PyoObject. Q of the filter.""" 
+        return self._q
+    @q.setter
+    def q(self, x): self.setQ(x)
+
+    @property
+    def stages(self):
+        """int. The number of filtering stages.""" 
+        return self._stages
+    @stages.setter
+    def stages(self, x): self.setStages(x)

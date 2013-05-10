@@ -423,6 +423,8 @@ extern PyTypeObject SVFType;
 extern PyTypeObject AverageType;
 extern PyTypeObject CvlVerbType;
 extern PyTypeObject SpectrumType;
+extern PyTypeObject ResonType;
+extern PyTypeObject ResonxType;
 
 /* Constants */
 #define E M_E
