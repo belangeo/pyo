@@ -744,7 +744,7 @@ Biquadx_filters_ii(Biquadx *self) {
         for (j=0; j<self->stages; j++) {   
             vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
             self->x2[j] = self->x1[j];
-            self->x1[j] = vin;;
+            self->x1[j] = vin;
             self->y2[j] = self->y1[j];
             self->y1[j] = vin = vout;
         }
@@ -775,7 +775,7 @@ Biquadx_filters_ai(Biquadx *self) {
         for (j=0; j<self->stages; j++) {   
             vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
             self->x2[j] = self->x1[j];
-            self->x1[j] = vin;;
+            self->x1[j] = vin;
             self->y2[j] = self->y1[j];
             self->y1[j] = vin = vout;
         }
@@ -806,7 +806,7 @@ Biquadx_filters_ia(Biquadx *self) {
         for (j=0; j<self->stages; j++) {   
             vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
             self->x2[j] = self->x1[j];
-            self->x1[j] = vin;;
+            self->x1[j] = vin;
             self->y2[j] = self->y1[j];
             self->y1[j] = vin = vout;
         }
@@ -837,7 +837,7 @@ Biquadx_filters_aa(Biquadx *self) {
         for (j=0; j<self->stages; j++) {   
             vout = ( (self->b0 * vin) + (self->b1 * self->x1[j]) + (self->b2 * self->x2[j]) - (self->a1 * self->y1[j]) - (self->a2 * self->y2[j]) ) / self->a0;
             self->x2[j] = self->x1[j];
-            self->x1[j] = vin;;
+            self->x1[j] = vin;
             self->y2[j] = self->y1[j];
             self->y1[j] = vin = vout;
         }
@@ -8192,4 +8192,1050 @@ PyTypeObject AverageType = {
     0,      /* tp_init */
     0,                         /* tp_alloc */
     Average_new,                 /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    MYFLT nyquist;
+    MYFLT last_freq;
+    MYFLT last_q;
+    MYFLT twopiOverSr;
+    // sample memories
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
+    // coefficients
+    MYFLT b1;
+    MYFLT b2;
+    MYFLT a;
+} Reson;
+
+static void 
+Reson_compute_coeffs(Reson *self, MYFLT freq, MYFLT q)
+{
+    MYFLT bw;
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->nyquist)
+        freq = self->nyquist;
+    if (q < 0.1)
+        q = 0.1;
+    
+    bw = freq / q;
+    
+    self->b2 = MYEXP(-self->twopiOverSr * bw);
+    self->b1 = (-4.0 * self->b2) / (1.0 + self->b2) * MYCOS(freq * self->twopiOverSr);
+    self->a = 1.0 - MYSQRT(self->b2);
+}
+
+static void
+Reson_filters_ii(Reson *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+   
+    if (fr != self->last_freq || q != self->last_q) {
+        self->last_freq = fr;
+        self->last_q = q;
+        Reson_compute_coeffs(self, fr, q);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+    }
+}
+
+static void
+Reson_filters_ai(Reson *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            Reson_compute_coeffs(self, fr, q);
+        }
+        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+    }
+}
+
+static void
+Reson_filters_ia(Reson *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            Reson_compute_coeffs(self, fr, q);
+        }
+        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+    }
+}
+
+static void
+Reson_filters_aa(Reson *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            Reson_compute_coeffs(self, fr, q);
+        }
+        val = (self->a * in[i]) - (self->a * self->x2) - (self->b1 * self->y1) - (self->b2 * self->y2);
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+    }
+}
+
+static void Reson_postprocessing_ii(Reson *self) { POST_PROCESSING_II };
+static void Reson_postprocessing_ai(Reson *self) { POST_PROCESSING_AI };
+static void Reson_postprocessing_ia(Reson *self) { POST_PROCESSING_IA };
+static void Reson_postprocessing_aa(Reson *self) { POST_PROCESSING_AA };
+static void Reson_postprocessing_ireva(Reson *self) { POST_PROCESSING_IREVA };
+static void Reson_postprocessing_areva(Reson *self) { POST_PROCESSING_AREVA };
+static void Reson_postprocessing_revai(Reson *self) { POST_PROCESSING_REVAI };
+static void Reson_postprocessing_revaa(Reson *self) { POST_PROCESSING_REVAA };
+static void Reson_postprocessing_revareva(Reson *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Reson_setProcMode(Reson *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Reson_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Reson_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Reson_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Reson_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Reson_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Reson_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Reson_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Reson_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Reson_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Reson_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Reson_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Reson_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Reson_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Reson_compute_next_data_frame(Reson *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Reson_traverse(Reson *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    return 0;
+}
+
+static int 
+Reson_clear(Reson *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    return 0;
+}
+
+static void
+Reson_dealloc(Reson* self)
+{
+    pyo_DEALLOC
+    Reson_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Reson_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Reson *self;
+    self = (Reson *)type->tp_alloc(type, 0);
+        
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->last_freq = self->last_q = -1.0;
+    self->x1 = self->x2 = self->y1 = self->y2 = 0.0;
+    self->a = self->b1 = self->b2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->twopiOverSr = TWOPI / (MYFLT)self->sr;
+    
+    Stream_setFunctionPtr(self->stream, Reson_compute_next_data_frame);
+    self->mode_func_ptr = Reson_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "q", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+            
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Reson_getServer(Reson* self) { GET_SERVER };
+static PyObject * Reson_getStream(Reson* self) { GET_STREAM };
+static PyObject * Reson_setMul(Reson *self, PyObject *arg) { SET_MUL };	
+static PyObject * Reson_setAdd(Reson *self, PyObject *arg) { SET_ADD };	
+static PyObject * Reson_setSub(Reson *self, PyObject *arg) { SET_SUB };	
+static PyObject * Reson_setDiv(Reson *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Reson_play(Reson *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Reson_out(Reson *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Reson_stop(Reson *self) { STOP };
+
+static PyObject * Reson_multiply(Reson *self, PyObject *arg) { MULTIPLY };
+static PyObject * Reson_inplace_multiply(Reson *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Reson_add(Reson *self, PyObject *arg) { ADD };
+static PyObject * Reson_inplace_add(Reson *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Reson_sub(Reson *self, PyObject *arg) { SUB };
+static PyObject * Reson_inplace_sub(Reson *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Reson_div(Reson *self, PyObject *arg) { DIV };
+static PyObject * Reson_inplace_div(Reson *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Reson_setFreq(Reson *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Reson_setQ(Reson *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Reson_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Reson, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Reson, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Reson, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(Reson, freq), 0, "Cutoff frequency in cycle per second."},
+    {"q", T_OBJECT_EX, offsetof(Reson, q), 0, "Q factor."},
+    {"mul", T_OBJECT_EX, offsetof(Reson, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Reson, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Reson_methods[] = {
+    {"getServer", (PyCFunction)Reson_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Reson_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Reson_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Reson_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Reson_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)Reson_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setQ", (PyCFunction)Reson_setQ, METH_O, "Sets filter Q factor."},
+	{"setMul", (PyCFunction)Reson_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Reson_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Reson_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Reson_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Reson_as_number = {
+    (binaryfunc)Reson_add,                         /*nb_add*/
+    (binaryfunc)Reson_sub,                         /*nb_subtract*/
+    (binaryfunc)Reson_multiply,                    /*nb_multiply*/
+    (binaryfunc)Reson_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Reson_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Reson_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Reson_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Reson_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject ResonType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Reson_base",                                   /*tp_name*/
+    sizeof(Reson),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Reson_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Reson_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Reson objects. Second-order resonant bandpass filter.",           /* tp_doc */
+    (traverseproc)Reson_traverse,                  /* tp_traverse */
+    (inquiry)Reson_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Reson_methods,                                 /* tp_methods */
+    Reson_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Reson_new,                                     /* tp_new */
+};
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    int stages;
+    MYFLT nyquist;
+    MYFLT last_freq;
+    MYFLT last_q;
+    MYFLT twopiOverSr;
+    // sample memories
+    MYFLT *x1;
+    MYFLT *x2;
+    MYFLT *y1;
+    MYFLT *y2;
+    // coefficients
+    MYFLT b1;
+    MYFLT b2;
+    MYFLT a;
+} Resonx;
+
+static void
+Resonx_allocate_memories(Resonx *self)
+{
+    int i;
+    self->x1 = (MYFLT *)realloc(self->x1, self->stages * sizeof(MYFLT));
+    self->x2 = (MYFLT *)realloc(self->x2, self->stages * sizeof(MYFLT));
+    self->y1 = (MYFLT *)realloc(self->y1, self->stages * sizeof(MYFLT));
+    self->y2 = (MYFLT *)realloc(self->y2, self->stages * sizeof(MYFLT));
+    for (i=0; i < self->stages; i++) {
+        self->x1[i] = self->x2[i] = self->y1[i] = self->y2[i] = 0.0;
+    }
+}
+
+static void 
+Resonx_compute_coeffs(Resonx *self, MYFLT freq, MYFLT q)
+{
+    MYFLT bw;
+    
+    if (freq < 0.1)
+        freq = 0.1;
+    else if (freq > self->nyquist)
+        freq = self->nyquist;
+    if (q < 0.1)
+        q = 0.1;
+    
+    bw = freq / q;
+    
+    self->b2 = MYEXP(-self->twopiOverSr * bw);
+    self->b1 = (-4.0 * self->b2) / (1.0 + self->b2) * MYCOS(freq * self->twopiOverSr);
+    self->a = 1.0 - MYSQRT(self->b2);
+}
+
+static void
+Resonx_filters_ii(Resonx *self) {
+    MYFLT vin, vout, fr, q;
+    int i, j;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+   
+    if (fr != self->last_freq || q != self->last_q) {
+        self->last_freq = fr;
+        self->last_q = q;
+        Resonx_compute_coeffs(self, fr, q);
+    }
+
+    vout = 0.0;
+    for (i=0; i<self->bufsize; i++) {
+        vin = in[i];
+        for (j=0; j<self->stages; j++) { 
+            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void
+Resonx_filters_ai(Resonx *self) {
+    MYFLT vin, vout, fr, q;
+    int i, j;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+
+    vout = 0.0;
+    for (i=0; i<self->bufsize; i++) {
+        vin = in[i];
+        fr = freq[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            Resonx_compute_coeffs(self, fr, q);
+        }
+        for (j=0; j<self->stages; j++) { 
+            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void
+Resonx_filters_ia(Resonx *self) {
+    MYFLT vin, vout, fr, q;
+    int i, j;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+
+    vout = 0.0;
+    for (i=0; i<self->bufsize; i++) {
+        vin = in[i];
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            Resonx_compute_coeffs(self, fr, q);
+        }
+        for (j=0; j<self->stages; j++) { 
+            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void
+Resonx_filters_aa(Resonx *self) {
+    MYFLT vin, vout, fr, q;
+    int i, j;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        vin = in[i];
+        fr = freq[i];
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            Resonx_compute_coeffs(self, fr, q);
+        }
+        for (j=0; j<self->stages; j++) { 
+            vout = (self->a * vin) - (self->a * self->x2[j]) - (self->b1 * self->y1[j]) - (self->b2 * self->y2[j]);
+            self->x2[j] = self->x1[j];
+            self->x1[j] = vin;
+            self->y2[j] = self->y1[j];
+            self->y1[j] = vin = vout;
+        }
+        self->data[i] = vout;
+    }
+}
+
+static void Resonx_postprocessing_ii(Resonx *self) { POST_PROCESSING_II };
+static void Resonx_postprocessing_ai(Resonx *self) { POST_PROCESSING_AI };
+static void Resonx_postprocessing_ia(Resonx *self) { POST_PROCESSING_IA };
+static void Resonx_postprocessing_aa(Resonx *self) { POST_PROCESSING_AA };
+static void Resonx_postprocessing_ireva(Resonx *self) { POST_PROCESSING_IREVA };
+static void Resonx_postprocessing_areva(Resonx *self) { POST_PROCESSING_AREVA };
+static void Resonx_postprocessing_revai(Resonx *self) { POST_PROCESSING_REVAI };
+static void Resonx_postprocessing_revaa(Resonx *self) { POST_PROCESSING_REVAA };
+static void Resonx_postprocessing_revareva(Resonx *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Resonx_setProcMode(Resonx *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Resonx_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = Resonx_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = Resonx_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = Resonx_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Resonx_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Resonx_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Resonx_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Resonx_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Resonx_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Resonx_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Resonx_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Resonx_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Resonx_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Resonx_compute_next_data_frame(Resonx *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Resonx_traverse(Resonx *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    return 0;
+}
+
+static int 
+Resonx_clear(Resonx *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    return 0;
+}
+
+static void
+Resonx_dealloc(Resonx* self)
+{
+    pyo_DEALLOC
+    free(self->x1);
+    free(self->x2);
+    free(self->y1);
+    free(self->y2);
+    Resonx_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Resonx_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Resonx *self;
+    self = (Resonx *)type->tp_alloc(type, 0);
+        
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->last_freq = self->last_q = -1.0;
+    self->stages = 4;
+    self->a = self->b1 = self->b2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->twopiOverSr = TWOPI / (MYFLT)self->sr;
+    
+    Stream_setFunctionPtr(self->stream, Resonx_compute_next_data_frame);
+    self->mode_func_ptr = Resonx_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "q", "stages", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOiOO", kwlist, &inputtmp, &freqtmp, &qtmp, &self->stages, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+            
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    Resonx_allocate_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Resonx_getServer(Resonx* self) { GET_SERVER };
+static PyObject * Resonx_getStream(Resonx* self) { GET_STREAM };
+static PyObject * Resonx_setMul(Resonx *self, PyObject *arg) { SET_MUL };	
+static PyObject * Resonx_setAdd(Resonx *self, PyObject *arg) { SET_ADD };	
+static PyObject * Resonx_setSub(Resonx *self, PyObject *arg) { SET_SUB };	
+static PyObject * Resonx_setDiv(Resonx *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Resonx_play(Resonx *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Resonx_out(Resonx *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Resonx_stop(Resonx *self) { STOP };
+
+static PyObject * Resonx_multiply(Resonx *self, PyObject *arg) { MULTIPLY };
+static PyObject * Resonx_inplace_multiply(Resonx *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Resonx_add(Resonx *self, PyObject *arg) { ADD };
+static PyObject * Resonx_inplace_add(Resonx *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Resonx_sub(Resonx *self, PyObject *arg) { SUB };
+static PyObject * Resonx_inplace_sub(Resonx *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Resonx_div(Resonx *self, PyObject *arg) { DIV };
+static PyObject * Resonx_inplace_div(Resonx *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Resonx_setFreq(Resonx *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Resonx_setQ(Resonx *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Resonx_setStages(Resonx *self, PyObject *arg)
+{
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+	
+	int isInt = PyInt_Check(arg);
+    
+	if (isInt == 1) {
+		self->stages = PyInt_AsLong(arg);
+        Resonx_allocate_memories(self);
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Resonx_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Resonx, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Resonx, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(Resonx, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(Resonx, freq), 0, "Cutoff frequency in cycle per second."},
+    {"q", T_OBJECT_EX, offsetof(Resonx, q), 0, "Q factor."},
+    {"mul", T_OBJECT_EX, offsetof(Resonx, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Resonx, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Resonx_methods[] = {
+    {"getServer", (PyCFunction)Resonx_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Resonx_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Resonx_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Resonx_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Resonx_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)Resonx_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setQ", (PyCFunction)Resonx_setQ, METH_O, "Sets filter Q factor."},
+    {"setStages", (PyCFunction)Resonx_setStages, METH_O, "Sets the number of stages of the filter."},
+	{"setMul", (PyCFunction)Resonx_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)Resonx_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)Resonx_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Resonx_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Resonx_as_number = {
+    (binaryfunc)Resonx_add,                         /*nb_add*/
+    (binaryfunc)Resonx_sub,                         /*nb_subtract*/
+    (binaryfunc)Resonx_multiply,                    /*nb_multiply*/
+    (binaryfunc)Resonx_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)Resonx_inplace_add,                 /*inplace_add*/
+    (binaryfunc)Resonx_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)Resonx_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)Resonx_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject ResonxType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.Resonx_base",                                   /*tp_name*/
+    sizeof(Resonx),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)Resonx_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &Resonx_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Resonx objects. Cascade of second-order Resonant bandpass filter.",           /* tp_doc */
+    (traverseproc)Resonx_traverse,                  /* tp_traverse */
+    (inquiry)Resonx_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    Resonx_methods,                                 /* tp_methods */
+    Resonx_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    Resonx_new,                                     /* tp_new */
 };
