@@ -8836,6 +8836,7 @@ Resonx_filters_aa(Resonx *self) {
     MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
     MYFLT *qst = Stream_getData((Stream *)self->q_stream);
 
+    vout = 0.0;
     for (i=0; i<self->bufsize; i++) {
         vin = in[i];
         fr = freq[i];
