@@ -415,18 +415,22 @@ static void Adsr_internal_stop(Adsr *self) {
 
 static void
 Adsr_generate_auto(Adsr *self) {
-    MYFLT val;
+    MYFLT val, invatt, invdec, invrel;
     int i;
     
+    invatt = 1.0 / self->attack;
+    invdec = 1.0 / self->decay;
+    invrel = 1.0 / self->release;
+
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime <= self->attack)
-            val = self->currentTime / self->attack;
+            val = self->currentTime * invatt;
         else if (self->currentTime <= (self->attack + self->decay))
-            val = (self->decay - (self->currentTime - self->attack)) / self->decay * (1. - self->sustain) + self->sustain;
+            val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
         else if (self->currentTime > self->duration)
             val = 0.;
         else if (self->currentTime >= (self->duration - self->release))
-            val = (self->duration - self->currentTime) / self->release * self->sustain;
+            val = (self->duration - self->currentTime) * invrel * self->sustain;
         else
             val = self->sustain;
         
@@ -437,26 +441,30 @@ Adsr_generate_auto(Adsr *self) {
 
 static void
 Adsr_generate_wait(Adsr *self) {
-    MYFLT val;
+    MYFLT val, invatt, invdec, invrel;
     int i;
 
     if (self->fademode == 1 && self->currentTime > self->release)
         Adsr_internal_stop((Adsr *)self);
     
+    invatt = 1.0 / self->attack;
+    invdec = 1.0 / self->decay;
+    invrel = 1.0 / self->release;
+
     for (i=0; i<self->bufsize; i++) {
         if (self->fademode == 0) {
             
             if (self->currentTime <= self->attack)
-                val = self->currentTime / self->attack;
+                val = self->currentTime * invatt;
             else if (self->currentTime <= (self->attack + self->decay))
-                val = (self->decay - (self->currentTime - self->attack)) / self->decay * (1. - self->sustain) + self->sustain;
+                val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
             else
                 val = self->sustain;
             self->topValue = val;
         }    
         else {  
             if (self->currentTime <= self->release) {
-                val = self->topValue * (1. - self->currentTime / self->release);
+                val = self->topValue * (1. - self->currentTime * invrel);
             }
             else 
                 val = 0.;
@@ -589,6 +597,17 @@ Adsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
+    if (self->attack < 0.000001)
+        self->attack = 0.000001;
+    if (self->decay < 0.000001)
+        self->decay = 0.000001;
+    if (self->release < 0.000001)
+        self->release = 0.000001;
+    if (self->sustain < 0.0)
+        self->sustain = 0.0;
+    else if (self->sustain > 1.0)
+        self->sustain = 1.0;
+
     (*self->mode_func_ptr)(self);
     
     return (PyObject *)self;
@@ -636,6 +655,8 @@ static PyObject *
 Adsr_setAttack(Adsr *self, PyObject *arg)
 {
     self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->attack < 0.000001)
+        self->attack = 0.000001;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -644,6 +665,8 @@ static PyObject *
 Adsr_setDecay(Adsr *self, PyObject *arg)
 {
     self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->decay < 0.000001)
+        self->decay = 0.000001;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -652,6 +675,10 @@ static PyObject *
 Adsr_setSustain(Adsr *self, PyObject *arg)
 {
     self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->sustain < 0.0)
+        self->sustain = 0.0;
+    else if (self->sustain > 1.0)
+        self->sustain = 1.0;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -660,6 +687,8 @@ static PyObject *
 Adsr_setRelease(Adsr *self, PyObject *arg)
 {
     self->release = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->release < 0.000001)
+        self->release = 0.000001;
     Py_INCREF(Py_None);
     return Py_None;
 }

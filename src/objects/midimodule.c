@@ -2698,6 +2698,17 @@ MidiAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
+    if (self->attack < 0.000001)
+        self->attack = 0.000001;
+    if (self->decay < 0.000001)
+        self->decay = 0.000001;
+    if (self->release < 0.000001)
+        self->release = 0.000001;
+    if (self->sustain < 0.0)
+        self->sustain = 0.0;
+    else if (self->sustain > 1.0)
+        self->sustain = 1.0;
+
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -2726,6 +2737,8 @@ static PyObject *
 MidiAdsr_setAttack(MidiAdsr *self, PyObject *arg)
 {
     self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->attack < 0.000001)
+        self->attack = 0.000001;
     self->invAttack = 1.0 / self->attack;
     self->attackPlusDecay = self->attack + self->decay;
     Py_INCREF(Py_None);
@@ -2736,6 +2749,8 @@ static PyObject *
 MidiAdsr_setDecay(MidiAdsr *self, PyObject *arg)
 {
     self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->decay < 0.000001)
+        self->decay = 0.000001;
     self->invDecay = 1.0 / self->decay; 
     self->attackPlusDecay = self->attack + self->decay;
     Py_INCREF(Py_None);
@@ -2746,6 +2761,10 @@ static PyObject *
 MidiAdsr_setSustain(MidiAdsr *self, PyObject *arg)
 {
     self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->sustain < 0.0)
+        self->sustain = 0.0;
+    else if (self->sustain > 1.0)
+        self->sustain = 1.0;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2754,6 +2773,8 @@ static PyObject *
 MidiAdsr_setRelease(MidiAdsr *self, PyObject *arg)
 {
     self->release = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->release < 0.000001)
+        self->release = 0.000001;
     self->invRelease = 1.0 / self->release;
     Py_INCREF(Py_None);
     return Py_None;
@@ -3068,6 +3089,17 @@ MidiDelAdsr_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    if (self->attack < 0.000001)
+        self->attack = 0.000001;
+    if (self->decay < 0.000001)
+        self->decay = 0.000001;
+    if (self->release < 0.000001)
+        self->release = 0.000001;
+    if (self->sustain < 0.0)
+        self->sustain = 0.0;
+    else if (self->sustain > 1.0)
+        self->sustain = 1.0;
     
     (*self->mode_func_ptr)(self);
     
@@ -3107,6 +3139,8 @@ static PyObject *
 MidiDelAdsr_setAttack(MidiDelAdsr *self, PyObject *arg)
 {
     self->attack = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->attack < 0.000001)
+        self->attack = 0.000001;
     self->invAttack = 1.0 / self->attack;
     self->delayPlusAttack = self->delay + self->attack;
     self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
@@ -3118,6 +3152,8 @@ static PyObject *
 MidiDelAdsr_setDecay(MidiDelAdsr *self, PyObject *arg)
 {
     self->decay = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->decay < 0.000001)
+        self->decay = 0.000001;
     self->invDecay = 1.0 / self->decay; 
     self->delayPlusAttackPlusDecay = self->delay + self->attack + self->decay;
     Py_INCREF(Py_None);
@@ -3128,6 +3164,10 @@ static PyObject *
 MidiDelAdsr_setSustain(MidiDelAdsr *self, PyObject *arg)
 {
     self->sustain = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->sustain < 0.0)
+        self->sustain = 0.0;
+    else if (self->sustain > 1.0)
+        self->sustain = 1.0;
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -3136,6 +3176,8 @@ static PyObject *
 MidiDelAdsr_setRelease(MidiDelAdsr *self, PyObject *arg)
 {
     self->release = PyFloat_AsDouble(PyNumber_Float(arg));
+    if (self->release < 0.000001)
+        self->release = 0.000001;
     self->invRelease = 1.0 / self->release;
     Py_INCREF(Py_None);
     return Py_None;
