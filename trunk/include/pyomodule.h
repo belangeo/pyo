@@ -425,6 +425,10 @@ extern PyTypeObject CvlVerbType;
 extern PyTypeObject SpectrumType;
 extern PyTypeObject ResonType;
 extern PyTypeObject ResonxType;
+extern PyTypeObject ButLPType;
+extern PyTypeObject ButHPType;
+extern PyTypeObject ButBPType;
+extern PyTypeObject ButBRType;
 
 /* Constants */
 #define E M_E

@@ -9240,3 +9240,1787 @@ PyTypeObject ResonxType = {
     0,                                              /* tp_alloc */
     Resonx_new,                                     /* tp_new */
 };
+
+/************/
+/* ButLP */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+    MYFLT lastFreq;
+    MYFLT nyquist;
+    MYFLT piOnSr;
+    MYFLT sqrt2;
+    // sample memories
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
+    // variables
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
+    MYFLT b1;
+    MYFLT b2;
+} ButLP;
+
+static void
+ButLP_filters_i(ButLP *self) {
+    MYFLT val, c, c2;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+        
+    if (fr != self->lastFreq) {
+        if (fr <= 1.0)
+            fr = 1.0;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;            
+        self->lastFreq = fr;
+        c = 1.0 / MYTAN(self->piOnSr * fr);
+        c2 = c * c;
+        self->a0 = self->a2 = 1.0 / (1.0 + self->sqrt2 * c + c2);
+        self->a1 = 2.0 * self->a0;
+        self->b1 = self->a1 * (1.0 - c2);
+        self->b2 = self->a0 * (1.0 - self->sqrt2 * c + c2);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButLP_filters_a(ButLP *self) {
+    MYFLT val, fr, c, c2;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];        
+        if (fr != self->lastFreq) {
+            if (fr <= 1.0)
+                fr = 1.0;
+            else if (fr >= self->nyquist)
+                fr = self->nyquist;            
+            self->lastFreq = fr;
+            c = 1.0 / MYTAN(self->piOnSr * fr);
+            c2 = c * c;
+            self->a0 = self->a2 = 1.0 / (1.0 + self->sqrt2 * c + c2);
+            self->a1 = 2.0 * self->a0;
+            self->b1 = self->a1 * (1.0 - c2);
+            self->b2 = self->a0 * (1.0 - self->sqrt2 * c + c2);
+        }
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void ButLP_postprocessing_ii(ButLP *self) { POST_PROCESSING_II };
+static void ButLP_postprocessing_ai(ButLP *self) { POST_PROCESSING_AI };
+static void ButLP_postprocessing_ia(ButLP *self) { POST_PROCESSING_IA };
+static void ButLP_postprocessing_aa(ButLP *self) { POST_PROCESSING_AA };
+static void ButLP_postprocessing_ireva(ButLP *self) { POST_PROCESSING_IREVA };
+static void ButLP_postprocessing_areva(ButLP *self) { POST_PROCESSING_AREVA };
+static void ButLP_postprocessing_revai(ButLP *self) { POST_PROCESSING_REVAI };
+static void ButLP_postprocessing_revaa(ButLP *self) { POST_PROCESSING_REVAA };
+static void ButLP_postprocessing_revareva(ButLP *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ButLP_setProcMode(ButLP *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = ButLP_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = ButLP_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = ButLP_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = ButLP_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = ButLP_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = ButLP_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = ButLP_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = ButLP_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = ButLP_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = ButLP_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = ButLP_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+ButLP_compute_next_data_frame(ButLP *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ButLP_traverse(ButLP *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    return 0;
+}
+
+static int 
+ButLP_clear(ButLP *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    return 0;
+}
+
+static void
+ButLP_dealloc(ButLP* self)
+{
+    pyo_DEALLOC
+    ButLP_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ButLP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ButLP *self;
+    self = (ButLP *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->lastFreq = -1.0;
+    self->x1 = self->x2 = self->y1 = self->y2 = self->a0 = self->a1 = self->a2 = self->b1 = self->b2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->piOnSr = PI / (MYFLT)self->sr;
+    self->sqrt2 = MYSQRT(2.0);
+
+    Stream_setFunctionPtr(self->stream, ButLP_compute_next_data_frame);
+    self->mode_func_ptr = ButLP_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ButLP_getServer(ButLP* self) { GET_SERVER };
+static PyObject * ButLP_getStream(ButLP* self) { GET_STREAM };
+static PyObject * ButLP_setMul(ButLP *self, PyObject *arg) { SET_MUL };	
+static PyObject * ButLP_setAdd(ButLP *self, PyObject *arg) { SET_ADD };	
+static PyObject * ButLP_setSub(ButLP *self, PyObject *arg) { SET_SUB };	
+static PyObject * ButLP_setDiv(ButLP *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * ButLP_play(ButLP *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ButLP_out(ButLP *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ButLP_stop(ButLP *self) { STOP };
+
+static PyObject * ButLP_multiply(ButLP *self, PyObject *arg) { MULTIPLY };
+static PyObject * ButLP_inplace_multiply(ButLP *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ButLP_add(ButLP *self, PyObject *arg) { ADD };
+static PyObject * ButLP_inplace_add(ButLP *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ButLP_sub(ButLP *self, PyObject *arg) { SUB };
+static PyObject * ButLP_inplace_sub(ButLP *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ButLP_div(ButLP *self, PyObject *arg) { DIV };
+static PyObject * ButLP_inplace_div(ButLP *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+ButLP_setFreq(ButLP *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef ButLP_members[] = {
+{"server", T_OBJECT_EX, offsetof(ButLP, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(ButLP, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(ButLP, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(ButLP, freq), 0, "Cutoff frequency in cycle per second."},
+{"mul", T_OBJECT_EX, offsetof(ButLP, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(ButLP, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef ButLP_methods[] = {
+{"getServer", (PyCFunction)ButLP_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)ButLP_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)ButLP_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)ButLP_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)ButLP_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)ButLP_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+{"setMul", (PyCFunction)ButLP_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)ButLP_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)ButLP_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)ButLP_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods ButLP_as_number = {
+(binaryfunc)ButLP_add,                         /*nb_add*/
+(binaryfunc)ButLP_sub,                         /*nb_subtract*/
+(binaryfunc)ButLP_multiply,                    /*nb_multiply*/
+(binaryfunc)ButLP_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)ButLP_inplace_add,                 /*inplace_add*/
+(binaryfunc)ButLP_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)ButLP_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)ButLP_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ButLPType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.ButLP_base",                                   /*tp_name*/
+sizeof(ButLP),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)ButLP_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&ButLP_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"ButLP objects. Second-order Butterworth lowpass filter.",           /* tp_doc */
+(traverseproc)ButLP_traverse,                  /* tp_traverse */
+(inquiry)ButLP_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+ButLP_methods,                                 /* tp_methods */
+ButLP_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+ButLP_new,                                     /* tp_new */
+};
+
+/************/
+/* ButHP */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    int modebuffer[3]; // need at least 2 slots for mul & add 
+    MYFLT lastFreq;
+    MYFLT nyquist;
+    MYFLT piOnSr;
+    MYFLT sqrt2;
+    // sample memories
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
+    // variables
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
+    MYFLT b1;
+    MYFLT b2;
+} ButHP;
+
+static void
+ButHP_filters_i(ButHP *self) {
+    MYFLT val, c, c2;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT fr = PyFloat_AS_DOUBLE(self->freq);
+        
+    if (fr != self->lastFreq) {
+        if (fr <= 1.0)
+            fr = 1.0;
+        else if (fr >= self->nyquist)
+            fr = self->nyquist;            
+        self->lastFreq = fr;
+        c = MYTAN(self->piOnSr * fr);
+        c2 = c * c;
+        self->a0 = self->a2 = 1.0 / (1.0 + self->sqrt2 * c + c2);
+        self->a1 = -2.0 * self->a0;
+        self->b1 = 2.0 * self->a0 * (c2 - 1.0);
+        self->b2 = self->a0 * (1.0 - self->sqrt2 * c + c2);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButHP_filters_a(ButHP *self) {
+    MYFLT val, fr, c, c2;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+        
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];        
+        if (fr != self->lastFreq) {
+            if (fr <= 1.0)
+                fr = 1.0;
+            else if (fr >= self->nyquist)
+                fr = self->nyquist;            
+            self->lastFreq = fr;
+            c = MYTAN(self->piOnSr * fr);
+            c2 = c * c;
+            self->a0 = self->a2 = 1.0 / (1.0 + self->sqrt2 * c + c2);
+            self->a1 = -2.0 * self->a0;
+            self->b1 = 2.0 * self->a0 * (c2 - 1.0);
+            self->b2 = self->a0 * (1.0 - self->sqrt2 * c + c2);
+        }
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void ButHP_postprocessing_ii(ButHP *self) { POST_PROCESSING_II };
+static void ButHP_postprocessing_ai(ButHP *self) { POST_PROCESSING_AI };
+static void ButHP_postprocessing_ia(ButHP *self) { POST_PROCESSING_IA };
+static void ButHP_postprocessing_aa(ButHP *self) { POST_PROCESSING_AA };
+static void ButHP_postprocessing_ireva(ButHP *self) { POST_PROCESSING_IREVA };
+static void ButHP_postprocessing_areva(ButHP *self) { POST_PROCESSING_AREVA };
+static void ButHP_postprocessing_revai(ButHP *self) { POST_PROCESSING_REVAI };
+static void ButHP_postprocessing_revaa(ButHP *self) { POST_PROCESSING_REVAA };
+static void ButHP_postprocessing_revareva(ButHP *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ButHP_setProcMode(ButHP *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = ButHP_filters_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = ButHP_filters_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = ButHP_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = ButHP_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = ButHP_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = ButHP_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = ButHP_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = ButHP_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = ButHP_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = ButHP_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = ButHP_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+ButHP_compute_next_data_frame(ButHP *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ButHP_traverse(ButHP *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    return 0;
+}
+
+static int 
+ButHP_clear(ButHP *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    return 0;
+}
+
+static void
+ButHP_dealloc(ButHP* self)
+{
+    pyo_DEALLOC
+    ButHP_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ButHP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ButHP *self;
+    self = (ButHP *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->lastFreq = -1.0;
+    self->x1 = self->x2 = self->y1 = self->y2 = self->a0 = self->a1 = self->a2 = self->b1 = self->b2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+    
+    INIT_OBJECT_COMMON
+
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->piOnSr = PI / (MYFLT)self->sr;
+    self->sqrt2 = MYSQRT(2.0);
+
+    Stream_setFunctionPtr(self->stream, ButHP_compute_next_data_frame);
+    self->mode_func_ptr = ButHP_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &freqtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ButHP_getServer(ButHP* self) { GET_SERVER };
+static PyObject * ButHP_getStream(ButHP* self) { GET_STREAM };
+static PyObject * ButHP_setMul(ButHP *self, PyObject *arg) { SET_MUL };	
+static PyObject * ButHP_setAdd(ButHP *self, PyObject *arg) { SET_ADD };	
+static PyObject * ButHP_setSub(ButHP *self, PyObject *arg) { SET_SUB };	
+static PyObject * ButHP_setDiv(ButHP *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * ButHP_play(ButHP *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ButHP_out(ButHP *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ButHP_stop(ButHP *self) { STOP };
+
+static PyObject * ButHP_multiply(ButHP *self, PyObject *arg) { MULTIPLY };
+static PyObject * ButHP_inplace_multiply(ButHP *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ButHP_add(ButHP *self, PyObject *arg) { ADD };
+static PyObject * ButHP_inplace_add(ButHP *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ButHP_sub(ButHP *self, PyObject *arg) { SUB };
+static PyObject * ButHP_inplace_sub(ButHP *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ButHP_div(ButHP *self, PyObject *arg) { DIV };
+static PyObject * ButHP_inplace_div(ButHP *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+ButHP_setFreq(ButHP *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef ButHP_members[] = {
+{"server", T_OBJECT_EX, offsetof(ButHP, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(ButHP, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(ButHP, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(ButHP, freq), 0, "Cutoff frequency in cycle per second."},
+{"mul", T_OBJECT_EX, offsetof(ButHP, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(ButHP, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef ButHP_methods[] = {
+{"getServer", (PyCFunction)ButHP_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)ButHP_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)ButHP_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)ButHP_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)ButHP_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)ButHP_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+{"setMul", (PyCFunction)ButHP_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)ButHP_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)ButHP_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)ButHP_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods ButHP_as_number = {
+(binaryfunc)ButHP_add,                         /*nb_add*/
+(binaryfunc)ButHP_sub,                         /*nb_subtract*/
+(binaryfunc)ButHP_multiply,                    /*nb_multiply*/
+(binaryfunc)ButHP_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)ButHP_inplace_add,                 /*inplace_add*/
+(binaryfunc)ButHP_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)ButHP_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)ButHP_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ButHPType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.ButHP_base",                                   /*tp_name*/
+sizeof(ButHP),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)ButHP_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&ButHP_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"ButHP objects. Second-order Butterworth highpass filter.",           /* tp_doc */
+(traverseproc)ButHP_traverse,                  /* tp_traverse */
+(inquiry)ButHP_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+ButHP_methods,                                 /* tp_methods */
+ButHP_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+ButHP_new,                                     /* tp_new */
+};
+
+/************/
+/* ButBP */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    MYFLT nyquist;
+    MYFLT last_freq;
+    MYFLT last_q;
+    MYFLT piOnSr;
+    // sample memories
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
+    // coefficients
+    MYFLT a0;
+    MYFLT a2;
+    MYFLT b1;
+    MYFLT b2;
+} ButBP;
+
+static void 
+ButBP_compute_coeffs(ButBP *self, MYFLT freq, MYFLT q)
+{
+    MYFLT bw, c, d;
+    
+    if (freq < 1.0)
+        freq = 1.0;
+    else if (freq > self->nyquist)
+        freq = self->nyquist;
+    if (q < 1.0)
+        q = 1.0;
+    
+    bw = freq / q;
+    c = 1.0 / MYTAN(self->piOnSr * bw);
+    d = 2.0 * MYCOS(2.0 * self->piOnSr * freq);
+    
+    self->a0 = 1.0 / (1.0 + c);
+    self->a2 = -self->a0;
+    self->b1 = self->a2 * c * d;
+    self->b2 = self->a0 * (c - 1.0);
+}
+
+static void
+ButBP_filters_ii(ButBP *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+   
+    if (fr != self->last_freq || q != self->last_q) {
+        self->last_freq = fr;
+        self->last_q = q;
+        ButBP_compute_coeffs(self, fr, q);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        val = self->a0 * in[i] + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButBP_filters_ai(ButBP *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            ButBP_compute_coeffs(self, fr, q);
+        }
+        val = self->a0 * in[i] + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButBP_filters_ia(ButBP *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            ButBP_compute_coeffs(self, fr, q);
+        }
+        val = self->a0 * in[i] + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButBP_filters_aa(ButBP *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            ButBP_compute_coeffs(self, fr, q);
+        }
+        val = self->a0 * in[i] + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void ButBP_postprocessing_ii(ButBP *self) { POST_PROCESSING_II };
+static void ButBP_postprocessing_ai(ButBP *self) { POST_PROCESSING_AI };
+static void ButBP_postprocessing_ia(ButBP *self) { POST_PROCESSING_IA };
+static void ButBP_postprocessing_aa(ButBP *self) { POST_PROCESSING_AA };
+static void ButBP_postprocessing_ireva(ButBP *self) { POST_PROCESSING_IREVA };
+static void ButBP_postprocessing_areva(ButBP *self) { POST_PROCESSING_AREVA };
+static void ButBP_postprocessing_revai(ButBP *self) { POST_PROCESSING_REVAI };
+static void ButBP_postprocessing_revaa(ButBP *self) { POST_PROCESSING_REVAA };
+static void ButBP_postprocessing_revareva(ButBP *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ButBP_setProcMode(ButBP *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = ButBP_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = ButBP_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = ButBP_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = ButBP_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = ButBP_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = ButBP_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = ButBP_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = ButBP_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = ButBP_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = ButBP_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = ButBP_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = ButBP_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = ButBP_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+ButBP_compute_next_data_frame(ButBP *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ButBP_traverse(ButBP *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    return 0;
+}
+
+static int 
+ButBP_clear(ButBP *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    return 0;
+}
+
+static void
+ButBP_dealloc(ButBP* self)
+{
+    pyo_DEALLOC
+    ButBP_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ButBP_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ButBP *self;
+    self = (ButBP *)type->tp_alloc(type, 0);
+        
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->last_freq = self->last_q = -1.0;
+    self->x1 = self->x2 = self->y1 = self->y2 = 0.0;
+    self->a0 = self->a2 = self->b1 = self->b2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->piOnSr = PI / (MYFLT)self->sr;
+    
+    Stream_setFunctionPtr(self->stream, ButBP_compute_next_data_frame);
+    self->mode_func_ptr = ButBP_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "q", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+            
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ButBP_getServer(ButBP* self) { GET_SERVER };
+static PyObject * ButBP_getStream(ButBP* self) { GET_STREAM };
+static PyObject * ButBP_setMul(ButBP *self, PyObject *arg) { SET_MUL };	
+static PyObject * ButBP_setAdd(ButBP *self, PyObject *arg) { SET_ADD };	
+static PyObject * ButBP_setSub(ButBP *self, PyObject *arg) { SET_SUB };	
+static PyObject * ButBP_setDiv(ButBP *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * ButBP_play(ButBP *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ButBP_out(ButBP *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ButBP_stop(ButBP *self) { STOP };
+
+static PyObject * ButBP_multiply(ButBP *self, PyObject *arg) { MULTIPLY };
+static PyObject * ButBP_inplace_multiply(ButBP *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ButBP_add(ButBP *self, PyObject *arg) { ADD };
+static PyObject * ButBP_inplace_add(ButBP *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ButBP_sub(ButBP *self, PyObject *arg) { SUB };
+static PyObject * ButBP_inplace_sub(ButBP *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ButBP_div(ButBP *self, PyObject *arg) { DIV };
+static PyObject * ButBP_inplace_div(ButBP *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+ButBP_setFreq(ButBP *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+ButBP_setQ(ButBP *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef ButBP_members[] = {
+    {"server", T_OBJECT_EX, offsetof(ButBP, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(ButBP, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(ButBP, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(ButBP, freq), 0, "Cutoff frequency in cycle per second."},
+    {"q", T_OBJECT_EX, offsetof(ButBP, q), 0, "Q factor."},
+    {"mul", T_OBJECT_EX, offsetof(ButBP, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(ButBP, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef ButBP_methods[] = {
+    {"getServer", (PyCFunction)ButBP_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)ButBP_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)ButBP_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)ButBP_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)ButBP_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)ButBP_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setQ", (PyCFunction)ButBP_setQ, METH_O, "Sets filter Q factor."},
+	{"setMul", (PyCFunction)ButBP_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)ButBP_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)ButBP_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)ButBP_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods ButBP_as_number = {
+    (binaryfunc)ButBP_add,                         /*nb_add*/
+    (binaryfunc)ButBP_sub,                         /*nb_subtract*/
+    (binaryfunc)ButBP_multiply,                    /*nb_multiply*/
+    (binaryfunc)ButBP_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)ButBP_inplace_add,                 /*inplace_add*/
+    (binaryfunc)ButBP_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)ButBP_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)ButBP_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject ButBPType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.ButBP_base",                                   /*tp_name*/
+    sizeof(ButBP),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)ButBP_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &ButBP_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "ButBP objects. Second-order Butterworth bandpass filter.",           /* tp_doc */
+    (traverseproc)ButBP_traverse,                  /* tp_traverse */
+    (inquiry)ButBP_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    ButBP_methods,                                 /* tp_methods */
+    ButBP_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    ButBP_new,                                     /* tp_new */
+};
+
+/************/
+/* ButBR */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *q;
+    Stream *q_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    MYFLT nyquist;
+    MYFLT last_freq;
+    MYFLT last_q;
+    MYFLT piOnSr;
+    // sample memories
+    MYFLT x1;
+    MYFLT x2;
+    MYFLT y1;
+    MYFLT y2;
+    // coefficients
+    MYFLT a0;
+    MYFLT a1;
+    MYFLT a2;
+    MYFLT b1;
+    MYFLT b2;
+} ButBR;
+
+static void 
+ButBR_compute_coeffs(ButBR *self, MYFLT freq, MYFLT q)
+{
+    MYFLT bw, c, d;
+    
+    if (freq < 1.0)
+        freq = 1.0;
+    else if (freq > self->nyquist)
+        freq = self->nyquist;
+    if (q < 1.0)
+        q = 1.0;
+    
+    bw = freq / q;
+    c = MYTAN(self->piOnSr * bw);
+    d = 2.0 * MYCOS(2.0 * self->piOnSr * freq);
+    
+    self->a0 = self->a2 = 1.0 / (1.0 + c);
+    self->a1 = self->b1 = -self->a0 * d;
+    self->b2 = self->a0 * (1.0 - c);
+}
+
+static void
+ButBR_filters_ii(ButBR *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    q = PyFloat_AS_DOUBLE(self->q);
+   
+    if (fr != self->last_freq || q != self->last_q) {
+        self->last_freq = fr;
+        self->last_q = q;
+        ButBR_compute_coeffs(self, fr, q);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButBR_filters_ai(ButBR *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    q = PyFloat_AS_DOUBLE(self->q);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            ButBR_compute_coeffs(self, fr, q);
+        }
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButBR_filters_ia(ButBR *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    fr = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            ButBR_compute_coeffs(self, fr, q);
+        }
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void
+ButBR_filters_aa(ButBR *self) {
+    MYFLT val, fr, q;
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *freq = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *qst = Stream_getData((Stream *)self->q_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        fr = freq[i];
+        q = qst[i];
+        if (fr != self->last_freq || q != self->last_q) {
+            self->last_freq = fr;
+            self->last_q = q;
+            ButBR_compute_coeffs(self, fr, q);
+        }
+        val = self->a0 * in[i] + self->a1 * self->x1 + self->a2 * self->x2 - self->b1 * self->y1 - self->b2 * self->y2;
+        self->x2 = self->x1;
+        self->x1 = in[i];
+        self->y2 = self->y1;
+        self->data[i] = self->y1 = val;
+    }
+}
+
+static void ButBR_postprocessing_ii(ButBR *self) { POST_PROCESSING_II };
+static void ButBR_postprocessing_ai(ButBR *self) { POST_PROCESSING_AI };
+static void ButBR_postprocessing_ia(ButBR *self) { POST_PROCESSING_IA };
+static void ButBR_postprocessing_aa(ButBR *self) { POST_PROCESSING_AA };
+static void ButBR_postprocessing_ireva(ButBR *self) { POST_PROCESSING_IREVA };
+static void ButBR_postprocessing_areva(ButBR *self) { POST_PROCESSING_AREVA };
+static void ButBR_postprocessing_revai(ButBR *self) { POST_PROCESSING_REVAI };
+static void ButBR_postprocessing_revaa(ButBR *self) { POST_PROCESSING_REVAA };
+static void ButBR_postprocessing_revareva(ButBR *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ButBR_setProcMode(ButBR *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = ButBR_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = ButBR_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = ButBR_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = ButBR_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = ButBR_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = ButBR_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = ButBR_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = ButBR_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = ButBR_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = ButBR_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = ButBR_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = ButBR_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = ButBR_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+ButBR_compute_next_data_frame(ButBR *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ButBR_traverse(ButBR *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->q);    
+    Py_VISIT(self->q_stream);    
+    return 0;
+}
+
+static int 
+ButBR_clear(ButBR *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->q);    
+    Py_CLEAR(self->q_stream);    
+    return 0;
+}
+
+static void
+ButBR_dealloc(ButBR* self)
+{
+    pyo_DEALLOC
+    ButBR_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ButBR_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *qtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ButBR *self;
+    self = (ButBR *)type->tp_alloc(type, 0);
+        
+    self->freq = PyFloat_FromDouble(1000);
+    self->q = PyFloat_FromDouble(1);
+    self->last_freq = self->last_q = -1.0;
+    self->x1 = self->x2 = self->y1 = self->y2 = 0.0;
+    self->a0 = self->a1 = self->a2 = self->b1 = self->b2 = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+
+    INIT_OBJECT_COMMON
+    
+    self->nyquist = (MYFLT)self->sr * 0.49;
+    self->piOnSr = PI / (MYFLT)self->sr;
+    
+    Stream_setFunctionPtr(self->stream, ButBR_compute_next_data_frame);
+    self->mode_func_ptr = ButBR_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "q", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &qtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+
+    if (qtmp) {
+        PyObject_CallMethod((PyObject *)self, "setQ", "O", qtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+            
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ButBR_getServer(ButBR* self) { GET_SERVER };
+static PyObject * ButBR_getStream(ButBR* self) { GET_STREAM };
+static PyObject * ButBR_setMul(ButBR *self, PyObject *arg) { SET_MUL };	
+static PyObject * ButBR_setAdd(ButBR *self, PyObject *arg) { SET_ADD };	
+static PyObject * ButBR_setSub(ButBR *self, PyObject *arg) { SET_SUB };	
+static PyObject * ButBR_setDiv(ButBR *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * ButBR_play(ButBR *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ButBR_out(ButBR *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ButBR_stop(ButBR *self) { STOP };
+
+static PyObject * ButBR_multiply(ButBR *self, PyObject *arg) { MULTIPLY };
+static PyObject * ButBR_inplace_multiply(ButBR *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ButBR_add(ButBR *self, PyObject *arg) { ADD };
+static PyObject * ButBR_inplace_add(ButBR *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ButBR_sub(ButBR *self, PyObject *arg) { SUB };
+static PyObject * ButBR_inplace_sub(ButBR *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ButBR_div(ButBR *self, PyObject *arg) { DIV };
+static PyObject * ButBR_inplace_div(ButBR *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+ButBR_setFreq(ButBR *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+ButBR_setQ(ButBR *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->q);
+	if (isNumber == 1) {
+		self->q = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->q = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->q, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->q_stream);
+        self->q_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef ButBR_members[] = {
+    {"server", T_OBJECT_EX, offsetof(ButBR, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(ButBR, stream), 0, "Stream object."},
+    {"input", T_OBJECT_EX, offsetof(ButBR, input), 0, "Input sound object."},
+    {"freq", T_OBJECT_EX, offsetof(ButBR, freq), 0, "Cutoff frequency in cycle per second."},
+    {"q", T_OBJECT_EX, offsetof(ButBR, q), 0, "Q factor."},
+    {"mul", T_OBJECT_EX, offsetof(ButBR, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(ButBR, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef ButBR_methods[] = {
+    {"getServer", (PyCFunction)ButBR_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)ButBR_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)ButBR_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)ButBR_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)ButBR_stop, METH_NOARGS, "Stops computing."},
+	{"setFreq", (PyCFunction)ButBR_setFreq, METH_O, "Sets filter cutoff frequency in cycle per second."},
+    {"setQ", (PyCFunction)ButBR_setQ, METH_O, "Sets filter Q factor."},
+	{"setMul", (PyCFunction)ButBR_setMul, METH_O, "Sets oscillator mul factor."},
+	{"setAdd", (PyCFunction)ButBR_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setSub", (PyCFunction)ButBR_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)ButBR_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods ButBR_as_number = {
+    (binaryfunc)ButBR_add,                         /*nb_add*/
+    (binaryfunc)ButBR_sub,                         /*nb_subtract*/
+    (binaryfunc)ButBR_multiply,                    /*nb_multiply*/
+    (binaryfunc)ButBR_div,                                              /*nb_divide*/
+    0,                                              /*nb_remainder*/
+    0,                                              /*nb_divmod*/
+    0,                                              /*nb_power*/
+    0,                                              /*nb_neg*/
+    0,                                              /*nb_pos*/
+    0,                                              /*(unaryfunc)array_abs,*/
+    0,                                              /*nb_nonzero*/
+    0,                                              /*nb_invert*/
+    0,                                              /*nb_lshift*/
+    0,                                              /*nb_rshift*/
+    0,                                              /*nb_and*/
+    0,                                              /*nb_xor*/
+    0,                                              /*nb_or*/
+    0,                                              /*nb_coerce*/
+    0,                                              /*nb_int*/
+    0,                                              /*nb_long*/
+    0,                                              /*nb_float*/
+    0,                                              /*nb_oct*/
+    0,                                              /*nb_hex*/
+    (binaryfunc)ButBR_inplace_add,                 /*inplace_add*/
+    (binaryfunc)ButBR_inplace_sub,                 /*inplace_subtract*/
+    (binaryfunc)ButBR_inplace_multiply,            /*inplace_multiply*/
+    (binaryfunc)ButBR_inplace_div,                                              /*inplace_divide*/
+    0,                                              /*inplace_remainder*/
+    0,                                              /*inplace_power*/
+    0,                                              /*inplace_lshift*/
+    0,                                              /*inplace_rshift*/
+    0,                                              /*inplace_and*/
+    0,                                              /*inplace_xor*/
+    0,                                              /*inplace_or*/
+    0,                                              /*nb_floor_divide*/
+    0,                                              /*nb_true_divide*/
+    0,                                              /*nb_inplace_floor_divide*/
+    0,                                              /*nb_inplace_true_divide*/
+    0,                                              /* nb_index */
+};
+
+PyTypeObject ButBRType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                                              /*ob_size*/
+    "_pyo.ButBR_base",                                   /*tp_name*/
+    sizeof(ButBR),                                 /*tp_basicsize*/
+    0,                                              /*tp_itemsize*/
+    (destructor)ButBR_dealloc,                     /*tp_dealloc*/
+    0,                                              /*tp_print*/
+    0,                                              /*tp_getattr*/
+    0,                                              /*tp_setattr*/
+    0,                                              /*tp_compare*/
+    0,                                              /*tp_repr*/
+    &ButBR_as_number,                              /*tp_as_number*/
+    0,                                              /*tp_as_sequence*/
+    0,                                              /*tp_as_mapping*/
+    0,                                              /*tp_hash */
+    0,                                              /*tp_call*/
+    0,                                              /*tp_str*/
+    0,                                              /*tp_getattro*/
+    0,                                              /*tp_setattro*/
+    0,                                              /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "ButBR objects. Second-order Butterworth band-reject filter.",           /* tp_doc */
+    (traverseproc)ButBR_traverse,                  /* tp_traverse */
+    (inquiry)ButBR_clear,                          /* tp_clear */
+    0,                                              /* tp_richcompare */
+    0,                                              /* tp_weaklistoffset */
+    0,                                              /* tp_iter */
+    0,                                              /* tp_iternext */
+    ButBR_methods,                                 /* tp_methods */
+    ButBR_members,                                 /* tp_members */
+    0,                                              /* tp_getset */
+    0,                                              /* tp_base */
+    0,                                              /* tp_dict */
+    0,                                              /* tp_descr_get */
+    0,                                              /* tp_descr_set */
+    0,                                              /* tp_dictoffset */
+    0,                          /* tp_init */
+    0,                                              /* tp_alloc */
+    ButBR_new,                                     /* tp_new */
+};

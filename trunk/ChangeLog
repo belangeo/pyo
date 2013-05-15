@@ -1,3 +1,8 @@
+2013-05-15 belangeo <belangeo@gmail.com>
+
+    * Added new objects: ButLP, ButHP, ButBP, ButBR, second-order Butterworth filters.
+    - rev 1104
+
 2013-05-09 belangeo <belangeo@gmail.com>
 
     * Added new objects: Reson and Resonx, second-order resonant bandpass filters.
