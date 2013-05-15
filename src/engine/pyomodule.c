@@ -2315,6 +2315,10 @@ init_pyo64(void)
     module_add_object(m, "Spectrum_base", &SpectrumType);
     module_add_object(m, "Reson_base", &ResonType);
     module_add_object(m, "Resonx_base", &ResonxType);
+    module_add_object(m, "ButLP_base", &ButLPType);
+    module_add_object(m, "ButHP_base", &ButHPType);
+    module_add_object(m, "ButBP_base", &ButBPType);
+    module_add_object(m, "ButBR_base", &ButBRType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
