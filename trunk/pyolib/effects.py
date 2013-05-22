@@ -32,32 +32,18 @@ class Disto(PyoObject):
 
     Apply an arc tangent distortion with controllable drive to the input signal. 
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    drive : float or PyoObject, optional
-        Amount of distortion applied to the signal, between 0 and 1. 
-        Defaults to 0.75.
-    slope : float or PyoObject, optional
-        Slope of the lowpass filter applied after distortion, 
-        between 0 and 1. Defaults to 0.5.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setDrive(x) : Replace the `drive` attribute.
-    setSlope(x) : Replace the `slope` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    drive : float or PyoObject. Amount of distortion.
-    slope : float or PyoObject. Slope of the lowpass filter.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        drive : float or PyoObject, optional
+            Amount of distortion applied to the signal, between 0 and 1. 
+            Defaults to 0.75.
+        slope : float or PyoObject, optional
+            Slope of the lowpass filter applied after distortion, 
+            between 0 and 1. Defaults to 0.5.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -79,12 +65,12 @@ class Disto(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -94,10 +80,10 @@ class Disto(PyoObject):
         """
         Replace the `drive` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `drive` attribute.
+            x : float or PyoObject
+                New `drive` attribute.
 
         """
         self._drive = x
@@ -108,10 +94,10 @@ class Disto(PyoObject):
         """
         Replace the `slope` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `slope` attribute.
+            x : float or PyoObject
+                New `slope` attribute.
 
         """
         self._slope = x
@@ -149,36 +135,20 @@ class Delay(PyoObject):
     """
     Sweepable recursive delay.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to delayed.
-    delay : float or PyoObject, optional
-        Delay time in seconds. Defaults to 0.25.
-    feedback : float or PyoObject, optional
-        Amount of output signal sent back into the delay line.
-        Defaults to 0.
-    maxdelay : float, optional
-        Maximum delay length in seconds. Available only at initialization. 
-        Defaults to 1.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setDelay(x) : Replace the `delay` attribute.
-    setFeedback(x) : Replace the `feedback` attribute.
-    reset() : Reset the memory buffer to zeros.
-
-    Attributes:
-
-    input : PyoObject. Input signal to delayed.
-    delay : float or PyoObject. Delay time in seconds.
-    feedback : float or PyoObject. Amount of output signal sent back 
-        into the delay line.
-
-    Examples:
+        input : PyoObject
+            Input signal to delayed.
+        delay : float or PyoObject, optional
+            Delay time in seconds. Defaults to 0.25.
+        feedback : float or PyoObject, optional
+            Amount of output signal sent back into the delay line.
+            Defaults to 0.
+        maxdelay : float, optional
+            Maximum delay length in seconds. Available only at initialization. 
+            Defaults to 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -200,12 +170,12 @@ class Delay(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to delayed.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to delayed.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -215,10 +185,10 @@ class Delay(PyoObject):
         """
         Replace the `delay` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `delay` attribute.
+            x : float or PyoObject
+                New `delay` attribute.
 
         """
         self._delay = x
@@ -229,10 +199,10 @@ class Delay(PyoObject):
         """
         Replace the `feedback` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `feedback` attribute.
+            x : float or PyoObject
+                New `feedback` attribute.
 
         """
         self._feedback = x
@@ -277,30 +247,17 @@ class SDelay(PyoObject):
     """
     Simple delay without interpolation.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to delayed.
-    delay : float or PyoObject, optional
-        Delay time in seconds. Defaults to 0.25.
-    maxdelay : float, optional
-        Maximum delay length in seconds. Available only at initialization. 
-        Defaults to 1.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setDelay(x) : Replace the `delay` attribute.
-    reset() : Reset the memory buffer to zeros.
-
-    Attributes:
-
-    input : PyoObject. Input signal to delayed.
-    delay : float or PyoObject. Delay time in seconds.
-
-    Examples:
+        input : PyoObject
+            Input signal to delayed.
+        delay : float or PyoObject, optional
+            Delay time in seconds. Defaults to 0.25.
+        maxdelay : float, optional
+            Maximum delay length in seconds. Available only at initialization. 
+            Defaults to 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -323,12 +280,12 @@ class SDelay(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -338,10 +295,10 @@ class SDelay(PyoObject):
         """
         Replace the `delay` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `delay` attribute.
+            x : float or PyoObject
+                New `delay` attribute.
 
         """
         self._delay = x
@@ -381,35 +338,21 @@ class Waveguide(PyoObject):
     This waveguide model consisting of one delay-line with a simple 
     lowpass filtering and lagrange interpolation.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    freq : float or PyoObject, optional
-        Frequency, in cycle per second, of the waveguide (i.e. the inverse 
-        of delay time). Defaults to 100.
-    dur : float or PyoObject, optional
-        Duration, in seconds, for the waveguide to drop 40 dB below it's 
-        maxima. Defaults to 10.
-    minfreq : float, optional
-        Minimum possible frequency, used to initialized delay length. 
-        Available only at initialization. Defaults to 20.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-    setDur(x) : Replace the `dur` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    freq : float or PyoObject. Frequency in cycle per second.
-    dur : float or PyoObject. Resonance duration in seconds.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        freq : float or PyoObject, optional
+            Frequency, in cycle per second, of the waveguide (i.e. the inverse 
+            of delay time). Defaults to 100.
+        dur : float or PyoObject, optional
+            Duration, in seconds, for the waveguide to drop 40 dB below it's 
+            maxima. Defaults to 10.
+        minfreq : float, optional
+            Minimum possible frequency, used to initialized delay length. 
+            Available only at initialization. Defaults to 20.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -431,12 +374,12 @@ class Waveguide(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -446,10 +389,10 @@ class Waveguide(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `freq` attribute.
+            x : float or PyoObject
+                New `freq` attribute.
 
         """
         self._freq = x
@@ -460,10 +403,10 @@ class Waveguide(PyoObject):
         """
         Replace the `dur` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `dur` attribute.
+            x : float or PyoObject
+                New `dur` attribute.
 
         """
         self._dur = x
@@ -504,40 +447,24 @@ class AllpassWG(PyoObject):
     This waveguide model consisting of one delay-line with a 3-stages recursive
     allpass filter which made the resonances of the waveguide out of tune.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    freq : float or PyoObject, optional
-        Frequency, in cycle per second, of the waveguide (i.e. the inverse 
-        of delay time). Defaults to 100.
-    feed : float or PyoObject, optional
-        Amount of output signal (between 0 and 1) sent back into the delay line.
-        Defaults to 0.95.
-    detune : float or PyoObject, optional
-        Control the depth of the allpass delay-line filter, i.e. the depth of 
-        the detuning. Should be in the range 0 to 1. Defaults to 0.5.
-    minfreq : float, optional
-        Minimum possible frequency, used to initialized delay length. 
-        Available only at initialization. Defaults to 20.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-    setFeed(x) : Replace the `feed` attribute.
-    setDetune(x) : Replace the `detune` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    freq : float or PyoObject. Frequency in cycle per second.
-    feed : float or PyoObject. Amount of output signal sent back into the delay line.
-    detune : float or PyoObject. Depth of the detuning.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        freq : float or PyoObject, optional
+            Frequency, in cycle per second, of the waveguide (i.e. the inverse 
+            of delay time). Defaults to 100.
+        feed : float or PyoObject, optional
+            Amount of output signal (between 0 and 1) sent back into the delay line.
+            Defaults to 0.95.
+        detune : float or PyoObject, optional
+            Control the depth of the allpass delay-line filter, i.e. the depth of 
+            the detuning. Should be in the range 0 to 1. Defaults to 0.5.
+        minfreq : float, optional
+            Minimum possible frequency, used to initialized delay length. 
+            Available only at initialization. Defaults to 20.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -562,12 +489,12 @@ class AllpassWG(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -577,10 +504,10 @@ class AllpassWG(PyoObject):
         """
         Replace the `freq` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `freq` attribute.
+            x : float or PyoObject
+                New `freq` attribute.
 
         """
         self._freq = x
@@ -591,10 +518,10 @@ class AllpassWG(PyoObject):
         """
         Replace the `feed` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `feed` attribute.
+            x : float or PyoObject
+                New `feed` attribute.
 
         """
         self._feed = x
@@ -605,10 +532,10 @@ class AllpassWG(PyoObject):
         """
         Replace the `detune` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `detune` attribute.
+            x : float or PyoObject
+                New `detune` attribute.
 
         """
         self._detune = x
@@ -659,38 +586,22 @@ class Freeverb(PyoObject):
     allpass units in series. Filters on each stream are slightly detuned 
     in order to create multi-channel effects.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    size : float or PyoObject, optional
-        Controls the length of the reverb,  between 0 and 1. A higher 
-        value means longer reverb. Defaults to 0.5.
-    damp : float or PyoObject, optional
-        High frequency attenuation, between 0 and 1. A higher value 
-        will result in a faster decay of the high frequency range. 
-        Defaults to 0.5.
-    bal : float or PyoObject, optional
-        Balance between wet and dry signal, between 0 and 1. 0 means no 
-        reverb. Defaults to 0.5.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setSize(x) : Replace the `size` attribute.
-    setDamp(x) : Replace the `damp` attribute.
-    setBal(x) : Replace the `bal` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    size : float or PyoObject. Room size.
-    damp : float or PyoObject. High frequency damping.
-    bal : float or PyoObject. Balance between wet and dry signal.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        size : float or PyoObject, optional
+            Controls the length of the reverb,  between 0 and 1. A higher 
+            value means longer reverb. Defaults to 0.5.
+        damp : float or PyoObject, optional
+            High frequency attenuation, between 0 and 1. A higher value 
+            will result in a faster decay of the high frequency range. 
+            Defaults to 0.5.
+        bal : float or PyoObject, optional
+            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            reverb. Defaults to 0.5.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -712,12 +623,12 @@ class Freeverb(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -727,10 +638,10 @@ class Freeverb(PyoObject):
         """
         Replace the `size` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `size` attribute.
+            x : float or PyoObject
+                New `size` attribute.
 
         """
         self._size = x
@@ -741,10 +652,10 @@ class Freeverb(PyoObject):
         """
         Replace the `damp` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `damp` attribute.
+            x : float or PyoObject
+                New `damp` attribute.
 
         """
         self._damp = x
@@ -755,10 +666,10 @@ class Freeverb(PyoObject):
         """
         Replace the `bal` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `bal` attribute.
+            x : float or PyoObject
+                New `bal` attribute.
 
         """
         self._bal = x
@@ -807,39 +718,34 @@ class Convolve(PyoObject):
     A circular convolution is defined as the integral of the product of two 
     functions after one is reversed and shifted.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    table : PyoTableObject
-        Table containning the impulse response.
-    size : int
-        Length, in samples, of the convolution. Available at initialization 
-        time only. If the table changes during the performance, its size
-        must egal or greater than this value. If greater only the first
-        `size` samples will be used.
+        input : PyoObject
+            Input signal to process.
+        table : PyoTableObject
+            Table containning the impulse response.
+        size : int
+            Length, in samples, of the convolution. Available at initialization 
+            time only. 
+            
+            If the table changes during the performance, its size must egal or 
+            greater than this value. 
+            
+            If greater only the first `size` samples will be used.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setTable(x) : Replace the `table` attribute.
+        Convolution is very expensive to compute, so the impulse response must
+        be kept very short to run in real time.
 
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    table : PyoTableObject. Table containning the impulse response.
-
-    Notes :
-
-    Convolution is very expensive to compute, so the impulse response must
-    be kept very short to run in real time.
-
-    Usually convolution generates a high amplitude level, take care of the
-    `mul` parameter!
-
-    Examples:
+        Usually convolution generates a high amplitude level, take care of the
+        `mul` parameter!
+        
+    .. seealso::
+        
+        :py:class:`Follower`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -861,12 +767,12 @@ class Convolve(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -876,10 +782,10 @@ class Convolve(PyoObject):
         """
         Replace the `table` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoTableObject
-            new `table` attribute.
+            x : PyoTableObject
+                new `table` attribute.
         
         """
         self._table = x
@@ -908,40 +814,24 @@ class WGVerb(PyoObject):
     modeling scattering junction of 8 lossless waveguides of equal 
     characteristic impedance.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    feedback : float or PyoObject, optional
-        Amount of output signal sent back into the delay lines.
-        0.6 gives a good small "live" room sound, 0.8 a small hall, 
-        and 0.9 a large hall. Defaults to 0.5.
-    cutoff : float or PyoObject, optional
-        cutoff frequency of simple first order lowpass filters in the 
-        feedback loop of delay lines, in Hz. Defaults to 5000.
-    bal : float or PyoObject, optional
-        Balance between wet and dry signal, between 0 and 1. 0 means no 
-        reverb. Defaults to 0.5.
+        input : PyoObject
+            Input signal to process.
+        feedback : float or PyoObject, optional
+            Amount of output signal sent back into the delay lines.
+            Defaults to 0.5.
 
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFeedback(x) : Replace the `feedback` attribute.
-    setCutoff(x) : Replace the `cutoff` attribute.
-    setBal(x) : Replace the `bal` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    feedback : float or PyoObject. Amount of output signal sent back 
-        into the delay line.
-    cutoff : float or PyoObject. Internal lowpass filter cutoff 
-        frequency in Hz.
-    bal : float or PyoObject. Balance between wet and dry signal.
-
-    Examples:
+            0.6 gives a good small "live" room sound, 0.8 a small hall, 
+            and 0.9 a large hall.
+        cutoff : float or PyoObject, optional
+            cutoff frequency of simple first order lowpass filters in the 
+            feedback loop of delay lines, in Hz. Defaults to 5000.
+        bal : float or PyoObject, optional
+            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            reverb. Defaults to 0.5.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -963,12 +853,12 @@ class WGVerb(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -978,10 +868,10 @@ class WGVerb(PyoObject):
         """
         Replace the `feedback` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `feedback` attribute.
+            x : float or PyoObject
+                New `feedback` attribute.
 
         """
         self._feedback = x
@@ -992,10 +882,10 @@ class WGVerb(PyoObject):
         """
         Replace the `cutoff` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `cutoff` attribute.
+            x : float or PyoObject
+                New `cutoff` attribute.
 
         """
         self._cutoff = x
@@ -1006,10 +896,10 @@ class WGVerb(PyoObject):
         """
         Replace the `bal` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `bal` attribute.
+            x : float or PyoObject
+                New `bal` attribute.
 
         """
         self._bal = x
@@ -1032,7 +922,7 @@ class WGVerb(PyoObject):
 
     @property
     def feedback(self):
-        """float or PyoObject. Amount of output signal sent back into the delay line.""" 
+        """float or PyoObject. Amount of output signal sent back into the delay lines.""" 
         return self._feedback
     @feedback.setter
     def feedback(self, x): self.setFeedback(x)
@@ -1058,37 +948,20 @@ class Chorus(PyoObject):
     A chorus effect occurs when individual sounds with roughly the same timbre and 
     nearly (but never exactly) the same pitch converge and are perceived as one.
     
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    depth : float or PyoObject, optional
-        Chorus depth, between 0 and 5. Defaults to 1.
-    feedback : float or PyoObject, optional
-        Amount of output signal sent back into the delay lines.
-        Defaults to 0.25.
-    bal : float or PyoObject, optional
-        Balance between wet and dry signals, between 0 and 1. 0 means no 
-        chorus. Defaults to 0.5.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setDepth(x) : Replace the `depth` attribute.
-    setFeedback(x) : Replace the `feedback` attribute.
-    setBal(x) : Replace the `bal` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    depth : float or PyoObject. Chorus depth, between 0 and 5.
-    feedback : float or PyoObject. Amount of output signal sent back 
-        into the delay line.
-    bal : float or PyoObject. Balance between wet and dry signal.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        depth : float or PyoObject, optional
+            Chorus depth, between 0 and 5. Defaults to 1.
+        feedback : float or PyoObject, optional
+            Amount of output signal sent back into the delay lines.
+            Defaults to 0.25.
+        bal : float or PyoObject, optional
+            Balance between wet and dry signals, between 0 and 1. 0 means no 
+            chorus. Defaults to 0.5.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1110,12 +983,12 @@ class Chorus(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -1125,10 +998,10 @@ class Chorus(PyoObject):
         """
         Replace the `depth` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `depth` attribute.
+            x : float or PyoObject
+                New `depth` attribute.
 
         """
         self._depth = x
@@ -1139,10 +1012,10 @@ class Chorus(PyoObject):
         """
         Replace the `feedback` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `feedback` attribute.
+            x : float or PyoObject
+                New `feedback` attribute.
 
         """
         self._feedback = x
@@ -1153,10 +1026,10 @@ class Chorus(PyoObject):
         """
         Replace the `bal` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `bal` attribute.
+            x : float or PyoObject
+                New `bal` attribute.
 
         """
         self._bal = x
@@ -1202,37 +1075,20 @@ class Harmonizer(PyoObject):
     """
     Generates harmonizing voices in synchrony with its audio input.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    transpo : float or PyoObject, optional
-       Transposition factor in semitone. Defaults to -7.0.
-    feedback : float or PyoObject, optional
-        Amount of output signal sent back into the delay line.
-        Defaults to 0.
-    winsize : float, optional
-        Window size in seconds (max = 1.0). 
-        Defaults to 0.1.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setTranspo(x) : Replace the `transpo` attribute.
-    setFeedback(x) : Replace the `feedback` attribute.
-    setWinsize(x) : Replace the `winsize` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal.
-    transpo : float or PyoObject. Transposition factor in semitone.
-    feedback : float or PyoObject. Amount of output signal sent back 
-        into the delay line.
-    winsize : float. Window size in seconds (max = 1.0).
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        transpo : float or PyoObject, optional
+           Transposition factor in semitone. Defaults to -7.0.
+        feedback : float or PyoObject, optional
+            Amount of output signal sent back into the delay line.
+            Defaults to 0.
+        winsize : float, optional
+            Window size in seconds (max = 1.0). 
+            Defaults to 0.1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1254,12 +1110,12 @@ class Harmonizer(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -1269,10 +1125,10 @@ class Harmonizer(PyoObject):
         """
         Replace the `transpo` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `transpo` attribute.
+            x : float or PyoObject
+                New `transpo` attribute.
 
         """
         self._transpo = x
@@ -1283,10 +1139,10 @@ class Harmonizer(PyoObject):
         """
         Replace the `feedback` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `feedback` attribute.
+            x : float or PyoObject
+                New `feedback` attribute.
 
         """
         self._feedback = x
@@ -1297,10 +1153,10 @@ class Harmonizer(PyoObject):
         """
         Replace the `winsize` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New `winsize` attribute.
+            x : float
+                New `winsize` attribute.
 
         """
         self._winsize = x
@@ -1345,22 +1201,12 @@ class Delay1(PyoObject):
     """
     Delays a signal by one sample.
  
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
    
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    
-    Examples:
+        input : PyoObject
+            Input signal to process.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -1384,12 +1230,12 @@ class Delay1(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1397,7 +1243,7 @@ class Delay1(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to delayed.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)

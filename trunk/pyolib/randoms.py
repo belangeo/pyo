@@ -34,30 +34,16 @@ class Randi(PyoObject):
     values at a frequency specified by `freq` parameter. Randi will 
     produce straight-line interpolation between current number and the next.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    min : float or PyoObject, optional
-        Minimum value for the random generation. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum value for the random generation. Defaults to 1.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    
-    Methods:
-
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-
-    Attributes:
-    
-    min : float or PyoObject. Minimum value.
-    max : float or PyoObject. Maximum value.
-    freq : float or PyoObject. Polling frequency.
-
-    Examples:
+        min : float or PyoObject, optional
+            Minimum value for the random generation. Defaults to 0.
+        max : float or PyoObject, optional
+            Maximum value for the random generation. Defaults to 1.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -78,10 +64,10 @@ class Randi(PyoObject):
         """
         Replace the `min` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `min` attribute.
+            x : float or PyoObject
+                new `min` attribute.
         
         """
         self._min = x
@@ -92,10 +78,10 @@ class Randi(PyoObject):
         """
         Replace the `max` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `max` attribute.
+            x : float or PyoObject
+                new `max` attribute.
         
         """
         self._max = x
@@ -106,10 +92,10 @@ class Randi(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
         
         """
         self._port = x
@@ -124,17 +110,26 @@ class Randi(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def min(self): return self._min
+    def min(self): 
+        """float or PyoObject. Minimum value."""
+        return self._min
     @min.setter
-    def min(self, x): self.setMin(x)
+    def min(self, x): 
+        self.setMin(x)
     @property
-    def max(self): return self._max
+    def max(self): 
+        """float or PyoObject. Maximum value."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
 
 class Randh(PyoObject):
     """
@@ -144,30 +139,16 @@ class Randh(PyoObject):
     values at a frequency specified by `freq` parameter. Randh will 
     hold generated value until next generation.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    min : float or PyoObject, optional
-        Minimum value for the random generation. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum value for the random generation. Defaults to 1.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    
-    Methods:
-
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-
-    Attributes:
-    
-    min : float or PyoObject. Minimum value.
-    max : float or PyoObject. Maximum value.
-    freq : float or PyoObject. Polling frequency.
-
-    Examples:
+        min : float or PyoObject, optional
+            Minimum value for the random generation. Defaults to 0.
+        max : float or PyoObject, optional
+            Maximum value for the random generation. Defaults to 1.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -188,10 +169,10 @@ class Randh(PyoObject):
         """
         Replace the `min` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `min` attribute.
+            x : float or PyoObject
+                new `min` attribute.
         
         """
         self._min = x
@@ -202,10 +183,10 @@ class Randh(PyoObject):
         """
         Replace the `max` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `max` attribute.
+            x : float or PyoObject
+                new `max` attribute.
         
         """
         self._max = x
@@ -216,10 +197,10 @@ class Randh(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
         
         """
         self._port = x
@@ -234,17 +215,26 @@ class Randh(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def min(self): return self._min
+    def min(self): 
+        """float or PyoObject. Minimum value."""
+        return self._min
     @min.setter
-    def min(self, x): self.setMin(x)
+    def min(self, x): 
+        self.setMin(x)
     @property
-    def max(self): return self._max
+    def max(self): 
+        """float or PyoObject. Maximum value."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
 
 class Choice(PyoObject):
     """
@@ -254,27 +244,15 @@ class Choice(PyoObject):
     at a frequency specified by `freq` parameter. Choice will 
     hold choosen value until next generation.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    choice : list of floats or list of lists of floats
-        Possible values for the random generation.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    
-    Methods:
+        choice : list of floats or list of lists of floats
+            Possible values for the random generation.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
 
-    setChoice(x) : Replace the `choice` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-
-    Attributes:
-    
-    choice : list of floats or list of lists of floats. Possible choices.
-    freq : float or PyoObject. Polling frequency.
-
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> freqs = midiToHz([60,62,64,65,67,69,71,72])
@@ -301,10 +279,10 @@ class Choice(PyoObject):
         """
         Replace the `choice` attribute.
         
-        Parameters:
+        :Args:
 
-        x : list of floats or list of lists of floats
-            new `choice` attribute.
+            x : list of floats or list of lists of floats
+                new `choice` attribute.
         
         """
         self._choice = x
@@ -317,10 +295,10 @@ class Choice(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
         
         """
         self._freq = x
@@ -332,13 +310,19 @@ class Choice(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def choice(self): return self._choice
+    def choice(self): 
+        """list of floats or list of lists of floats. Possible choices."""
+        return self._choice
     @choice.setter
-    def choice(self, x): self.setChoice(x)
+    def choice(self, x): 
+        self.setChoice(x)
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
 
 class RandInt(PyoObject):
     """
@@ -348,27 +332,15 @@ class RandInt(PyoObject):
     values at a frequency specified by `freq` parameter. RandInt will 
     hold generated value until the next generation.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    max : float or PyoObject, optional
-        Maximum value for the random generation. Defaults to 100.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    
-    Methods:
+        max : float or PyoObject, optional
+            Maximum value for the random generation. Defaults to 100.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
 
-    setMax(x) : Replace the `max` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-
-    Attributes:
-    
-    max : float or PyoObject. Maximum value.
-    freq : float or PyoObject. Polling frequency.
-
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> freq = RandInt(max=10, freq=5, mul=100, add=500)
@@ -387,10 +359,10 @@ class RandInt(PyoObject):
         """
         Replace the `max` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `max` attribute.
+            x : float or PyoObject
+                new `max` attribute.
         
         """
         self._max = x
@@ -401,10 +373,10 @@ class RandInt(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
         
         """
         self._freq = x
@@ -418,13 +390,19 @@ class RandInt(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def max(self): return self._max
+    def max(self): 
+        """float or PyoObject. Maximum value."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
 
 class RandDur(PyoObject):
     """
@@ -434,26 +412,14 @@ class RandDur(PyoObject):
     arguments and uses that number to set the delay time before the next 
     generation. RandDur will hold the generated value until next generation.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    min : float or PyoObject, optional
-        Minimum value for the random generation. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum value for the random generation. Defaults to 1.
-
-    Methods:
-
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-
-    Attributes:
-
-    min : float or PyoObject. Minimum value.
-    max : float or PyoObject. Maximum value.
-
-    Examples:
+        min : float or PyoObject, optional
+            Minimum value for the random generation. Defaults to 0.
+        max : float or PyoObject, optional
+            Maximum value for the random generation. Defaults to 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -476,10 +442,10 @@ class RandDur(PyoObject):
         """
         Replace the `min` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `min` attribute.
+            x : float or PyoObject
+                new `min` attribute.
 
         """
         self._min = x
@@ -490,10 +456,10 @@ class RandDur(PyoObject):
         """
         Replace the `max` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `max` attribute.
+            x : float or PyoObject
+                new `max` attribute.
 
         """
         self._max = x
@@ -507,13 +473,19 @@ class RandDur(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def min(self): return self._min
+    def min(self): 
+        """float or PyoObject. Minimum value."""
+        return self._min
     @min.setter
-    def min(self, x): self.setMin(x)
+    def min(self, x): 
+        self.setMin(x)
     @property
-    def max(self): return self._max
+    def max(self): 
+        """float or PyoObject. Maximum value."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
 
 class Xnoise(PyoObject):
     """
@@ -522,86 +494,79 @@ class Xnoise(PyoObject):
     Xnoise implements a few of the most common noise distributions.
     Each distribution generates values in the range 0 and 1.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        dist : string or int, optional
+            Distribution type. Defaults to 0.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
+        x1 : float or PyoObject, optional
+            First parameter. Defaults to 0.5.
+        x2 : float or PyoObject, optional
+            Second parameter. Defaults to 0.5.
     
-    Notes:
+    .. note::
     
-    Available distributions are:
-        - uniform
-        - linear minimum
-        - linear maximum
-        - triangular
-        - exponential minimum
-        - exponential maximum
-        - double (bi)exponential
-        - cauchy
-        - weibull
-        - gaussian
-        - poisson
-        - walker (drunk)
-        - loopseg (drunk with looped segments)
-        
-    Depending on the distribution, `x1` and `x2` parameters are applied
-    as follow (names as string, or associated number can be used as `dist`
-    parameter):
-        0 - uniform
-            no parameter
-        1 - linear_min 
-            no parameter
-        2 - linear_max
-            no parameter
-        3 - triangle
-            no parameter
-        4 - expon_min
-            x1 : slope {0 = no slope -> 10 = sharp slope}
-        5 - expon_max    
-            x1 : slope {0 = no slope -> 10 = sharp slope}
-        6 - biexpon
-            x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
-        7 - cauchy
-            x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
-        8 - weibull
-            x1 : mean location {0 -> 1}
-            x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
-        9 - gaussian
-            x1 : mean location {0 -> 1}
-            x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
-        10 - poisson
-            x1 : gravity center {0 = low values -> 10 = high values}
-            x2 : compress/expand range {0.1 = full compress -> 4 full expand}
-        11 - walker
-            x1 : maximum value {0.1 -> 1}
-            x2 - maximum step {0.1 -> 1}
-        12 - loopseg 
-            x1 : maximum value {0.1 -> 1}
-            x2 - maximum step {0.1 -> 1}
+        Available distributions are:
+            0. uniform
+            1. linear minimum
+            2. linear maximum
+            3. triangular
+            4. exponential minimum
+            5. exponential maximum
+            6. double (bi)exponential
+            7. cauchy
+            8. weibull
+            9. gaussian
+            10. poisson
+            11. walker (drunk)
+            12. loopseg (drunk with looped segments)
+            
+        Depending on the distribution, `x1` and `x2` parameters are applied
+        as follow (names as string, or associated number can be used as `dist`
+        parameter):
 
-    Parameters:
-
-    dist : string or int, optional
-        Distribution type. Defaults to 0.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    x1 : float or PyoObject, optional
-        First parameter. Defaults to 0.5.
-    x2 : float or PyoObject, optional
-        Second parameter. Defaults to 0.5.
-
-    Methods:
-
-    setDist(x) : Replace the `dist` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-    setX1(x) : Replace the `x1` attribute.
-    setX2(x) : Replace the `x2` attribute.
-
-    Attributes:
-
-    dist : string or int. Distribution type.
-    freq : float or PyoObject. Polling frequency.
-    x1 : float or PyoObject. First parameter.
-    x2 : float or PyoObject. Second parameter.
-
-    Examples:
+            0. uniform
+                - x1 : not used
+                - x2 : not used
+            1. linear_min
+                - x1 : not used
+                - x2 : not used
+            2. linear_max
+                - x1 : not used
+                - x2 : not used
+            3. triangle
+                - x1 : not used
+                - x2 : not used
+            4. expon_min
+                - x1 : slope {0 = no slope -> 10 = sharp slope}
+                - x2 : not used
+            5. expon_max
+                - x1 : slope {0 = no slope -> 10 = sharp slope}
+                - x2 : not used
+            6. biexpon
+                - x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+                - x2 : not used
+            7. cauchy
+                - x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+                - x2 : not used
+            8. weibull
+                - x1 : mean location {0 -> 1}
+                - x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+            9. gaussian
+                - x1 : mean location {0 -> 1}
+                - x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+            10. poisson
+                 - x1 : gravity center {0 = low values -> 10 = high values}
+                 - x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+            11. walker
+                 - x1 : maximum value {0.1 -> 1}
+                 - x2 : maximum step {0.1 -> 1}
+            12. loopseg 
+                 - x1 : maximum value {0.1 -> 1}
+                 - x2 : maximum step {0.1 -> 1}
 
     >>> s = Server().boot()
     >>> s.start()
@@ -626,10 +591,10 @@ class Xnoise(PyoObject):
         """
         Replace the `dist` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `dist` attribute.
+            x : int
+                new `dist` attribute.
 
         """
         self._dist = x
@@ -642,10 +607,10 @@ class Xnoise(PyoObject):
         """
         Replace the `x1` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `x1` attribute.
+            x : float or PyoObject
+                new `x1` attribute.
 
         """
         self._x1 = x
@@ -656,10 +621,10 @@ class Xnoise(PyoObject):
         """
         Replace the `x2` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `x2` attribute.
+            x : float or PyoObject
+                new `x2` attribute.
 
         """
         self._x2= x
@@ -670,10 +635,10 @@ class Xnoise(PyoObject):
         """
         Replace the `freq` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
 
         """
         self._port = x
@@ -681,21 +646,33 @@ class Xnoise(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def dist(self): return self._dist
+    def dist(self): 
+        """string or int. Distribution type."""
+        return self._dist
     @dist.setter
-    def dist(self, x): self.setDist(x)
+    def dist(self, x): 
+        self.setDist(x)
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
     @property
-    def x1(self): return self._x1
+    def x1(self): 
+        """float or PyoObject. First parameter."""
+        return self._x1
     @x1.setter
-    def x1(self, x): self.setX1(x)
+    def x1(self, x): 
+        self.setX1(x)
     @property
-    def x2(self): return self._x2
+    def x2(self): 
+        """float or PyoObject. Second parameter."""
+        return self._x2
     @x2.setter
-    def x2(self, x): self.setX2(x)
+    def x2(self, x): 
+        self.setX2(x)
 
 class XnoiseMidi(PyoObject):
     """
@@ -706,97 +683,87 @@ class XnoiseMidi(PyoObject):
     `mrange` parameter and output can be scaled on midi notes, hertz or 
     transposition factor. 
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        dist : string or int, optional
+            Distribution type. Defaults to 0.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
+        x1 : float or PyoObject, optional
+            First parameter. Defaults to 0.5.
+        x2 : float or PyoObject, optional
+            Second parameter. Defaults to 0.5.
+        scale : int {0, 1, 2}, optional
+            Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor. 
+            In the transposition mode, the central key (the key where there 
+            is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
+            to 0.
+        mrange : tuple of int, optional
+            Minimum and maximum possible values, in Midi notes. Available
+            only at initialization time. Defaults to (0, 127).
     
-    Notes:
+    .. note::
     
-    Available distributions are:
-        - uniform
-        - linear minimum
-        - linear maximum
-        - triangular
-        - exponential minimum
-        - exponential maximum
-        - double (bi)exponential
-        - cauchy
-        - weibull
-        - gaussian
-        - poisson
-        - walker (drunk)
-        - loopseg (drunk with looped segments)
+        Available distributions are:
+            0. uniform
+            1. linear minimum
+            2. linear maximum
+            3. triangular
+            4. exponential minimum
+            5. exponential maximum
+            6. double (bi)exponential
+            7. cauchy
+            8. weibull
+            9. gaussian
+            10. poisson
+            11. walker (drunk)
+            12. loopseg (drunk with looped segments)
+            
+        Depending on the distribution, `x1` and `x2` parameters are applied
+        as follow (names as string, or associated number can be used as `dist`
+        parameter):
 
-    Depending on the distribution, `x1` and `x2` parameters are applied
-    as follow (names as string, or associated number can be used as `dist`
-    parameter):
-        0 - uniform
-            no parameter
-        1 - linear_min 
-            no parameter
-        2 - linear_max
-            no parameter
-        3 - triangle
-            no parameter
-        4 - expon_min
-            x1 : slope {0 = no slope -> 10 = sharp slope}
-        5 - expon_max    
-            x1 : slope {0 = no slope -> 10 = sharp slope}
-        6 - biexpon
-            x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
-        7 - cauchy
-            x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
-        8 - weibull
-            x1 : mean location {0 -> 1}
-            x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
-        9 - gaussian
-            x1 : mean location {0 -> 1}
-            x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
-        10 - poisson
-            x1 : gravity center {0 = low values -> 10 = high values}
-            x2 : compress/expand range {0.1 = full compress -> 4 full expand}
-        11 - walker
-            x1 : maximum value {0.1 -> 1}
-            x2 - maximum step {0.1 -> 1}
-        12 - loopseg 
-            x1 : maximum value {0.1 -> 1}
-            x2 - maximum step {0.1 -> 1}
-
-    Parameters:
-
-    dist : string or int, optional
-        Distribution type. Defaults to 0.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    x1 : float or PyoObject, optional
-        First parameter. Defaults to 0.5.
-    x2 : float or PyoObject, optional
-        Second parameter. Defaults to 0.5.
-    scale : int {0, 1, 2}, optional
-        Output format. 0 = Midi, 1 = Hertz, 2 = transposition factor. 
-        In the transposition mode, the central key (the key where there 
-        is no transposition) is (`minrange` + `maxrange`) / 2. Defaults
-        to 0.
-    mrange : tuple of int, optional
-        Minimum and maximum possible values, in Midi notes. Available
-        only at initialization time. Defaults to (0, 127).
-
-    Methods:
-
-    setDist(x) : Replace the `dist` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-    setX1(x) : Replace the `x1` attribute.
-    setX2(x) : Replace the `x2` attribute.
-    setScale(x) : Replace the `scale` attribute.
-    setRange(x, y) : Changes min and max range values and centralkey.
-
-    Attributes:
-
-    dist : string or int. Distribution type.
-    freq : float or PyoObject. Polling frequency.
-    x1 : float or PyoObject. First parameter.
-    x2 : float or PyoObject. Second parameter.
-    scale : int. Output format.
-
-    Examples:
+            0. uniform
+                - x1 : not used
+                - x2 : not used
+            1. linear_min
+                - x1 : not used
+                - x2 : not used
+            2. linear_max
+                - x1 : not used
+                - x2 : not used
+            3. triangle
+                - x1 : not used
+                - x2 : not used
+            4. expon_min
+                - x1 : slope {0 = no slope -> 10 = sharp slope}
+                - x2 : not used
+            5. expon_max
+                - x1 : slope {0 = no slope -> 10 = sharp slope}
+                - x2 : not used
+            6. biexpon
+                - x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+                - x2 : not used
+            7. cauchy
+                - x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+                - x2 : not used
+            8. weibull
+                - x1 : mean location {0 -> 1}
+                - x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+            9. gaussian
+                - x1 : mean location {0 -> 1}
+                - x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+            10. poisson
+                 - x1 : gravity center {0 = low values -> 10 = high values}
+                 - x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+            11. walker
+                 - x1 : maximum value {0.1 -> 1}
+                 - x2 : maximum step {0.1 -> 1}
+            12. loopseg 
+                 - x1 : maximum value {0.1 -> 1}
+                 - x2 : maximum step {0.1 -> 1}
 
     >>> s = Server().boot()
     >>> s.start()
@@ -824,10 +791,10 @@ class XnoiseMidi(PyoObject):
         """
         Replace the `dist` attribute.
 
-        Parameters:
+        :Args:
 
-        x : string or int
-            new `dist` attribute.
+            x : string or int
+                new `dist` attribute.
 
         """
         self._dist = x
@@ -841,15 +808,14 @@ class XnoiseMidi(PyoObject):
         Replace the `scale` attribute.
         
         Possible values are: 
-            0 -> Midi notes
-            1 -> Hertz
-            2 -> transposition factor 
-                 (centralkey is (`minrange` + `maxrange`) / 2
+            0. Midi notes
+            1. Hertz
+            2. transposition factor (centralkey is (`minrange` + `maxrange`) / 2
 
-        Parameters:
+        :Args:
 
-        x : int {0, 1, 2}
-            new `scale` attribute.
+            x : int {0, 1, 2}
+                new `scale` attribute.
 
         """
         self._scale = x
@@ -860,12 +826,12 @@ class XnoiseMidi(PyoObject):
         """
         Replace the `mrange` attribute.
 
-        Parameters:
+        :Args:
 
-        mini : int
-            minimum output midi range.
-        maxi : int
-            maximum output midi range.
+            mini : int
+                minimum output midi range.
+            maxi : int
+                maximum output midi range.
 
         """
         self._mrange = (mini, maxi)
@@ -876,10 +842,10 @@ class XnoiseMidi(PyoObject):
         """
         Replace the `x1` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `x1` attribute.
+            x : float or PyoObject
+                new `x1` attribute.
 
         """
         self._x1 = x
@@ -890,10 +856,10 @@ class XnoiseMidi(PyoObject):
         """
         Replace the `x2` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `x2` attribute.
+            x : float or PyoObject
+                new `x2` attribute.
 
         """
         self._x2= x
@@ -904,10 +870,10 @@ class XnoiseMidi(PyoObject):
         """
         Replace the `freq` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
 
         """
         self._port = x
@@ -915,25 +881,40 @@ class XnoiseMidi(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def dist(self): return self._dist
+    def dist(self): 
+        """string or int. Distribution type."""
+        return self._dist
     @dist.setter
-    def dist(self, x): self.setDist(x)
+    def dist(self, x): 
+        self.setDist(x)
     @property
-    def scale(self): return self._scale
-    @scale.setter
-    def scale(self, x): self.setScale(x)
-    @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
     @property
-    def x1(self): return self._x1
+    def x1(self): 
+        """float or PyoObject. First parameter."""
+        return self._x1
     @x1.setter
-    def x1(self, x): self.setX1(x)
+    def x1(self, x): 
+        self.setX1(x)
     @property
-    def x2(self): return self._x2
+    def x2(self): 
+        """float or PyoObject. Second parameter."""
+        return self._x2
     @x2.setter
-    def x2(self, x): self.setX2(x)
+    def x2(self, x): 
+        self.setX2(x)
+    @property
+    def scale(self): 
+        """int. Output format."""
+        return self._scale
+    @scale.setter
+    def scale(self, x): 
+        self.setScale(x)
 
 class XnoiseDur(PyoObject):
     """
@@ -945,91 +926,82 @@ class XnoiseDur(PyoObject):
     the generated value to set the delay time before the next generation. 
     XnoiseDur will hold the value until next generation.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Notes:
+    :Args:
 
-    Available distributions are:
-        - uniform
-        - linear minimum
-        - linear maximum
-        - triangular
-        - exponential minimum
-        - exponential maximum
-        - double (bi)exponential
-        - cauchy
-        - weibull
-        - gaussian
-        - poisson
-        - walker (drunk)
-        - loopseg (drunk with looped segments)
+        dist : string or int, optional
+            Distribution type. Can be the name of the distribution as a string
+            or its associated number. Defaults to 0.
+        min : float or PyoObject, optional
+            Minimum value for the random generation. Defaults to 0.
+        max : float or PyoObject, optional
+            Maximum value for the random generation. Defaults to 1.
+        x1 : float or PyoObject, optional
+            First parameter. Defaults to 0.5.
+        x2 : float or PyoObject, optional
+            Second parameter. Defaults to 0.5.
 
-    Depending on the distribution, `x1` and `x2` parameters are applied
-    as follow (names as string, or associated number can be used as `dist`
-    parameter):
-        0 - uniform
-            no parameter
-        1 - linear_min 
-            no parameter
-        2 - linear_max
-            no parameter
-        3 - triangle
-            no parameter
-        4 - expon_min
-            x1 : slope {0 = no slope -> 10 = sharp slope}
-        5 - expon_max    
-            x1 : slope {0 = no slope -> 10 = sharp slope}
-        6 - biexpon
-            x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
-        7 - cauchy
-            x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
-        8 - weibull
-            x1 : mean location {0 -> 1}
-            x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
-        9 - gaussian
-            x1 : mean location {0 -> 1}
-            x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
-        10 - poisson
-            x1 : gravity center {0 = low values -> 10 = high values}
-            x2 : compress/expand range {0.1 = full compress -> 4 full expand}
-        11 - walker
-            x1 : maximum value {0.1 -> 1}
-            x2 - maximum step {0.1 -> 1}
-        12 - loopseg 
-            x1 : maximum value {0.1 -> 1}
-            x2 - maximum step {0.1 -> 1}
+    .. note::
 
-    Parameters:
+        Available distributions are:
+            0. uniform
+            1. linear minimum
+            2. linear maximum
+            3. triangular
+            4. exponential minimum
+            5. exponential maximum
+            6. double (bi)exponential
+            7. cauchy
+            8. weibull
+            9. gaussian
+            10. poisson
+            11. walker (drunk)
+            12. loopseg (drunk with looped segments)
+            
+        Depending on the distribution, `x1` and `x2` parameters are applied
+        as follow (names as string, or associated number can be used as `dist`
+        parameter):
 
-    dist : string or int, optional
-        Distribution type. Can be the name of the distribution as a string
-        or its associated number. Defaults to 0.
-    min : float or PyoObject, optional
-        Minimum value for the random generation. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum value for the random generation. Defaults to 1.
-    x1 : float or PyoObject, optional
-        First parameter. Defaults to 0.5.
-    x2 : float or PyoObject, optional
-        Second parameter. Defaults to 0.5.
-
-    Methods:
-
-    setDist(x) : Replace the `dist` attribute.
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-    setX1(x) : Replace the `x1` attribute.
-    setX2(x) : Replace the `x2` attribute.
-
-    Attributes:
-
-    dist : string or int. Distribution type.
-    min : float or PyoObject. Minimum value.
-    max : float or PyoObject. Maximum value.
-    x1 : float or PyoObject. First parameter.
-    x2 : float or PyoObject. Second parameter.
-
-    Examples:
+            0. uniform
+                - x1 : not used
+                - x2 : not used
+            1. linear_min
+                - x1 : not used
+                - x2 : not used
+            2. linear_max
+                - x1 : not used
+                - x2 : not used
+            3. triangle
+                - x1 : not used
+                - x2 : not used
+            4. expon_min
+                - x1 : slope {0 = no slope -> 10 = sharp slope}
+                - x2 : not used
+            5. expon_max
+                - x1 : slope {0 = no slope -> 10 = sharp slope}
+                - x2 : not used
+            6. biexpon
+                - x1 : bandwidth {0 = huge bandwidth -> 10 = narrow bandwidth}
+                - x2 : not used
+            7. cauchy
+                - x1 : bandwidth {0 = narrow bandwidth -> 10 = huge bandwidth}
+                - x2 : not used
+            8. weibull
+                - x1 : mean location {0 -> 1}
+                - x2 : shape {0.5 = linear min, 1.5 = expon min, 3.5 = gaussian}
+            9. gaussian
+                - x1 : mean location {0 -> 1}
+                - x2 : bandwidth {0 =  narrow bandwidth -> 10 = huge bandwidth}
+            10. poisson
+                 - x1 : gravity center {0 = low values -> 10 = high values}
+                 - x2 : compress/expand range {0.1 = full compress -> 4 full expand}
+            11. walker
+                 - x1 : maximum value {0.1 -> 1}
+                 - x2 : maximum step {0.1 -> 1}
+            12. loopseg 
+                 - x1 : maximum value {0.1 -> 1}
+                 - x2 : maximum step {0.1 -> 1}
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1057,10 +1029,10 @@ class XnoiseDur(PyoObject):
         """
         Replace the `dist` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `dist` attribute.
+            x : int
+                new `dist` attribute.
 
         """
         self._dist = x
@@ -1073,10 +1045,10 @@ class XnoiseDur(PyoObject):
         """
         Replace the `min` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `min` attribute.
+            x : float or PyoObject
+                new `min` attribute.
 
         """
         self._min = x
@@ -1087,10 +1059,10 @@ class XnoiseDur(PyoObject):
         """
         Replace the `max` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `max` attribute.
+            x : float or PyoObject
+                new `max` attribute.
 
         """
         self._max = x
@@ -1101,10 +1073,10 @@ class XnoiseDur(PyoObject):
         """
         Replace the `x1` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `x1` attribute.
+            x : float or PyoObject
+                new `x1` attribute.
 
         """
         self._x1 = x
@@ -1115,10 +1087,10 @@ class XnoiseDur(PyoObject):
         """
         Replace the `x2` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `x2` attribute.
+            x : float or PyoObject
+                new `x2` attribute.
 
         """
         self._x2= x
@@ -1126,25 +1098,40 @@ class XnoiseDur(PyoObject):
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def dist(self): return self._dist
+    def dist(self): 
+        """string or int. Distribution type."""
+        return self._dist
     @dist.setter
-    def dist(self, x): self.setDist(x)
+    def dist(self, x): 
+        self.setDist(x)
     @property
-    def min(self): return self._min
+    def min(self): 
+        """float or PyoObject. Minimum value."""
+        return self._min
     @min.setter
-    def min(self, x): self.setMin(x)
+    def min(self, x): 
+        self.setMin(x)
     @property
-    def max(self): return self._max
+    def max(self): 
+        """float or PyoObject. Maximum value."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
     @property
-    def x1(self): return self._x1
+    def x1(self): 
+        """float or PyoObject. First parameter."""
+        return self._x1
     @x1.setter
-    def x1(self, x): self.setX1(x)
+    def x1(self, x): 
+        self.setX1(x)
     @property
-    def x2(self): return self._x2
+    def x2(self): 
+        """float or PyoObject. Second parameter."""
+        return self._x2
     @x2.setter
-    def x2(self, x): self.setX2(x)
+    def x2(self, x): 
+        self.setX2(x)
 
 class Urn(PyoObject):
     """
@@ -1157,33 +1144,21 @@ class Urn(PyoObject):
     all numbers have been outputed, the pool is reseted and the object send
     a trigger signal.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    max : int, optional
-        Maximum value for the random generation. Defaults to 100.
-    freq : float or PyoObject, optional
-        Polling frequency. Defaults to 1.
-    
-    Methods:
+        max : int, optional
+            Maximum value for the random generation. Defaults to 100.
+        freq : float or PyoObject, optional
+            Polling frequency. Defaults to 1.
 
-    setMax(x) : Replace the `max` attribute.
-    setFreq(x) : Replace the `freq` attribute.
+    .. note::
 
-    Attributes:
-    
-    max : int. Maximum value.
-    freq : float or PyoObject. Polling frequency.
+        Urn will sends a trigger signal when the pool is empty. 
+        User can retreive the trigger streams by calling obj['trig']. 
+        Useful to synchronize other processes. 
 
-    Notes:
-
-    Urn will sends a trigger signal when the pool is empty. 
-    User can retreive the trigger streams by calling obj['trig']. 
-    Useful to synchronize other processes. 
-
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> mid = Urn(max=12, freq=10, add=60)
@@ -1208,10 +1183,10 @@ class Urn(PyoObject):
         """
         Replace the `max` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `max` attribute.
+            x : int
+                new `max` attribute.
         
         """
         self._max = x
@@ -1222,10 +1197,10 @@ class Urn(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `freq` attribute.
+            x : float or PyoObject
+                new `freq` attribute.
         
         """
         self._freq = x
@@ -1239,10 +1214,16 @@ class Urn(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def max(self): return self._max
+    def max(self): 
+        """int. Maximum value."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Polling frequency."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)

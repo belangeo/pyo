@@ -33,27 +33,15 @@ class HarmTable(PyoTableObject):
     Generates composite waveforms made up of weighted sums 
     of simple sinusoids.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. 
-        Defaults to [1].
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    replace(list) : Redraw the waveform according to the new `list` 
-        parameter.
-
-    Attributes:
-
-    list : list, optional
-        Relative strengths of the fixed harmonic partial numbers.
-
-    Examples:
+        list : list, optional
+            Relative strengths of the fixed harmonic partial numbers 1,2,3, etc. 
+            Defaults to [1].
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -72,11 +60,11 @@ class HarmTable(PyoTableObject):
         Redraw the waveform according to a new set of harmonics 
         relative strengths.
         
-        Parameters:
+        :Args:
         
-        list : list
-            Relative strengths of the fixed harmonic partial 
-            numbers 1,2,3, etc.
+            list : list
+                Relative strengths of the fixed harmonic partial 
+                numbers 1,2,3, etc.
 
         """      
         self._list = list
@@ -96,26 +84,15 @@ class SawTable(PyoTableObject):
 
     Generates sawtooth waveforms made up of fixed number of harmonics.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    order : int, optional
-        Number of harmonics sawtooth is made of. 
-        Defaults to 10.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    setOrder(x) : Change the `order` attribute and redraw the waveform.
-
-    Attributes:
-
-    order : int, optional
-        Number of harmonics sawtooth is made of.
-
-    Examples:
+        order : int, optional
+            Number of harmonics sawtooth is made of. 
+            Defaults to 10.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -133,10 +110,10 @@ class SawTable(PyoTableObject):
         """
         Change the `order` attribute and redraw the waveform.
         
-        Parameters:
+        :Args:
         
-        x : int
-            New number of harmonics
+            x : int
+                New number of harmonics
 
         """      
         self._order = x
@@ -157,26 +134,15 @@ class SquareTable(PyoTableObject):
 
     Generates square waveforms made up of fixed number of harmonics.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    order : int, optional
-        Number of harmonics square waveform is made of. The waveform will 
-        contains `order` odd harmonics. Defaults to 10.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    setOrder(x) : Change the `order` attribute and redraw the waveform.
-
-    Attributes:
-
-    order : int, optional
-        Number of harmonics square waveform is made of.
-
-    Examples:
+        order : int, optional
+            Number of harmonics square waveform is made of. The waveform will 
+            contains `order` odd harmonics. Defaults to 10.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -199,10 +165,10 @@ class SquareTable(PyoTableObject):
         """
         Change the `order` attribute and redraw the waveform.
         
-        Parameters:
+        :Args:
         
-        x : int
-            New number of harmonics
+            x : int
+                New number of harmonics
 
         """      
         self._order = x
@@ -230,30 +196,16 @@ class ChebyTable(PyoTableObject):
     which, under waveshaping, can be used to split a sinusoid into 
     harmonic partials having a pre-definable spectrum. 
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        Relative strengths of partials numbers 1,2,3, ..., 12 that will 
-        result when a sinusoid of amplitude 1 is waveshaped using this 
-        function table. Up to 12 partials can be specified. Defaults to [1].
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    replace(list) : Redraw the waveform according to the new `list` 
-        parameter.
-    getNormTable() : Return a DataTable filled with the normalization
-        function corresponding to the current polynomial.
-
-    Attributes:
-
-    list : list, optional
-        Relative strengths of the fixed harmonic partial numbers.
-
-    Examples:
+        list : list, optional
+            Relative strengths of partials numbers 1,2,3, ..., 12 that will 
+            result when a sinusoid of amplitude 1 is waveshaped using this 
+            function table. Up to 12 partials can be specified. Defaults to [1].
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -274,11 +226,11 @@ class ChebyTable(PyoTableObject):
         relative strengths that will result when a sinusoid of 
         amplitude 1 is waveshaped using this function table.
         
-        Parameters:
+        :Args:
         
-        list : list
-            Relative strengths of the fixed harmonic partial 
-            numbers 1,2,3, ..., 12. Up to 12 partials can be specified.
+            list : list
+                Relative strengths of the fixed harmonic partial 
+                numbers 1,2,3, ..., 12. Up to 12 partials can be specified.
 
         """ 
         self._list = list
@@ -308,14 +260,12 @@ class HannTable(PyoTableObject):
     """
     Generates Hanning window function. 
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Examples:
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -333,30 +283,16 @@ class SincTable(PyoTableObject):
     """
     Generates sinc window function. 
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    freq : float, optional
-        Frequency, in radians, of the sinc function. Defaults to pi*2.
-    windowed : boolean, optional
-        If True, an hanning window is applied on the sinc function. Defaults to False.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    setFreq(x) : Change the frequency of the sinc function. This will redraw the envelope.
-    setWindowed(x) : Change the windowed flag. This will redraw the envelope.
-
-    Attributes:
-
-    freq : float
-        Frequency, in radians, of the sinc function.
-    windowed : boolean
-        If True, an hanning window is applied on the sinc function.
-
-    Examples:
+        freq : float, optional
+            Frequency, in radians, of the sinc function. Defaults to pi*2.
+        windowed : boolean, optional
+            If True, an hanning window is applied on the sinc function. Defaults to False.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> import math
     >>> s = Server().boot()
@@ -375,10 +311,10 @@ class SincTable(PyoTableObject):
         """
         Change the frequency of the sinc function. This will redraw the envelope.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New frequency in radians.
+            x : float
+                New frequency in radians.
 
         """
         self._freq = x
@@ -389,10 +325,10 @@ class SincTable(PyoTableObject):
         """
         Change the windowed flag. This will redraw the envelope.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            New windowed flag.
+            x : boolean
+                New windowed flag.
 
         """
         self._windowed = x
@@ -416,35 +352,23 @@ class WinTable(PyoTableObject):
     """
     Generates different kind of windowing functions. 
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    type : int, optional
-        Windowing function. Defaults to 2.
-        Possible choices are:
-            0 : Rectangular (no window)
-            1 : Hamming
-            2 : Hanning
-            3 : Bartlett (triangular)
-            4 : Blackman 3-term
-            5 : Blackman-Harris 4-term
-            6 : Blackman-Harris 7-term
-            7 : Tuckey (alpha = 0.66)
-            8 : Sine (half-sine window)
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    setType(x) : Sets the windowing function.
-
-    Attributes:
-  
-    type : int
-        Windowing function.
-
-    Examples:
+        type : int, optional
+            Windowing function. Possible choices are:
+                0. Rectangular (no window)
+                1. Hamming
+                2. Hanning (default)
+                3. Bartlett (triangular)
+                4. Blackman 3-term
+                5. Blackman-Harris 4-term
+                6. Blackman-Harris 7-term
+                7. Tuckey (alpha = 0.66)
+                8. Sine (half-sine window)
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -463,10 +387,11 @@ class WinTable(PyoTableObject):
         """
         Sets the windowing function.
 
-        Parameters:
+        :Args:
 
-        type : int {0 -> 8}
-        Windowing function.
+            type : int {0 -> 8}
+                Windowing function.
+
         """
         self._type = type
         [obj.setType(type) for obj in self._base_objs]
@@ -486,14 +411,12 @@ class ParaTable(PyoTableObject):
     The parabola is a conic section, the intersection of a right circular conical 
     surface and a plane parallel to a generating straight line of that surface.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Examples:
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -511,37 +434,22 @@ class LinTable(PyoTableObject):
     """
     Construct a table from segments of straight lines in breakpoint fashion.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        List of tuples indicating location and value of each points 
-        in the table. The default, [(0,0.), (8191, 1.)], creates a 
-        straight line from 0.0 at location 0 to 1.0 at the end of the 
-        table (size - 1). Location must be an integer.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
+        list : list, optional
+            List of tuples indicating location and value of each points 
+            in the table. The default, [(0,0.), (8191, 1.)], creates a 
+            straight line from 0.0 at location 0 to 1.0 at the end of the 
+            table (size - 1). Location must be an integer.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
-    Methods:
+    .. note::
 
-    replace(list) : Draw a new envelope according to the `list` parameter.
-    loadRecFile(filename, tolerance) : Import an automation recording file.
-    getPoints() : Returns list of points of the current table.
-    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
-        the shape of the envelope.
-
-    Attributes:
-
-    list : list
-        List of tuples [(location, value), ...].
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros. 
-
-    Examples:
+        Locations in the list must be in increasing order. If the last value 
+        is less than size, the rest of the table will be filled with zeros. 
 
     >>> s = Server().boot()
     >>> s.start()
@@ -564,11 +472,11 @@ class LinTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
         
-        Parameters:
+        :Args:
         
-        list : list
-            List of tuples indicating location and value of each points 
-            in the table. Location must be integer.
+            list : list
+                List of tuples indicating location and value of each points 
+                in the table. Location must be integer.
 
         """ 
         self._list = list
@@ -584,13 +492,13 @@ class LinTable(PyoTableObject):
         redundancies and loads the result in the table as a list of points. 
         Filtering process can be controled with the `tolerance` parameter. 
         
-        Parameters:
+        :Args:
         
-        filename : string
-            Full path of an automation recording file.
-        tolerance : float, optional
-            Tolerance of the filter. A higher value will eliminate more points.
-            Defaults to 0.02.
+            filename : string
+                Full path of an automation recording file.
+            tolerance : float, optional
+                Tolerance of the filter. A higher value will eliminate more points.
+                Defaults to 0.02.
 
         """
         _path, _name = os.path.split(filename)
@@ -626,19 +534,20 @@ class LinTable(PyoTableObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph.
-            Defaults to (0.0, 1.0).
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createGraphWindow(self, 0, self._size, yrange, title, wxnoserver)
@@ -654,38 +563,24 @@ class LogTable(PyoTableObject):
     """
     Construct a table from logarithmic segments in breakpoint fashion.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        List of tuples indicating location and value of each points 
-        in the table. The default, [(0,0.), (8191, 1.)], creates a 
-        logarithmic line from 0.0 at location 0 to 1.0 at the end of 
-        the table (size - 1). Location must be an integer.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
+        list : list, optional
+            List of tuples indicating location and value of each points 
+            in the table. The default, [(0,0.), (8191, 1.)], creates a 
+            logarithmic line from 0.0 at location 0 to 1.0 at the end of 
+            the table (size - 1). Location must be an integer.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
-    Methods:
+    .. note::
 
-    replace(list) : Draw a new envelope according to the `list` parameter.
-    loadRecFile(filename, tolerance) : Import an automation recording file.
-    getPoints() : Returns list of points of the current table.
-    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
-        the shape of the envelope.
-
-    Attributes:
-
-    list : list, List of tuples [(location, value), ...].
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros. 
-    
-    Values must be greater than 0.0.
-
-    Examples:
+        Locations in the list must be in increasing order. If the last value 
+        is less than size, the rest of the table will be filled with zeros. 
+        
+        Values must be greater than 0.0.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -707,11 +602,11 @@ class LogTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
 
-        Parameters:
+        :Args:
 
-        list : list
-            List of tuples indicating location and value of each points 
-            in the table. Location must be integer.
+            list : list
+                List of tuples indicating location and value of each points 
+                in the table. Location must be integer.
 
         """ 
         self._list = list
@@ -727,13 +622,13 @@ class LogTable(PyoTableObject):
         redundancies and loads the result in the table as a list of points. 
         Filtering process can be controled with the `tolerance` parameter. 
 
-        Parameters:
+        :Args:
 
-        filename : string
-            Full path of an automation recording file.
-        tolerance : float, optional
-            Tolerance of the filter. A higher value will eliminate more points.
-            Defaults to 0.02.
+            filename : string
+                Full path of an automation recording file.
+            tolerance : float, optional
+                Tolerance of the filter. A higher value will eliminate more points.
+                Defaults to 0.02.
 
         """
         _path, _name = os.path.split(filename)
@@ -769,19 +664,20 @@ class LogTable(PyoTableObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph.
-            Defaults to (0.0, 1.0).
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createGraphWindow(self, 4, self._size, yrange, title, wxnoserver)
@@ -797,38 +693,24 @@ class CosLogTable(PyoTableObject):
     """
     Construct a table from logarithmic-cosine segments in breakpoint fashion.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        List of tuples indicating location and value of each points 
-        in the table. The default, [(0,0.), (8191, 1.)], creates a 
-        logarithmic line from 0.0 at location 0 to 1.0 at the end of 
-        the table (size - 1). Location must be an integer.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
+        list : list, optional
+            List of tuples indicating location and value of each points 
+            in the table. The default, [(0,0.), (8191, 1.)], creates a 
+            logarithmic line from 0.0 at location 0 to 1.0 at the end of 
+            the table (size - 1). Location must be an integer.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
-    Methods:
+    .. note::
 
-    replace(list) : Draw a new envelope according to the `list` parameter.
-    loadRecFile(filename, tolerance) : Import an automation recording file.
-    getPoints() : Returns list of points of the current table.
-    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
-        the shape of the envelope.
+        Locations in the list must be in increasing order. If the last value 
+        is less than size, the rest of the table will be filled with zeros. 
 
-    Attributes:
-
-    list : list, List of tuples [(location, value), ...].
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros. 
-
-    Values must be greater than 0.0.
-
-    Examples:
+        Values must be greater than 0.0.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -850,11 +732,11 @@ class CosLogTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
 
-        Parameters:
+        :Args:
 
-        list : list
-            List of tuples indicating location and value of each points 
-            in the table. Location must be integer.
+            list : list
+                List of tuples indicating location and value of each points 
+                in the table. Location must be integer.
 
         """ 
         self._list = list
@@ -870,13 +752,13 @@ class CosLogTable(PyoTableObject):
         redundancies and loads the result in the table as a list of points. 
         Filtering process can be controled with the `tolerance` parameter. 
 
-        Parameters:
+        :Args:
 
-        filename : string
-            Full path of an automation recording file.
-        tolerance : float, optional
-            Tolerance of the filter. A higher value will eliminate more points.
-            Defaults to 0.02.
+            filename : string
+                Full path of an automation recording file.
+            tolerance : float, optional
+                Tolerance of the filter. A higher value will eliminate more points.
+                Defaults to 0.02.
 
         """
         _path, _name = os.path.split(filename)
@@ -912,19 +794,20 @@ class CosLogTable(PyoTableObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph.
-            Defaults to (0.0, 1.0).
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createGraphWindow(self, 5, self._size, yrange, title, wxnoserver)
@@ -940,37 +823,22 @@ class CosTable(PyoTableObject):
     """
     Construct a table from cosine interpolated segments.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        List of tuples indicating location and value of each points 
-        in the table. The default, [(0,0.), (8191, 1.)], creates a 
-        cosine line from 0.0 at location 0 to 1.0 at the end of the 
-        table (size - 1). Location must be an integer.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
+        list : list, optional
+            List of tuples indicating location and value of each points 
+            in the table. The default, [(0,0.), (8191, 1.)], creates a 
+            cosine line from 0.0 at location 0 to 1.0 at the end of the 
+            table (size - 1). Location must be an integer.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
-    Methods:
+    .. note::
 
-    replace(list) : Draw a new envelope according to the `list` parameter.
-    loadRecFile(filename, tolerance) : Import an automation recording file.
-    getPoints() : Returns list of points of the current table.
-    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
-        the shape of the envelope.
-
-    Attributes:
-
-    list : list
-        List of tuples [(location, value), ...].
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros. 
-
-    Examples:
+        Locations in the list must be in increasing order. If the last value 
+        is less than size, the rest of the table will be filled with zeros. 
 
     >>> s = Server().boot()
     >>> s.start()
@@ -993,11 +861,11 @@ class CosTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
         
-        Parameters:
+        :Args:
         
-        list : list
-            List of tuples indicating location and value of each points 
-            in the table. Location must be integer.
+            list : list
+                List of tuples indicating location and value of each points 
+                in the table. Location must be integer.
 
         """      
         self._list = list
@@ -1013,13 +881,13 @@ class CosTable(PyoTableObject):
         redundancies and loads the result in the table as a list of points. 
         Filtering process can be controled with the `tolerance` parameter. 
 
-        Parameters:
+        :Args:
 
-        filename : string
-            Full path of an automation recording file.
-        tolerance : float, optional
-            Tolerance of the filter. A higher value will eliminate more points.
-            Defaults to 0.02.
+            filename : string
+                Full path of an automation recording file.
+            tolerance : float, optional
+                Tolerance of the filter. A higher value will eliminate more points.
+                Defaults to 0.02.
 
         """
         _path, _name = os.path.split(filename)
@@ -1055,19 +923,20 @@ class CosTable(PyoTableObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph.
-            Defaults to (0.0, 1.0).
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createGraphWindow(self, 1, self._size, yrange, title, wxnoserver)
@@ -1089,53 +958,32 @@ class CurveTable(PyoTableObject):
     at the known points. The bias is used to twist the curve about the 
     known points.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        List of tuples indicating location and value of each points 
-        in the table. The default, [(0,0.), (8191, 1.)], creates a 
-        curved line from 0.0 at location 0 to 1.0 at the end of the 
-        table (size - 1). Location must be an integer.
-    tension : float, optional
-        Curvature at the known points. 1 is high, 0 normal, -1 is low.
-        Defaults to 0.
-    bias : float, optional
-        Curve attraction (for each segments) toward bundary points.
-        0 is even, positive is towards first point, negative is towards 
-        the second point. Defaults to 0.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
+        list : list, optional
+            List of tuples indicating location and value of each points 
+            in the table. The default, [(0,0.), (8191, 1.)], creates a 
+            curved line from 0.0 at location 0 to 1.0 at the end of the 
+            table (size - 1). Location must be an integer.
+        tension : float, optional
+            Curvature at the known points. 1 is high, 0 normal, -1 is low.
+            Defaults to 0.
+        bias : float, optional
+            Curve attraction (for each segments) toward bundary points.
+            0 is even, positive is towards first point, negative is towards 
+            the second point. Defaults to 0.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
-    Methods:
+    .. note::
 
-    setTension(x) : Replace the `tension` attribute.
-    setTension(x) : Replace the `bias` attribute.
-    replace(list) : Draw a new envelope according to the `list` parameter.
-    loadRecFile(filename, tolerance) : Import an automation recording file.
-    getPoints() : Returns list of points of the current table.
-    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
-        the shape of the envelope.
+        Locations in the list must be in increasing order. If the last value 
+        is less than size, the rest of the table will be filled with zeros.
 
-    Attributes:
-
-    list : list
-        List of tuples [(location, value), ...].
-    tension : float
-        Curvature tension.
-    bias : float
-        Curve attraction.
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros.
-
-    High tension or bias values can create unstable or very loud table,
-    use normalize method to keep the curve between -1 and 1.
-
-    Examples:
+        High tension or bias values can create unstable or very loud table,
+        use normalize method to keep the curve between -1 and 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1162,10 +1010,10 @@ class CurveTable(PyoTableObject):
         
         1 is high, 0 normal, -1 is low.
         
-        Parameters:
+        :Args:
         
-        x : float
-            New `tension` attribute.
+            x : float
+                New `tension` attribute.
         
         """
         self._tension = x
@@ -1179,10 +1027,10 @@ class CurveTable(PyoTableObject):
         0 is even, positive is towards first point, negative is towards 
         the second point.
         
-        Parameters:
+        :Args:
         
-        x : float
-            New `bias` attribute.
+            x : float
+                New `bias` attribute.
         
         """
         self._bias = x
@@ -1193,11 +1041,11 @@ class CurveTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
         
-        Parameters:
+        :Args:
         
-        list : list
-            List of tuples indicating location and value of each points 
-            in the table. Location must be integer.
+            list : list
+                List of tuples indicating location and value of each points 
+                in the table. Location must be integer.
 
         """      
         self._list = list
@@ -1213,13 +1061,13 @@ class CurveTable(PyoTableObject):
         redundancies and loads the result in the table as a list of points. 
         Filtering process can be controled with the `tolerance` parameter. 
 
-        Parameters:
+        :Args:
 
-        filename : string
-            Full path of an automation recording file.
-        tolerance : float, optional
-            Tolerance of the filter. A higher value will eliminate more points.
-            Defaults to 0.02.
+            filename : string
+                Full path of an automation recording file.
+            tolerance : float, optional
+                Tolerance of the filter. A higher value will eliminate more points.
+                Defaults to 0.02.
 
         """
         _path, _name = os.path.split(filename)
@@ -1255,19 +1103,20 @@ class CurveTable(PyoTableObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph.
-            Defaults to (0.0, 1.0).
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createGraphWindow(self, 3, self._size, yrange, title, wxnoserver)
@@ -1297,49 +1146,28 @@ class ExpTable(PyoTableObject):
     """
     Construct a table from exponential interpolated segments.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    list : list, optional
-        List of tuples indicating location and value of each points 
-        in the table. The default, [(0,0.), (8192, 1.)], creates a 
-        exponential line from 0.0 at location 0 to 1.0 at the end of 
-        the table. Location must be an integer.
-    exp : float, optional
-        Exponent factor. Used to control the slope of the curve.
-        Defaults to 10.
-    inverse : boolean, optional
-        If True, downward slope will be inversed. Useful to create 
-        biexponential curves. Defaults to True.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
+        list : list, optional
+            List of tuples indicating location and value of each points 
+            in the table. The default, [(0,0.), (8192, 1.)], creates a 
+            exponential line from 0.0 at location 0 to 1.0 at the end of 
+            the table. Location must be an integer.
+        exp : float, optional
+            Exponent factor. Used to control the slope of the curve.
+            Defaults to 10.
+        inverse : boolean, optional
+            If True, downward slope will be inversed. Useful to create 
+            biexponential curves. Defaults to True.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
-    Methods:
+    .. note::
 
-    setExp(x) : Replace the `exp` attribute.
-    setInverse(x) : Replace the `inverse` attribute.
-    replace(list) : Draw a new envelope according to the `list` parameter.
-    loadRecFile(filename, tolerance) : Import an automation recording file.
-    getPoints() : Returns list of points of the current table.
-    graph(yrange, title, wxnoserver) : Opens a grapher window to control 
-        the shape of the envelope.
-
-    Attributes:
-
-    list : list
-        List of tuples [(location, value), ...].
-    exp : float
-        Exponent factor.
-    inverse : boolean
-        Inversion of downward slope.
-
-    Notes:
-
-    Locations in the list must be in increasing order. If the last value 
-    is less than size, the rest of the table will be filled with zeros.
-
-    Examples:
+        Locations in the list must be in increasing order. If the last value 
+        is less than size, the rest of the table will be filled with zeros.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1363,10 +1191,10 @@ class ExpTable(PyoTableObject):
         """
         Replace the `exp` attribute.
         
-        Parameters:
+        :Args:
         
-        x : float
-            New `exp` attribute.
+            x : float
+                New `exp` attribute.
         
         """
         self._exp = x
@@ -1377,10 +1205,10 @@ class ExpTable(PyoTableObject):
         """
         Replace the `inverse` attribute.
         
-        Parameters:
+        :Args:
         
-        x : boolean
-            New `inverse` attribute.
+            x : boolean
+                New `inverse` attribute.
         
         """
         self._inverse = x
@@ -1391,11 +1219,11 @@ class ExpTable(PyoTableObject):
         """
         Draw a new envelope according to the new `list` parameter.
         
-        Parameters:
+        :Args:
         
-        list : list
-            List of tuples indicating location and value of each points 
-            in the table. Location must be integer.
+            list : list
+                List of tuples indicating location and value of each points 
+                in the table. Location must be integer.
 
         """
         self._list = list
@@ -1411,13 +1239,13 @@ class ExpTable(PyoTableObject):
         redundancies and loads the result in the table as a list of points. 
         Filtering process can be controled with the `tolerance` parameter. 
 
-        Parameters:
+        :Args:
 
-        filename : string
-            Full path of an automation recording file.
-        tolerance : float, optional
-            Tolerance of the filter. A higher value will eliminate more points.
-            Defaults to 0.02.
+            filename : string
+                Full path of an automation recording file.
+            tolerance : float, optional
+                Tolerance of the filter. A higher value will eliminate more points.
+                Defaults to 0.02.
 
         """
         _path, _name = os.path.split(filename)
@@ -1453,19 +1281,20 @@ class ExpTable(PyoTableObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph.
-            Defaults to (0.0, 1.0).
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createGraphWindow(self, 2, self._size, yrange, title, wxnoserver)
@@ -1496,44 +1325,23 @@ class SndTable(PyoTableObject):
     If `chnl` is None, the table will contain as many table streams as 
     necessary to read all channels of the loaded sound.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    path : string, optional
-        Full path name of the sound. The defaults, None, creates an empty
-        table.
-    chnl : int, optional
-        Channel number to read in. Available at initialization time only.
-        The default (None) reads all channels.
-    start : float, optional
-        Begins reading at `start` seconds into the file. Available at 
-        initialization time only. Defaults to 0.
-    stop : float, optional
-        Stops reading at `stop` seconds into the file. Available at 
-        initialization time only. The default (None) means the end of 
-        the file.
-
-    Methods:
-
-    setSound(path, start, stop) : Load a new sound in the table.
-    append(path, crossfade, start, stop) : Append a sound in the table 
-        with crossfade.
-    insert(path, pos, crossfade, start, stop) : Insert a sound in the 
-        table with crossfade.
-    getDur(all) : Return the duration of the sound in seconds.
-    getSize(all) : Return the size of the table in samples.
-    getRate() : Return the frequency in cps at which the sound will be 
-        read at its original pitch.
-    getEnvelope(points) : Return the amplitude envelope of the table.
-    view(title, wxnoserver, mouse_callback) : Opens a window showing the 
-        contents of the table.
-
-    Attributes:
-
-    sound : Sound path loaded in the table.
-
-    Examples:
+        path : string, optional
+            Full path name of the sound. The defaults, None, creates an empty
+            table.
+        chnl : int, optional
+            Channel number to read in. Available at initialization time only.
+            The default (None) reads all channels.
+        start : float, optional
+            Begins reading at `start` seconds into the file. Available at 
+            initialization time only. Defaults to 0.
+        stop : float, optional
+            Stops reading at `stop` seconds into the file. Available at 
+            initialization time only. The default (None) means the end of 
+            the file.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1583,15 +1391,15 @@ class SndTable(PyoTableObject):
         the same channels many times. If the new sound has more channels, 
         the extra channels will be skipped.
         
-        Parameters:
+        :Args:
         
-        path : string
-            Full path of the new sound.
-        start : float, optional
-            Begins reading at `start` seconds into the file. Defaults to 0.
-        stop : float, optional
-            Stops reading at `stop` seconds into the file. The default (None) 
-            means the end of the file.
+            path : string
+                Full path of the new sound.
+            start : float, optional
+                Begins reading at `start` seconds into the file. Defaults to 0.
+            stop : float, optional
+                Stops reading at `stop` seconds into the file. The default (None) 
+                means the end of the file.
 
         """
         self._path = path
@@ -1627,18 +1435,18 @@ class SndTable(PyoTableObject):
         the same channels many times. If the new sound has more channels, 
         the extra channels will be skipped.
 
-        Parameters:
+        :Args:
 
-        path : string
-            Full path of the new sound.
-        crossfade : float, optional
-            Crossfade time, in seconds, between the sound already in the table 
-            and the new one. Defaults to 0.
-        start : float, optional
-            Begins reading at `start` seconds into the file. Defaults to 0.
-        stop : float, optional
-            Stops reading at `stop` seconds into the file. The default, None, 
-            means the end of the file.
+            path : string
+                Full path of the new sound.
+            crossfade : float, optional
+                Crossfade time, in seconds, between the sound already in the table 
+                and the new one. Defaults to 0.
+            start : float, optional
+                Begins reading at `start` seconds into the file. Defaults to 0.
+            stop : float, optional
+                Stops reading at `stop` seconds into the file. The default, None, 
+                means the end of the file.
 
         """
         if type(path) == ListType:
@@ -1676,21 +1484,21 @@ class SndTable(PyoTableObject):
         the same channels many times. If the new sound has more channels, 
         the extra channels will be skipped.
 
-        Parameters:
+        :Args:
 
-        path : string
-            Full path of the new sound.
-        pos : float, optional
-            Position in the table, in seconds, where to insert the new sound.
-            Defaults to 0.
-        crossfade : float, optional
-            Crossfade time, in seconds, between the sound already in the table 
-            and the new one. Defaults to 0.
-        start : float, optional
-            Begins reading at `start` seconds into the file. Defaults to 0.
-        stop : float, optional
-            Stops reading at `stop` seconds into the file. The default, None, 
-            means the end of the file.
+            path : string
+                Full path of the new sound.
+            pos : float, optional
+                Position in the table, in seconds, where to insert the new sound.
+                Defaults to 0.
+            crossfade : float, optional
+                Crossfade time, in seconds, between the sound already in the table 
+                and the new one. Defaults to 0.
+            start : float, optional
+                Begins reading at `start` seconds into the file. Defaults to 0.
+            stop : float, optional
+                Stops reading at `stop` seconds into the file. The default, None, 
+                means the end of the file.
 
         """
         if type(path) == ListType:
@@ -1731,12 +1539,12 @@ class SndTable(PyoTableObject):
         """
         Return the duration of the sound in seconds.
         
-        Parameters:
+        :Args:
         
-        all : boolean
-            If the table contains more than one sound and `all` is True,
-            returns a list of all durations. Otherwise, returns only the
-            first duration as a float.
+            all : boolean
+                If the table contains more than one sound and `all` is True,
+                returns a list of all durations. Otherwise, returns only the
+                first duration as a float.
         
         """
         if type(self._path) == ListType:
@@ -1759,12 +1567,12 @@ class SndTable(PyoTableObject):
         """
         Return the size of the table in samples.
 
-        Parameters:
+        :Args:
         
-        all : boolean
-            If the table contains more than one sound and `all` is True,
-            returns a list of all sizes. Otherwise, returns only the
-            first size as an int.
+            all : boolean
+                If the table contains more than one sound and `all` is True,
+                returns a list of all sizes. Otherwise, returns only the
+                first size as an int.
 
         """
         if len(self._base_objs) > 1:
@@ -1787,10 +1595,10 @@ class SndTable(PyoTableObject):
         Return a list, of length `chnl`, of lists of length `points` filled 
         with the amplitude envelope of the table.
         
-        Parameters:
+        :Args:
         
-        points : int
-            Number of points of the amplitude analysis.
+            points : int
+                Number of points of the amplitude analysis.
 
         """
         return [obj.getEnvelope(points) for obj in self._base_objs]
@@ -1799,18 +1607,19 @@ class SndTable(PyoTableObject):
         """
         Opens a window showing the contents of the table.
 
-        Parameters:
+        :Args:
 
-        title : string, optional
-            Window title. Defaults to "Table waveform". 
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the table window. 
-            Defaults to False.
-        mouse_callback : callable
-            If provided, this function will be called with the mouse 
-            position, inside the frame, as argument. Defaults to None.
+            title : string, optional
+                Window title. Defaults to "Table waveform". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+            mouse_callback : callable
+                If provided, this function will be called with the mouse 
+                position, inside the frame, as argument. Defaults to None.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
@@ -1864,40 +1673,27 @@ class NewTable(PyoTableObject):
     """
     Create an empty table ready for recording. 
 
-    See `TableRec` to write samples in the table.
+    See :py:class:`TableRec` to write samples in the table.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    length : float
-        Length of the table in seconds.
-    chnls : int, optional
-        Number of channels that will be handled by the table. 
-        Defaults to 1.
-    init : list of floats, optional
-        Initial table. List of list can match the number of channels,
-        otherwise, the list will be loaded in all tablestreams. 
-        Defaults to None.
-    feedback : float, optional
-        Amount of old data to mix with a new recording. Defaults to 0.0.
+        length : float
+            Length of the table in seconds.
+        chnls : int, optional
+            Number of channels that will be handled by the table. 
+            Defaults to 1.
+        init : list of floats, optional
+            Initial table. List of list can match the number of channels,
+            otherwise, the list will be loaded in all tablestreams. 
+            Defaults to None.
+        feedback : float, optional
+            Amount of old data to mix with a new recording. Defaults to 0.0.
 
-    Methods:
-
-    getLength() : Returns the length of the table in seconds.
-    getDur() : Returns the length of the table in seconds.
-    getRate() : Returns the frequency (cycle per second) to give 
-        to an oscillator to read the sound at its original pitch.
-    replace() : Replaces the actual table.
-    setFeedback() : Replace the `feedback` attribute.
-
-    Attributes:
-
-    feedback : float. Amount of old data to mix with a new recording.
-
-    See also: DataTable, TableRec
-
-    Examples:
+    .. seealso:: 
+        
+        :py:class:`DataTable`, :py:class:`TableRec`
 
     >>> s = Server(duplex=1).boot()
     >>> s.start()
@@ -1929,12 +1725,13 @@ class NewTable(PyoTableObject):
         """
         Replaces the actual table.
         
-        Parameters:
+        :Args:
         
-        x : list of floats
-            New table. Must be of the same size as the actual table.
-            List of list can match the number of channels, otherwise, 
-            the list will be loaded in all tablestreams.
+            x : list of floats
+                New table. Must be of the same size as the actual table.
+
+                List of list can match the number of channels, otherwise, 
+                the list will be loaded in all tablestreams.
 
         """
         if type(x[0]) != ListType: 
@@ -1946,10 +1743,10 @@ class NewTable(PyoTableObject):
         """
         Replaces the`feedback` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New `feedback` value.
+            x : float
+                New `feedback` value.
 
         """
         self._feedback = x
@@ -1981,18 +1778,19 @@ class NewTable(PyoTableObject):
         """
         Opens a window showing the contents of the table.
 
-        Parameters:
+        :Args:
 
-        title : string, optional
-            Window title. Defaults to "Table waveform". 
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the table window. 
-            Defaults to False.
-        mouse_callback : callable
-            If provided, this function will be called with the mouse 
-            position, inside the frame, as argument. Defaults to None.
+            title : string, optional
+                Window title. Defaults to "Table waveform". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+            mouse_callback : callable
+                If provided, this function will be called with the mouse 
+                position, inside the frame, as argument. Defaults to None.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         createSndViewTableWindow(self, title, wxnoserver, self.__class__.__name__, mouse_callback)
@@ -2039,31 +1837,24 @@ class DataTable(PyoTableObject):
     """
     Create an empty table ready for data recording.
 
-    See `TableRec` to write samples in the table.
+    See :py:class:`TableRec` to write samples in the table.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    size : int
-        Size of the table in samples.
-    chnls : int, optional
-        Number of channels that will be handled by the table. 
-        Defaults to 1.
-    init : list of floats, optional
-        Initial table. List of list can match the number of channels,
-        otherwise, the list will be loaded in all tablestreams. 
-        Defaults to None.
+        size : int
+            Size of the table in samples.
+        chnls : int, optional
+            Number of channels that will be handled by the table. 
+            Defaults to 1.
+        init : list of floats, optional
+            Initial table. List of list can match the number of channels,
+            otherwise, the list will be loaded in all tablestreams. 
 
-    Methods:
-
-    getRate() : Returns the frequency (cycle per second) to give 
-        to an oscillator to read the sound at its original pitch.
-    replace() : Replaces the actual table.
-
-    See also: NewTable, TableRec
-
-    Examples:
+    .. seealso:: 
+        
+        :py:class:`NewTable`, :py:class:`TableRec`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -2090,12 +1881,13 @@ class DataTable(PyoTableObject):
         """
         Replaces the actual table.
 
-        Parameters:
+        :Args:
 
-        x : list of floats
-            New table. Must be of the same size as the actual table.
-            List of list can match the number of channels, otherwise, 
-            the list will be loaded in all tablestreams.
+            x : list of floats
+                New table. Must be of the same size as the actual table.
+                
+                List of list can match the number of channels, otherwise, 
+                the list will be loaded in all tablestreams.
 
         """
         if type(x[0]) != ListType: 

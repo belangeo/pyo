@@ -35,32 +35,20 @@ class Follower(PyoObject):
     Envelope follower.
     
     Output signal is the continuous mean amplitude of an input signal.
- 
-    Parentclass: PyoObject
-   
-    Parameters:
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    freq : float or PyoObject, optional
-        Cutoff frequency of the filter in hertz. Default to 20.
+        input : PyoObject
+            Input signal to process.
+        freq : float or PyoObject, optional
+            Cutoff frequency of the filter in hertz. Default to 20.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    freq : float or PyoObject. Cutoff frequency of the filter.
-
-    Notes:
-
-    The out() method is bypassed. Follower's signal can not be sent to 
-    audio outs.
-    
-    Examples:
+        The out() method is bypassed. Follower's signal can not be sent to 
+        audio outs.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -81,12 +69,12 @@ class Follower(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -96,10 +84,10 @@ class Follower(PyoObject):
         """
         Replace the `freq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `freq` attribute.
+            x : float or PyoObject
+                New `freq` attribute.
 
         """
         self._freq = x
@@ -115,14 +103,14 @@ class Follower(PyoObject):
       
     @property
     def input(self):
-        """PyoObject. Input signal to process.""" 
+        """PyoObject. Input signal to process."""
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
 
     @property
     def freq(self):
-        """float or PyoObject. Cutoff frequency of the filter.""" 
+        """float or PyoObject. Cutoff frequency of the filter."""
         return self._freq
     @freq.setter
     def freq(self, x): self.setFreq(x)
@@ -133,35 +121,21 @@ class Follower2(PyoObject):
 
     Output signal is the continuous mean amplitude of an input signal.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    risetime : float or PyoObject, optional
-        Time to reach upward value in seconds. Default to 0.01.
-    falltime : float or PyoObject, optional
-        Time to reach downward value in seconds. Default to 0.1.
+        input : PyoObject
+            Input signal to process.
+        risetime : float or PyoObject, optional
+            Time to reach upward value in seconds. Default to 0.01.
+        falltime : float or PyoObject, optional
+            Time to reach downward value in seconds. Default to 0.1.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setRisetime(x) : Replace the `risetime` attribute.
-    setFalltime(x) : Replace the `falltime` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    risetime : float or PyoObject. Time to reach upward value in seconds.
-    falltime : float or PyoObject. Time to reach downward value in seconds.
-
-    Notes:
-
-    The out() method is bypassed. Follower's signal can not be sent to 
-    audio outs.
-
-    Examples:
+        The out() method is bypassed. Follower's signal can not be sent to 
+        audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -183,12 +157,12 @@ class Follower2(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -198,10 +172,10 @@ class Follower2(PyoObject):
         """
         Replace the `risetime` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `risetime` attribute.
+            x : float or PyoObject
+                New `risetime` attribute.
 
         """
         self._risetime = x
@@ -212,10 +186,10 @@ class Follower2(PyoObject):
         """
         Replace the `falltime` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `falltime` attribute.
+            x : float or PyoObject
+                New `falltime` attribute.
 
         """
         self._falltime = x
@@ -257,33 +231,20 @@ class ZCross(PyoObject):
     Output signal is the number of zero-crossing occured during each 
     buffer size, normalized between 0 and 1.
  
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
    
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    thresh : float, optional
-        Minimum amplitude difference allowed between adjacent samples 
-        to be included in the zeros count.
-         
+        input : PyoObject
+            Input signal to process.
+        thresh : float, optional
+            Minimum amplitude difference allowed between adjacent samples 
+            to be included in the zeros count.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setThresh(x) : Replace the `thresh` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    thresh : float. Amplitude difference threshold.
-
-    Notes:
-
-    The out() method is bypassed. ZCross's signal can not be sent to 
-    audio outs.
-    
-    Examples:
+        The out() method is bypassed. ZCross's signal can not be sent to 
+        audio outs.
     
     >>> s = Server(duplex=1).boot()
     >>> s.start()
@@ -304,12 +265,12 @@ class ZCross(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -319,10 +280,10 @@ class ZCross(PyoObject):
         """
         Replace the `thresh` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New amplitude difference threshold.
+            x : float
+                New amplitude difference threshold.
 
         """
         self._thresh = x
@@ -358,47 +319,33 @@ class Yin(PyoObject):
     
     The audio output of the object is the estimated frequency, in Hz, of the input sound.
  
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
    
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    tolerance : float, optional
-        Parameter for minima selection, between 0 and 1. Defaults to 0.2.
-    minfreq : float, optional
-        Minimum estimated frequency in Hz. Frequency below this threshold will 
-        be ignored. Defaults to 40.
-    maxfreq : float, optional
-        Maximum estimated frequency in Hz. Frequency above this threshold will 
-        be ignored. Defaults to 1000.
-    cutoff : float, optional
-        Cutoff frequency, in Hz, of the lowpass filter applied on the input sound. 
-        This helps the detector to detect the fundamental frequency by filtering
-        higher harmonics. Defaults to 1000.
-    winsize : int, optional
-        Size, in samples, of the analysis window. Must be higher that two period
-        of the lowest desired frequency. Available at initialization time only.
-        Defaults to 1024.
+        input : PyoObject
+            Input signal to process.
+        tolerance : float, optional
+            Parameter for minima selection, between 0 and 1. Defaults to 0.2.
+        minfreq : float, optional
+            Minimum estimated frequency in Hz. Frequency below this threshold will 
+            be ignored. Defaults to 40.
+        maxfreq : float, optional
+            Maximum estimated frequency in Hz. Frequency above this threshold will 
+            be ignored. Defaults to 1000.
+        cutoff : float, optional
+            Cutoff frequency, in Hz, of the lowpass filter applied on the input sound.
+            Defaults to 1000.
+            
+            The lowpass filter helps the algorithm to detect the fundamental frequency by filtering
+            higher harmonics. 
+        winsize : int, optional
+            Size, in samples, of the analysis window. Must be higher that two period
+            of the lowest desired frequency.
+            
+            Available at initialization time only.  Defaults to 1024.
+            
 
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setTolerance(x) : Replace the `tolerance` attribute.
-    setMinfreq(x) : Replace the `minfreq` attribute.
-    setMaxfreq(x) : Replace the `maxfreq` attribute.
-    setCutoff(x) : Replace the `cutoff` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    tolerance : float. Parameter for minima selection, between 0 and 1.
-    minfreq : float. Minimum estimated frequency in Hz.
-    maxfreq : float. Maximum estimated frequency in Hz.
-    cutoff : float. Cutoff frequency of the lowpass filter.
-    
-    Examples:
-    
     >>> s = Server(duplex=1).boot()
     >>> s.start()
     >>> lfo = Randh(min=100, max=500, freq=3)
@@ -424,12 +371,12 @@ class Yin(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -439,10 +386,10 @@ class Yin(PyoObject):
         """
         Replace the `tolerance` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New parameter for minima selection, between 0 and 1.
+            x : float
+                New parameter for minima selection, between 0 and 1.
 
         """
         self._tolerance = x
@@ -453,10 +400,10 @@ class Yin(PyoObject):
         """
         Replace the `minfreq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New minimum frequency detected.
+            x : float
+                New minimum frequency detected.
 
         """
         self._minfreq = x
@@ -467,10 +414,10 @@ class Yin(PyoObject):
         """
         Replace the `maxfreq` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New maximum frequency detected.
+            x : float
+                New maximum frequency detected.
 
         """
         self._maxfreq = x
@@ -481,10 +428,10 @@ class Yin(PyoObject):
         """
         Replace the `cutoff` attribute.
         
-        Parameters: 
+        :Args: 
 
-        x : float
-            New input lowpass filter cutoff frequency.
+            x : float
+                New input lowpass filter cutoff frequency.
 
         """
         self._cutoff = x
@@ -528,4 +475,3 @@ class Yin(PyoObject):
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
-

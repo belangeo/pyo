@@ -40,31 +40,16 @@ class RingMod(PyoObject):
     Ring modulation is a signal-processing effect in electronics 
     performed by multiplying two signals, where one is typically 
     a sine-wave or another simple waveform.
-    
-    
-    Parent class: PyoObject
 
-    Parameters:
+    :Parent: :py:class:`PyoObject`
 
-    input : PyoObject
-        Input signal to process.
-    freq : float or PyoObject, optional
-        Frequency, in cycles per second, of the modulator. 
-        Defaults to 100.
-        
-    Methods:
+    :Args:
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-    
-    Attributes:
-
-    input : PyoObject. Input signal to delayed.
-    freq : float or PyoObject. Frequency of the modulator.
-
-    See also: Sine, Osc, FM
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        freq : float or PyoObject, optional
+            Frequency, in cycles per second, of the modulator. 
+            Defaults to 100.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -132,12 +117,12 @@ class RingMod(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -147,24 +132,30 @@ class RingMod(PyoObject):
         """
         Replace the `freq` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `freq` attribute.
+            x : float or PyoObject
+                New `freq` attribute.
 
         """
         self._freq = x
         self._mod.freq = x
 
     @property # getter
-    def input(self): return self._input
+    def input(self): 
+        """PyoObject. Input signal to process."""
+        return self._input
     @input.setter # setter
-    def input(self, x): self.setInput(x)
+    def input(self, x): 
+        self.setInput(x)
 
     @property
-    def freq(self): return self._freq
+    def freq(self): 
+        """float or PyoObject. Frequency of the modulator."""
+        return self._freq
     @freq.setter
-    def freq(self, x): self.setFreq(x)
+    def freq(self, x): 
+        self.setFreq(x)
 
 # Step 4 - The ctrl() method
 

@@ -47,36 +47,28 @@ class OscSend(PyoObject):
     computers. Only the first value of each input buffersize will be 
     sent on the OSC port.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal.
-    port : int
-        Port on which values are sent. Receiver should listen on the 
-        same port.
-    address : string
-        Address used on the port to identify values. Address is in 
-        the form of a Unix path (ex.: '/pitch').
-    host : string, optional
-        IP address of the target computer. The default, '127.0.0.1', 
-        is the localhost.
+        input : PyoObject
+            Input signal.
+        port : int
+            Port on which values are sent. Receiver should listen on the 
+            same port.
+        address : string
+            Address used on the port to identify values. Address is in 
+            the form of a Unix path (ex.: '/pitch').
+        host : string, optional
+            IP address of the target computer. The default, '127.0.0.1', 
+            is the localhost.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setBufferRate(x) : Sets how many buffers to wait before sending 
-        a new value.
-
-    Notes:
-
-    The out() method is bypassed. OscSend's signal can not be sent 
-    to audio outs.
-    
-    OscSend has no `mul` and `add` attributes.
-
-    Examples:
+        The out() method is bypassed. OscSend's signal can not be sent 
+        to audio outs.
+        
+        OscSend has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -95,12 +87,12 @@ class OscSend(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -119,11 +111,11 @@ class OscSend(PyoObject):
         """
         Sets how many buffers to wait before sending a new value.
         
-        Parameters:
+        :Args:
 
-        x : int
-            Changes the data output frequency in multiples of the buffer size.
-            Should be greater or equal to 1.
+            x : int
+                Changes the data output frequency in multiples of the buffer size.
+                Should be greater or equal to 1.
 
         """
         [obj.setBufferRate(x) for obj in self._base_objs]
@@ -143,40 +135,31 @@ class OscReceive(PyoObject):
     other computers. Get a value at the beginning of each buffersize 
     and fill its buffer with it.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    port : int
-        Port on which values are received. Sender should output on 
-        the same port. Unlike OscSend object, there can be only one 
-        port per OscReceive object. Available at initialization time 
-        only.
-    address : string
-        Address used on the port to identify values. Address is in 
-        the form of a Unix path (ex.: '/pitch').
+        port : int
+            Port on which values are received. Sender should output on 
+            the same port. 
+            
+            Unlike OscSend object, there can be only one port per OscReceive 
+            object. 
+            
+            Available at initialization time only.
+        address : string
+            Address used on the port to identify values. Address is in 
+            the form of a Unix path (ex.: '/pitch').
 
-    Methods:
+    .. note::
 
-    get(identifier, all) : Return the first sample of the current 
-        buffer as a float.
-    getAddresses() : Returns the addresses managed by the object.
-    addAddress(path, mul, add) : Adds new address(es) to the object's handler.
-    delAddress(path) : Removes address(es) from the object's handler.
-    setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
-    setValue(path, value) : Sets value for the specified address.
+        Audio streams are accessed with the `address` string parameter. 
+        The user should call :
 
-    Notes:
+        OscReceive['/pitch'] to retreive stream named '/pitch'.
 
-    Audio streams are accessed with the `address` string parameter. 
-    The user should call :
-
-    OscReceive['/pitch'] to retreive stream named '/pitch'.
-
-    The out() method is bypassed. OscReceive's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. OscReceive's signal can not be sent 
+        to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -214,14 +197,14 @@ class OscReceive(PyoObject):
         """
         Adds new address(es) to the object's handler.
 
-        Parameters:
+        :Args:
 
-        path : string or list of strings
-            New path(s) to receive from.
-        mul : float or PyoObject
-            Multiplication factor. Defaults to 1.
-        add : float or PyoObject
-            Addition factor. Defaults to 0.
+            path : string or list of strings
+                New path(s) to receive from.
+            mul : float or PyoObject
+                Multiplication factor. Defaults to 1.
+            add : float or PyoObject
+                Addition factor. Defaults to 0.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -236,10 +219,10 @@ class OscReceive(PyoObject):
         """
         Removes address(es) from the object's handler.
 
-        Parameters:
+        :Args:
 
-        path : string or list of strings
-            Path(s) to remove.
+            path : string or list of strings
+                Path(s) to remove.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -253,10 +236,10 @@ class OscReceive(PyoObject):
         """
         Activate/Deactivate interpolation. Activated by default.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            True activates the interpolation, False deactivates it.
+            x : boolean
+                True activates the interpolation, False deactivates it.
         
         """
         [obj.setInterpolation(x) for obj in self._base_objs]
@@ -265,12 +248,12 @@ class OscReceive(PyoObject):
         """
         Sets value for a given address.
         
-        Parameters:
+        :Args:
         
-        path : string
-            Address to which the value should be attributed.
-        value : float
-            Value to attribute to the given address.
+            path : string
+                Address to which the value should be attributed.
+            value : float
+                Value to attribute to the given address.
 
         """
         path, value, lmax = convertArgsToLists(path, value)
@@ -290,7 +273,7 @@ class OscReceive(PyoObject):
         Address as string must be given to `identifier` to specify
         which stream to get value from.
 
-        Parameters:
+        :Args:
 
             identifier : string
                 Address string parameter identifying audio stream.
@@ -319,48 +302,36 @@ class OscDataSend(PyoObject):
     computers. Values are sent on the form of a list containing `types`
     elements.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    types : str
-        String specifying the types sequence of the message to be sent.
-        Possible values are :
-            integer : "i"
-            long integer : "h"
-            float : "f"
-            double : "d"
-            string : "s"
-        The string "ssfi" indicates that the value to send will be a list
-        containing two strings followed by a float and an integer.
-    port : int
-        Port on which values are sent. Receiver should listen on the 
-        same port.
-    address : string
-        Address used on the port to identify values. Address is in 
-        the form of a Unix path (ex.: '/pitch').
-    host : string, optional
-        IP address of the target computer. The default, '127.0.0.1', 
-        is the localhost.
+        types : str
+            String specifying the types sequence of the message to be sent.
+            Possible values are:
+                - integer : "i"
+                - long integer : "h"
+                - float : "f"
+                - double : "d"
+                - string : "s"
+                
+            The string "ssfi" indicates that the value to send will be a list
+            containing two strings followed by a float and an integer.
+        port : int
+            Port on which values are sent. Receiver should listen on the 
+            same port.
+        address : string
+            Address used on the port to identify values. Address is in 
+            the form of a Unix path (ex.: '/pitch').
+        host : string, optional
+            IP address of the target computer. The default, '127.0.0.1', 
+            is the localhost.
 
-    Methods:
+    .. note::
 
-    getAddresses() : Returns the addresses managed by the object.
-    addAddress(types, port, address, host) : Adds new address(es) to the 
-        object's handler.
-    delAddress(path) : Removes address(es) from the object's handler.
-    send(msg, address=None) : Method used to send `msg` values (a list)
-        at the `address` destination if specified. Otherwise, values will 
-        be sent to all destinations managed by the object. All destinations
-        must have the same types.
+        The out() method is bypassed. OscDataSend has no audio signal.
 
-    Notes:
-
-    The out() method is bypassed. OscDataSend has no audio signal.
-
-    OscDataSend has no `mul` and `add` attributes.
-
-    Examples:
+        OscDataSend has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -401,27 +372,28 @@ class OscDataSend(PyoObject):
         """
         Adds new address(es) to the object's handler.
 
-        Parameters:
+        :Args:
 
-        types : str
-            String specifying the types sequence of the message to be sent.
-            Possible values are :
-                integer : "i"
-                long integer : "h"
-                float : "f"
-                double : "d"
-                string : "s"
-            The string "ssfi" indicates that the value to send will be a list
-            containing two strings followed by a float and an integer.
-        port : int
-            Port on which values are sent. Receiver should listen on the 
-            same port.
-        address : string
-            Address used on the port to identify values. Address is in 
-            the form of a Unix path (ex.: '/pitch').
-        host : string, optional
-            IP address of the target computer. The default, '127.0.0.1', 
-            is the localhost.
+            types : str
+                String specifying the types sequence of the message to be sent.
+                Possible values are:
+                    - integer : "i"
+                    - long integer : "h"
+                    - float : "f"
+                    - double : "d"
+                    - string : "s"
+
+                The string "ssfi" indicates that the value to send will be a list
+                containing two strings followed by a float and an integer.
+            port : int
+                Port on which values are sent. Receiver should listen on the 
+                same port.
+            address : string
+                Address used on the port to identify values. Address is in 
+                the form of a Unix path (ex.: '/pitch').
+            host : string, optional
+                IP address of the target computer. The default, '127.0.0.1', 
+                is the localhost.
 
         """
         types, port, address, host, lmax = convertArgsToLists(types, port, address, host)
@@ -434,10 +406,10 @@ class OscDataSend(PyoObject):
         """
         Removes address(es) from the object's handler.
 
-        Parameters:
+        :Args:
 
-        path : string or list of strings
-            Path(s) to remove.
+            path : string or list of strings
+                Path(s) to remove.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -449,15 +421,15 @@ class OscDataSend(PyoObject):
         """
         Method used to send `msg` values as a list.
         
-        Parameters:
+        :Args:
         
-        msg : list
-            List of values to send. Types of values in list
-            must be of the kind defined of `types` argument
-            given at the object's initialization.
-        address : string, optional
-            Address destination to send values. If None, values
-            will be sent to all addresses managed by the object.
+            msg : list
+                List of values to send. Types of values in list
+                must be of the kind defined of `types` argument
+                given at the object's initialization.
+            address : string, optional
+                Address destination to send values. If None, values
+                will be sent to all addresses managed by the object.
         
         """
         if address == None:
@@ -474,42 +446,34 @@ class OscDataReceive(PyoObject):
     argument `function` is called with the current address destination in 
     argument followed by a tuple of values.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    port : int
-        Port on which values are received. Sender should output on 
-        the same port. Unlike OscDataSend object, there can be only 
-        one port per OscDataReceive object. Available at initialization 
-        time only.
-    address : string
-        Address used on the port to identify values. Address is in 
-        the form of a Unix path (ex.: '/pitch'). There can be as many
-        addresses as needed on a single port.
-    function : callable
-        This function will be called whenever a message with a known
-        address is received. there can be only one function per 
-        OscDataReceive object. Available at initialization time only.
+        port : int
+            Port on which values are received. Sender should output on 
+            the same port. Unlike OscDataSend object, there can be only 
+            one port per OscDataReceive object. Available at initialization 
+            time only.
+        address : string
+            Address used on the port to identify values. Address is in 
+            the form of a Unix path (ex.: "/pitch"). There can be as many
+            addresses as needed on a single port.
+        function : callable
+            This function will be called whenever a message with a known
+            address is received. there can be only one function per 
+            OscDataReceive object. Available at initialization time only.
 
-    Methods:
+    .. note::
 
-    getAddresses() : Returns the addresses managed by the object.
-    addAddress(path) : Adds new address(es) to the object's handler.
-    delAddress(path) : Removes address(es) from the object's handler.
+        The header of the callable given at `function` argument must be in this form :
 
-    Notes:
+        def my_func(address, *args):
+            ...
 
-    The definition of function at `function` argument must be in this form :
+        The out() method is bypassed. OscDataReceive has no audio signal.
 
-    def my_func(address, *args):
-        ...
-
-    The out() method is bypassed. OscDataReceive has no audio signal.
-
-    OscDataReceive has no `mul` and `add` attributes.
-
-    Examples:
+        OscDataReceive has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -557,10 +521,10 @@ class OscDataReceive(PyoObject):
         """
         Adds new address(es) to the object's handler.
         
-        Parameters:
+        :Args:
         
-        path : string or list of strings
-            New path(s) to receive from.
+            path : string or list of strings
+                New path(s) to receive from.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -572,10 +536,10 @@ class OscDataReceive(PyoObject):
         """
         Removes address(es) from the object's handler.
 
-        Parameters:
+        :Args:
 
-        path : string or list of strings
-            Path(s) to remove.
+            path : string or list of strings
+                Path(s) to remove.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -591,45 +555,33 @@ class OscListReceive(PyoObject):
     softwares or other computers. The list are converted into audio streams.
     Get values at the beginning of each buffersize and fill buffers with them.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    port : int
-        Port on which values are received. Sender should output on 
-        the same port. Unlike OscSend object, there can be only one 
-        port per OscListReceive object. Available at initialization time 
-        only.
-    address : string
-        Address used on the port to identify values. Address is in 
-        the form of a Unix path (ex.: '/pitch').
-    num : int, optional
-        Length of the lists in input. The object will generate `num` audio
-        streams per given address. Available at initialization time only.
-        This value can't be a list. That means all addresses managed by an 
-        OscListReceive object are of the same length. Defaults to 8.
+        port : int
+            Port on which values are received. Sender should output on 
+            the same port. Unlike OscSend object, there can be only one 
+            port per OscListReceive object. Available at initialization time 
+            only.
+        address : string
+            Address used on the port to identify values. Address is in 
+            the form of a Unix path (ex.: '/pitch').
+        num : int, optional
+            Length of the lists in input. The object will generate `num` audio
+            streams per given address. Available at initialization time only.
+            This value can't be a list. That means all addresses managed by an 
+            OscListReceive object are of the same length. Defaults to 8.
 
-    Methods:
+    .. note::
 
-    get(identifier, all) : Return the first list of samples of the current 
-        buffer as a list of floats.
-    getAddresses() : Returns the addresses managed by the object.
-    addAddress(path, mul, add) : Adds new address(es) to the object's handler.
-    delAddress(path) : Removes address(es) from the object's handler.
-    setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
-    setValue(path, value) : Sets value for the specified address.
+        Audio streams are accessed with the `address` string parameter. 
+        The user should call :
 
-    Notes:
+        OscReceive['/pitch'] to retreive list of streams named '/pitch'.
 
-    Audio streams are accessed with the `address` string parameter. 
-    The user should call :
-
-    OscReceive['/pitch'] to retreive list of streams named '/pitch'.
-
-    The out() method is bypassed. OscReceive's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. OscReceive's signal can not be sent 
+        to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -675,14 +627,14 @@ class OscListReceive(PyoObject):
         """
         Adds new address(es) to the object's handler.
 
-        Parameters:
+        :Args:
 
-        path : string or list of strings
-            New path(s) to receive from.
-        mul : float or PyoObject
-            Multiplication factor. Defaults to 1.
-        add : float or PyoObject
-            Addition factor. Defaults to 0.
+            path : string or list of strings
+                New path(s) to receive from.
+            mul : float or PyoObject
+                Multiplication factor. Defaults to 1.
+            add : float or PyoObject
+                Addition factor. Defaults to 0.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -697,10 +649,10 @@ class OscListReceive(PyoObject):
         """
         Removes address(es) from the object's handler.
 
-        Parameters:
+        :Args:
 
-        path : string or list of strings
-            Path(s) to remove.
+            path : string or list of strings
+                Path(s) to remove.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -716,10 +668,10 @@ class OscListReceive(PyoObject):
         """
         Activate/Deactivate interpolation. Activated by default.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            True activates the interpolation, False deactivates it.
+            x : boolean
+                True activates the interpolation, False deactivates it.
 
         """
         [obj.setInterpolation(x) for obj in self._base_objs]
@@ -728,12 +680,12 @@ class OscListReceive(PyoObject):
         """
         Sets value for a given address.
         
-        Parameters:
+        :Args:
         
-        path : string
-            Address to which the value should be attributed.
-        value : list of floats
-            List of values to attribute to the given address.
+            path : string
+                Address to which the value should be attributed.
+            value : list of floats
+                List of values to attribute to the given address.
 
         """
         path, lmax = convertArgsToLists(path)
@@ -760,7 +712,7 @@ class OscListReceive(PyoObject):
         Address as string must be given to `identifier` to specify
         which stream to get value from.
 
-        Parameters:
+        :Args:
 
             identifier : string
                 Address string parameter identifying audio stream.

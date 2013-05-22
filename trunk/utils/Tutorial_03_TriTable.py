@@ -8,26 +8,15 @@ class TriTable(PyoTableObject):
 
     Generates square waveforms made up of fixed number of harmonics.
 
-    Parentclass: PyoTableObject
+    :Parent: :py:class:`PyoTableObject`
 
-    Parameters:
+    :Args:
 
-    order : int, optional
-        Number of harmonics square waveform is made of. The waveform will 
-        contains `order` odd harmonics. Defaults to 10.
-    size : int, optional
-        Table size in samples. Defaults to 8192.
-
-    Methods:
-
-    setOrder(x) : Change the `order` attribute and redraw the waveform.
-
-    Attributes:
-
-    order : int, optional
-        Number of harmonics triangular waveform is made of.
-
-    Examples:
+        order : int, optional
+            Number of harmonics square waveform is made of. The waveform will 
+            contains `order` odd harmonics. Defaults to 10.
+        size : int, optional
+            Table size in samples. Defaults to 8192.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -42,6 +31,7 @@ class TriTable(PyoTableObject):
         self._base_objs = self._tri_table.getBaseObjects()
 
     def _create_list(self, order):
+        # internal method used to compute the harmonics's weight
         l = []
         ph = 1.0
         for i in range(1,order*2):
@@ -56,14 +46,16 @@ class TriTable(PyoTableObject):
         """
         Change the `order` attribute and redraw the waveform.
         
-        Parameters:
+        :Args:
         
-        x : int
-            New number of harmonics
+            x : int
+                New number of harmonics
 
         """      
         self._order = x
         self._tri_table.replace(self._create_list(x))
+        self.normalize()
+        self.refreshView()
 
     @property
     def order(self): 

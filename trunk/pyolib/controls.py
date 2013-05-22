@@ -47,40 +47,26 @@ class Fader(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    fadein : float, optional
-        Rising time of the envelope in seconds. Defaults to 0.01.
-    fadeout : float, optional
-        Falling time of the envelope in seconds. Defaults to 0.1.
-    dur : float, optional
-        Total duration of the envelope. Defaults to 0, which means wait 
-        for the stop() method to start the fadeout.
+        fadein : float, optional
+            Rising time of the envelope in seconds. Defaults to 0.01.
+        fadeout : float, optional
+            Falling time of the envelope in seconds. Defaults to 0.1.
+        dur : float, optional
+            Total duration of the envelope. Defaults to 0, which means wait 
+            for the stop() method to start the fadeout.
+
+    .. note::
+
+        The out() method is bypassed. Fader's signal can not be sent to audio outs.
         
-    Methods:
+        The play() method starts the envelope.
+        
+        The stop() calls the envelope's release phase if `dur` = 0.
 
-    play() : Start processing without sending samples to the output. 
-        Triggers the envelope.
-    stop() : Stop processing. Triggers the envelope's fadeout 
-        if `dur` is set to 0.
-    setFadein(x) : Replace the `fadein` attribute.
-    setFadeout(x) : Replace the `fadeout` attribute.
-    setDur(x) : Replace the `dur` attribute.
-
-    Attributes:
-    
-    fadein : float. Rising time of the envelope in seconds.
-    fadeout : float. Falling time of the envelope in seconds.
-    dur : float. Total duration of the envelope.
-    
-    Notes:
-
-    The out() method is bypassed. Fader's signal can not be sent to audio outs.
-    
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Fader(fadein=0.5, fadeout=0.5, dur=2, mul=.5)
@@ -105,10 +91,10 @@ class Fader(PyoObject):
         """
         Replace the `fadein` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `fadein` attribute.
+            x : float
+                new `fadein` attribute.
         
         """
         self._fadein = x
@@ -119,10 +105,10 @@ class Fader(PyoObject):
         """
         Replace the `fadeout` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `fadeout` attribute.
+            x : float
+                new `fadeout` attribute.
         
         """
         self._fadeout = x
@@ -133,10 +119,10 @@ class Fader(PyoObject):
         """
         Replace the `dur` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `dur` attribute.
+            x : float
+                new `dur` attribute.
         
         """
         self._dur = x
@@ -176,59 +162,33 @@ class Adsr(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    attack : float, optional
-        Duration of the attack phase in seconds. Defaults to 0.01.
-    decay : float, optional
-        Duration of the decay in seconds. Defaults to 0.05.
-    sustain : float, optional
-        Amplitude of the sustain phase. Defaults to 0.707.
-    release : float, optional
-        Duration of the release in seconds. Defaults to 0.1.
-    dur : float, optional
-        Total duration of the envelope. Defaults to 0, which means wait 
-        for the stop() method to start the release phase.
+        attack : float, optional
+            Duration of the attack phase in seconds. Defaults to 0.01.
+        decay : float, optional
+            Duration of the decay in seconds. Defaults to 0.05.
+        sustain : float, optional
+            Amplitude of the sustain phase. Defaults to 0.707.
+        release : float, optional
+            Duration of the release in seconds. Defaults to 0.1.
+        dur : float, optional
+            Total duration of the envelope. Defaults to 0, which means wait 
+            for the stop() method to start the release phase.
         
-    Methods:
-
-    play() : Start processing without sending samples to the output. 
-        Triggers the envelope.
-    stop() : Stop processing. Triggers the envelope's fadeout 
-        if `dur` is set to 0.
-    setAttack(x) : Replace the `attack` attribute.
-    setDecay(x) : Replace the `decay` attribute.
-    setSustain(x) : Replace the `sustain` attribute.
-    setRelease(x) : Replace the `release` attribute.
-    setDur(x) : Replace the `dur` attribute.
-
-    Attributes:
     
-    attack : float. Duration of the attack phase in seconds.
-    decay : float. Duration of the decay in seconds.
-    sustain : float. Amplitude of the sustain phase.
-    release : float. Duration of the release in seconds.
-    dur : float. Total duration of the envelope.
-    
-    Notes:
+    .. note::
 
-    The out() method is bypassed. Adsr's signal can not be sent to audio outs.
-    
-    Shape of a classical Adsr:
+        The out() method is bypassed. Adsr's signal can not be sent to audio outs.
 
-          -
-         -  -
-        -     -
-       -        ------------------------
-      -                                  -
-     -                                     -
-    -                                        -
-      att - dec -        sustain       - rel
-     
-    Examples:
+        The play() method starts the envelope.
+        
+        The stop() calls the envelope's release phase if `dur` = 0.
     
+        Shape of a classical Adsr:
+
     >>> s = Server().boot()
     >>> s.start()
     >>> f = Adsr(attack=.01, decay=.2, sustain=.5, release=.1, dur=2, mul=.5)
@@ -255,10 +215,10 @@ class Adsr(PyoObject):
         """
         Replace the `attack` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `attack` attribute.
+            x : float
+                new `attack` attribute.
         
         """
         self._attack = x
@@ -269,10 +229,10 @@ class Adsr(PyoObject):
         """
         Replace the `decay` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `decay` attribute.
+            x : float
+                new `decay` attribute.
         
         """
         self._decay = x
@@ -283,10 +243,10 @@ class Adsr(PyoObject):
         """
         Replace the `sustain` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `sustain` attribute.
+            x : float
+                new `sustain` attribute.
         
         """
         self._sustain = x
@@ -297,10 +257,10 @@ class Adsr(PyoObject):
         """
         Replace the `sustain` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `sustain` attribute.
+            x : float
+                new `sustain` attribute.
         
         """
         self._release = x
@@ -311,10 +271,10 @@ class Adsr(PyoObject):
         """
         Replace the `dur` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `dur` attribute.
+            x : float
+                new `dur` attribute.
         
         """
         self._dur = x
@@ -363,39 +323,25 @@ class Linseg(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    list : list of tuples
-        Points used to construct the line segments. Each tuple is a
-        new point in the form (time, value). Times are given in seconds
-        and must be in increasing order.
-    loop : boolean, optional
-        Looping mode. Defaults to False.
-    initToFirstVal : boolean, optional
-        If True, audio buffer will be filled at initialization with the
-        starting value of the line. Defaults to False.
-        
-    Methods:
+        list : list of tuples
+            Points used to construct the line segments. Each tuple is a
+            new point in the form (time, value). 
+            
+            Times are given in seconds and must be in increasing order.
+        loop : boolean, optional
+            Looping mode. Defaults to False.
+        initToFirstVal : boolean, optional
+            If True, audio buffer will be filled at initialization with the
+            first value of the line. Defaults to False.
 
-    setList(x) : Replace the `list` attribute.
-    replace(x) : Alias for `setList` method.
-    setLoop(x) : Replace the `loop` attribute.
-    graph(xlen, yrange, title, wxnoserver) : Opens a grapher window 
-        to control the shape of the envelope.
+    .. note::
 
-    Attributes:
-    
-    list : list of tuples. Points used to construct the line segments.
-    loop : boolean. Looping mode.
-    
-    Notes:
+        The out() method is bypassed. Linseg's signal can not be sent to audio outs.
 
-    The out() method is bypassed. Linseg's signal can not be sent to audio outs.
-    
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> l = Linseg([(0,500),(.03,1000),(.1,700),(1,500),(2,500)], loop=True)
@@ -429,10 +375,10 @@ class Linseg(PyoObject):
         """
         Replace the `list` attribute.
         
-        Parameters:
+        :Args:
 
-        x : list of tuples
-            new `list` attribute.
+            x : list of tuples
+                new `list` attribute.
         
         """
         self._list = x
@@ -445,10 +391,10 @@ class Linseg(PyoObject):
         """
         Alias for `setList` method.
 
-        Parameters:
+        :Args:
 
-        x : list of tuples
-            new `list` attribute.
+            x : list of tuples
+                new `list` attribute.
         
         """
         self.setList(x)
@@ -460,10 +406,10 @@ class Linseg(PyoObject):
         """
         Replace the `loop` attribute.
         
-        Parameters:
+        :Args:
 
-        x : boolean
-            new `loop` attribute.
+            x : boolean
+                new `loop` attribute.
         
         """
         self._loop = x
@@ -480,24 +426,23 @@ class Linseg(PyoObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        xlen : float, optional
-            Set the maximum value of the X axis of the graph. If None, the
-            maximum value is retrieve from the current list of points.
-            Defaults to None.
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph. If
-            None, min and max are retrieve from the current list of points.
-            Defaults to None.
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            xlen : float, optional
+                Set the maximum value of the X axis of the graph. If None, the
+                maximum value is retrieve from the current list of points.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph. If
+                None, min and max are retrieve from the current list of points.
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for the 
+        server GUI before showing the controller window. 
 
         """
         if xlen == None:
@@ -534,48 +479,30 @@ class Expseg(PyoObject):
     The play() method starts the envelope and is not called at the 
     object creation time.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    list : list of tuples
-        Points used to construct the line segments. Each tuple is a
-        new point in the form (time, value). Times are given in seconds
-        and must be in increasing order.
-    loop : boolean, optional
-        Looping mode. Defaults to False.
-    exp : float, optional
-        Exponent factor. Used to control the slope of the curves.
-        Defaults to 10.
-    inverse : boolean, optional
-        If True, downward slope will be inversed. Useful to create 
-        biexponential curves. Defaults to True.
-    initToFirstVal : boolean, optional
-        If True, audio buffer will be filled at initialization with the
-        starting value of the line. Defaults to False.
+        list : list of tuples
+            Points used to construct the line segments. Each tuple is a
+            new point in the form (time, value). 
+            
+            Times are given in seconds and must be in increasing order.
+        loop : boolean, optional
+            Looping mode. Defaults to False.
+        exp : float, optional
+            Exponent factor. Used to control the slope of the curves.
+            Defaults to 10.
+        inverse : boolean, optional
+            If True, downward slope will be inversed. Useful to create 
+            biexponential curves. Defaults to True.
+        initToFirstVal : boolean, optional
+            If True, audio buffer will be filled at initialization with the
+            first value of the line. Defaults to False.
 
-    Methods:
+    .. note::
 
-    setList(x) : Replace the `list` attribute.
-    replace(x) : Alias for `setList` method.
-    setLoop(x) : Replace the `loop` attribute.
-    setExp(x) : Replace the `exp` attribute.
-    setInverse(x) : Replace the `inverse` attribute.
-    graph(xlen, yrange, title, wxnoserver) : Opens a grapher window 
-        to control the shape of the envelope.
-
-    Attributes:
-
-    list : list of tuples. Points used to construct the line segments.
-    loop : boolean. Looping mode.
-    exp : float. Exponent factor.    
-    inverse : boolean. Inversion of downward slope.
-
-    Notes:
-
-    The out() method is bypassed. Expseg's signal can not be sent to audio outs.
-
-    Examples:
+        The out() method is bypassed. Expseg's signal can not be sent to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -612,10 +539,10 @@ class Expseg(PyoObject):
         """
         Replace the `list` attribute.
 
-        Parameters:
+        :Args:
 
-        x : list of tuples
-            new `list` attribute.
+            x : list of tuples
+                new `list` attribute.
 
         """
         self._list = x
@@ -628,10 +555,10 @@ class Expseg(PyoObject):
         """
         Replace the `loop` attribute.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            new `loop` attribute.
+            x : boolean
+                new `loop` attribute.
 
         """
         self._loop = x
@@ -642,10 +569,10 @@ class Expseg(PyoObject):
         """
         Replace the `exp` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `exp` attribute.
+            x : float
+                new `exp` attribute.
 
         """
         self._exp = x
@@ -656,10 +583,10 @@ class Expseg(PyoObject):
         """
         Replace the `inverse` attribute.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            new `inverse` attribute.
+            x : boolean
+                new `inverse` attribute.
 
         """
         self._inverse = x
@@ -670,10 +597,10 @@ class Expseg(PyoObject):
         """
         Alias for `setList` method.
 
-        Parameters:
+        :Args:
 
-        x : list of tuples
-            new `list` attribute.
+            x : list of tuples
+                new `list` attribute.
 
         """
         self.setList(x)
@@ -691,24 +618,25 @@ class Expseg(PyoObject):
         Ctrl+C with focus on the grapher will copy the list of points to the 
         clipboard, giving an easy way to insert the new shape in a script.
 
-        Parameters:
+        :Args:
 
-        xlen : float, optional
-            Set the maximum value of the X axis of the graph. If None, the
-            maximum value is retrieve from the current list of points.
-            Defaults to None.
-        yrange : tuple, optional
-            Set the min and max values of the Y axis of the graph. If
-            None, min and max are retrieve from the current list of points.
-            Defaults to None.
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            xlen : float, optional
+                Set the maximum value of the X axis of the graph. If None, the
+                maximum value is retrieve from the current list of points.
+                Defaults to None.
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the graph. If
+                None, min and max are retrieve from the current list of points.
+                Defaults to None.
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for the 
+        server GUI before showing the controller window. 
 
         """
         if xlen == None:
@@ -760,33 +688,21 @@ class SigTo(PyoObject):
     value to the new value. Can be used with PyoObject to apply
     a linear portamento on an audio signal.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    value : float or PyoObject
-        Numerical value to convert.
-    time : float, optional
-        Ramp time, in seconds, to reach the new value. Defaults to 0.025.
-    init : float, optional
-        Initial value of the internal memory. Defaults to 0.
+        value : float or PyoObject
+            Numerical value to convert.
+        time : float, optional
+            Ramp time, in seconds, to reach the new value. Defaults to 0.025.
+        init : float, optional
+            Initial value of the internal memory. Defaults to 0.
+    
+    .. note::
 
-    Methods:
+        The out() method is bypassed. SigTo's signal can not be sent to audio outs.
 
-    setValue(x) : Changes the value of the signal stream.
-    setTime(x) : Changes the ramp time.
-    
-    Attributes:
-    
-    value : float or PyoObject. Numerical value to convert.
-    time : float. Ramp time.
-    
-    Notes:
-
-    The out() method is bypassed. SigTo's signal can not be sent to audio outs.
-    
-    Examples:
-    
     >>> import random
     >>> s = Server().boot()
     >>> s.start()
@@ -809,10 +725,10 @@ class SigTo(PyoObject):
         """
         Changes the value of the signal stream.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            Numerical value to convert.
+            x : float or PyoObject
+                Numerical value to convert.
 
         """
         x, lmax = convertArgsToLists(x)
@@ -822,10 +738,10 @@ class SigTo(PyoObject):
         """
         Changes the ramp time of the object.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New ramp time.
+            x : float
+                New ramp time.
 
         """
         x, lmax = convertArgsToLists(x)

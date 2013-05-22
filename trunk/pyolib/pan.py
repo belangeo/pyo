@@ -32,35 +32,20 @@ class Pan(PyoObject):
     """
     Cosinus panner with control on the spread factor.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    outs : int, optional
-        Number of channels on the panning circle. Defaults to 2.
-    pan : float or PyoObject
-        Position of the sound on the panning circle, between 0 and 1. 
-        Defaults to 0.5.
-    spread : float or PyoObject
-        Amount of sound leaking to the surrounding channels, 
-        between 0 and 1. Defaults to 0.5.
- 
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setPan(x) : Replace the `pan` attribute.
-    setSpread(x) : Replace the `spread` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    pan : float or PyoObject. Position of the sound on the panning circle.
-    spread : float or PyoObject. Amount of sound leaking to the 
-        surrounding channels.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        outs : int, optional
+            Number of channels on the panning circle. Defaults to 2.
+        pan : float or PyoObject
+            Position of the sound on the panning circle, between 0 and 1. 
+            Defaults to 0.5.
+        spread : float or PyoObject
+            Amount of sound leaking to the surrounding channels, 
+            between 0 and 1. Defaults to 0.5.
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
@@ -87,12 +72,12 @@ class Pan(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -102,10 +87,10 @@ class Pan(PyoObject):
         """
         Replace the `pan` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `pan` attribute.
+            x : float or PyoObject
+                new `pan` attribute.
         
         """
         self._pan = x
@@ -116,10 +101,10 @@ class Pan(PyoObject):
         """
         Replace the `spread` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `spread` attribute.
+            x : float or PyoObject
+                new `spread` attribute.
         
         """
         self._spread = x
@@ -157,29 +142,17 @@ class SPan(PyoObject):
     """
     Simple equal power panner.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    outs : int, optional
-        Number of channels on the panning circle. Defaults to 2.
-    pan : float or PyoObject
-        Position of the sound on the panning circle, between 0 and 1. 
-        Defaults to 0.5.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setPan(x) : Replace the `pan` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    pan : float or PyoObject. Position of the sound on the panning circle.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        outs : int, optional
+            Number of channels on the panning circle. Defaults to 2.
+        pan : float or PyoObject
+            Position of the sound on the panning circle, between 0 and 1. 
+            Defaults to 0.5.
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
@@ -205,12 +178,12 @@ class SPan(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -220,10 +193,10 @@ class SPan(PyoObject):
         """
         Replace the `pan` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `pan` attribute.
+            x : float or PyoObject
+                new `pan` attribute.
         
         """
         self._pan = x
@@ -258,29 +231,17 @@ class Switch(PyoObject):
     between brackets. obj[0] retrieve the first stream, obj[outs-1] the
     last one.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    outs : int, optional
-        Number of outputs. Defaults to 2.
-    voice : float or PyoObject
-        Voice position pointer, between 0 and (outs-1) / len(input). 
-        Defaults to 0.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setVoice(x) : Replace the `voice` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    voice : float or PyoObject. Voice position pointer.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        outs : int, optional
+            Number of outputs. Defaults to 2.
+        voice : float or PyoObject
+            Voice position pointer, between 0 and (outs-1) / len(input). 
+            Defaults to 0.
 
     >>> s = Server(nchnls=2).boot()
     >>> s.start()
@@ -309,12 +270,12 @@ class Switch(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -324,10 +285,10 @@ class Switch(PyoObject):
         """
         Replace the `voice` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `voice` attribute.
+            x : float or PyoObject
+                new `voice` attribute.
 
         """
         self._voice = x
@@ -359,27 +320,15 @@ class Selector(PyoObject):
     Selector takes multiple PyoObjects in input and interpolates between 
     them to generate a single output.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    inputs : list of PyoObject
-        Audio objects to interpolate from.
-    voice : float or PyoObject, optional
-        Voice position pointer, between 0 and len(inputs)-1. 
-        Defaults to 0.
-
-    Methods:
-
-    setInputs(x) : Replace the `inputs` attribute.
-    setVoice(x) : Replace the `voice` attribute.
-
-    Attributes:
-
-    inputs : list of PyoObject. Audio objects to interpolate from.
-    voice : float or PyoObject. Voice position pointer.
-
-    Examples:
+        inputs : list of PyoObject
+            Audio objects to interpolate from.
+        voice : float or PyoObject, optional
+            Voice position pointer, between 0 and len(inputs)-1. 
+            Defaults to 0.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -416,10 +365,10 @@ class Selector(PyoObject):
         """
         Replace the `inputs` attribute.
         
-        Parameters:
+        :Args:
 
-        x : list of PyoObject
-            new `inputs` attribute.
+            x : list of PyoObject
+                new `inputs` attribute.
         
         """
         self._inputs = x
@@ -437,10 +386,10 @@ class Selector(PyoObject):
         """
         Replace the `voice` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `voice` attribute.
+            x : float or PyoObject
+                new `voice` attribute.
         
         """
         self._voice = x
@@ -453,13 +402,19 @@ class Selector(PyoObject):
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
-    def inputs(self): return self._inputs
+    def inputs(self): 
+        """List of PyoObjects. Audio objects to interpolate from."""
+        return self._inputs
     @inputs.setter
-    def inputs(self, x): self.setInputs(x)
+    def inputs(self, x): 
+        self.setInputs(x)
     @property
-    def voice(self): return self._voice
+    def voice(self): 
+        """float or PyoObject. Voice position pointer."""
+        return self._voice
     @voice.setter
-    def voice(self, x): self.setVoice(x)
+    def voice(self, x): 
+        self.setVoice(x)
 
 class VoiceManager(PyoObject):
     """
@@ -477,28 +432,17 @@ class VoiceManager(PyoObject):
 
     If there is no free voice, the object outputs -1.0 continuously.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Trigger stream asking for new voice numbers.
-    triggers : PyoObject or list of PyoObject, optional
-        List of mono PyoObject sending triggers. Can be a multi-streams
-        PyoObject but not a mix of both. Ordering in the list corresponds
-        to voice numbers. Defaults to None.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setTriggers(x) : Replace the `triggers` attribute.
-
-    Attributes:
-
-    input : PyoObject. Trigger stream asking for new voice numbers.
-    triggers : list of PyoObject. Trigger streams enabling voices.
-
-    Examples:
+        input : PyoObject
+            Trigger stream asking for new voice numbers.
+        triggers : PyoObject or list of PyoObject, optional
+            List of mono PyoObject sending triggers. Can be a multi-streams
+            PyoObject but not a mix of both. 
+            
+            Ordering in the list corresponds to voice numbers. Defaults to None.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -536,12 +480,12 @@ class VoiceManager(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -551,10 +495,10 @@ class VoiceManager(PyoObject):
         """
         Replace the `triggers` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject or list of PyoObject 
-            New `triggers` attribute.
+            x : PyoObject or list of PyoObject 
+                New `triggers` attribute.
 
         """
         self._triggers = x
@@ -575,11 +519,15 @@ class VoiceManager(PyoObject):
         """PyoObject. Trigger stream asking for new voice numbers.""" 
         return self._input
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x): 
+        self.setInput(x)
     @property
-    def triggers(self): return self._triggers
+    def triggers(self): 
+        """list of PyoObject. Trigger streams enabling voices."""
+        return self._triggers
     @triggers.setter
-    def triggers(self, x): self.setTriggers(x)
+    def triggers(self, x): 
+        self.setTriggers(x)
 
 class Mixer(PyoObject):
     """
@@ -589,40 +537,25 @@ class Mixer(PyoObject):
     with independant amplitude values per mixing channel and a 
     user defined portamento applied on amplitude changes.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    outs : int, optional
-        Number of outputs of the mixer. Available at initialization
-        time only. Defaults to 2.
-    chnls : int, optional
-        Number of channels per output. Available at initialization
-        time only. Defaults to 1.
-    time : float, optional
-        Duration, in seconds, of a portamento applied on
-        a new amplitude value for a mixing channel.
-        Defaults to 0.025.
+        outs : int, optional
+            Number of outputs of the mixer. Available at initialization
+            time only. Defaults to 2.
+        chnls : int, optional
+            Number of channels per output. Available at initialization
+            time only. Defaults to 1.
+        time : float, optional
+            Duration, in seconds, of a portamento applied on
+            a new amplitude value for a mixing channel.
+            Defaults to 0.025.
 
-    Methods:
+    .. note::
 
-    setTime(x) : Sets the portamento duration in seconds.
-    addInput(voice, input) : Adds a new input to the mixer.
-    delInput(voice) : Removes an input from the mixer.
-    setAmp(vin, vout, amp) : Sets the amplitude of a mixing channel.
-    getChannels() : Returns the Mixer's channels dictionary.
-    getKeys() : Returns the list of current keys in the Mixer's channels dictionary.
-
-    Attributes:
-
-    time : float. Portamento applied on amplitude changes.
-
-    Notes:
-
-    User can retrieve each of the output channels by calling the Mixer
-    object with the desired channel between square brackets (see example).
-
-    Examples:
+        User can retrieve each of the output channels by calling the Mixer
+        object with the desired channel between square brackets (see example).
 
     >>> s = Server().boot()
     >>> s.start()
@@ -668,10 +601,10 @@ class Mixer(PyoObject):
         """
         Sets the portamento duration in seconds.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New portamento duration.
+            x : float
+                New portamento duration.
 
         """
         self._time = x
@@ -684,13 +617,13 @@ class Mixer(PyoObject):
 
         This method returns the key (voice argument or generated key if voice=None).
 
-        Parameters:
+        :Args:
 
-        voice : int or string
-            Key in the mixer dictionary for this input. If None, a unique key 
-            between 0 and 32767 will be automatically generated.
-        input : PyoObject
-            Audio object to add to the mixer.
+            voice : int or string
+                Key in the mixer dictionary for this input. If None, a unique key 
+                between 0 and 32767 will be automatically generated.
+            input : PyoObject
+                Audio object to add to the mixer.
 
         """
         if voice == None:
@@ -709,10 +642,10 @@ class Mixer(PyoObject):
         """
         Removes an audio object from the mixer's inputs.
 
-        Parameters:
+        :Args:
 
-        voice : int or string
-            Key in the mixer dictionary assigned to the input to remove.
+            voice : int or string
+                Key in the mixer dictionary assigned to the input to remove.
 
         """
         if self._inputs.has_key(voice):
@@ -723,14 +656,14 @@ class Mixer(PyoObject):
         """
         Sets the amplitude of a mixing channel.
 
-        Parameters:
+        :Args:
 
-        vin : int or string
-            Key in the mixer dictionary of the desired input.
-        vout : int
-            Ouput channel where to send the signal.
-        amp : float
-            Amplitude value for this mixing channel.
+            vin : int or string
+                Key in the mixer dictionary of the desired input.
+            vout : int
+                Ouput channel where to send the signal.
+            amp : float
+                Amplitude value for this mixing channel.
 
         """
         if self._inputs.has_key(vin) and vout < self._outs:

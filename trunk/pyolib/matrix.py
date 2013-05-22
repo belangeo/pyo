@@ -31,29 +31,22 @@ class NewMatrix(PyoMatrixObject):
     Optionally, the matrix can be filled with the contents of the 
     `init` parameter.
 
-    See `MatrixRec` to write samples in the matrix.
+    See :py:class:`MatrixRec` to write samples in the matrix.
 
-    Parentclass: PyoMatrixObject
+    :Parent: :py:class:`PyoMatrixObject`
 
-    Parameters:
+    :Args:
 
-    width : int
-        Desired matrix width in samples.
-    height : int
-        Desired matrix height in samples.
-    init : list of list of floats, optional
-        Initial matrix. Defaults to None.
+        width : int
+            Desired matrix width in samples.
+        height : int
+            Desired matrix height in samples.
+        init : list of list of floats, optional
+            Initial matrix. Defaults to None.
 
-    Methods:
-
-    replace() : Replaces the actual matrix.
-    getRate() : Returns the frequency (cycle per second) to give 
-        to an oscillator to read a row at its original pitch.
-    genSineTerrain(freq, phase) : Generates a modulated sinusoidal terrain.
-
-    See also: MatrixRec
-
-    Examples:
+    .. seealso:: 
+        
+        :py:class:`MatrixRec`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -79,10 +72,10 @@ class NewMatrix(PyoMatrixObject):
         """
         Replaces the actual matrix.
         
-        Parameters:
+        :Args:
         
-        x : list of list of floats
-            New matrix. Must be of the same size as the actual matrix.
+            x : list of list of floats
+                New matrix. Must be of the same size as the actual matrix.
 
         """
         [obj.setMatrix(x) for obj in self._base_objs]
@@ -100,16 +93,15 @@ class NewMatrix(PyoMatrixObject):
         """
         Generates a modulated sinusoidal terrain.
 
-        Parameters:
+        :Args:
 
-        freq : float
-            Frequency of sinusoids used to created the terrain.
-            Defaults to 1.
-        phase : float
-            Phase deviation between rows of the terrain. Should be in
-            the range 0 -> 1. Defaults to 0.0625.
+            freq : float
+                Frequency of sinusoids used to created the terrain.
+                Defaults to 1.
+            phase : float
+                Phase deviation between rows of the terrain. Should be in
+                the range 0 -> 1. Defaults to 0.0625.
 
         """
         [obj.genSineTerrain(freq, phase) for obj in self._base_objs]
         self.refreshView()
-

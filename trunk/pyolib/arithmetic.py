@@ -31,22 +31,12 @@ class Sin(PyoObject):
 
     Returns the sine of audio signal as input.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal, angle in radians.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    
-    Examples:
+        input : PyoObject
+            Input signal, angle in radians.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -67,12 +57,12 @@ class Sin(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -80,7 +70,7 @@ class Sin(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -91,22 +81,12 @@ class Cos(PyoObject):
 
     Returns the cosine of audio signal as input.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal, angle in radians.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal, angle in radians.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -126,12 +106,12 @@ class Cos(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -139,7 +119,7 @@ class Cos(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -150,22 +130,12 @@ class Tan(PyoObject):
 
     Returns the tangent of audio signal as input.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal, angle in radians.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to filter.
-
-    Examples:
+        input : PyoObject
+            Input signal, angle in radians.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -192,12 +162,12 @@ class Tan(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -205,7 +175,7 @@ class Tan(PyoObject):
 
     @property
     def input(self):
-        """PyoObject. Input signal to filter.""" 
+        """PyoObject. Input signal to process.""" 
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
@@ -216,22 +186,12 @@ class Abs(PyoObject):
 
     Returns the absolute value of audio signal as input.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -253,12 +213,12 @@ class Abs(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -277,22 +237,12 @@ class Sqrt(PyoObject):
 
     Returns the square-root value of audio signal as input.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -319,12 +269,12 @@ class Sqrt(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -344,22 +294,12 @@ class Log(PyoObject):
     Returns the natural log value of of audio signal as input. 
     Values less than 0.0 return 0.0.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -381,12 +321,12 @@ class Log(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -406,22 +346,12 @@ class Log2(PyoObject):
     Returns the base 2 log value of audio signal as input. 
     Values less than 0.0 return 0.0.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -443,12 +373,12 @@ class Log2(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -468,22 +398,12 @@ class Log10(PyoObject):
     Returns the base 10 log value of audio signal as input. 
     Values less than 0.0 return 0.0.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -505,12 +425,12 @@ class Log10(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -531,26 +451,14 @@ class Atan2(PyoObject):
     using the signs of both arguments to determine the quadrant 
     of the return value.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    b : float or PyoObject, optional
-        Numerator. Defaults to 1.
-    a : float or PyoObject, optional
-        Denominator. Defaults to 1.
-
-    Methods:
-
-    setB(x) : Replace the `b` attribute.
-    setA(x) : Replace the `a` attribute.
-
-    Attributes:
-
-    b : float or PyoObject, Numerator.
-    a : float or PyoObject, Denominator.
-
-    Examples:
+        b : float or PyoObject, optional
+            Numerator. Defaults to 1.
+        a : float or PyoObject, optional
+            Denominator. Defaults to 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -572,10 +480,10 @@ class Atan2(PyoObject):
         """
         Replace the `b` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `b` attribute.
+            x : float or PyoObject
+                new `b` attribute.
 
         """
         self._b = x
@@ -586,10 +494,10 @@ class Atan2(PyoObject):
         """
         Replace the `a` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `a` attribute.
+            x : float or PyoObject
+                new `a` attribute.
 
         """
         self._a = x
@@ -617,22 +525,12 @@ class Floor(PyoObject):
     For each samples in the input signal, rounds to the largest integral 
     value not greater than the sample value.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -654,12 +552,12 @@ class Floor(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -679,22 +577,12 @@ class Ceil(PyoObject):
     For each samples in the input signal, rounds to the smallest integral 
     value greater than or equal to the sample value.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -716,12 +604,12 @@ class Ceil(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -741,22 +629,12 @@ class Round(PyoObject):
     For each samples in the input signal, rounds to the nearest integer 
     value of the sample value.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -778,12 +656,12 @@ class Round(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x

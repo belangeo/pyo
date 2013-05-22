@@ -46,64 +46,48 @@ class FFT(PyoObject):
     with zeros. See notes below for an example of how to retrieve 
     each signal component.
     
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    size : int {pow-of-two > 4}, optional
-        FFT size. Must be a power of two greater than 4.
-        The FFT size is the number of samples used in each
-        analysis frame. Defaults to 1024.
-    overlaps : int, optional
-        The number of overlaped analysis block. Must be a
-        positive integer. More overlaps can greatly improved
-        sound quality synthesis but it is also more CPU
-        expensive. Defaults to 4.
-    wintype : int, optional
-        Shape of the envelope used to filter each input frame.
-        Possible shapes are :
-            0 : rectangular (no windowing)
-            1 : Hamming
-            2 : Hanning
-            3 : Bartlett (triangular)
-            4 : Blackman 3-term
-            5 : Blackman-Harris 4-term
-            6 : Blackman-Harris 7-term
-            7 : Tuckey (alpha = 0.66)
-            8 : Sine (half-sine window)
+        input : PyoObject
+            Input signal to process.
+        size : int {pow-of-two > 4}, optional
+            FFT size. Must be a power of two greater than 4.
+            The FFT size is the number of samples used in each
+            analysis frame. Defaults to 1024.
+        overlaps : int, optional
+            The number of overlaped analysis block. Must be a
+            positive integer. More overlaps can greatly improved
+            sound quality synthesis but it is also more CPU
+            expensive. Defaults to 4.
+        wintype : int, optional
+            Shape of the envelope used to filter each input frame.
+            Possible shapes are :
+                0. rectangular (no windowing)
+                1. Hamming
+                2. Hanning
+                3. Bartlett (triangular)
+                4. Blackman 3-term
+                5. Blackman-Harris 4-term
+                6. Blackman-Harris 7-term
+                7. Tuckey (alpha = 0.66)
+                8. Sine (half-sine window)
 
-    Methods:
+    .. note::
     
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setSize(x) : Replace the `size` attribute.
-    setWinType(x) : Replace the `wintype` attribute. 
-    get(identifier, all) : Return the first sample of the current
-        buffer as a float.
+        FFT has no `out` method. Signal must be converted back to time domain, 
+        with IFFT, before being sent to output.
 
-    Attributes:
-    
-    input : PyoObject. Input signal to process.
-    size : int {pow-of-two > 4}. FFT size.
-    wintype : int. Shape of the envelope.
-
-    Notes:
-    
-    FFT has no `out` method. Signal must be converted back to time domain, 
-    with IFFT, before being sent to output.
-
-    FFT has no `mul` and `add` attributes.
-    
-    Real, imaginary and bin_number parts are three separated set 
-    of audio streams. The user should call :
-    
-    FFT['real'] to retrieve the real part.
-    FFT['imag'] to retrieve the imaginary part.
-    FFT['bin'] to retrieve the bin number part.
+        FFT has no `mul` and `add` attributes.
         
-    Examples:
-    
+        Real, imaginary and bin_number parts are three separated set 
+        of audio streams. The user should call :
+        
+        FFT['real'] to retrieve the real part.
+        FFT['imag'] to retrieve the imaginary part.
+        FFT['bin'] to retrieve the bin number part.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = Noise(.25).mix(2)
@@ -162,7 +146,7 @@ class FFT(PyoObject):
         "real", "imag" or "bin" must be given to `identifier` to specify
         which stream to get value from.
         
-        Parameters:
+        :Args:
 
             identifier : string {"real", "imag", "bin"}
                 Address string parameter identifying audio stream.
@@ -183,12 +167,12 @@ class FFT(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -216,10 +200,10 @@ class FFT(PyoObject):
         """
         Replace the `size` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `size` attribute.
+            x : int
+                new `size` attribute.
         
         """
         self._size = x
@@ -234,10 +218,10 @@ class FFT(PyoObject):
         """
         Replace the `wintype` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `wintype` attribute.
+            x : int
+                new `wintype` attribute.
         
         """
         self._wintype = x
@@ -276,64 +260,48 @@ class IFFT(PyoObject):
     These signals must correspond to `real` and `imaginary` parts
     from an FFT object.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    inreal : PyoObject
-        Input `real` signal.
-    inimag : PyoObject
-        Input `imaginary` signal.
-    size : int {pow-of-two > 4}, optional
-        FFT size. Must be a power of two greater than 4.
-        The FFT size is the number of samples used in each
-        analysis frame. This value must match the `size` 
-        attribute of the former FFT object. Defaults to 1024.
-    overlaps : int, optional
-        The number of overlaped analysis block. Must be a
-        positive integer. More overlaps can greatly improved
-        sound quality synthesis but it is also more CPU
-        expensive. This value must match the `overlaps` 
-        atribute of the former FFT object. Defaults to 4.
-    wintype : int, optional
-        Shape of the envelope used to filter each output frame.
-        Possible shapes are :
-            0 : rectangular (no windowing)
-            1 : Hamming
-            2 : Hanning
-            3 : Bartlett (triangular)
-            4 : Blackman 3-term
-            5 : Blackman-Harris 4-term
-            6 : Blackman-Harris 7-term
-            7 : Tuckey (alpha = 0.66)
-            8 : Sine (half-sine window)
+        inreal : PyoObject
+            Input `real` signal.
+        inimag : PyoObject
+            Input `imaginary` signal.
+        size : int {pow-of-two > 4}, optional
+            FFT size. Must be a power of two greater than 4.
+            The FFT size is the number of samples used in each
+            analysis frame. This value must match the `size` 
+            attribute of the former FFT object. Defaults to 1024.
+        overlaps : int, optional
+            The number of overlaped analysis block. Must be a
+            positive integer. More overlaps can greatly improved
+            sound quality synthesis but it is also more CPU
+            expensive. This value must match the `overlaps` 
+            atribute of the former FFT object. Defaults to 4.
+        wintype : int, optional
+            Shape of the envelope used to filter each output frame.
+            Possible shapes are :
+                0. rectangular (no windowing)
+                1. Hamming
+                2. Hanning
+                3. Bartlett (triangular)
+                4. Blackman 3-term
+                5. Blackman-Harris 4-term
+                6. Blackman-Harris 7-term
+                7. Tuckey (alpha = 0.66)
+                8. Sine (half-sine window)
 
-    Methods:
+    .. note::
     
-    setInReal(x, fadetime) : Replace the `inreal` attribute.
-    setInImag(x, fadetime) : Replace the `inmag` attribute.
-    setSize(x) : Replace the `size` attribute.
-    setWinType(x) : Replace the `wintype` attribute. 
+        The number of streams in `inreal` and `inimag` attributes
+        must be egal to the output of the former FFT object. In
+        most case, it will be `channels of processed sound` * `overlaps`.
 
-    Attributes:
-    
-    inreal : PyoObject. Input `real` signal.
-    inimag : PyoObject. Input `imag` signal.
-    size : int {pow-of-two > 4}. FFT size.
-    wintype : int. Shape of the envelope.
-
-    Notes:
-    
-    The number of streams in `inreal` and `inimag` attributes
-    must be egal to the output of the former FFT object. In
-    most case, it will be `channels of processed sound` * `overlaps`.
-
-    The output of IFFT must be mixed to reconstruct the real
-    signal from the overlapped streams. It is left to the user
-    to call the mix(channels of the processed sound) method on
-    an IFFT object.
-
-    Examples:
+        The output of IFFT must be mixed to reconstruct the real
+        signal from the overlapped streams. It is left to the user
+        to call the mix(channels of the processed sound) method on
+        an IFFT object.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -369,12 +337,12 @@ class IFFT(PyoObject):
         """
         Replace the `inreal` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New input `real` signal.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New input `real` signal.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._inreal = x
@@ -384,12 +352,12 @@ class IFFT(PyoObject):
         """
         Replace the `inimag` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New input `imag` signal.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New input `imag` signal.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._inimag = x
@@ -399,10 +367,10 @@ class IFFT(PyoObject):
         """
         Replace the `size` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `size` attribute.
+            x : int
+                new `size` attribute.
         
         """
         self._size = x
@@ -416,10 +384,10 @@ class IFFT(PyoObject):
         """
         Replace the `wintype` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `wintype` attribute.
+            x : int
+                new `wintype` attribute.
         
         """
         self._wintype = x
@@ -470,36 +438,24 @@ class CarToPol(PyoObject):
     denoted by R, from the origin to the point and the angle of an imaginary line from 
     the origin to the point measured counterclockwise from the positive X axis.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    inreal : PyoObject
-        Real input signal.
-    inimag : PyoObject
-        Imaginary input signal.
+        inreal : PyoObject
+            Real input signal.
+        inimag : PyoObject
+            Imaginary input signal.
 
-    Methods:
-
-    setInReal(x, fadetime) : Replace the `inreal` attribute.
-    setInImag(x, fadetime) : Replace the `inimag` attribute.
-
-    Attributes:
-
-    inreal : PyoObject. Real input signal.
-    inimag : PyoObject. Imaginary input signal.
-
-    Notes:
+    .. note::
     
-    Polar coordinates can be retrieve by calling :
-    
-    CarToPol['mag'] to retrieve the magnitude part.
-    CarToPol['ang'] to retrieve the angle part.
+        Polar coordinates can be retrieve by calling :
+        
+        CarToPol['mag'] to retrieve the magnitude part.
+        CarToPol['ang'] to retrieve the angle part.
 
-    CarToPol has no `out` method. Signal must be converted back to time domain, 
-    with IFFT, before being sent to output.
-    
-    Examples:
+        CarToPol has no `out` method. Signal must be converted back to time domain, 
+        with IFFT, before being sent to output.
 
     >>> s = Server().boot()
     >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7).mix(2)
@@ -552,7 +508,7 @@ class CarToPol(PyoObject):
         "mag" or "ang" must be given to `identifier` to specify
         which stream to get value from.
 
-        Parameters:
+        :Args:
 
             identifier : string {"mag", "ang"}
                 Address string parameter identifying audio stream.
@@ -573,12 +529,12 @@ class CarToPol(PyoObject):
         """
         Replace the `inreal` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._inreal = x
@@ -588,12 +544,12 @@ class CarToPol(PyoObject):
         """
         Replace the `inimag` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._inimag = x
@@ -625,36 +581,24 @@ class PolToCar(PyoObject):
     vertical distances from an arbitrary origin to a point.  These are usually denoted 
     as a pair of values (X,Y).
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    inmag : PyoObject
-        Magintude input signal.
-    inang : PyoObject
-        Angle input signal.
+        inmag : PyoObject
+            Magintude input signal.
+        inang : PyoObject
+            Angle input signal.
 
-    Methods:
+    .. note::
 
-    setInMag(x, fadetime) : Replace the `inmag` attribute.
-    setInAng(x, fadetime) : Replace the `inang` attribute.
+        Cartesians coordinates can be retrieve by calling :
+        
+        PolToCar['real'] to retrieve the real part.
+        CarToPol['imag'] to retrieve the imaginary part.
 
-    Attributes:
-
-    inmag : PyoObject. Magintude input signal.
-    inang : PyoObject. Angle input signal.
-
-    Notes:
-
-    Cartesians coordinates can be retrieve by calling :
-    
-    PolToCar['real'] to retrieve the real part.
-    CarToPol['imag'] to retrieve the imaginary part.
-
-    PolToCar has no `out` method. Signal must be converted back to time domain, 
-    with IFFT, before being sent to output.
-
-    Examples:
+        PolToCar has no `out` method. Signal must be converted back to time domain, 
+        with IFFT, before being sent to output.
 
     >>> s = Server().boot()
     >>> snd1 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7).mix(2)
@@ -707,7 +651,7 @@ class PolToCar(PyoObject):
         "real" or "imag" must be given to `identifier` to specify
         which stream to get value from.
 
-        Parameters:
+        :Args:
 
             identifier : string {"real", "imag"}
                 Address string parameter identifying audio stream.
@@ -728,12 +672,12 @@ class PolToCar(PyoObject):
         """
         Replace the `inmag` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._inmag = x
@@ -743,12 +687,12 @@ class PolToCar(PyoObject):
         """
         Replace the `inang` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._inang = x
@@ -782,35 +726,23 @@ class FrameDelta(PyoObject):
     `running phase` (by simply summing the successive differences with FrameAccum) for 
     the output FFT frames.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Phase input signal, usually from an FFT analysis.
-    framesize : int, optional
-        Frame size in samples. Usually the same as the FFT size.
-        Defaults to 1024.
-    overlaps : int, optional
-        Number of overlaps in incomming signal. Usually the same
-        as the FFT overlaps. Defaults to 4.
+        input : PyoObject
+            Phase input signal, usually from an FFT analysis.
+        framesize : int, optional
+            Frame size in samples. Usually the same as the FFT size.
+            Defaults to 1024.
+        overlaps : int, optional
+            Number of overlaps in incomming signal. Usually the same
+            as the FFT overlaps. Defaults to 4.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFrameSize(x) : Replace the `framesize` attribute.
-
-    Attributes:
-
-    input : PyoObject. Phase input signal.
-    framesize : int. Frame size in samples.
-
-    Notes:
-
-    FrameDelta has no `out` method. Signal must be converted back to time domain, 
-    with IFFT, before being sent to output.
-
-    Examples:
+        FrameDelta has no `out` method. Signal must be converted back to time domain, 
+        with IFFT, before being sent to output.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -861,12 +793,12 @@ class FrameDelta(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -876,10 +808,10 @@ class FrameDelta(PyoObject):
         """
         Replace the `framesize` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `framesize` attribute.
+            x : int
+                new `framesize` attribute.
 
         """
         self._framesize = x
@@ -914,35 +846,23 @@ class FrameAccum(PyoObject):
     it to construct a `running phase` (by simply summing the successive differences) for 
     the output FFT frames.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Phase input signal.
-    framesize : int, optional
-        Frame size in samples. Usually same as the FFT size.
-        Defaults to 1024.
-    overlaps : int, optional
-        Number of overlaps in incomming signal. Usually the same
-        as the FFT overlaps. Defaults to 4.
+        input : PyoObject
+            Phase input signal.
+        framesize : int, optional
+            Frame size in samples. Usually same as the FFT size.
+            Defaults to 1024.
+        overlaps : int, optional
+            Number of overlaps in incomming signal. Usually the same
+            as the FFT overlaps. Defaults to 4.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFrameSize(x) : Replace the `framesize` attribute.
-
-    Attributes:
-
-    input : PyoObject. Phase input signal.
-    framesize : int. Frame size in samples.
-
-    Notes:
-
-    FrameAccum has no `out` method. Signal must be converted back to time domain, 
-    with IFFT, before being sent to output.
-
-    Examples:
+        FrameAccum has no `out` method. Signal must be converted back to time domain, 
+        with IFFT, before being sent to output.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -993,12 +913,12 @@ class FrameAccum(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1008,10 +928,10 @@ class FrameAccum(PyoObject):
         """
         Replace the `framesize` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `framesize` attribute.
+            x : int
+                new `framesize` attribute.
 
         """
         self._framesize = x
@@ -1039,52 +959,34 @@ class Vectral(PyoObject):
     Vectral applies filter with different coefficients for increasing
     and decreasing magnitude vectors, bin by bin.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Magnitude input signal, usually from an FFT analysis.
-    framesize : int, optional
-        Frame size in samples. Usually the same as the FFT size.
-        Defaults to 1024.
-    overlaps : int, optional
-        Number of overlaps in incomming signal. Usually the same
-        as the FFT overlaps. Defaults to 4.
-    up : float or PyoObject, optional
-        Filter coefficient for increasing bins, between 0 and 1.
-        Lower values results in a longer ramp time for bin magnitude.
-        Defaults to 1.
-    down : float or PyoObject, optional
-        Filter coefficient for decreasing bins, between 0 and 1.
-        Lower values results in a longer decay time for bin magnitude.
-        Defaults to 0.7
-    damp : float or PyoObject, optional
-        High frequencies damping factor, between 0 and 1. Lower values
-        mean more damping. Defaults to 0.9.
+        input : PyoObject
+            Magnitude input signal, usually from an FFT analysis.
+        framesize : int, optional
+            Frame size in samples. Usually the same as the FFT size.
+            Defaults to 1024.
+        overlaps : int, optional
+            Number of overlaps in incomming signal. Usually the same
+            as the FFT overlaps. Defaults to 4.
+        up : float or PyoObject, optional
+            Filter coefficient for increasing bins, between 0 and 1.
+            Lower values results in a longer ramp time for bin magnitude.
+            Defaults to 1.
+        down : float or PyoObject, optional
+            Filter coefficient for decreasing bins, between 0 and 1.
+            Lower values results in a longer decay time for bin magnitude.
+            Defaults to 0.7
+        damp : float or PyoObject, optional
+            High frequencies damping factor, between 0 and 1. Lower values
+            mean more damping. Defaults to 0.9.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setFrameSize(x) : Replace the `framesize` attribute.
-    setUp(x) : Replace the `up` attribute.
-    setDown(x) : Replace the `down` attribute.
-    setDamp(x) : Replace the `damp` attribute.
-
-    Attributes:
-
-    input : PyoObject. Phase input signal.
-    framesize : int. Frame size in samples.
-    up : float or PyoObject. Filter coefficient for increasing bins.
-    down : float or PyoObject. Filter coefficient for decreasing bins.
-    damp : float or PyoObject. High frequencies damping factor.
-
-    Notes:
-
-    Vectral has no `out` method. Signal must be converted back to time domain, 
-    with IFFT, before being sent to output.
-
-    Examples:
+        Vectral has no `out` method. Signal must be converted back to time domain, 
+        with IFFT, before being sent to output.
 
     >>> s = Server().boot()
     >>> snd = SNDS_PATH + '/accord.aif'
@@ -1129,12 +1031,12 @@ class Vectral(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1144,10 +1046,10 @@ class Vectral(PyoObject):
         """
         Replace the `framesize` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `framesize` attribute.
+            x : int
+                new `framesize` attribute.
 
         """
         self._framesize = x
@@ -1158,10 +1060,10 @@ class Vectral(PyoObject):
         """
         Replace the `up` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `up` attribute.
+            x : float or PyoObject
+                new `up` attribute.
 
         """
         self._up = x
@@ -1172,10 +1074,10 @@ class Vectral(PyoObject):
         """
         Replace the `down` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `down` attribute.
+            x : float or PyoObject
+                new `down` attribute.
 
         """
         self._down = x
@@ -1186,10 +1088,10 @@ class Vectral(PyoObject):
         """
         Replace the `damp` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `damp` attribute.
+            x : float or PyoObject
+                new `damp` attribute.
 
         """
         self._damp = x
@@ -1246,38 +1148,26 @@ class CvlVerb(PyoObject):
     algorithm. This object can be used to convolve an input signal with an 
     impulse response soundfile to simulate real acoustic spaces.
     
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    impulse : string, optional
-        Path to the impulse response soundfile. The file must have the same 
-        sampling rate as the server to get the proper convolution. Available at
-        initialization time only. Defaults to 'IRMediumHallStereo.wav', located 
-        in pyolib SNDS_PATH folder.
-    size : int {pow-of-two}, optional
-        The size in samples of each partition of the impulse file. Small size means
-        smaller latency but more computation time. If not a power-of-2, the object
-        will find the next power-of-2 greater and use that as the actual partition size.
-        This value must also be greater or equal than the server's buffer size.
-        Available at initialization time only. Defaults to 1024.
-    bal : float or PyoObject, optional
-        Balance between wet and dry signal, between 0 and 1. 0 means no 
-        reverb. Defaults to 0.25.
-
-    Methods:
-    
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setBal(x) : Replace the `bal` attribute.
-
-    Attributes:
-    
-    input : PyoObject. Input signal to process.
-    bal : float or PyoObject. Balance between wet and dry signal.
-        
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        impulse : string, optional
+            Path to the impulse response soundfile. The file must have the same 
+            sampling rate as the server to get the proper convolution. Available at
+            initialization time only. Defaults to 'IRMediumHallStereo.wav', located 
+            in pyolib SNDS_PATH folder.
+        size : int {pow-of-two}, optional
+            The size in samples of each partition of the impulse file. Small size means
+            smaller latency but more computation time. If not a power-of-2, the object
+            will find the next power-of-2 greater and use that as the actual partition size.
+            This value must also be greater or equal than the server's buffer size.
+            Available at initialization time only. Defaults to 1024.
+        bal : float or PyoObject, optional
+            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            reverb. Defaults to 0.25.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -1304,12 +1194,12 @@ class CvlVerb(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1319,10 +1209,10 @@ class CvlVerb(PyoObject):
         """
         Replace the `bal` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `bal` attribute.
+            x : float or PyoObject
+                new `bal` attribute.
 
         """
         self._bal = x
@@ -1356,76 +1246,39 @@ class Spectrum(PyoObject):
     within a user defined range. It can show both magnitude and frequency
     on linear or logarithmic scale.
     
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    size : int {pow-of-two > 4}, optional
-        FFT size. Must be a power of two greater than 4.
-        The FFT size is the number of samples used in each
-        analysis frame. Defaults to 1024.
-    wintype : int, optional
-        Shape of the envelope used to filter each input frame.
-        Possible shapes are :
-            0 : rectangular (no windowing)
-            1 : Hamming
-            2 : Hanning
-            3 : Bartlett (triangular)
-            4 : Blackman 3-term
-            5 : Blackman-Harris 4-term
-            6 : Blackman-Harris 7-term
-            7 : Tuckey (alpha = 0.66)
-            8 : Sine (half-sine window)
-    function : python callable, optional
-        If set, this function will be called with magnitudes (as
-        list of lists, one list per channel). Useful if someone
-        wants to save the analysis data into a text file.
-        Defaults to None.
+        input : PyoObject
+            Input signal to process.
+        size : int {pow-of-two > 4}, optional
+            FFT size. Must be a power of two greater than 4.
+            The FFT size is the number of samples used in each
+            analysis frame. Defaults to 1024.
+        wintype : int, optional
+            Shape of the envelope used to filter each input frame.
+            Possible shapes are :
+                0. rectangular (no windowing)
+                1. Hamming
+                2. Hanning
+                3. Bartlett (triangular)
+                4. Blackman 3-term
+                5. Blackman-Harris 4-term
+                6. Blackman-Harris 7-term
+                7. Tuckey (alpha = 0.66)
+                8. Sine (half-sine window)
+        function : python callable, optional
+            If set, this function will be called with magnitudes (as
+            list of lists, one list per channel). Useful if someone
+            wants to save the analysis data into a text file.
+            Defaults to None.
 
-    Methods:
+    .. note::
     
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setSize(x) : Replace the `size` attribute.
-    setWinType(x) : Replace the `wintype` attribute. 
-    setFunction(callable) : Sets the function to be called to retrieve the analysis data.
-    poll(boolean) : Turns on and off the analysis polling. (defaults to True).
-    polltime(time) : Sets the polling time in seconds (defaults to 0.05).
-    setLowbound(x) : Sets the lower frequency, as multiplier of sr, returned by the analysis.
-    setHighbound(x) : Sets the higher frequency, as multiplier of sr, returned by the analysis.
-    getLowfreq() : Returns the current lower frequency, in Hz, used by the analysis.
-    getHighfreq() : Returns the current higher frequency, in Hz, used by the analysis.
-    setWidth(x) : Sets the width of the current display.
-    setHeight(x) : Sets the height of the current display.
-    setFscaling(boolean) : Sets the frequency display to linear or logarithmic.
-    setMscaling(boolean) : Sets the magnitude display to linear or logarithmic.
-    getFscaling() : Returns the scaling of the frequency display (lin or log).
-    getMscaling() : Returns the scaling of the magnitude display (lin or log).
-    setGain(x) : Set the gain of the anaysis data. For drawing purpose.
-    view(title, wxnoserver) : Opens a window showing the result of the analysis.
-    refreshView() : Updates the graphical display of the spectrum.
+        Spectrum has no `out` method.
+        Spectrum has no `mul` and `add` attributes.
 
-    Attributes:
-    
-    input : PyoObject. Input signal to process.
-    size : int {pow-of-two > 4}. FFT size.
-    wintype : int. Shape of the envelope.
-    gain : float. Gain of the analysis data.
-    lowbound : float. Lowest frequency (multiplier of sr) to output.
-    highbound : float. Highest frequency (multiplier of sr) to output.
-    width : int. Width, in pixels, of the current display.
-    height : int. Height, in pixels, of the current display.
-    fscaling : boolean. Scaling of the frequency display.
-    mscaling : boolean. Scaling of the magnitude display.
-
-    Notes:
-    
-    Spectrum has no `out` method.
-    Spectrum has no `mul` and `add` attributes.
-
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SuperSaw(freq=[500,750], detune=0.6, bal=0.7, mul=0.5).out()
@@ -1458,12 +1311,12 @@ class Spectrum(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1473,10 +1326,10 @@ class Spectrum(PyoObject):
         """
         Replace the `size` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `size` attribute.
+            x : int
+                new `size` attribute.
         
         """
         self._size = x
@@ -1487,10 +1340,10 @@ class Spectrum(PyoObject):
         """
         Replace the `wintype` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `wintype` attribute.
+            x : int
+                new `wintype` attribute.
         
         """
         self._wintype = x
@@ -1501,12 +1354,12 @@ class Spectrum(PyoObject):
         """
         Sets the function to be called to retrieve the analysis data.
         
-        parameters:
+        :Args:
             
-        function : python callable
-            The function called by the internal timer to retrieve the
-            analysis data. The function must be created with one argument
-            and will receive the data as a list of lists (one list per channel).
+            function : python callable
+                The function called by the internal timer to retrieve the
+                analysis data. The function must be created with one argument
+                and will receive the data as a list of lists (one list per channel).
 
         """
         self._function = function
@@ -1515,11 +1368,11 @@ class Spectrum(PyoObject):
         """
         Turns on and off the analysis polling.
         
-        Parameters:
+        :Args:
             
-        active : boolean
-            If True, starts the analysis polling, False to stop it.
-            defaults to True.
+            active : boolean
+                If True, starts the analysis polling, False to stop it.
+                defaults to True.
 
         """
         if active:
@@ -1531,11 +1384,11 @@ class Spectrum(PyoObject):
         """
         Sets the polling time in seconds.
         
-        Parameters:
+        :Args:
             
-        time : float
-            Adjusts the frequency of the internal timer used to
-            retrieve the current analysis frame. defaults to 0.05.
+            time : float
+                Adjusts the frequency of the internal timer used to
+                retrieve the current analysis frame. defaults to 0.05.
         
         """
         self._timer.time = time
@@ -1546,10 +1399,10 @@ class Spectrum(PyoObject):
         
         Returns the real low frequency en Hz.
         
-        Parameters:
+        :Args:
 
-        x : float {0 <= x <= 0.5}
-            new `lowbound` attribute.
+            x : float {0 <= x <= 0.5}
+                new `lowbound` attribute.
         
         """
         self._lowbound = x
@@ -1563,10 +1416,10 @@ class Spectrum(PyoObject):
         
         Returns the real high frequency en Hz.
         
-        Parameters:
+        :Args:
 
-        x : float {0 <= x <= 0.5}
-            new `highbound` attribute.
+            x : float {0 <= x <= 0.5}
+                new `highbound` attribute.
         
         """
         self._highbound = x
@@ -1595,10 +1448,10 @@ class Spectrum(PyoObject):
         
         Used internally to build the list of points to draw.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `width` attribute.
+            x : int
+                new `width` attribute.
         
         """
         self._width = x
@@ -1611,10 +1464,10 @@ class Spectrum(PyoObject):
         
         Used internally to build the list of points to draw.
         
-        Parameters:
+        :Args:
 
-        x : int
-            new `height` attribute.
+            x : int
+                new `height` attribute.
         
         """
         self._height = x
@@ -1625,11 +1478,11 @@ class Spectrum(PyoObject):
         """
         Sets the frequency display to linear or logarithmic.
         
-        Parameters:
+        :Args:
 
-        x : boolean
-            If True, the frequency display is logarithmic. False turns
-            it back to linear. Defaults to False.
+            x : boolean
+                If True, the frequency display is logarithmic. False turns
+                it back to linear. Defaults to False.
         
         """
         self._fscaling = x
@@ -1642,11 +1495,11 @@ class Spectrum(PyoObject):
         """
         Sets the magnitude display to linear or logarithmic.
         
-        Parameters:
+        :Args:
 
-        x : boolean
-            If True, the magnitude display is logarithmic (which means in dB). 
-            False turns it back to linear. Defaults to True.
+            x : boolean
+                If True, the magnitude display is logarithmic (which means in dB). 
+                False turns it back to linear. Defaults to True.
         
         """
         self._mscaling = x
@@ -1677,10 +1530,10 @@ class Spectrum(PyoObject):
         """
         Set the gain of the anaysis data. For drawing purpose.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `gain` attribute, as linear values.
+            x : float
+                new `gain` attribute, as linear values.
         
         """
         self._gain = x
@@ -1691,15 +1544,16 @@ class Spectrum(PyoObject):
         """
         Opens a window showing the result of the analysis.
         
-        Parameters:
+        :Args:
         
-        title : string, optional
-            Window title. Defaults to "Spectrum". 
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the table window. 
-            Defaults to False.
+            title : string, optional
+                Window title. Defaults to "Spectrum". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
         
         """
         createSpectrumWindow(self, title, wxnoserver)

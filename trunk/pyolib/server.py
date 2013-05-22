@@ -36,87 +36,58 @@ class Server(object):
     An instance of the Server must be booted before defining any 
     signal processing chain.
 
-    Parameters:
+    :Args:
 
-    sr : int, optional
-        Sampling rate used by Portaudio and the Server to compute samples. 
-        Defaults to 44100.
-    nchnls : int, optional
-        Number of input and output channels. Defaults to 2.
-    buffersize : int, optional
-        Number of samples that Portaudio will request from the callback loop. 
-        This value has an impact on CPU use (a small buffer size is harder 
-        to compute) and on the latency of the system. Latency is 
-        `buffer size / sampling rate` in seconds. Defaults to 256.
-    duplex : int {0, 1}, optional
-        Input - output mode. 0 is output only and 1 is both ways. 
-        Defaults to 1.
-    audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb}, optional
-        Audio backend to use. 'pa' is equivalent to 'portaudio'.
-        'offline' save the audio output in a soundfile as fast as possible in blocking mode, 
-        ie. the main program doesn't respond until the end of the computation.
-        'offline_nb' save the audio output in a soundfile as fast as possible in non-blocking 
-        mode, ie. the computation is executed in a separated thread, allowing the program to
-        respond while the computation goes on. It is the responsibility of the user to make
-        sure that the program doesn't exit before the computation is done.
-        Default is 'portaudio'.
-    jackname : string, optional
-        Name of jack client. Defaults to 'pyo'
+        sr : int, optional
+            Sampling rate used by Portaudio and the Server to compute samples. 
+            Defaults to 44100.
+        nchnls : int, optional
+            Number of input and output channels. Defaults to 2.
+        buffersize : int, optional
+            Number of samples that Portaudio will request from the callback loop. 
+            Defaults to 256.
 
-    Methods:
+            This value has an impact on CPU use (a small buffer size is harder 
+            to compute) and on the latency of the system. 
+            
+            Latency is `buffer size / sampling rate` in seconds. 
+        duplex : int {0, 1}, optional
+            Input - output mode. 0 is output only and 1 is both ways. 
+            Defaults to 1.
+        audio : string {'portaudio', 'pa', 'jack', 'coreaudio', 'offline', 'offline_nb}, optional
+            Audio backend to use. 'pa' is equivalent to 'portaudio'. Default is 'portaudio'.
+            
+            'offline' save the audio output in a soundfile as fast as possible in blocking mode, 
 
-    setAmp(x) : Set the overall amplitude.
-    boot() : Boot the server. Must be called before defining any signal 
-        processing chain.
-    shutdown() : Shut down and clear the server.
-    setStartOffset(x) : Set the starting time of the real-time processing.
-    setGlobalSeed(x) : Set the server's global seed used by random objects.
-    start() : Start the audio callback loop.
-    stop() : Stop the audio callback loop.
-    gui(locals, meter, timer) : Show the server's user interface.
-    recordOptions(dur, filename, fileformat, sampletype) : Rendering settings.
-    recstart(str) : Begins recording of the sound sent to output. 
-        This method creates a file called `pyo_rec.aif` in the 
-        user's home directory if a path is not supplied.
-    recstop() : Stops previously started recording.
-    getSamplingRate() : Returns the current sampling rate.
-    getNchnls() : Returns the current number of channels.
-    getBufferSize() : Returns the current buffer size.
-    getGlobalSeed() : Returns the server's global seed.
-    getIsStarted() : Returns 1 if the server is started, otherwise returns 0.
-    getIsBooted() : Returns 1 if the server is booted, otherwise returns 0.
-    getMidiActive() : Returns 1 if Midi callback is active, otherwise returns 0.
-    getStreams() : Returns the list of Stream objects currently in the Server memory.
-    getNumberOfStreams() : Returns the number of streams currently in the Server memory.
-    sendMidiNote(pitch, velocity, channel, timestamp) : Send a MIDI note message to the 
-        selected output device.
+            ie. the main program doesn't respond until the end of the computation.
+            
+            'offline_nb' save the audio output in a soundfile as fast as possible in non-blocking 
+            mode, 
+            
+            ie. the computation is executed in a separated thread, allowing the program to
+            respond while the computation goes on. 
 
-    The next methods must be called before booting the server
+            It is the responsibility of the user to make sure that the program doesn't exit before 
+            the computation is done.
+        jackname : string, optional
+            Name of jack client. Defaults to 'pyo'
 
-    setInOutDevice(x) : Set both input and output devices. See `pa_list_devices()`.
-    setInputDevice(x) : Set the audio input device number. See `pa_list_devices()`.
-    setOutputDevice(x) : Set the audio output device number. See `pa_list_devices()`.
-    setMidiInputDevice(x) : Set the MIDI input device number. See `pm_list_devices()`.
-    setMidiOutputDevice(x) : Set the MIDI output device number. See `pm_list_devices()`.
-    setSamplingRate(x) : Set the sampling rate used by the server.
-    setBufferSize(x) : Set the buffer size used by the server.
-    setNchnls(x) : Set the number of channels used by the server.
-    setDuplex(x) : Set the duplex mode used by the server.
-    setVerbosity(x) : Set the server's verbosity.
-    reinit(sr, nchnls, buffersize, duplex, audio, jackname) : Reinit the server's settings.
-        
-    Attributes:
-    
-    amp : Overall amplitude of the Server. This value is applied on any 
-        stream sent to the soundcard.
-    verbosity : Control the messages printed by the server. It is a sum of 
-        values to display different levels: 1 = error, 2 = message, 
-        4 = warning , 8 = debug.
-    startoffset : Starting time of the real-time processing.
-    globalseed : Global seed used by random objects. Defaults to 0 (means always seed from the system clock). 
-        
-    Examples:
-    
+    .. note::
+
+        The following methods must be called **before** booting the server
+
+        - setInOutDevice(x) : Set both input and output devices. See `pa_list_devices()`.
+        - setInputDevice(x) : Set the audio input device number. See `pa_list_devices()`.
+        - setOutputDevice(x) : Set the audio output device number. See `pa_list_devices()`.
+        - setMidiInputDevice(x) : Set the MIDI input device number. See `pm_list_devices()`.
+        - setMidiOutputDevice(x) : Set the MIDI output device number. See `pm_list_devices()`.
+        - setSamplingRate(x) : Set the sampling rate used by the server.
+        - setBufferSize(x) : Set the buffer size used by the server.
+        - setNchnls(x) : Set the number of channels used by the server.
+        - setDuplex(x) : Set the duplex mode used by the server.
+        - setVerbosity(x) : Set the server's verbosity.
+        - reinit(sr, nchnls, buffersize, duplex, audio, jackname) : Reinit the server's settings.
+
     >>> # For an 8 channels server in duplex mode with
     >>> # a sampling rate of 48000 Hz and buffer size of 512
     >>> s = Server(sr=48000, nchnls=8, buffersize=512, duplex=1).boot()
@@ -150,9 +121,9 @@ class Server(object):
         """
         Reinit the server'settings. Useful to alternate between real-time and offline server.
         
-        Parameters:
+        :Args:
         
-        Same as in the __init__ method.
+            Same as in the __init__ method.
         
         """
         self._nchnls = nchnls
@@ -170,17 +141,17 @@ class Server(object):
         """
         Show the server's user interface.
         
-        Parameters:
+        :Args:
         
-        locals : locals namespace {locals(), None}, optional
-            If locals() is given, the interface will show an interpreter extension,
-            giving a way to interact with the running script. Defaults to None.
-        meter : boolean, optinal
-            If True, the interface will show a vumeter of the global output signal. 
-            Defaults to True.
-        timer : boolean, optional
-            If True, the interface will show a clock of the current time.
-            Defaults to True.
+            locals : locals namespace {locals(), None}, optional
+                If locals() is given, the interface will show an interpreter extension,
+                giving a way to interact with the running script. Defaults to None.
+            meter : boolean, optinal
+                If True, the interface will show a vumeter of the global output signal. 
+                Defaults to True.
+            timer : boolean, optional
+                If True, the interface will show a clock of the current time.
+                Defaults to True.
             
         """
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
@@ -203,10 +174,10 @@ class Server(object):
         """
         Set both input and output audio devices. See `pa_list_devices()`.
         
-        Parameters:
+        :Args:
 
-        x : int
-            Number of the audio input and output devices.
+            x : int
+                Number of the audio input and output devices.
 
         """
         self._server.setInOutDevice(x)
@@ -215,10 +186,10 @@ class Server(object):
         """
         Set the audio input device number. See `pa_list_devices()`.
         
-        Parameters:
+        :Args:
 
-        x : int
-            Number of the audio device listed by Portaudio.
+            x : int
+                Number of the audio device listed by Portaudio.
 
         """
         self._server.setInputDevice(x)
@@ -227,10 +198,10 @@ class Server(object):
         """
         Set the audio output device number. See `pa_list_devices()`.
         
-        Parameters:
+        :Args:
 
-        x : int
-            Number of the audio device listed by Portaudio.
+            x : int
+                Number of the audio device listed by Portaudio.
 
         """
         self._server.setOutputDevice(x)
@@ -239,10 +210,10 @@ class Server(object):
         """
         Set the Midi input device number. See `pm_list_devices()`.
         
-        Parameters:
+        :Args:
 
-        x : int
-            Number of the Midi device listed by Portmidi.
+            x : int
+                Number of the Midi device listed by Portmidi.
 
         """
         self._server.setMidiInputDevice(x)
@@ -251,10 +222,10 @@ class Server(object):
         """
         Set the Midi output device number. See `pm_list_devices()`.
         
-        Parameters:
+        :Args:
 
-        x : int
-            Number of the Midi device listed by Portmidi.
+            x : int
+                Number of the Midi device listed by Portmidi.
 
         """
         self._server.setMidiOutputDevice(x)
@@ -263,10 +234,10 @@ class Server(object):
         """
         Set the sampling rate used by the server.
         
-        Parameters:
+        :Args:
 
-        x : int
-            New sampling rate, must be supported by the soundcard.
+            x : int
+                New sampling rate, must be supported by the soundcard.
 
         """  
         self._server.setSamplingRate(x)
@@ -275,10 +246,10 @@ class Server(object):
         """
         Set the buffer size used by the server.
         
-        Parameters:
+        :Args:
 
-        x : int
-            New buffer size.
+            x : int
+                New buffer size.
 
         """        
         self._server.setBufferSize(x)
@@ -287,10 +258,10 @@ class Server(object):
         """
         Set the number of channels used by the server.
         
-        Parameters:
+        :Args:
 
-        x : int
-            New number of channels.
+            x : int
+                New number of channels.
 
         """
         self._nchnls = x
@@ -300,10 +271,10 @@ class Server(object):
         """
         Set the duplex mode used by the server.
         
-        Parameters:
+        :Args:
 
-        x : int {0 or 1}
-            New mode. 0 is output only, 1 is both ways.
+            x : int {0 or 1}
+                New mode. 0 is output only, 1 is both ways.
 
         """        
         self._server.setDuplex(x)
@@ -312,12 +283,16 @@ class Server(object):
         """
         Set the server's verbosity.
         
-        Parameters:
+        :Args:
 
-        x : int
-            A sum of values to display different levels: 1 = error, 2 = message, 
-            4 = warning , 8 = debug.
-        """        
+            x : int
+                A sum of values to display different levels: 
+                    - 1 = error
+                    - 2 = message 
+                    - 4 = warning
+                    - 8 = debug
+
+        """
         self._verbosity = x
         self._server.setVerbosity(x)
 
@@ -325,11 +300,12 @@ class Server(object):
         """
         Set the server's global seed used by random objects.
 
-        Parameters:
+        :Args:
 
-        x : int
-            A positive integer that will be used as the seed by random objects.
-            If zero, randoms will be seeded with the system clock current value.
+            x : int
+                A positive integer that will be used as the seed by random objects.
+
+                If zero, randoms will be seeded with the system clock current value.
 
         """        
         self._globalseed = x
@@ -340,10 +316,10 @@ class Server(object):
         Set the server's starting time offset. First `x` seconds will be rendered
         offline as fast as possible.
 
-        Parameters:
+        :Args:
 
-        x : float
-            Starting time of the real-time processing.
+            x : float
+                Starting time of the real-time processing.
             
         """        
         self._startoffset = x
@@ -353,10 +329,10 @@ class Server(object):
         """
         Set the overall amplitude.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New amplitude.
+            x : float
+                New amplitude.
 
         """
         self._amp = x
@@ -400,30 +376,29 @@ class Server(object):
         """
         Sets options for soundfile created by offline rendering or global recording.
 
-        Parameters:
+        :Args:
 
-        dur : float
-            Duration, in seconds, of the recorded file. Only used by
-            offline rendering. Must be positive. Defaults to -1.
-        filename : string
-            Full path of the file to create. If None, a file called
-            `pyo_rec.wav` will be created in the user's home directory.
-            Defaults to None.
-        fileformat : int, optional
-            Format type of the audio file. This function will first try to
-            set the format from the filename extension. If it's not possible,
-            it uses the fileformat parameter. Defaults to 0. 
-            Supported formats are:
-                0 : WAV - Microsoft WAV format (little endian) {.wav, .wave}
-                1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
-        sampletype : int, optional
-            Bit depth encoding of the audio file. Defaults to 0.
-            Supported types are:
-                0 : 16 bits int
-                1 : 24 bits int
-                2 : 32 bits int
-                3 : 32 bits float
-                4 : 64 bits float
+            dur : float
+                Duration, in seconds, of the recorded file. Only used by
+                offline rendering. Must be positive. Defaults to -1.
+            filename : string
+                Full path of the file to create. If None, a file called
+                `pyo_rec.wav` will be created in the user's home directory.
+                Defaults to None.
+            fileformat : int, optional
+                Format type of the audio file. This function will first try to
+                set the format from the filename extension. 
+                
+                If it's not possible, it uses the fileformat parameter. Supported formats are:
+                    0. WAV - Microsoft WAV format (little endian) {.wav, .wave} (default)
+                    1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+            sampletype : int, optional
+                Bit depth encoding of the audio file. Supported types are:
+                    0. 16 bits int (default)
+                    1. 24 bits int
+                    2. 32 bits int
+                    3. 32 bits float
+                    4. 64 bits float
 
         """
         
@@ -453,10 +428,10 @@ class Server(object):
         with recordOptions method. Uses file format and sample type 
         defined with recordOptions method. 
         
-        Parameters:
+        :Args:
         
-        filename : string, optional
-            Name of the file to be created. Defaults to None.
+            filename : string, optional
+                Name of the file to be created. Defaults to None.
         
         """
         FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1}
@@ -487,16 +462,17 @@ class Server(object):
         """
         Send a MIDI note message to the selected output device. 
         
-        Parameters:
+        :Args:
         
-        pitch : int
-            Midi pitch, between 0 and 127.
-        velocity : int
-            Amplitude of the note, between 0 and 127. A note
-            with a velocity of 0 is equivalent to a note off.
-        channel : int, optional
-            The Midi channel, between 1 and 16, on which the 
-            note is sent. A channel of 0 means all channels. 
+            pitch : int
+                Midi pitch, between 0 and 127.
+            velocity : int
+                Amplitude of the note, between 0 and 127. A note
+                with a velocity of 0 is equivalent to a note off.
+            channel : int, optional
+                The Midi channel, between 1 and 16, on which the 
+                note is sent. A channel of 0 means all channels. 
+
         """
         self._server.sendMidiNote(pitch, velocity, channel, timestamp)
 
