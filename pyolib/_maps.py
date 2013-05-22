@@ -29,30 +29,14 @@ class Map:
 
     Base class for Map objects.
 
-    Parameters:
+    :Args:
 
-    min : int or float
-        Lowest value of the range.
-    max : int or float
-        Highest value of the range.
-    scale : string {'lin', 'log'}
-        Method used to scale the input value on the specified range.
-
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range. 
-    setMin(x) : Replaces the 'min' attribute. 
-    setMax(x) : Replaces the 'max' attribute. 
-    setScale(x) : Replaces the 'scale' attribute. 
-
-    Attributes:
-
-    min : Lowest value of the range.
-    max : Highest value of the range.
-    scale : Method used to scale the input value.
-
-    Examples:
+        min : int or float
+            Lowest value of the range.
+        max : int or float
+            Highest value of the range.
+        scale : string {'lin', 'log'}
+            Method used to scale the input value on the specified range.
 
     >>> m = Map(20., 20000., 'log')
     >>> print m.get(.5)
@@ -93,10 +77,10 @@ class Map:
         """
         Replace the `min` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New `min` attribute.
+            x : float
+                New `min` attribute.
 
         """
         self._min = x
@@ -105,10 +89,10 @@ class Map:
         """
         Replace the `max` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            New `max` attribute.
+            x : float
+                New `max` attribute.
 
         """
         self._max = x
@@ -117,26 +101,35 @@ class Map:
         """
         Replace the `scale` attribute.
         
-        Parameters:
+        :Args:
 
-        x : string
-            New `scale` attribute.
+            x : string
+                New `scale` attribute.
 
         """
         self._scale = x
 
     @property
-    def min(self): return self._min
+    def min(self): 
+        """int or float. Lowest value of the range."""
+        return self._min
     @min.setter
-    def min(self, x): self.setMin(x)    
+    def min(self, x): 
+        self.setMin(x)    
     @property
-    def max(self): return self._max
+    def max(self): 
+        """int or float. Highest value of the range."""
+        return self._max
     @max.setter
-    def max(self, x): self.setMax(x)
+    def max(self, x): 
+        self.setMax(x)
     @property
-    def scale(self): return self._scale
+    def scale(self): 
+        """string. Method used to scale the input value."""
+        return self._scale
     @scale.setter
-    def scale(self, x): self.setScale(x)
+    def scale(self, x): 
+        self.setScale(x)
 
 class SLMap(Map):
     """
@@ -145,43 +138,26 @@ class SLMap(Map):
     Derived from Map class, a few parameters are added for sliders 
     initialization.
 
-    Parentclass: Map
+    :Parent: :py:class:`Map`
 
-    Parameters:
+    :Args:
 
-    min : int or float
-        Smallest value of the range.
-    max : int or float
-        Highest value of the range.
-    scale : string {'lin', 'log'}
-        Method used to scale the input value on the specified range.    
-    name : string
-        Name of the attributes the slider is affected to.
-    init : int or float
-        Initial value. Specified in the real range, not between 0 and 1. Use
-        the `set` method to retreive the normalized corresponding value.
-    res : string {'int', 'float'}, optional
-        Sets the resolution of the slider. Defaults to 'float'.
-    ramp : float, optional
-        Ramp time, in seconds, used to smooth the signal sent from slider 
-        to object's attribute. Defaults to 0.025.
-
-    Methods:
-
-    get(x) : Returns the scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
-
-    Attributes:
-
-    min : Lowest value of the range.
-    max : Highest value of the range.
-    scale : Method used to scale the input value.
-    name : Name of the parameter to control.
-    init : Initial value of the slider.
-    res : Slider resolution {int or float}.
-    ramp : Ramp time in seconds.
-
-    Examples:
+        min : int or float
+            Smallest value of the range.
+        max : int or float
+            Highest value of the range.
+        scale : string {'lin', 'log'}
+            Method used to scale the input value on the specified range.    
+        name : string
+            Name of the attributes the slider is affected to.
+        init : int or float
+            Initial value. Specified in the real range, not between 0 and 1. Use
+            the `set` method to retreive the normalized corresponding value.
+        res : string {'int', 'float'}, optional
+            Sets the resolution of the slider. Defaults to 'float'.
+        ramp : float, optional
+            Ramp time, in seconds, used to smooth the signal sent from slider 
+            to object's attribute. Defaults to 0.025.
 
     >>> s = Server().boot()
     >>> ifs = [350,360,375,388]
@@ -195,39 +171,44 @@ class SLMap(Map):
         self._name, self._init, self._res, self._ramp = name, init, res, ramp
 
     @property
-    def name(self): return self._name
+    def name(self): 
+        """string. Name of the parameter to control."""
+        return self._name
     @property
-    def init(self): return self._init
+    def init(self): 
+        """float. Initial value of the slider."""
+        return self._init
     @property
-    def res(self): return self._res
+    def res(self): 
+        """string. Slider resolution {int or float}."""
+        return self._res
     @property
-    def ramp(self): return self._ramp
+    def ramp(self): 
+        """float. Ramp time in seconds."""
+        return self._ramp
 
 class SLMapFreq(SLMap):
     """
     SLMap with normalized values for a 'freq' slider.
 
-    Parentclass: SLMap
+    :Parent: :py:class:`SLMap`
 
-    Parameters:
+    :Args:
 
-    init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
-        Defaults to 1000.
+        init : int or float, optional
+            Initial value. Specified in the real range, not between 0 and 1.
+            Defaults to 1000.
 
-    SLMapFreq values are: 
+    .. note::
 
-    min = 20.0
-    max = 20000.0
-    scale = 'log'
-    name = 'freq'
-    res = 'float'
-    ramp = 0.025
+        SLMapFreq values are: 
 
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+        - min = 20.0
+        - max = 20000.0
+        - scale = 'log'
+        - name = 'freq'
+        - res = 'float'
+        - ramp = 0.025
 
     """
     def __init__(self, init=1000):
@@ -237,27 +218,24 @@ class SLMapMul(SLMap):
     """
     SLMap with normalized values for a 'mul' slider.
 
-    Parentclass: SLMap
+    :Parent: :py:class:`SLMap`
 
-    Parameters:
+    :Args:
 
-    init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
-        Defaults to 1.
+        init : int or float, optional
+            Initial value. Specified in the real range, not between 0 and 1.
+            Defaults to 1.
 
-    SLMapMul values are:
+    .. note::
 
-    min = 0.0
-    max = 2.0
-    scale = 'lin'
-    name = 'mul'
-    res = 'float'
-    ramp = 0.025
+        SLMapMul values are:
 
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+        - min = 0.0
+        - max = 2.0
+        - scale = 'lin'
+        - name = 'mul'
+        - res = 'float'
+        - ramp = 0.025
 
     """
     def __init__(self, init=1.):
@@ -267,27 +245,24 @@ class SLMapPhase(SLMap):
     """
     SLMap with normalized values for a 'phase' slider.
 
-    Parentclass: SLMap
+    :Parent: :py:class:`SLMap`
 
-    Parameters:
+    :Args:
 
-    init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
-        Defaults to 0.
+        init : int or float, optional
+            Initial value. Specified in the real range, not between 0 and 1.
+            Defaults to 0.
 
-    SLMapPhase values are: 
+    .. note::
 
-    min = 0.0
-    max = 1.0
-    scale = 'lin'
-    name = 'phase'
-    res = 'float'
-    ramp = 0.025
+        SLMapPhase values are: 
 
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+        - min = 0.0
+        - max = 1.0
+        - scale = 'lin'
+        - name = 'phase'
+        - res = 'float'
+        - ramp = 0.025
 
     """
     def __init__(self, init=0.):
@@ -297,27 +272,24 @@ class SLMapPan(SLMap):
     """
     SLMap with normalized values for a 'pan' slider.
 
-    Parentclass: SLMap
+    :Parent: :py:class:`SLMap`
 
-    Parameters:
+    :Args:
 
-    init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
-        Defaults to 0.
+        init : int or float, optional
+            Initial value. Specified in the real range, not between 0 and 1.
+            Defaults to 0.
 
-    SLMapPhase values are: 
+    .. note::
 
-    min = 0.0
-    max = 1.0
-    scale = 'lin'
-    name = 'pan'
-    res = 'float'
-    ramp = 0.025
+        SLMapPhase values are: 
 
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+        - min = 0.0
+        - max = 1.0
+        - scale = 'lin'
+        - name = 'pan'
+        - res = 'float'
+        - ramp = 0.025
 
     """
     def __init__(self, init=0.):
@@ -327,27 +299,24 @@ class SLMapQ(SLMap):
     """
     SLMap with normalized values for a 'q' slider.
 
-    Parentclass: SLMap
+    :Parent: :py:class:`SLMap`
 
-    Parameters:
+    :Args:
 
-    init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
-        Defaults to 1.
+        init : int or float, optional
+            Initial value. Specified in the real range, not between 0 and 1.
+            Defaults to 1.
 
-    SLMapQ values are: 
+    .. note::
 
-    min = 0.1
-    max = 100.0
-    scale = 'log'
-    name = 'q'
-    res = 'float'
-    ramp = 0.025
+        SLMapQ values are: 
 
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+        - min = 0.1
+        - max = 100.0
+        - scale = 'log'
+        - name = 'q'
+        - res = 'float'
+        - ramp = 0.025
 
     """
     def __init__(self, init=1.):
@@ -357,27 +326,24 @@ class SLMapDur(SLMap):
     """
     SLMap with normalized values for a 'dur' slider.
 
-    Parentclass: SLMap
+    :Parent: :py:class:`SLMap`
 
-    Parameters:
+    :Args:
 
-    init : int or float, optional
-        Initial value. Specified in the real range, not between 0 and 1.
-        Defaults to 1.
+        init : int or float, optional
+            Initial value. Specified in the real range, not between 0 and 1.
+            Defaults to 1.
 
-    SLMapDur values are: 
+    .. note::
 
-    min = 0.
-    max = 60.0
-    scale = 'lin'
-    name = 'dur'
-    res = 'float'
-    ramp = 0.025
+        SLMapDur values are: 
 
-    Methods:
-
-    get(x) : Returns scaled value for `x` between 0 and 1.
-    set(x) : Returns the normalized value (0 -> 1) for `x` in the real range.  
+        - min = 0.
+        - max = 60.0
+        - scale = 'lin'
+        - name = 'dur'
+        - res = 'float'
+        - ramp = 0.025
 
     """
     def __init__(self, init=1.):

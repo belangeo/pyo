@@ -35,33 +35,21 @@ class Pattern(PyoObject):
     The play() method starts the pattern timer and is not called 
     at the object creation time.
             
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
 
-    function : Python function
-        Python function to be called periodically.
-    time : float or PyoObject, optional
-        Time, in seconds, between each call. Default to 1.
+        function : Python function
+            Python function to be called periodically.
+        time : float or PyoObject, optional
+            Time, in seconds, between each call. Default to 1.
+
+    .. note::
+
+        The out() method is bypassed. Pattern doesn't return signal.
         
-    Methods:
+        Pattern has no `mul` and `add` attributes.
 
-    setFunction(x) : Replace the `function` attribute.
-    setTime(x) : Replace the `time` attribute.
-
-    Attributes:
-    
-    function : Python function. Function to be called.
-    time : Time, in seconds, between each call.
-    
-    Notes:
-
-    The out() method is bypassed. Pattern doesn't return signal.
-    
-    Pattern has no `mul` and `add` attributes.
-
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> t = HarmTable([1,0,.33,0,.2,0,.143,0,.111])
@@ -92,10 +80,10 @@ class Pattern(PyoObject):
         """
         Replace the `function` attribute.
 
-        Parameters:
+        :Args:
 
-        x : Python function
-            new `function` attribute.
+            x : Python function
+                new `function` attribute.
 
         """
         self._function = x
@@ -106,10 +94,10 @@ class Pattern(PyoObject):
         """
         Replace the `time` attribute.
         
-        Parameters:
+        :Args:
         
-        x : float or PyoObject
-            New `time` attribute.
+            x : float or PyoObject
+                New `time` attribute.
         
         """
         self._time = x
@@ -161,36 +149,26 @@ class Score(PyoObject):
     p2, etc. and then, by passing a counter to a Score object with "p" 
     as `fname` argument. Functions are called without parameters.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Audio signal. Must contains integer numbers. Integer must change
-        before calling its function again.
-    fname : string, optional
-        Name of the functions to be called. Defaults to "event_", meaning
-        that the object will call the function "event_0", "event_1", "event_2",
-        and so on... Available at initialization time only.
+        input : PyoObject
+            Audio signal. Must contains integer numbers. Integer must change
+            before calling its function again.
+        fname : string, optional
+            Name of the functions to be called. Defaults to "event_", meaning
+            that the object will call the function "event_0", "event_1", "event_2",
+            and so on... Available at initialization time only.
     
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
+        The out() method is bypassed. Score's signal can not be sent 
+        to audio outs.
 
-    Attributes:
-    
-    input : PyoObject. Audio signal sending integer numbers.
+        Score has no `mul` and `add` attributes.
 
-    Notes:
-
-    The out() method is bypassed. Score's signal can not be sent 
-    to audio outs.
-
-    Score has no `mul` and `add` attributes.
-
-    See also: Pattern, TrigFunc
-    
-    Examples:
+    .. seealso:: :py:class:`Pattern`, :py:class:`TrigFunc`
     
     >>> s = Server().boot()
     >>> s.start()
@@ -227,47 +205,48 @@ class Score(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
         self._in_fader.setInput(x, fadetime)
 
     @property
-    def input(self): return self._input
+    def input(self): 
+        """PyoObject. Audio signal sending integer numbers."""
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x): 
+        self.setInput(x)
 
 class CallAfter(PyoObject):
     """
     Calls a Python function after a given time.
         
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
 
-    function : Python function
-        Python callable execute after `time` seconds.
-    time : float, optional
-        Time, in seconds, before the call. Default to 1.
-    arg : any Python object, optional
-        Argument sent to the called function. Default to None.
+        function : Python function
+            Python callable execute after `time` seconds.
+        time : float, optional
+            Time, in seconds, before the call. Default to 1.
+        arg : any Python object, optional
+            Argument sent to the called function. Default to None.
   
-    Notes:
+    .. note::
 
-    The out() method is bypassed. CallAfter doesn't return signal.
-    
-    CallAfter has no `mul` and `add` attributes.
-    
-    The object is not deleted after the call. The User must delete it himself.
+        The out() method is bypassed. CallAfter doesn't return signal.
+        
+        CallAfter has no `mul` and `add` attributes.
+        
+        The object is not deleted after the call. The User must delete it himself.
 
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> # Start an oscillator with a frequency of 250 Hz

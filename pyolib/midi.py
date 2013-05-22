@@ -41,43 +41,25 @@ class Midictl(PyoObject):
     Get the current value of a controller and optionally map it 
     inside a specified range.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    ctlnumber : int
-        Controller number.
-    minscale : float, optional
-        Low range value for mapping. Defaults to 0.
-    maxscale : float, optional
-        High range value for mapping. Defaults to 1.
-    init : float, optional
-        Initial value. Defaults to 0.
-    channel : int, optional
-        Midi channel. 0 means all channels. Defaults to 0.
+        ctlnumber : int
+            Controller number.
+        minscale : float, optional
+            Low range value for mapping. Defaults to 0.
+        maxscale : float, optional
+            High range value for mapping. Defaults to 1.
+        init : float, optional
+            Initial value. Defaults to 0.
+        channel : int, optional
+            Midi channel. 0 means all channels. Defaults to 0.
 
-    Methods:
+    .. note::
 
-    setCtlNumber(x) : Replace the `ctlnumber` attribute.
-    setMinScale(x) : Replace the `minscale` attribute.
-    setMaxScale(x) : Replace the `maxscale` attribute.
-    setChannel(x) : Replace the `channel` attribute.
-    setValue(x) : Reset audio stream to value in argument.
-    setInterpolation(x) : Activate/Deactivate interpolation. Activated by default.
-
-    Attributes:
-
-    ctlnumber : Controller number.
-    minscale : Minimum value for scaling.
-    maxscale : Maximum value for scaling.
-    channel : Midi channel. 0 means all channels.
-
-    Notes:
-
-    The out() method is bypassed. Midictl's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. Midictl's signal can not be sent 
+        to audio outs.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -104,10 +86,10 @@ class Midictl(PyoObject):
         """
         Replace the `ctlnumber` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `ctlnumber` attribute.
+            x : int
+                new `ctlnumber` attribute.
 
         """
         self._ctlnumber = x
@@ -118,10 +100,10 @@ class Midictl(PyoObject):
         """
         Replace the `minscale` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `minscale` attribute.
+            x : int
+                new `minscale` attribute.
 
         """
         self._minscale = x
@@ -132,10 +114,10 @@ class Midictl(PyoObject):
         """
         Replace the `maxscale` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `maxscale` attribute.
+            x : int
+                new `maxscale` attribute.
 
         """
         self._maxscale = x
@@ -146,10 +128,10 @@ class Midictl(PyoObject):
         """
         Replace the `channel` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `channel` attribute.
+            x : int
+                new `channel` attribute.
 
         """
         self._channel = x
@@ -160,10 +142,10 @@ class Midictl(PyoObject):
         """
         Reset audio stream to value in argument.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new current value.
+            x : float
+                new current value.
 
         """
         x, lmax = convertArgsToLists(x)
@@ -173,34 +155,46 @@ class Midictl(PyoObject):
         """
         Activate/Deactivate interpolation. Activated by default.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            True activates the interpolation, False deactivates it.
+            x : boolean
+                True activates the interpolation, False deactivates it.
 
         """
         x, lmax = convertArgsToLists(x)
         [obj.setInterpolation(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def ctlnumber(self): return self._ctlnumber
+    def ctlnumber(self): 
+        """int. Controller number."""
+        return self._ctlnumber
     @ctlnumber.setter
-    def ctlnumber(self, x): self.setCtlNumber(x)   
+    def ctlnumber(self, x): 
+        self.setCtlNumber(x)   
 
     @property
-    def minscale(self): return self._minscale
+    def minscale(self): 
+        """float. Minimum value for scaling."""
+        return self._minscale
     @minscale.setter
-    def minscale(self, x): self.setMinScale(x)   
+    def minscale(self, x): 
+        self.setMinScale(x)   
 
     @property
-    def maxscale(self): return self._maxscale
+    def maxscale(self): 
+        """float. Maximum value for scaling."""
+        return self._maxscale
     @maxscale.setter
-    def maxscale(self, x): self.setMaxScale(x)   
+    def maxscale(self, x): 
+        self.setMaxScale(x)   
 
     @property
-    def channel(self): return self._channel
+    def channel(self): 
+        """int. Midi channel. 0 means all channels."""
+        return self._channel
     @channel.setter
-    def channel(self, x): self.setChannel(x)   
+    def channel(self, x): 
+        self.setChannel(x)   
 
 class CtlScan(PyoObject):
     """
@@ -210,36 +204,26 @@ class CtlScan(PyoObject):
     a standard python `function`. Useful to implement a MidiLearn
     algorithm.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    function : Python function
-        Function to be called. The function must be declared
-        with an argument for the controller number in input. Ex.: 
-        def ctl_scan(ctlnum):
-            print ctlnum
-    toprint : boolean, optional
-        If True, controller number and value will be print to 
-        the console.
+        function : Python function
+            Function to be called. The function must be declared
+            with an argument for the controller number in input. Ex.: 
+                
+            def ctl_scan(ctlnum):
+                print ctlnum
+                    
+        toprint : boolean, optional
+            If True, controller number and value will be print to 
+            the console.
 
-    Methods:
+    .. note::
 
-    setFunction(x) : Replace the `function` attribute.
-    setToprint(x) : Replace the `toprint` attribute.
+        The out() method is bypassed. CtlScan's signal can not be sent 
+        to audio outs.
 
-    Attributes:
-    
-    function : Python function. Function to be called.
-    toprint : boolean. If True, print values to the console.
-
-    Notes:
-
-    The out() method is bypassed. CtlScan's signal can not be sent 
-    to audio outs.
-
-    Examples:
-    
     >>> s = Server()
     >>> s.setMidiInputDevice(0) # enter your device number (see pm_list_devices())
     >>> s.boot()
@@ -277,10 +261,10 @@ class CtlScan(PyoObject):
         """
         Replace the `function` attribute.
 
-        Parameters:
+        :Args:
 
-        x : Python function
-            new `function` attribute.
+            x : Python function
+                new `function` attribute.
 
         """
         self._function = x
@@ -291,10 +275,10 @@ class CtlScan(PyoObject):
         """
         Replace the `toprint` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `toprint` attribute.
+            x : int
+                new `toprint` attribute.
 
         """
         self._toprint = x
@@ -302,13 +286,19 @@ class CtlScan(PyoObject):
         [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def function(self): return self._function
+    def function(self): 
+        """Python function. Function to be called."""
+        return self._function
     @function.setter
-    def function(self, x): self.setFunction(x)   
+    def function(self, x): 
+        self.setFunction(x)   
     @property
-    def toprint(self): return self._toprint
+    def toprint(self): 
+        """boolean. If True, print values to the console."""
+        return self._toprint
     @toprint.setter
-    def toprint(self, x): self.setToprint(x)   
+    def toprint(self, x): 
+        self.setToprint(x)   
 
 class CtlScan2(PyoObject):
     """
@@ -318,36 +308,26 @@ class CtlScan2(PyoObject):
     to a standard python `function`. Useful to implement a MidiLearn 
     algorithm.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    function : Python function
-        Function to be called. The function must be declared
-        with two arguments, one for the controller number and 
-        one for the midi channel. Ex.: 
-        def ctl_scan(ctlnum, midichnl):
-            print ctlnum, midichnl
-    toprint : boolean, optional
-        If True, controller number and value will be print to 
-        the console.
+        function : Python function
+            Function to be called. The function must be declared
+            with two arguments, one for the controller number and 
+            one for the midi channel. Ex.: 
 
-    Methods:
+            def ctl_scan(ctlnum, midichnl):
+                print ctlnum, midichnl
 
-    setFunction(x) : Replace the `function` attribute.
-    setToprint(x) : Replace the `toprint` attribute.
+        toprint : boolean, optional
+            If True, controller number and value will be print to 
+            the console.
 
-    Attributes:
+    .. note::
 
-    function : Python function. Function to be called.
-    toprint : boolean. If True, print values to the console.
-
-    Notes:
-
-    The out() method is bypassed. CtlScan2's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. CtlScan2's signal can not be sent 
+        to audio outs.
 
     >>> s = Server()
     >>> s.setMidiInputDevice(0) # enter your device number (see pm_list_devices())
@@ -386,10 +366,10 @@ class CtlScan2(PyoObject):
         """
         Replace the `function` attribute.
 
-        Parameters:
+        :Args:
 
-        x : Python function
-            new `function` attribute.
+            x : Python function
+                new `function` attribute.
 
         """
         self._function = x
@@ -400,10 +380,10 @@ class CtlScan2(PyoObject):
         """
         Replace the `toprint` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `toprint` attribute.
+            x : int
+                new `toprint` attribute.
 
         """
         self._toprint = x
@@ -411,13 +391,19 @@ class CtlScan2(PyoObject):
         [obj.setToprint(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def function(self): return self._function
+    def function(self): 
+        """Python function. Function to be called."""
+        return self._function
     @function.setter
-    def function(self, x): self.setFunction(x)   
+    def function(self, x): 
+        self.setFunction(x)   
     @property
-    def toprint(self): return self._toprint
+    def toprint(self): 
+        """boolean. If True, print values to the console."""
+        return self._toprint
     @toprint.setter
-    def toprint(self, x): self.setToprint(x)   
+    def toprint(self, x): 
+        self.setToprint(x)   
 
 class Notein(PyoObject):
     """
@@ -428,51 +414,42 @@ class Notein(PyoObject):
     noteon - noteoff streams in the `scale` format (Midi, hertz 
     or transpo).
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
     
-    poly : int, optional
-        Number of streams of polyphony generated. Defaults to 10.
-    scale : int, optional
-        Pitch output format. 0 = Midi, 1 = Hertz, 2 = transpo. 
-        In the transpo mode, the default central key (the key where 
-        there is no transposition) is (`first` + `last`) / 2. The
-        central key can be changed with the setCentralKey method.
-    first : int, optional
-        Lowest Midi value. Defaults to 0.
-    last : int, optional
-        Highest Midi value. Defaults to 127.
-    channel : int, optional
-        Midi channel. 0 means all channels. Defaults to 0.
+        poly : int, optional
+            Number of streams of polyphony generated. Defaults to 10.
+        scale : int, optional
+            Pitch output format. 
+                0. Midi
+                1. Hertz
+                2. transpo 
 
-    Methods:
+            In the transpo mode, the default central key (the key where 
+            there is no transposition) is (`first` + `last`) / 2. 
+            
+            The central key can be changed with the setCentralKey method.
+        first : int, optional
+            Lowest Midi value. Defaults to 0.
+        last : int, optional
+            Highest Midi value. Defaults to 127.
+        channel : int, optional
+            Midi channel. 0 means all channels. Defaults to 0.
 
-    setChannel(x) : Replace the `channel` attribute.
-    setCentralKey(x) : Set the midi key where there is no transposition.
-    setStealing(x) : Activates the stealing mode if True. Defaults to False.
-    get(identifier, all) : Return the first sample of the current 
-        buffer as a float.
+    .. note::
+    
+        Pitch and velocity are two separated set of streams. 
+        The user should call :
+        
+        Notein['pitch'] to retrieve pitch streams.
+        Notein['velocity'] to retrieve velocity streams.    
 
-    Attributes:
+        Velocity is automatically scaled between 0 and 1.
+        
+        The out() method is bypassed. Notein's signal can not be sent 
+        to audio outs.
     
-    channel : Midi channel. 0 means all channels.
-    
-    Notes:
-    
-    Pitch and velocity are two separated set of streams. 
-    The user should call :
-    
-    Notein['pitch'] to retrieve pitch streams.
-    Notein['velocity'] to retrieve velocity streams.    
-
-    Velocity is automatically scaled between 0 and 1.
-    
-    The out() method is bypassed. Notein's signal can not be sent 
-    to audio outs.
-    
-    Examples:
-
     >>> s = Server().boot()
     >>> s.start()
     >>> notes = Notein(poly=10, scale=1, mul=.5)
@@ -510,10 +487,10 @@ class Notein(PyoObject):
         """
         Replace the `channel` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `channel` attribute.
+            x : int
+                new `channel` attribute.
 
         """
         self._channel = x
@@ -526,10 +503,10 @@ class Notein(PyoObject):
         Used for transpo conversion. This value must be greater than or
         equal to `first` and lower than or equal to `last`.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new centralkey value.
+            x : int
+                new centralkey value.
 
         """
         self._base_handler.setCentralKey(x)
@@ -542,10 +519,10 @@ class Notein(PyoObject):
         according to the polyphony. In non-stealing mode, if the
         polyphony is already full, the new notes will be ignored.
 
-        Parameters:
+        :Args:
 
-        x : boolean
-            True for stealing mode, False for non-stealing.
+            x : boolean
+                True for stealing mode, False for non-stealing.
 
         """
         self._base_handler.setStealing(x)
@@ -559,16 +536,17 @@ class Notein(PyoObject):
         "pitch" or "velocity" must be given to `identifier` to specify
         which stream to get value from.
         
-        Parameters:
+        :Args:
 
             identifier : string {"pitch", "velocity"}
                 Address string parameter identifying audio stream.
                 Defaults to "pitch".
             all : boolean, optional
                 If True, the first value of each object's stream
-                will be returned as a list. Otherwise, only the value
-                of the first object's stream will be returned as a float.
-                Defaults to False.
+                will be returned as a list. 
+                
+                Otherwise, only the value of the first object's 
+                stream will be returned as a float.
                  
         """
         if not all:
@@ -588,9 +566,12 @@ class Notein(PyoObject):
         return PyoObject.stop(self)
 
     @property
-    def channel(self): return self._channel
+    def channel(self): 
+        """int. Midi channel. 0 means all channels."""
+        return self._channel
     @channel.setter
-    def channel(self, x): self.setChannel(x)   
+    def channel(self, x): 
+        self.setChannel(x)   
 
 class Bendin(PyoObject):
     """
@@ -599,38 +580,27 @@ class Bendin(PyoObject):
     Get the current value of the pitch bend controller and optionally 
     maps it inside a specified range.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    brange : float, optional
-        Bipolar range of the pitch bend in semitones. Defaults to 2.
-        -brange <= value < brange.
-    scale : int, optional
-        Output format. 0 = Midi, 1 = transpo. 
-        The transpo mode is useful if you want to transpose values that 
-        are in a frequency (Hz) format. Defaults to 0.
-    channel : int, optional
-        Midi channel. 0 means all channels. Defaults to 0.
+        brange : float, optional
+            Bipolar range of the pitch bend in semitones. Defaults to 2.
+            -brange <= value < brange.
+        scale : int, optional
+            Output format. Defaults to 0.
+                0. Midi
+                1. transpo.
+                
+            The transpo mode is useful if you want to transpose values that 
+            are in a frequency (Hz) format.
+        channel : int, optional
+            Midi channel. 0 means all channels. Defaults to 0.
 
-    Methods:
+    .. note::
 
-    setBrange(x) : Replace the `brange` attribute.
-    setScale(x) : Replace the `scale` attribute.
-    setChannel(x) : Replace the `channel` attribute.
-
-    Attributes:
-
-    brange : Bipolar range of the pitch bend in semitones.
-    scale : Output format. 0 = Midi, 1 = transpo.
-    channel : Midi channel. 0 means all channels.
-
-    Notes:
-
-    The out() method is bypassed. Bendin's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. Bendin's signal can not be sent 
+        to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -657,10 +627,10 @@ class Bendin(PyoObject):
         """
         Replace the `brange` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `brange` attribute.
+            x : int
+                new `brange` attribute.
 
         """
         self._brange = x
@@ -671,10 +641,10 @@ class Bendin(PyoObject):
         """
         Replace the `scale` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `scale` attribute.
+            x : int
+                new `scale` attribute.
 
         """
         self._scale = x
@@ -685,10 +655,10 @@ class Bendin(PyoObject):
         """
         Replace the `channel` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `channel` attribute.
+            x : int
+                new `channel` attribute.
 
         """
         self._channel = x
@@ -723,37 +693,23 @@ class Touchin(PyoObject):
     Get the current value of an after-touch Midi controller and optionally 
     maps it inside a specified range.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    minscale : float, optional
-        Low range value for mapping. Defaults to 0.
-    maxscale : float, optional
-        High range value for mapping. Defaults to 1.
-    init : float, optional
-        Initial value. Defaults to 0.
-    channel : int, optional
-        Midi channel. 0 means all channels. Defaults to 0.
+        minscale : float, optional
+            Low range value for mapping. Defaults to 0.
+        maxscale : float, optional
+            High range value for mapping. Defaults to 1.
+        init : float, optional
+            Initial value. Defaults to 0.
+        channel : int, optional
+            Midi channel. 0 means all channels. Defaults to 0.
 
-    Methods:
+    .. note::
 
-    setMinScale(x) : Replace the `minscale` attribute.
-    setMaxScale(x) : Replace the `maxscale` attribute.
-    setChannel(x) : Replace the `channel` attribute.
-
-    Attributes:
-
-    minscale : Minimum value for scaling.
-    maxscale : Maximum value for scaling.
-    channel : Midi channel. 0 means all channels.
-
-    Notes:
-
-    The out() method is bypassed. Touchin's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. Touchin's signal can not be sent 
+        to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -780,10 +736,10 @@ class Touchin(PyoObject):
         """
         Replace the `minscale` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `minscale` attribute.
+            x : int
+                new `minscale` attribute.
 
         """
         self._minscale = x
@@ -794,10 +750,10 @@ class Touchin(PyoObject):
         """
         Replace the `maxscale` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `maxscale` attribute.
+            x : int
+                new `maxscale` attribute.
 
         """
         self._maxscale = x
@@ -808,10 +764,10 @@ class Touchin(PyoObject):
         """
         Replace the `channel` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `channel` attribute.
+            x : int
+                new `channel` attribute.
 
         """
         self._channel = x
@@ -819,19 +775,28 @@ class Touchin(PyoObject):
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def minscale(self): return self._minscale
+    def minscale(self): 
+        """float. Minimum value for scaling."""
+        return self._minscale
     @minscale.setter
-    def minscale(self, x): self.setMinScale(x)   
+    def minscale(self, x): 
+        self.setMinScale(x)   
 
     @property
-    def maxscale(self): return self._maxscale
+    def maxscale(self): 
+        """float. Maximum value for scaling."""
+        return self._maxscale
     @maxscale.setter
-    def maxscale(self, x): self.setMaxScale(x)   
+    def maxscale(self, x):
+        self.setMaxScale(x)   
 
     @property
-    def channel(self): return self._channel
+    def channel(self): 
+        """int. Midi channel. 0 means all channels."""
+        return self._channel
     @channel.setter
-    def channel(self, x): self.setChannel(x)   
+    def channel(self, x): 
+        self.setChannel(x)   
 
 class Programin(PyoObject):
     """
@@ -839,27 +804,17 @@ class Programin(PyoObject):
 
     Get the current value of a program change Midi controller.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    channel : int, optional
-        Midi channel. 0 means all channels. Defaults to 0.
+        channel : int, optional
+            Midi channel. 0 means all channels. Defaults to 0.
 
-    Methods:
+    .. note::
 
-    setChannel(x) : Replace the `channel` attribute.
-
-    Attributes:
-
-    channel : Midi channel. 0 means all channels.
-
-    Notes:
-
-    The out() method is bypassed. Programin's signal can not be sent 
-    to audio outs.
-
-    Examples:
+        The out() method is bypassed. Programin's signal can not be sent 
+        to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -884,10 +839,10 @@ class Programin(PyoObject):
         """
         Replace the `channel` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int
-            new `channel` attribute.
+            x : int
+                new `channel` attribute.
 
         """
         self._channel = x
@@ -895,9 +850,12 @@ class Programin(PyoObject):
         [obj.setChannel(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     @property
-    def channel(self): return self._channel
+    def channel(self): 
+        """int. Midi channel. 0 means all channels."""
+        return self._channel
     @channel.setter
-    def channel(self, x): self.setChannel(x)   
+    def channel(self, x): 
+        self.setChannel(x)   
 
 class MidiAdsr(PyoObject):
     """
@@ -910,56 +868,27 @@ class MidiAdsr(PyoObject):
     the real sustain value. A 0 in input (note off) starts the
     release part of the envelope.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal used to trigger the envelope. A positive value
-        sets the peak amplitude and starts the envelope. A 0 starts
-        the release part of the envelope.
-    attack : float, optional
-        Duration of the attack phase in seconds. Defaults to 0.01.
-    decay : float, optional
-        Duration of the decay phase in seconds. Defaults to 0.05.
-    sustain : float, optional
-        Amplitude of the sustain phase, as a fraction of the peak
-        amplitude at the start of the envelope. Defaults to 0.7.
-    release : float, optional
-        Duration of the release phase in seconds. Defaults to 0.1.
+        input : PyoObject
+            Input signal used to trigger the envelope. A positive value
+            sets the peak amplitude and starts the envelope. A 0 starts
+            the release part of the envelope.
+        attack : float, optional
+            Duration of the attack phase in seconds. Defaults to 0.01.
+        decay : float, optional
+            Duration of the decay phase in seconds. Defaults to 0.05.
+        sustain : float, optional
+            Amplitude of the sustain phase, as a fraction of the peak
+            amplitude at the start of the envelope. Defaults to 0.7.
+        release : float, optional
+            Duration of the release phase in seconds. Defaults to 0.1.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setAttack(x) : Replace the `attack` attribute.
-    setDecay(x) : Replace the `decay` attribute.
-    setSustain(x) : Replace the `sustain` attribute.
-    setRelease(x) : Replace the `release` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal used to trigger the envelope.
-    attack : float. Duration of the attack phase in seconds.
-    decay : float. Duration of the decay in seconds.
-    sustain : float. Amplitude of the sustain phase.
-    release : float. Duration of the release in seconds.
-
-    Notes:
-
-    The out() method is bypassed. MidiAdsr's signal can not be sent to audio outs.
-
-    Shape of a classical Adsr:
-
-          -
-         -  -
-        -     -
-       -        ------------------------
-      -                                  -
-     -                                     -
-    -                                        -
-      att - dec -        sustain       - rel
-
-    Examples:
+        The out() method is bypassed. MidiAdsr's signal can not be sent to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -987,12 +916,12 @@ class MidiAdsr(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal used to trigger the envelope.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal used to trigger the envelope.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -1002,10 +931,10 @@ class MidiAdsr(PyoObject):
         """
         Replace the `attack` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `attack` attribute.
+            x : float
+                new `attack` attribute.
 
         """
         self._attack = x
@@ -1016,10 +945,10 @@ class MidiAdsr(PyoObject):
         """
         Replace the `decay` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `decay` attribute.
+            x : float
+                new `decay` attribute.
 
         """
         self._decay = x
@@ -1030,10 +959,10 @@ class MidiAdsr(PyoObject):
         """
         Replace the `sustain` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `sustain` attribute.
+            x : float
+                new `sustain` attribute.
 
         """
         self._sustain = x
@@ -1044,10 +973,10 @@ class MidiAdsr(PyoObject):
         """
         Replace the `sustain` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `sustain` attribute.
+            x : float
+                new `sustain` attribute.
 
         """
         self._release = x
@@ -1093,62 +1022,31 @@ class MidiDelAdsr(PyoObject):
     peak value and sets the real sustain value. A 0 in input (note off) 
     starts the release part of the envelope.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal used to trigger the envelope. A positive value
-        sets the peak amplitude and starts the envelope. A 0 starts
-        the release part of the envelope.
-    delay : float, optional
-        Duration of the delay phase, before calling the envelope 
-        in seconds. Defaults to 0.
-    attack : float, optional
-        Duration of the attack phase in seconds. Defaults to 0.01.
-    decay : float, optional
-        Duration of the decay phase in seconds. Defaults to 0.05.
-    sustain : float, optional
-        Amplitude of the sustain phase, as a fraction of the peak
-        amplitude at the start of the envelope. Defaults to 0.7.
-    release : float, optional
-        Duration of the release phase in seconds. Defaults to 0.1.
+        input : PyoObject
+            Input signal used to trigger the envelope. A positive value
+            sets the peak amplitude and starts the envelope. A 0 starts
+            the release part of the envelope.
+        delay : float, optional
+            Duration of the delay phase, before calling the envelope 
+            in seconds. Defaults to 0.
+        attack : float, optional
+            Duration of the attack phase in seconds. Defaults to 0.01.
+        decay : float, optional
+            Duration of the decay phase in seconds. Defaults to 0.05.
+        sustain : float, optional
+            Amplitude of the sustain phase, as a fraction of the peak
+            amplitude at the start of the envelope. Defaults to 0.7.
+        release : float, optional
+            Duration of the release phase in seconds. Defaults to 0.1.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setDelay(x) : Replace the `delay` attribute.
-    setAttack(x) : Replace the `attack` attribute.
-    setDecay(x) : Replace the `decay` attribute.
-    setSustain(x) : Replace the `sustain` attribute.
-    setRelease(x) : Replace the `release` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal used to trigger the envelope.
-    delay : float. Duration of the delay phase in seconds.
-    attack : float. Duration of the attack phase in seconds.
-    decay : float. Duration of the decay in seconds.
-    sustain : float. Amplitude of the sustain phase.
-    release : float. Duration of the release in seconds.
-
-    Notes:
-
-    The out() method is bypassed. MidiDelAdsr's signal can not be sent 
-    to audio outs.
-
-    Shape of a DelAdsr envelope:
-
-                -
-               -  -
-              -     -
-             -        ------------------------
-            -                                  -
-           -                                     -
-    -------                                        -
-    delay - att - dec -        sustain       - rel
-
-    Examples:
+        The out() method is bypassed. MidiDelAdsr's signal can not be sent 
+        to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1177,12 +1075,12 @@ class MidiDelAdsr(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal used to trigger the envelope.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal used to trigger the envelope.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -1192,10 +1090,10 @@ class MidiDelAdsr(PyoObject):
         """
         Replace the `delay` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `delay` attribute.
+            x : float
+                new `delay` attribute.
 
         """
         self._delay = x
@@ -1206,10 +1104,10 @@ class MidiDelAdsr(PyoObject):
         """
         Replace the `attack` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `attack` attribute.
+            x : float
+                new `attack` attribute.
 
         """
         self._attack = x
@@ -1220,10 +1118,10 @@ class MidiDelAdsr(PyoObject):
         """
         Replace the `decay` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `decay` attribute.
+            x : float
+                new `decay` attribute.
 
         """
         self._decay = x
@@ -1234,10 +1132,10 @@ class MidiDelAdsr(PyoObject):
         """
         Replace the `sustain` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `sustain` attribute.
+            x : float
+                new `sustain` attribute.
 
         """
         self._sustain = x
@@ -1248,10 +1146,10 @@ class MidiDelAdsr(PyoObject):
         """
         Replace the `sustain` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            new `sustain` attribute.
+            x : float
+                new `sustain` attribute.
 
         """
         self._release = x

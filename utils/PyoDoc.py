@@ -204,10 +204,10 @@ functions : Miscellaneous functions.
 
 """ % PYO_VERSION
 
-_DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 
-                 'See also', 'Parentclass', 'Overview', 'Initline', 'Description']
+_DOC_KEYWORDS = ['Attributes', 'Examples', 'Methods', 'Notes', 'Methods details', 
+                 'Parentclass', 'Overview', 'Initline', 'Description']
 _HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions"]
-_KEYWORDS_LIST = []
+_KEYWORDS_LIST = ['Parameters']
 _KEYWORDS_LIST.extend(_HEADERS)
 _KEYWORDS_LIST.append("SLMap")
 _NUM_PAGES = 1
@@ -228,6 +228,13 @@ for k1 in _HEADERS:
     else:
         _KEYWORDS_LIST.extend(OBJECTS_TREE[k1])
         _NUM_PAGES += len(OBJECTS_TREE[k1])
+        
+PYOOBJECTBASE_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObjectBase, inspect.ismethod)]
+PYOOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObject, inspect.ismethod)]
+PYOMATRIXOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoMatrixObject, inspect.ismethod)]
+PYOTABLEOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoTableObject, inspect.ismethod)]
+MAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(Map, inspect.ismethod)]
+SLMAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(SLMap, inspect.ismethod)]
 
 def _ed_set_style(editor, searchKey=None):
     editor.SetLexer(stc.STC_LEX_PYTHON)
@@ -564,38 +571,45 @@ class ManualPanel(wx.Treebook):
         if self.needToParse:
             if obj != "Intro":
                 try:
-                    args = '\nInitline:\n\n' + class_args(eval(obj)) + '\n\nDescription:\n'
+                    args = '\nInitline:\n\n' + class_args(eval(obj)) + '\n\nDescription:\n\n'
                     isAnObject = True
                 except:
-                    args = '\nDescription:\n'
+                    args = '\nDescription:\n\n'
                     if obj in OBJECTS_TREE["functions"]:
                         isAnObject = True
                     else:
                         isAnObject = False
                 if isAnObject:
                     try:
+                        parentclass = ""
                         text = eval(obj).__doc__
-                        text_form = last_line = ""
+                        text = inspect.cleandoc(text)
+                        text = text.replace(".. note::", "Notes:").replace(".. seealso::", "See also:").replace(":Args:", "Parameters:")
+                        lines = text.splitlines()
+                        num = len(lines)
+                        text_form = ""
                         inside_examples = False
-                        for line in text.splitlines():
-                            if inside_examples and line.strip() == "":
-                                if obj not in OBJECTS_TREE["functions"]:
-                                    text_form += "s.gui(locals())"
-                                inside_examples = False
-                            if '>>>' in line or '...' in line:
-                                l = line[8:]
-                                if l.strip() != "":
-                                    text_form += l + '\n'
-                            else:
-                                if line.startswith("    "):
-                                    text_form += line[4:].rstrip() + '\n'
-                                else:
-                                    text_form += line.rstrip() + '\n'
-                            if 'Examples' in last_line:
-                                text_form += "from pyo import *\n"
-                                inside_examples = True
-                            last_line = line
-                        methods = self.getMethodsDoc(text, obj)
+                        text_ex, linenum = self.getExample(text)
+                        if text_ex == "":
+                            for i in range(num):
+                                line = lines[i]
+                                if ":Parent:" in line:
+                                    line = line.replace(":Parent:", "Parent:").replace(":py:class:", "").replace("`", "")
+                                    parentclass = line.replace("Parent:", "").strip()
+                                text_form += line.rstrip() + '\n'
+                        else:
+                            for i in range(linenum):
+                                line = lines[i]
+                                if ":Parent:" in line:
+                                    line = line.replace(":Parent:", "Parent:").replace(":py:class:", "").replace("`", "")
+                                    parentclass = line.replace("Parent:", "").strip()
+                                text_form += line.rstrip() + '\n'
+                            text_form += "Examples:\n\n"
+                            text_form += "from pyo import *\n"
+                            text_form += text_ex
+                            if obj not in OBJECTS_TREE["functions"]:
+                                text_form += "s.gui(locals())\n"
+                        methods = self.getMethodsDoc(text, obj, parentclass)
                         panel.win = stc.StyledTextCtrl(panel, -1, size=(600, 600), style=wx.SUNKEN_BORDER)
                         panel.win.SetText(args + text_form + methods)
                     except:
@@ -604,6 +618,7 @@ class ManualPanel(wx.Treebook):
                 else:
                     try:
                         text = eval(obj).__doc__
+                        text = text.replace(".. note::", "Notes:").replace(".. seealso::", "See also:").replace(":Args:", "Parameters:")
                     except:
                         if obj == "functions":
                             text = "Miscellaneous functions...\n\n"
@@ -625,6 +640,92 @@ class ManualPanel(wx.Treebook):
 
             panel.win.SaveFile(os.path.join(DOC_PATH, obj))
         return panel
+
+    def getExample(self, text):
+        text = inspect.cleandoc(text)
+        lines = text.splitlines()
+        num = len(lines)
+        first_i = -1
+        last_i = -1
+        found = False
+        wait = 0
+        for i in range(num-1, -1, -1):
+            if not found:
+                if lines[i].strip() == "":
+                    continue
+                else:
+                    if lines[i].startswith(">>>") or lines[i].startswith("..."):
+                        found = True
+                        last_i = i+1+wait
+                    else:
+                        wait += 1
+                        if wait == 2:
+                            break
+            else:
+                if lines[i].strip() == "":
+                    first_i = i+1
+                    break
+        ex_text = ""
+        for i in range(first_i, last_i):
+            if lines[i].startswith(">>>") or lines[i].startswith("..."):
+                ex_text += lines[i][4:] + "\n"
+            else:
+                ex_text += lines[i] + "\n"
+        return ex_text, first_i
+
+    def getDocFirstLine(self, obj):
+        try:
+            text = eval(obj).__doc__
+            if text == None:
+                text = ''
+        except:
+            text = ''
+
+        if text != '':
+            spl = text.split('\n')
+            if len(spl) == 1:
+                f = spl[0]
+            else:
+                f = spl[1]
+        else:
+            f = text
+        return f.strip() + "\n"
+
+    def getMethodsDoc(self, text, obj, parentclass):
+        if parentclass == "PyoObjectBase":
+            filter = PYOOBJECTBASE_METHODS_FILTER
+        elif parentclass == "PyoObject":
+            filter = PYOOBJECT_METHODS_FILTER
+        elif parentclass == "PyoTableObject":
+            filter = PYOTABLEOBJECT_METHODS_FILTER
+        elif parentclass == "PyoMatrixObject":
+            filter = PYOMATRIXOBJECT_METHODS_FILTER
+        elif parentclass == "Map":
+            filter = MAP_METHODS_FILTER
+        elif parentclass == "SLMap":
+            filter = SLMAP_METHODS_FILTER
+        else:
+            filter = []
+        obj_meths = [x[0] for x in inspect.getmembers(eval(obj), inspect.ismethod) if x[0] not in filter]
+        methods = ''
+        for meth in obj_meths:
+            docstr = getattr(eval(obj), meth).__doc__
+            if docstr != None:
+                docstr = docstr.replace(":Args:", "Parameters:")
+                args, varargs, varkw, defaults = inspect.getargspec(getattr(eval(obj), meth))
+                args = inspect.formatargspec(args, varargs, varkw, defaults, formatvalue=removeExtraDecimals)
+                args = args.replace('self, ', '')
+                methods += obj + '.' + meth + args + ':\n'
+                methods += docstr + '\n    '
+        methods_form = ''
+        if methods != '':
+            methods_form += "\nMethods details:\n\n"
+            for i, line in enumerate(methods.splitlines()):
+                if i != 0:
+                    methods_form += line[4:] + '\n'
+                else:
+                    methods_form += line + '\n'
+        return methods_form
 
     def MouseDown(self, evt):
         stc = self.GetPage(self.GetSelection()).win
@@ -699,25 +800,7 @@ class ManualPanel(wx.Treebook):
                 self.fromToolbar = False
                 return
 
-    def getDocFirstLine(self, obj):
-        try:
-            text = eval(obj).__doc__
-            if text == None:
-                text = ''
-        except:
-            text = ''
-
-        if text != '':
-            spl = text.split('\n')
-            if len(spl) == 1:
-                f = spl[0]
-            else:
-                f = spl[1]
-        else:
-            f = text
-        return f.strip() + "\n"
-
-    def getMethodsDoc(self, text, obj):
+    def getMethodsDoc2(self, text, obj):
         if obj == "Clean_objects":
             return "Methods details:\n\nClean_objects.start():\n\n    Starts the thread. The timer begins on this call."
         lines = text.splitlines(True)

@@ -38,59 +38,43 @@ class SfPlayer(PyoObject):
     takes care of sampling rate conversion to match the Server sampling 
     rate setting.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    path : string
-        Full path name of the sound to read.
-    speed : float or PyoObject, optional
-        Transpose the pitch of input sound by this factor. 1 is the 
-        original pitch, lower values play sound slower, and higher 
-        values play sound faster. Negative values results in playing 
-        sound backward. Although the `speed` attribute accepts audio
-        rate signal, its value is updated only once per buffer size. 
-        Defaults to 1.
-    loop : bool, optional
-        If set to True, sound will play in loop. Defaults to False.
-    offset : float, optional 
-        Time in seconds of input sound to be skipped, assuming speed = 1. 
-        Defaults to 0.
-    interp : int, optional
-        Interpolation type. Defaults to 2.
-            1 : no interpolation
-            2 : linear
-            3 : cosinus
-            4 : cubic
+        path : string
+            Full path name of the sound to read.
+        speed : float or PyoObject, optional
+            Transpose the pitch of input sound by this factor. 
+            Defaults to 1.
+            
+            1 is the original pitch, lower values play sound slower, and higher 
+            values play sound faster. 
+            
+            Negative values results in playing sound backward. 
+            
+            Although the `speed` attribute accepts audio
+            rate signal, its value is updated only once per buffer size.
+        loop : bool, optional
+            If set to True, sound will play in loop. Defaults to False.
+        offset : float, optional 
+            Time in seconds of input sound to be skipped, assuming speed = 1. 
+            Defaults to 0.
+        interp : int, optional
+            Interpolation type. Defaults to 2.
+                1. no interpolation
+                2. linear
+                3. cosinus
+                4. cubic
+
+    .. note::
+    
+        SfPlayer will sends a trigger signal at the end of the playback if 
+        loop is off or any time it wraps around if loop is on. User can 
+        retrieve the trigger streams by calling obj['trig']:
         
-    Methods:
-    
-    setPath(path) : Replace the `path` attribute.
-    setSound(path) : Replace the `path` attribute.
-    setSpeed(x) : Replace the `speed` attribute.
-    setLoop(x) : Replace the `loop` attribute.
-    setOffset(x) : Replace the `offset` attribute.
-    setInterp(x) : Replace the `interp` attribute.
-    
-    Attributes:
-    
-    path : string, Full path of the sound.
-    sound : alias to the `path` attribute.
-    speed : float or PyoObject, Transposition factor.
-    loop : bool, Looping mode.
-    offset : float, Time, in seconds, of the first sample to read.
-    interp : int {1, 2, 3, 4}, Interpolation method.
-    
-    Notes:
-    
-    SfPlayer will sends a trigger signal at the end of the playback if 
-    loop is off or any time it wraps around if loop is on. User can 
-    retrieve the trigger streams by calling obj['trig']:
-    
-    >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif").out()
-    >>> trig = TrigRand(sf['trig'])
-    
-    Examples:
+        >>> sf = SfPlayer(SNDS_PATH + "/transparent.aif").out()
+        >>> trig = TrigRand(sf['trig'])
     
     >>> s = Server().boot()
     >>> s.start()
@@ -124,10 +108,10 @@ class SfPlayer(PyoObject):
         The number of channels of the new sound must match those 
         of the sound loaded at initialization time.
         
-        Parameters:
+        :Args:
         
-        path : string
-            Full path of the new sound.
+            path : string
+                Full path of the new sound.
 
         """
         if type(self._path) == ListType:
@@ -157,10 +141,10 @@ class SfPlayer(PyoObject):
         The number of channels of the new sound must match those 
         of the sound loaded at initialization time.
         
-        Parameters:
+        :Args:
         
-        path : string
-            Full path of the new sound.
+            path : string
+                Full path of the new sound.
 
         """
         self.setPath(path)
@@ -169,10 +153,10 @@ class SfPlayer(PyoObject):
         """
         Replace the `speed` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `speed` attribute.
+            x : float or PyoObject
+                new `speed` attribute.
         
         """
         self._speed = x
@@ -183,10 +167,10 @@ class SfPlayer(PyoObject):
         """
         Replace the `loop` attribute.
         
-        Parameters:
+        :Args:
 
-        x : bool {True, False}
-            new `loop` attribute.
+            x : bool {True, False}
+                new `loop` attribute.
         
         """
         self._loop = x
@@ -199,10 +183,10 @@ class SfPlayer(PyoObject):
         """
         Replace the `offset` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float
-            new `offset` attribute.
+            x : float
+                new `offset` attribute.
         
         """
         self._offset = x
@@ -213,10 +197,10 @@ class SfPlayer(PyoObject):
         """
         Replace the `interp` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int {1, 2, 3, 4}
-            new `interp` attribute.
+            x : int {1, 2, 3, 4}
+                new `interp` attribute.
         
         """
         self._interp = x
@@ -283,40 +267,31 @@ class SfMarkerShuffler(PyoObject):
     the samples until it reaches the following marker. Then, it choose 
     another marker and reads from the new position and so on...
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
     
-    Parameters:
+    :Args:
     
-    path : string
-        Full path name of the sound to read. Can't e changed after
-        initialization.
-    speed : float or PyoObject, optional
-        Transpose the pitch of input sound by this factor. 1 is the 
-        original pitch, lower values play sound slower, and higher 
-        values play sound faster. Negative values results in playing 
-        sound backward. Although the `speed` attribute accepts audio
-        rate signal, its value is updated only once per buffer size. 
-        Defaults to 1.
-    interp : int, optional
-        Choice of the interpolation method. Defaults to 2.
-            1 : no interpolation
-            2 : linear
-            3 : cosinus
-            4 : cubic
-        
-    Methods:
-    
-    setSpeed(x) : Replace the `speed` attribute.
-    setInterp(x) : Replace the `interp` attribute.
-    getMarkers() : Returns a list of marker time values in samples.
-    
-    Attributes:
-    
-    speed : float or PyoObject, Transposition factor.
-    interp : int {1, 2, 3, 4}, Interpolation method.
- 
-    Examples:
-    
+        path : string
+            Full path name of the sound to read. Can't e changed after
+            initialization.
+        speed : float or PyoObject, optional
+            Transpose the pitch of input sound by this factor. 
+            Defaults to 1.
+            
+            1 is the original pitch, lower values play sound slower, and higher 
+            values play sound faster. 
+            
+            Negative values results in playing sound backward. 
+            
+            Although the `speed` attribute accepts audio
+            rate signal, its value is updated only once per buffer size.
+        interp : int, optional
+            Choice of the interpolation method. Defaults to 2.
+                1. no interpolation
+                2. linear
+                3. cosinus
+                4. cubic
+
     >>> s = Server().boot()
     >>> s.start()
     >>> sf = SfMarkerShuffler(SNDS_PATH + "/transparent.aif", speed=[1,1], mul=.3).out()
@@ -347,10 +322,10 @@ class SfMarkerShuffler(PyoObject):
         """
         Replace the `speed` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `speed` attribute.
+            x : float or PyoObject
+                new `speed` attribute.
         
         """
         self._speed = x
@@ -361,10 +336,10 @@ class SfMarkerShuffler(PyoObject):
         """
         Replace the `interp` attribute.
         
-        Parameters:
+        :Args:
 
-        x : int {1, 2, 3, 4}
-            new `interp` attribute.
+            x : int {1, 2, 3, 4}
+                new `interp` attribute.
         
         """
         self._interp = x
@@ -409,43 +384,32 @@ class SfMarkerLooper(PyoObject):
     in the header of the AIFF file) until it received a new integer 
     in the `mark` attribute.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    path : string
-        Full path name of the sound to read.
-    speed : float or PyoObject, optional
-        Transpose the pitch of input sound by this factor. 1 is the 
-        original pitch, lower values play sound slower, and higher 
-        values play sound faster. Negative values results in playing 
-        sound backward. Although the `speed` attribute accepts audio
-        rate signal, its value is updated only once per buffer size. 
-        Defaults to 1.
-    mark : float or PyoObject, optional
-        Integer denoting the marker to loop, in the range 
-        0 -> len(getMarkers()). Defaults to 0.
-    interp : int, optional
-        Choice of the interpolation method. Defaults to 2.
-            1 : no interpolation
-            2 : linear
-            3 : cosinus
-            4 : cubic
-
-    Methods:
-
-    setSpeed(x) : Replace the `speed` attribute.
-    setInterp(x) : Replace the `interp` attribute.
-    setMark(x) : Replace the `mark` attribute.
-    getMarkers() : Returns a list of marker time values in samples.
-
-    Attributes:
-
-    speed : float or PyoObject, Transposition factor.
-    mark : float or PyoObject, Marker to loop.
-    interp : int {1, 2, 3, 4}, Interpolation method.
-
-    Examples:
+        path : string
+            Full path name of the sound to read.
+        speed : float or PyoObject, optional
+            Transpose the pitch of input sound by this factor. 
+            Defaults to 1.
+            
+            1 is the original pitch, lower values play sound slower, and higher 
+            values play sound faster. 
+            
+            Negative values results in playing sound backward. 
+            
+            Although the `speed` attribute accepts audio
+            rate signal, its value is updated only once per buffer size.
+        mark : float or PyoObject, optional
+            Integer denoting the marker to loop, in the range 
+            0 -> len(getMarkers()). Defaults to 0.
+        interp : int, optional
+            Choice of the interpolation method. Defaults to 2.
+                1. no interpolation
+                2. linear
+                3. cosinus
+                4. cubic
 
     >>> s = Server().boot()
     >>> s.start()
@@ -480,10 +444,10 @@ class SfMarkerLooper(PyoObject):
         """
         Replace the `speed` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `speed` attribute.
+            x : float or PyoObject
+                new `speed` attribute.
 
         """
         self._speed = x
@@ -494,10 +458,10 @@ class SfMarkerLooper(PyoObject):
         """
         Replace the `mark` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `mark` attribute.
+            x : float or PyoObject
+                new `mark` attribute.
 
         """
         self._mark = x
@@ -508,10 +472,10 @@ class SfMarkerLooper(PyoObject):
         """
         Replace the `interp` attribute.
 
-        Parameters:
+        :Args:
 
-        x : int {1, 2, 3, 4}
-            new `interp` attribute.
+            x : int {1, 2, 3, 4}
+                new `interp` attribute.
 
         """
         self._interp = x

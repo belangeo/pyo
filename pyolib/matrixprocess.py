@@ -34,54 +34,42 @@ class MatrixRec(PyoObject):
     """
     MatrixRec records samples into a previously created NewMatrix.
 
-    See `NewMatrix` to create an empty matrix.
+    See :py:class:`NewMatrix` to create an empty matrix.
 
     The play method is not called at the object creation time. It starts
     the recording into the matrix, row after row, until the matrix is full. 
     Calling the play method again restarts the recording and overwrites 
-    previously recorded samples.
+    previously recorded samples. The stop method stops the recording. 
+    Otherwise, the default behaviour is to record through the end of the matrix.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Audio signal to write in the matrix.
-    matrix : PyoMatrixObject
-        The matrix where to write samples.
-    fadetime : float, optional
-        Fade time at the beginning and the end of the recording 
-        in seconds. Defaults to 0.
-    delay : int, optional
-        Delay time, in samples, before the recording begins. 
-        Available at initialization time only. Defaults to 0.
+        input : PyoObject
+            Audio signal to write in the matrix.
+        matrix : PyoMatrixObject
+            The matrix where to write samples.
+        fadetime : float, optional
+            Fade time at the beginning and the end of the recording 
+            in seconds. Defaults to 0.
+        delay : int, optional
+            Delay time, in samples, before the recording begins. 
+            Available at initialization time only. Defaults to 0.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setMatrix(x) : Replace the `matrix` attribute.
-    play() : Start the recording at the beginning of the matrix.
-    stop() : Stop the recording. Otherwise, record through the 
-        end of the matrix.
+        The out() method is bypassed. MatrixRec returns no signal.
 
-    Attributes:
+        MatrixRec has no `mul` and `add` attributes.
 
-    input : PyoObject. Audio signal to write in the matrix.
-    matrix : PyoMatrixObject. The matrix where to write samples.
+        MatrixRec will sends a trigger signal at the end of the recording. 
+        User can retreive the trigger streams by calling obj['trig']. See
+        `TableRec` documentation for an example.
 
-    Notes:
-
-    The out() method is bypassed. MatrixRec returns no signal.
-
-    MatrixRec has no `mul` and `add` attributes.
-
-    MatrixRec will sends a trigger signal at the end of the recording. 
-    User can retreive the trigger streams by calling obj['trig']. See
-    `TableRec` documentation for an example.
-
-    See also: NewMatrix
-
-    Examples:
+    .. seealso:: 
+        
+        :py:class:`NewMatrix`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -120,12 +108,12 @@ class MatrixRec(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -135,10 +123,10 @@ class MatrixRec(PyoObject):
         """
         Replace the `matrix` attribute.
         
-        Parameters:
+        :Args:
 
-        x : NewMatrix
-            new `matrix` attribute.
+            x : NewMatrix
+                new `matrix` attribute.
         
         """
         self._matrix = x
@@ -163,43 +151,33 @@ class MatrixRecLoop(PyoObject):
     """
     MatrixRecLoop records samples in loop into a previously created NewMatrix.
 
-    See `NewMatrix` to create an empty matrix.
+    See :py:class:`NewMatrix` to create an empty matrix.
 
     MatrixRecLoop records samples into the matrix, row after row, until 
     the matrix is full and then loop back to the beginning. 
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Audio signal to write in the matrix.
-    matrix : PyoMatrixObject
-        The matrix where to write samples.
+        input : PyoObject
+            Audio signal to write in the matrix.
+        matrix : PyoMatrixObject
+            The matrix where to write samples.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setMatrix(x) : Replace the `matrix` attribute.
+        The out() method is bypassed. MatrixRecLoop returns no signal.
 
-    Attributes:
+        MatrixRecLoop has no `mul` and `add` attributes.
 
-    input : PyoObject. Audio signal to write in the matrix.
-    matrix : PyoMatrixObject. The matrix where to write samples.
+        MatrixRecLoop will sends a trigger signal when reaching the end 
+        of the matrix. User can retreive the trigger streams by calling 
+        obj['trig']. See `TableRec` documentation for an example.
 
-    Notes:
-
-    The out() method is bypassed. MatrixRecLoop returns no signal.
-
-    MatrixRecLoop has no `mul` and `add` attributes.
-
-    MatrixRecLoop will sends a trigger signal when reaching the end 
-    of the matrix. User can retreive the trigger streams by calling 
-    obj['trig']. See `TableRec` documentation for an example.
-
-    See also: NewMatrix
-
-    Examples:
+    .. seealso:: 
+        
+        :py:class:`NewMatrix`
 
     >>> s = Server().boot()
     >>> s.start()
@@ -237,12 +215,12 @@ class MatrixRecLoop(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -252,10 +230,10 @@ class MatrixRecLoop(PyoObject):
         """
         Replace the `matrix` attribute.
 
-        Parameters:
+        :Args:
 
-        x : NewMatrix
-            new `matrix` attribute.
+            x : NewMatrix
+                new `matrix` attribute.
 
         """
         self._matrix = x
@@ -280,30 +258,16 @@ class MatrixPointer(PyoObject):
     """
     Matrix reader with control on the 2D pointer position.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    matrix : PyoMatrixObject
-        Matrix containing the waveform samples.
-    x : PyoObject
-        Normalized X position in the matrix between 0 and 1.
-    y : PyoObject
-        Normalized Y position in the matrix between 0 and 1.
-
-    Methods:
-
-    setMatrix(x) : Replace the `matrix` attribute.
-    setX(x) : Replace the `x` attribute.
-    setY(x) : Replace the `y` attribute
-
-    Attributes:
-
-    matrix : PyoMatrixObject. Matrix containing the waveform samples.
-    x : PyoObject. X pointer position in the matrix.
-    y : PyoObject. Y pointer position in the matrix.
-
-    Examples:
+        matrix : PyoMatrixObject
+            Matrix containing the waveform samples.
+        x : PyoObject
+            Normalized X position in the matrix between 0 and 1.
+        y : PyoObject
+            Normalized Y position in the matrix between 0 and 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -332,10 +296,10 @@ class MatrixPointer(PyoObject):
         """
         Replace the `matrix` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoTableObject
-            new `matrix` attribute.
+            x : PyoTableObject
+                new `matrix` attribute.
         
         """
         self._matrix = x
@@ -346,10 +310,10 @@ class MatrixPointer(PyoObject):
         """
         Replace the `x` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            new `x` attribute.
+            x : PyoObject
+                new `x` attribute.
         
         """
         self._x = x
@@ -360,10 +324,10 @@ class MatrixPointer(PyoObject):
         """
         Replace the `y` attribute.
         
-        Parameters:
+        :Args:
 
-        y : PyoObject
-            new `y` attribute.
+            y : PyoObject
+                new `y` attribute.
         
         """
         self._y = x
@@ -404,37 +368,23 @@ class MatrixMorph(PyoObject):
     `matrix` object at the beginning of each buffer size. The matrices in the 
     list and the resulting matrix must be equal in size.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Morphing index between 0 and 1. 0 is the first matrix in the list 
-        and 1 is the last.
-    matrix : NewMatrix
-        The matrix where to write morphed function.
-    sources : list of PyoMatrixObject
-        List of matrices to interpolate from.
+        input : PyoObject
+            Morphing index between 0 and 1. 0 is the first matrix in the list 
+            and 1 is the last.
+        matrix : NewMatrix
+            The matrix where to write morphed function.
+        sources : list of PyoMatrixObject
+            List of matrices to interpolate from.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setMatrix(x) : Replace the `matrix` attribute.
-    setSources(x) : Replace the `sources` attribute.
+        The out() method is bypassed. MatrixMorph returns no signal.
 
-    Attributes:
-
-    input : PyoObject. Morphing index between 0 and 1.
-    matrix : NewMatrix. The matrix where to write samples.
-    sources : list of PyoMatrixObject. List of matrices to interpolate from.
-
-    Notes:
-
-    The out() method is bypassed. MatrixMorph returns no signal.
-
-    MatrixMorph has no `mul` and `add` attributes.
-
-    Examples:
+        MatrixMorph has no `mul` and `add` attributes.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -473,12 +423,12 @@ class MatrixMorph(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -488,10 +438,10 @@ class MatrixMorph(PyoObject):
         """
         Replace the `matrix` attribute.
 
-        Parameters:
+        :Args:
 
-        x : NewMatrix
-            new `matrix` attribute.
+            x : NewMatrix
+                new `matrix` attribute.
 
         """
         self._matrix = x
@@ -502,10 +452,10 @@ class MatrixMorph(PyoObject):
         """
          Replace the `sources` attribute.
 
-        Parameters:
+        :Args:
 
-        x : list of PyoMatrixObject
-            new `sources` attribute.
+            x : list of PyoMatrixObject
+                new `sources` attribute.
 
         """
         self._sources = x

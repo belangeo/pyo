@@ -45,40 +45,21 @@ class Flanger(PyoObject):
     frequency spectrum.
     
     
-    Parent class: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    depth : float or PyoObject, optional
-        Amplitude of the delay line modulation, between 0 and 1. 
-        Defaults to 0.75.
-    lfofreq : float or PyoObject, optional
-        Frequency of the delay line modulation, in Hertz. 
-        Defaults to 0.2.
-    feedback : float or PyoObject, optional
-        Amount of output signal reinjected into the delay line. 
-        Defaults to 0.25.
-        
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setDepth(x) : Replace the `depth` attribute.
-    setLfoFreq(x) : Replace the `lfofreq` attribute.
-    setFeedback(x) : Replace the `feedback` attribute.
-    
-    Attributes:
-
-    input : PyoObject. Input signal to delayed.
-    depth : float or PyoObject. Amplitude of the delay line modulation.
-    lfofreq : float or PyoObject. Frequency of the delay line modulation.
-    feedback : float or PyoObject. Amount of output signal sent back
-        into the delay line.
-
-    See also: Delay, Chorus, Phaser
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        depth : float or PyoObject, optional
+            Amplitude of the delay line modulation, between 0 and 1. 
+            Defaults to 0.75.
+        lfofreq : float or PyoObject, optional
+            Frequency of the delay line modulation, in Hertz. 
+            Defaults to 0.2.
+        feedback : float or PyoObject, optional
+            Amount of output signal reinjected into the delay line. 
+            Defaults to 0.25.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -148,12 +129,12 @@ class Flanger(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -163,10 +144,10 @@ class Flanger(PyoObject):
         """
         Replace the `depth` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `depth` attribute.
+            x : float or PyoObject
+                New `depth` attribute.
 
         """
         self._depth = x
@@ -176,10 +157,10 @@ class Flanger(PyoObject):
         """
         Replace the `lfofreq` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `lfofreq` attribute.
+            x : float or PyoObject
+                New `lfofreq` attribute.
 
         """
         self._lfofreq = x
@@ -189,34 +170,46 @@ class Flanger(PyoObject):
         """
         Replace the `feedback` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `feedback` attribute.
+            x : float or PyoObject
+                New `feedback` attribute.
 
         """
         self._feedback = x
         self._dls.feedback = x
 
     @property
-    def input(self): return self._input
+    def input(self): 
+        """PyoObject. Input signal to process."""
+        return self._input
     @input.setter
-    def input(self, x): self.setInput(x)
+    def input(self, x): 
+        self.setInput(x)
 
     @property
-    def depth(self): return self._depth
+    def depth(self): 
+        """float or PyoObject. Amplitude of the delay line modulation."""
+        return self._depth
     @depth.setter
-    def depth(self, x): self.setDepth(x)
+    def depth(self, x): 
+        self.setDepth(x)
 
     @property
-    def lfofreq(self): return self._lfofreq
+    def lfofreq(self): 
+        """float or PyoObject. Frequency of the delay line modulation."""
+        return self._lfofreq
     @lfofreq.setter
-    def lfofreq(self, x): self.setLfoFreq(x)
+    def lfofreq(self, x): 
+        self.setLfoFreq(x)
 
     @property
-    def feedback(self): return self._feedback
+    def feedback(self): 
+        """float or PyoObject. Amount of output signal sent back into the delay line."""
+        return self._feedback
     @feedback.setter
-    def feedback(self, x): self.setFeedback(x)
+    def feedback(self, x): 
+        self.setFeedback(x)
 
 # Step 4 - The ctrl() method
 

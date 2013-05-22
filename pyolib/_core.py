@@ -17,6 +17,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
+
 """
 from types import ListType, SliceType, FloatType, StringType, UnicodeType
 import random, os, sys, inspect, tempfile
@@ -41,15 +42,38 @@ XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3,
                 'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
                 'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
                 'loopseg': 12}
+FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_host_apis": "pa_list_host_apis()",
+                        "pa_get_default_host_api": "pa_get_default_host_api()", "pa_count_devices": "pa_count_devices()",
+                        "pa_list_devices": "pa_list_devices()", "pa_get_devices_infos": "pa_get_devices_infos()",
+                        "pa_get_input_devices": "pa_get_input_devices()", "pa_get_output_devices": "pa_get_output_devices()",
+                        "pa_get_default_input": "pa_get_default_input()", "pa_get_default_output": "pa_get_default_output()",
+                        "pa_get_input_max_channels": "pa_get_input_max_channels(x)", "pa_get_output_max_channels": "pa_get_output_max_channels(x)",
+                        "pm_get_default_output": "pm_get_default_output()", "pm_get_default_input": "pm_get_default_input()",
+                        "pm_get_output_devices": "pm_get_output_devices()", "pm_get_input_devices": "pm_get_input_devices()",
+                        "pm_list_devices": "pm_list_devices()", "pm_count_devices": "pm_count_devices()",
+                        "sndinfo": "sndinfo(path, print=False)", "savefile": "savefile(samples, path, sr=44100, channels=1, fileformat=0, sampletype=0)",
+                        "savefileFromTable": "savefileFromTable(table, path, fileformat=0, sampletype=0)",
+                        "upsamp": "upsamp(path, outfile, up=4, order=128)", "downsamp": "downsamp(path, outfile, down=4, order=128)",
+                        "midiToHz": "midiToHz(x)", "midiToTranspo": "midiToTranspo(x)", "sampsToSec": "sampsToSec(x)",
+                        "secToSamps": "secToSamps(x)", "linToCosCurve": "linToCosCurve(data, yrange=[0, 1], totaldur=1, points=1024, log=False)",
+                        "rescale": "rescale(data, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
+                        "distanceToSegment": "distanceToSegment(p, p1, p2, xmin=0.0, xmax=1.0, ymin=0.0, ymax=1.0, xlog=False, ylog=False)",
+                        "reducePoints": "reducePoints(pointlist, tolerance=0.02)", "serverCreated": "serverCreated()", "serverBooted": "serverBooted()",
+                        "example": "example(cls, dur=5, toprint=True, double=False)", "class_args": "class_args(cls)", "getVersion": "getVersion()",
+                        "convertStringToSysEncoding": "convertStringToSysEncoding(str)", "convertArgsToLists": "convertArgsToLists(*args)",
+                        "wrap": "wrap(arg, i)"
+                        }
 
 def convertStringToSysEncoding(str):
     """
     Convert a string to the current platform file system encoding.
-
-    Parameter:
     
-    str: string
-        String to convert.
+    Returns the new encoded string.
+
+    :Args:
+    
+        str : string
+            String to convert.
 
     """
     if type(str) != UnicodeType:
@@ -88,35 +112,39 @@ def example(cls, dur=5, toprint=True, double=False):
     """
     Execute the example given in the documentation of the object as an argument.
 
-    example(cls, dur=5)
+    :Args:
 
-    Parameters:
-
-    cls : PyoObject class
-        Class reference of the desired object example.
-    dur : float, optional
-        Duration of the example.
-    toprint : boolean, optional
-        If True, the example script will be printed to the console.
-        Defaults to True.
-    double : boolean, optional
-        If True, force the example to run in double precision (64-bit)
-        Defaults to False.
-
-    Examples:
+        cls : PyoObject class
+            Class reference of the desired object example.
+        dur : float, optional
+            Duration of the example.
+        toprint : boolean, optional
+            If True, the example script will be printed to the console.
+            Defaults to True.
+        double : boolean, optional
+            If True, force the example to run in double precision (64-bit)
+            Defaults to False.
 
     >>> example(Sine)
 
     """
-    doc = cls.__doc__.split("Examples:")
-    if len(doc) < 2:
+    doc = cls.__doc__.splitlines()
+    lines = []
+    store = False
+    for i, line in enumerate(doc):
+        if not store:
+            if ">>> s = Server" in line:
+                store = True
+        if store:
+            if line.strip() == "":
+                store = False
+            else:
+                lines.append(line)
+
+    if lines == []:
         print "There is no manual example for %s object." % cls.__name__
         return
-    if "Server" in doc[1]:
-        with_server = True
-    else:
-        with_server = False
-    lines = doc[1].splitlines()
+
     ex_lines = [line.lstrip("    ") for line in lines if ">>>" in line or "..." in line]
     if hasattr(__builtin__, 'pyo_use_double') or double:
         ex = "import time\nfrom pyo64 import *\n"
@@ -126,8 +154,8 @@ def example(cls, dur=5, toprint=True, double=False):
         if ">>>" in line: line = line.lstrip(">>> ")
         if "..." in line: line = "    " +  line.lstrip("... ")
         ex += line + "\n"
-    if with_server:
-        ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
+
+    ex += "time.sleep(%f)\ns.stop()\ntime.sleep(0.25)\ns.shutdown()\n" % dur
     if sys.version_info[:2] <= (2, 5):
         f = open('/tmp/pyo_example.py', 'w')
     else:
@@ -150,17 +178,13 @@ def class_args(cls):
     """
     Returns the init line of a class reference.
 
-    class_args(cls)
-
     This function takes a class reference (not an instance of that class) 
     as input and returns the init line of that class with the default values.
 
-    Parameters:
+    :Args:
 
-    cls : PyoObject class
-        Class reference of the desired object's init line.
-
-    Examples:
+        cls : PyoObject class
+            Class reference of the desired object's init line.
 
     >>> print class_args(Sine)
     >>> 'Sine(freq=1000, phase=0, mul=1, add=0)'
@@ -176,10 +200,8 @@ def class_args(cls):
     except TypeError:
         try:
             # Try for a function
-            lines = cls.__doc__.splitlines()
-            for line in lines:
-                if "%s(" % name in line:
-                    return line
+            if name in FUNCTIONS_INIT_LINES:
+                return FUNCTIONS_INIT_LINES[name]
         except:
             print "class_args was unable to retrieve the init line of the object as an argument."
             return ""
@@ -188,16 +210,10 @@ def getVersion():
     """
     Returns the version number of the current pyo installation.
 
-    getVersion()
-
     This function returns the version number of the current pyo
     installation as a 3-ints tuple (major, minor, rev). 
 
-    The returned tuple for version '0.4.1' will look like :
-
-    (0, 4, 1)
-
-    Examples:
+    The returned tuple for version '0.4.1' will look like : (0, 4, 1)
 
     >>> print getVersion()
     >>> (0, 5, 1)
@@ -220,13 +236,9 @@ class PyoObjectBase(object):
     Base class for all pyo objects.
 
     This object encapsulates some common behaviors for all pyo objects.
+
     One typically inherits from a more specific subclass of this class
     instead of using it directly.
-    
-    Methods:
-    
-    dump() : Print infos about the current state of the object.
-    getBaseObjects() : Return a list of Stream objects managed by the instance.
 
     """
 
@@ -295,83 +307,63 @@ class PyoObject(PyoObjectBase):
     Base class for all pyo objects that manipulate vectors of samples.
     
     The user should never instantiate an object of this class.
-    
-    Parentclass: PyoObjectBase
 
-    Methods:
+    :Parent: :py:class:`PyoObjectBase`
+    
+    :Args:
 
-    play(dur, delay) : Start processing without sending samples to output. 
-        This method is called automatically at the object creation.
-    stop() : Stop processing.
-    out(chnl, inc, dur, delay) : Start processing and send samples to audio 
-        output beginning at `chnl`.
-    mix(voices) : Mix object's audio streams into `voices` streams and 
-        return the Mix object.
-    range(min, max) : Adjust `mul` and `add` attributes according to a given range.
-    setMul(x) : Replace the `mul` attribute.
-    setAdd(x) : Replace the `add` attribute.
-    setDiv(x) : Replace and inverse the `mul` attribute.
-    setSub(x) : Replace and inverse the `add` attribute.
-    set(attr, value, port) : Replace any attribute with portamento. 
-    ctrl(map_list, title) : Opens a sliders window to control parameters.
-    get(all) : Return the first sample of the current buffer as a float.
-    isPlaying(all) : Returns True if the object is playing, otherwise, returns False.
-    isOutputting(all) : Returns True if the object is sending samples to dac, 
-        otherwise, returns False.
+        mul : float or PyoObject, optional
+            Multiplication factor. Defaults to 1.
+        add : float or PyoObject, optional
+            Addition factor. Defaults to 0.
 
-    Attributes:
+    .. note::
 
-    mul : float or PyoObject
-        Multiplication factor.
-    add : float or PyoObject
-        Addition factor.
+        **Operations on PyoObject**
+            
+        >>> len(obj) # Return the number of audio streams managed by the object.
+        >>> obj[x] # Return stream `x` of the object. `x` is a number from 0 to len(obj)-1.
+        >>> del obj # Perform a clean delete of the object.
     
-    Notes:
-
-    - Other operations:
+        **Arithmetics**
     
-    len(obj) : Return the number of audio streams in an object.
-    obj[x] : Return stream `x` of the object. `x` is a number 
-        from 0 to len(obj) - 1.
-    del obj : Perform a clean delete of the object.
-    
-    - Arithmetics:
-    
-    Multiplication, addition, division and substraction can be applied 
-    between pyo objects or between pyo objects and numbers. Doing so 
-    returns a Dummy object with the result of the operation.
-    `b = a * 0.5` creates a Dummy object `b` with `mul` attribute set 
-    to 0.5 and leave `a` unchanged.
-    
-    Inplace multiplication, addition, division and substraction can be 
-    applied between pyo objects or between pyo objects and numbers. 
-    These operations will replace the `mul` or `add` factor of the object. 
-    `a *= 0.5` replaces the `mul` attribute of `a`.
-    
-    Next operators can be used with PyoObject (not with XXX_base objects).
-    
-    Exponent and modulo:
-
-    `a ** 10` returns a Pow object created as : Pow(a, 10)
-    `10 ** a` returns a Pow object created as : Pow(10, a)
-    `a % 4` returns a Wrap object created as : Wrap(a, 0, 4)
-    `a % b` returns a Wrap object created as : Wrap(a, 0, b)
-
-    Unary negative (-):
-    
-    `-a` returns a Dummy object with negative values of streams in `a`.
-    
-    Comparison operators:
+        Multiplication, addition, division and substraction can be applied 
+        between pyo objects or between pyo objects and numbers. Doing so 
+        returns a Dummy object with the result of the operation.
         
-    `a < b` returns a Compare object created as : Compare(a, comp=b, mode="<")
-    `a <= b` returns a Compare object created as : Compare(a, comp=b, mode="<=")
-    `a == b` returns a Compare object created as : Compare(a, comp=b, mode="==")
-    `a != b` returns a Compare object created as : Compare(a, comp=b, mode="!=")
-    `a > b` returns a Compare object created as : Compare(a, comp=b, mode=">")
-    `a >= b` returns a Compare object created as : Compare(a, comp=b, mode=">=")
+        >>> # creates a Dummy object `b` with `mul` set to 0.5 and leave `a` unchanged.
+        >>> b = a * 0.5
+    
+        Inplace multiplication, addition, division and substraction can be 
+        applied between pyo objects or between pyo objects and numbers.         
+        These operations will replace the `mul` or `add` factor of the object. 
+        
+        >>> a *= 0.5 # replaces the `mul` attribute of `a`.
+    
+        The next operators can be used with PyoObject (not with XXX_base objects).
 
-    A special case concerns the comparison of a PyoObject with None. All operators
-    return False except `a != None`, which returns True.
+        **Exponent** and **modulo**
+
+        >>> a ** 10 # returns a Pow object created as : Pow(a, 10)
+        >>> 10 ** a # returns a Pow object created as : Pow(10, a)
+        >>> a % 4 # returns a Wrap object created as : Wrap(a, 0, 4)
+        >>> a % b # returns a Wrap object created as : Wrap(a, 0, b)
+
+        **Unary negative** (**-**)
+    
+        >>> -a # returns a Dummy object with negative values of streams in `a`.
+    
+        **Comparison operators**
+        
+        >>> a < b # returns a Compare object created as : Compare(a, comp=b, mode="<")
+        >>> a <= b # returns a Compare object created as : Compare(a, comp=b, mode="<=")
+        >>> a == b # returns a Compare object created as : Compare(a, comp=b, mode="==")
+        >>> a != b # returns a Compare object created as : Compare(a, comp=b, mode="!=")
+        >>> a > b # returns a Compare object created as : Compare(a, comp=b, mode=">")
+        >>> a >= b # returns a Compare object created as : Compare(a, comp=b, mode=">=")
+
+        A special case concerns the comparison of a PyoObject with None. All operators
+        return False except `a != None`, which returns True.
 
     """
     
@@ -550,13 +542,14 @@ class PyoObject(PyoObjectBase):
         """
         Returns True if the object is playing, otherwise, returns False.
 
-        Parameters:
+        :Args:
 
             all : boolean, optional
                 If True, the object returns a list with the state of all
-                streams managed by the object. If False, it return a 
-                boolean corresponding to the state of the first stream.
-                Defaults to False.
+                streams managed by the object.
+                
+                If False, it return a boolean corresponding to the state 
+                of the first stream.
 
         """
         if all:
@@ -568,13 +561,14 @@ class PyoObject(PyoObjectBase):
         """
         Returns True if the object is sending samples to dac, otherwise, returns False.
 
-        Parameters:
+        :Args:
 
             all : boolean, optional
                 If True, the object returns a list with the state of all
-                streams managed by the object. If False, it return a 
-                boolean corresponding to the state of the first stream.
-                Defaults to False.
+                streams managed by the object. 
+                
+                If False, it return a boolean corresponding to the state 
+                of the first stream.
 
         """
         if all:
@@ -589,16 +583,18 @@ class PyoObject(PyoObjectBase):
         Can be used to convert audio stream to usable Python data.
         
         Object that implements string identifier for specific audio 
-        streams must use the corresponding string to specify which stream
-        to get value. See get() method definition in these object's man pages.
+        streams must use the corresponding string to specify the stream
+        from which to get the value. See get() method definition in these 
+        object's man pages.
         
-        Parameters:
+        :Args:
 
             all : boolean, optional
                 If True, the first value of each object's stream
-                will be returned as a list. Otherwise, only the value
-                of the first object's stream will be returned as a float.
-                Defaults to False.
+                will be returned as a list. 
+                
+                If False, only the value of the first object's stream 
+                will be returned as a float.
 
         """
         if not all:
@@ -611,16 +607,16 @@ class PyoObject(PyoObjectBase):
         Start processing without sending samples to output. 
         This method is called automatically at the object creation.
 
-        This method returns "self" allowing it to be applied at the object
+        This method returns `self`, allowing it to be applied at the object
         creation.
         
-        Parameters:
+        :Args:
         
-        dur : float, optional
-            Duration, in seconds, of the object's activation. The default is 0
-            and means infinite duration.
-        delay : float, optional
-            Delay, in seconds, before the object's activation. Defaults to 0.
+            dur : float, optional
+                Duration, in seconds, of the object's activation. The default is 0
+                and means infinite duration.
+            delay : float, optional
+                Delay, in seconds, before the object's activation. Defaults to 0.
         
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
@@ -635,33 +631,32 @@ class PyoObject(PyoObjectBase):
         """
         Start processing and send samples to audio output beginning at `chnl`.
 
-        This method returns "self" allowing it to be applied at the object
+        This method returns `self`, allowing it to be applied at the object
         creation.
         
-        Parameters:
+        :Args:
 
-        chnl : int, optional
-            Physical output assigned to the first audio stream of the object. 
-            Defaults to 0.
-
-            If `chnl` is an integer equal or greater than 0, successive 
-            streams increment the output number by `inc` and wrap around 
-            the global number of channels.
+            chnl : int, optional
+                Physical output assigned to the first audio stream of the object. 
+                Defaults to 0.
+            inc : int, optional
+                Output channel increment value. Defaults to 1.
+            dur : float, optional
+                Duration, in seconds, of the object's activation. The default is 0
+                and means infinite duration.
+            delay : float, optional
+                Delay, in seconds, before the object's activation. Defaults to 0.
             
-            If `chnl` is a negative integer: streams begin at 0, increment 
-            the output number by `inc` and wrap around the global number of 
-            channels. Then, the list of streams is scrambled.
-            
-            If `chnl` is a list: successive values in the list will be 
-            assigned to successive streams.
-        inc : int, optional
-            Output increment value.
-        dur : float, optional
-            Duration, in seconds, of the object's activation. The default is 0
-            and means infinite duration.
-        delay : float, optional
-            Delay, in seconds, before the object's activation. Defaults to 0.
+        If `chnl` >= 0, successive streams increment the output number by 
+        `inc` and wrap around the global number of channels.
         
+        If `chnl` is negative, streams begin at 0, increment 
+        the output number by `inc` and wrap around the global number of 
+        channels. Then, the list of streams is scrambled.
+        
+        If `chnl` is a list, successive values in the list will be 
+        assigned to successive streams.
+
         """
         dur, delay, lmax = convertArgsToLists(dur, delay)
         if hasattr(self, "_trig_objs"):
@@ -681,7 +676,7 @@ class PyoObject(PyoObjectBase):
         """
         Stop processing.
 
-        This method returns "self" allowing it to be applied at the object
+        This method returns `self`, allowing it to be applied at the object
         creation.
         
         """
@@ -697,12 +692,14 @@ class PyoObject(PyoObjectBase):
         Mix the object's audio streams into `voices` streams and return 
         a Mix object.
         
-        Parameters:
+        :Args:
 
-        voices : int, optional
-            Number of audio streams of the Mix object created by this method. 
-            If more than 1, object's streams are alternated and added into 
-            Mix object's streams. Defaults to 1.
+            voices : int, optional
+                Number of audio streams of the Mix object created by this method. 
+                Defaults to 1.
+
+                If more than 1, object's streams are alternated and added into 
+                Mix object's streams.
             
         """
         return Mix(self, voices)
@@ -710,20 +707,21 @@ class PyoObject(PyoObjectBase):
     def range(self, min, max):
         """
         Adjust `mul` and `add` attributes according to a given range.
+
         This function assumes a signal between -1 and 1. Arguments may be
         list of floats for multi-streams objects.
 
-        This method returns "self" allowing it to be applied at the object
+        This method returns `self`, allowing it to be applied at the object
         creation:
 
         >>> lfo = Sine(freq=1).range(500, 1000)
 
-        Parameters:
+        :Args:
 
-        min : float
-            Minimum value of the output signal.
-        max : float
-            Maximum value of the output signal.
+            min : float
+                Minimum value of the output signal.
+            max : float
+                Maximum value of the output signal.
 
         """
         min, max, lmax = convertArgsToLists(min, max)
@@ -741,10 +739,10 @@ class PyoObject(PyoObjectBase):
         """
         Replace the `mul` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `mul` attribute.
+            x : float or PyoObject
+                New `mul` attribute.
         
         """
         self._mul = x
@@ -755,10 +753,10 @@ class PyoObject(PyoObjectBase):
         """
         Replace the `add` attribute.
                 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `add` attribute.
+            x : float or PyoObject
+                New `add` attribute.
         
         """
         self._add = x
@@ -769,10 +767,10 @@ class PyoObject(PyoObjectBase):
         """
         Replace and inverse the `mul` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New inversed `mul` attribute.
+            x : float or PyoObject
+                New inversed `mul` attribute.
         
         """
         self._add = x
@@ -783,10 +781,10 @@ class PyoObject(PyoObjectBase):
         """
         Replace and inverse the `add` attribute.
                 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New inversed `add` attribute.
+            x : float or PyoObject
+                New inversed `add` attribute.
 
         """
         self._mul = x
@@ -801,14 +799,14 @@ class PyoObject(PyoObjectBase):
         already assigned to PyoObjects. It will work only with floats or
         list of floats.
 
-        Parameters:
+        :Args:
 
-        attr : string
-            Name of the attribute as a string.
-        value : float
-            New value.
-        port : float, optional
-            Time, in seconds, to reach the new value
+            attr : string
+                Name of the attribute as a string.
+            value : float
+                New value.
+            port : float, optional
+                Time, in seconds, to reach the new value.
 
         """
         self._target_dict[attr] = value
@@ -835,19 +833,20 @@ class PyoObject(PyoObjectBase):
         If a list of values are given to a parameter, a multisliders 
         will be used to control each stream independently.
 
-        Parameters:
+        :Args:
 
-        map_list : list of SLMap objects, optional
-            Users defined set of parameters scaling. There is default 
-            scaling for each object that accept `ctrl` method.
-        title : string, optional
-            Title of the window. If none is provided, the name of the 
-            class is used.
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the controller window. 
-            Defaults to False.
+            map_list : list of SLMap objects, optional
+                Users defined set of parameters scaling. There is default 
+                scaling for each object that accept `ctrl` method.
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
 
         """
         if map_list == None:
@@ -882,39 +881,19 @@ class PyoTableObject(PyoObjectBase):
     
     The user should never instantiate an object of this class.
     
-    Parentclass: PyoObjectBase
+    :Parent: :py:class:`PyoObjectBase`
  
-    Methods:
-    
-    setSize(size) : Change the size of the table. This will erase the 
-        previously drawn waveform.
-    getSize() : Return table size in samples.
-    view() : Opens a window showing the contents of the table.
-    save(path, format, sampletype) : Writes the content of the table in an audio file.
-    write(path, oneline) : Writes the content of the table in a text file.
-    read(path) : Sets the content of the table from a text file.
-    normalize() : Normalize table samples between -1 and 1.
-    reset() : Resets table samples to 0.0.
-    removeDC() : Remove DC offset from the table's data.
-    reverse() : Reverse the table's data.
-    copy() : Returns a deep copy of the object.
-    put(value, pos) : Puts a value at specified position in the table.
-    get(pos) : Returns the value at specified position in the table.
-    getTable(all) : Returns the content of the table as list of floats.
-    refreshView() : Updates the graphical display of the table, if applicable.
+    :Args:
 
-    Attributes:
-
-    size : int, optional
-        Table size in samples.
-
-    Notes:
+        size : int
+            Length of the table in samples. Usually provided by the child object.
+            
+    .. note::
     
-    Operations allowed on all table objects :
+        **Operations allowed on all table objects**
     
-    len(obj) : Return the number of table streams in an object.
-    obj[x] : Return table stream `x` of the object. `x` is a number 
-        from 0 to len(obj) - 1.
+        >>> len(obj) # Return the number of table streams in an object.
+        >>> obj[x] # Return table stream `x` of the object. `x` is a number from 0 to len(obj)-1.
 
     """
     
@@ -933,21 +912,21 @@ class PyoTableObject(PyoObjectBase):
         and the number of channels is the number of table streams of the
         object.
 
-        Parameters:
+        :Args:
         
-        path : string
-            Full path (including extension) of the new file.
-        format : int, optional
-            Format type of the new file. Defaults to 0. Supported formats are:
-                0 : WAVE - Microsoft WAV format (little endian) {.wav, .wave}
-                1 : AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
-        sampletype : int, optional
-            Bit depth encoding of the audio file. Defaults to 0. Supported types are:
-                0 : 16 bit int
-                1 : 24 bit int
-                2 : 32 bit int
-                3 : 32 bit float
-                4 : 64 bit float
+            path : string
+                Full path (including extension) of the new file.
+            format : int, optional
+                Format type of the new file. Supported formats are:
+                    0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
+                    1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+            sampletype : int, optional
+                Bit depth encoding of the audio file. Supported types are:
+                    0. 16 bit int (default)
+                    1. 24 bit int
+                    2. 32 bit int
+                    3. 32 bit float
+                    4. 64 bit float
 
         """
         savefileFromTable(self, path, format, sampletype)
@@ -959,14 +938,15 @@ class PyoTableObject(PyoObjectBase):
         This function can be used to store the table data as a
         list of floats into a text file.
         
-        Parameters:
+        :Args:
         
-        path : string
-            Full path of the generated file.
-        oneline : boolean, optional
-            If True, list of samples will inserted on one line.
-            If False, list of samples will be truncated to 8 floats
-            per line. Defaults to True.
+            path : string
+                Full path of the generated file.
+            oneline : boolean, optional
+                If True, list of samples will inserted on one line.
+
+                If False, list of samples will be truncated to 8 floats
+                per line.
 
         """
         f = open(path, "w")
@@ -988,12 +968,17 @@ class PyoTableObject(PyoObjectBase):
     def read(self, path):
         """
         Reads the content of a text file and replaces the table data
-        with the values in the file.
+        with the values stored in the file.
         
-        Format is a list of lists of floats. For example, A two 
+        :Args:
+            
+            path : string
+                Full path of the file to read.
+        
+        The format is a list of lists of floats. For example, A two 
         tablestreams object must be given a content like this:
         
-        [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]
+        [ [ 0.0, 1.0, 0.5, ... ], [ 1.0, 0.99, 0.98, 0.97, ... ] ]
         
         Each object's tablestream will be resized according to the 
         length of the lists.
@@ -1008,13 +993,14 @@ class PyoTableObject(PyoObjectBase):
 
     def setSize(self, size):
         """
-        Change the size of the table. This will erase the previously 
-        drawn waveform.
+        Change the size of the table. 
         
-        Parameters:
+        This will erase the previously drawn waveform.
         
-        size : int
-            New table size in samples.
+        :Args:
+        
+            size : int
+                New table size in samples.
         
         """
         self._size = size
@@ -1030,18 +1016,18 @@ class PyoTableObject(PyoObjectBase):
 
     def put(self, value, pos=0):
         """
-        Puts a value at specified position in the table.
+        Puts a value at specified sample position in the table.
         
         If the object has more than 1 tablestream, the default is to
         record the value in each table. User can call obj[x].put() 
-        to record in a specific table.
+        to record into a specific table.
         
-        Parameters:
+        :Args:
         
-        value : float
-            Value, as floating-point, to record in the table.
-        pos : int, optional
-            Position where to record value. Defaults to 0.
+            value : float
+                Value, as floating-point, to record in the table.
+            pos : int, optional
+                Position, in samples, where to record value. Defaults to 0.
         
         """
         [obj.put(value, pos) for obj in self._base_objs]
@@ -1049,16 +1035,16 @@ class PyoTableObject(PyoObjectBase):
 
     def get(self, pos):
         """
-        Returns the value, as float, at specified position in the table.
+        Returns the value, as float, stored at a specified position in the table.
         
         If the object has more than 1 tablestream, the default is to
         return a list with the value of each tablestream. User can call 
         obj[x].get() to get the value of a specific table.
         
-        Parameters:
+        :Args:
         
-        pos : int, optional
-            Position where to get value. Defaults to 0.
+            pos : int, optional
+                Position, in samples, where to read the value. Defaults to 0.
         
         """
         values = [obj.get(pos) for obj in self._base_objs]
@@ -1069,13 +1055,14 @@ class PyoTableObject(PyoObjectBase):
         """
         Returns the content of the table as list of floats.
         
-        Parameters:
-            
-        all : boolean, optional
-            If True, all sub tables are retrieved and returned as a list
-            of list of floats. Otherwise, a single list containing the
-            content of the first subtable (or the only one) is returned.
-            Defaults to False.
+        :Args:
+
+            all : boolean, optional
+                If True, all sub tables are retrieved and returned as a list
+                of list of floats. 
+                
+                If False, a single list containing the content of the first 
+                subtable (or the only one) is returned.
 
         """
         if all:
@@ -1144,15 +1131,16 @@ class PyoTableObject(PyoObjectBase):
         """
         Opens a window showing the contents of the table.
         
-        Parameters:
+        :Args:
         
-        title : string, optional
-            Window title. Defaults to "Table waveform". 
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the table window. 
-            Defaults to False.
+            title : string, optional
+                Window title. Defaults to "Table waveform". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
         
         """
         samples = self._base_objs[0].getViewTable()
@@ -1189,28 +1177,14 @@ class PyoMatrixObject(PyoObjectBase):
     
     The user should never instantiate an object of this class.
     
-    Parentclass: PyoObjectBase
- 
-    Methods:
+    :Parent: :py:class:`PyoObjectBase`
+
+    .. note::
     
-    getSize() : Return matrix size in samples (x, y).
-    view() : Opens a window showing the contents of the matrix.
-    write(path) : Writes the content of the matrix in a text file.
-    read(path) : Sets the content of the matrix from a text file.
-    normalize() : Normalize matrix samples between -1 and 1.
-    blur() : Apply a simple gaussian blur on the matrix.
-    boost(min, max, boost) : Boost the contrast of values in the matrix.
-    put(value, x, y) : Puts a value at specified position in the matrix.
-    get(x, y) : Returns the value at specified position in the matrix.
-    refreshView() : Updates the graphical display of the matrix, if applicable.
+        **Operations allowed on all matrix objects**
     
-    Notes:
-    
-    Operations allowed on all matrix objects :
-    
-    len(obj) : Return the number of table streams in an object.
-    obj[x] : Return table stream `x` of the object. `x` is a number 
-        from 0 to len(obj) - 1.
+    >>> len(obj) # Return the number of table streams in an object.
+    >>> obj[x] # Return table stream `x` of the object. `x` is a number from 0 to len(obj)-1.
 
     """
     
@@ -1226,6 +1200,11 @@ class PyoMatrixObject(PyoObjectBase):
         
         This function can be used to store the matrix data as a
         list of list of floats into a text file.
+
+        :Args:
+            
+            path : string
+                Full path of the generated file.
          
         """
         f = open(path, "w")
@@ -1240,13 +1219,18 @@ class PyoMatrixObject(PyoObjectBase):
         Format is a list of lists of floats. For example, A two 
         matrixstreams object must be given a content like this:
         
-        [[[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]],
-        [[0.0,1.0,0.5,...], [1.0,0.99,0.98,0.97,...]]]
+        [ [ [0.0 ,1.0, 0.5, ... ], [1.0, 0.99, 0.98, 0.97, ... ] ],
+        [ [0.0, 1.0, 0.5, ... ], [1.0, 0.99, 0.98, 0.97, ... ] ] ]
         
         Each object's matrixstream will be resized according to the 
         length of the lists, but the number of matrixstreams must be
         the same.
-        
+ 
+        :Args:
+            
+            path : string
+                Full path of the file to read.
+       
         """
         f = open(path, "r")
         f_list = eval(f.read())
@@ -1280,14 +1264,14 @@ class PyoMatrixObject(PyoObjectBase):
         """
         Boost the constrast of values in the matrix.
         
-        Parameters:
+        :Args:
         
-        min : float, optional
-            Minimum value. Defaults to -1.0.
-        max : float, optional
-            Maximum value. Defaults to 1.0.
-        boost : float, optional
-            Amount of boost applied on each value. Defaults to 0.01.
+            min : float, optional
+                Minimum value. Defaults to -1.0.
+            max : float, optional
+                Maximum value. Defaults to 1.0.
+            boost : float, optional
+                Amount of boost applied on each value. Defaults to 0.01.
 
         """
         [obj.boost(min, max, boost) for obj in self._base_objs]
@@ -1300,14 +1284,14 @@ class PyoMatrixObject(PyoObjectBase):
         record the value in each matrix. User can call obj[x].put() 
         to record in a specific matrix.
         
-        Parameters:
+        :Args:
         
-        value : float
-            Value, as floating-point, to record in the matrix.
-        x : int, optional
-            X position where to record value. Defaults to 0.
-        y : int, optional
-            Y position where to record value. Defaults to 0.
+            value : float
+                Value, as floating-point, to record in the matrix.
+            x : int, optional
+                X position where to record value. Defaults to 0.
+            y : int, optional
+                Y position where to record value. Defaults to 0.
         
         """
         [obj.put(value, x, y) for obj in self._base_objs]
@@ -1320,12 +1304,12 @@ class PyoMatrixObject(PyoObjectBase):
         return a list with the value of each matrixstream. User can call 
         obj[x].get() to get the value of a specific matrix.
         
-        Parameters:
+        :Args:
         
-        x : int, optional
-            X position where to get value. Defaults to 0.
-        y : int, optional
-            Y position where to get value. Defaults to 0.
+            x : int, optional
+                X position where to get value. Defaults to 0.
+            y : int, optional
+                Y position where to get value. Defaults to 0.
         
         """
         values = [obj.get(x, y) for obj in self._base_objs]
@@ -1336,15 +1320,16 @@ class PyoMatrixObject(PyoObjectBase):
         """
         Opens a window showing the contents of the matrix.
         
-        Parameters:
+        :Args:
         
-        title : string, optional
-            Window title. Defaults to "Matrix viewer". 
-        wxnoserver : boolean, optional
-            With wxPython graphical toolkit, if True, tells the 
-            interpreter that there will be no server window and not 
-            to wait for it before showing the matrix window. 
-            Defaults to False.
+            title : string, optional
+                Window title. Defaults to "Matrix viewer". 
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
         
         """        
         samples = self._base_objs[0].getViewData()
@@ -1372,28 +1357,26 @@ class Mix(PyoObject):
     Mix the object's audio streams as `input` argument into `voices` 
     streams.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject or list of PyoObjects
-        Input signal(s) to mix the streams.
-    voices : int, optional
-        Number of streams of the Mix object. If more than 1, input 
-        object's streams are alternated and added into Mix object's 
-        streams. Defaults to 1.
+        input : PyoObject or list of PyoObjects
+            Input signal(s) to mix the streams.
+        voices : int, optional
+            Number of streams of the Mix object. If more than 1, input 
+            object's streams are alternated and added into Mix object's 
+            streams. Defaults to 1.
 
-    Notes:
+    .. note::
 
-    The mix method of PyoObject creates and returns a new Mix object
-    with mixed streams of the object that called the method. User
-    don't have to instantiate this class directly. These two calls
-    are identical:
+        The mix method of PyoObject creates and returns a new Mix object
+        with mixed streams of the object that called the method. User
+        don't have to instantiate this class directly. These two calls
+        are identical:
 
-    >>> b = a.mix()
-    >>> b = Mix(a)
-
-    Examples:
+        >>> b = a.mix()
+        >>> b = Mix(a)
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1438,33 +1421,31 @@ class Dummy(PyoObject):
 
     The user should never instantiate an object of this class.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    objs_list : list of audio Stream objects
-        List of Stream objects return by the PyoObject hidden method 
-        getBaseObjects().
+        objs_list : list of audio Stream objects
+            List of Stream objects return by the PyoObject hidden method 
+            getBaseObjects().
 
-    Notes:
+    .. note::
 
-    Multiplication, addition, division and substraction don't changed
-    the PyoObject on which the operation is performed. A dummy object
-    is created, which is just a copy of the audio Streams of the object,
-    and the operation is applied on the Dummy, leaving the original
-    object unchanged. This lets the user performs multiple different 
-    arithmetic operations on an object without conficts. Here, `b` is
-    a Dummy object with `a` as its input with a `mul` attribute of 0.5. 
-    attribute:
+        Multiplication, addition, division and substraction don't changed
+        the PyoObject on which the operation is performed. A dummy object
+        is created, which is just a copy of the audio Streams of the object,
+        and the operation is applied on the Dummy, leaving the original
+        object unchanged. This lets the user performs multiple different 
+        arithmetic operations on an object without conficts. Here, `b` is
+        a Dummy object with `a` as its input with a `mul` attribute of 0.5. 
+        attribute:
 
-    >>> a = Sine()
-    >>> b = a * .5
-    >>> print a
-    <pyolib.input.Sine object at 0x11fd610>
-    >>> print b
-    <pyolib._core.Dummy object at 0x11fd710>
-
-    Examples:
+        >>> a = Sine()
+        >>> b = a * .5
+        >>> print a
+        <pyolib.input.Sine object at 0x11fd610>
+        >>> print b
+        <pyolib._core.Dummy object at 0x11fd710>
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1490,26 +1471,16 @@ class InputFader(PyoObject):
     """
     Audio streams crossfader.
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal.
+        input : PyoObject
+            Input signal.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal.
-
-    Notes:
-
-    The setInput method, available to object with `input` attribute, 
-    uses an InputFader object internally to perform crossfade between 
-    the old and the new audio input assigned to the object. 
-
-    Examples:
+        The setInput method, available to object with `input` attribute, 
+        uses an InputFader object internally to perform crossfade between 
+        the old and the new audio input assigned to the object. 
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1530,12 +1501,12 @@ class InputFader(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -1553,22 +1524,12 @@ class Sig(PyoObject):
     """
     Convert numeric value to PyoObject signal.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    value : float or PyoObject
-        Numerical value to convert.
-
-    Methods:
-
-    setValue(x) : Changes the value of the signal stream.
-    
-    Attributes:
-    
-    value : float or PyoObject. Numerical value to convert.
-    
-    Examples:
+        value : float or PyoObject
+            Numerical value to convert.
     
     >>> import random
     >>> s = Server().boot()
@@ -1592,10 +1553,10 @@ class Sig(PyoObject):
         """
         Changes the value of the signal stream.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            Numerical value to convert.
+            x : float or PyoObject
+                Numerical value to convert.
 
         """
         self._value = x
@@ -1621,38 +1582,26 @@ class VarPort(PyoObject):
     current value to the new value. If a callback is provided as `function`
     argument, it will be called at the end of the line.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    value : float
-        Numerical value to convert.
-    time : float, optional
-        Ramp time, in seconds, to reach the new value. Defaults to 0.025.
-    init : float, optional
-        Initial value of the internal memory. Defaults to 0.
-    function : Python callable, optional
-        If provided, it will be called at the end of the line. 
-        Defaults to None.
-    arg : any Python object, optional
-        Optional argument sent to the function called at the end of the line.
-        Defaults to None.
+        value : float
+            Numerical value to convert.
+        time : float, optional
+            Ramp time, in seconds, to reach the new value. Defaults to 0.025.
+        init : float, optional
+            Initial value of the internal memory. Defaults to 0.
+        function : Python callable, optional
+            If provided, it will be called at the end of the line. 
+            Defaults to None.
+        arg : any Python object, optional
+            Optional argument sent to the function called at the end of the line.
+            Defaults to None.
 
-    Methods:
+    .. note::
 
-    setValue(x) : Changes the value of the signal stream.
-    setTime(x) : Changes the ramp time.
-
-    Attributes:
-
-    value : float. Numerical value to convert.
-    time : float. Ramp time.
-
-    Notes:
-
-    The out() method is bypassed. VarPort's signal can not be sent to audio outs.
-
-    Examples:
+        The out() method is bypassed. VarPort's signal can not be sent to audio outs.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1675,10 +1624,10 @@ class VarPort(PyoObject):
         """
         Changes the value of the signal stream.
 
-        Parameters:
+        :Args:
 
-        x : float
-            Numerical value to convert.
+            x : float
+                Numerical value to convert.
 
         """
         self._value = x
@@ -1689,10 +1638,10 @@ class VarPort(PyoObject):
         """
         Changes the ramp time of the object.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New ramp time.
+            x : float
+                New ramp time.
 
         """
         self._time = x
@@ -1717,26 +1666,14 @@ class Pow(PyoObject):
     """
     Performs a power function on audio signal.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    base : float or PyoObject, optional
-        Base composant. Defaults to 10.
-    exponent : float or PyoObject, optional
-        Exponent composant. Defaults to 1.
-
-    Methods:
-
-    setBase(x) : Replace the `base` attribute.
-    setExponent(x) : Replace the `exponent` attribute.
-
-    Attributes:
-
-    base : float or PyoObject, Base composant.
-    exponent : float or PyoObject, Exponent composant.
-
-    Examples:
+        base : float or PyoObject, optional
+            Base composant. Defaults to 10.
+        exponent : float or PyoObject, optional
+            Exponent composant. Defaults to 1.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1757,10 +1694,10 @@ class Pow(PyoObject):
         """
         Replace the `base` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `base` attribute.
+            x : float or PyoObject
+                new `base` attribute.
 
         """
         self._base = x
@@ -1771,10 +1708,10 @@ class Pow(PyoObject):
         """
         Replace the `exponent` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            new `exponent` attribute.
+            x : float or PyoObject
+                new `exponent` attribute.
 
         """
         self._exponent = x
@@ -1802,34 +1739,20 @@ class Wrap(PyoObject):
     This object is useful for table indexing, phase shifting or for 
     clipping and modeling an audio signal.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    min : float or PyoObject, optional
-        Minimum possible value. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum possible value. Defaults to 1.
+        input : PyoObject
+            Input signal to process.
+        min : float or PyoObject, optional
+            Minimum possible value. Defaults to 0.
+        max : float or PyoObject, optional
+            Maximum possible value. Defaults to 1.
 
-    Methods:
+    .. note::
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    min : float or PyoObject. Minimum possible value.
-    max : float or PyoObject. Maximum possible value.
-
-    Notes:
-
-    If `min` is higher than `max`, then the output will be the average of the two.
-
-    Examples:
+        If `min` is higher than `max`, then the output will be the average of the two.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1857,12 +1780,12 @@ class Wrap(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -1872,10 +1795,10 @@ class Wrap(PyoObject):
         """
         Replace the `min` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `min` attribute.
+            x : float or PyoObject
+                New `min` attribute.
 
         """
         self._min = x
@@ -1886,10 +1809,10 @@ class Wrap(PyoObject):
         """
         Replace the `max` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `max` attribute.
+            x : float or PyoObject
+                New `max` attribute.
 
         """
         self._max = x
@@ -1931,31 +1854,17 @@ class Compare(PyoObject):
     between two PyoObjects and outputs 1.0, as audio stream, if the
     comparison is true, otherwise outputs 0.0.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal.
-    comp : float or PyoObject
-        comparison signal.
-    mode : string, optional
-        Comparison operator as a string. Allowed operator are "<", "<=",
-        ">", ">=", "==", "!=". Default to "<".
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setComp(x, fadetime) : Replace the `comp` attribute.
-    setMode(x) : Replace the `mode` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal.
-    comp : float or PyoObject. Comparison signal.
-    mode : string. Comparison operator.
-
-    Examples:
+        input : PyoObject
+            Input signal.
+        comp : float or PyoObject
+            comparison signal.
+        mode : string, optional
+            Comparison operator as a string. Allowed operator are "<", "<=",
+            ">", ">=", "==", "!=". Default to "<".
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1983,12 +1892,12 @@ class Compare(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1998,10 +1907,10 @@ class Compare(PyoObject):
         """
         Replace the `comp` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New comparison signal.
+            x : PyoObject
+                New comparison signal.
 
         """
         self._comp = x
@@ -2014,10 +1923,10 @@ class Compare(PyoObject):
         
         Allowed operator are "<", "<=", ">", ">=", "==", "!=".
         
-        Parameters:
+        :Args:
 
-        x : string
-            New `mode` attribute.
+            x : string
+                New `mode` attribute.
 
         """
         self._mode = x

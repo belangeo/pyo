@@ -29,30 +29,16 @@ class Clip(PyoObject):
     """
     Clips a signal to a predefined limit.
     
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    min : float or PyoObject, optional
-        Minimum possible value. Defaults to -1.
-    max : float or PyoObject, optional
-        Maximum possible value. Defaults to 1.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-
-    Attributes:
-    
-    input : PyoObject. Input signal to process.
-    min : float or PyoObject. Minimum possible value.
-    max : float or PyoObject. Maximum possible value.
-    
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        min : float or PyoObject, optional
+            Minimum possible value. Defaults to -1.
+        max : float or PyoObject, optional
+            Maximum possible value. Defaults to 1.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -75,12 +61,12 @@ class Clip(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -90,10 +76,10 @@ class Clip(PyoObject):
         """
         Replace the `min` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `min` attribute.
+            x : float or PyoObject
+                New `min` attribute.
 
         """
         self._min = x
@@ -104,10 +90,10 @@ class Clip(PyoObject):
         """
         Replace the `max` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `max` attribute.
+            x : float or PyoObject
+                New `max` attribute.
 
         """
         self._max = x
@@ -148,34 +134,20 @@ class Mirror(PyoObject):
     This object is useful for table indexing or for clipping and
     modeling an audio signal.
 
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    min : float or PyoObject, optional
-        Minimum possible value. Defaults to 0.
-    max : float or PyoObject, optional
-        Maximum possible value. Defaults to 1.
+        input : PyoObject
+            Input signal to process.
+        min : float or PyoObject, optional
+            Minimum possible value. Defaults to 0.
+        max : float or PyoObject, optional
+            Maximum possible value. Defaults to 1.
 
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setMin(x) : Replace the `min` attribute.
-    setMax(x) : Replace the `max` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    min : float or PyoObject. Minimum possible value.
-    max : float or PyoObject. Maximum possible value.
-
-    Notes:
+    .. note::
     
-    If `min` is higher than `max`, then the output will be the average of the two.
-    
-    Examples:
+        If `min` is higher than `max`, then the output will be the average of the two.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -199,12 +171,12 @@ class Mirror(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -214,10 +186,10 @@ class Mirror(PyoObject):
         """
         Replace the `min` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `min` attribute.
+            x : float or PyoObject
+                New `min` attribute.
 
         """
         self._min = x
@@ -228,10 +200,10 @@ class Mirror(PyoObject):
         """
         Replace the `max` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `max` attribute.
+            x : float or PyoObject
+                New `max` attribute.
 
         """
         self._max = x
@@ -272,32 +244,18 @@ class Degrade(PyoObject):
     Degrade takes an audio signal and reduces the sampling rate and/or 
     bit-depth as specified.
     
-    Parentclass : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    bitdepth : float or PyoObject, optional
-        Signal quantization in bits. Must be in range 1 -> 32.
-        Defaults to 16.
-    srscale : float or PyoObject, optional
-        Sampling rate multiplier. Must be in range 0.0009765625 -> 1.
-        Defaults to 1.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setBitdepth(x) : Replace the `bitdepth` attribute.
-    setSrscale(x) : Replace the `srscale` attribute.
-
-    Attributes:
-    
-    input : PyoObject. Input signal to process.
-    bitdepth : float or PyoObject. Quantization in bits.
-    srscale : float or PyoObject. Sampling rate multiplier.
-    
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        bitdepth : float or PyoObject, optional
+            Signal quantization in bits. Must be in range 1 -> 32.
+            Defaults to 16.
+        srscale : float or PyoObject, optional
+            Sampling rate multiplier. Must be in range 0.0009765625 -> 1.
+            Defaults to 1.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -321,12 +279,12 @@ class Degrade(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -336,10 +294,10 @@ class Degrade(PyoObject):
         """
         Replace the `bitdepth` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `bitdepth` attribute.
+            x : float or PyoObject
+                New `bitdepth` attribute.
 
         """
         self._bitdepth = x
@@ -350,10 +308,10 @@ class Degrade(PyoObject):
         """
         Replace the `srscale` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `srscale` attribute.
+            x : float or PyoObject
+                New `srscale` attribute.
 
         """
         self._srscale = x
@@ -394,59 +352,42 @@ class Compress(PyoObject):
     Compress reduces the volume of loud sounds or amplifies quiet sounds by 
     narrowing or compressing an audio signal's dynamic range.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    thresh : float or PyoObject, optional
-        Level, expressed in dB, above which the signal is reduced. 
-        Reference level is 0dB. Defaults to -20.
-    ratio : float or PyoObject, optional
-        Determines the input/output ratio for signals above the 
-        threshold. Defaults to 2.
-    risetime : float or PyoObject, optional
-        Used in amplitude follower, time to reach upward value in 
-        seconds. Defaults to 0.01.
-    falltime : float or PyoObject, optional
-        Used in amplitude follower, time to reach downward value in 
-        seconds. Defaults to 0.1.
-    lookahead : float, optional
-        Delay length, in ms, for the "look-ahead" buffer. Range is
-        0 -> 25 ms. Defaults to 5.0.
-    knee : float optional
-        Shape of the transfert function around the threshold, specified
-        in the range 0 -> 1. A value of 0 means a hard knee and a value 
-        of 1.0 means a softer knee. Defaults to 0.
-    outputAmp : boolean, optional
-        If True, the object's output signal will be the compression level
-        alone, not the compressed signal. It can be useful if 2 or more
-        channels need to linked on the same compression slope. Available
-        at initialization only. Defaults to False.
-        
-    Methods:
+        input : PyoObject
+            Input signal to process.
+        thresh : float or PyoObject, optional
+            Level, expressed in dB, above which the signal is reduced. 
+            Reference level is 0dB. Defaults to -20.
+        ratio : float or PyoObject, optional
+            Determines the input/output ratio for signals above the 
+            threshold. Defaults to 2.
+        risetime : float or PyoObject, optional
+            Used in amplitude follower, time to reach upward value in 
+            seconds. Defaults to 0.01.
+        falltime : float or PyoObject, optional
+            Used in amplitude follower, time to reach downward value in 
+            seconds. Defaults to 0.1.
+        lookahead : float, optional
+            Delay length, in ms, for the "look-ahead" buffer. Range is
+            0 -> 25 ms. Defaults to 5.0.
+        knee : float optional
+            Shape of the transfert function around the threshold, specified
+            in the range 0 -> 1. 
+            
+            A value of 0 means a hard knee and a value of 1.0 means a softer 
+            knee. Defaults to 0.
+        outputAmp : boolean, optional
+            If True, the object's output signal will be the compression level
+            alone, not the compressed signal. 
+            
+            It can be useful if 2 or more channels need to linked on the same 
+            compression slope. Defaults to False.
+            
+            Available at initialization only. 
 
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setThresh(x) : Replace the `thresh` attribute.
-    setRatio(x) : Replace the `ratio` attribute.
-    setRiseTime(x) : Replace the `risetime` attribute.
-    setFallTime(x) : Replace the `falltime` attribute.
-    setLookAhead(x) : Replace the `lookahead` attribute.
-    setKnee(x) : Replace the `knee` attribute.
-    
-    Attributes:
-    
-    input : PyoObject. Input signal to process.
-    thresh : float or PyoObject. Level above which the signal is reduced.
-    ratio : float or PyoObject. in/out ratio for signals above the threshold.
-    risetime : float or PyoObject. Time to reach upward value in seconds.
-    falltime : float or PyoObject. Time to reach downward value in seconds.
-    lookahead : float. Delay length, in ms, for the "look-ahead" buffer.
-    knee : float. Shape of the transfert function around the threshold.
-     
-    Examples:
-    
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + '/transparent.aif', loop=True)
@@ -470,12 +411,12 @@ class Compress(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -485,10 +426,10 @@ class Compress(PyoObject):
         """
         Replace the `thresh` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `thresh` attribute.
+            x : float or PyoObject
+                New `thresh` attribute.
 
         """
         self._thresh = x
@@ -499,10 +440,10 @@ class Compress(PyoObject):
         """
         Replace the `ratio` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `ratio` attribute.
+            x : float or PyoObject
+                New `ratio` attribute.
 
         """
         self._ratio = x
@@ -513,10 +454,10 @@ class Compress(PyoObject):
         """
         Replace the `risetime` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `risetime` attribute.
+            x : float or PyoObject
+                New `risetime` attribute.
 
         """
         self._risetime = x
@@ -527,10 +468,10 @@ class Compress(PyoObject):
         """
         Replace the `falltime` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `falltime` attribute.
+            x : float or PyoObject
+                New `falltime` attribute.
 
         """
         self._falltime = x
@@ -541,10 +482,10 @@ class Compress(PyoObject):
         """
         Replace the `lookahead` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New `lookahead` attribute.
+            x : float
+                New `lookahead` attribute.
 
         """
         self._lookahead = x
@@ -555,10 +496,10 @@ class Compress(PyoObject):
         """
         Replace the `knee` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New `knee` attribute.
+            x : float
+                New `knee` attribute.
 
         """
         self._knee = x
@@ -610,7 +551,7 @@ class Compress(PyoObject):
     
     @property
     def lookahead(self):
-        """float. Delay length, in ms, for the "look-ahead" buffer."""
+        """float. Delay length, in ms, of the "look-ahead" buffer."""
         return self._lookahead
     @lookahead.setter
     def lookahead(self, x): self.setLookAhead(x)
@@ -632,45 +573,30 @@ class Gate(PyoObject):
     from the signal. When the gate is open both the signal and the noise will 
     pass through.
     
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    thresh : float or PyoObject, optional
-        Level, expressed in dB, below which the gate is closed. 
-        Reference level is 0dB. Defaults to -70.
-    risetime : float or PyoObject, optional
-        Time to open the gate in seconds. Defaults to 0.01.
-    falltime : float or PyoObject, optional
-        Time to close the gate in seconds. Defaults to 0.05.
-    lookahead : float, optional
-        Delay length, in ms, for the "look-ahead" buffer. Range is
-        0 -> 25 ms. Defaults to 5.0.
-    outputAmp : boolean, optional
-        If True, the object's output signal will be the gating level
-        alone, not the gated signal. It can be useful if 2 or more
-        channels need to linked on the same gating slope. Available
-        at initialization only. Defaults to False.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setThresh(x) : Replace the `thresh` attribute.
-    setRiseTime(x) : Replace the `risetime` attribute.
-    setFallTime(x) : Replace the `falltime` attribute.
-    setLookAhead(x) : Replace the `lookahead` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    thresh : float or PyoObject. Level below which the gate is closed.
-    risetime : float or PyoObject. Time to open the gate in seconds.
-    falltime : float or PyoObject. Time to close the gate in seconds.
-    lookahead : float. Delay length, in ms, for the "look-ahead" buffer.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        thresh : float or PyoObject, optional
+            Level, expressed in dB, below which the gate is closed. 
+            Reference level is 0dB. Defaults to -70.
+        risetime : float or PyoObject, optional
+            Time to open the gate in seconds. Defaults to 0.01.
+        falltime : float or PyoObject, optional
+            Time to close the gate in seconds. Defaults to 0.05.
+        lookahead : float, optional
+            Delay length, in ms, for the "look-ahead" buffer. Range is
+            0 -> 25 ms. Defaults to 5.0.
+        outputAmp : boolean, optional
+            If True, the object's output signal will be the gating level
+            alone, not the gated signal. 
+            
+            It can be useful if 2 or more channels need to linked on the 
+            same gating slope. Defaults to False.
+            
+            Available at initialization only.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -693,12 +619,12 @@ class Gate(PyoObject):
         """
         Replace the `input` attribute.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Defaults to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
 
         """
         self._input = x
@@ -708,10 +634,10 @@ class Gate(PyoObject):
         """
         Replace the `thresh` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `thresh` attribute.
+            x : float or PyoObject
+                New `thresh` attribute.
 
         """
         self._thresh = x
@@ -722,10 +648,10 @@ class Gate(PyoObject):
         """
         Replace the `risetime` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `risetime` attribute.
+            x : float or PyoObject
+                New `risetime` attribute.
 
         """
         self._risetime = x
@@ -736,10 +662,10 @@ class Gate(PyoObject):
         """
         Replace the `falltime` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `falltime` attribute.
+            x : float or PyoObject
+                New `falltime` attribute.
 
         """
         self._falltime = x
@@ -750,10 +676,10 @@ class Gate(PyoObject):
         """
         Replace the `lookahead` attribute.
 
-        Parameters:
+        :Args:
 
-        x : float
-            New `lookahead` attribute.
+            x : float
+                New `lookahead` attribute.
 
         """
         self._lookahead = x
@@ -797,7 +723,7 @@ class Gate(PyoObject):
 
     @property
     def lookahead(self):
-        """float. Delay length, in ms, for the "look-ahead" buffer."""
+        """float. Delay length, in ms, of the "look-ahead" buffer."""
         return self._lookahead
     @lookahead.setter
     def lookahead(self, x): self.setLookAhead(x)
@@ -808,30 +734,16 @@ class Balance(PyoObject):
 
     The rms power of a signal is adjusted to match that of a comparator signal.
 
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    input2 : PyoObject
-        Comparator signal.
-    freq : float or PyoObject, optional
-        Cutoff frequency of the lowpass filter in hertz. Default to 10.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setInput2(x, fadetime) : Replace the `input2` attribute.
-    setFreq(x) : Replace the `freq` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    input2 : PyoObject. Comparator signal.
-    freq : float or PyoObject. Cutoff frequency of the lowpass filter.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        input2 : PyoObject
+            Comparator signal.
+        freq : float or PyoObject, optional
+            Cutoff frequency of the lowpass filter in hertz. Default to 10.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -856,12 +768,12 @@ class Balance(PyoObject):
         
         Input signal to process.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -873,12 +785,12 @@ class Balance(PyoObject):
         
         Comparator signal.
 
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input2 = x
@@ -890,10 +802,10 @@ class Balance(PyoObject):
         
         Cutoff frequency of the lowpass filter, in Hertz.
 
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `freq` attribute.
+            x : float or PyoObject
+                New `freq` attribute.
 
         """
         self._freq = x
@@ -929,28 +841,15 @@ class Min(PyoObject):
     """
     Outputs the minimum of two values.
  
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
    
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    comp : float or PyoObject, optional
-        Comparison value. If input is lower than this value,
-        input is send to the output, otherwise, comp is outputted.
-        Defaults to 0.5.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setComp(x) : Replace the `comp` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    comp : float or PyoObject. Comparison value.
-    
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        comp : float or PyoObject, optional
+            Comparison value. If `input` is lower than this value,
+            `input` is send to the output, otherwise, `comp` is outputted.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -972,12 +871,12 @@ class Min(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -987,10 +886,10 @@ class Min(PyoObject):
         """
         Replace the `comp` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `comp` attribute.
+            x : float or PyoObject
+                New `comp` attribute.
 
         """
         self._comp = x
@@ -1019,28 +918,15 @@ class Max(PyoObject):
     """
     Outputs the maximum of two values.
  
-    Parentclass: PyoObject
+    :Parent: :py:class:`PyoObject`
    
-    Parameters:
+    :Args:
     
-    input : PyoObject
-        Input signal to process.
-    comp : float or PyoObject, optional
-        Comparison value. If input is higher than this value,
-        input is send to the output, otherwise, comp is outputted.
-        Defaults to 0.5.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setComp(x) : Replace the `comp` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    comp : float or PyoObject. Comparison value.
-    
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        comp : float or PyoObject, optional
+            Comparison value. If `input` is higher than this value,
+            `input` is send to the output, otherwise, `comp` is outputted.
     
     >>> s = Server().boot()
     >>> s.start()
@@ -1062,12 +948,12 @@ class Max(PyoObject):
         """
         Replace the `input` attribute.
         
-        Parameters:
+        :Args:
 
-        x : PyoObject
-            New signal to process.
-        fadetime : float, optional
-            Crossfade time between old and new input. Default to 0.05.
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
 
         """
         self._input = x
@@ -1077,10 +963,10 @@ class Max(PyoObject):
         """
         Replace the `comp` attribute.
         
-        Parameters:
+        :Args:
 
-        x : float or PyoObject
-            New `comp` attribute.
+            x : float or PyoObject
+                New `comp` attribute.
 
         """
         self._comp = x
