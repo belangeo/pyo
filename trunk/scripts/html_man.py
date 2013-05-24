@@ -21,7 +21,11 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 import os, inspect, shutil
 from types import ListType
 from pyo import *
- 
+
+#######################################################
+######## DEPRECATED DOCUMENTATION GENERATOR ###########
+#######################################################
+
 # 'manuel-dev' for development, 'manual' for production  
 man_file = 'manual-dev'
 if man_file == 'manual-dev':

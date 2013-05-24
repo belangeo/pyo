@@ -1,3 +1,13 @@
+2013-05-24 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Added Filters Menu. User-defined text processing functions.
+    - rev 1107
+
+2013-05-23 belangeo <belangeo@gmail.com>
+
+    * Now using Sphinx to generate the API documentation.
+    - rev 1105
+
 2013-05-15 belangeo <belangeo@gmail.com>
 
     * Added new objects: ButLP, ButHP, ButBP, ButBR, second-order Butterworth filters.

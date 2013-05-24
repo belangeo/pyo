@@ -170,6 +170,22 @@ SNIPPETS_CATEGORIES = [rep for rep in os.listdir(SNIPPETS_PATH) if os.path.isdir
 SNIPPET_DEL_FILE_ID = 30
 SNIPPET_ADD_FOLDER_ID = 31
 
+FILTERS_FILE = os.path.join(RESOURCES_PATH, 'filters.py')
+if not os.path.isfile(FILTERS_FILE):
+    f = open(FILTERS_FILE, "w")
+    f.write('##################### E-Pyo filters file #####################\n')
+    f.write('# A filter is a function taking a chunk of text in argument, #\n')
+    f.write('# apply some text processing and return the new text chunk.  #\n')
+    f.write('# When you select one of these functions in the Filters menu #\n')
+    f.write('# the filter will be applied to the current selected text.   #\n')
+    f.write('##############################################################\n')
+    f.write('def example_filter(text):\n')
+    f.write('"""Adds a "#" character in front of selected lines."""\n')
+    f.write('    out = ""\n')
+    f.write('    for line in text.splitlines(True):\n')
+    f.write('        out += "# " + line\n')
+    f.write('    return out\n')
+
 STYLES_PATH = os.path.join(RESOURCES_PATH, "styles")
 if not os.path.isdir(STYLES_PATH):
     os.mkdir(STYLES_PATH)
@@ -1701,6 +1717,7 @@ class MainFrame(wx.Frame):
 
         self.processID = 0
         self.processes = {}
+        self.filters = {}
 
         self.print_data = wx.PrintData()
         self.print_data.SetPaperId(wx.PAPER_LETTER)
@@ -1918,6 +1935,16 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.openExample, id=1000, id2=ID_EXAMPLE)
         self.menuBar.Append(self.menu6, "Pyo Examples")
 
+        self.ID_FILTERS = 12000
+        self.filters_menu = wx.Menu()
+        self.filters_menu.Append(11998, "Open Filters File")
+        self.Bind(wx.EVT_MENU, self.openFilters, id=11998)
+        self.filters_menu.Append(11999, "Rebuild Filters Menu")
+        self.Bind(wx.EVT_MENU, self.buildFilterMenu, id=11999)
+        self.filters_menu.AppendSeparator() 
+        self.buildFilterMenu()
+        self.menuBar.Append(self.filters_menu, "Filters")
+            
         windowMenu = wx.Menu()
         aEntry = wx.AcceleratorEntry(wx.ACCEL_CTRL, wx.WXK_TAB, 10001)
         windowMenu.Append(10001, 'Navigate Tabs Forward\t%s' % aEntry.ToString())
@@ -2134,6 +2161,39 @@ class MainFrame(wx.Frame):
     def tabsToSpaces(self, evt):
         self.panel.editor.tabsToSpaces()
 
+    def buildFilterMenu(self, evt=None):
+        if self.ID_FILTERS != 12000:
+            for i in range(12000, self.ID_FILTERS):
+                self.filters_menu.Delete(i)
+        ID_FILTERS = 12000       
+        with open(FILTERS_FILE, "r") as f:
+            for line in f.readlines():
+                if line.startswith("def "):
+                    ppos = line.find("(")
+                    name = line[4:ppos]
+                    self.filters_menu.Append(ID_FILTERS, name)
+                    self.Bind(wx.EVT_MENU, self.applyFilter, id=ID_FILTERS)
+                    self.filters[ID_FILTERS] = name
+                    ID_FILTERS += 1
+        self.ID_FILTERS = ID_FILTERS
+
+    def openFilters(self, evt):
+        self.panel.addPage(FILTERS_FILE)
+
+    def applyFilter(self, evt):
+        execfile(FILTERS_FILE, {}, locals())
+        filter = self.filters[evt.GetId()]
+        try:
+            text = self.panel.editor.GetSelectedTextUTF8()
+        except:
+            text = self.panel.editor.GetSelectedText()
+        if text == "":
+            dlg = wx.MessageDialog(self, "You must select some text to apply a filter...", "No selected text!", style=wx.OK|wx.STAY_ON_TOP)
+            dlg.ShowModal()
+            dlg.Destroy()
+        else:
+            self.panel.editor.ReplaceSelection(locals()[filter](text))
+        
     def undo(self, evt):
         if evt.GetId() == wx.ID_UNDO:
             self.panel.editor.Undo()
