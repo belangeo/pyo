@@ -1222,6 +1222,63 @@ class ColourEditor(wx.Frame):
         STYLES[key]['colour'] = col
         self.editorPreview.setStyle()
 
+class SearchProjectPanel(scrolled.ScrolledPanel):
+    def __init__(self, parent, root, dict, size):
+        scrolled.ScrolledPanel.__init__(self, parent, wx.ID_ANY, pos=(0,0), size=size, style=wx.SUNKEN_BORDER)
+        self.SetBackgroundColour("#FFFFFF")
+        self.root = root
+        self.dict = dict
+        self.files = sorted(self.dict.keys())
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        BUTID = 25000
+        textX = self.GetTextExtent("open")[0]
+        textY = self.GetTextExtent("open")[1]
+        for file in self.files:
+            box = wx.BoxSizer(wx.HORIZONTAL)
+            but = wx.Button(self, BUTID, label="open", size=(textX+16, textY+10))
+            box.Add(but, 0, wx.ALL, 1)
+            self.Bind(wx.EVT_BUTTON, self.onOpenFile, id=BUTID)
+            BUTID += 1
+            fileText = wx.StaticText(self, wx.ID_ANY, label="File : %s" % file)
+            off = (but.GetSize()[1] - textY) / 2
+            box.Add(fileText, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, off)
+            mainSizer.Add(box, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+            for i in range(len(self.dict[file][0])):
+                box2 = wx.BoxSizer(wx.HORIZONTAL)
+                label = "    line %d : %s" % (self.dict[file][0][i], self.dict[file][1][i])
+                fileText = wx.StaticText(self, wx.ID_ANY, label=label, size=(-1, textY))
+                box2.Add(fileText, 1, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, off)
+                mainSizer.Add(box2, 1, wx.LEFT|wx.RIGHT|wx.EXPAND, 10)
+            mainSizer.Add(wx.StaticLine(self), 0, wx.LEFT|wx.RIGHT|wx.EXPAND, 1)
+
+        self.SetSizer(mainSizer)
+        self.SetAutoLayout(1)
+        self.SetupScrolling()
+        h = but.GetSize()[1]+2
+        num_rows = 0
+        for f in self.files:
+            num_rows += len(self.dict[f][0])
+        self.SetMaxSize((-1, max(h*num_rows, self.GetSize()[1])))
+    
+    def onOpenFile(self, evt):
+        filename = self.root + self.files[evt.GetId() - 25000]
+        self.GetParent().GetParent().panel.addPage(filename)
+
+class SearchProjectFrame(wx.Frame):
+    def __init__(self, parent, root, dict, size=(500,500)):
+        wx.Frame.__init__(self, parent, wx.ID_ANY, size=size)
+        self.menuBar = wx.MenuBar()
+        menu1 = wx.Menu()
+        menu1.Append(351, "Close\tCtrl+W")
+        self.menuBar.Append(menu1, 'File')
+        self.SetMenuBar(self.menuBar)
+        self.Bind(wx.EVT_MENU, self.close, id=351)
+        panel = SearchProjectPanel(self, root, dict, size=size)
+        self.Show()
+
+    def close(self, evt):
+        self.Destroy()
+
 class SnippetTree(wx.Panel):
     def __init__(self, parent, size):
         wx.Panel.__init__(self, parent, -1, size=size, style=wx.WANTS_CHARS | wx.SUNKEN_BORDER | wx.EXPAND)
@@ -1829,11 +1886,13 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.gotoLine, id=140)
         menu2.Append(141, "Quick Search\tCtrl+F")
         self.Bind(wx.EVT_MENU, self.quickSearch, id=141)
-        menu2.Append(142, "Quick Search Word Under Caret\tShift+Ctrl+8")
+        menu2.Append(142, "Quick Search Word Under Caret\tShift+Ctrl+J")
         self.Bind(wx.EVT_MENU, self.quickSearchWordUnderCaret, id=142)
         menu2.Append(143, "Search Again Next...\tCtrl+G")
         menu2.Append(144, "Search Again Previous...\tShift+Ctrl+G")
         self.Bind(wx.EVT_MENU, self.searchAgain, id=143, id2=144)
+        menu2.Append(146, "Search in Project Files\tShift+Ctrl+H")
+        self.Bind(wx.EVT_MENU, self.searchInProject, id=146)
         menu2.Append(wx.ID_FIND, "Find/Replace\tShift+Ctrl+F")
         self.Bind(wx.EVT_MENU, self.showFind, id=wx.ID_FIND)
         self.menuBar.Append(menu2, 'Code')
@@ -2303,6 +2362,78 @@ class MainFrame(wx.Frame):
             next = False
         str = self.status_search.GetValue()
         self.panel.editor.OnQuickSearch(str, next)
+
+    def searchInProject(self, evt):
+        ok = False
+        search = ""
+        choices = self.panel.project.projectDict.keys()
+        if len(choices) == 0:
+            dlg = wx.MessageDialog(self, 'You must load at least one folder to use the "Search in Project Files" option.',
+                                    'No project folder', wx.OK | wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            dlg.Destroy()
+        elif len(choices) == 1:
+            rootdir = self.panel.project.projectDict[choices[0]]
+            ok = True
+        else:
+            dlg = wx.SingleChoiceDialog(self, 'Choose a project folder...', 'Search in project files',
+                                        choices, wx.CHOICEDLG_STYLE)
+            if dlg.ShowModal() == wx.ID_OK:
+                root = dlg.GetStringSelection()
+                rootdir = self.panel.project.projectDict[root]
+                ok = True
+        if ok:
+            dlg = wx.TextEntryDialog(self, 'Enter a search term...', 'Search in Project Files')
+            if dlg.ShowModal() == wx.ID_OK:
+                search = dlg.GetValue()
+            dlg.Destroy()
+            if search:
+                wx.CallAfter(self.doSearchInProject, rootdir, search)
+    
+    def doSearchInProject(self, rootdir, search):
+        result = {}
+        filters = ["build"]
+        for root, dirs, files in os.walk(rootdir):
+            if os.path.split(root)[1].startswith("."):
+                filters.append(os.path.split(root)[1])
+                continue
+            filter_detect = False
+            for filter in filters:
+                if filter in root:
+                    filter_detect = True
+                    break
+            if filter_detect:
+                continue
+            for file in files:
+                filepath = os.path.join(root, file).replace(rootdir, "")
+                if filepath.endswith("~"):
+                    continue
+                with open(os.path.join(root, file), "r") as f:
+                    for i, line in enumerate(f.readlines()):
+                        if "\0" in line:
+                            # binary file detected
+                            break
+                        if search.encode("utf-8").lower() in line.lower():
+                            if not result.has_key(filepath):
+                                result[filepath] = ([], [])
+                            result[filepath][0].append(i+1)
+                            if len(line) < 50:
+                                result[filepath][1].append(line.strip().replace("\n", ""))
+                            else:
+                                pos = line.lower().find(search.encode("utf-8").lower())
+                                p1 = pos - 25
+                                if p1 < 0:
+                                    p1, pre = 0, ""
+                                else:
+                                    pre = "... "
+                                p2 = pos + 25
+                                if p2 >= len(line):
+                                    p2, post = len(line), ""
+                                else:
+                                    post = " ..."
+                                result[filepath][1].append(pre + line[p1:p2].strip().replace("\n", "") + post)
+        if result:
+            f = SearchProjectFrame(self, rootdir, result)
 
     def insertPath(self, evt):
         dlg = wx.FileDialog(self, message="Choose a file", 
