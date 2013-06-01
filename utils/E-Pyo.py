@@ -180,7 +180,7 @@ if not os.path.isfile(FILTERS_FILE):
     f.write('# the filter will be applied to the current selected text.   #\n')
     f.write('##############################################################\n')
     f.write('def example_filter(text):\n')
-    f.write('"""Adds a "#" character in front of selected lines."""\n')
+    f.write('    """Adds a "#" character in front of selected lines."""\n')
     f.write('    out = ""\n')
     f.write('    for line in text.splitlines(True):\n')
     f.write('        out += "# " + line\n')
@@ -649,7 +649,7 @@ KEY_COMMANDS = {
 }
 
 ############## Allowed Extensions ##############
-ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh"])
+ALLOWED_EXT = PREFERENCES.get("allowed_ext", ["py", "c5", "txt", "", "c", "h", "cpp", "hpp", "sh", "rst", "iss"])
 
 ############## Pyo keywords ##############
 tree = OBJECTS_TREE

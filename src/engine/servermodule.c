@@ -1333,16 +1333,7 @@ Server_shut_down(Server *self)
     if (ret < 0) {
         Server_error(self, "Error closing audio backend.\n");
     }
-    
-    if (self->withPortMidi == 1)
-        Pm_Close(self->in);
 
-    if (self->withPortMidiOut == 1)
-        Pm_Close(self->out);
-    
-    if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
-        Pm_Terminate();
-    
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -1842,7 +1833,7 @@ Server_pm_init(Server *self)
 static PyObject *
 Server_boot(Server *self)
 {
-    int audioerr = 0, midierr = 0;
+    int audioerr = 0;
     int i;
     if (self->server_booted == 1) {
         Server_error(self, "Server already booted!\n");
@@ -1852,9 +1843,6 @@ Server_boot(Server *self)
     self->server_started = 0;
     self->stream_count = 0;
     self->elapsedSamples = 0;
-    
-    midierr = Server_pm_init(self);
-    Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
 
     self->streams = PyList_New(0);
     switch (self->audio_be_type) {
@@ -1909,7 +1897,7 @@ Server_boot(Server *self)
         self->input_buffer[i] = 0.0;
         self->output_buffer[i] = 0.0;
     }
-    if (audioerr == 0 && midierr == 0) {
+    if (audioerr == 0) {
         self->server_booted = 1;
     }
     else {
@@ -1924,6 +1912,7 @@ Server_boot(Server *self)
 static PyObject *
 Server_start(Server *self)
 {
+    int err = -1, midierr = 0;
     if (self->server_started == 1) {
         Server_warning(self, "Server already started!\n");
         Py_INCREF(Py_None);
@@ -1935,9 +1924,8 @@ Server_start(Server *self)
         Py_INCREF(Py_None);
         return Py_None;
     }
-    int err = -1;
     
-    Server_debug(self, "Number of streams %d\n", self->stream_count);
+    Server_debug(self, "Server_start: number of streams %d\n", self->stream_count);
 
     /* Ensure Python is set up for threading */
     PyEval_InitThreads();
@@ -1945,7 +1933,10 @@ Server_start(Server *self)
     self->server_stopped = 0;
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);
-    
+
+    midierr = Server_pm_init(self);
+    Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
+
     if (self->startoffset > 0.0) {
         Server_message(self,"Rendering %.2f seconds offline...\n", self->startoffset);
         int numBlocks = ceil(self->startoffset * self->samplingRate/self->bufferSize);
@@ -2018,6 +2009,15 @@ Server_stop(Server *self)
             err = Server_offline_stop(self);
             break;    
     }
+
+    if (self->withPortMidi == 1)
+        Pm_Close(self->in);
+
+    if (self->withPortMidiOut == 1)
+        Pm_Close(self->out);
+    
+    if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
+        Pm_Terminate();
 
     if (err < 0) {
         Server_error(self, "Error stopping server.\n");
