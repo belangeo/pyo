@@ -2010,20 +2010,20 @@ Server_stop(Server *self)
             break;    
     }
 
-    if (self->withPortMidi == 1)
-        Pm_Close(self->in);
-
-    if (self->withPortMidiOut == 1)
-        Pm_Close(self->out);
-    
-    if (self->withPortMidi == 1 || self->withPortMidiOut == 1)
-        Pm_Terminate();
-
     if (err < 0) {
         Server_error(self, "Error stopping server.\n");
     }
     else {
         self->server_stopped = 1;
+        if (self->withPortMidi == 1)
+            Pm_Close(self->in);
+        if (self->withPortMidiOut == 1)
+            Pm_Close(self->out);
+        if (self->withPortMidi == 1 || self->withPortMidiOut == 1) {
+            self->withPortMidi = 0;
+            self->withPortMidiOut = 0;
+            Pm_Terminate();
+        }
     }
     Py_INCREF(Py_None);
     return Py_None;
