@@ -221,8 +221,8 @@ The method getStreamObject() can be called on a Stream object to retrieve the \n
 XXX_base object associated with this Stream. This method can be used by developers who\n\
 are debugging their programs!\n\n\
 ", /* tp_doc */
-    0, /* tp_traverse */
-    0, /* tp_clear */
+    (traverseproc)Stream_traverse, /* tp_traverse */
+    (inquiry)Stream_clear, /* tp_clear */
     0, /* tp_richcompare */
     0, /* tp_weaklistoffset */
     0, /* tp_iter */
@@ -287,8 +287,8 @@ PyTypeObject TriggerStreamType = {
     "\n\
     Trigger stream object. For internal use only. \n\n\
     ", /* tp_doc */
-    (traverseproc)Stream_traverse, /* tp_traverse */
-    (inquiry)Stream_clear, /* tp_clear */
+    0, /* tp_traverse */
+    0, /* tp_clear */
     0, /* tp_richcompare */
     0, /* tp_weaklistoffset */
     0, /* tp_iter */
