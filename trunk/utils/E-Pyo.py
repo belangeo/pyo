@@ -1805,7 +1805,7 @@ class MainFrame(wx.Frame):
         if os.path.isfile(filename):
             f = codecs.open(filename, "r", encoding="utf-8")
             for line in f.readlines():
-                recentFiles.append(line)
+                recentFiles.append(line.replace("\n", ""))
             f.close()
         if recentFiles:
             for file in recentFiles:
@@ -2595,15 +2595,15 @@ class MainFrame(wx.Frame):
         filename = ensureNFD(os.path.join(TEMP_PATH,'.recent.txt'))
         try:
             f = codecs.open(filename, "r", encoding="utf-8")
-            lines = [line[:-1] for line in f.readlines()]
+            lines = [line.replace("\n", "") for line in f.readlines()]
             f.close()
         except:
             lines = []
         if not file in lines:
             f = codecs.open(filename, "w", encoding="utf-8")
             lines.insert(0, file)
-            if len(lines) > 10:
-                lines = lines[0:10]
+            if len(lines) > 20:
+                lines = lines[0:20]
             for line in lines:
                 f.write(line + '\n')
             f.close()
@@ -2612,14 +2612,14 @@ class MainFrame(wx.Frame):
             for item in self.submenu2.GetMenuItems():
                 self.submenu2.DeleteItem(item)
             for file in lines:
-                self.submenu2.Append(subId2, toSysEncoding(file + '\n'))
+                self.submenu2.Append(subId2, toSysEncoding(file))
                 subId2 += 1
 
     def openRecent(self, event):
         menu = self.GetMenuBar()
         id = event.GetId()
         file = menu.FindItemById(id).GetLabel()
-        self.panel.addPage(ensureNFD(file[:-1]))
+        self.panel.addPage(ensureNFD(file))
 
     def open(self, event, encoding=None):
         dlg = wx.FileDialog(self, message="Choose a file", 
@@ -4576,7 +4576,6 @@ class ProjectTree(wx.Panel):
                 filename = os.path.join(parent, filename)
             dirPath = os.path.split(self.projectDict[parent])[0]
             path = os.path.join(dirPath, filename)
-            print path
 #            for root, dirs, files in os.walk(dirPath):
 #                if files:
 #                    for file in files:
