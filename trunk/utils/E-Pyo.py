@@ -4423,7 +4423,7 @@ class ProjectTree(wx.Panel):
                             projectDir[dir] = subfol
                             self.tree.SetItemTextColour(subfol, STYLES['default']['colour'])
                     if files:
-                        ffiles = [file for file in files if file[0] != '.' and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
+                        ffiles = [file for file in files if file[0] != '.' and not file.endswith("~") and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
                         for file in sorted(ffiles):
                             item = self.tree.AppendItem(child, "%s" % file, self.fileidx, self.fileidx, None)
                             self.tree.SetItemTextColour(item, STYLES['default']['colour'])
@@ -4437,7 +4437,7 @@ class ProjectTree(wx.Panel):
                                 projectDir[dir] = subfol
                                 self.tree.SetItemTextColour(subfol, STYLES['default']['colour'])
                         if files:
-                            ffiles = [file for file in files if file[0] != '.' and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
+                            ffiles = [file for file in files if file[0] != '.' and not file.endswith("~") and os.path.splitext(file)[1].strip(".") in ALLOWED_EXT]
                             for file in sorted(ffiles):
                                 item = self.tree.AppendItem(parent, "%s" % file, self.fileidx, self.fileidx, None)
                                 self.tree.SetItemTextColour(item, STYLES['default']['colour'])
@@ -4569,15 +4569,19 @@ class ProjectTree(wx.Panel):
         if not hasChild:
             parent = None
             ritem = item
+            filename = self.tree.GetItemText(ritem)
             while self.tree.GetItemParent(ritem) != self.tree.GetRootItem():
                 ritem = self.tree.GetItemParent(ritem)
                 parent = self.tree.GetItemText(ritem)
-            dirPath = self.projectDict[parent]
-            for root, dirs, files in os.walk(dirPath):
-                if files:
-                    for file in files:
-                        if file == self.tree.GetItemText(item):
-                            path = os.path.join(root, file)
+                filename = os.path.join(parent, filename)
+            dirPath = os.path.split(self.projectDict[parent])[0]
+            path = os.path.join(dirPath, filename)
+            print path
+#            for root, dirs, files in os.walk(dirPath):
+#                if files:
+#                    for file in files:
+#                        if file == self.tree.GetItemText(item):
+#                            path = os.path.join(root, file)
             self.mainPanel.addPage(path)
 
     def select(self, item):
