@@ -429,6 +429,11 @@ extern PyTypeObject ButLPType;
 extern PyTypeObject ButHPType;
 extern PyTypeObject ButBPType;
 extern PyTypeObject ButBRType;
+extern PyTypeObject PVAnalType;
+extern PyTypeObject PVSynthType;
+extern PyTypeObject PVTransposeType;
+extern PyTypeObject PVVerbType;
+extern PyTypeObject PVGateType;
 
 /* Constants */
 #define E M_E
@@ -969,6 +974,14 @@ extern PyTypeObject ButBRType;
     } \
     Py_INCREF(self->matrixstream); \
     return (PyObject *)self->matrixstream; \
+
+#define GET_PV_STREAM \
+    if (self->pv_stream == NULL) { \
+        PyErr_SetString(PyExc_TypeError, "No pv stream founded!"); \
+        return PyInt_FromLong(-1); \
+    } \
+    Py_INCREF(self->pv_stream); \
+    return (PyObject *)self->pv_stream;
 
 #define SET_MUL \
     PyObject *tmp, *streamtmp; \

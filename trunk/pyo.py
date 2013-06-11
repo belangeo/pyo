@@ -92,6 +92,8 @@ import pyolib.utils as utils
 from pyolib.utils import *
 import pyolib.fourier as fourier
 from pyolib.fourier import *
+import pyolib.phasevoc as phasevoc
+from pyolib.phasevoc import *
 from pyolib._core import *
 if WITH_EXTERNALS:
     import pyolib.external as external
@@ -256,6 +258,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                     'PyoMatrixObject': sorted(['NewMatrix']),                        
                     'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'ParaTable', 'LogTable', 'CosLogTable',
                                             'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable', 'ExpTable', 'DataTable', 'WinTable', 'SincTable']),
+                    'PyoPVObject' : sorted(['PVAnal', 'PVSynth', 'PVTranspose', 'PVVerb', 'PVGate']),
                     'PyoObject': {'analysis': sorted(['Follower', 'Follower2', 'ZCross', 'Yin']),
                                   'arithmetic': sorted(['Sin', 'Cos', 'Tan', 'Abs', 'Sqrt', 'Log', 'Log2', 'Log10', 'Pow', 'Atan2', 'Floor', 'Round',
                                                         'Ceil']),

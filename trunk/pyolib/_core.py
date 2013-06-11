@@ -240,6 +240,14 @@ class PyoObjectBase(object):
     One typically inherits from a more specific subclass of this class
     instead of using it directly.
 
+    .. note::
+
+        **Operations allowed on all PyoObjectBase**
+            
+        >>> len(obj) # Return the number of streams managed by the object.
+        >>> obj[x] # Return stream `x` of the object. `x` is a number from 0 to len(obj)-1.
+        >>> dir(obj) # Return the list of attributes of the object.
+
     """
 
     # Descriptive word for this kind of object, for use in printing
@@ -318,12 +326,6 @@ class PyoObject(PyoObjectBase):
             Addition factor. Defaults to 0.
 
     .. note::
-
-        **Operations on PyoObject**
-            
-        >>> len(obj) # Return the number of audio streams managed by the object.
-        >>> obj[x] # Return stream `x` of the object. `x` is a number from 0 to len(obj)-1.
-        >>> del obj # Perform a clean delete of the object.
     
         **Arithmetics**
     
@@ -887,13 +889,6 @@ class PyoTableObject(PyoObjectBase):
 
         size : int
             Length of the table in samples. Usually provided by the child object.
-            
-    .. note::
-    
-        **Operations allowed on all table objects**
-    
-        >>> len(obj) # Return the number of table streams in an object.
-        >>> obj[x] # Return table stream `x` of the object. `x` is a number from 0 to len(obj)-1.
 
     """
     
@@ -1179,13 +1174,6 @@ class PyoMatrixObject(PyoObjectBase):
     
     :Parent: :py:class:`PyoObjectBase`
 
-    .. note::
-    
-        **Operations allowed on all matrix objects**
-    
-    >>> len(obj) # Return the number of table streams in an object.
-    >>> obj[x] # Return table stream `x` of the object. `x` is a number from 0 to len(obj)-1.
-
     """
     
     _STREAM_TYPE = 'matrix'
@@ -1346,6 +1334,151 @@ class PyoMatrixObject(PyoObjectBase):
         if self.viewFrame != None:
             samples = self._base_objs[0].getViewData()
             self.viewFrame.update(samples)
+
+######################################################################
+### PyoObject -> base class for pyo phase vocoder objects
+######################################################################
+class PyoPVObject(PyoObjectBase):
+    """
+    Base class for objects working with phase vocoder's magnitude and frequency streams.
+    
+    The user should never instantiate an object of this class.
+
+    :Parent: :py:class:`PyoObjectBase`
+
+    """
+    
+    _STREAM_TYPE = 'pvoc'
+
+    def __init__(self):
+        PyoObjectBase.__init__(self)
+        self._target_dict = {}
+        self._signal_dict = {}
+        self._map_list = []
+
+    def isPlaying(self, all=False):
+        """
+        Returns True if the object is playing, otherwise, returns False.
+
+        :Args:
+
+            all : boolean, optional
+                If True, the object returns a list with the state of all
+                streams managed by the object.
+                
+                If False, it return a boolean corresponding to the state 
+                of the first stream.
+
+        """
+        if all:
+            return [obj._getStream().isPlaying() for obj in self._base_objs]
+        else:
+            return self._base_objs[0]._getStream().isPlaying()
+
+    def play(self, dur=0, delay=0):
+        """
+        Start processing without sending samples to output. 
+        This method is called automatically at the object creation.
+
+        This method returns `self`, allowing it to be applied at the object
+        creation.
+        
+        :Args:
+        
+            dur : float, optional
+                Duration, in seconds, of the object's activation. The default is 0
+                and means infinite duration.
+            delay : float, optional
+                Delay, in seconds, before the object's activation. Defaults to 0.
+        
+        """
+        dur, delay, lmax = convertArgsToLists(dur, delay)
+        if hasattr(self, "_trig_objs"):
+            self._trig_objs.play(dur, delay)
+        if hasattr(self, "_base_players"):
+            [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_players)]
+        [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
+        return self
+    
+    def stop(self):
+        """
+        Stop processing.
+
+        This method returns `self`, allowing it to be applied at the object
+        creation.
+        
+        """
+        if hasattr(self, "_trig_objs"):
+            self._trig_objs.stop()
+        if hasattr(self, "_base_players"):
+            [obj.stop() for obj in self._base_players]
+        [obj.stop() for obj in self._base_objs]
+        return self
+
+    def set(self, attr, value, port=0.025):
+        """
+        Replace any attribute with portamento.
+
+        This method is intended to be applied on attributes that are not
+        already assigned to PyoObjects. It will work only with floats or
+        list of floats.
+
+        :Args:
+
+            attr : string
+                Name of the attribute as a string.
+            value : float
+                New value.
+            port : float, optional
+                Time, in seconds, to reach the new value.
+
+        """
+        self._target_dict[attr] = value
+        init = getattr(self, attr)
+        if self._signal_dict.has_key(attr):
+            if isinstance(self._signal_dict[attr], VarPort):
+                if self._signal_dict[attr].isPlaying():
+                    init = self._signal_dict[attr].get(True)
+                    self._signal_dict[attr].stop()
+        self._signal_dict[attr] = VarPort(value, port, init, self._reset_from_set, attr)
+        setattr(self, attr, self._signal_dict[attr])
+
+    def _reset_from_set(self, attr=None):
+        if isinstance(getattr(self, attr), VarPort):
+            setattr(self, attr, self._target_dict[attr])
+        self._signal_dict[attr].stop()
+        
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        """
+        Opens a sliders window to control the parameters of the object. 
+        Only parameters that can be set to a PyoObject are allowed 
+        to be mapped on a slider.
+
+        If a list of values are given to a parameter, a multisliders 
+        will be used to control each stream independently.
+
+        :Args:
+
+            map_list : list of SLMap objects, optional
+                Users defined set of parameters scaling. There is default 
+                scaling for each object that accept `ctrl` method.
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
+
+        """
+        if map_list == None:
+            map_list = self._map_list
+        if map_list == []:
+            print("There is no controls for %s object." % self.__class__.__name__)
+            return
+        createCtrlWindow(self, map_list, title, wxnoserver)
         
 ######################################################################
 ### Internal classes -> Used by pyo

@@ -1,3 +1,8 @@
+2013-06-11 belangeo <belangeo@gmail.com>
+
+    * Phase Vocoder, first draft. PVAnal, PVSynth, PVTranspose, PVVerb and PVGate.
+    - rev 1114
+
 2013-05-27 belangeo <belangeo@gmail.com>
 
     * E-Pyo: Added "Search in Project Files" option.

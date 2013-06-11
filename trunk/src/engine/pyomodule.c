@@ -25,6 +25,7 @@
 #include "pyomodule.h"
 #include "servermodule.h"
 #include "streammodule.h"
+#include "pvstreammodule.h"
 #include "dummymodule.h"
 #include "tablemodule.h"
 #include "matrixmodule.h"
@@ -2067,6 +2068,7 @@ init_pyo64(void)
     module_add_object(m, "Server_base", &ServerType);
     module_add_object(m, "Stream", &StreamType);
     module_add_object(m, "TriggerStream", &TriggerStreamType);
+    module_add_object(m, "PVStream", &PVStreamType);
     module_add_object(m, "Dummy_base", &DummyType);
     module_add_object(m, "TriggerDummy_base", &TriggerDummyType);
     module_add_object(m, "TableStream", &TableStreamType);
@@ -2310,6 +2312,11 @@ init_pyo64(void)
     module_add_object(m, "ButHP_base", &ButHPType);
     module_add_object(m, "ButBP_base", &ButBPType);
     module_add_object(m, "ButBR_base", &ButBRType);
+    module_add_object(m, "PVAnal_base", &PVAnalType);
+    module_add_object(m, "PVSynth_base", &PVSynthType);
+    module_add_object(m, "PVTranspose_base", &PVTransposeType);
+    module_add_object(m, "PVVerb_base", &PVVerbType);
+    module_add_object(m, "PVGate_base", &PVGateType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

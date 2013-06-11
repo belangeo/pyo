@@ -200,6 +200,7 @@ PyoObjectBase : Base class for all pyo objects.
 PyoObject : Base class for all pyo objects that manipulate vectors of samples.
 PyoTableObject : Base class for all pyo table objects.
 PyoMatrixObject : Base class for all pyo matrix objects.
+PyoPVObject : Base class for all pyo phase vocoder objects.
 functions : Miscellaneous functions.
 
 """ % PYO_VERSION
@@ -233,6 +234,7 @@ PYOOBJECTBASE_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObjectBase, 
 PYOOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoObject, inspect.ismethod)]
 PYOMATRIXOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoMatrixObject, inspect.ismethod)]
 PYOTABLEOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoTableObject, inspect.ismethod)]
+PYOPVOBJECT_METHODS_FILTER = [x[0] for x in inspect.getmembers(PyoPVObject, inspect.ismethod)]
 MAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(Map, inspect.ismethod)]
 SLMAP_METHODS_FILTER = [x[0] for x in inspect.getmembers(SLMap, inspect.ismethod)]
 
@@ -700,6 +702,8 @@ class ManualPanel(wx.Treebook):
             filter = PYOTABLEOBJECT_METHODS_FILTER
         elif parentclass == "PyoMatrixObject":
             filter = PYOMATRIXOBJECT_METHODS_FILTER
+        elif parentclass == "PyoPVObject":
+            filter = PYOPVOBJECT_METHODS_FILTER
         elif parentclass == "Map":
             filter = MAP_METHODS_FILTER
         elif parentclass == "SLMap":
