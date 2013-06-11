@@ -52,12 +52,13 @@ extern void Stream_IncrementBufferCount(Stream *self);
 extern void Stream_IncrementDurationCount(Stream *self);
 extern PyTypeObject StreamType;
 
-#define MAKE_NEW_STREAM(self, type, rt_error)	\
-  (self) = (Stream *)(type)->tp_alloc((type), 0);	\
-  if ((self) == rt_error) { return rt_error; }	\
-						\
+#define MAKE_NEW_STREAM(self, type, rt_error) \
+  (self) = (Stream *)(type)->tp_alloc((type), 0); \
+  if ((self) == rt_error) { return rt_error; } \
+ \
   (self)->sid = (self)->chnl = (self)->todac = (self)->bufferCountWait = (self)->bufferCount = (self)->bufsize = (self)->duration = 0; \
   (self)->active = 1;
+
 
 typedef struct {
     PyObject_HEAD
@@ -68,8 +69,9 @@ extern MYFLT * TriggerStream_getData(TriggerStream *self);
 extern void TriggerStream_setData(TriggerStream * self, MYFLT *data);
 extern PyTypeObject TriggerStreamType;
 
-#define MAKE_NEW_TRIGGER_STREAM(self, type, rt_error)	\
-    (self) = (TriggerStream *)(type)->tp_alloc((type), 0);                        \
+#define MAKE_NEW_TRIGGER_STREAM(self, type, rt_error) \
+    (self) = (TriggerStream *)(type)->tp_alloc((type), 0); \
+
 
 #ifdef __STREAM_MODULE
 /* include from stream.c */

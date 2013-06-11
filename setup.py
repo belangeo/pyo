@@ -63,12 +63,12 @@ if '--compile-externals' in sys.argv:
     macros.append(('COMPILE_EXTERNALS',None))
 
 path = 'src/engine/'
-files = ['pyomodule.c', 'servermodule.c', 'streammodule.c', 'dummymodule.c', 'mixmodule.c', 'inputfadermodule.c',
-        'interpolation.c', 'fft.c', "wind.c"]
+files = ['pyomodule.c', 'servermodule.c', 'pvstreammodule.c', 'streammodule.c', 'dummymodule.c', 
+        'mixmodule.c', 'inputfadermodule.c', 'interpolation.c', 'fft.c', "wind.c"]
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = [ 'fftmodule.c', 'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
+files = ['phasevocmodule.c', 'fftmodule.c', 'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
         'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
          'matrixmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'delaymodule.c','recordmodule.c', 'granulatormodule.c', 

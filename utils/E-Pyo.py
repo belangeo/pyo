@@ -670,6 +670,7 @@ for k1 in tree.keys():
 PYO_WORDLIST.append("PyoObject")
 PYO_WORDLIST.append("PyoTableObject")
 PYO_WORDLIST.append("PyoMatrixObject")
+PYO_WORDLIST.append("PyoPVObject")
 PYO_WORDLIST.append("Server")
 
 ############## Styles Constants ##############

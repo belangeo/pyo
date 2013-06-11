@@ -13,6 +13,7 @@ Classes by category
    effects
    filters
    fourier
+   pvoc
    generators
    internals
    matrixprocess

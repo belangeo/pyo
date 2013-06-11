@@ -44,7 +44,7 @@ typedef struct {
     int wintype;
     int incount;
     MYFLT *inframe;
-    MYFLT *outframe;    
+    MYFLT *outframe;
     MYFLT *window;
     MYFLT **twiddle;
     MYFLT *twiddle2;
@@ -223,8 +223,8 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"size", "hopsize", NULL};
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize)) {
-	    Py_INCREF(Py_None);
-	    return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     if (isPowerOfTwo(size)) {
@@ -235,20 +235,20 @@ FFTMain_setSize(FFTMain *self, PyObject *args, PyObject *kwds)
     else
         printf("FFT size must be a power of two!\n");
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 FFTMain_setWinType(FFTMain *self, PyObject *arg)
-{	
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+{    
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }    
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef FFTMain_members[] = {
@@ -336,7 +336,7 @@ FFT_setProcMode(FFT *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = FFT_postprocessing_ii;
             break;
@@ -412,8 +412,8 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     FFT *self;
     self = (FFT *)type->tp_alloc(type, 0);
     
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FFT_compute_next_data_frame);
@@ -445,10 +445,10 @@ FFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * FFT_getServer(FFT* self) { GET_SERVER };
 static PyObject * FFT_getStream(FFT* self) { GET_STREAM };
-static PyObject * FFT_setMul(FFT *self, PyObject *arg) { SET_MUL };	
-static PyObject * FFT_setAdd(FFT *self, PyObject *arg) { SET_ADD };	
-static PyObject * FFT_setSub(FFT *self, PyObject *arg) { SET_SUB };	
-static PyObject * FFT_setDiv(FFT *self, PyObject *arg) { SET_DIV };	
+static PyObject * FFT_setMul(FFT *self, PyObject *arg) { SET_MUL };    
+static PyObject * FFT_setAdd(FFT *self, PyObject *arg) { SET_ADD };    
+static PyObject * FFT_setSub(FFT *self, PyObject *arg) { SET_SUB };    
+static PyObject * FFT_setDiv(FFT *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * FFT_play(FFT *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * FFT_stop(FFT *self) { STOP };
@@ -549,10 +549,10 @@ Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECK
 "FFT objects. Reads one band (real, imag or bins) from a FFT transform.",           /* tp_doc */
 (traverseproc)FFT_traverse,   /* tp_traverse */
 (inquiry)FFT_clear,           /* tp_clear */
-0,		               /* tp_richcompare */
-0,		               /* tp_weaklistoffset */
-0,		               /* tp_iter */
-0,		               /* tp_iternext */
+0,                       /* tp_richcompare */
+0,                       /* tp_weaklistoffset */
+0,                       /* tp_iter */
+0,                       /* tp_iternext */
 FFT_methods,             /* tp_methods */
 FFT_members,             /* tp_members */
 0,                      /* tp_getset */
@@ -668,7 +668,7 @@ IFFT_setProcMode(IFFT *self)
 
     self->proc_func_ptr = IFFT_filters;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = IFFT_postprocessing_ii;
             break;
@@ -755,8 +755,8 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->size = 1024;
     self->wintype = 2;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
 
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, IFFT_compute_next_data_frame);
@@ -800,10 +800,10 @@ IFFT_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * IFFT_getServer(IFFT* self) { GET_SERVER };
 static PyObject * IFFT_getStream(IFFT* self) { GET_STREAM };
-static PyObject * IFFT_setMul(IFFT *self, PyObject *arg) { SET_MUL };	
-static PyObject * IFFT_setAdd(IFFT *self, PyObject *arg) { SET_ADD };	
-static PyObject * IFFT_setSub(IFFT *self, PyObject *arg) { SET_SUB };	
-static PyObject * IFFT_setDiv(IFFT *self, PyObject *arg) { SET_DIV };	
+static PyObject * IFFT_setMul(IFFT *self, PyObject *arg) { SET_MUL };    
+static PyObject * IFFT_setAdd(IFFT *self, PyObject *arg) { SET_ADD };    
+static PyObject * IFFT_setSub(IFFT *self, PyObject *arg) { SET_SUB };    
+static PyObject * IFFT_setDiv(IFFT *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * IFFT_play(IFFT *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * IFFT_out(IFFT *self, PyObject *args, PyObject *kwds) { OUT };
@@ -825,8 +825,8 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
 
     static char *kwlist[] = {"size", "hopsize", NULL};
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "ii", kwlist, &size, &hopsize)) {
-	    Py_INCREF(Py_None);
-	    return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     if (isPowerOfTwo(size)) {
@@ -837,20 +837,20 @@ IFFT_setSize(IFFT *self, PyObject *args, PyObject *kwds)
     else
         printf("IFFT size must be a power of two!\n");
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 IFFT_setWinType(IFFT *self, PyObject *arg)
-{	
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+{    
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }    
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef IFFT_members[] = {
@@ -871,8 +871,8 @@ static PyMethodDef IFFT_methods[] = {
     {"stop", (PyCFunction)IFFT_stop, METH_NOARGS, "Stops computing."},
     {"setSize", (PyCFunction)IFFT_setSize, METH_VARARGS|METH_KEYWORDS, "Sets a new IFFT size."},
     {"setWinType", (PyCFunction)IFFT_setWinType, METH_O, "Sets a new window."},
-	{"setMul", (PyCFunction)IFFT_setMul, METH_O, "Sets oscillator mul factor."},
-	{"setAdd", (PyCFunction)IFFT_setAdd, METH_O, "Sets oscillator add factor."},
+    {"setMul", (PyCFunction)IFFT_setMul, METH_O, "Sets oscillator mul factor."},
+    {"setAdd", (PyCFunction)IFFT_setAdd, METH_O, "Sets oscillator add factor."},
     {"setSub", (PyCFunction)IFFT_setSub, METH_O, "Sets inverse add factor."},
     {"setDiv", (PyCFunction)IFFT_setDiv, METH_O, "Sets inverse mul factor."},
     {NULL}  /* Sentinel */
@@ -945,10 +945,10 @@ PyTypeObject IFFTType = {
     "IFFT objects. Synthesize audio from an FFT real and imaginary parts.",           /* tp_doc */
     (traverseproc)IFFT_traverse,   /* tp_traverse */
     (inquiry)IFFT_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     IFFT_methods,             /* tp_methods */
     IFFT_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1008,7 +1008,7 @@ CarToPol_setProcMode(CarToPol *self)
     
     self->proc_func_ptr = CarToPol_generate;
 
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = CarToPol_postprocessing_ii;
             break;
@@ -1084,8 +1084,8 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     CarToPol *self;
     self = (CarToPol *)type->tp_alloc(type, 0);
     
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, CarToPol_compute_next_data_frame);
@@ -1122,10 +1122,10 @@ CarToPol_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * CarToPol_getServer(CarToPol* self) { GET_SERVER };
 static PyObject * CarToPol_getStream(CarToPol* self) { GET_STREAM };
-static PyObject * CarToPol_setMul(CarToPol *self, PyObject *arg) { SET_MUL };	
-static PyObject * CarToPol_setAdd(CarToPol *self, PyObject *arg) { SET_ADD };	
-static PyObject * CarToPol_setSub(CarToPol *self, PyObject *arg) { SET_SUB };	
-static PyObject * CarToPol_setDiv(CarToPol *self, PyObject *arg) { SET_DIV };	
+static PyObject * CarToPol_setMul(CarToPol *self, PyObject *arg) { SET_MUL };    
+static PyObject * CarToPol_setAdd(CarToPol *self, PyObject *arg) { SET_ADD };    
+static PyObject * CarToPol_setSub(CarToPol *self, PyObject *arg) { SET_SUB };    
+static PyObject * CarToPol_setDiv(CarToPol *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * CarToPol_play(CarToPol *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * CarToPol_stop(CarToPol *self) { STOP };
@@ -1228,10 +1228,10 @@ PyTypeObject CarToPolType = {
     "CarToPol objects. Cartesian to polar transform.",           /* tp_doc */
     (traverseproc)CarToPol_traverse,   /* tp_traverse */
     (inquiry)CarToPol_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     CarToPol_methods,             /* tp_methods */
     CarToPol_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1291,7 +1291,7 @@ PolToCar_setProcMode(PolToCar *self)
     
     self->proc_func_ptr = PolToCar_generate;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = PolToCar_postprocessing_ii;
             break;
@@ -1367,8 +1367,8 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PolToCar *self;
     self = (PolToCar *)type->tp_alloc(type, 0);
     
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PolToCar_compute_next_data_frame);
@@ -1405,10 +1405,10 @@ PolToCar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * PolToCar_getServer(PolToCar* self) { GET_SERVER };
 static PyObject * PolToCar_getStream(PolToCar* self) { GET_STREAM };
-static PyObject * PolToCar_setMul(PolToCar *self, PyObject *arg) { SET_MUL };	
-static PyObject * PolToCar_setAdd(PolToCar *self, PyObject *arg) { SET_ADD };	
-static PyObject * PolToCar_setSub(PolToCar *self, PyObject *arg) { SET_SUB };	
-static PyObject * PolToCar_setDiv(PolToCar *self, PyObject *arg) { SET_DIV };	
+static PyObject * PolToCar_setMul(PolToCar *self, PyObject *arg) { SET_MUL };    
+static PyObject * PolToCar_setAdd(PolToCar *self, PyObject *arg) { SET_ADD };    
+static PyObject * PolToCar_setSub(PolToCar *self, PyObject *arg) { SET_SUB };    
+static PyObject * PolToCar_setDiv(PolToCar *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * PolToCar_play(PolToCar *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * PolToCar_stop(PolToCar *self) { STOP };
@@ -1511,10 +1511,10 @@ PyTypeObject PolToCarType = {
     "PolToCar objects. Polar to cartesian transform.",           /* tp_doc */
     (traverseproc)PolToCar_traverse,   /* tp_traverse */
     (inquiry)PolToCar_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     PolToCar_methods,             /* tp_methods */
     PolToCar_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1679,23 +1679,23 @@ static PyObject * FrameDeltaMain_stop(FrameDeltaMain *self) { STOP };
 static PyObject *
 FrameDeltaMain_setInput(FrameDeltaMain *self, PyObject *arg)
 {
-	PyObject *tmp;
-	
-	if (! PyList_Check(arg)) {
+    PyObject *tmp;
+    
+    if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
     
     tmp = arg;
     self->inputSize = PyList_Size(tmp);
     Py_INCREF(tmp);
-	Py_XDECREF(self->input);
+    Py_XDECREF(self->input);
     self->input = tmp;
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyObject *
 FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
@@ -1722,8 +1722,8 @@ FrameDeltaMain_setFrameSize(FrameDeltaMain *self, PyObject *arg)
     else
         printf("frameSize must be a power of two!\n");
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef FrameDeltaMain_members[] = {
@@ -1768,10 +1768,10 @@ PyTypeObject FrameDeltaMainType = {
     "FrameDeltaMain objects. Compute the phase difference between successive frames.",           /* tp_doc */
     (traverseproc)FrameDeltaMain_traverse,   /* tp_traverse */
     (inquiry)FrameDeltaMain_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     FrameDeltaMain_methods,             /* tp_methods */
     FrameDeltaMain_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -1811,7 +1811,7 @@ FrameDelta_setProcMode(FrameDelta *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = FrameDelta_postprocessing_ii;
             break;
@@ -1887,8 +1887,8 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     FrameDelta *self;
     self = (FrameDelta *)type->tp_alloc(type, 0);
     
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameDelta_compute_next_data_frame);
@@ -1920,10 +1920,10 @@ FrameDelta_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * FrameDelta_getServer(FrameDelta* self) { GET_SERVER };
 static PyObject * FrameDelta_getStream(FrameDelta* self) { GET_STREAM };
-static PyObject * FrameDelta_setMul(FrameDelta *self, PyObject *arg) { SET_MUL };	
-static PyObject * FrameDelta_setAdd(FrameDelta *self, PyObject *arg) { SET_ADD };	
-static PyObject * FrameDelta_setSub(FrameDelta *self, PyObject *arg) { SET_SUB };	
-static PyObject * FrameDelta_setDiv(FrameDelta *self, PyObject *arg) { SET_DIV };	
+static PyObject * FrameDelta_setMul(FrameDelta *self, PyObject *arg) { SET_MUL };    
+static PyObject * FrameDelta_setAdd(FrameDelta *self, PyObject *arg) { SET_ADD };    
+static PyObject * FrameDelta_setSub(FrameDelta *self, PyObject *arg) { SET_SUB };    
+static PyObject * FrameDelta_setDiv(FrameDelta *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * FrameDelta_play(FrameDelta *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * FrameDelta_out(FrameDelta *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2026,10 +2026,10 @@ PyTypeObject FrameDeltaType = {
     "FrameDelta objects. Reads one band from a FrameDeltaMain object.",           /* tp_doc */
     (traverseproc)FrameDelta_traverse,   /* tp_traverse */
     (inquiry)FrameDelta_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     FrameDelta_methods,             /* tp_methods */
     FrameDelta_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2188,23 +2188,23 @@ static PyObject * FrameAccumMain_stop(FrameAccumMain *self) { STOP };
 static PyObject *
 FrameAccumMain_setInput(FrameAccumMain *self, PyObject *arg)
 {
-	PyObject *tmp;
-	
-	if (! PyList_Check(arg)) {
+    PyObject *tmp;
+    
+    if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
     
     tmp = arg;
     self->inputSize = PyList_Size(tmp);
     Py_INCREF(tmp);
-	Py_XDECREF(self->input);
+    Py_XDECREF(self->input);
     self->input = tmp;
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyObject *
 FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
@@ -2231,8 +2231,8 @@ FrameAccumMain_setFrameSize(FrameAccumMain *self, PyObject *arg)
     else
         printf("frameSize must be a power of two!\n");
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef FrameAccumMain_members[] = {
@@ -2277,10 +2277,10 @@ PyTypeObject FrameAccumMainType = {
     "FrameAccumMain objects. Integrate the phase difference between successive frames.",           /* tp_doc */
     (traverseproc)FrameAccumMain_traverse,   /* tp_traverse */
     (inquiry)FrameAccumMain_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     FrameAccumMain_methods,             /* tp_methods */
     FrameAccumMain_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2320,7 +2320,7 @@ FrameAccum_setProcMode(FrameAccum *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = FrameAccum_postprocessing_ii;
             break;
@@ -2396,8 +2396,8 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     FrameAccum *self;
     self = (FrameAccum *)type->tp_alloc(type, 0);
     
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, FrameAccum_compute_next_data_frame);
@@ -2429,10 +2429,10 @@ FrameAccum_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * FrameAccum_getServer(FrameAccum* self) { GET_SERVER };
 static PyObject * FrameAccum_getStream(FrameAccum* self) { GET_STREAM };
-static PyObject * FrameAccum_setMul(FrameAccum *self, PyObject *arg) { SET_MUL };	
-static PyObject * FrameAccum_setAdd(FrameAccum *self, PyObject *arg) { SET_ADD };	
-static PyObject * FrameAccum_setSub(FrameAccum *self, PyObject *arg) { SET_SUB };	
-static PyObject * FrameAccum_setDiv(FrameAccum *self, PyObject *arg) { SET_DIV };	
+static PyObject * FrameAccum_setMul(FrameAccum *self, PyObject *arg) { SET_MUL };    
+static PyObject * FrameAccum_setAdd(FrameAccum *self, PyObject *arg) { SET_ADD };    
+static PyObject * FrameAccum_setSub(FrameAccum *self, PyObject *arg) { SET_SUB };    
+static PyObject * FrameAccum_setDiv(FrameAccum *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * FrameAccum_play(FrameAccum *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * FrameAccum_out(FrameAccum *self, PyObject *args, PyObject *kwds) { OUT };
@@ -2535,10 +2535,10 @@ PyTypeObject FrameAccumType = {
     "FrameAccum objects. Reads one band from a FrameAccumMain object.",           /* tp_doc */
     (traverseproc)FrameAccum_traverse,   /* tp_traverse */
     (inquiry)FrameAccum_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     FrameAccum_methods,             /* tp_methods */
     FrameAccum_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -2715,11 +2715,11 @@ VectralMain_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->down = PyFloat_FromDouble(0.7);
     self->damp = PyFloat_FromDouble(0.9);
     self->count = 0;
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
-	self->modebuffer[2] = 0;
-	self->modebuffer[3] = 0;
-	self->modebuffer[4] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
+    self->modebuffer[2] = 0;
+    self->modebuffer[3] = 0;
+    self->modebuffer[4] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, VectralMain_compute_next_data_frame);
@@ -2775,23 +2775,23 @@ static PyObject * VectralMain_stop(VectralMain *self) { STOP };
 static PyObject *
 VectralMain_setInput(VectralMain *self, PyObject *arg)
 {
-	PyObject *tmp;
-	
-	if (! PyList_Check(arg)) {
+    PyObject *tmp;
+    
+    if (! PyList_Check(arg)) {
         PyErr_SetString(PyExc_TypeError, "The inputs attribute must be a list.");
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
     
     tmp = arg;
     self->inputSize = PyList_Size(tmp);
     Py_INCREF(tmp);
-	Py_XDECREF(self->input);
+    Py_XDECREF(self->input);
     self->input = tmp;
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyObject *
 VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
@@ -2818,105 +2818,105 @@ VectralMain_setFrameSize(VectralMain *self, PyObject *arg)
     else
         printf("frameSize must be a power of two!\n");
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 VectralMain_setUp(VectralMain *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
-	
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    PyObject *tmp, *streamtmp;
     
-	int isNumber = PyNumber_Check(arg);
-	
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->up);
-	if (isNumber == 1) {
-		self->up = PyNumber_Float(tmp);
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isNumber = PyNumber_Check(arg);
+    
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->up);
+    if (isNumber == 1) {
+        self->up = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->up = tmp;
+    }
+    else {
+        self->up = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->up, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->up_stream);
         self->up_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyObject *
 VectralMain_setDown(VectralMain *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
-	
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    PyObject *tmp, *streamtmp;
     
-	int isNumber = PyNumber_Check(arg);
-	
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->down);
-	if (isNumber == 1) {
-		self->down = PyNumber_Float(tmp);
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isNumber = PyNumber_Check(arg);
+    
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->down);
+    if (isNumber == 1) {
+        self->down = PyNumber_Float(tmp);
         self->modebuffer[3] = 0;
-	}
-	else {
-		self->down = tmp;
+    }
+    else {
+        self->down = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->down, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->down_stream);
         self->down_stream = (Stream *)streamtmp;
-		self->modebuffer[3] = 1;
-	}
+        self->modebuffer[3] = 1;
+    }
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyObject *
 VectralMain_setDamp(VectralMain *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
-	
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    PyObject *tmp, *streamtmp;
     
-	int isNumber = PyNumber_Check(arg);
-	
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->damp);
-	if (isNumber == 1) {
-		self->damp = PyNumber_Float(tmp);
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isNumber = PyNumber_Check(arg);
+    
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->damp);
+    if (isNumber == 1) {
+        self->damp = PyNumber_Float(tmp);
         self->modebuffer[4] = 0;
-	}
-	else {
-		self->damp = tmp;
+    }
+    else {
+        self->damp = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->damp, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->damp_stream);
         self->damp_stream = (Stream *)streamtmp;
-		self->modebuffer[4] = 1;
-	}
+        self->modebuffer[4] = 1;
+    }
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyMemberDef VectralMain_members[] = {
     {"server", T_OBJECT_EX, offsetof(VectralMain, server), 0, "Pyo server."},
@@ -2963,10 +2963,10 @@ PyTypeObject VectralMainType = {
     "VectralMain objects. Smoothing between successive magnitude FFT frames.",           /* tp_doc */
     (traverseproc)VectralMain_traverse,   /* tp_traverse */
     (inquiry)VectralMain_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     VectralMain_methods,             /* tp_methods */
     VectralMain_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -3006,7 +3006,7 @@ Vectral_setProcMode(Vectral *self)
     int muladdmode;
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
     
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = Vectral_postprocessing_ii;
             break;
@@ -3082,8 +3082,8 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Vectral *self;
     self = (Vectral *)type->tp_alloc(type, 0);
     
-	self->modebuffer[0] = 0;
-	self->modebuffer[1] = 0;
+    self->modebuffer[0] = 0;
+    self->modebuffer[1] = 0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Vectral_compute_next_data_frame);
@@ -3115,10 +3115,10 @@ Vectral_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * Vectral_getServer(Vectral* self) { GET_SERVER };
 static PyObject * Vectral_getStream(Vectral* self) { GET_STREAM };
-static PyObject * Vectral_setMul(Vectral *self, PyObject *arg) { SET_MUL };	
-static PyObject * Vectral_setAdd(Vectral *self, PyObject *arg) { SET_ADD };	
-static PyObject * Vectral_setSub(Vectral *self, PyObject *arg) { SET_SUB };	
-static PyObject * Vectral_setDiv(Vectral *self, PyObject *arg) { SET_DIV };	
+static PyObject * Vectral_setMul(Vectral *self, PyObject *arg) { SET_MUL };    
+static PyObject * Vectral_setAdd(Vectral *self, PyObject *arg) { SET_ADD };    
+static PyObject * Vectral_setSub(Vectral *self, PyObject *arg) { SET_SUB };    
+static PyObject * Vectral_setDiv(Vectral *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * Vectral_play(Vectral *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * Vectral_out(Vectral *self, PyObject *args, PyObject *kwds) { OUT };
@@ -3221,10 +3221,10 @@ PyTypeObject VectralType = {
     "Vectral objects. Reads one band from a VectralMain object.",           /* tp_doc */
     (traverseproc)Vectral_traverse,   /* tp_traverse */
     (inquiry)Vectral_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     Vectral_methods,             /* tp_methods */
     Vectral_members,             /* tp_members */
     0,                      /* tp_getset */
@@ -3514,7 +3514,7 @@ CvlVerb_setProcMode(CvlVerb *self)
     procmode = self->modebuffer[2];
     muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
 
-	switch (procmode) {
+    switch (procmode) {
         case 0:    
             self->proc_func_ptr = CvlVerb_process_i;
             break;
@@ -3523,7 +3523,7 @@ CvlVerb_setProcMode(CvlVerb *self)
             break;
     }     
       
-	switch (muladdmode) {
+    switch (muladdmode) {
         case 0:        
             self->muladd_func_ptr = CvlVerb_postprocessing_ii;
             break;
@@ -3672,43 +3672,43 @@ CvlVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static PyObject *
 CvlVerb_setBal(CvlVerb *self, PyObject *arg)
 {
-	PyObject *tmp, *streamtmp;
-	
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
+    PyObject *tmp, *streamtmp;
     
-	int isNumber = PyNumber_Check(arg);
-	
-	tmp = arg;
-	Py_INCREF(tmp);
-	Py_DECREF(self->bal);
-	if (isNumber == 1) {
-		self->bal = PyNumber_Float(tmp);
+    if (arg == NULL) {
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    
+    int isNumber = PyNumber_Check(arg);
+    
+    tmp = arg;
+    Py_INCREF(tmp);
+    Py_DECREF(self->bal);
+    if (isNumber == 1) {
+        self->bal = PyNumber_Float(tmp);
         self->modebuffer[2] = 0;
-	}
-	else {
-		self->bal = tmp;
+    }
+    else {
+        self->bal = tmp;
         streamtmp = PyObject_CallMethod((PyObject *)self->bal, "_getStream", NULL);
         Py_INCREF(streamtmp);
         Py_XDECREF(self->bal_stream);
         self->bal_stream = (Stream *)streamtmp;
-		self->modebuffer[2] = 1;
-	}
+        self->modebuffer[2] = 1;
+    }
 
     (*self->mode_func_ptr)(self);
     
-	Py_INCREF(Py_None);
-	return Py_None;
-}	
+    Py_INCREF(Py_None);
+    return Py_None;
+}    
 
 static PyObject * CvlVerb_getServer(CvlVerb* self) { GET_SERVER };
 static PyObject * CvlVerb_getStream(CvlVerb* self) { GET_STREAM };
-static PyObject * CvlVerb_setMul(CvlVerb *self, PyObject *arg) { SET_MUL };	
-static PyObject * CvlVerb_setAdd(CvlVerb *self, PyObject *arg) { SET_ADD };	
-static PyObject * CvlVerb_setSub(CvlVerb *self, PyObject *arg) { SET_SUB };	
-static PyObject * CvlVerb_setDiv(CvlVerb *self, PyObject *arg) { SET_DIV };	
+static PyObject * CvlVerb_setMul(CvlVerb *self, PyObject *arg) { SET_MUL };    
+static PyObject * CvlVerb_setAdd(CvlVerb *self, PyObject *arg) { SET_ADD };    
+static PyObject * CvlVerb_setSub(CvlVerb *self, PyObject *arg) { SET_SUB };    
+static PyObject * CvlVerb_setDiv(CvlVerb *self, PyObject *arg) { SET_DIV };    
 
 static PyObject * CvlVerb_play(CvlVerb *self, PyObject *args, PyObject *kwds) { PLAY };
 static PyObject * CvlVerb_out(CvlVerb *self, PyObject *args, PyObject *kwds) { OUT };
@@ -4113,9 +4113,9 @@ static PyObject * Spectrum_stop(Spectrum *self) { STOP };
 
 static PyObject *
 Spectrum_setSize(Spectrum *self, PyObject *arg)
-{	
+{    
     int tmp;
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
         tmp = PyInt_AsLong(arg);
         if (isPowerOfTwo(tmp)) {
             self->size = tmp;
@@ -4125,27 +4125,27 @@ Spectrum_setSize(Spectrum *self, PyObject *arg)
             printf("FFT size must be a power of two!\n");
     }    
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Spectrum_setWinType(Spectrum *self, PyObject *arg)
-{	
-	if (PyLong_Check(arg) || PyInt_Check(arg)) {
+{    
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
         self->wintype = PyLong_AsLong(arg);
         gen_window(self->window, self->size, self->wintype);
     }    
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Spectrum_setLowbound(Spectrum *self, PyObject *arg)
-{	
+{    
     MYFLT tmp;
-	if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg)) {
         tmp = PyFloat_AsDouble(PyNumber_Float(arg));
         if (tmp >= 0.0 && tmp <= 0.5)
             self->freqone = tmp * self->sr;
@@ -4166,9 +4166,9 @@ Spectrum_getLowfreq(Spectrum *self)
 
 static PyObject *
 Spectrum_setHighbound(Spectrum *self, PyObject *arg)
-{	
+{    
     MYFLT tmp;
-	if (PyNumber_Check(arg)) {
+    if (PyNumber_Check(arg)) {
         tmp = PyFloat_AsDouble(PyNumber_Float(arg));
         if (tmp >= 0.0 && tmp <= 0.5)
             self->freqtwo = tmp * self->sr;
@@ -4189,52 +4189,52 @@ Spectrum_getHighfreq(Spectrum *self)
 
 static PyObject *
 Spectrum_setWidth(Spectrum *self, PyObject *arg)
-{	
-	if (PyInt_Check(arg) || PyLong_Check(arg))
+{    
+    if (PyInt_Check(arg) || PyLong_Check(arg))
         self->width = PyLong_AsLong(arg);
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Spectrum_setHeight(Spectrum *self, PyObject *arg)
-{	
-	if (PyInt_Check(arg) || PyLong_Check(arg))
+{    
+    if (PyInt_Check(arg) || PyLong_Check(arg))
         self->height = PyLong_AsLong(arg);
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Spectrum_setFscaling(Spectrum *self, PyObject *arg)
-{	
-	if (PyInt_Check(arg) || PyLong_Check(arg))
+{    
+    if (PyInt_Check(arg) || PyLong_Check(arg))
         self->fscaling = PyLong_AsLong(arg);
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Spectrum_setMscaling(Spectrum *self, PyObject *arg)
-{	
-	if (PyInt_Check(arg) || PyLong_Check(arg))
+{    
+    if (PyInt_Check(arg) || PyLong_Check(arg))
         self->mscaling = PyLong_AsLong(arg);
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *
 Spectrum_setGain(Spectrum *self, PyObject *arg)
-{	
-	if (PyNumber_Check(arg))
+{    
+    if (PyNumber_Check(arg))
         self->gain = PyFloat_AsDouble(PyNumber_Float(arg));
     
-	Py_INCREF(Py_None);
-	return Py_None;
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyMemberDef Spectrum_members[] = {

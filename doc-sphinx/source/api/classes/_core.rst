@@ -30,3 +30,9 @@ the different kinds of objects in the library.
 .. autoclass:: PyoMatrixObject
    :members:
 
+*PyoPVObject*
+--------------------------------------
+
+.. autoclass:: PyoPVObject
+   :members:
+
