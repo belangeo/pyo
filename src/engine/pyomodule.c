@@ -1095,7 +1095,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     sf_seek(sf, 0, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT));
+    samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
     for(i=0; i<snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
     
@@ -1104,7 +1104,7 @@ upsamp(PyObject *self, PyObject *args, PyObject *kwds)
     free(tmp);
     
     /* upsampling */
-    upsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT));
+    upsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
     for(i=0; i<snd_chnls; i++)
         upsamples[i] = (MYFLT *)malloc(snd_size * up * sizeof(MYFLT));
     
@@ -1171,7 +1171,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     char *outpath;
     SNDFILE *sf;
     SF_INFO info;
-    unsigned int snd_size, snd_sr, snd_chnls, num_items;
+    unsigned int snd_size, snd_sr, snd_chnls, num_items, samples_per_channels;
     MYFLT *sincfunc;
     MYFLT *tmp;
     MYFLT **samples;
@@ -1198,7 +1198,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     sf_seek(sf, 0, SEEK_SET);
     SF_READ(sf, tmp, num_items);
     sf_close(sf);
-    samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT));
+    samples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
     for(i=0; i<snd_chnls; i++)
         samples[i] = (MYFLT *)malloc(snd_size * sizeof(MYFLT));
     
@@ -1217,25 +1217,33 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
     }
     
     /* downsampling */
-    downsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT));
-    for(i=0; i<snd_chnls; i++)
-        downsamples[i] = (MYFLT *)malloc(snd_size / down * sizeof(MYFLT));
-    
-    for (i=0; i<(snd_size / down); i++) {
+    samples_per_channels = (snd_size / down) + (snd_size % down);
+    downsamples = (MYFLT **)malloc(snd_chnls * sizeof(MYFLT *));
+    for(i=0; i<snd_chnls; i++) {
+        downsamples[i] = (MYFLT *)malloc(samples_per_channels * sizeof(MYFLT));
+        for (j=0; j<samples_per_channels; j++) {
+            downsamples[i][j] = 0.0;
+        }
+    }
+
+    for (i=0; i<samples_per_channels; i++) {
         for (j=0; j<snd_chnls; j++) {
-            downsamples[j][i] = samples[j][i*down];
+            if (i < snd_size)
+                downsamples[j][i] = samples[j][i*down];
+            else
+                downsamples[j][i] = 0.0;            
         }
     }
 
     /* save downsampled file */
     info.samplerate = snd_sr / down;
-    tmp = (MYFLT *)malloc(num_items / down * sizeof(MYFLT));
-    for (i=0; i<(snd_size / down); i++) {
+    tmp = (MYFLT *)malloc(snd_chnls * samples_per_channels * sizeof(MYFLT));
+    for (i=0; i<samples_per_channels; i++) {
         for (j=0; j<snd_chnls; j++) {
             tmp[i*snd_chnls+j] = downsamples[j][i];
         }
-    }    
-    
+    }
+       
     if (! (sf = sf_open(outpath, SFM_WRITE, &info))) {
         printf("downsamp: failed to open the output file %s.\n", outpath);
         free(tmp);
@@ -1248,7 +1256,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
         return PyInt_FromLong(-1);
     }
     
-    SF_WRITE(sf, tmp, num_items / down);
+    SF_WRITE(sf, tmp, snd_chnls * samples_per_channels);
     sf_close(sf);
     
     /* clean-up */
