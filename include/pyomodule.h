@@ -434,6 +434,7 @@ extern PyTypeObject PVSynthType;
 extern PyTypeObject PVTransposeType;
 extern PyTypeObject PVVerbType;
 extern PyTypeObject PVGateType;
+extern PyTypeObject PVAddSynthType;
 
 /* Constants */
 #define E M_E

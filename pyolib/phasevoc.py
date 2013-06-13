@@ -246,6 +246,10 @@ class PVSynth(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setWinType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def input(self):
         """PyoPVObject. Input signal to process.""" 
@@ -259,6 +263,161 @@ class PVSynth(PyoObject):
         return self._wintype
     @wintype.setter
     def wintype(self, x): self.setWinType(x)
+
+class PVAddSynth(PyoObject):
+    """
+    Phase Vocoder additive synthesis object.
+
+    PVAddSynth takes a PyoPVObject as its input and resynthesize
+    the real signal using the magnitude and true frequency's 
+    streams to control amplitude and frequency envelopes of an 
+    oscillator bank.
+
+    :Parent: :py:class:`PyoObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        pitch : float or PyoObject, optional
+            Transposition factor. Defaults to 1.
+        num : int, optional
+            Number of oscillators used to synthesize the
+            output sound. Defaults to 100.
+        first : int, optional
+            The first bin to synthesize, starting from 0. 
+            Defaults to 0.
+        inc : int, optional
+            Starting from bin `first`, resynthesize bins 
+            `inc` apart. Defaults to 1. 
+            
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.7)
+    >>> pva = PVAnal(a, size=1024, overlaps=4, pitch=2)
+    >>> pvs = PVAddSynth(pva, pitch=1.25, num=100, first=0, inc=2)
+
+    """
+    def __init__(self, input, pitch=1, num=100, first=0, inc=1, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._pitch = pitch
+        self._num = num
+        self._first = first
+        self._inc = inc
+        input, pitch, num, first, inc, mul, add, lmax = convertArgsToLists(self._input, pitch, num, first, inc, mul, add)
+        self._base_objs = [PVAddSynth_base(wrap(input,i), wrap(pitch,i), wrap(num,i), wrap(first,i), wrap(inc,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setPitch(self, x):
+        """
+        Replace the `pitch` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `pitch` attribute.
+        
+        """
+        self._pitch = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setNum(self, x):
+        """
+        Replace the `num` attribute.
+        
+        :Args:
+
+            x : int
+                new `num` attribute.
+        
+        """
+        self._num = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setNum(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFirst(self, x):
+        """
+        Replace the `first` attribute.
+        
+        :Args:
+
+            x : int
+                new `first` attribute.
+        
+        """
+        self._first = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFirst(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInc(self, x):
+        """
+        Replace the `inc` attribute.
+        
+        :Args:
+
+            x : int
+                new `inc` attribute.
+        
+        """
+        self._inc = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInc(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.25, 4, "lin", "pitch", self._pitch),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def pitch(self):
+        """float or PyoObject. Transposition factor."""
+        return self._pitch
+    @pitch.setter
+    def pitch(self, x): self.setPitch(x)
+
+    @property
+    def num(self):
+        """int. Number of oscillators."""
+        return self._num
+    @num.setter
+    def num(self, x): self.setNum(x)
+
+    @property
+    def first(self):
+        """int. First bin to synthesize."""
+        return self._first
+    @first.setter
+    def first(self, x): self.setFirst(x)
+
+    @property
+    def inc(self):
+        """int. Synthesized bin increment."""
+        return self._inc
+    @inc.setter
+    def inc(self, x): self.setInc(x)
 
 class PVTranspose(PyoPVObject):
     """
