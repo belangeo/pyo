@@ -2325,6 +2325,7 @@ init_pyo64(void)
     module_add_object(m, "PVTranspose_base", &PVTransposeType);
     module_add_object(m, "PVVerb_base", &PVVerbType);
     module_add_object(m, "PVGate_base", &PVGateType);
+    module_add_object(m, "PVAddSynth_base", &PVAddSynthType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

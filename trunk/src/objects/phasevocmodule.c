@@ -383,7 +383,7 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *input;
     PVStream *input_stream;
-    PVStream *pv_stream;
+    //PVStream *pv_stream;
     int size;
     int hsize;
     int olaps;
@@ -554,7 +554,7 @@ PVSynth_traverse(PVSynth *self, visitproc visit, void *arg)
     pyo_VISIT
     Py_VISIT(self->input);
     Py_VISIT(self->input_stream);
-    Py_VISIT(self->pv_stream);
+    //Py_VISIT(self->pv_stream);
     return 0;
 }
 
@@ -564,7 +564,7 @@ PVSynth_clear(PVSynth *self)
     pyo_CLEAR
     Py_CLEAR(self->input);
     Py_CLEAR(self->input_stream);
-    Py_CLEAR(self->pv_stream);
+    //Py_CLEAR(self->pv_stream);
     return 0;
 }
 
@@ -683,7 +683,7 @@ PVSynth_setWinType(PVSynth *self, PyObject *arg)
 
 static PyObject * PVSynth_getServer(PVSynth* self) { GET_SERVER };
 static PyObject * PVSynth_getStream(PVSynth* self) { GET_STREAM };
-static PyObject * PVSynth_getPVStream(PVSynth* self) { GET_PV_STREAM };
+//static PyObject * PVSynth_getPVStream(PVSynth* self) { GET_PV_STREAM };
 static PyObject * PVSynth_setMul(PVSynth *self, PyObject *arg) { SET_MUL };	
 static PyObject * PVSynth_setAdd(PVSynth *self, PyObject *arg) { SET_ADD };	
 static PyObject * PVSynth_setSub(PVSynth *self, PyObject *arg) { SET_SUB };	
@@ -705,7 +705,7 @@ static PyObject * PVSynth_inplace_div(PVSynth *self, PyObject *arg) { INPLACE_DI
 static PyMemberDef PVSynth_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVSynth, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVSynth, stream), 0, "Stream object."},
-{"pv_stream", T_OBJECT_EX, offsetof(PVSynth, pv_stream), 0, "Phase Vocoder Stream object."},
+//{"pv_stream", T_OBJECT_EX, offsetof(PVSynth, pv_stream), 0, "Phase Vocoder Stream object."},
 {"input", T_OBJECT_EX, offsetof(PVSynth, input), 0, "FFT sound object."},
 {"mul", T_OBJECT_EX, offsetof(PVSynth, mul), 0, "Mul factor."},
 {"add", T_OBJECT_EX, offsetof(PVSynth, add), 0, "Add factor."},
@@ -715,7 +715,7 @@ static PyMemberDef PVSynth_members[] = {
 static PyMethodDef PVSynth_methods[] = {
 {"getServer", (PyCFunction)PVSynth_getServer, METH_NOARGS, "Returns server object."},
 {"_getStream", (PyCFunction)PVSynth_getStream, METH_NOARGS, "Returns stream object."},
-{"_getPVStream", (PyCFunction)PVSynth_getPVStream, METH_NOARGS, "Returns pvstream object."},
+//{"_getPVStream", (PyCFunction)PVSynth_getPVStream, METH_NOARGS, "Returns pvstream object."},
 {"play", (PyCFunction)PVSynth_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"out", (PyCFunction)PVSynth_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
 {"stop", (PyCFunction)PVSynth_stop, METH_NOARGS, "Stops computing."},
@@ -810,6 +810,561 @@ PVSynth_members,                                 /* tp_members */
 0,                          /* tp_init */
 0,                                              /* tp_alloc */
 PVSynth_new,                                     /* tp_new */
+};
+
+/*****************/
+/**** PVAddSynth ****/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PyObject *pitch;
+    Stream *pitch_stream;
+    int size;
+    int hsize;
+    int olaps;
+    int hopsize;
+    int inputLatency;
+    int overcount;
+    int num;
+    int first;
+    int inc;
+    int update;
+    MYFLT *ppos;
+    MYFLT *amp;
+    MYFLT *freq;
+    MYFLT *outbuf;
+    MYFLT *table;
+    int modebuffer[3]; // need at least 2 slots for mul & add
+} PVAddSynth;
+
+static void
+PVAddSynth_realloc_memories(PVAddSynth *self) {
+    int i;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    self->inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->ppos = (MYFLT *)realloc(self->ppos, self->num * sizeof(MYFLT));
+    self->amp = (MYFLT *)realloc(self->amp, self->num * sizeof(MYFLT));
+    self->freq = (MYFLT *)realloc(self->freq, self->num * sizeof(MYFLT));
+    for (i=0; i<self->num; i++) {
+        self->ppos[i] = self->amp[i] = 0.0;
+        self->freq[i] = (i * self->inc + self->first) * self->size / self->sr;
+    }
+    self->outbuf = (MYFLT *)realloc(self->outbuf, self->hopsize * sizeof(MYFLT));
+    for (i=0; i<self->hopsize; i++)
+        self->outbuf[i] = 0.0;
+}
+
+static void
+PVAddSynth_process_i(PVAddSynth *self) {
+    int i, k, n, bin, ipart;
+    MYFLT pitch, tamp, tfreq, inca, incf, ratio, fpart;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    pitch = PyFloat_AS_DOUBLE(self->pitch);
+
+    if (self->size != size || self->olaps != olaps || self->update == 1) {
+        self->size = size;
+        self->olaps = olaps;
+        self->update = 0;
+        PVAddSynth_realloc_memories(self);
+    }
+
+    ratio = 8192.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->outbuf[count[i] - self->inputLatency];
+        if (count[i] >= (self->size-1)) {
+            for (n=0; n<self->hopsize; n++) {
+                self->outbuf[n] = 0.0;
+            }
+            for (k=0; k<self->num; k++) {
+                bin = k * self->inc + self->first;
+                if (bin < self->hsize) {
+                    tamp = magn[self->overcount][bin];
+                    tfreq = freq[self->overcount][bin] * pitch;
+                    inca = (tamp - self->amp[k]) / self->hopsize;
+                    incf = (tfreq - self->freq[k]) / self->hopsize;
+                    for (n=0; n<self->hopsize; n++) {
+                        self->ppos[k] += self->freq[k] * ratio;
+                        while (self->ppos[k] < 0.0) self->ppos[k] += 8192.0;
+                        while (self->ppos[k] >= 8192.0) self->ppos[k] -= 8192.0;
+                        ipart = (int)self->ppos[k];
+                        fpart = self->ppos[k] - ipart;
+                        self->outbuf[n] += self->amp[k] * (self->table[ipart] + (self->table[ipart+1] - self->table[ipart]) * fpart);
+                        self->amp[k] += inca;
+                        self->freq[k] += incf;
+                    }
+                }
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVAddSynth_process_a(PVAddSynth *self) {
+    int i, k, n, bin, ipart;
+    MYFLT pitch, tamp, tfreq, inca, incf, ratio, fpart;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *pit = Stream_getData((Stream *)self->pitch_stream);
+
+    if (self->size != size || self->olaps != olaps || self->update == 1) {
+        self->size = size;
+        self->olaps = olaps;
+        self->update = 0;
+        PVAddSynth_realloc_memories(self);
+    }
+
+    ratio = 8192.0 / self->sr;
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = self->outbuf[count[i] - self->inputLatency];
+        if (count[i] >= (self->size-1)) {
+            pitch = pit[i];
+            for (n=0; n<self->hopsize; n++) {
+                self->outbuf[n] = 0.0;
+            }
+            for (k=0; k<self->num; k++) {
+                bin = k * self->inc + self->first;
+                if (bin < self->hsize) {
+                    tamp = magn[self->overcount][bin];
+                    tfreq = freq[self->overcount][bin] * pitch;
+                    inca = (tamp - self->amp[k]) / self->hopsize;
+                    incf = (tfreq - self->freq[k]) / self->hopsize;
+                    for (n=0; n<self->hopsize; n++) {
+                        self->ppos[k] += self->freq[k] * ratio;
+                        while (self->ppos[k] < 0.0) self->ppos[k] += 8192.0;
+                        while (self->ppos[k] >= 8192.0) self->ppos[k] -= 8192.0;
+                        ipart = (int)self->ppos[k];
+                        fpart = self->ppos[k] - ipart;
+                        self->outbuf[n] += self->amp[k] * (self->table[ipart] + (self->table[ipart+1] - self->table[ipart]) * fpart);
+                        self->amp[k] += inca;
+                        self->freq[k] += incf;
+                    }
+                }
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void PVAddSynth_postprocessing_ii(PVAddSynth *self) { POST_PROCESSING_II };
+static void PVAddSynth_postprocessing_ai(PVAddSynth *self) { POST_PROCESSING_AI };
+static void PVAddSynth_postprocessing_ia(PVAddSynth *self) { POST_PROCESSING_IA };
+static void PVAddSynth_postprocessing_aa(PVAddSynth *self) { POST_PROCESSING_AA };
+static void PVAddSynth_postprocessing_ireva(PVAddSynth *self) { POST_PROCESSING_IREVA };
+static void PVAddSynth_postprocessing_areva(PVAddSynth *self) { POST_PROCESSING_AREVA };
+static void PVAddSynth_postprocessing_revai(PVAddSynth *self) { POST_PROCESSING_REVAI };
+static void PVAddSynth_postprocessing_revaa(PVAddSynth *self) { POST_PROCESSING_REVAA };
+static void PVAddSynth_postprocessing_revareva(PVAddSynth *self) { POST_PROCESSING_REVAREVA };
+
+static void
+PVAddSynth_setProcMode(PVAddSynth *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVAddSynth_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVAddSynth_process_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = PVAddSynth_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = PVAddSynth_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = PVAddSynth_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = PVAddSynth_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = PVAddSynth_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = PVAddSynth_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = PVAddSynth_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = PVAddSynth_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = PVAddSynth_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+PVAddSynth_compute_next_data_frame(PVAddSynth *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+PVAddSynth_traverse(PVAddSynth *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->pitch);
+    Py_VISIT(self->pitch_stream);
+    return 0;
+}
+
+static int 
+PVAddSynth_clear(PVAddSynth *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->pitch);
+    Py_CLEAR(self->pitch_stream);
+    return 0;
+}
+
+static void
+PVAddSynth_dealloc(PVAddSynth* self)
+{
+    pyo_DEALLOC
+    free(self->ppos);
+    free(self->outbuf);
+    free(self->table);
+    free(self->amp);
+    free(self->freq);
+    PVAddSynth_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *pitchtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    PVAddSynth *self;
+    self = (PVAddSynth *)type->tp_alloc(type, 0);
+
+    self->pitch = PyFloat_FromDouble(1);
+    self->num = 100;
+    self->first = 0;
+    self->inc = 1;
+    self->update = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVAddSynth_compute_next_data_frame);
+    self->mode_func_ptr = PVAddSynth_setProcMode;
+
+    static char *kwlist[] = {"input", "pitch", "num", "first", "inc", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OiiiOO", kwlist, &inputtmp, &pitchtmp, &self->num, &self->first, &self->inc, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVAddSynth \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (pitchtmp) {
+        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+    }
+ 
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->table = (MYFLT *)realloc(self->table, 8193 * sizeof(MYFLT));
+    for (i=0; i<8192; i++)
+        self->table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0));
+    self->table[8192] = 0.0;
+    
+    PVAddSynth_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject *
+PVAddSynth_setInput(PVAddSynth *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVAddSynth \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVAddSynth_setPitch(PVAddSynth *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pitch);
+	if (isNumber == 1) {
+		self->pitch = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->pitch = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pitch_stream);
+        self->pitch_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVAddSynth_setNum(PVAddSynth *self, PyObject *arg)
+{    
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->num = PyInt_AsLong(arg);
+        if (self->num < 1)
+            self->num = 1;
+        else if (self->num > self->hsize)
+            self->num = self->hsize;
+        self->update = 1;
+    }    
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+PVAddSynth_setFirst(PVAddSynth *self, PyObject *arg)
+{    
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->first = PyInt_AsLong(arg);
+        if (self->first < 0)
+            self->first = 0;
+        else if (self->first > self->hsize)
+            self->first = self->hsize;
+        self->update = 1;
+    }    
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+PVAddSynth_setInc(PVAddSynth *self, PyObject *arg)
+{    
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        self->inc = PyInt_AsLong(arg);
+        if (self->inc < 1)
+            self->inc = 1;
+        else if (self->inc > self->hsize)
+            self->inc = self->hsize;
+        self->update = 1;
+    }    
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject * PVAddSynth_getServer(PVAddSynth* self) { GET_SERVER };
+static PyObject * PVAddSynth_getStream(PVAddSynth* self) { GET_STREAM };
+static PyObject * PVAddSynth_setMul(PVAddSynth *self, PyObject *arg) { SET_MUL };	
+static PyObject * PVAddSynth_setAdd(PVAddSynth *self, PyObject *arg) { SET_ADD };	
+static PyObject * PVAddSynth_setSub(PVAddSynth *self, PyObject *arg) { SET_SUB };	
+static PyObject * PVAddSynth_setDiv(PVAddSynth *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * PVAddSynth_play(PVAddSynth *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVAddSynth_out(PVAddSynth *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * PVAddSynth_stop(PVAddSynth *self) { STOP };
+
+static PyObject * PVAddSynth_multiply(PVAddSynth *self, PyObject *arg) { MULTIPLY };
+static PyObject * PVAddSynth_inplace_multiply(PVAddSynth *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * PVAddSynth_add(PVAddSynth *self, PyObject *arg) { ADD };
+static PyObject * PVAddSynth_inplace_add(PVAddSynth *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * PVAddSynth_sub(PVAddSynth *self, PyObject *arg) { SUB };
+static PyObject * PVAddSynth_inplace_sub(PVAddSynth *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * PVAddSynth_div(PVAddSynth *self, PyObject *arg) { DIV };
+static PyObject * PVAddSynth_inplace_div(PVAddSynth *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef PVAddSynth_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVAddSynth, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVAddSynth, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVAddSynth, input), 0, "FFT sound object."},
+{"pitch", T_OBJECT_EX, offsetof(PVAddSynth, pitch), 0, "Transposition factor."},
+{"mul", T_OBJECT_EX, offsetof(PVAddSynth, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(PVAddSynth, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVAddSynth_methods[] = {
+{"getServer", (PyCFunction)PVAddSynth_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVAddSynth_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)PVAddSynth_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)PVAddSynth_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)PVAddSynth_stop, METH_NOARGS, "Stops computing."},
+{"setInput", (PyCFunction)PVAddSynth_setInput, METH_O, "Sets a new input object."},
+{"setPitch", (PyCFunction)PVAddSynth_setPitch, METH_O, "Sets a new transposition factor."},
+{"setNum", (PyCFunction)PVAddSynth_setNum, METH_O, "Sets the number of oscillators."},
+{"setFirst", (PyCFunction)PVAddSynth_setFirst, METH_O, "Sets the first bin to synthesize."},
+{"setInc", (PyCFunction)PVAddSynth_setInc, METH_O, "Sets the synthesized bin increment."},
+{"setMul", (PyCFunction)PVAddSynth_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)PVAddSynth_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)PVAddSynth_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)PVAddSynth_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods PVAddSynth_as_number = {
+(binaryfunc)PVAddSynth_add,                         /*nb_add*/
+(binaryfunc)PVAddSynth_sub,                         /*nb_subtract*/
+(binaryfunc)PVAddSynth_multiply,                    /*nb_multiply*/
+(binaryfunc)PVAddSynth_div,                         /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)PVAddSynth_inplace_add,                 /*inplace_add*/
+(binaryfunc)PVAddSynth_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)PVAddSynth_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)PVAddSynth_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject PVAddSynthType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVAddSynth_base",                                   /*tp_name*/
+sizeof(PVAddSynth),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVAddSynth_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&PVAddSynth_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVAddSynth objects. Phase Vocoder additive resynthesis object.",           /* tp_doc */
+(traverseproc)PVAddSynth_traverse,                  /* tp_traverse */
+(inquiry)PVAddSynth_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVAddSynth_methods,                                 /* tp_methods */
+PVAddSynth_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVAddSynth_new,                                     /* tp_new */
 };
 
 /*****************/
