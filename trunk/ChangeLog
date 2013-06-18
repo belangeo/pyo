@@ -1,5 +1,10 @@
 2013-06-18 belangeo <belangeo@gmail.com>
 
+    * Added new object: PVFilter. Spectral filtering.
+    - rev 1119
+
+2013-06-18 belangeo <belangeo@gmail.com>
+
     * Added new object: PVCross, PVMult, PVMorph. Spectral morphing.
     - rev 1117
 

@@ -61,3 +61,9 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVMorph
    :members:
 
+*PVFilter*
+-----------------------------------
+
+.. autoclass:: PVFilter
+   :members:
+
