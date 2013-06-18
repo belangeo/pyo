@@ -26,6 +26,7 @@
 #include "pvstreammodule.h"
 #include "servermodule.h"
 #include "dummymodule.h"
+#include "tablemodule.h"
 #include "fft.h"
 #include "wind.h"
 
@@ -3888,4 +3889,412 @@ PVMorph_members,                                 /* tp_members */
 0,                          /* tp_init */
 0,                                              /* tp_alloc */
 PVMorph_new,                                     /* tp_new */
+};
+
+/*****************/
+/** PVFilter **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PVStream *pv_stream;
+    PyObject *gain;
+    Stream *gain_stream;
+    PyObject *table;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+    int modebuffer[1];
+} PVFilter;
+
+static void
+PVFilter_realloc_memories(PVFilter *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVFilter_process_i(PVFilter *self) {
+    int i, k;
+    MYFLT gain, amp, binamp;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int tsize = TableStream_getSize(self->table);
+    gain = PyFloat_AS_DOUBLE(self->gain);
+    if (gain < 0)
+        gain = 0.0;
+    else if (gain > 1)
+        gain = 1.0;
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVFilter_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                if (k < tsize)
+                    binamp = tablelist[k];
+                else
+                    binamp = 0.0;
+                amp = magn[self->overcount][k];
+                self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVFilter_process_a(PVFilter *self) {
+    int i, k;
+    MYFLT gain, amp, binamp;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int tsize = TableStream_getSize(self->table);
+    MYFLT *gn = Stream_getData((Stream *)self->gain_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVFilter_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            gain = gn[i];
+            if (gain < 0)
+                gain = 0.0;
+            else if (gain > 1)
+                gain = 1.0;
+            for (k=0; k<self->hsize; k++) {
+                if (k < tsize)
+                    binamp = tablelist[k];
+                else
+                    binamp = 0.0;
+                amp = magn[self->overcount][k];
+                self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVFilter_setProcMode(PVFilter *self)
+{        
+    int procmode;
+    procmode = self->modebuffer[0];
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVFilter_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVFilter_process_a;
+            break;
+    } 
+}
+
+static void
+PVFilter_compute_next_data_frame(PVFilter *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVFilter_traverse(PVFilter *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->gain);    
+    Py_VISIT(self->gain_stream);    
+    Py_VISIT(self->table);
+    return 0;
+}
+
+static int 
+PVFilter_clear(PVFilter *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->gain);    
+    Py_CLEAR(self->gain_stream);    
+    Py_CLEAR(self->table);
+    return 0;
+}
+
+static void
+PVFilter_dealloc(PVFilter* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->count);
+    PVFilter_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *tabletmp, *gaintmp=NULL;
+    PVFilter *self;
+    self = (PVFilter *)type->tp_alloc(type, 0);
+
+    self->gain = PyFloat_FromDouble(1);
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVFilter_compute_next_data_frame);
+    self->mode_func_ptr = PVFilter_setProcMode;
+
+    static char *kwlist[] = {"input", "table", "gain", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &tabletmp, &gaintmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVFilter \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+
+    if (gaintmp) {
+        PyObject_CallMethod((PyObject *)self, "setGain", "O", gaintmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVFilter_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVFilter_getServer(PVFilter* self) { GET_SERVER };
+static PyObject * PVFilter_getStream(PVFilter* self) { GET_STREAM };
+static PyObject * PVFilter_getPVStream(PVFilter* self) { GET_PV_STREAM };
+
+static PyObject * PVFilter_play(PVFilter *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVFilter_stop(PVFilter *self) { STOP };
+
+static PyObject *
+PVFilter_setInput(PVFilter *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVFilter \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVFilter_setGain(PVFilter *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->gain);
+	if (isNumber == 1) {
+		self->gain = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->gain = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->gain, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->gain_stream);
+        self->gain_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVFilter_getTable(PVFilter* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+PVFilter_setTable(PVFilter *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef PVFilter_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVFilter, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVFilter, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVFilter, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVFilter, input), 0, "FFT sound object."},
+{"table", T_OBJECT_EX, offsetof(PVFilter, table), 0, "Filter table."},
+{"gain", T_OBJECT_EX, offsetof(PVFilter, gain), 0, "gainsition factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVFilter_methods[] = {
+{"getServer", (PyCFunction)PVFilter_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVFilter_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVFilter_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVFilter_setInput, METH_O, "Sets a new input object."},
+{"getTable", (PyCFunction)PVFilter_getTable, METH_NOARGS, "Returns filter table object."},
+{"setTable", (PyCFunction)PVFilter_setTable, METH_O, "Sets filter table."},
+{"setGain", (PyCFunction)PVFilter_setGain, METH_O, "Sets the gainsition factor."},
+{"play", (PyCFunction)PVFilter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVFilter_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVFilterType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVFilter_base",                                   /*tp_name*/
+sizeof(PVFilter),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVFilter_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVFilter objects. Spectral domain gainsition.",           /* tp_doc */
+(traverseproc)PVFilter_traverse,                  /* tp_traverse */
+(inquiry)PVFilter_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVFilter_methods,                                 /* tp_methods */
+PVFilter_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVFilter_new,                                     /* tp_new */
 };

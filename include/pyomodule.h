@@ -438,6 +438,7 @@ extern PyTypeObject PVAddSynthType;
 extern PyTypeObject PVCrossType;
 extern PyTypeObject PVMultType;
 extern PyTypeObject PVMorphType;
+extern PyTypeObject PVFilterType;
 
 /* Constants */
 #define E M_E

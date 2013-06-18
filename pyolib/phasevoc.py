@@ -1030,3 +1030,109 @@ class PVMorph(PyoPVObject):
         return self._fade
     @fade.setter
     def fade(self, x): self.setFade(x)
+
+class PVFilter(PyoPVObject):
+    """
+    Spectral filter.
+    
+    PVFilter filters frequency components of a pv stream
+    according to the shape drawn in the table given in
+    argument.
+    
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        table : PyoTableObject
+            Table containing the filter shape. If the 
+            table length is smaller than fftsize/2,
+            remaining bins will be set to 0.
+        gain : float or PyoObject, optional
+            Gain of the filter applied to the input spectrum. 
+            Defaults to 1.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = ExpTable([(0,1),(61,1),(71,0),(131,1),(171,0),(511,0)], size=512)
+    >>> src = Noise(.4)
+    >>> pva = PVAnal(src, size=1024)
+    >>> pvf = PVFilter(pva, t)
+    >>> pvs = PVSynth(pvf).out()
+
+    """
+    def __init__(self, input, table, gain=1):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._table = table
+        self._gain = gain
+        input, table, gain, lmax = convertArgsToLists(self._input, table, gain)
+        self._base_objs = [PVFilter_base(wrap(input,i), wrap(table,i), wrap(gain,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setGain(self, x):
+        """
+        Replace the `gain` attribute.
+        
+        :Args:
+
+            x : int
+                new `gain` attribute.
+        
+        """
+        self._gain = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 1, "lin", "gain", self._gain)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the filter shape.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def gain(self):
+        """float or PyoObject. Gain of the filter."""
+        return self._gain
+    @gain.setter
+    def gain(self, x): self.setGain(x)

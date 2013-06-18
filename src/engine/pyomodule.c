@@ -2329,6 +2329,7 @@ init_pyo64(void)
     module_add_object(m, "PVCross_base", &PVCrossType);
     module_add_object(m, "PVMult_base", &PVMultType);
     module_add_object(m, "PVMorph_base", &PVMorphType);
+    module_add_object(m, "PVFilter_base", &PVFilterType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
