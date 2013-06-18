@@ -2769,3 +2769,1123 @@ PVGate_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 PVGate_new,                                     /* tp_new */
 };
+
+/*****************/
+/** PVCross **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PyObject *input2;
+    PVStream *input2_stream;
+    PVStream *pv_stream;
+    PyObject *fade;
+    Stream *fade_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+    int modebuffer[1];
+} PVCross;
+
+static void
+PVCross_realloc_memories(PVCross *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVCross_process_i(PVCross *self) {
+    int i, k;
+    MYFLT fade;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    MYFLT **magn2 = PVStream_getMagn((PVStream *)self->input2_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    fade = PyFloat_AS_DOUBLE(self->fade);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVCross_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = magn[self->overcount][k] + (magn2[self->overcount][k] - magn[self->overcount][k]) * fade;
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVCross_process_a(PVCross *self) {
+    int i, k;
+    MYFLT fade;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    MYFLT **magn2 = PVStream_getMagn((PVStream *)self->input2_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *fd = Stream_getData((Stream *)self->fade_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVCross_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            fade = fd[i];
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = magn[self->overcount][k] + (magn2[self->overcount][k] - magn[self->overcount][k]) * fade;
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVCross_setProcMode(PVCross *self)
+{        
+    int procmode;
+    procmode = self->modebuffer[0];
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVCross_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVCross_process_a;
+            break;
+    } 
+}
+
+static void
+PVCross_compute_next_data_frame(PVCross *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVCross_traverse(PVCross *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->fade);    
+    Py_VISIT(self->fade_stream);    
+    return 0;
+}
+
+static int 
+PVCross_clear(PVCross *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->fade);    
+    Py_CLEAR(self->fade_stream);    
+    return 0;
+}
+
+static void
+PVCross_dealloc(PVCross* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->count);
+    PVCross_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *fadetmp;
+    PVCross *self;
+    self = (PVCross *)type->tp_alloc(type, 0);
+
+    self->fade = PyFloat_FromDouble(1);
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVCross_compute_next_data_frame);
+    self->mode_func_ptr = PVCross_setProcMode;
+
+    static char *kwlist[] = {"input", "input2", "fade", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &input2tmp, &fadetmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVCross \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVCross \"input2\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(input2tmp);
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input2_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (fadetmp) {
+        PyObject_CallMethod((PyObject *)self, "setFade", "O", fadetmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVCross_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVCross_getServer(PVCross* self) { GET_SERVER };
+static PyObject * PVCross_getStream(PVCross* self) { GET_STREAM };
+static PyObject * PVCross_getPVStream(PVCross* self) { GET_PV_STREAM };
+
+static PyObject * PVCross_play(PVCross *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVCross_stop(PVCross *self) { STOP };
+
+static PyObject *
+PVCross_setInput(PVCross *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVCross \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVCross_setInput2(PVCross *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVCross \"input2\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input2);
+    self->input2 = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVCross_setFade(PVCross *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->fade);
+	if (isNumber == 1) {
+		self->fade = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->fade = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->fade, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->fade_stream);
+        self->fade_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef PVCross_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVCross, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVCross, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVCross, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVCross, input), 0, "FFT sound object."},
+{"input2", T_OBJECT_EX, offsetof(PVCross, input2), 0, "FFT sound object."},
+{"fade", T_OBJECT_EX, offsetof(PVCross, fade), 0, "fadesition factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVCross_methods[] = {
+{"getServer", (PyCFunction)PVCross_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVCross_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVCross_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVCross_setInput, METH_O, "Sets a new input object."},
+{"setInput2", (PyCFunction)PVCross_setInput2, METH_O, "Sets a new input object."},
+{"setFade", (PyCFunction)PVCross_setFade, METH_O, "Sets the fadesition factor."},
+{"play", (PyCFunction)PVCross_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVCross_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVCrossType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVCross_base",                                   /*tp_name*/
+sizeof(PVCross),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVCross_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVCross objects. Cross-synthesis.",           /* tp_doc */
+(traverseproc)PVCross_traverse,                  /* tp_traverse */
+(inquiry)PVCross_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVCross_methods,                                 /* tp_methods */
+PVCross_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVCross_new,                                     /* tp_new */
+};
+
+/*****************/
+/** PVMult **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PyObject *input2;
+    PVStream *input2_stream;
+    PVStream *pv_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+} PVMult;
+
+static void
+PVMult_realloc_memories(PVMult *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVMult_process_i(PVMult *self) {
+    int i, k;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    MYFLT **magn2 = PVStream_getMagn((PVStream *)self->input2_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVMult_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = magn[self->overcount][k] * magn2[self->overcount][k] * 10;
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVMult_setProcMode(PVMult *self)
+{
+    self->proc_func_ptr = PVMult_process_i;
+}
+
+static void
+PVMult_compute_next_data_frame(PVMult *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVMult_traverse(PVMult *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->pv_stream);
+    return 0;
+}
+
+static int 
+PVMult_clear(PVMult *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->pv_stream);
+    return 0;
+}
+
+static void
+PVMult_dealloc(PVMult* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->count);
+    PVMult_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp;
+    PVMult *self;
+    self = (PVMult *)type->tp_alloc(type, 0);
+
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVMult_compute_next_data_frame);
+    self->mode_func_ptr = PVMult_setProcMode;
+
+    static char *kwlist[] = {"input", "input2", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &input2tmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMult \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMult \"input2\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(input2tmp);
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input2_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVMult_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVMult_getServer(PVMult* self) { GET_SERVER };
+static PyObject * PVMult_getStream(PVMult* self) { GET_STREAM };
+static PyObject * PVMult_getPVStream(PVMult* self) { GET_PV_STREAM };
+
+static PyObject * PVMult_play(PVMult *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVMult_stop(PVMult *self) { STOP };
+
+static PyObject *
+PVMult_setInput(PVMult *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMult \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVMult_setInput2(PVMult *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMult \"input2\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input2);
+    self->input2 = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef PVMult_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVMult, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVMult, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVMult, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVMult, input), 0, "FFT sound object."},
+{"input2", T_OBJECT_EX, offsetof(PVMult, input2), 0, "FFT sound object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVMult_methods[] = {
+{"getServer", (PyCFunction)PVMult_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVMult_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVMult_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVMult_setInput, METH_O, "Sets a new input object."},
+{"setInput2", (PyCFunction)PVMult_setInput2, METH_O, "Sets a new input object."},
+{"play", (PyCFunction)PVMult_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVMult_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVMultType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVMult_base",                                   /*tp_name*/
+sizeof(PVMult),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVMult_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVMult objects. Multiply magnitudes from two pv streams.",           /* tp_doc */
+(traverseproc)PVMult_traverse,                  /* tp_traverse */
+(inquiry)PVMult_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVMult_methods,                                 /* tp_methods */
+PVMult_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVMult_new,                                     /* tp_new */
+};
+
+/*****************/
+/** PVMorph **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PyObject *input2;
+    PVStream *input2_stream;
+    PVStream *pv_stream;
+    PyObject *fade;
+    Stream *fade_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+    int modebuffer[1];
+} PVMorph;
+
+static void
+PVMorph_realloc_memories(PVMorph *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVMorph_process_i(PVMorph *self) {
+    int i, k;
+    MYFLT fade, fr1, fr2, div;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    MYFLT **magn2 = PVStream_getMagn((PVStream *)self->input2_stream);
+    MYFLT **freq2 = PVStream_getFreq((PVStream *)self->input2_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    fade = PyFloat_AS_DOUBLE(self->fade);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVMorph_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = magn[self->overcount][k] + (magn2[self->overcount][k] - magn[self->overcount][k]) * fade;
+                fr1 = freq[self->overcount][k];
+                fr2 = freq2[self->overcount][k];
+                div = fr1 ? fr2 / fr1 : 1000000.0;
+                div = div > 0 ? div : -div;
+                self->freq[self->overcount][k] = fr1 * MYPOW(div, fade);
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVMorph_process_a(PVMorph *self) {
+    int i, k;
+    MYFLT fade, fr1, fr2, div;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    MYFLT **magn2 = PVStream_getMagn((PVStream *)self->input2_stream);
+    MYFLT **freq2 = PVStream_getFreq((PVStream *)self->input2_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *fd = Stream_getData((Stream *)self->fade_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVMorph_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            fade = fd[i];
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = magn[self->overcount][k] + (magn2[self->overcount][k] - magn[self->overcount][k]) * fade;
+                fr1 = freq[self->overcount][k];
+                fr2 = freq2[self->overcount][k];
+                div = fr1 ? fr2 / fr1 : 1000000.0;
+                div = div > 0 ? div : -div;
+                self->freq[self->overcount][k] = fr1 * MYPOW(div, fade);
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVMorph_setProcMode(PVMorph *self)
+{        
+    int procmode;
+    procmode = self->modebuffer[0];
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVMorph_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVMorph_process_a;
+            break;
+    } 
+}
+
+static void
+PVMorph_compute_next_data_frame(PVMorph *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVMorph_traverse(PVMorph *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->fade);    
+    Py_VISIT(self->fade_stream);    
+    return 0;
+}
+
+static int 
+PVMorph_clear(PVMorph *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->fade);    
+    Py_CLEAR(self->fade_stream);    
+    return 0;
+}
+
+static void
+PVMorph_dealloc(PVMorph* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->count);
+    PVMorph_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp, *fadetmp;
+    PVMorph *self;
+    self = (PVMorph *)type->tp_alloc(type, 0);
+
+    self->fade = PyFloat_FromDouble(0.5);
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVMorph_compute_next_data_frame);
+    self->mode_func_ptr = PVMorph_setProcMode;
+
+    static char *kwlist[] = {"input", "input2", "fade", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &input2tmp, &fadetmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMorph \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMorph \"input2\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(input2tmp);
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input2_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (fadetmp) {
+        PyObject_CallMethod((PyObject *)self, "setFade", "O", fadetmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVMorph_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVMorph_getServer(PVMorph* self) { GET_SERVER };
+static PyObject * PVMorph_getStream(PVMorph* self) { GET_STREAM };
+static PyObject * PVMorph_getPVStream(PVMorph* self) { GET_PV_STREAM };
+
+static PyObject * PVMorph_play(PVMorph *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVMorph_stop(PVMorph *self) { STOP };
+
+static PyObject *
+PVMorph_setInput(PVMorph *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMorph \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVMorph_setInput2(PVMorph *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMorph \"input2\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input2);
+    self->input2 = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVMorph_setFade(PVMorph *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->fade);
+	if (isNumber == 1) {
+		self->fade = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->fade = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->fade, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->fade_stream);
+        self->fade_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef PVMorph_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVMorph, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVMorph, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVMorph, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVMorph, input), 0, "FFT sound object."},
+{"input2", T_OBJECT_EX, offsetof(PVMorph, input2), 0, "FFT sound object."},
+{"fade", T_OBJECT_EX, offsetof(PVMorph, fade), 0, "fadesition factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVMorph_methods[] = {
+{"getServer", (PyCFunction)PVMorph_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVMorph_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVMorph_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVMorph_setInput, METH_O, "Sets a new input object."},
+{"setInput2", (PyCFunction)PVMorph_setInput2, METH_O, "Sets a new input object."},
+{"setFade", (PyCFunction)PVMorph_setFade, METH_O, "Sets the fadesition factor."},
+{"play", (PyCFunction)PVMorph_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVMorph_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVMorphType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVMorph_base",                                   /*tp_name*/
+sizeof(PVMorph),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVMorph_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVMorph objects. Cross-synthesis.",           /* tp_doc */
+(traverseproc)PVMorph_traverse,                  /* tp_traverse */
+(inquiry)PVMorph_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVMorph_methods,                                 /* tp_methods */
+PVMorph_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVMorph_new,                                     /* tp_new */
+};

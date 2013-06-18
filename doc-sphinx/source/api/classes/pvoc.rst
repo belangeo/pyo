@@ -19,6 +19,12 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVSynth
    :members:
 
+*PVAddSynth*
+-----------------------------------
+
+.. autoclass:: PVAddSynth
+   :members:
+
 *PVTranspose*
 -----------------------------------
 
@@ -35,5 +41,23 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 -----------------------------------
 
 .. autoclass:: PVGate
+   :members:
+
+*PVCross*
+-----------------------------------
+
+.. autoclass:: PVCross
+   :members:
+
+*PVMult*
+-----------------------------------
+
+.. autoclass:: PVMult
+   :members:
+
+*PVMorph*
+-----------------------------------
+
+.. autoclass:: PVMorph
    :members:
 

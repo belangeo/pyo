@@ -697,3 +697,336 @@ class PVGate(PyoPVObject):
         return self._damp
     @damp.setter
     def damp(self, x): self.setDamp(x)
+
+class PVCross(PyoPVObject):
+    """
+    Performs cross-synthesis between two phase vocoder streaming object.
+    
+    The amplitudes from `input` and `input2` (scaled by `fade` argument)
+    are applied to the frequencies of `input`.
+
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process. Frequencies from
+            this pv stream are used to compute the output signal.
+        input2 : PyoPVObject
+            Phase vocoder streaming object which gives the second set of
+            magnitudes. Frequencies from this pv stream are not used.
+        fade : float or PyoObject, optional
+            Scaling factor for the output amplitudes, between 0 and 1. 
+            0 means amplitudes from `input` and 1 means amplitudes from `input2`. 
+            Defaults to 1.
+
+    .. note::
+        
+        The two input pv stream must have the same size and overlaps. It is
+        the responsibility of the user to be sure they are consistent. To change
+        the size (or the overlaps) of the phase vocoder process, one must
+        write a function to change both at the same time (see the example below).
+        Another possibility is to use channel expansion to analyse both sounds
+        with the same PVAnal object.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SineLoop(freq=[80,81], feedback=0.07, mul=.5)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> pva = PVAnal(sf)
+    >>> pva2 = PVAnal(sf2)
+    >>> pvc = PVCross(pva, pva2, fade=1)
+    >>> pvs = PVSynth(pvc).out()
+    >>> def size(x):
+    ...     pva.size = x
+    ...     pva2.size = x
+    >>> def olaps(x):
+    ...     pva.overlaps = x
+    ...     pva2.overlaps = x
+
+    """
+    def __init__(self, input, input2, fade=1):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        self._fade = fade
+        input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
+        self._base_objs = [PVCross_base(wrap(input,i), wrap(input2,i), wrap(fade,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInput2(self, x):
+        """
+        Replace the `input2` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input2 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFade(self, x):
+        """
+        Replace the `fade` attribute.
+        
+        :Args:
+
+            x : int
+                new `fade` attribute.
+        
+        """
+        self._fade = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFade(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 1, "lin", "fade", self._fade)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoPVObject. Second set of amplitudes.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)
+
+    @property
+    def fade(self):
+        """float or PyoObject. Scaling factor."""
+        return self._fade
+    @fade.setter
+    def fade(self, x): self.setFade(x)
+
+class PVMult(PyoPVObject):
+    """
+    Multiply magnitudes from two phase vocoder streaming object.
+
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process. Frequencies from
+            this pv stream are used to compute the output signal.
+        input2 : PyoPVObject
+            Phase vocoder streaming object which gives the second set of
+            magnitudes. Frequencies from this pv stream are not used.
+
+    .. note::
+        
+        The two input pv stream must have the same size and overlaps. It is
+        the responsibility of the user to be sure they are consistent. To change
+        the size (or the overlaps) of the phase vocoder process, one must
+        write a function to change both at the same time (see the example below).
+        Another possibility is to use channel expansion to analyse both sounds
+        with the same PVAnal object.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = FM(carrier=[100,150], ratio=[.999,.5005], index=20, mul=.4)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> pva = PVAnal(sf)
+    >>> pva2 = PVAnal(sf2)
+    >>> pvc = PVMult(pva, pva2)
+    >>> pvs = PVSynth(pvc).out()
+    >>> def size(x):
+    ...     pva.size = x
+    ...     pva2.size = x
+    >>> def olaps(x):
+    ...     pva.overlaps = x
+    ...     pva2.overlaps = x
+
+    """
+    def __init__(self, input, input2):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        input, input2, lmax = convertArgsToLists(self._input, self._input2)
+        self._base_objs = [PVMult_base(wrap(input,i), wrap(input2,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInput2(self, x):
+        """
+        Replace the `input2` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input2 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoPVObject. Second set of magnitudes.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)
+
+class PVMorph(PyoPVObject):
+    """
+    Performs spectral morphing between two phase vocoder streaming object.
+    
+    According to `fade` argument, the amplitudes from `input` and `input2` 
+    are interpolated linearly while the frequencies are interpolated
+    exponentially.
+
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object which gives the first set of
+            magnitudes and frequencies.
+        input2 : PyoPVObject
+            Phase vocoder streaming object which gives the second set of
+            magnitudes and frequencies.
+        fade : float or PyoObject, optional
+            Scaling factor for the output amplitudes and frequencies, 
+            between 0 and 1. 0 is `input` and 1 in `input2`. Defaults to 0.5.
+
+    .. note::
+        
+        The two input pv stream must have the same size and overlaps. It is
+        the responsibility of the user to be sure they are consistent. To change
+        the size (or the overlaps) of the phase vocoder process, one must
+        write a function to change both at the same time (see the example below).
+        Another possibility is to use channel expansion to analyse both sounds
+        with the same PVAnal object.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SineLoop(freq=[100,101], feedback=0.12, mul=.5)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> pva = PVAnal(sf)
+    >>> pva2 = PVAnal(sf2)
+    >>> pvc = PVMorph(pva, pva2, fade=0.5)
+    >>> pvs = PVSynth(pvc).out()
+    >>> def size(x):
+    ...     pva.size = x
+    ...     pva2.size = x
+    >>> def olaps(x):
+    ...     pva.overlaps = x
+    ...     pva2.overlaps = x
+
+    """
+    def __init__(self, input, input2, fade=0.5):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        self._fade = fade
+        input, input2, fade, lmax = convertArgsToLists(self._input, self._input2, fade)
+        self._base_objs = [PVMorph_base(wrap(input,i), wrap(input2,i), wrap(fade,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInput2(self, x):
+        """
+        Replace the `input2` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input2 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFade(self, x):
+        """
+        Replace the `fade` attribute.
+        
+        :Args:
+
+            x : int
+                new `fade` attribute.
+        
+        """
+        self._fade = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFade(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 1, "lin", "fade", self._fade)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. First input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoPVObject. Second input signal.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)
+
+    @property
+    def fade(self):
+        """float or PyoObject. Scaling factor."""
+        return self._fade
+    @fade.setter
+    def fade(self, x): self.setFade(x)
