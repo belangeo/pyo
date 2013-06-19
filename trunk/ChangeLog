@@ -1,3 +1,8 @@
+2013-06-19 belangeo <belangeo@gmail.com>
+
+    * Added graph() method to DataTable object. Opens a multisliders window to edit the table content. 
+    - rev 1120
+
 2013-06-18 belangeo <belangeo@gmail.com>
 
     * Added new object: PVFilter. Spectral filtering.
