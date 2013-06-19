@@ -19,7 +19,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from _core import *
 from _maps import *
-from _widgets import createGraphWindow, createSndViewTableWindow
+from _widgets import createGraphWindow, createDataGraphWindow, createSndViewTableWindow
 from types import ListType
 from math import pi
 
@@ -1902,6 +1902,31 @@ class DataTable(PyoTableObject):
 
         """
         return self._base_objs[0].getRate()
+
+    def graph(self, yrange=(0.0, 1.0), title=None, wxnoserver=False):
+        """
+        Opens a multislider window to control the data values.
+
+        When editing the grapher with the mouse, the new values are
+        sent to the object to replace the table content. 
+
+        :Args:
+
+            yrange : tuple, optional
+                Set the min and max values of the Y axis of the multislider.
+                Defaults to (0.0, 1.0).
+            title : string, optional
+                Title of the window. If none is provided, the name of the 
+                class is used.
+            wxnoserver : boolean, optional
+                With wxPython graphical toolkit, if True, tells the 
+                interpreter that there will be no server window.
+                
+        If `wxnoserver` is set to True, the interpreter will not wait for 
+        the server GUI before showing the controller window. 
+
+        """
+        createDataGraphWindow(self, yrange, title, wxnoserver)
 
     @property
     def size(self):

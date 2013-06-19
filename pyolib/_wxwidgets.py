@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import wx, os, sys, math, time
+import wx, os, sys, math, time, random
 from types import ListType, FloatType, IntType
 from wx.lib.embeddedimage import PyEmbeddedImage
 
@@ -1555,7 +1555,7 @@ class SpectrumPanel(wx.Panel):
             for i, samples in enumerate(self.img):
                 gc.SetPen(self.pens[i])  
                 gc.SetBrush(self.brushes[i])
-                gc.DrawLines(samples)
+                gc.DrawLines(samples, fillstyle=wx.WINDING_RULE)
 
 ######################################################################
 ## Grapher window for PyoTableObject control
@@ -1866,7 +1866,7 @@ class Grapher(wx.Panel):
         w,h = self.GetSize()
         corners = [(OFF,OFF),(w-OFF,OFF),(w-OFF,h-OFF),(OFF,h-OFF)]
         dc = wx.AutoBufferedPaintDC(self)
-        if sys.platform != "win32":
+        if sys.platform == "darwin":
             font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
         else:
             font, ptsize = dc.GetFont(), 10
@@ -2072,6 +2072,130 @@ class TableGrapher(wx.Frame):
     def reset(self, evt):
         self.graph.reset()
 
+class DataMultiSlider(wx.Panel):
+    def __init__(self, parent, init, yrange=(0,1), outFunction=None): 
+        wx.Panel.__init__(self, parent, size=(250,250), style=wx.SUNKEN_BORDER)
+        self.backgroundColour = BACKGROUND_COLOUR
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)  
+        self.SetBackgroundColour(self.backgroundColour)
+        self.Bind(wx.EVT_SIZE, self.OnResize)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.MouseUp)
+        self.Bind(wx.EVT_MOTION, self.MouseMotion)
+        self.values = init
+        self.len = len(self.values)
+        self.yrange = yrange
+        self.outFunction = outFunction
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
+
+    def OnResize(self, event):
+        self.Layout()
+        self.Refresh()
+        
+    def OnPaint(self, event):
+        w,h = self.GetSize()
+        dc = self.dcref(self)
+        gc = wx.GraphicsContext_Create(dc)
+        dc.SetBrush(wx.Brush("#FFFFFF"))
+        dc.SetPen(wx.Pen("#FFFFFF"))
+        dc.Clear()
+        dc.DrawRectangle(0,0,w,h)
+        gc.SetBrush(wx.Brush("#000000"))
+        gc.SetPen(wx.Pen("#000000"))
+        scl = self.yrange[1] - self.yrange[0]
+        mini = self.yrange[0]
+        bw = float(w) / self.len
+        points = [(0,h)]
+        x = 0
+        if bw >= 1:
+            for i in range(self.len):
+                y = h - ((self.values[i] - mini) / scl * h)
+                points.append((x,y))
+                x = (i+1) * bw
+                points.append((x,y))
+        else:
+            slice = 1 / bw
+            p1 = 0
+            for i in range(w):
+                p2 = int((i+1) * slice)
+                y = h - ((max(self.values[p1:p2]) - mini) / scl * h)
+                points.append((i,y))
+                p1 = p2
+        points.append((w,y))
+        points.append((w,h))
+        gc.DrawLines(points)
+        if self.outFunction != None:
+            self.outFunction(self.values)
+
+    def MouseDown(self, evt):
+        w,h = self.GetSize()
+        self.lastpos = pos = evt.GetPosition()
+        self.CaptureMouse()
+        scl = self.yrange[1] - self.yrange[0]
+        mini = self.yrange[0]
+        bw = float(w) / self.len
+        x = int(pos[0] / bw)
+        y = (h - pos[1]) / float(h) * scl + mini
+        self.values[x] = y
+        self.Refresh()
+        evt.Skip()
+
+    def MouseUp(self, evt):
+        if self.HasCapture():
+            self.ReleaseMouse()
+
+    def MouseMotion(self, evt):
+        w,h = self.GetSize()
+        pos = evt.GetPosition()
+        if pos[0] < 0:
+            pos[0] = 0
+        elif pos[0] > w:
+            pos[0] = w
+        if pos[1] < 0:
+            pos[1] = 0
+        elif pos[1] > h:
+            pos[1] = h
+        if self.HasCapture() and evt.Dragging() and evt.LeftIsDown():
+            scl = self.yrange[1] - self.yrange[0]
+            mini = self.yrange[0]
+            bw = float(w) / self.len
+            x1 = int(self.lastpos[0] / bw)
+            y1 = (h - self.lastpos[1]) / float(h) * scl + mini
+            x2 = int(pos[0] / bw)
+            y2 = (h - pos[1]) / float(h) * scl + mini
+            step = abs(x2 - x1)
+            if step > 1:
+                inc = (y2 - y1) / step
+                if x2 > x1:
+                    for i in range(0, step): 
+                        self.values[x1+i] = y1 + inc * i
+                else:
+                    for i in range(1, step): 
+                        self.values[x1-i] = y1 + inc * i
+            if x2 >= 0 and x2 < self.len:
+                self.values[x2] = y2                    
+            self.lastpos = pos
+            self.Refresh()
+
+class DataTableGrapher(wx.Frame):
+    def __init__(self, parent=None, obj=None, yrange=(0.0, 1.0)):
+        wx.Frame.__init__(self, parent, size=(500,250))
+        self.obj = obj
+        self.multi = DataMultiSlider(self, self.obj.getTable(), yrange, outFunction=self.obj.replace)
+        self.menubar = wx.MenuBar()        
+        self.fileMenu = wx.Menu()
+        self.fileMenu.Append(9999, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
+        self.Bind(wx.EVT_MENU, self.close, id=9999)
+        self.menubar.Append(self.fileMenu, "&File")
+        self.SetMenuBar(self.menubar)
+
+    def close(self, evt):
+        self.Destroy()
+
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
                 recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
@@ -2252,8 +2376,8 @@ if __name__ == "__main__":
     def pprint(values):
         print values
 
-    app = wx.PySimpleApp()
-    f = wx.Frame(None, title="test frame", size=(525,275))
-    graph = Grapher(f, xlen=8192, yrange=(0.0, 1.0), init=[(0,0),(.5,1),(1,0)], outFunction=pprint)
+    app = wx.App(False)
+    values = [random.uniform(10, 25) for i in range(10)]
+    f = DataTableGrapher(init=values, yrange=(2, 50))
     f.Show()
     app.MainLoop()

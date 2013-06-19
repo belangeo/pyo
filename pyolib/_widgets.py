@@ -55,6 +55,7 @@ X, Y, CURRENT_X, MAX_X, NEXT_Y = 800, 700, 30, 30, 30
 WINDOWS = []
 CTRLWINDOWS = []
 GRAPHWINDOWS = []
+DATAGRAPHWINDOWS = []
 TABLEWINDOWS = []
 SNDTABLEWINDOWS = []
 MATRIXWINDOWS = []
@@ -130,6 +131,13 @@ def wxCreateDelayedGraphWindows():
         else: title = win[4]
         wxDisplayWindow(f, title)
 
+def wxCreateDelayedDataGraphWindows():
+    for win in DATAGRAPHWINDOWS:
+        f = DataTableGrapher(None, win[0], win[1])
+        if win[2] == None: title = win[0].__class__.__name__
+        else: title = win[2]
+        wxDisplayWindow(f, title)
+
 def wxCreateDelayedTableWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in TABLEWINDOWS:
@@ -195,6 +203,18 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
             wxShowWindow(f, title, root)
         else:
             GRAPHWINDOWS.append([obj, mode, xlen, yrange, title])   
+
+def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
+    if not PYO_USE_WX:
+        print "WxPython must be installed to use the 'graph()' method."
+    else:
+        if wxnoserver or wx.GetApp() != None:
+            root = createRootWindow()
+            f = DataTableGrapher(None, obj, yrange)
+            if title == None: title = obj.__class__.__name__
+            wxShowWindow(f, title, root)
+        else:
+            DATAGRAPHWINDOWS.append([obj, yrange, title])   
         
 def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tableclass=None, object=None):
     if not PYO_USE_WX:
@@ -290,6 +310,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
             MAX_X, NEXT_Y = f.GetSize()[0]+30, f.GetSize()[1]+30
         wx.CallAfter(wxCreateDelayedTableWindows)
         wx.CallAfter(wxCreateDelayedGraphWindows)
+        wx.CallAfter(wxCreateDelayedDataGraphWindows)
         wx.CallAfter(wxCreateDelayedSndTableWindows)
         wx.CallAfter(wxCreateDelayedMatrixWindows)
         wx.CallAfter(wxCreateDelayedCtrlWindows)
