@@ -296,6 +296,18 @@ class Server(object):
         self._verbosity = x
         self._server.setVerbosity(x)
 
+    def setJackAuto(self, x):
+        """
+        Tells the server to auto-connect (or not) Jack ports.
+        
+        :Args:
+
+            x : boolean
+                Auto-connection switch. True is enabled (default) and False is disabled.
+
+        """        
+        self._server.setJackAuto(x)
+
     def setGlobalSeed(self, x):
         """
         Set the server's global seed used by random objects.
