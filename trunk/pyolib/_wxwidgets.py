@@ -1555,7 +1555,7 @@ class SpectrumPanel(wx.Panel):
             for i, samples in enumerate(self.img):
                 gc.SetPen(self.pens[i])  
                 gc.SetBrush(self.brushes[i])
-                gc.DrawLines(samples, fillstyle=wx.WINDING_RULE)
+                gc.DrawLines(samples)
 
 ######################################################################
 ## Grapher window for PyoTableObject control
