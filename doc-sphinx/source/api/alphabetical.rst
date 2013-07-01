@@ -132,6 +132,18 @@ Alphabetical class reference
 - :py:class:`OscSend` :     Sends values over a network via the Open Sound Control protocol.
 - :py:class:`OscTrig` :     An oscillator reading a waveform table with sample accurate reset signal.
 - :py:class:`Osc` :     A simple oscillator reading a waveform table.
+- :py:class:`PVAddSynth` :     Phase Vocoder additive synthesis object.
+- :py:class:`PVAnal` :     Phase Vocoder analysis object.
+- :py:class:`PVBuffer` :     Phase vocoder buffer and playback with transposition.
+- :py:class:`PVCross` :     Performs cross-synthesis between two phase vocoder streaming object.
+- :py:class:`PVDelay` :     Spectral delays.
+- :py:class:`PVFilter` :     Spectral filter.
+- :py:class:`PVGate` :     Spectral gate.
+- :py:class:`PVMorph` :     Performs spectral morphing between two phase vocoder streaming object.
+- :py:class:`PVMult` :     Multiply magnitudes from two phase vocoder streaming object.
+- :py:class:`PVSynth` :     Phase Vocoder synthesis object.
+- :py:class:`PVTranspose` :     Transpose the frequency components of a pv stream.
+- :py:class:`PVVerb` :     Spectral domain reverberation.
 - :py:class:`Pan` :     Cosinus panner with control on the spread factor.
 - :py:class:`ParaTable` :     Generates parabola window function. 
 - :py:class:`Pattern` :     Periodically calls a Python function.

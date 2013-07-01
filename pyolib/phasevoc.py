@@ -1136,3 +1136,234 @@ class PVFilter(PyoPVObject):
         return self._gain
     @gain.setter
     def gain(self, x): self.setGain(x)
+
+class PVDelay(PyoPVObject):
+    """
+    Spectral delays.
+    
+    PVDelay applies different delay times and feedbacks for
+    each bin of a phase vocoder analysis. Delay times and 
+    feedbacks are specified with PyoTableObjects.
+    
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        deltable : PyoTableObject
+            Table containing delay times, as integer multipliers
+            of the FFT hopsize (fftsize / overlaps). 
+            
+            If the table length is smaller than fftsize/2,
+            remaining bins will be set to 0.
+        feedtable : PyoTableObject
+            Table containing feedback values, between -1 and 1. 
+            
+            If the table length is smaller than fftsize/2,
+            remaining bins will be set to 0.
+        maxdelay : float, optional
+            Maximum delay time in seconds. Available at initialization 
+            time only. Defaults to 1.0.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> SIZE = 1024
+    >>> SIZE2 = SIZE / 2
+    >>> OLAPS = 4
+    >>> MAXDEL = 2.0 # two seconds delay memories
+    >>> FRAMES = int(MAXDEL * s.getSamplingRate() / (SIZE / OLAPS))
+    >>> # Edit tables with the graph() method. yrange=(0, FRAMES) for delays table
+    >>> dt = DataTable(size=SIZE2, init=[i / float(SIZE2) * FRAMES for i in range(SIZE2)])
+    >>> ft = DataTable(size=SIZE2, init=[0.5]*SIZE2)
+    >>> src = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.5)
+    >>> pva = PVAnal(src, size=SIZE, overlaps=OLAPS)
+    >>> pvd = PVDelay(pva, dt, ft, maxdelay=MAXDEL)
+    >>> pvs = PVSynth(pvd).out()
+
+    """
+    def __init__(self, input, deltable, feedtable, maxdelay=1.0):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._deltable = deltable
+        self._feedtable = feedtable
+        self._maxdelay = maxdelay
+        input, deltable, feedtable, maxdelay, lmax = convertArgsToLists(self._input, deltable, feedtable, maxdelay)
+        self._base_objs = [PVDelay_base(wrap(input,i), wrap(deltable,i), wrap(feedtable,i), wrap(maxdelay,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDeltable(self, x):
+        """
+        Replace the `deltable` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `deltable` attribute.
+        
+        """
+        self._deltable = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDeltable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setFeedtable(self, x):
+        """
+        Replace the `feedtable` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `feedtable` attribute.
+        
+        """
+        self._feedtable = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFeedtable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def deltable(self):
+        """PyoTableObject. Table containing the delay times.""" 
+        return self._deltable
+    @deltable.setter
+    def deltable(self, x): self.setDeltable(x)
+
+    @property
+    def feedtable(self):
+        """PyoTableObject. Table containing feedback values."""
+        return self._feedtable
+    @feedtable.setter
+    def feedtable(self, x): self.setFeedtable(x)
+
+class PVBuffer(PyoPVObject):
+    """
+    Phase vocoder buffer and playback with transposition.
+    
+    PVBuffer keeps `length` seconds of pv analysis in memory
+    and gives control on playback position and transposition.
+    
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        index : PyoObject
+            Playback position, as audio stream, normalized 
+            between 0 and 1. 
+        pitch : float or PyoObject, optional
+            Transposition factor. Defaults to 1.
+        length : float, optional
+            Memory length in seconds. Available at initialization 
+            time only. Defaults to 1.0.
+
+    .. note::
+        
+        The play() method can be called to start a new recording of 
+        the current pv input.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> f = SNDS_PATH+'/transparent.aif'
+    >>> f_len = sndinfo(f)[1]
+    >>> src = SfPlayer(f, mul=0.5)
+    >>> index = Phasor(freq=1.0/f_len*0.25, phase=0.9)
+    >>> pva = PVAnal(src, size=1024, overlaps=8)
+    >>> pvb = PVBuffer(pva, index, pitch=1.25, length=f_len)
+    >>> pvs = PVSynth(pvb).out()
+
+    """
+    def __init__(self, input, index, pitch=1.0, length=1.0):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._index = index
+        self._pitch = pitch
+        self._length = length
+        input, index, pitch, length, lmax = convertArgsToLists(self._input, index, pitch, length)
+        self._base_objs = [PVBuffer_base(wrap(input,i), wrap(index,i), wrap(pitch,i), wrap(length,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                new `index` attribute.
+        
+        """
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setPitch(self, x):
+        """
+        Replace the `pitch` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `pitch` attribute.
+        
+        """
+        self._pitch = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setPitch(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.25, 4, "lin", "pitch", self._pitch)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def index(self):
+        """PyoObject. Reader's normalized position.""" 
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)
+
+    @property
+    def pitch(self):
+        """float or PyoObject. Transposition factor."""
+        return self._pitch
+    @pitch.setter
+    def pitch(self, x): self.setPitch(x)

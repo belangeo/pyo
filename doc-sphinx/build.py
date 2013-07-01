@@ -42,7 +42,7 @@ for key in ['Server', 'Stream', 'TableStream', 'PyoObjectBase', 'Map']:
             lines.append(format % (obj, getDocFirstLine(obj)))
     else:
         if key == 'Map': key2list = ['SLMap']
-        else: key2list = ['PyoMatrixObject', 'PyoTableObject', 'PyoObject']
+        else: key2list = ['PyoMatrixObject', 'PyoTableObject', 'PyoObject', 'PyoPVObject']
         for key2 in key2list:
             if type(OBJECTS_TREE[key][key2]) == ListType:
                 for obj in OBJECTS_TREE[key][key2]:

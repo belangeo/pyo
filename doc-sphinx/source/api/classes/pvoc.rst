@@ -67,3 +67,14 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 .. autoclass:: PVFilter
    :members:
 
+*PVDelay*
+-----------------------------------
+
+.. autoclass:: PVDelay
+   :members:
+
+*PVBuffer*
+-----------------------------------
+
+.. autoclass:: PVBuffer
+   :members:

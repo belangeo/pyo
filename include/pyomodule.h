@@ -63,6 +63,7 @@
 #define TYPE_OO_FI "OO|fi"
 #define TYPE_OO_IF "OO|if"
 #define TYPE_OOO_F "OOO|f"
+#define TYPE_OO_OF "OO|Of"
 #define TYPE_OOO_FFFFII "OOO|ffffii"
 #define TYPE_O_FFFFII "O|ffffii"
 #define TYPE_F_O "f|O"
@@ -140,6 +141,7 @@
 #define TYPE_OO_FI "OO|di"
 #define TYPE_OO_IF "OO|id"
 #define TYPE_OOO_F "OOO|d"
+#define TYPE_OO_OF "OO|Od"
 #define TYPE_OOO_FFFFII "OOO|ddddii"
 #define TYPE_O_FFFFII "O|ddddii"
 #define TYPE_F_O "d|O"
@@ -439,6 +441,8 @@ extern PyTypeObject PVCrossType;
 extern PyTypeObject PVMultType;
 extern PyTypeObject PVMorphType;
 extern PyTypeObject PVFilterType;
+extern PyTypeObject PVDelayType;
+extern PyTypeObject PVBufferType;
 
 /* Constants */
 #define E M_E
