@@ -1,3 +1,13 @@
+2013-07-10 belangeo <belangeo@gmail.com>
+
+    * Added new objects: PVShift, spectral frequency shifter. PVAmpMod and PVFreqMod, frequency independent modulations. 
+    - rev 1124
+
+2013-07-01 belangeo <belangeo@gmail.com>
+
+    * Added new objects: PVDelay, spectral delays and PVBuffer, phase vocoder recorder and playback. 
+    - rev 1123
+
 2013-06-19 belangeo <belangeo@gmail.com>
 
     * Added graph() method to DataTable object. Opens a multisliders window to edit the table content. 

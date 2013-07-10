@@ -1367,3 +1367,346 @@ class PVBuffer(PyoPVObject):
         return self._pitch
     @pitch.setter
     def pitch(self, x): self.setPitch(x)
+
+class PVShift(PyoPVObject):
+    """
+    Spectral domain frequency shifter.
+    
+    PVShift linearly moves the analysis bins by the amount, in Hertz,
+    specified by the the `shift` argument. 
+    
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        shift : float or PyoObject, optional
+            Frequency shift factor. Defaults to 0.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.7)
+    >>> pva = PVAnal(sf, size=1024)
+    >>> pvt = PVShift(pva, shift=500)
+    >>> pvs = PVSynth(pvt).out()
+
+    """
+    def __init__(self, input, shift=0):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._shift = shift
+        input, shift, lmax = convertArgsToLists(self._input, shift)
+        self._base_objs = [PVShift_base(wrap(input,i), wrap(shift,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setShift(self, x):
+        """
+        Replace the `shift` attribute.
+        
+        :Args:
+
+            x : int
+                new `shift` attribute.
+        
+        """
+        self._shift = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setShift(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-5000, 5000, "lin", "shift", self._shift)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def shift(self):
+        """float or PyoObject. Frequency shift factor."""
+        return self._shift
+    @shift.setter
+    def shift(self, x): self.setShift(x)
+
+class PVAmpMod(PyoPVObject):
+    """
+    Performs frequency independent amplitude modulations.
+    
+    PVAmpMod modulates the magnitude of each bin of a pv 
+    stream with an independent oscillator. `basefreq` and 
+    `spread` are used to derive the frequency of each 
+    modulating oscillator.
+    
+    Internally, the following operations are applied to
+    derive oscillator frequencies (`i` is the bin number):
+        
+        spread = spread * 0.001 + 1.0
+
+        f_i = basefreq * pow(spread, i)
+
+    :Parent: :py:class:`PyoPVObject`
+
+    :Args:
+
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        basefreq : float or PyoObject, optional
+            Base modulation frequency, in Hertz. 
+            Defaults to 1.
+        spread : float or PyoObject, optional
+            Spreading factor for oscillator frequencies, between
+            -1 and 1. 0 means every oscillator has the same frequency.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> src = PinkNoise(.3)
+    >>> pva = PVAnal(src, size=1024, overlaps=4)
+    >>> pvm = PVAmpMod(pva, basefreq=4, spread=0.5)
+    >>> pvs = PVSynth(pvm).out()
+
+    """
+    def __init__(self, input, basefreq=1, spread=0):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._basefreq = basefreq
+        self._spread = spread
+        input, basefreq, spread, lmax = convertArgsToLists(self._input, basefreq, spread)
+        self._base_objs = [PVAmpMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setBasefreq(self, x):
+        """
+        Replace the `basefreq` attribute.
+        
+        :Args:
+
+            x : int
+                new `basefreq` attribute.
+        
+        """
+        self._basefreq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBasefreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSpread(self, x):
+        """
+        Replace the `spread` attribute.
+        
+        :Args:
+
+            x : int
+                new `spread` attribute.
+        
+        """
+        self._spread = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets modulation pointers to 0.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+        
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.1, 20, "log", "basefreq", self._basefreq),
+                          SLMap(-1, 1, "lin", "spread", self._spread)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def basefreq(self):
+        """float or PyoObject. Modulator's base frequency."""
+        return self._basefreq
+    @basefreq.setter
+    def basefreq(self, x): self.setBasefreq(x)
+    
+    @property
+    def spread(self):
+        """float or PyoObject. Modulator's frequency spreading factor."""
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+class PVFreqMod(PyoPVObject):
+    """
+    Performs frequency independent frequency modulations.
+    
+    PVFreqMod modulates the frequency of each bin of a pv 
+    stream with an independent oscillator. `basefreq` and 
+    `spread` are used to derive the frequency of each 
+    modulating oscillator.
+    
+    Internally, the following operations are applied to
+    derive oscillator frequencies (`i` is the bin number):
+        
+        spread = spread * 0.001 + 1.0
+
+        f_i = basefreq * pow(spread, i)
+
+    :Parent: :py:class:`PyoPVObject`
+
+    :Args:
+
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        basefreq : float or PyoObject, optional
+            Base modulation frequency, in Hertz. 
+            Defaults to 1.
+        spread : float or PyoObject, optional
+            Spreading factor for oscillator frequencies, between
+            -1 and 1. 0 means every oscillator has the same frequency.
+        depth : float or PyoObject, optional
+            Amplitude of the modulating oscillators, between 0 and 1. 
+            Defaults to 0.1.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> src = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=0.5)
+    >>> pva = PVAnal(src, size=1024, overlaps=4)
+    >>> pvm = PVFreqMod(pva, basefreq=8, spread=0.75, depth=0.05)
+    >>> pvs = PVSynth(pvm).out()
+
+    """
+    def __init__(self, input, basefreq=1, spread=0, depth=0.1):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._basefreq = basefreq
+        self._spread = spread
+        self._depth = depth
+        input, basefreq, spread, depth, lmax = convertArgsToLists(self._input, basefreq, spread, depth)
+        self._base_objs = [PVFreqMod_base(wrap(input,i), wrap(basefreq,i), wrap(spread,i), wrap(depth,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setBasefreq(self, x):
+        """
+        Replace the `basefreq` attribute.
+        
+        :Args:
+
+            x : int
+                new `basefreq` attribute.
+        
+        """
+        self._basefreq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setBasefreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSpread(self, x):
+        """
+        Replace the `spread` attribute.
+        
+        :Args:
+
+            x : int
+                new `spread` attribute.
+        
+        """
+        self._spread = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpread(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDepth(self, x):
+        """
+        Replace the `depth` attribute.
+        
+        :Args:
+
+            x : int
+                new `depth` attribute.
+        
+        """
+        self._depth = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDepth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Resets modulation pointers to 0.
+
+        """
+        [obj.reset() for obj in self._base_objs]
+        
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.1, 20, "log", "basefreq", self._basefreq),
+                          SLMap(-1, 1, "lin", "spread", self._spread),
+                          SLMap(0, 1, "lin", "depth", self._depth)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def basefreq(self):
+        """float or PyoObject. Modulator's base frequency."""
+        return self._basefreq
+    @basefreq.setter
+    def basefreq(self, x): self.setBasefreq(x)
+    
+    @property
+    def spread(self):
+        """float or PyoObject. Modulator's frequencies spreading factor."""
+        return self._spread
+    @spread.setter
+    def spread(self, x): self.setSpread(x)
+
+    @property
+    def depth(self):
+        """float or PyoObject. Amplitude of the modulators."""
+        return self._depth
+    @depth.setter
+    def depth(self, x): self.setDepth(x)

@@ -78,3 +78,21 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 
 .. autoclass:: PVBuffer
    :members:
+
+*PVShift*
+-----------------------------------
+
+.. autoclass:: PVShift
+   :members:
+       
+*PVAmpMod*
+-----------------------------------
+
+.. autoclass:: PVAmpMod
+   :members:
+       
+*PVFreqMod*
+-----------------------------------
+
+.. autoclass:: PVFreqMod
+   :members:
