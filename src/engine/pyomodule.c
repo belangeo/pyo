@@ -2332,6 +2332,9 @@ init_pyo64(void)
     module_add_object(m, "PVFilter_base", &PVFilterType);
     module_add_object(m, "PVDelay_base", &PVDelayType);
     module_add_object(m, "PVBuffer_base", &PVBufferType);
+    module_add_object(m, "PVShift_base", &PVShiftType);
+    module_add_object(m, "PVAmpMod_base", &PVAmpModType);
+    module_add_object(m, "PVFreqMod_base", &PVFreqModType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

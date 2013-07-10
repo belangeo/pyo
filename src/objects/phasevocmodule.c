@@ -5149,3 +5149,1556 @@ PVBuffer_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 PVBuffer_new,                                     /* tp_new */
 };
+
+/*****************/
+/** PVShift **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PVStream *pv_stream;
+    PyObject *shift;
+    Stream *shift_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+    int modebuffer[1];
+} PVShift;
+
+static void
+PVShift_realloc_memories(PVShift *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVShift_process_i(PVShift *self) {
+    int i, k, index, dev;
+    MYFLT shift, freqPerBin;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    shift = PyFloat_AS_DOUBLE(self->shift);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVShift_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = 0.0;
+                self->freq[self->overcount][k] = 0.0;
+            }
+            freqPerBin = self->sr / self->size;
+            dev = (int)MYFLOOR(shift / freqPerBin);
+            for (k=0; k<self->hsize; k++) {
+                index = k + dev;
+                if (index >= 0 && index < self->hsize) {
+                    self->magn[self->overcount][index] += magn[self->overcount][k];
+                    self->freq[self->overcount][index] = freq[self->overcount][k] + shift;
+                }
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVShift_process_a(PVShift *self) {
+    int i, k, index, dev;
+    MYFLT shift, freqPerBin;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *sh = Stream_getData((Stream *)self->shift_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVShift_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            shift = sh[i];
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = 0.0;
+                self->freq[self->overcount][k] = 0.0;
+            }
+            freqPerBin = self->sr / self->size;
+            dev = (int)MYFLOOR(shift / freqPerBin);
+            for (k=0; k<self->hsize; k++) {
+                index = k + dev;
+                if (index >= 0 && index < self->hsize) {
+                    self->magn[self->overcount][index] += magn[self->overcount][k];
+                    self->freq[self->overcount][index] = freq[self->overcount][k] + shift;
+                }
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVShift_setProcMode(PVShift *self)
+{        
+    int procmode;
+    procmode = self->modebuffer[0];
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVShift_process_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVShift_process_a;
+            break;
+    } 
+}
+
+static void
+PVShift_compute_next_data_frame(PVShift *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVShift_traverse(PVShift *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->shift);    
+    Py_VISIT(self->shift_stream);    
+    return 0;
+}
+
+static int 
+PVShift_clear(PVShift *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->shift);    
+    Py_CLEAR(self->shift_stream);    
+    return 0;
+}
+
+static void
+PVShift_dealloc(PVShift* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->count);
+    PVShift_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *shifttmp;
+    PVShift *self;
+    self = (PVShift *)type->tp_alloc(type, 0);
+
+    self->shift = PyFloat_FromDouble(0);
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVShift_compute_next_data_frame);
+    self->mode_func_ptr = PVShift_setProcMode;
+
+    static char *kwlist[] = {"input", "shift", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &inputtmp, &shifttmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVShift \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (shifttmp) {
+        PyObject_CallMethod((PyObject *)self, "setShift", "O", shifttmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVShift_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVShift_getServer(PVShift* self) { GET_SERVER };
+static PyObject * PVShift_getStream(PVShift* self) { GET_STREAM };
+static PyObject * PVShift_getPVStream(PVShift* self) { GET_PV_STREAM };
+
+static PyObject * PVShift_play(PVShift *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVShift_stop(PVShift *self) { STOP };
+
+static PyObject *
+PVShift_setInput(PVShift *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVShift \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVShift_setShift(PVShift *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->shift);
+	if (isNumber == 1) {
+		self->shift = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->shift = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->shift, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->shift_stream);
+        self->shift_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef PVShift_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVShift, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVShift, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVShift, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVShift, input), 0, "FFT sound object."},
+{"shift", T_OBJECT_EX, offsetof(PVShift, shift), 0, "Frequency shifting factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVShift_methods[] = {
+{"getServer", (PyCFunction)PVShift_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVShift_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVShift_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVShift_setInput, METH_O, "Sets a new input object."},
+{"setShift", (PyCFunction)PVShift_setShift, METH_O, "Sets the frequency shifting factor."},
+{"play", (PyCFunction)PVShift_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVShift_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVShiftType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVShift_base",                                   /*tp_name*/
+sizeof(PVShift),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVShift_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVShift objects. Frequency shifter in the spectral domain.",           /* tp_doc */
+(traverseproc)PVShift_traverse,                  /* tp_traverse */
+(inquiry)PVShift_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVShift_methods,                                 /* tp_methods */
+PVShift_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVShift_new,                                     /* tp_new */
+};
+
+/*****************/
+/** PVAmpMod **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PVStream *pv_stream;
+    PyObject *basefreq;
+    Stream *basefreq_stream;
+    PyObject *spread;
+    Stream *spread_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT factor;
+    MYFLT *table;
+    MYFLT *pointers;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+    int modebuffer[2];
+} PVAmpMod;
+
+static void
+PVAmpMod_realloc_memories(PVAmpMod *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->factor = 8192.0 / (self->sr / self->hopsize);
+    self->pointers = (MYFLT *)realloc(self->pointers, self->hsize * sizeof(MYFLT)); 
+    for (i=0; i<self->hsize; i++)
+        self->pointers[i] = 0.0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVAmpMod_process_ii(PVAmpMod *self) {
+    int i, k;
+    MYFLT bfreq, spread, pos;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    bfreq = PyFloat_AS_DOUBLE(self->basefreq);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    spread *= 0.001;
+    spread += 1.0; 
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVAmpMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                self->magn[self->overcount][k] = magn[self->overcount][k] * self->table[(int)pos];
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVAmpMod_process_ai(PVAmpMod *self) {
+    int i, k;
+    MYFLT bfreq, spread, pos;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *bf = Stream_getData((Stream *)self->basefreq_stream);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    spread *= 0.001;
+    spread += 1.0; 
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVAmpMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            bfreq = bf[i];
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                self->magn[self->overcount][k] = magn[self->overcount][k] * self->table[(int)pos];
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVAmpMod_process_ia(PVAmpMod *self) {
+    int i, k;
+    MYFLT bfreq, spread, pos;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    bfreq = PyFloat_AS_DOUBLE(self->basefreq);
+    MYFLT *sp = Stream_getData((Stream *)self->spread_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVAmpMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            spread = sp[i];
+            spread *= 0.001;
+            spread += 1.0; 
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                self->magn[self->overcount][k] = magn[self->overcount][k] * self->table[(int)pos];
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVAmpMod_process_aa(PVAmpMod *self) {
+    int i, k;
+    MYFLT bfreq, spread, pos;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *bf = Stream_getData((Stream *)self->basefreq_stream);
+    MYFLT *sp = Stream_getData((Stream *)self->spread_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVAmpMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            bfreq = bf[i];
+            spread = sp[i];
+            spread *= 0.001;
+            spread += 1.0; 
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                self->magn[self->overcount][k] = magn[self->overcount][k] * self->table[(int)pos];
+                self->freq[self->overcount][k] = freq[self->overcount][k];
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVAmpMod_setProcMode(PVAmpMod *self)
+{        
+    int procmode;
+    procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVAmpMod_process_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVAmpMod_process_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = PVAmpMod_process_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = PVAmpMod_process_aa;
+            break;
+    } 
+}
+
+static void
+PVAmpMod_compute_next_data_frame(PVAmpMod *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVAmpMod_traverse(PVAmpMod *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->basefreq);    
+    Py_VISIT(self->basefreq_stream);    
+    Py_VISIT(self->spread);    
+    Py_VISIT(self->spread_stream);    
+    return 0;
+}
+
+static int 
+PVAmpMod_clear(PVAmpMod *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->basefreq);    
+    Py_CLEAR(self->basefreq_stream);    
+    Py_CLEAR(self->spread);    
+    Py_CLEAR(self->spread_stream);    
+    return 0;
+}
+
+static void
+PVAmpMod_dealloc(PVAmpMod* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->table);
+    free(self->pointers);
+    free(self->count);
+    PVAmpMod_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *basefreqtmp=NULL, *spreadtmp=NULL;
+    PVAmpMod *self;
+    self = (PVAmpMod *)type->tp_alloc(type, 0);
+
+    self->basefreq = PyFloat_FromDouble(1);
+    self->spread = PyFloat_FromDouble(0);
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVAmpMod_compute_next_data_frame);
+    self->mode_func_ptr = PVAmpMod_setProcMode;
+
+    static char *kwlist[] = {"input", "basefreq", "spread", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &basefreqtmp, &spreadtmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVAmpMod \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (basefreqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setBasefreq", "O", basefreqtmp);
+    }
+
+    if (spreadtmp) {
+        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    self->table = (MYFLT *)realloc(self->table, 8193 * sizeof(MYFLT));
+    for (i=0; i<8192; i++)
+        self->table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0) * 0.5 + 0.5);
+    self->table[8192] = 0.5;
+
+    PVAmpMod_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVAmpMod_getServer(PVAmpMod* self) { GET_SERVER };
+static PyObject * PVAmpMod_getStream(PVAmpMod* self) { GET_STREAM };
+static PyObject * PVAmpMod_getPVStream(PVAmpMod* self) { GET_PV_STREAM };
+
+static PyObject * PVAmpMod_play(PVAmpMod *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVAmpMod_stop(PVAmpMod *self) { STOP };
+
+static PyObject *
+PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVAmpMod \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVAmpMod_setBasefreq(PVAmpMod *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->basefreq);
+	if (isNumber == 1) {
+		self->basefreq = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->basefreq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->basefreq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->basefreq_stream);
+        self->basefreq_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVAmpMod_setSpread(PVAmpMod *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->spread);
+	if (isNumber == 1) {
+		self->spread = PyNumber_Float(tmp);
+        self->modebuffer[1] = 0;
+	}
+	else {
+		self->spread = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->spread_stream);
+        self->spread_stream = (Stream *)streamtmp;
+		self->modebuffer[1] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVAmpMod_reset(PVAmpMod *self) {
+    int i;
+    for (i=0; i<self->hsize; i++)
+        self->pointers[i] = 0.0;
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef PVAmpMod_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVAmpMod, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVAmpMod, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVAmpMod, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVAmpMod, input), 0, "FFT sound object."},
+{"basefreq", T_OBJECT_EX, offsetof(PVAmpMod, basefreq), 0, "Modulator's base frequency."},
+{"spread", T_OBJECT_EX, offsetof(PVAmpMod, spread), 0, "High frequency spreading factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVAmpMod_methods[] = {
+{"getServer", (PyCFunction)PVAmpMod_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVAmpMod_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVAmpMod_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVAmpMod_setInput, METH_O, "Sets a new input object."},
+{"setBasefreq", (PyCFunction)PVAmpMod_setBasefreq, METH_O, "Sets the modulator's base frequency."},
+{"setSpread", (PyCFunction)PVAmpMod_setSpread, METH_O, "Sets the high frequency spreading factor."},
+{"reset", (PyCFunction)PVAmpMod_reset, METH_NOARGS, "Resets pointer positions."},
+{"play", (PyCFunction)PVAmpMod_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVAmpMod_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVAmpModType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVAmpMod_base",                                   /*tp_name*/
+sizeof(PVAmpMod),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVAmpMod_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVAmpMod objects. Frequency independent modulators.",           /* tp_doc */
+(traverseproc)PVAmpMod_traverse,                  /* tp_traverse */
+(inquiry)PVAmpMod_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVAmpMod_methods,                                 /* tp_methods */
+PVAmpMod_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVAmpMod_new,                                     /* tp_new */
+};
+
+/*****************/
+/** PVFreqMod **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PVStream *pv_stream;
+    PyObject *basefreq;
+    Stream *basefreq_stream;
+    PyObject *spread;
+    Stream *spread_stream;
+    PyObject *depth;
+    Stream *depth_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT factor;
+    MYFLT *table;
+    MYFLT *pointers;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+    int modebuffer[3];
+} PVFreqMod;
+
+static void
+PVFreqMod_realloc_memories(PVFreqMod *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->factor = 8192.0 / (self->sr / self->hopsize);
+    self->pointers = (MYFLT *)realloc(self->pointers, self->hsize * sizeof(MYFLT)); 
+    for (i=0; i<self->hsize; i++)
+        self->pointers[i] = 0.0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *));
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVFreqMod_process_ii(PVFreqMod *self) {
+    int i, k, nbin;
+    MYFLT bfreq, spread, pos, nfreq, freqPerBin, depth;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    bfreq = PyFloat_AS_DOUBLE(self->basefreq);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    spread *= 0.001;
+    spread += 1.0; 
+
+    if (self->modebuffer[2] == 0)
+        depth = PyFloat_AS_DOUBLE(self->depth);
+    else
+        depth = Stream_getData((Stream *)self->depth_stream)[0];
+    if (depth < 0)
+        depth = 0.0;
+    else if (depth > 1)
+        depth = 1.0;
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVFreqMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            freqPerBin = self->sr / self->size;
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = self->freq[self->overcount][k] = 0.0;
+            }
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                nfreq = freq[self->overcount][k] * (self->table[(int)pos] * depth + 1.0);
+                nbin = (int)(nfreq / freqPerBin);
+                if (nbin > 0 && nbin < self->hsize) {
+                    self->magn[self->overcount][nbin] += magn[self->overcount][k];
+                    self->freq[self->overcount][nbin] = nfreq;
+                }
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVFreqMod_process_ai(PVFreqMod *self) {
+    int i, k, nbin;
+    MYFLT bfreq, spread, pos, nfreq, freqPerBin, depth;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *bf = Stream_getData((Stream *)self->basefreq_stream);
+    spread = PyFloat_AS_DOUBLE(self->spread);
+    spread *= 0.001;
+    spread += 1.0; 
+
+    if (self->modebuffer[2] == 0)
+        depth = PyFloat_AS_DOUBLE(self->depth);
+    else
+        depth = Stream_getData((Stream *)self->depth_stream)[0];
+    if (depth < 0)
+        depth = 0.0;
+    else if (depth > 1)
+        depth = 1.0;
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVFreqMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            bfreq = bf[i];
+            freqPerBin = self->sr / self->size;
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = self->freq[self->overcount][k] = 0.0;
+            }
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                nfreq = freq[self->overcount][k] * (self->table[(int)pos] * depth + 1.0);
+                nbin = (int)(nfreq / freqPerBin);
+                if (nbin > 0 && nbin < self->hsize) {
+                    self->magn[self->overcount][nbin] += magn[self->overcount][k];
+                    self->freq[self->overcount][nbin] = nfreq;
+                }
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVFreqMod_process_ia(PVFreqMod *self) {
+    int i, k, nbin;
+    MYFLT bfreq, spread, pos, nfreq, freqPerBin, depth;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    bfreq = PyFloat_AS_DOUBLE(self->basefreq);
+    MYFLT *sp = Stream_getData((Stream *)self->spread_stream);
+
+    if (self->modebuffer[2] == 0)
+        depth = PyFloat_AS_DOUBLE(self->depth);
+    else
+        depth = Stream_getData((Stream *)self->depth_stream)[0];
+    if (depth < 0)
+        depth = 0.0;
+    else if (depth > 1)
+        depth = 1.0;
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVFreqMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            spread = sp[i];
+            spread *= 0.001;
+            spread += 1.0; 
+            freqPerBin = self->sr / self->size;
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = self->freq[self->overcount][k] = 0.0;
+            }
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                nfreq = freq[self->overcount][k] * (self->table[(int)pos] * depth + 1.0);
+                nbin = (int)(nfreq / freqPerBin);
+                if (nbin > 0 && nbin < self->hsize) {
+                    self->magn[self->overcount][nbin] += magn[self->overcount][k];
+                    self->freq[self->overcount][nbin] = nfreq;
+                }
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVFreqMod_process_aa(PVFreqMod *self) {
+    int i, k, nbin;
+    MYFLT bfreq, spread, pos, nfreq, freqPerBin, depth;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *bf = Stream_getData((Stream *)self->basefreq_stream);
+    MYFLT *sp = Stream_getData((Stream *)self->spread_stream);
+
+    if (self->modebuffer[2] == 0)
+        depth = PyFloat_AS_DOUBLE(self->depth);
+    else
+        depth = Stream_getData((Stream *)self->depth_stream)[0];
+    if (depth < 0)
+        depth = 0.0;
+    else if (depth > 1)
+        depth = 1.0;
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVFreqMod_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            bfreq = bf[i];
+            spread = sp[i];
+            spread *= 0.001;
+            spread += 1.0; 
+            freqPerBin = self->sr / self->size;
+            for (k=0; k<self->hsize; k++) {
+                self->magn[self->overcount][k] = self->freq[self->overcount][k] = 0.0;
+            }
+            for (k=0; k<self->hsize; k++) {
+                pos = self->pointers[k];
+                nfreq = freq[self->overcount][k] * (self->table[(int)pos] * depth + 1.0);
+                nbin = (int)(nfreq / freqPerBin);
+                if (nbin > 0 && nbin < self->hsize) {
+                    self->magn[self->overcount][nbin] += magn[self->overcount][k];
+                    self->freq[self->overcount][nbin] = nfreq;
+                }
+                pos += bfreq * MYPOW(spread, k) * self->factor;
+                while (pos >= 8192.0)
+                    pos -= 8192.0;
+                while (pos < 0.0)
+                    pos += 8192.0;
+                self->pointers[k] = pos;
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVFreqMod_setProcMode(PVFreqMod *self)
+{        
+    int procmode;
+    procmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = PVFreqMod_process_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = PVFreqMod_process_ai;
+            break;
+        case 10:    
+            self->proc_func_ptr = PVFreqMod_process_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = PVFreqMod_process_aa;
+            break;
+    } 
+}
+
+static void
+PVFreqMod_compute_next_data_frame(PVFreqMod *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVFreqMod_traverse(PVFreqMod *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->basefreq);    
+    Py_VISIT(self->basefreq_stream);    
+    Py_VISIT(self->spread);    
+    Py_VISIT(self->spread_stream);    
+    Py_VISIT(self->depth);    
+    Py_VISIT(self->depth_stream);    
+    return 0;
+}
+
+static int 
+PVFreqMod_clear(PVFreqMod *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->basefreq);    
+    Py_CLEAR(self->basefreq_stream);    
+    Py_CLEAR(self->spread);    
+    Py_CLEAR(self->spread_stream);    
+    Py_CLEAR(self->depth);    
+    Py_CLEAR(self->depth_stream);    
+    return 0;
+}
+
+static void
+PVFreqMod_dealloc(PVFreqMod* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->table);
+    free(self->pointers);
+    free(self->count);
+    PVFreqMod_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *basefreqtmp=NULL, *spreadtmp=NULL, *depthtmp=NULL;
+    PVFreqMod *self;
+    self = (PVFreqMod *)type->tp_alloc(type, 0);
+
+    self->basefreq = PyFloat_FromDouble(1);
+    self->spread = PyFloat_FromDouble(0);
+    self->depth = PyFloat_FromDouble(0.1);
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVFreqMod_compute_next_data_frame);
+    self->mode_func_ptr = PVFreqMod_setProcMode;
+
+    static char *kwlist[] = {"input", "basefreq", "spread", "depth", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOO", kwlist, &inputtmp, &basefreqtmp, &spreadtmp, &depthtmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVFreqMod \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (basefreqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setBasefreq", "O", basefreqtmp);
+    }
+
+    if (spreadtmp) {
+        PyObject_CallMethod((PyObject *)self, "setSpread", "O", spreadtmp);
+    }
+
+    if (depthtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDepth", "O", depthtmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    self->table = (MYFLT *)realloc(self->table, 8193 * sizeof(MYFLT));
+    for (i=0; i<8192; i++)
+        self->table[i] = (MYFLT)(MYSIN(TWOPI * i / 8192.0) * 0.5 + 0.5);
+    self->table[8192] = 0.5;
+
+    PVFreqMod_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVFreqMod_getServer(PVFreqMod* self) { GET_SERVER };
+static PyObject * PVFreqMod_getStream(PVFreqMod* self) { GET_STREAM };
+static PyObject * PVFreqMod_getPVStream(PVFreqMod* self) { GET_PV_STREAM };
+
+static PyObject * PVFreqMod_play(PVFreqMod *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVFreqMod_stop(PVFreqMod *self) { STOP };
+
+static PyObject *
+PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVFreqMod \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVFreqMod_setBasefreq(PVFreqMod *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->basefreq);
+	if (isNumber == 1) {
+		self->basefreq = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->basefreq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->basefreq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->basefreq_stream);
+        self->basefreq_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVFreqMod_setSpread(PVFreqMod *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->spread);
+	if (isNumber == 1) {
+		self->spread = PyNumber_Float(tmp);
+        self->modebuffer[1] = 0;
+	}
+	else {
+		self->spread = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->spread, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->spread_stream);
+        self->spread_stream = (Stream *)streamtmp;
+		self->modebuffer[1] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVFreqMod_setDepth(PVFreqMod *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->depth);
+	if (isNumber == 1) {
+		self->depth = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->depth = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->depth, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->depth_stream);
+        self->depth_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+PVFreqMod_reset(PVFreqMod *self) {
+    int i;
+    for (i=0; i<self->hsize; i++)
+        self->pointers[i] = 0.0;
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef PVFreqMod_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVFreqMod, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVFreqMod, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVFreqMod, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVFreqMod, input), 0, "FFT sound object."},
+{"basefreq", T_OBJECT_EX, offsetof(PVFreqMod, basefreq), 0, "Modulator's base frequency."},
+{"spread", T_OBJECT_EX, offsetof(PVFreqMod, spread), 0, "High frequency spreading factor."},
+{"depth", T_OBJECT_EX, offsetof(PVFreqMod, depth), 0, "Depth of modulators."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVFreqMod_methods[] = {
+{"getServer", (PyCFunction)PVFreqMod_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVFreqMod_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVFreqMod_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVFreqMod_setInput, METH_O, "Sets a new input object."},
+{"setBasefreq", (PyCFunction)PVFreqMod_setBasefreq, METH_O, "Sets the modulator's base frequency."},
+{"setSpread", (PyCFunction)PVFreqMod_setSpread, METH_O, "Sets the high frequency spreading factor."},
+{"setDepth", (PyCFunction)PVFreqMod_setDepth, METH_O, "Sets the modulator's depth."},
+{"reset", (PyCFunction)PVFreqMod_reset, METH_NOARGS, "Resets pointer positions."},
+{"play", (PyCFunction)PVFreqMod_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVFreqMod_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVFreqModType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVFreqMod_base",                                   /*tp_name*/
+sizeof(PVFreqMod),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVFreqMod_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVFreqMod objects. Spectral reverberation.",           /* tp_doc */
+(traverseproc)PVFreqMod_traverse,                  /* tp_traverse */
+(inquiry)PVFreqMod_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVFreqMod_methods,                                 /* tp_methods */
+PVFreqMod_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVFreqMod_new,                                     /* tp_new */
+};

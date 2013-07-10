@@ -443,6 +443,9 @@ extern PyTypeObject PVMorphType;
 extern PyTypeObject PVFilterType;
 extern PyTypeObject PVDelayType;
 extern PyTypeObject PVBufferType;
+extern PyTypeObject PVShiftType;
+extern PyTypeObject PVAmpModType;
+extern PyTypeObject PVFreqModType;
 
 /* Constants */
 #define E M_E
