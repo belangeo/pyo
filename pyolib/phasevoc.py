@@ -224,7 +224,7 @@ class PVSynth(PyoObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -315,7 +315,7 @@ class PVAddSynth(PyoObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -454,7 +454,7 @@ class PVTranspose(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -536,7 +536,7 @@ class PVVerb(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -636,7 +636,7 @@ class PVGate(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -759,7 +759,7 @@ class PVCross(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -773,7 +773,7 @@ class PVCross(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -873,7 +873,7 @@ class PVMult(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -887,7 +887,7 @@ class PVMult(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -970,7 +970,7 @@ class PVMorph(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -984,7 +984,7 @@ class PVMorph(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1076,7 +1076,7 @@ class PVFilter(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1197,7 +1197,7 @@ class PVDelay(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1307,7 +1307,7 @@ class PVBuffer(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1405,7 +1405,7 @@ class PVShift(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1496,7 +1496,7 @@ class PVAmpMod(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1620,7 +1620,7 @@ class PVFreqMod(PyoPVObject):
         
         :Args:
 
-            x : PyoObject
+            x : PyoPVObject
                 New signal to process.
 
         """
@@ -1710,3 +1710,156 @@ class PVFreqMod(PyoPVObject):
         return self._depth
     @depth.setter
     def depth(self, x): self.setDepth(x)
+
+class PVBufLoops(PyoPVObject):
+    """
+    Phase vocoder buffer with bin independent speed playback.
+    
+    PVBufLoops keeps `length` seconds of pv analysis in memory
+    and gives control on playback position independently for 
+    every frequency bin.
+    
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        low : float or PyoObject, optional
+            Lowest bin speed factor. Defaults to 1.0. 
+        high : float or PyoObject, optional
+            Highest bin speed factor. Defaults to 1.0. 
+        mode : int, optional
+            Speed distribution algorithm. Available algorithms are:
+                0. linear, line between `low` and `high` (default)
+                1. exponential, exponential line between `low` and `high`
+                2. logarithmic, logarithmic line between `low` and `high`
+                3. random, uniform random between `low` and `high`
+                4. rand expon min, exponential random from `low` to `high`
+                5. rand expon max, exponential random from `high` to `low`
+                6. rand bi-expon, bipolar exponential random between `low` and `high`
+
+        length : float, optional
+            Memory length in seconds. Available at initialization 
+            time only. Defaults to 1.0.
+
+    .. note::
+        
+        The play() method can be called to start a new recording of 
+        the current pv input.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> f = SNDS_PATH+'/transparent.aif'
+    >>> f_len = sndinfo(f)[1]
+    >>> src = SfPlayer(f, mul=0.5)
+    >>> pva = PVAnal(src, size=1024, overlaps=8)
+    >>> pvb = PVBufLoops(pva, low=0.9, high=1.1, mode=3, length=f_len)
+    >>> pvs = PVSynth(pvb).out()
+
+    """
+    def __init__(self, input, low=1.0, high=1.0, mode=0, length=1.0):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._low = low
+        self._high = high
+        self._mode = mode
+        self._length = length
+        input, low, high, mode, length, lmax = convertArgsToLists(self._input, low, high, mode, length)
+        self._base_objs = [PVBufLoops_base(wrap(input,i), wrap(low,i), wrap(high,i), wrap(mode,i), wrap(length,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoPVObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setLow(self, x):
+        """
+        Replace the `low` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `low` attribute.
+        
+        """
+        self._low = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setLow(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setHigh(self, x):
+        """
+        Replace the `high` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                new `high` attribute.
+        
+        """
+        self._high = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setHigh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMode(self, x):
+        """
+        Replace the `mode` attribute.
+        
+        :Args:
+
+            x : int
+                new `mode` attribute.
+        
+        """
+        self._mode = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset pointer positions to 0.
+        
+        """
+        [obj.reset() for obj in self._base_objs]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(-4, 4, "lin", "low", self._low),
+                          SLMap(-4, 4, "lin", "high", self._high)]
+        PyoPVObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def low(self):
+        """float or PyoObject. Lowest bin speed factor.""" 
+        return self._low
+    @low.setter
+    def low(self, x): self.setLow(x)
+
+    @property
+    def high(self):
+        """float or PyoObject. Highest bin speed factor."""
+        return self._high
+    @high.setter
+    def high(self, x): self.setHigh(x)
+
+    @property
+    def mode(self):
+        """int. Speed distribution algorithm."""
+        return self._mode
+    @mode.setter
+    def mode(self, x): self.setMode(x)

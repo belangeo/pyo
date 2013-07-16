@@ -6702,3 +6702,531 @@ PVFreqMod_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 PVFreqMod_new,                                     /* tp_new */
 };
+
+/*****************/
+/** PVBufLoops **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PVStream *pv_stream;
+    PyObject *low;
+    Stream *low_stream;
+    PyObject *high;
+    Stream *high_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    int mode;
+    MYFLT last_low;
+    MYFLT last_high;
+    int last_mode;
+    MYFLT length;
+    int numFrames;
+    MYFLT OneOnNumFrames;
+    int framecount;
+    MYFLT *speeds;
+    MYFLT *pointers;
+    MYFLT **magn;
+    MYFLT **freq;
+    MYFLT **magn_buf;
+    MYFLT **freq_buf;
+    int *count;
+    int modebuffer[2];
+} PVBufLoops;
+
+static void
+PVBufLoops_realloc_memories(PVBufLoops *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->numFrames = (int)(self->length * self->sr / self->hopsize + 0.5);
+    self->OneOnNumFrames = 1.0 / self->numFrames;
+    self->overcount = 0;
+    self->framecount = 0;
+    self->speeds = (MYFLT *)realloc(self->speeds, self->hsize * sizeof(MYFLT));
+    self->pointers = (MYFLT *)realloc(self->pointers, self->hsize * sizeof(MYFLT));
+    for (i=0; i<self->hsize; i++) {
+        self->speeds[i] = 1.0;
+        self->pointers[i] = 0.0;
+    }
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    self->magn_buf = (MYFLT **)realloc(self->magn_buf, self->numFrames * sizeof(MYFLT *)); 
+    self->freq_buf = (MYFLT **)realloc(self->freq_buf, self->numFrames * sizeof(MYFLT *));
+    for (i=0; i<self->numFrames; i++) {
+        self->magn_buf[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq_buf[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn_buf[i][j] = self->freq_buf[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVBufLoops_setSpeeds(PVBufLoops *self, MYFLT low, MYFLT high) {
+    int i;
+    MYFLT tmp;
+    switch (self->mode) {
+        case 0: /* linear */
+            tmp = (high - low) / self->hsize;
+            for (i=0; i<self->hsize; i++)
+                self->speeds[i] = low + i * tmp;
+            break;
+        case 1: /* exponential */
+            tmp = high - low;
+            for (i=0; i<self->hsize; i++)
+                self->speeds[i] = low + tmp * MYPOW((float)i/self->hsize, 3.0);
+            break;
+        case 2: /* logarithmic */
+            tmp = high - low;
+            for (i=0; i<self->hsize; i++)
+                self->speeds[i] = low + tmp * (1.0 - MYPOW(1.0-(float)i/self->hsize, 3.0));
+            break;
+        case 3: /* random uniform */ 
+            tmp = high - low;
+            for (i=0; i<self->hsize; i++)
+                self->speeds[i] = RANDOM_UNIFORM * tmp + low; 
+            break;
+        case 4: /* random exponential min */ 
+            for (i=0; i<self->hsize; i++) {
+                tmp = -MYLOG(RANDOM_UNIFORM) * 0.05;
+                tmp = tmp < 0 ? 0.0 : tmp;
+                tmp = tmp > 1.0 ? 1.0 : tmp;
+                self->speeds[i] = tmp * (high - low) + low;
+            }
+            break;
+        case 5: /* random exponential max */ 
+            for (i=0; i<self->hsize; i++) {
+                tmp = 1.0 - (-MYLOG(RANDOM_UNIFORM) * 0.05);
+                tmp = tmp < 0 ? 0.0 : tmp;
+                tmp = tmp > 1.0 ? 1.0 : tmp;
+                self->speeds[i] = tmp * (high - low) + low; 
+            }
+            break;
+        case 6: /* random bi-exponential */ 
+            for (i=0; i<self->hsize; i++) {
+                tmp = RANDOM_UNIFORM * 2.0;
+                if (tmp > 1.0)
+                    tmp = 0.5 * (-MYLOG(2.0 - tmp) * 0.05) + 0.5;
+                else
+                    tmp = 0.5 * (MYLOG(tmp) * 0.05) + 0.5;
+                tmp = tmp < 0 ? 0.0 : tmp;
+                tmp = tmp > 1.0 ? 1.0 : tmp;
+                self->speeds[i] = tmp * (high - low) + low; 
+            }
+            break;
+        default: /* linear */
+            tmp = (high - low) / self->hsize;
+            for (i=0; i<self->hsize; i++)
+                self->speeds[i] = low + i * tmp;
+            break;
+    }
+}
+
+static void
+PVBufLoops_process(PVBufLoops *self) {
+    int i, k, frame;
+    MYFLT low, high, pos;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVBufLoops_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            if (self->framecount < self->numFrames) {
+                for (k=0; k<self->hsize; k++) {
+                    self->magn_buf[self->framecount][k] = magn[self->overcount][k];
+                    self->freq_buf[self->framecount][k] = freq[self->overcount][k];
+                    self->magn[self->overcount][k] = 0.0;
+                    self->freq[self->overcount][k] = 0.0;
+                }
+                self->framecount++;
+            }
+            else {
+                if (self->modebuffer[0] == 0)
+                    low = PyFloat_AS_DOUBLE(self->low);
+                else
+                    low = Stream_getData((Stream *)self->low_stream)[i];
+                if (self->modebuffer[1] == 0)
+                    high = PyFloat_AS_DOUBLE(self->high);
+                else
+                    high = Stream_getData((Stream *)self->high_stream)[i];
+
+                if (low != self->last_low || high != self->last_high || self->mode != self->last_mode) {
+                    self->last_low = low;
+                    self->last_high = high;
+                    self->last_mode = self->mode;
+                    PVBufLoops_setSpeeds(self, low, high);
+                }
+                for (k=0; k<self->hsize; k++) {
+                    pos = self->pointers[k];
+                    frame = (int)(pos * (self->numFrames-1));
+                    self->magn[self->overcount][k] = self->magn_buf[frame][k];
+                    self->freq[self->overcount][k] = self->freq_buf[frame][k];
+                    pos += self->OneOnNumFrames * self->speeds[k];
+                    if (pos < 0.0)
+                        pos += 1.0;
+                    else if (pos >= 1.0)
+                        pos -= 1.0;
+                    self->pointers[k] = pos;
+                }
+
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVBufLoops_setProcMode(PVBufLoops *self)
+{        
+    self->proc_func_ptr = PVBufLoops_process;
+}
+
+static void
+PVBufLoops_compute_next_data_frame(PVBufLoops *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVBufLoops_traverse(PVBufLoops *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->pv_stream);
+    Py_VISIT(self->low);
+    Py_VISIT(self->low_stream);
+    Py_VISIT(self->high);
+    Py_VISIT(self->high_stream);
+    return 0;
+}
+
+static int 
+PVBufLoops_clear(PVBufLoops *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->pv_stream);
+    Py_CLEAR(self->low);
+    Py_CLEAR(self->low_stream);
+    Py_CLEAR(self->high);
+    Py_CLEAR(self->high_stream);
+    return 0;
+}
+
+static void
+PVBufLoops_dealloc(PVBufLoops* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    for(i=0; i<self->numFrames; i++) {
+        free(self->magn_buf[i]);
+        free(self->freq_buf[i]);
+    }
+    free(self->magn_buf);
+    free(self->freq_buf);
+    free(self->count);
+    free(self->speeds);
+    free(self->pointers);
+    PVBufLoops_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *lowtmp=NULL, *hightmp=NULL;
+    PVBufLoops *self;
+    self = (PVBufLoops *)type->tp_alloc(type, 0);
+
+    self->low = PyFloat_FromDouble(1.0);
+    self->high = PyFloat_FromDouble(1.0);
+    self->last_low = self->last_high = -1.0;
+    self->mode = 0;
+    self->last_mode = -1;    
+    self->size = 1024;
+    self->olaps = 4;
+    self->length = 1.0;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVBufLoops_compute_next_data_frame);
+    self->mode_func_ptr = PVBufLoops_setProcMode;
+
+    static char *kwlist[] = {"input", "low", "high", "mode", "length", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_OOIF, kwlist, &inputtmp, &lowtmp, &hightmp, &self->mode, &self->length))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVBufLoops \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+
+    if (lowtmp) {
+        PyObject_CallMethod((PyObject *)self, "setLow", "O", lowtmp);
+    }
+
+    if (hightmp) {
+        PyObject_CallMethod((PyObject *)self, "setHigh", "O", hightmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVBufLoops_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVBufLoops_getServer(PVBufLoops* self) { GET_SERVER };
+static PyObject * PVBufLoops_getStream(PVBufLoops* self) { GET_STREAM };
+static PyObject * PVBufLoops_getPVStream(PVBufLoops* self) { GET_PV_STREAM };
+
+static PyObject * PVBufLoops_play(PVBufLoops *self, PyObject *args, PyObject *kwds) { 
+    int k;
+    for (k=0; k<self->hsize; k++)
+        self->pointers[k] = 0.0;
+    self->framecount = 0;
+    PLAY 
+};
+
+static PyObject * PVBufLoops_stop(PVBufLoops *self) { STOP };
+
+static PyObject *
+PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVBufLoops \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVBufLoops_setLow(PVBufLoops *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->low);
+	if (isNumber == 1) {
+		self->low = PyNumber_Float(tmp);
+        self->modebuffer[0] = 0;
+	}
+	else {
+		self->low = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->low, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->low_stream);
+        self->low_stream = (Stream *)streamtmp;
+		self->modebuffer[0] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVBufLoops_setHigh(PVBufLoops *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->high);
+	if (isNumber == 1) {
+		self->high = PyNumber_Float(tmp);
+        self->modebuffer[1] = 0;
+	}
+	else {
+		self->high = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->high, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->high_stream);
+        self->high_stream = (Stream *)streamtmp;
+		self->modebuffer[1] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVBufLoops_setMode(PVBufLoops *self, PyObject *arg)
+{
+    int tmp;
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isInt = PyInt_Check(arg);
+	
+	if (isInt == 1) {
+		tmp = PyInt_AsLong(arg);
+        if (tmp >= 0 && tmp < 7)
+            self->mode = tmp;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVBufLoops_reset(PVBufLoops *self) {
+    int i;
+    for (i=0; i<self->hsize; i++)
+        self->pointers[i] = 0.0;
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyMemberDef PVBufLoops_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVBufLoops, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVBufLoops, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVBufLoops, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVBufLoops, input), 0, "FFT sound object."},
+{"low", T_OBJECT_EX, offsetof(PVBufLoops, low), 0, "Speed of lowest bin."},
+{"high", T_OBJECT_EX, offsetof(PVBufLoops, high), 0, "Speed of highest bin."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVBufLoops_methods[] = {
+{"getServer", (PyCFunction)PVBufLoops_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVBufLoops_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVBufLoops_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVBufLoops_setInput, METH_O, "Sets a new input object."},
+{"setLow", (PyCFunction)PVBufLoops_setLow, METH_O, "Sets a new lowest speed."},
+{"setHigh", (PyCFunction)PVBufLoops_setHigh, METH_O, "Sets a new highest speed."},
+{"setMode", (PyCFunction)PVBufLoops_setMode, METH_O, "Sets a new mode."},
+{"reset", (PyCFunction)PVBufLoops_reset, METH_NOARGS, "Preset pointer positions."},
+{"play", (PyCFunction)PVBufLoops_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVBufLoops_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVBufLoopsType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVBufLoops_base",                                   /*tp_name*/
+sizeof(PVBufLoops),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVBufLoops_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVBufLoops objects. Phase vocoder buffer and playback reader.",           /* tp_doc */
+(traverseproc)PVBufLoops_traverse,                  /* tp_traverse */
+(inquiry)PVBufLoops_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVBufLoops_methods,                                 /* tp_methods */
+PVBufLoops_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVBufLoops_new,                                     /* tp_new */
+};

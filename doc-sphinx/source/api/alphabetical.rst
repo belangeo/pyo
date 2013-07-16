@@ -135,6 +135,7 @@ Alphabetical class reference
 - :py:class:`PVAddSynth` :     Phase Vocoder additive synthesis object.
 - :py:class:`PVAmpMod` :     Performs frequency independent amplitude modulations.
 - :py:class:`PVAnal` :     Phase Vocoder analysis object.
+- :py:class:`PVBufLoops` :     Phase vocoder buffer with bin independent speed playback.
 - :py:class:`PVBuffer` :     Phase vocoder buffer and playback with transposition.
 - :py:class:`PVCross` :     Performs cross-synthesis between two phase vocoder streaming object.
 - :py:class:`PVDelay` :     Spectral delays.

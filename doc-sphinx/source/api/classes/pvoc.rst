@@ -96,3 +96,9 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 
 .. autoclass:: PVFreqMod
    :members:
+       
+*PVBufLoops*
+-----------------------------------
+
+.. autoclass:: PVBufLoops
+   :members:
