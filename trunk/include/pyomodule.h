@@ -73,6 +73,7 @@
 #define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
 #define TYPE_O_IFFO "O|iffO"
+#define TYPE_O_OOIF "O|OOif"
 #define TYPE_O_FFFFIOO "O|ffffiOO"
 #define TYPE_OO_FOO "OO|fOO"
 #define TYPE_OO_FFOO "OO|ffOO"
@@ -151,6 +152,7 @@
 #define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
 #define TYPE_O_IFFO "O|iddO"
+#define TYPE_O_OOIF "O|OOid"
 #define TYPE_O_FFFFIOO "O|ddddiOO"
 #define TYPE_OO_FOO "OO|dOO"
 #define TYPE_OO_FFOO "OO|ddOO"
@@ -446,6 +448,7 @@ extern PyTypeObject PVBufferType;
 extern PyTypeObject PVShiftType;
 extern PyTypeObject PVAmpModType;
 extern PyTypeObject PVFreqModType;
+extern PyTypeObject PVBufLoopsType;
 
 /* Constants */
 #define E M_E

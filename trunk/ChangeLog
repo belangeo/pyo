@@ -1,3 +1,8 @@
+2013-07-16 belangeo <belangeo@gmail.com>
+
+    * Added new object: PVBufLoops, phase vocoder buffer with bin independent speed playback.
+    - rev 1125
+
 2013-07-10 belangeo <belangeo@gmail.com>
 
     * Added new objects: PVShift, spectral frequency shifter. PVAmpMod and PVFreqMod, frequency independent modulations. 
