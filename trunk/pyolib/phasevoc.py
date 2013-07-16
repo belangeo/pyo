@@ -1863,3 +1863,96 @@ class PVBufLoops(PyoPVObject):
         return self._mode
     @mode.setter
     def mode(self, x): self.setMode(x)
+
+class PVBufTabLoops(PyoPVObject):
+    """
+    Phase vocoder buffer with bin independent speed playback.
+    
+    PVBufTabLoops keeps `length` seconds of pv analysis in memory
+    and gives control on playback position, using a PyoTableObject,
+    independently for every frequency bin.
+    
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object to process.
+        speed : PyoTableObject
+            Table which specify the speed of bin playback readers. 
+        length : float, optional
+            Memory length in seconds. Available at initialization 
+            time only. Defaults to 1.0.
+
+    .. note::
+        
+        The play() method can be called to start a new recording of 
+        the current pv input.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> f = SNDS_PATH+'/transparent.aif'
+    >>> f_len = sndinfo(f)[1]
+    >>> src = SfPlayer(f, mul=0.5)
+    >>> spd = ExpTable([(0,1), (512,0.5)], exp=6, size=512)
+    >>> pva = PVAnal(src, size=1024, overlaps=8)
+    >>> pvb = PVBufTabLoops(pva, spd, length=f_len)
+    >>> pvs = PVSynth(pvb).out()
+
+    """
+    def __init__(self, input, speed, length=1.0):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._speed = speed
+        self._length = length
+        input, speed, length, lmax = convertArgsToLists(self._input, speed, length)
+        self._base_objs = [PVBufTabLoops_base(wrap(input,i), wrap(speed,i), wrap(length,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoPVObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSpeed(self, x):
+        """
+        Replace the `speed` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `speed` attribute.
+        
+        """
+        self._speed = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSpeed(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def reset(self):
+        """
+        Reset pointer positions to 0.
+        
+        """
+        [obj.reset() for obj in self._base_objs]
+
+    @property
+    def input(self):
+        """PyoPVObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def speed(self):
+        """PyoTableObject. Table which specify the speed of bin playback readers.""" 
+        return self._speed
+    @speed.setter
+    def speed(self, x): self.setSpeed(x)

@@ -102,3 +102,9 @@ time scaling, pitch transposition, and myriad other modifications of sounds.
 
 .. autoclass:: PVBufLoops
    :members:
+
+*PVBufTabLoops*
+-----------------------------------
+
+.. autoclass:: PVBufTabLoops
+   :members:
