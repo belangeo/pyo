@@ -1,5 +1,10 @@
 2013-07-16 belangeo <belangeo@gmail.com>
 
+    * Added new object: PVBufTabLoops, phase vocoder buffer with bin independent speed playback (controlled with a PyoTableObject).
+    - rev 1126
+
+2013-07-16 belangeo <belangeo@gmail.com>
+
     * Added new object: PVBufLoops, phase vocoder buffer with bin independent speed playback.
     - rev 1125
 

@@ -449,6 +449,7 @@ extern PyTypeObject PVShiftType;
 extern PyTypeObject PVAmpModType;
 extern PyTypeObject PVFreqModType;
 extern PyTypeObject PVBufLoopsType;
+extern PyTypeObject PVBufTabLoopsType;
 
 /* Constants */
 #define E M_E
