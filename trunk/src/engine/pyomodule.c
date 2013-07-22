@@ -2337,6 +2337,7 @@ init_pyo64(void)
     module_add_object(m, "PVFreqMod_base", &PVFreqModType);
     module_add_object(m, "PVBufLoops_base", &PVBufLoopsType);
     module_add_object(m, "PVBufTabLoops_base", &PVBufTabLoopsType);
+    module_add_object(m, "Granule_base", &GranuleType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

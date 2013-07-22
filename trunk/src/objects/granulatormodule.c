@@ -43,7 +43,6 @@ typedef struct {
     PyObject *dur;
     Stream *dur_stream;
     int ngrains;
-    int init;
     MYFLT basedur;
     MYFLT pointerPos;
     MYFLT *startPos;
@@ -2305,4 +2304,727 @@ PyTypeObject LooperType = {
     Looper_new,                 /* tp_new */
 };
 
+static const MYFLT Granule_MAX_GRAINS = 1024; 
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *env;
+    PyObject *dens;
+    Stream *dens_stream;
+    PyObject *pitch;
+    Stream *pitch_stream;
+    PyObject *pos;
+    Stream *pos_stream;
+    PyObject *dur;
+    Stream *dur_stream;
+    MYFLT *gpos;
+    MYFLT *glen;
+    MYFLT *inc;
+    MYFLT *phase;
+    int *flags;
+    int num;
+    double timer;
+    MYFLT oneOnSr;
+    int modebuffer[6];
+} Granule;
+
+static void
+Granule_transform_i(Granule *self) {
+    MYFLT dens, inc, index, amp, phase;
+    int i, j, ipart;
+    int flag = 0; 
+    MYFLT pit = 0, pos = 0, dur = 0; 
+    
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *envlist = TableStream_getData(self->env);
+    int envsize = TableStream_getSize(self->env);
+    
+    dens = PyFloat_AS_DOUBLE(self->dens);
+    if (dens < 0.0)
+        dens = -dens;
+    
+    inc = dens * self->oneOnSr;
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+
+        /* clocker */
+        self->timer += inc;
+        if (self->timer >= 1.0) {
+            self->timer -= 1.0;
+            flag = 1;
+        }
+
+        /* need to start a new grain */
+        if (flag) {
+            for (j=0; j<Granule_MAX_GRAINS; j++) {
+                if (self->flags[j] == 0) {
+                    self->flags[j] = 1;
+                    if (j >= self->num)
+                        self->num = j + 1;
+                    if (self->modebuffer[3] == 0)
+                        pit = PyFloat_AS_DOUBLE(self->pitch);
+                    else
+                        pit = Stream_getData((Stream *)self->pitch_stream)[i];
+                    if (self->modebuffer[4] == 0)
+                        pos = PyFloat_AS_DOUBLE(self->pos);
+                    else
+                        pos = Stream_getData((Stream *)self->pos_stream)[i];
+                    if (self->modebuffer[5] == 0)
+                        dur = PyFloat_AS_DOUBLE(self->dur);
+                    else
+                        dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (pos < 0.0)
+                        pos = 0.0;
+                    else if (pos >= size)
+                        pos = (MYFLT)size;
+                    self->gpos[j] = pos;
+                    self->glen[j] = dur * self->sr * pit;
+                    if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
+                        self->flags[j] = 0;
+                    self->phase[j] = 0.0;
+                    self->inc[j] = 1.0 / (dur * self->sr);
+                    break;
+                }
+            }
+        }
+
+        /* compute active grains */
+        for (j=0; j<self->num; j++) {
+            if (self->flags[j]) {
+                phase = self->phase[j];
+                if (phase >= 0.0 && phase < 1.0) {
+                    // compute envelope
+                    index = phase * envsize;
+                    ipart = (int)index;
+                    amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+
+                    // compute sampling
+                    index = phase * self->glen[j] + self->gpos[j];
+                    ipart = (int)index;
+                    self->data[i] += (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+
+                    phase += self->inc[j];
+                    if (phase >= 1.0)
+                        self->flags[j] = 0;
+                    else
+                        self->phase[j] = phase;
+                }
+            }
+        }
+        flag = 0;
+    }    
+}
+
+static void
+Granule_transform_a(Granule *self) {
+    MYFLT index, amp, phase;
+    int i, j, ipart;
+    int flag = 0;
+    MYFLT pit = 0, pos = 0, dur = 0; 
+    
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    
+    MYFLT *envlist = TableStream_getData(self->env);
+    int envsize = TableStream_getSize(self->env);
+
+    MYFLT *density = Stream_getData((Stream *)self->dens_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+
+        /* clocker */
+        self->timer += density[i] * self->oneOnSr;
+        if (self->timer >= 1.0) {
+            self->timer -= 1.0;
+            flag = 1;
+        }
+
+        /* need to start a new grain */
+        if (flag) {
+            for (j=0; j<Granule_MAX_GRAINS; j++) {
+                if (self->flags[j] == 0) {
+                    self->flags[j] = 1;
+                    if (j >= self->num)
+                        self->num = j + 1;
+                    if (self->modebuffer[3] == 0)
+                        pit = PyFloat_AS_DOUBLE(self->pitch);
+                    else
+                        pit = Stream_getData((Stream *)self->pitch_stream)[i];
+                    if (self->modebuffer[4] == 0)
+                        pos = PyFloat_AS_DOUBLE(self->pos);
+                    else
+                        pos = Stream_getData((Stream *)self->pos_stream)[i];
+                    if (self->modebuffer[5] == 0)
+                        dur = PyFloat_AS_DOUBLE(self->dur);
+                    else
+                        dur = Stream_getData((Stream *)self->dur_stream)[i];
+                    if (pos < 0.0)
+                        pos = 0.0;
+                    else if (pos >= size)
+                        pos = (MYFLT)size;
+                    self->gpos[j] = pos;
+                    self->glen[j] = dur * self->sr * pit;
+                    if ((pos + self->glen[j]) >= size || (pos + self->glen[j]) < 0)
+                        self->flags[j] = 0;
+                    self->phase[j] = 0.0;
+                    self->inc[j] = 1.0 / (dur * self->sr);
+                    break;
+                }
+            }
+        }
+
+        /* compute active grains */
+        for (j=0; j<self->num; j++) {
+            if (self->flags[j]) {
+                phase = self->phase[j];
+                if (phase >= 0.0 && phase < 1.0) {
+                    // compute envelope
+                    index = phase * envsize;
+                    ipart = (int)index;
+                    amp = envlist[ipart] + (envlist[ipart+1] - envlist[ipart]) * (index - ipart);
+
+                    // compute sampling
+                    index = phase * self->glen[j] + self->gpos[j];
+                    ipart = (int)index;
+                    self->data[i] += (tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart)) * amp;
+
+                    phase += self->inc[j];
+                    if (phase >= 1.0)
+                        self->flags[j] = 0;
+                    else
+                        self->phase[j] = phase;
+                }
+            }
+        }
+        flag = 0;
+    }    
+}
+
+static void Granule_postprocessing_ii(Granule *self) { POST_PROCESSING_II };
+static void Granule_postprocessing_ai(Granule *self) { POST_PROCESSING_AI };
+static void Granule_postprocessing_ia(Granule *self) { POST_PROCESSING_IA };
+static void Granule_postprocessing_aa(Granule *self) { POST_PROCESSING_AA };
+static void Granule_postprocessing_ireva(Granule *self) { POST_PROCESSING_IREVA };
+static void Granule_postprocessing_areva(Granule *self) { POST_PROCESSING_AREVA };
+static void Granule_postprocessing_revai(Granule *self) { POST_PROCESSING_REVAI };
+static void Granule_postprocessing_revaa(Granule *self) { POST_PROCESSING_REVAA };
+static void Granule_postprocessing_revareva(Granule *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Granule_setProcMode(Granule *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2];
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = Granule_transform_i;
+            break;
+        case 1:    
+            self->proc_func_ptr = Granule_transform_a;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Granule_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Granule_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Granule_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Granule_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Granule_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Granule_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Granule_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Granule_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Granule_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+Granule_compute_next_data_frame(Granule *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Granule_traverse(Granule *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->env);
+    Py_VISIT(self->dens);    
+    Py_VISIT(self->dens_stream);    
+    Py_VISIT(self->pitch);    
+    Py_VISIT(self->pitch_stream);    
+    Py_VISIT(self->pos);    
+    Py_VISIT(self->pos_stream);    
+    Py_VISIT(self->dur);    
+    Py_VISIT(self->dur_stream);    
+    return 0;
+}
+
+static int 
+Granule_clear(Granule *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->env);
+    Py_CLEAR(self->dens);    
+    Py_CLEAR(self->dens_stream);    
+    Py_CLEAR(self->pitch);    
+    Py_CLEAR(self->pitch_stream);    
+    Py_CLEAR(self->pos);    
+    Py_CLEAR(self->pos_stream);    
+    Py_CLEAR(self->dur);    
+    Py_CLEAR(self->dur_stream);    
+    return 0;
+}
+
+static void
+Granule_dealloc(Granule* self)
+{
+    pyo_DEALLOC
+    free(self->gpos);   
+    free(self->glen);
+    free(self->inc);
+    free(self->flags);
+    free(self->phase);
+    Granule_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Granule_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *tabletmp, *envtmp, *denstmp=NULL, *pitchtmp=NULL, *postmp=NULL, *durtmp=NULL, *multmp=NULL, *addtmp=NULL;
+    Granule *self;
+    self = (Granule *)type->tp_alloc(type, 0);
+
+    self->dens = PyFloat_FromDouble(50);
+    self->pitch = PyFloat_FromDouble(1);
+    self->pos = PyFloat_FromDouble(0.0);
+    self->dur = PyFloat_FromDouble(0.1);
+    self->timer = 1.0;
+    self->num = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+	self->modebuffer[4] = 0;
+	self->modebuffer[5] = 0;
+
+    INIT_OBJECT_COMMON
+    
+    self->oneOnSr = 1.0 / self->sr;
+
+    Stream_setFunctionPtr(self->stream, Granule_compute_next_data_frame);
+    self->mode_func_ptr = Granule_setProcMode;
+
+    static char *kwlist[] = {"table", "env", "dens", "pitch", "pos", "dur", "mul", "add", NULL};
+
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OOOOOO", kwlist, &tabletmp, &envtmp, &denstmp, &pitchtmp, &postmp, &durtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of Granule must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+
+    if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"env\" argument of Granule must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_XDECREF(self->env);
+    self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
+
+    if (denstmp) {
+        PyObject_CallMethod((PyObject *)self, "setDens", "O", denstmp);
+    }
+    
+    if (pitchtmp) {
+        PyObject_CallMethod((PyObject *)self, "setPitch", "O", pitchtmp);
+    }
+
+    if (postmp) {
+        PyObject_CallMethod((PyObject *)self, "setPos", "O", postmp);
+    }
+
+    if (durtmp) {
+        PyObject_CallMethod((PyObject *)self, "setDur", "O", durtmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->gpos = (MYFLT *)realloc(self->gpos, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->glen = (MYFLT *)realloc(self->glen, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->inc = (MYFLT *)realloc(self->inc, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->phase = (MYFLT *)realloc(self->phase, Granule_MAX_GRAINS * sizeof(MYFLT));
+    self->flags = (int *)realloc(self->flags, Granule_MAX_GRAINS * sizeof(int));
+    
+    for (i=0; i<Granule_MAX_GRAINS; i++) {
+        self->gpos[i] = self->glen[i] = self->inc[i] = self->phase[i] = 0.0;
+        self->flags[i] = 0;
+    }
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * Granule_getServer(Granule* self) { GET_SERVER };
+static PyObject * Granule_getStream(Granule* self) { GET_STREAM };
+static PyObject * Granule_setMul(Granule *self, PyObject *arg) { SET_MUL };	
+static PyObject * Granule_setAdd(Granule *self, PyObject *arg) { SET_ADD };	
+static PyObject * Granule_setSub(Granule *self, PyObject *arg) { SET_SUB };	
+static PyObject * Granule_setDiv(Granule *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Granule_play(Granule *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Granule_out(Granule *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Granule_stop(Granule *self) { STOP };
+
+static PyObject * Granule_multiply(Granule *self, PyObject *arg) { MULTIPLY };
+static PyObject * Granule_inplace_multiply(Granule *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Granule_add(Granule *self, PyObject *arg) { ADD };
+static PyObject * Granule_inplace_add(Granule *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Granule_sub(Granule *self, PyObject *arg) { SUB };
+static PyObject * Granule_inplace_sub(Granule *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Granule_div(Granule *self, PyObject *arg) { DIV };
+static PyObject * Granule_inplace_div(Granule *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Granule_setDens(Granule *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->dens);
+	if (isNumber == 1) {
+		self->dens = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->dens = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->dens, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->dens_stream);
+        self->dens_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Granule_setPitch(Granule *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pitch);
+	if (isNumber == 1) {
+		self->pitch = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->pitch = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pitch, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pitch_stream);
+        self->pitch_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Granule_setPos(Granule *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->pos);
+	if (isNumber == 1) {
+		self->pos = PyNumber_Float(tmp);
+        self->modebuffer[4] = 0;
+	}
+	else {
+		self->pos = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->pos, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->pos_stream);
+        self->pos_stream = (Stream *)streamtmp;
+		self->modebuffer[4] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Granule_setDur(Granule *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->dur);
+	if (isNumber == 1) {
+		self->dur = PyNumber_Float(tmp);
+        self->modebuffer[5] = 0;
+	}
+	else {
+		self->dur = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->dur, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->dur_stream);
+        self->dur_stream = (Stream *)streamtmp;
+		self->modebuffer[5] = 1;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+static PyObject *
+Granule_getTable(Granule* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Granule_setTable(Granule *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Granule_getEnv(Granule* self)
+{
+    Py_INCREF(self->env);
+    return self->env;
+};
+
+static PyObject *
+Granule_setEnv(Granule *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->env);
+    self->env = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef Granule_members[] = {
+    {"server", T_OBJECT_EX, offsetof(Granule, server), 0, "Pyo server."},
+    {"stream", T_OBJECT_EX, offsetof(Granule, stream), 0, "Stream object."},
+    {"table", T_OBJECT_EX, offsetof(Granule, table), 0, "Sound table."},
+    {"env", T_OBJECT_EX, offsetof(Granule, env), 0, "Envelope table."},
+    {"dens", T_OBJECT_EX, offsetof(Granule, dens), 0, "Density of grains per second."},
+    {"pitch", T_OBJECT_EX, offsetof(Granule, pitch), 0, "Speed of the reading pointer."},
+    {"pos", T_OBJECT_EX, offsetof(Granule, pos), 0, "Position in the sound table."},
+    {"dur", T_OBJECT_EX, offsetof(Granule, dur), 0, "Duration of each grains."},
+    {"mul", T_OBJECT_EX, offsetof(Granule, mul), 0, "Mul factor."},
+    {"add", T_OBJECT_EX, offsetof(Granule, add), 0, "Add factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyMethodDef Granule_methods[] = {
+    {"getTable", (PyCFunction)Granule_getTable, METH_NOARGS, "Returns sound table object."},
+    {"setTable", (PyCFunction)Granule_setTable, METH_O, "Sets sound table."},
+    {"getEnv", (PyCFunction)Granule_getEnv, METH_NOARGS, "Returns envelope table object."},
+    {"setEnv", (PyCFunction)Granule_setEnv, METH_O, "Sets envelope table."},
+    {"getServer", (PyCFunction)Granule_getServer, METH_NOARGS, "Returns server object."},
+    {"_getStream", (PyCFunction)Granule_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)Granule_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"out", (PyCFunction)Granule_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+    {"stop", (PyCFunction)Granule_stop, METH_NOARGS, "Stops computing."},
+	{"setDens", (PyCFunction)Granule_setDens, METH_O, "Sets the density of grains per second."},
+	{"setPitch", (PyCFunction)Granule_setPitch, METH_O, "Sets global pitch factor."},
+    {"setPos", (PyCFunction)Granule_setPos, METH_O, "Sets position in the sound table."},
+    {"setDur", (PyCFunction)Granule_setDur, METH_O, "Sets the grain duration."},
+	{"setMul", (PyCFunction)Granule_setMul, METH_O, "Sets Granule mul factor."},
+	{"setAdd", (PyCFunction)Granule_setAdd, METH_O, "Sets Granule add factor."},
+    {"setSub", (PyCFunction)Granule_setSub, METH_O, "Sets inverse add factor."},
+    {"setDiv", (PyCFunction)Granule_setDiv, METH_O, "Sets inverse mul factor."},
+    {NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Granule_as_number = {
+    (binaryfunc)Granule_add,                      /*nb_add*/
+    (binaryfunc)Granule_sub,                 /*nb_subtract*/
+    (binaryfunc)Granule_multiply,                 /*nb_multiply*/
+    (binaryfunc)Granule_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Granule_inplace_add,              /*inplace_add*/
+    (binaryfunc)Granule_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Granule_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Granule_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject GranuleType = {
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_pitch*/
+    "_pyo.Granule_base",         /*tp_name*/
+    sizeof(Granule),         /*tp_basicpitch*/
+    0,                         /*tp_itempitch*/
+    (destructor)Granule_dealloc, /*tp_dealloc*/
+    0,                         /*tp_print*/
+    0,                         /*tp_getattr*/
+    0,                         /*tp_setattr*/
+    0,                         /*tp_compare*/
+    0,                         /*tp_repr*/
+    &Granule_as_number,             /*tp_as_number*/
+    0,                         /*tp_as_sequence*/
+    0,                         /*tp_as_mapping*/
+    0,                         /*tp_hash */
+    0,                         /*tp_call*/
+    0,                         /*tp_str*/
+    0,                         /*tp_getattro*/
+    0,                         /*tp_setattro*/
+    0,                         /*tp_as_buffer*/
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+    "Granule objects. Accumulation of multiples grains of sound.",           /* tp_doc */
+    (traverseproc)Granule_traverse,   /* tp_traverse */
+    (inquiry)Granule_clear,           /* tp_clear */
+    0,		               /* tp_richcompare */
+    0,		               /* tp_weaklistoffset */
+    0,		               /* tp_iter */
+    0,		               /* tp_iternext */
+    Granule_methods,             /* tp_methods */
+    Granule_members,             /* tp_members */
+    0,                      /* tp_getset */
+    0,                         /* tp_base */
+    0,                         /* tp_dict */
+    0,                         /* tp_descr_get */
+    0,                         /* tp_descr_set */
+    0,                         /* tp_dictoffset */
+    0,      /* tp_init */
+    0,                         /* tp_alloc */
+    Granule_new,                 /* tp_new */
+};
 

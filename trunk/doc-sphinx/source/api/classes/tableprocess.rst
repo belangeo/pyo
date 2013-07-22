@@ -14,6 +14,12 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Granulator
    :members:
 
+*Granule*
+-----------------------------------
+
+.. autoclass:: Granule
+   :members:
+
 *Lookup*
 -----------------------------------
 
