@@ -40,7 +40,7 @@ class PVAnal(PyoPVObject):
     magnitudes and the other for the bin's true frequencies. These 
     two streams are used by the PVxxx object family to transform 
     the input signal using spectral domain algorithms. The last
-    object in the phase vocoder chain must be a PVSynh to perform
+    object in the phase vocoder chain must be a PVSynth to perform
     the spectral to time domain conversion.
     
     :Parent: :py:class:`PyoPVObject`

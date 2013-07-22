@@ -78,6 +78,7 @@ Alphabetical class reference
 - :py:class:`FreqShift` :     Frequency shifting using single sideband amplitude modulation.
 - :py:class:`Gate` :     Allows a signal to pass only when its amplitude is above a set threshold.
 - :py:class:`Granulator` :     Granular synthesis generator.
+- :py:class:`Granule` :     Another granular synthesis generator.
 - :py:class:`HannTable` :     Generates Hanning window function. 
 - :py:class:`HarmTable` :     Harmonic waveform generator.
 - :py:class:`Harmonizer` :     Generates harmonizing voices in synchrony with its audio input.
@@ -136,6 +137,7 @@ Alphabetical class reference
 - :py:class:`PVAmpMod` :     Performs frequency independent amplitude modulations.
 - :py:class:`PVAnal` :     Phase Vocoder analysis object.
 - :py:class:`PVBufLoops` :     Phase vocoder buffer with bin independent speed playback.
+- :py:class:`PVBufTabLoops` :     Phase vocoder buffer with bin independent speed playback.
 - :py:class:`PVBuffer` :     Phase vocoder buffer and playback with transposition.
 - :py:class:`PVCross` :     Performs cross-synthesis between two phase vocoder streaming object.
 - :py:class:`PVDelay` :     Spectral delays.
