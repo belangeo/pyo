@@ -1052,6 +1052,11 @@ class PVFilter(PyoPVObject):
         gain : float or PyoObject, optional
             Gain of the filter applied to the input spectrum. 
             Defaults to 1.
+        mode : int, optional
+            Table scanning mode. Defaults to 0.
+            
+            If 0, bin indexes outside table size are set to 0. 
+            If 1, bin indexes are scaled over table length.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1062,13 +1067,14 @@ class PVFilter(PyoPVObject):
     >>> pvs = PVSynth(pvf).out()
 
     """
-    def __init__(self, input, table, gain=1):
+    def __init__(self, input, table, gain=1, mode=0):
         PyoPVObject.__init__(self)
         self._input = input
         self._table = table
         self._gain = gain
-        input, table, gain, lmax = convertArgsToLists(self._input, table, gain)
-        self._base_objs = [PVFilter_base(wrap(input,i), wrap(table,i), wrap(gain,i)) for i in range(lmax)]
+        self._mode = mode
+        input, table, gain, mode, lmax = convertArgsToLists(self._input, table, gain, mode)
+        self._base_objs = [PVFilter_base(wrap(input,i), wrap(table,i), wrap(gain,i), wrap(mode,i)) for i in range(lmax)]
  
     def setInput(self, x):
         """
@@ -1104,13 +1110,27 @@ class PVFilter(PyoPVObject):
         
         :Args:
 
-            x : int
+            x : float or PyoObject
                 new `gain` attribute.
         
         """
         self._gain = x
         x, lmax = convertArgsToLists(x)
         [obj.setGain(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMode(self, x):
+        """
+        Replace the `mode` attribute.
+        
+        :Args:
+
+            x : int
+                new `mode` attribute.
+        
+        """
+        self._mode = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0, 1, "lin", "gain", self._gain)]
@@ -1136,6 +1156,13 @@ class PVFilter(PyoPVObject):
         return self._gain
     @gain.setter
     def gain(self, x): self.setGain(x)
+
+    @property
+    def mode(self):
+        """int. Table scanning mode."""
+        return self._mode
+    @mode.setter
+    def mode(self, x): self.setMode(x)
 
 class PVDelay(PyoPVObject):
     """

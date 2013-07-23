@@ -3907,6 +3907,7 @@ typedef struct {
     int hsize;
     int hopsize;
     int overcount;
+    int mode;
     MYFLT **magn;
     MYFLT **freq;
     int *count;
@@ -3939,8 +3940,8 @@ PVFilter_realloc_memories(PVFilter *self) {
 
 static void
 PVFilter_process_i(PVFilter *self) {
-    int i, k;
-    MYFLT gain, amp, binamp;
+    int i, k, ipart=0;
+    MYFLT gain, amp, binamp, factor, index=0.0;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
     MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
     int *count = PVStream_getCount((PVStream *)self->input_stream);
@@ -3960,17 +3961,31 @@ PVFilter_process_i(PVFilter *self) {
         PVFilter_realloc_memories(self);
     }
 
+    factor = (MYFLT)tsize / self->hsize;
+
     for (i=0; i<self->bufsize; i++) {
         self->count[i] = count[i];
         if (count[i] >= (self->size-1)) {
-            for (k=0; k<self->hsize; k++) {
-                if (k < tsize)
-                    binamp = tablelist[k];
-                else
-                    binamp = 0.0;
-                amp = magn[self->overcount][k];
-                self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+            if (self->mode == 0) {
+                for (k=0; k<self->hsize; k++) {
+                    if (k < tsize)
+                        binamp = tablelist[k];
+                    else
+                        binamp = 0.0;
+                    amp = magn[self->overcount][k];
+                    self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+            }
+            else {
+                for (k=0; k<self->hsize; k++) {
+                    index = k * factor;
+                    ipart = (int)index;
+                    binamp = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart);
+                    amp = magn[self->overcount][k];
+                    self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
             }
             self->overcount++;
             if (self->overcount >= self->olaps)
@@ -3981,8 +3996,8 @@ PVFilter_process_i(PVFilter *self) {
 
 static void
 PVFilter_process_a(PVFilter *self) {
-    int i, k;
-    MYFLT gain, amp, binamp;
+    int i, k, ipart=0;
+    MYFLT gain, amp, binamp, factor, index=0.0;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
     MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
     int *count = PVStream_getCount((PVStream *)self->input_stream);
@@ -3998,6 +4013,8 @@ PVFilter_process_a(PVFilter *self) {
         PVFilter_realloc_memories(self);
     }
 
+    factor = (MYFLT)tsize / self->hsize;
+    
     for (i=0; i<self->bufsize; i++) {
         self->count[i] = count[i];
         if (count[i] >= (self->size-1)) {
@@ -4006,14 +4023,26 @@ PVFilter_process_a(PVFilter *self) {
                 gain = 0.0;
             else if (gain > 1)
                 gain = 1.0;
-            for (k=0; k<self->hsize; k++) {
-                if (k < tsize)
-                    binamp = tablelist[k];
-                else
-                    binamp = 0.0;
-                amp = magn[self->overcount][k];
-                self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+            if (self->mode == 0) {
+                for (k=0; k<self->hsize; k++) {
+                    if (k < tsize)
+                        binamp = tablelist[k];
+                    else
+                        binamp = 0.0;
+                    amp = magn[self->overcount][k];
+                    self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+            }
+            else {
+                for (k=0; k<self->hsize; k++) {
+                    index = k * factor;
+                    ipart = (int)index;
+                    binamp = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * (index - ipart);
+                    amp = magn[self->overcount][k];
+                    self->magn[self->overcount][k] = amp + ((binamp*amp) - amp) * gain;
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
             }
             self->overcount++;
             if (self->overcount >= self->olaps)
@@ -4097,13 +4126,15 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->gain = PyFloat_FromDouble(1);
     self->size = 1024;
     self->olaps = 4;
+    self->mode = 0; /* 0 : index outside table range clipped to 0 
+                       1 : index between 0 and hsize are scaled over table length */
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVFilter_compute_next_data_frame);
     self->mode_func_ptr = PVFilter_setProcMode;
 
-    static char *kwlist[] = {"input", "table", "gain", NULL};
+    static char *kwlist[] = {"input", "table", "gain", "mode", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|O", kwlist, &inputtmp, &tabletmp, &gaintmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|Oi", kwlist, &inputtmp, &tabletmp, &gaintmp, &self->mode))
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -4234,6 +4265,23 @@ PVFilter_setTable(PVFilter *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+PVFilter_setMode(PVFilter *self, PyObject *arg)
+{
+	int tmp;
+
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        tmp = PyInt_AsLong(arg);
+        if (tmp <= 0)
+            self->mode = 0;
+        else
+            self->mode = 1;
+    }
+   
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef PVFilter_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVFilter, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVFilter, stream), 0, "Stream object."},
@@ -4251,7 +4299,8 @@ static PyMethodDef PVFilter_methods[] = {
 {"setInput", (PyCFunction)PVFilter_setInput, METH_O, "Sets a new input object."},
 {"getTable", (PyCFunction)PVFilter_getTable, METH_NOARGS, "Returns filter table object."},
 {"setTable", (PyCFunction)PVFilter_setTable, METH_O, "Sets filter table."},
-{"setGain", (PyCFunction)PVFilter_setGain, METH_O, "Sets the gainsition factor."},
+{"setGain", (PyCFunction)PVFilter_setGain, METH_O, "Sets the gain factor."},
+{"setMode", (PyCFunction)PVFilter_setMode, METH_O, "Sets the table scanning mode."},
 {"play", (PyCFunction)PVFilter_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)PVFilter_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */
