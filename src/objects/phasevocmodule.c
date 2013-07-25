@@ -4371,6 +4371,7 @@ typedef struct {
     MYFLT **magn_buf;
     MYFLT **freq_buf;
     int *count;
+    int mode;
 } PVDelay;
 
 static void
@@ -4408,7 +4409,7 @@ PVDelay_realloc_memories(PVDelay *self) {
 }
 
 static void
-PVDelay_process_i(PVDelay *self) {
+PVDelay_process_zero(PVDelay *self) {
     int i, k, bindel;
     MYFLT binfeed, mg, fr;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
@@ -4474,9 +4475,79 @@ PVDelay_process_i(PVDelay *self) {
 }
 
 static void
+PVDelay_process_scaled(PVDelay *self) {
+    int i, k, bindel, ipart;
+    MYFLT binfeed, mg, fr, tfac, ffac, index;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+    MYFLT *dellist = TableStream_getData(self->deltable);
+    int tsize = TableStream_getSize(self->deltable);
+    MYFLT *feedlist = TableStream_getData(self->feedtable);
+    int fsize = TableStream_getSize(self->feedtable);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVDelay_realloc_memories(self);
+    }
+
+    tfac = (MYFLT)tsize / self->hsize;
+    ffac = (MYFLT)fsize / self->hsize;
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                index = k * tfac;
+                ipart = (int)index;
+                bindel = (int)(dellist[ipart] + (dellist[ipart+1] - dellist[ipart]) * (index - ipart));
+                if (bindel < 0)
+                    bindel = 0;
+                else if (bindel >= self->numFrames)
+                    bindel = self->numFrames - 1;
+
+                index = k * ffac;
+                ipart = (int)index;
+                binfeed = feedlist[ipart] + (feedlist[ipart+1] - feedlist[ipart]) * (index - ipart);
+                if (binfeed < -1.0)
+                    binfeed = -1.0;
+                else if (binfeed > 1.0)
+                    binfeed = 1.0;
+
+                bindel = self->framecount - bindel;
+                if (bindel < 0)
+                    bindel += self->numFrames;
+                if (bindel == self->framecount) {
+                    self->magn[self->overcount][k] = magn[self->overcount][k];
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+                else {
+                    self->magn[self->overcount][k] = mg = self->magn_buf[bindel][k];
+                    self->freq[self->overcount][k] = fr = self->freq_buf[bindel][k];
+                    self->magn_buf[self->framecount][k] = magn[self->overcount][k] + mg * binfeed;
+                    self->freq_buf[self->framecount][k] = freq[self->overcount][k] + (fr - freq[self->overcount][k]) * binfeed;
+                }
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+            self->framecount++;
+            if (self->framecount >= self->numFrames)
+                self->framecount = 0;
+        }
+    }
+}
+
+static void
 PVDelay_setProcMode(PVDelay *self)
 {        
-    self->proc_func_ptr = PVDelay_process_i;
+    if (self->mode == 0)
+        self->proc_func_ptr = PVDelay_process_zero;
+    else
+        self->proc_func_ptr = PVDelay_process_scaled;
 }
 
 static void
@@ -4542,13 +4613,14 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->size = 1024;
     self->olaps = 4;
     self->maxdelay = 1.0;
+    self->mode = 0;
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, PVDelay_compute_next_data_frame);
     self->mode_func_ptr = PVDelay_setProcMode;
 
-    static char *kwlist[] = {"input", "deltable", "feedtable", "maxdelay", NULL};
+    static char *kwlist[] = {"input", "deltable", "feedtable", "maxdelay", "mode", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_F, kwlist, &inputtmp, &deltabletmp, &feedtabletmp, &self->maxdelay))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_OOO_FI, kwlist, &inputtmp, &deltabletmp, &feedtabletmp, &self->maxdelay, &self->mode))
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
@@ -4583,6 +4655,7 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     PVDelay_realloc_memories(self);
 
+    self->mode = self->mode <= 0 ? 0 : 1;
     (*self->mode_func_ptr)(self);
 
     return (PyObject *)self;
@@ -4669,6 +4742,25 @@ PVDelay_setFeedtable(PVDelay *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+PVDelay_setMode(PVDelay *self, PyObject *arg)
+{
+	int tmp;
+
+    if (PyLong_Check(arg) || PyInt_Check(arg)) {
+        tmp = PyInt_AsLong(arg);
+        if (tmp <= 0)
+            self->mode = 0;
+        else
+            self->mode = 1;
+    }
+
+    (*self->mode_func_ptr)(self);
+   
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyMemberDef PVDelay_members[] = {
 {"server", T_OBJECT_EX, offsetof(PVDelay, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(PVDelay, stream), 0, "Stream object."},
@@ -4688,6 +4780,7 @@ static PyMethodDef PVDelay_methods[] = {
 {"setDeltable", (PyCFunction)PVDelay_setDeltable, METH_O, "Sets delays table."},
 {"getFeedtable", (PyCFunction)PVDelay_getFeedtable, METH_NOARGS, "Returns feedbacks table object."},
 {"setFeedtable", (PyCFunction)PVDelay_setFeedtable, METH_O, "Sets feedbacks table."},
+{"setMode", (PyCFunction)PVDelay_setMode, METH_O, "Table scanning method."},
 {"play", (PyCFunction)PVDelay_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
 {"stop", (PyCFunction)PVDelay_stop, METH_NOARGS, "Stops computing."},
 {NULL}  /* Sentinel */

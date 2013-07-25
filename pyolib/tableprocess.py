@@ -2495,3 +2495,85 @@ class Granule(PyoObject):
     @dur.setter
     def dur(self, x): self.setDur(x)
 
+class TableScale(PyoObject):
+    """
+    Scales all the values contained in a PyoTableObject.
+
+    TableScale scales the values of `table` argument according
+    to `mul` and `add` arguments and writes the new values in
+    `outtable`.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        table : PyoTableObject
+            Table containing the original values.
+        outtable : PyoTableObject
+            Table where to write the scaled values.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = DataTable(size=12, init=midiToHz(range(48, 72, 2)))
+    >>> t2 = DataTable(size=12)
+    >>> m = Metro(.2).play()
+    >>> c = Counter(m ,min=0, max=12)
+    >>> f1 = TableIndex(t, c)
+    >>> syn1 = SineLoop(f1, feedback=0.08, mul=0.3).out()
+    >>> scl = TableScale(t, t2, mul=1.5)
+    >>> f2 = TableIndex(t2, c)
+    >>> syn2 = SineLoop(f2, feedback=0.08, mul=0.3).out(1)
+
+    """
+    def __init__(self, table, outtable, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._table = table
+        self._outtable = outtable
+        table, outtable, mul, add, lmax = convertArgsToLists(table, outtable, mul, add)
+        self._base_objs = [TableScale_base(wrap(table,i), wrap(outtable,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setOuttable(self, x):
+        """
+        Replace the `outtable` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `outtable` attribute.
+        
+        """
+        self._outtable = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setOuttable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul), SLMap(0, 1, "lin", "add", self._add)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the original values.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def outtable(self):
+        """PyoTableObject. Scaled output table.""" 
+        return self._outtable
+    @outtable.setter
+    def outtable(self, x): self.setOuttable(x)

@@ -10819,3 +10819,374 @@ RCOsc_members,             /* tp_members */
 0,                         /* tp_alloc */
 RCOsc_new,                 /* tp_new */
 };
+
+/**************/
+/* TableScale object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *outtable;
+    int modebuffer[2];
+} TableScale;
+
+static void
+TableScale_readframes_ii(TableScale *self) {
+    int i, num;
+    MYFLT mul, add;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    MYFLT *outlist = TableStream_getData(self->outtable);
+    int osize = TableStream_getSize(self->outtable);
+
+    mul = PyFloat_AS_DOUBLE(self->mul);
+    add = PyFloat_AS_DOUBLE(self->add);
+    
+    num = size < osize ? size : osize;
+    for (i=0; i<num; i++) {
+        outlist[i] = tablelist[i] * mul + add;
+    }
+}
+
+static void
+TableScale_readframes_ai(TableScale *self) {
+    int i, num;
+    MYFLT add;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    MYFLT *outlist = TableStream_getData(self->outtable);
+    int osize = TableStream_getSize(self->outtable);
+
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream);
+    add = PyFloat_AS_DOUBLE(self->add);
+    
+    num = size < osize ? size : osize;
+    for (i=0; i<num; i++) {
+        outlist[i] = tablelist[i] * mul[i] + add;
+    }
+}
+
+static void
+TableScale_readframes_ia(TableScale *self) {
+    int i, num;
+    MYFLT mul;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    MYFLT *outlist = TableStream_getData(self->outtable);
+    int osize = TableStream_getSize(self->outtable);
+
+    mul = PyFloat_AS_DOUBLE(self->mul);
+    MYFLT *add = Stream_getData((Stream *)self->add_stream);
+    
+    num = size < osize ? size : osize;
+    for (i=0; i<num; i++) {
+        outlist[i] = tablelist[i] * mul + add[i];
+    }
+}
+
+static void
+TableScale_readframes_aa(TableScale *self) {
+    int i, num;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    MYFLT *outlist = TableStream_getData(self->outtable);
+    int osize = TableStream_getSize(self->outtable);
+
+    MYFLT *mul = Stream_getData((Stream *)self->mul_stream);
+    MYFLT *add = Stream_getData((Stream *)self->add_stream);
+    
+    num = size < osize ? size : osize;
+    for (i=0; i<num; i++) {
+        outlist[i] = tablelist[i] * mul[i] + add[i];
+    }
+}
+
+static void
+TableScale_setProcMode(TableScale *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (muladdmode) {
+        case 0:        
+            self->proc_func_ptr = TableScale_readframes_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = TableScale_readframes_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = TableScale_readframes_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = TableScale_readframes_aa;
+            break;
+    } 
+}
+
+static void
+TableScale_compute_next_data_frame(TableScale *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+TableScale_traverse(TableScale *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->outtable);
+    return 0;
+}
+
+static int 
+TableScale_clear(TableScale *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->outtable);
+    return 0;
+}
+
+static void
+TableScale_dealloc(TableScale* self)
+{
+    pyo_DEALLOC
+    TableScale_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *tabletmp, *outtabletmp, *multmp=NULL, *addtmp=NULL;
+    TableScale *self;
+    self = (TableScale *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, TableScale_compute_next_data_frame);
+    self->mode_func_ptr = TableScale_setProcMode;
+
+    static char *kwlist[] = {"table", "outtable", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|OO", kwlist, &tabletmp, &outtabletmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of TableScale must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    
+    if ( PyObject_HasAttrString((PyObject *)outtabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"outtable\" argument of TableScale must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_XDECREF(self->outtable);
+    self->outtable = PyObject_CallMethod((PyObject *)outtabletmp, "getTableStream", "");
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+    
+    return (PyObject *)self;
+}
+
+static PyObject * TableScale_getServer(TableScale* self) { GET_SERVER };
+static PyObject * TableScale_getStream(TableScale* self) { GET_STREAM };
+static PyObject * TableScale_setMul(TableScale *self, PyObject *arg) { SET_MUL };	
+static PyObject * TableScale_setAdd(TableScale *self, PyObject *arg) { SET_ADD };	
+static PyObject * TableScale_setSub(TableScale *self, PyObject *arg) { SET_SUB };	
+static PyObject * TableScale_setDiv(TableScale *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * TableScale_play(TableScale *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * TableScale_out(TableScale *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * TableScale_stop(TableScale *self) { STOP };
+
+static PyObject * TableScale_multiply(TableScale *self, PyObject *arg) { MULTIPLY };
+static PyObject * TableScale_inplace_multiply(TableScale *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * TableScale_add(TableScale *self, PyObject *arg) { ADD };
+static PyObject * TableScale_inplace_add(TableScale *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * TableScale_sub(TableScale *self, PyObject *arg) { SUB };
+static PyObject * TableScale_inplace_sub(TableScale *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * TableScale_div(TableScale *self, PyObject *arg) { DIV };
+static PyObject * TableScale_inplace_div(TableScale *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+TableScale_getTable(TableScale* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+TableScale_setTable(TableScale *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+TableScale_getOuttable(TableScale* self)
+{
+    Py_INCREF(self->outtable);
+    return self->outtable;
+};
+
+static PyObject *
+TableScale_setOuttable(TableScale *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->outtable);
+    self->outtable = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef TableScale_members[] = {
+{"server", T_OBJECT_EX, offsetof(TableScale, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(TableScale, stream), 0, "Stream object."},
+{"table", T_OBJECT_EX, offsetof(TableScale, table), 0, "Waveform table."},
+{"outtable", T_OBJECT_EX, offsetof(TableScale, outtable), 0, "Output table."},
+{"mul", T_OBJECT_EX, offsetof(TableScale, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(TableScale, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef TableScale_methods[] = {
+{"getTable", (PyCFunction)TableScale_getTable, METH_NOARGS, "Returns waveform table object."},
+{"getOuttable", (PyCFunction)TableScale_getOuttable, METH_NOARGS, "Returns output table object."},
+{"getServer", (PyCFunction)TableScale_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)TableScale_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)TableScale_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)TableScale_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)TableScale_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)TableScale_setTable, METH_O, "Sets oscillator table."},
+{"setOuttable", (PyCFunction)TableScale_setOuttable, METH_O, "Sets output table."},
+{"setMul", (PyCFunction)TableScale_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)TableScale_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)TableScale_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)TableScale_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods TableScale_as_number = {
+(binaryfunc)TableScale_add,                      /*nb_add*/
+(binaryfunc)TableScale_sub,                 /*nb_subtract*/
+(binaryfunc)TableScale_multiply,                 /*nb_multiply*/
+(binaryfunc)TableScale_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)TableScale_inplace_add,              /*inplace_add*/
+(binaryfunc)TableScale_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)TableScale_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)TableScale_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject TableScaleType = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.TableScale_base",         /*tp_name*/
+sizeof(TableScale),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)TableScale_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&TableScale_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"TableScale objects. Scale a PyoTable and save the result in another table.",           /* tp_doc */
+(traverseproc)TableScale_traverse,   /* tp_traverse */
+(inquiry)TableScale_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+TableScale_methods,             /* tp_methods */
+TableScale_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+TableScale_new,                 /* tp_new */
+};

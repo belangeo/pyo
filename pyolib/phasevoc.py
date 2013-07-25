@@ -1192,6 +1192,11 @@ class PVDelay(PyoPVObject):
         maxdelay : float, optional
             Maximum delay time in seconds. Available at initialization 
             time only. Defaults to 1.0.
+        mode : int, optional
+            Tables scanning mode. Defaults to 0.
+            
+            If 0, bin indexes outside table size are set to 0. 
+            If 1, bin indexes are scaled over table length.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -1209,14 +1214,15 @@ class PVDelay(PyoPVObject):
     >>> pvs = PVSynth(pvd).out()
 
     """
-    def __init__(self, input, deltable, feedtable, maxdelay=1.0):
+    def __init__(self, input, deltable, feedtable, maxdelay=1.0, mode=0):
         PyoPVObject.__init__(self)
         self._input = input
         self._deltable = deltable
         self._feedtable = feedtable
         self._maxdelay = maxdelay
-        input, deltable, feedtable, maxdelay, lmax = convertArgsToLists(self._input, deltable, feedtable, maxdelay)
-        self._base_objs = [PVDelay_base(wrap(input,i), wrap(deltable,i), wrap(feedtable,i), wrap(maxdelay,i)) for i in range(lmax)]
+        self._mode = mode
+        input, deltable, feedtable, maxdelay, mode, lmax = convertArgsToLists(self._input, deltable, feedtable, maxdelay, mode)
+        self._base_objs = [PVDelay_base(wrap(input,i), wrap(deltable,i), wrap(feedtable,i), wrap(maxdelay,i), wrap(mode,i)) for i in range(lmax)]
  
     def setInput(self, x):
         """
@@ -1260,6 +1266,20 @@ class PVDelay(PyoPVObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFeedtable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setMode(self, x):
+        """
+        Replace the `mode` attribute.
+        
+        :Args:
+
+            x : int
+                new `mode` attribute.
+        
+        """
+        self._mode = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMode(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     @property
     def input(self):
         """PyoPVObject. Input signal to process.""" 
@@ -1280,6 +1300,13 @@ class PVDelay(PyoPVObject):
         return self._feedtable
     @feedtable.setter
     def feedtable(self, x): self.setFeedtable(x)
+
+    @property
+    def mode(self):
+        """int. Table scanning mode."""
+        return self._mode
+    @mode.setter
+    def mode(self, x): self.setMode(x)
 
 class PVBuffer(PyoPVObject):
     """
