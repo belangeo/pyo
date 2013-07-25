@@ -63,6 +63,7 @@
 #define TYPE_OO_FI "OO|fi"
 #define TYPE_OO_IF "OO|if"
 #define TYPE_OOO_F "OOO|f"
+#define TYPE_OOO_FI "OOO|fi"
 #define TYPE_OO_OF "OO|Of"
 #define TYPE_OOO_FFFFII "OOO|ffffii"
 #define TYPE_O_FFFFII "O|ffffii"
@@ -142,6 +143,7 @@
 #define TYPE_OO_FI "OO|di"
 #define TYPE_OO_IF "OO|id"
 #define TYPE_OOO_F "OOO|d"
+#define TYPE_OOO_FI "OOO|di"
 #define TYPE_OO_OF "OO|Od"
 #define TYPE_OOO_FFFFII "OOO|ddddii"
 #define TYPE_O_FFFFII "O|ddddii"
@@ -451,6 +453,7 @@ extern PyTypeObject PVFreqModType;
 extern PyTypeObject PVBufLoopsType;
 extern PyTypeObject PVBufTabLoopsType;
 extern PyTypeObject GranuleType;
+extern PyTypeObject TableScaleType;
 
 /* Constants */
 #define E M_E

@@ -6078,4 +6078,3 @@ TablePut_members,             /* tp_members */
 0,                         /* tp_alloc */
 TablePut_new,                 /* tp_new */
 };
-
