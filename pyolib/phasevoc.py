@@ -2010,3 +2010,90 @@ class PVBufTabLoops(PyoPVObject):
         return self._speed
     @speed.setter
     def speed(self, x): self.setSpeed(x)
+    
+class PVMix(PyoPVObject):
+    """
+    Mix the most prominent components from two phase vocoder streaming objects.
+
+    :Parent: :py:class:`PyoPVObject`
+    
+    :Args:
+    
+        input : PyoPVObject
+            Phase vocoder streaming object 1.
+        input2 : PyoPVObject
+            Phase vocoder streaming object 2.
+
+    .. note::
+        
+        The two input pv stream must have the same size and overlaps. It is
+        the responsibility of the user to be sure they are consistent. To change
+        the size (or the overlaps) of the phase vocoder process, one must
+        write a function to change both at the same time (see the example below).
+        Another possibility is to use channel expansion to analyse both sounds
+        with the same PVAnal object.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> sf = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=.5)
+    >>> sf2 = SfPlayer(SNDS_PATH+"/accord.aif", loop=True, mul=.5)
+    >>> pva = PVAnal(sf)
+    >>> pva2 = PVAnal(sf2)
+    >>> pvm = PVMix(pva, pva2)
+    >>> pvs = PVSynth(pvm).out()
+    >>> def size(x):
+    ...     pva.size = x
+    ...     pva2.size = x
+    >>> def olaps(x):
+    ...     pva.overlaps = x
+    ...     pva2.overlaps = x
+
+    """
+    def __init__(self, input, input2):
+        PyoPVObject.__init__(self)
+        self._input = input
+        self._input2 = input2
+        input, input2, lmax = convertArgsToLists(self._input, self._input2)
+        self._base_objs = [PVMix_base(wrap(input,i), wrap(input2,i)) for i in range(lmax)]
+ 
+    def setInput(self, x):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoPVObject
+                New signal to process.
+
+        """
+        self._input = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setInput2(self, x):
+        """
+        Replace the `input2` attribute.
+        
+        :Args:
+
+            x : PyoPVObject
+                New signal to process.
+
+        """
+        self._input2 = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInput2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoPVObject. Phase vocoder streaming object 1.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def input2(self):
+        """PyoPVObject. Phase vocoder streaming object 2.""" 
+        return self._input2
+    @input2.setter
+    def input2(self, x): self.setInput2(x)

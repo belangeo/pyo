@@ -7730,3 +7730,318 @@ PVBufTabLoops_members,                                 /* tp_members */
 0,                                              /* tp_alloc */
 PVBufTabLoops_new,                                     /* tp_new */
 };
+
+/*****************/
+/** PVMix **/
+/*****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    PVStream *input_stream;
+    PyObject *input2;
+    PVStream *input2_stream;
+    PVStream *pv_stream;
+    int size;
+    int olaps;
+    int hsize;
+    int hopsize;
+    int overcount;
+    MYFLT **magn;
+    MYFLT **freq;
+    int *count;
+} PVMix;
+
+static void
+PVMix_realloc_memories(PVMix *self) {
+    int i, j, inputLatency;
+    self->hsize = self->size / 2;
+    self->hopsize = self->size / self->olaps;
+    inputLatency = self->size - self->hopsize;
+    self->overcount = 0;
+    self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *)); 
+    self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
+    for (i=0; i<self->olaps; i++) {
+        self->magn[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        self->freq[i] = (MYFLT *)malloc(self->hsize * sizeof(MYFLT));
+        for (j=0; j<self->hsize; j++)
+            self->magn[i][j] = self->freq[i][j] = 0.0;
+    } 
+    for (i=0; i<self->bufsize; i++)
+        self->count[i] = inputLatency;
+    PVStream_setFFTsize(self->pv_stream, self->size);
+    PVStream_setOlaps(self->pv_stream, self->olaps);
+    PVStream_setMagn(self->pv_stream, self->magn);
+    PVStream_setFreq(self->pv_stream, self->freq);
+    PVStream_setCount(self->pv_stream, self->count);
+}
+
+static void
+PVMix_process_i(PVMix *self) {
+    int i, k;
+    MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
+    MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
+    MYFLT **magn2 = PVStream_getMagn((PVStream *)self->input2_stream);
+    MYFLT **freq2 = PVStream_getFreq((PVStream *)self->input2_stream);
+    int *count = PVStream_getCount((PVStream *)self->input_stream);
+    int size = PVStream_getFFTsize((PVStream *)self->input_stream);
+    int olaps = PVStream_getOlaps((PVStream *)self->input_stream);
+
+    if (self->size != size || self->olaps != olaps) {
+        self->size = size;
+        self->olaps = olaps;
+        PVMix_realloc_memories(self);
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        self->count[i] = count[i];
+        if (count[i] >= (self->size-1)) {
+            for (k=0; k<self->hsize; k++) {
+                if (magn[self->overcount][k] > magn2[self->overcount][k]) {
+                    self->magn[self->overcount][k] = magn[self->overcount][k];
+                    self->freq[self->overcount][k] = freq[self->overcount][k];
+                }
+                else {
+                    self->magn[self->overcount][k] = magn2[self->overcount][k];
+                    self->freq[self->overcount][k] = freq2[self->overcount][k];
+                }
+            }
+            self->overcount++;
+            if (self->overcount >= self->olaps)
+                self->overcount = 0;
+        }
+    }
+}
+
+static void
+PVMix_setProcMode(PVMix *self)
+{
+    self->proc_func_ptr = PVMix_process_i;
+}
+
+static void
+PVMix_compute_next_data_frame(PVMix *self)
+{
+    (*self->proc_func_ptr)(self); 
+}
+
+static int
+PVMix_traverse(PVMix *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->input2);
+    Py_VISIT(self->input2_stream);
+    Py_VISIT(self->pv_stream);
+    return 0;
+}
+
+static int 
+PVMix_clear(PVMix *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->input2);
+    Py_CLEAR(self->input2_stream);
+    Py_CLEAR(self->pv_stream);
+    return 0;
+}
+
+static void
+PVMix_dealloc(PVMix* self)
+{
+    int i;
+    pyo_DEALLOC
+    for(i=0; i<self->olaps; i++) {
+        free(self->magn[i]);
+        free(self->freq[i]);
+    }
+    free(self->magn);
+    free(self->freq);
+    free(self->count);
+    PVMix_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *input2tmp, *input2_streamtmp;
+    PVMix *self;
+    self = (PVMix *)type->tp_alloc(type, 0);
+
+    self->size = 1024;
+    self->olaps = 4;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, PVMix_compute_next_data_frame);
+    self->mode_func_ptr = PVMix_setProcMode;
+
+    static char *kwlist[] = {"input", "input2", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &inputtmp, &input2tmp))
+        Py_RETURN_NONE;
+
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMix \"input\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+
+    if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMix \"input2\" argument must be a PyoPVObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_INCREF(input2tmp);
+    Py_XDECREF(self->input2);
+    self->input2 = input2tmp;
+    input2_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input2_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input2_streamtmp;
+
+    self->size = PVStream_getFFTsize(self->input_stream);
+    self->olaps = PVStream_getOlaps(self->input_stream);
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    MAKE_NEW_PV_STREAM(self->pv_stream, &PVStreamType, NULL);
+
+    self->count = (int *)realloc(self->count, self->bufsize * sizeof(int));
+
+    PVMix_realloc_memories(self);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * PVMix_getServer(PVMix* self) { GET_SERVER };
+static PyObject * PVMix_getStream(PVMix* self) { GET_STREAM };
+static PyObject * PVMix_getPVStream(PVMix* self) { GET_PV_STREAM };
+
+static PyObject * PVMix_play(PVMix *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * PVMix_stop(PVMix *self) { STOP };
+
+static PyObject *
+PVMix_setInput(PVMix *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMix \"input\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input);
+    self->input = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input_stream);
+    self->input_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+PVMix_setInput2(PVMix *self, PyObject *arg)
+{
+	PyObject *inputtmp, *input_streamtmp;
+
+    inputtmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
+        PySys_WriteStderr("TypeError: PVMix \"input2\" argument must be a PyoPVObject.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
+    Py_INCREF(inputtmp);
+    Py_XDECREF(self->input2);
+    self->input2 = inputtmp;
+    input_streamtmp = PyObject_CallMethod((PyObject *)self->input2, "_getPVStream", NULL);
+    Py_INCREF(input_streamtmp);
+    Py_XDECREF(self->input2_stream);
+    self->input2_stream = (PVStream *)input_streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef PVMix_members[] = {
+{"server", T_OBJECT_EX, offsetof(PVMix, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(PVMix, stream), 0, "Stream object."},
+{"pv_stream", T_OBJECT_EX, offsetof(PVMix, pv_stream), 0, "Phase Vocoder Stream object."},
+{"input", T_OBJECT_EX, offsetof(PVMix, input), 0, "FFT sound object."},
+{"input2", T_OBJECT_EX, offsetof(PVMix, input2), 0, "FFT sound object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef PVMix_methods[] = {
+{"getServer", (PyCFunction)PVMix_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)PVMix_getStream, METH_NOARGS, "Returns stream object."},
+{"_getPVStream", (PyCFunction)PVMix_getPVStream, METH_NOARGS, "Returns pvstream object."},
+{"setInput", (PyCFunction)PVMix_setInput, METH_O, "Sets a new input object."},
+{"setInput2", (PyCFunction)PVMix_setInput2, METH_O, "Sets a new input object."},
+{"play", (PyCFunction)PVMix_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)PVMix_stop, METH_NOARGS, "Stops computing."},
+{NULL}  /* Sentinel */
+};
+
+PyTypeObject PVMixType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.PVMix_base",                                   /*tp_name*/
+sizeof(PVMix),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)PVMix_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+0,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"PVMix objects. Mix two pv streams.",           /* tp_doc */
+(traverseproc)PVMix_traverse,                  /* tp_traverse */
+(inquiry)PVMix_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+PVMix_methods,                                 /* tp_methods */
+PVMix_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+PVMix_new,                                     /* tp_new */
+};

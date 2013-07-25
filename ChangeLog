@@ -1,5 +1,10 @@
 2013-07-25 belangeo <belangeo@gmail.com>
 
+    * Added new object: PVMix, Mix the most prominent components from two phase vocoder streaming objects.
+    - rev 1130
+
+2013-07-25 belangeo <belangeo@gmail.com>
+
     * Added new object: TableScale, Scales values from a table and writes them into another table.
     - rev 1129
 
