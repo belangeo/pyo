@@ -452,6 +452,7 @@ extern PyTypeObject PVAmpModType;
 extern PyTypeObject PVFreqModType;
 extern PyTypeObject PVBufLoopsType;
 extern PyTypeObject PVBufTabLoopsType;
+extern PyTypeObject PVMixType;
 extern PyTypeObject GranuleType;
 extern PyTypeObject TableScaleType;
 

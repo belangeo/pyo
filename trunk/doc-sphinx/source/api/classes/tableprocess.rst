@@ -98,3 +98,9 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: TableRec
    :members:
 
+*TableScale*
+-----------------------------------
+
+.. autoclass:: TableScale
+   :members:
+
