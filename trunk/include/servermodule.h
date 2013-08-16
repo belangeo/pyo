@@ -63,7 +63,8 @@ typedef struct {
     PyoAudioBackendType audio_be_type;
     void *audio_be_data;
     char *serverName; /* Only used for jack client name */
-    int jackauto; /* jack port auto-connection (on by default) */
+    int jackautoin; /* jack port auto-connection (on by default) */
+    int jackautoout; /* jack port auto-connection (on by default) */
     PmStream *in;
     PmStream *out;
     PmEvent midiEvents[200];

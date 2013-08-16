@@ -561,37 +561,42 @@ Server_jack_autoconnect (Server *self)
     const char **ports;
     int i, ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
-    if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
-        JackPortIsOutput)) == NULL) {
-        Server_error(self, "Jack: Cannot find any physical capture ports\n");
-        ret = -1;
-    }
+    
+    if (self->jackautoin) {
+        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
+            JackPortIsOutput)) == NULL) {
+            Server_error(self, "Jack: Cannot find any physical capture ports\n");
+            ret = -1;
+        }
 
-    i=0;
-    while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
-        if (jack_connect (be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
-            Server_error(self, "Jack: cannot connect input ports\n");
-            ret = -1;
+        i=0;
+        while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
+            if (jack_connect (be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
+                Server_error(self, "Jack: cannot connect input ports\n");
+                ret = -1;
+            }
+            i++;
         }
-        i++;
-    }
-    free (ports);
-    
-    if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
-        JackPortIsInput)) == NULL) {
-        Server_error(self, "Jack: Cannot find any physical playback ports\n");
-        ret = -1;
+        free (ports);
     }
     
-    i=0;
-    while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
-        if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
-            Server_error(self, "Jack: cannot connect output ports\n");
+    if (self->jackautoout) {
+        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
+            JackPortIsInput)) == NULL) {
+            Server_error(self, "Jack: Cannot find any physical playback ports\n");
             ret = -1;
         }
-        i++;
+        
+        i=0;
+        while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
+            if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
+                Server_error(self, "Jack: cannot connect output ports\n");
+                ret = -1;
+            }
+            i++;
+        }
+        free (ports);
     }
-    free (ports);
     return ret;
 }
 
@@ -701,8 +706,8 @@ Server_jack_start (Server *self)
         Server_shut_down(self);
         return -1;
     }
-    if (self->jackauto)
-        Server_jack_autoconnect(self);
+    //if (self->jackauto)
+    Server_jack_autoconnect(self);
     return 0;
 }
 
@@ -1380,7 +1385,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->server_booted = 0;
     self->audio_be_data = NULL;
     self->serverName = (char *) calloc(32, sizeof(char));
-    self->jackauto = 1;
+    self->jackautoin = 1;
+    self->jackautoout = 1;
     self->samplingRate = 44100.0;
     self->nchnls = 2;
     self->record = 0;
@@ -1583,12 +1589,18 @@ Server_setDuplex(Server *self, PyObject *arg)
 }
 
 static PyObject *
-Server_setJackAuto(Server *self, PyObject *arg)
+Server_setJackAuto(Server *self, PyObject *args)
 {
-    if (arg != NULL) {
-        if (PyInt_Check(arg))
-            self->jackauto = PyInt_AsLong(arg);
+    int in=1, out=1;
+    
+    if (! PyArg_ParseTuple(args, "ii", &in, &out)) {
+        Py_INCREF(Py_None);
+        return Py_None;
     }
+
+    self->jackautoin = in;
+    self->jackautoout = out;
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -2318,7 +2330,7 @@ static PyMethodDef Server_methods[] = {
     {"setBufferSize", (PyCFunction)Server_setBufferSize, METH_O, "Sets the server's buffer size."},
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
-    {"setJackAuto", (PyCFunction)Server_setJackAuto, METH_O, "Tells the server to auto-connect Jack ports (0 = disable, 1 = enable)."},
+    {"setJackAuto", (PyCFunction)Server_setJackAuto, METH_VARARGS, "Tells the server to auto-connect Jack ports (0 = disable, 1 = enable)."},
     {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI callable object."},
