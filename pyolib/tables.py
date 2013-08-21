@@ -1714,7 +1714,7 @@ class NewTable(PyoTableObject):
         self._init = init
         self._feedback = feedback
         if init == None:
-            self._base_objs = [NewTable_base(length, feedback=feedback) for i in range(chnls)]
+            self._base_objs = [NewTable_base(length, None, feedback) for i in range(chnls)]
         else:
             if type(init[0]) != ListType: 
                 init = [init]

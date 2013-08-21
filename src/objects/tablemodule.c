@@ -4232,7 +4232,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     TableStream_setSize(self->tablestream, self->size);
 
-    if (inittmp) {
+    if (inittmp && inittmp != Py_None) {
         PyObject_CallMethod((PyObject *)self, "setTable", "O", inittmp);
     }
     
@@ -4594,6 +4594,7 @@ typedef struct {
     MYFLT *trigsBuffer;
     TriggerStream *trig_stream;
     MYFLT *time_buffer_streams;
+    MYFLT *buffer;
 } TableRec;
 
 static void
@@ -4629,8 +4630,11 @@ TableRec_compute_next_data_frame(TableRec *self)
     if (self->pointer < size) {   
         upBound = (int)(size - self->fadeInSample);
         
-        MYFLT buffer[num];
-        memset(&buffer, 0, sizeof(buffer));
+        //MYFLT buffer[num];
+        //memset(&buffer, 0, sizeof(buffer));
+        for (i=0; i<self->bufsize; i++) {
+            self->buffer[i] = 0.0;
+        }
         MYFLT *in = Stream_getData((Stream *)self->input_stream);
         
         for (i=0; i<num; i++) {
@@ -4640,10 +4644,10 @@ TableRec_compute_next_data_frame(TableRec *self)
                 val = (size - (self->pointer+1)) / self->fadeInSample;
             else
                 val = 1.;
-            buffer[i] = in[i] * val;
+            self->buffer[i] = in[i] * val;
             self->time_buffer_streams[i] = self->pointer++;
         }
-        NewTable_recordChunk((NewTable *)self->table, buffer, num);
+        NewTable_recordChunk((NewTable *)self->table, self->buffer, num);
         
         if (num < self->bufsize) {
             for (i=num; i<self->bufsize; i++) {
@@ -4684,6 +4688,7 @@ static void
 TableRec_dealloc(TableRec* self)
 {
     pyo_DEALLOC
+    free(self->buffer);
     free(self->trigsBuffer);
     free(self->time_buffer_streams);
     TableRec_clear(self);
@@ -4726,11 +4731,12 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
 
+    self->buffer = (MYFLT *)realloc(self->buffer, self->bufsize * sizeof(MYFLT));
     self->trigsBuffer = (MYFLT *)realloc(self->trigsBuffer, self->bufsize * sizeof(MYFLT));
     self->time_buffer_streams = (MYFLT *)realloc(self->time_buffer_streams, self->bufsize * sizeof(MYFLT));
 
     for (i=0; i<self->bufsize; i++) {
-        self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
+        self->buffer[i] = self->trigsBuffer[i] = self->time_buffer_streams[i] = 0.0;
     }    
 
     MAKE_NEW_TRIGGER_STREAM(self->trig_stream, &TriggerStreamType, NULL);
@@ -5093,6 +5099,8 @@ typedef struct {
     Stream *input_stream;
     PyObject *table;
     PyObject *sources;
+    MYFLT *buffer;
+    int last_size;
 } TableMorph;
 
 static MYFLT
@@ -5106,6 +5114,18 @@ TableMorph_clip(MYFLT x) {
 }
 
 static void
+TableMorph_alloc_memories(TableMorph *self)
+{
+    int i, size;
+    size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
+    self->last_size = size;
+    self->buffer = (MYFLT *)realloc(self->buffer, size * sizeof(MYFLT));
+    for (i=0; i<size; i++) {
+        self->buffer[i] = 0.0;
+    }
+}
+
+static void
 TableMorph_compute_next_data_frame(TableMorph *self)
 {
     int i, x, y;
@@ -5114,6 +5134,9 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     MYFLT *in = Stream_getData((Stream *)self->input_stream);
     int size = PyInt_AsLong(NewTable_getSize((NewTable *)self->table));
     int len = PyList_Size(self->sources);
+    
+    if (size != self->last_size)
+        TableMorph_alloc_memories(self);
 
     input = TableMorph_clip(in[0]);
 
@@ -5128,12 +5151,12 @@ TableMorph_compute_next_data_frame(TableMorph *self)
     interp1 = 1. - interp;
     interp2 = interp;
     
-    MYFLT buffer[size];
+    //MYFLT buffer[size];
     for (i=0; i<size; i++) {
-        buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
+        self->buffer[i] = tab1[i] * interp1 + tab2[i] * interp2;
     }    
     
-    NewTable_recordChunk((NewTable *)self->table, buffer, size);
+    NewTable_recordChunk((NewTable *)self->table, self->buffer, size);
 }
 
 static int
@@ -5162,6 +5185,7 @@ static void
 TableMorph_dealloc(TableMorph* self)
 {
     pyo_DEALLOC
+    free(self->buffer);
     TableMorph_clear(self);
     self->ob_type->tp_free((PyObject*)self);
 }
@@ -5198,6 +5222,8 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     Py_XDECREF(self->sources);
     self->sources = (PyObject *)sourcestmp;
     
+    TableMorph_alloc_memories(self);
+
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     return (PyObject *)self;

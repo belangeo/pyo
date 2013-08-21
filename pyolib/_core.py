@@ -1002,12 +1002,25 @@ class PyoTableObject(PyoObjectBase):
         [obj.setSize(size) for obj in self._base_objs]
         self.refreshView()
 
-    def getSize(self):
+    def getSize(self, all=False):
         """
         Return table size in samples.
+ 
+        :Args:
         
+            all : boolean
+                If the table contains more than one stream and `all` is True,
+                returns a list of all sizes. Otherwise, returns only the
+                first size as an int. Defaults to False.
+       
         """
-        return self._size
+        if all:
+            return [obj.getSize() for obj in self._base_objs]
+        else:
+            if type(self._size) == ListType:
+                return self._size[0]
+            else:
+                return self._size
 
     def put(self, value, pos=0):
         """
