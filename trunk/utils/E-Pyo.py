@@ -2444,9 +2444,13 @@ class MainFrame(wx.Frame):
             paths = dlg.GetPaths()
             if len(paths) == 1:
                 text = ensureNFD(paths[0])
+                if PLATFORM == "win32":
+                    text = text.replace("\\", "/")
                 self.panel.editor.ReplaceSelection("'" + text + "'")
             else:
                 text = ", ".join(["'"+ensureNFD(path)+"'" for path in paths])
+                if PLATFORM == "win32":
+                    text = text.replace("\\", "/")
                 self.panel.editor.ReplaceSelection("[" + text + "]")
             PREFERENCES["insert_path"] = os.path.split(paths[0])[0]
         dlg.Destroy()
@@ -3942,7 +3946,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "Â¬")
+        #             self.InsertTextUTF8(pos, "¬")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()
