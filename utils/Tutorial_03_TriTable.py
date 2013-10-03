@@ -29,6 +29,7 @@ class TriTable(PyoTableObject):
         self._order = order
         self._tri_table = HarmTable(self._create_list(order), size)
         self._base_objs = self._tri_table.getBaseObjects()
+        self.normalize()
 
     def _create_list(self, order):
         # internal method used to compute the harmonics's weight
@@ -68,7 +69,6 @@ class TriTable(PyoTableObject):
 if __name__ == "__main__":
     s = Server().boot()
     t = TriTable(10, 8192)
-    t.normalize()
     t.view()
     a = Osc(t, 500, mul=.3).out()
     s.gui(locals())

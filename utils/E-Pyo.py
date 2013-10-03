@@ -2738,7 +2738,7 @@ class MainFrame(wx.Frame):
         newtext = ""
         for line in text.splitlines():
             if check and not line.startswith("#"):
-                newtext += 'import sys\nsys.path.append("%s")\n' % cwd
+                newtext += '# encoding: utf-8\nimport sys\nsys.path.append("%s")\n' % cwd
                 check = False
             newtext += line + "\n"
         return newtext

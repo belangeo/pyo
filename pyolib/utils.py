@@ -551,13 +551,23 @@ class Record(PyoObject):
             If it's not possible, it uses the fileformat parameter. Supported formats are:
                 0. WAV - Microsoft WAV format (little endian) {.wav, .wave}
                 1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+                2. AU - Sun/NeXT AU format (big endian) {.au}
+                3. RAW - RAW PCM data {no extension}
+                4. SD2 - Sound Designer 2 {.sd2}
+                5. FLAC - FLAC lossless file format {.flac}
+                6. CAF - Core Audio File format {.caf}
+                7. OGG - Xiph OGG container {.ogg}
         sampletype : int, optional
-            Bit depth encoding of the audio file. Supported types are:
+            Bit depth encoding of the audio file. 
+            
+            SD2 and FLAC only support 16 or 24 bit int. Supported types are:
                 0. 16 bits int (default)
                 1. 24 bits int
                 2. 32 bits int
                 3. 32 bits float
                 4. 64 bits float
+                5. U-Law encoded
+                6. A-Law encoded
         buffering : int, optional
             Number of bufferSize to wait before writing samples to disk.
             
@@ -593,12 +603,11 @@ class Record(PyoObject):
     def __init__(self, input, filename, chnls=2, fileformat=0, sampletype=0, buffering=4):
         PyoObject.__init__(self)
         self._input = input
-        FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1}
         ext = filename.rsplit('.')
         if len(ext) >= 2:
             ext = ext[-1].lower()
-            if FORMATS.has_key(ext):
-                fileformat = FORMATS[ext]
+            if FILE_FORMATS.has_key(ext):
+                fileformat = FILE_FORMATS[ext]
             else:
                 print 'Warning: Unknown file extension. Using fileformat value.'
         else:

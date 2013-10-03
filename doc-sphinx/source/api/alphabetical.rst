@@ -144,6 +144,7 @@ Alphabetical class reference
 - :py:class:`PVFilter` :     Spectral filter.
 - :py:class:`PVFreqMod` :     Performs frequency independent frequency modulations.
 - :py:class:`PVGate` :     Spectral gate.
+- :py:class:`PVMix` :     Mix the most prominent components from two phase vocoder streaming objects.
 - :py:class:`PVMorph` :     Performs spectral morphing between two phase vocoder streaming object.
 - :py:class:`PVMult` :     Multiply magnitudes from two phase vocoder streaming object.
 - :py:class:`PVShift` :     Spectral domain frequency shifter.
@@ -212,6 +213,7 @@ Alphabetical class reference
 - :py:class:`TablePut` :     Writes values, without repetitions, from an audio stream into a DataTable.
 - :py:class:`TableRead` :     Simple waveform table reader.
 - :py:class:`TableRec` :     TableRec is for writing samples into a previously created NewTable.
+- :py:class:`TableScale` :     Scales all the values contained in a PyoTableObject.
 - :py:class:`Tan` :     Performs a tangent function on audio signal.
 - :py:class:`Thresh` :     Informs when a signal crosses a threshold.
 - :py:class:`Timer` :     Reports elapsed time between two trigs.

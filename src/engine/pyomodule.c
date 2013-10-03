@@ -596,6 +596,63 @@ portmidi_get_default_output(){
 }
 
 /****** Libsndfile utilities ******/
+static int 
+libsndfile_get_format(int fileformat, int sampletype) {
+    int format = 0;
+    switch (fileformat) {
+        case 0:
+            format = SF_FORMAT_WAV;
+            break;
+        case 1:
+            format = SF_FORMAT_AIFF;
+            break;
+        case 2:
+            format = SF_FORMAT_AU;
+            break;
+        case 3:
+            format = SF_FORMAT_RAW;
+            break;
+        case 4:
+            format = SF_FORMAT_SD2;
+            break;
+        case 5:
+            format = SF_FORMAT_FLAC;
+            break;
+        case 6:
+            format = SF_FORMAT_CAF;
+            break;
+        case 7:
+            format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+            break;
+    }
+    if (fileformat != 7) {
+        switch (sampletype) {
+            case 0:
+                format = format | SF_FORMAT_PCM_16;
+                break;
+            case 1:
+                format = format | SF_FORMAT_PCM_24;
+                break;
+            case 2:
+                format = format | SF_FORMAT_PCM_32;
+                break;
+            case 3:
+                format = format | SF_FORMAT_FLOAT;
+                break;
+            case 4:
+                format = format | SF_FORMAT_DOUBLE;
+                break;
+            case 5:
+                format = format | SF_FORMAT_ULAW;
+                break;
+            case 6:
+                format = format | SF_FORMAT_ALAW;
+                break;
+        }
+    }
+    return format;
+}
+
 #define sndinfo_info \
 "\nRetrieve informations about a soundfile.\n\n\
 Prints the infos of the given soundfile to the console and returns a tuple containing:\n\n(number of frames, duration in seconds, sampling rate,\nnumber of channels, file format, sample type).\n\n:Args:\n\n    \
@@ -649,6 +706,34 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
             strcpy(fileformat, "AIFF");
             subformat = format - SF_FORMAT_AIFF;
         }
+        else if (format > SF_FORMAT_AU && format < SF_FORMAT_RAW) {
+            strcpy(fileformat, "AU");
+            subformat = format - SF_FORMAT_AU;
+        }
+        else if (format > SF_FORMAT_RAW && format < SF_FORMAT_PAF) {
+            strcpy(fileformat, "RAW");
+            subformat = format - SF_FORMAT_RAW;
+        }
+        else if (format > SF_FORMAT_SD2 && format < SF_FORMAT_FLAC) {
+            strcpy(fileformat, "SD2");
+            subformat = format - SF_FORMAT_SD2;
+        }
+        else if (format > SF_FORMAT_FLAC && format < SF_FORMAT_CAF) {
+            strcpy(fileformat, "FLAC");
+            subformat = format - SF_FORMAT_FLAC;
+        }
+        else if (format > SF_FORMAT_CAF && format < SF_FORMAT_WVE) {
+            strcpy(fileformat, "CAF");
+            subformat = format - SF_FORMAT_CAF;
+        }
+        else if (format > SF_FORMAT_OGG && format < SF_FORMAT_MPC2K) {
+            strcpy(fileformat, "OGG");
+            subformat = format - SF_FORMAT_OGG;
+        }
+        else if (format > SF_FORMAT_RF64 && format < 0x230000) {
+            strcpy(fileformat, "RF64");
+            subformat = format - SF_FORMAT_RF64;
+        }
         else {
             strcpy(fileformat, "????");
             subformat = -1;
@@ -684,7 +769,20 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
                     sampletype = malloc(strlen("64 bit float") + 1);
                     strcpy(sampletype, "64 bit float");
                     break;
+                case SF_FORMAT_ULAW:
+                    sampletype = malloc(strlen("U-Law encoded") + 1);
+                    strcpy(sampletype, "U-Law encoded");
+                    break;
+                case SF_FORMAT_ALAW:
+                    sampletype = malloc(strlen("A-Law encoded") + 1);
+                    strcpy(sampletype, "A-Law encoded");
+                    break;
+                case SF_FORMAT_VORBIS:
+                    sampletype = malloc(strlen("vorbis encoding") + 1);
+                    strcpy(sampletype, "vorbis encoding");
+                    break;
                 default:
+                    /* printf("%d\n", subformat); */
                     sampletype = malloc(strlen("Unknown...") + 1);
                     strcpy(sampletype, "Unknown...");
                     break;
@@ -698,8 +796,8 @@ sndinfo(PyObject *self, PyObject *args, PyObject *kwds) {
         if (print)
             fprintf(stdout, "name: %s\nnumber of frames: %i\nduration: %.4f sec\nsr: %.2f\nchannels: %i\nformat: %s\nsample type: %s\n", 
                     path, (int)info.frames, ((float)info.frames / info.samplerate), (float)info.samplerate, (int)info.channels, fileformat, sampletype);
-        PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), PyFloat_FromDouble(info.samplerate), 
-                                         PyInt_FromLong(info.channels), PyString_FromString(fileformat), PyString_FromString(sampletype));
+        PyObject *sndinfo = PyTuple_Pack(6, PyInt_FromLong(info.frames), PyFloat_FromDouble((float)info.frames / info.samplerate), 
+            PyFloat_FromDouble(info.samplerate), PyInt_FromLong(info.channels), PyString_FromString(fileformat), PyString_FromString(sampletype));
         sf_close(sf);
         free(path);
         free(sampletype);
@@ -715,13 +813,22 @@ sr : int, optional\n        Sampling rate of the new file. Defaults to 44100.\n 
 channels : int, optional\n        number of channels of the new file. Defaults to 1.\n    \
 fileformat : int, optional\n        Format type of the new file. Defaults to 0. Supported formats are:\n            \
 0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}\n            \
-1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n    \
-sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0. Supported types are:\n            \
+1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n            \
+2. AU - Sun/NeXT AU format (big endian) {.au}\n            \
+3. RAW - RAW PCM data {no extension}\n            \
+4. SD2 - Sound Designer 2 {.sd2}\n            \
+5. FLAC - FLAC lossless file format {.flac}\n            \
+6. CAF - Core Audio File format {.caf}\n            \
+7. OGG - Xiph OGG container {.ogg}\n    \
+sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0.\n        \
+SD2 and FLAC only support 16 or 24 bit int. Supported types are:\n            \
 0. 16 bit int\n            \
 1. 24 bit int\n            \
 2. 32 bit int\n            \
 3. 32 bit float\n            \
-4. 64 bit float\n\n\
+4. 64 bit float\n            \
+5. U-Law encoded\n            \
+6. A-Law encoded\n\n\
 >>> from random import uniform\n\
 >>> import os\n\
 >>> home = os.path.expanduser('~')\n\
@@ -748,32 +855,8 @@ savefile(PyObject *self, PyObject *args, PyObject *kwds) {
     
     recinfo.samplerate = sr;
     recinfo.channels = channels;
-    switch (fileformat) {
-        case 0:
-            recinfo.format = SF_FORMAT_WAV;
-            break;
-        case 1:
-            recinfo.format = SF_FORMAT_AIFF;
-            break;
-    }
-    switch (sampletype) {
-        case 0:
-            recinfo.format = recinfo.format | SF_FORMAT_PCM_16;
-            break;
-        case 1:
-            recinfo.format = recinfo.format | SF_FORMAT_PCM_24;
-            break;
-        case 2:
-            recinfo.format = recinfo.format | SF_FORMAT_PCM_32;
-            break;
-        case 3:
-            recinfo.format = recinfo.format | SF_FORMAT_FLOAT;
-            break;
-        case 4:
-            recinfo.format = recinfo.format | SF_FORMAT_DOUBLE;
-            break;
-    }
-    
+    recinfo.format = libsndfile_get_format(fileformat, sampletype);
+
     if (channels == 1) {
         size = PyList_Size(samples);
         sampsarray = (MYFLT *)malloc(size * sizeof(MYFLT));
@@ -811,13 +894,22 @@ table : PyoTableObject\n        table from which to retrieve samples to write.\n
 path : string\n        Full path (including extension) of the new file.\n    \
 fileformat : int, optional\n        Format type of the new file. Defaults to 0. Supported formats are:\n            \
 0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}\n            \
-1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n    \
-sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0. Supported types are:\n            \
+1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}\n            \
+2. AU - Sun/NeXT AU format (big endian) {.au}\n            \
+3. RAW - RAW PCM data {no extension}\n            \
+4. SD2 - Sound Designer 2 {.sd2}\n            \
+5. FLAC - FLAC lossless file format {.flac}\n            \
+6. CAF - Core Audio File format {.caf}\n            \
+7. OGG - Xiph OGG container {.ogg}\n    \
+sampletype ; int, optional\n        Bit depth encoding of the audio file. Defaults to 0.\n        \
+SD2 and FLAC only support 16 or 24 bit int. Supported types are:\n            \
 0. 16 bit int\n            \
 1. 24 bit int\n            \
 2. 32 bit int\n            \
 3. 32 bit float\n            \
-4. 64 bit float\n\n\
+4. 64 bit float\n            \
+5. U-Law encoded\n            \
+6. A-Law encoded\n\n\
 >>> import os\n\
 >>> home = os.path.expanduser('~')\n\
 >>> path1 = SNDS_PATH + '/transparent.aif'\n\
@@ -857,31 +949,7 @@ savefileFromTable(PyObject *self, PyObject *args, PyObject *kwds) {
     
     recinfo.samplerate = sr;
     recinfo.channels = channels;
-    switch (fileformat) {
-        case 0:
-            recinfo.format = SF_FORMAT_WAV;
-            break;
-        case 1:
-            recinfo.format = SF_FORMAT_AIFF;
-            break;
-    }
-    switch (sampletype) {
-        case 0:
-            recinfo.format = recinfo.format | SF_FORMAT_PCM_16;
-            break;
-        case 1:
-            recinfo.format = recinfo.format | SF_FORMAT_PCM_24;
-            break;
-        case 2:
-            recinfo.format = recinfo.format | SF_FORMAT_PCM_32;
-            break;
-        case 3:
-            recinfo.format = recinfo.format | SF_FORMAT_FLOAT;
-            break;
-        case 4:
-            recinfo.format = recinfo.format | SF_FORMAT_DOUBLE;
-            break;
-    }
+    recinfo.format = libsndfile_get_format(fileformat, sampletype);
 
     if (! (recfile = sf_open(recpath, SFM_WRITE, &recinfo))) {
         printf ("savefileFromTable: failed to open output file %s.\n", recpath);

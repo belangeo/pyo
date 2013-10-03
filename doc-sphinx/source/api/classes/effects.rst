@@ -72,3 +72,9 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: Harmonizer
    :members:
 
+*FreqShift*
+------------
+
+.. autoclass:: FreqShift
+   :members:
+

@@ -42,6 +42,7 @@ XNOISE_DICT = {'uniform': 0, 'linear_min': 1, 'linear_max': 2, 'triangle': 3,
                 'expon_min': 4, 'expon_max': 5, 'biexpon': 6, 'cauchy': 7, 
                 'weibull': 8, 'gaussian': 9, 'poisson': 10, 'walker': 11, 
                 'loopseg': 12}
+FILE_FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1, 'au': 2, '': 3, 'sd2': 4, 'flac': 5, 'caf': 6, 'ogg': 7}
 FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_host_apis": "pa_list_host_apis()",
                         "pa_get_default_host_api": "pa_get_default_host_api()", "pa_count_devices": "pa_count_devices()",
                         "pa_list_devices": "pa_list_devices()", "pa_get_devices_infos": "pa_get_devices_infos()",
@@ -915,15 +916,30 @@ class PyoTableObject(PyoObjectBase):
                 Format type of the new file. Supported formats are:
                     0. WAVE - Microsoft WAV format (little endian) {.wav, .wave}
                     1. AIFF - Apple/SGI AIFF format (big endian) {.aif, .aiff}
+                    2. AU - Sun/NeXT AU format (big endian) {.au}
+                    3. RAW - RAW PCM data {no extension}
+                    4. SD2 - Sound Designer 2 {.sd2}
+                    5. FLAC - FLAC lossless file format {.flac}
+                    6. CAF - Core Audio File format {.caf}
+                    7. OGG - Xiph OGG container {.ogg}
             sampletype : int, optional
-                Bit depth encoding of the audio file. Supported types are:
+                Bit depth encoding of the audio file. 
+                
+                SD2 and FLAC only support 16 or 24 bit int. Supported types are:
                     0. 16 bit int (default)
                     1. 24 bit int
                     2. 32 bit int
                     3. 32 bit float
                     4. 64 bit float
+                    5. U-Law encoded
+                    6. A-Law encoded
 
         """
+        ext = path.rsplit('.')
+        if len(ext) >= 2:
+            ext = ext[-1].lower()
+            if FILE_FORMATS.has_key(ext):
+                format = FILE_FORMATS[ext]
         savefileFromTable(self, path, format, sampletype)
     
     def write(self, path, oneline=True):
