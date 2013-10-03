@@ -2101,23 +2101,49 @@ Server_start_rec_internal(Server *self, char *filename)
         case 1:
             self->recinfo.format = SF_FORMAT_AIFF;
             break;
-    }
-    switch (self->rectype) {
-        case 0:
-            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_16;
-            break;
-        case 1:
-            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_24;
-            break;
         case 2:
-            self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_32;
+            self->recinfo.format = SF_FORMAT_AU;
             break;
         case 3:
-            self->recinfo.format = self->recinfo.format | SF_FORMAT_FLOAT;
+            self->recinfo.format = SF_FORMAT_RAW;
             break;
         case 4:
-            self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
+            self->recinfo.format = SF_FORMAT_SD2;
             break;
+        case 5:
+            self->recinfo.format = SF_FORMAT_FLAC;
+            break;
+        case 6:
+            self->recinfo.format = SF_FORMAT_CAF;
+            break;
+        case 7:
+            self->recinfo.format = SF_FORMAT_OGG | SF_FORMAT_VORBIS;
+            break;
+    }
+    if (self->recformat != 7) {
+        switch (self->rectype) {
+            case 0:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_16;
+                break;
+            case 1:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_24;
+                break;
+            case 2:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_PCM_32;
+                break;
+            case 3:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_FLOAT;
+                break;
+            case 4:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_DOUBLE;
+                break;
+            case 5:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_ULAW;
+                break;
+            case 6:
+                self->recinfo.format = self->recinfo.format | SF_FORMAT_ALAW;
+                break;
+        }
     }
     Server_debug(self, "recinfo.format : %i\n", self->recinfo.format);
 
