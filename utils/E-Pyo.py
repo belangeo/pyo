@@ -5385,7 +5385,7 @@ if __name__ == '__main__':
             else:
                 pass
 
-    app = wx.PySimpleApp()
+    app = wx.App(False)
     X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
     if X < 850: X -= 50
     else: X = 850
