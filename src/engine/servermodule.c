@@ -156,6 +156,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
 
     assert(framesPerBuffer == server->bufferSize);
     int i;
+    int offset = 0;
     
     /* avoid unused variable warnings */
     (void) timeInfo;
@@ -167,14 +168,16 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     
     if (server->duplex == 1) {
         float *in = (float *)inputBuffer;
+        offset = server->bufferSize * server->input_offset;
         for (i=0; i<server->bufferSize*server->nchnls; i++) {
-            server->input_buffer[i] = (MYFLT)in[i];
+            server->input_buffer[i] = (MYFLT)in[i+offset];
         }
     }
 
     Server_process_buffers(server);
+    offset = server->bufferSize * server->output_offset;
     for (i=0; i<server->bufferSize*server->nchnls; i++) {
-        out[i] = (float) server->output_buffer[i];
+        out[i+offset] = (float) server->output_buffer[i];
     }
     server->midi_count = 0;
     
@@ -213,7 +216,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
         float **in = (float **)inputBuffer;
         for (i=0; i<server->bufferSize; i++) {
             for (j=0; j<server->nchnls; j++) {
-                server->input_buffer[(i*server->nchnls)+j] = (MYFLT)in[j][i];
+                server->input_buffer[(i*server->nchnls)+j] = (MYFLT)in[j+server->input_offset][i];
             }
         }
     }
@@ -221,7 +224,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
     Server_process_buffers(server);
     for (i=0; i<server->bufferSize; i++) {
         for (j=0; j<server->nchnls; j++) {
-            out[j][i] = (float) server->output_buffer[(i*server->nchnls)+j];
+            out[j+server->output_offset][i] = (float) server->output_buffer[(i*server->nchnls)+j];
         }
     }
     server->midi_count = 0;
@@ -252,10 +255,10 @@ jack_callback (jack_nframes_t nframes, void *arg)
     }
     PyoJackBackendData *be_data = (PyoJackBackendData *) server->audio_be_data;
     for (i = 0; i < server->nchnls; i++) {
-        in_buffers[i] = jack_port_get_buffer (be_data->jack_in_ports[i], server->bufferSize);
+        in_buffers[i] = jack_port_get_buffer (be_data->jack_in_ports[i+server->input_offset], server->bufferSize);
     }
     for (i = 0; i < server->nchnls; i++) {
-        out_buffers[i] = jack_port_get_buffer (be_data->jack_out_ports[i], server->bufferSize);
+        out_buffers[i] = jack_port_get_buffer (be_data->jack_out_ports[i+server->output_offset], server->bufferSize);
         
     }
     /* jack audio data is not interleaved */
@@ -328,7 +331,7 @@ OSStatus coreaudio_input_callback(AudioDeviceID device, const AudioTimeStamp* in
     bufchnls = inputBuf->mNumberChannels;
     servchnls = server->nchnls < bufchnls ? server->nchnls : bufchnls;
     for (i=0; i<server->bufferSize; i++) {
-        off1chnls = i*bufchnls;
+        off1chnls = i*bufchnls+server->input_offset;
         off2chnls = i*servchnls;
         for (j=0; j<servchnls; j++) {
             server->input_buffer[off2chnls+j] = (MYFLT)bufdata[off1chnls+j];
@@ -359,7 +362,7 @@ OSStatus coreaudio_output_callback(AudioDeviceID device, const AudioTimeStamp* i
     servchnls = server->nchnls < bufchnls ? server->nchnls : bufchnls;
     float *bufdata = (float*)outputBuf->mData;
     for (i=0; i<server->bufferSize; i++) {
-        off1chnls = i*bufchnls;
+        off1chnls = i*bufchnls+server->output_offset;
         off2chnls = i*servchnls;
         for(j=0; j<servchnls; j++) {
             bufdata[off1chnls+j] = server->output_buffer[off2chnls+j];
@@ -473,7 +476,7 @@ Server_pa_init(Server *self)
     /* setup output and input streams */
     memset(&outputParameters, 0, sizeof(outputParameters));
     outputParameters.device = outDevice;
-    outputParameters.channelCount = self->nchnls;
+    outputParameters.channelCount = self->nchnls + self->output_offset;
     outputParameters.sampleFormat = sampleFormat;
     outputParameters.suggestedLatency = Pa_GetDeviceInfo( outputParameters.device )->defaultHighOutputLatency;
     outputParameters.hostApiSpecificStreamInfo = NULL;
@@ -481,7 +484,7 @@ Server_pa_init(Server *self)
     if (self->duplex == 1) {
         memset(&inputParameters, 0, sizeof(inputParameters));
         inputParameters.device = inDevice;
-        inputParameters.channelCount = self->nchnls;
+        inputParameters.channelCount = self->nchnls + self->input_offset;
         inputParameters.sampleFormat = sampleFormat;
         inputParameters.suggestedLatency = Pa_GetDeviceInfo( inputParameters.device )->defaultHighInputLatency ;
         inputParameters.hostApiSpecificStreamInfo = NULL;
@@ -489,9 +492,9 @@ Server_pa_init(Server *self)
 
     if (self->input == -1 && self->output == -1) {
         if (self->duplex == 1)
-            err = Pa_OpenDefaultStream(&be_data->stream, self->nchnls, self->nchnls, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, self->nchnls + self->input_offset, self->nchnls + self->output_offset, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
         else
-            err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
+            err = Pa_OpenDefaultStream(&be_data->stream, 0, self->nchnls + self->output_offset, sampleFormat, self->samplingRate, self->bufferSize, streamCallback, (void *) self);
     }
     else {
         if (self->duplex == 1)
@@ -563,8 +566,7 @@ Server_jack_autoconnect (Server *self)
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     
     if (self->jackautoin) {
-        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
-            JackPortIsOutput)) == NULL) {
+        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, JackPortIsOutput)) == NULL) {
             Server_error(self, "Jack: Cannot find any physical capture ports\n");
             ret = -1;
         }
@@ -581,8 +583,7 @@ Server_jack_autoconnect (Server *self)
     }
     
     if (self->jackautoout) {
-        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, 
-            JackPortIsInput)) == NULL) {
+        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, JackPortIsInput)) == NULL) {
             Server_error(self, "Jack: Cannot find any physical playback ports\n");
             ret = -1;
         }
@@ -604,16 +605,21 @@ int
 Server_jack_init (Server *self)
 {   
     char client_name[32];
+    char name[16];
     const char *server_name = "server";
     jack_options_t options = JackNullOption;
     jack_status_t status;
     int sampleRate = 0;
     int bufferSize = 0;
+    int nchnls = 0;
+    int total_nchnls = 0;
+    int index = 0;
+    int ret = 0;
     assert(self->audio_be_data == NULL);
     PyoJackBackendData *be_data = (PyoJackBackendData *) malloc(sizeof(PyoJackBackendData *));
     self->audio_be_data = (void *) be_data;
-    be_data->jack_in_ports = (jack_port_t **) calloc(self->nchnls, sizeof(jack_port_t *));
-    be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls, sizeof(jack_port_t *));
+    be_data->jack_in_ports = (jack_port_t **) calloc(self->nchnls + self->input_offset, sizeof(jack_port_t *));
+    be_data->jack_out_ports = (jack_port_t **) calloc(self->nchnls + self->output_offset, sizeof(jack_port_t *));
     strncpy(client_name,self->serverName, 32);
     be_data->jack_client = jack_client_open (client_name, options, &status, server_name);
     if (be_data->jack_client == NULL) {
@@ -653,26 +659,34 @@ Server_jack_init (Server *self)
     else {
         Server_debug(self, "Jack engine buffer size: %" PRIu32 "\n", bufferSize);
     }
-    int nchnls = self->nchnls;
-    
+
+    nchnls = total_nchnls = self->nchnls + self->input_offset;
     while (nchnls-- > 0) {
-        char name[16];
-        int ret;
-        int index = self->nchnls - nchnls - 1;
+        index = total_nchnls - nchnls - 1;
         ret = sprintf(name, "input_%i", index + 1);
         if (ret > 0) {
             be_data->jack_in_ports[index]
             = jack_port_register (be_data->jack_client, name, 
                                   JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
         }
-        ret = sprintf(name, "output_%i", self->nchnls - nchnls);
+
+        if ((be_data->jack_in_ports[index] == NULL)) {
+            Server_error(self, "Jack: no more JACK input ports available\n");
+            return -1;
+        }
+    }
+
+    nchnls = total_nchnls = self->nchnls + self->output_offset;
+    while (nchnls-- > 0) {
+        index = total_nchnls - nchnls - 1;
+        ret = sprintf(name, "output_%i", index + 1);
         if (ret > 0) {
             be_data->jack_out_ports[index] 
             = jack_port_register (be_data->jack_client, name, 
                                   JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
         }
-        if ((be_data->jack_in_ports[index] == NULL) || (be_data->jack_out_ports[index] == NULL)) {
-            Server_error(self, "Jack: no more JACK ports available\n");
+        if ((be_data->jack_out_ports[index] == NULL)) {
+            Server_error(self, "Jack: no more JACK output ports available\n");
             return -1;
         }
     }
@@ -1394,6 +1408,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->duplex = 0;
     self->input = -1;
     self->output = -1;
+    self->input_offset = 0;
+    self->output_offset = 0;
     self->midi_input = -1;
     self->midi_output = -1;
     self->amp = self->resetAmp = 1.;
@@ -1461,7 +1477,39 @@ Server_setDefaultRecPath(Server *self, PyObject *args, PyObject *kwds)
     Py_INCREF(Py_None);
     return Py_None;
 }
-    
+
+static PyObject *
+Server_setInputOffset(Server *self, PyObject *arg)
+{
+    if (self->server_booted) {
+        Server_warning(self, "Can't change input offset for booted server.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->input_offset = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setOutputOffset(Server *self, PyObject *arg)
+{
+    if (self->server_booted) {
+        Server_warning(self, "Can't change output offset for booted server.\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+	if (arg != NULL) {
+        if (PyInt_Check(arg))
+            self->output_offset = PyInt_AsLong(arg);
+    }
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyObject *
 Server_setInputDevice(Server *self, PyObject *arg)
 {
@@ -2349,6 +2397,8 @@ Server_getStreams(Server *self)
 static PyMethodDef Server_methods[] = {
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
     {"setOutputDevice", (PyCFunction)Server_setOutputDevice, METH_O, "Sets audio output device."},
+    {"setInputOffset", (PyCFunction)Server_setInputOffset, METH_O, "Sets audio input channel offset."},
+    {"setOutputOffset", (PyCFunction)Server_setOutputOffset, METH_O, "Sets audio output channel offset."},
     {"setInOutDevice", (PyCFunction)Server_setInOutDevice, METH_O, "Sets both audio input and output device."},
     {"setMidiInputDevice", (PyCFunction)Server_setMidiInputDevice, METH_O, "Sets MIDI input device."},
     {"setMidiOutputDevice", (PyCFunction)Server_setMidiOutputDevice, METH_O, "Sets MIDI output device."},

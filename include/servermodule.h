@@ -75,6 +75,8 @@ typedef struct {
     int duplex;
     int input;
     int output;
+    int input_offset;
+    int output_offset;
     int midi_input;
     int midi_output;
     int withPortMidi;

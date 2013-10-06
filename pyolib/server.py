@@ -79,6 +79,9 @@ class Server(object):
         - setInOutDevice(x) : Set both input and output devices. See `pa_list_devices()`.
         - setInputDevice(x) : Set the audio input device number. See `pa_list_devices()`.
         - setOutputDevice(x) : Set the audio output device number. See `pa_list_devices()`.
+        - setInputOffset(x) : Set the first physical input channel.
+        - setOutputOffset(x) : Set the first physical output channel.
+        - setInOutOffset(x) : Set the first physical input and output channels.
         - setMidiInputDevice(x) : Set the MIDI input device number. See `pm_list_devices()`.
         - setMidiOutputDevice(x) : Set the MIDI output device number. See `pm_list_devices()`.
         - setSamplingRate(x) : Set the sampling rate used by the server.
@@ -205,6 +208,54 @@ class Server(object):
 
         """
         self._server.setOutputDevice(x)
+
+    def setInputOffset(self, x):
+        """
+        Set the first physical input channel.
+        
+        Channel number `x` from the soundcard will be assigned to
+        server's channel one, channel number `x` + 1 to server's
+        channel two and so on. 
+        
+        :Args:
+
+            x : int
+                Channel number.
+
+        """
+        self._server.setInputOffset(x)
+
+    def setOutputOffset(self, x):
+        """
+        Set the first physical output channel.
+
+        Server's channel one will be assigned to soundcard's channel 
+        number `x`, server's channel two will be assigned to soundcard's
+        channel number `x` + 1 and so on. 
+        
+        :Args:
+
+            x : int
+                Channel number.
+
+        """
+        self._server.setOutputOffset(x)
+
+    def setInOutOffset(self, x):
+        """
+        Set the first physical input and output channels.
+
+        Set both offsets to the same value. See `setInputOffset` and
+        `setOutputOffset` documentation for more details.
+
+        :Args:
+
+            x : int
+                Channel number.
+
+        """
+        self._server.setInputOffset(x)
+        self._server.setOutputOffset(x)
 
     def setMidiInputDevice(self, x):
         """
