@@ -901,7 +901,7 @@ class PyoObjectControl(wx.Frame):
                     else: scl = False
                     if res == 'int': res = True
                     else: res = False
-                    self._sliders.append(ControlSlider(panel, mini, maxi, init, log=scl, size=(225,16),
+                    self._sliders.append(ControlSlider(panel, mini, maxi, init, log=scl, size=(300,16),
                                         outFunction=Command(self.setval, key), integer=res))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
                 else:
@@ -919,17 +919,10 @@ class PyoObjectControl(wx.Frame):
         self.box.AddGrowableCol(1, 1) 
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
 
-        if sys.platform == "linux2":
-            Y_OFF = 15
-        elif sys.platform == "win32":
-            Y_OFF = 55
-        else:
-            Y_OFF = 20    
         panel.SetSizerAndFit(mainBox)
-        x,y = panel.GetSize()
-        self.SetSize((-1, y+Y_OFF))
-        self.SetMinSize((-1, y+Y_OFF))
-        self.SetMaxSize((-1, y+Y_OFF))
+        self.SetClientSize(panel.GetSize())
+        self.SetMinSize((-1, self.GetSize()[1]))
+        self.SetMaxSize((-1, self.GetSize()[1]))
         
     def _destroy(self, event):
         for m in self._map_list:
@@ -962,13 +955,16 @@ class ViewTable(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.width, self.height = 500, 200
         self.half_height = self.height / 2
-        if self._WITH_PIL:
-            Y_OFF = {'linux2': 25, 'win32': 55, 'darwin': 30}[sys.platform]
-        else:
-            Y_OFF = {'linux2': 35, 'win32': 40, 'darwin': 40}[sys.platform]
-        self.SetSize((self.width+10, self.height+Y_OFF))
-        self.SetMinSize((self.width+10, self.height+Y_OFF))
-        self.SetMaxSize((self.width+10, self.height+Y_OFF))
+#        if self._WITH_PIL:
+#            Y_OFF = {'linux2': 25, 'win32': 55, 'darwin': 30}[sys.platform]
+#        else:
+#            Y_OFF = {'linux2': 35, 'win32': 40, 'darwin': 40}[sys.platform]
+#        self.SetSize((self.width+10, self.height+Y_OFF))
+#        self.SetMinSize((self.width+10, self.height+Y_OFF))
+#        self.SetMaxSize((self.width+10, self.height+Y_OFF))
+        self.SetClientSize((self.width+10, self.height+10))
+        self.SetMinSize(self.GetSize())
+        self.SetMaxSize(self.GetSize())
         self.draw(samples)
 
     def update(self, samples):
@@ -1184,13 +1180,16 @@ class ViewMatrix(wx.Frame):
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        if self._WITH_PIL:
-            Y_OFF = {'linux2': 0, 'win32': 45, 'darwin': 22}[sys.platform]
-        else:
-            Y_OFF = {'linux2': 0, 'win32': 22, 'darwin': 22}[sys.platform]
-        self.SetSize((size[0], size[1]+Y_OFF))
-        self.SetMinSize((size[0], size[1]+Y_OFF))
-        self.SetMaxSize((size[0], size[1]+Y_OFF))
+#        if self._WITH_PIL:
+#            Y_OFF = {'linux2': 0, 'win32': 45, 'darwin': 22}[sys.platform]
+#        else:
+#            Y_OFF = {'linux2': 0, 'win32': 22, 'darwin': 22}[sys.platform]
+#        self.SetSize((size[0], size[1]+Y_OFF))
+#        self.SetMinSize((size[0], size[1]+Y_OFF))
+#        self.SetMaxSize((size[0], size[1]+Y_OFF))
+        self.SetClientSize(size)
+        self.SetMinSize(self.GetSize())
+        self.SetMaxSize(self.GetSize())
 
     def update(self, samples):
         wx.CallAfter(self.setImage, samples)
@@ -2229,23 +2228,9 @@ class ServerGUI(wx.Frame):
         panel.SetBackgroundColour(BACKGROUND_COLOUR)
         box = wx.BoxSizer(wx.VERTICAL)
 
-        if sys.platform == "linux2":
-            X_OFF = 0
-            Y_OFF = 30
-            leftMargin = 25
-        elif sys.platform == "win32":
-            try:
-                if sys.getwindowsversion()[0] >= 6:
-                    X_OFF = 16
-                else:
-                    X_OFF = 8
-            except:
-                X_OFF = 8
-            Y_OFF = 65
+        if sys.platform == "win32":
             leftMargin = 24
         else:
-            X_OFF = 0
-            Y_OFF = 35
             leftMargin = 25
 
         buttonBox = wx.BoxSizer(wx.HORIZONTAL)
@@ -2293,10 +2278,9 @@ class ServerGUI(wx.Frame):
             self.text.Bind(wx.EVT_CHAR, self.onChar)
             box.Add(self.text, 0, wx.LEFT, leftMargin)
 
+        box.AddSpacer(10)
         panel.SetSizerAndFit(box)
-        x, y = panel.GetSize()
-        panel.SetSize((x+X_OFF, y+Y_OFF))
-        self.SetSize((x+X_OFF, y+Y_OFF))
+        self.SetClientSize(panel.GetSize())
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
 
