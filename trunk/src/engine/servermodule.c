@@ -155,8 +155,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     Server *server = (Server *) arg;
 
     assert(framesPerBuffer == server->bufferSize);
-    int i;
-    int offset = 0;
+    int i, j, bufchnls, index1, index2;
     
     /* avoid unused variable warnings */
     (void) timeInfo;
@@ -168,16 +167,24 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
     
     if (server->duplex == 1) {
         float *in = (float *)inputBuffer;
-        offset = server->bufferSize * server->input_offset;
-        for (i=0; i<server->bufferSize*server->nchnls; i++) {
-            server->input_buffer[i] = (MYFLT)in[i+offset];
+        bufchnls = server->nchnls + server->input_offset;
+        for (i=0; i<server->bufferSize; i++) {
+            index1 = i * server->nchnls;
+            index2 = i * bufchnls + server->input_offset;
+            for (j=0; j<server->nchnls; j++) {
+                server->input_buffer[index1+j] = (MYFLT)in[index2+j];
+            }
         }
     }
 
     Server_process_buffers(server);
-    offset = server->bufferSize * server->output_offset;
-    for (i=0; i<server->bufferSize*server->nchnls; i++) {
-        out[i+offset] = (float) server->output_buffer[i];
+    bufchnls = server->nchnls + server->output_offset;
+    for (i=0; i<server->bufferSize; i++) {
+        index1 = i * server->nchnls;
+        index2 = i * bufchnls + server->output_offset;
+        for (j=0; j<server->nchnls; j++) {
+            out[index2+j] = (float) server->output_buffer[index1+j];
+        }
     }
     server->midi_count = 0;
     
