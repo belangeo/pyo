@@ -921,7 +921,7 @@ class PyoObjectControl(wx.Frame):
 
         panel.SetSizerAndFit(mainBox)
         self.SetClientSize(panel.GetSize())
-        self.SetMinSize((-1, self.GetSize()[1]))
+        self.SetMinSize(self.GetSize())
         self.SetMaxSize((-1, self.GetSize()[1]))
         
     def _destroy(self, event):
@@ -955,13 +955,6 @@ class ViewTable(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.width, self.height = 500, 200
         self.half_height = self.height / 2
-#        if self._WITH_PIL:
-#            Y_OFF = {'linux2': 25, 'win32': 55, 'darwin': 30}[sys.platform]
-#        else:
-#            Y_OFF = {'linux2': 35, 'win32': 40, 'darwin': 40}[sys.platform]
-#        self.SetSize((self.width+10, self.height+Y_OFF))
-#        self.SetMinSize((self.width+10, self.height+Y_OFF))
-#        self.SetMaxSize((self.width+10, self.height+Y_OFF))
         self.SetClientSize((self.width+10, self.height+10))
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
@@ -1180,13 +1173,6 @@ class ViewMatrix(wx.Frame):
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-#        if self._WITH_PIL:
-#            Y_OFF = {'linux2': 0, 'win32': 45, 'darwin': 22}[sys.platform]
-#        else:
-#            Y_OFF = {'linux2': 0, 'win32': 22, 'darwin': 22}[sys.platform]
-#        self.SetSize((size[0], size[1]+Y_OFF))
-#        self.SetMinSize((size[0], size[1]+Y_OFF))
-#        self.SetMaxSize((size[0], size[1]+Y_OFF))
         self.SetClientSize(size)
         self.SetMinSize(self.GetSize())
         self.SetMaxSize(self.GetSize())
