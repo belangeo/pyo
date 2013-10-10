@@ -2015,8 +2015,10 @@ Server_start(Server *self)
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);
 
-    midierr = Server_pm_init(self);
-    Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
+    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB) {
+        midierr = Server_pm_init(self);
+        Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
+    }
 
     if (self->startoffset > 0.0) {
         Server_message(self,"Rendering %.2f seconds offline...\n", self->startoffset);
@@ -2096,15 +2098,17 @@ Server_stop(Server *self)
     }
     else {
         self->server_stopped = 1;
-        if (self->withPortMidi == 1)
+        if (self->withPortMidi == 1) {
             Pm_Close(self->in);
-        if (self->withPortMidiOut == 1)
+        }
+        if (self->withPortMidiOut == 1) {
             Pm_Close(self->out);
+        }
         if (self->withPortMidi == 1 || self->withPortMidiOut == 1) {
-            self->withPortMidi = 0;
-            self->withPortMidiOut = 0;
             Pm_Terminate();
         }
+        self->withPortMidi = 0;
+        self->withPortMidiOut = 0;
     }
     Py_INCREF(Py_None);
     return Py_None;
