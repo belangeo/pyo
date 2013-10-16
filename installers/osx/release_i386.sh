@@ -7,9 +7,9 @@
 # 4. cd utils and build E-Pyo
 # 5. cd installer/osx and build the realease
 
-export PACKAGE_NAME=pyo_0.6.6_i386.pkg
-export DMG_DIR="pyo 0.6.6 Intel"
-export DMG_NAME="pyo_0.6.6_OSX-Intel.dmg"
+export PACKAGE_NAME=pyo_0.6.8_i386.pkg
+export DMG_DIR="pyo 0.6.8 Intel"
+export DMG_NAME="pyo_0.6.8_OSX-Intel.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
@@ -40,14 +40,21 @@ sudo cp -R build/lib.macosx-10.3-fat-2.7 $PYO_MODULE_DIR/python27
 cd ..
 
 echo "copying support libs..."
-sudo cp /usr/local/lib/liblo.0.dylib $SUPPORT_LIBS_DIR/liblo.0.dylib
+sudo cp /usr/local/lib/liblo.7.dylib $SUPPORT_LIBS_DIR/liblo.7.dylib
 sudo cp /usr/local/lib/libportaudio.2.dylib $SUPPORT_LIBS_DIR/libportaudio.2.dylib
 sudo cp /usr/local/lib/libportmidi.dylib $SUPPORT_LIBS_DIR/libportmidi.dylib
 sudo cp /usr/local/lib/libsndfile.1.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
+<<<<<<< .mine
+sudo cp /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libFLAC.8.dylib
+sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
+sudo cp /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
+sudo cp /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
+=======
 sudo cp /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libFLAC.8.dylib
 sudo cp /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
 sudo cp /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
 sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
+>>>>>>> .r1141
 
 echo "setting permissions..."
 
