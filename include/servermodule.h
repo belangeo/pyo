@@ -16,6 +16,10 @@
  *                                                                        *
  * You should have received a copy of the GNU General Public License      *
  * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ *                                                                        *
+ * Octobre 2013 : Multiple servers facility and embeded backend added by  *
+ * Guillaume Barrette. See embeded possibilities at:                      *
+ * https://github.com/guibarrette/PyoPlug                                 *
  *************************************************************************/
 
 #ifndef Py_SERVERMODULE_H
@@ -42,7 +46,8 @@ typedef enum {
     PyoCoreaudio = 1,
     PyoJack,
     PyoOffline,
-    PyoOfflineNB
+    PyoOfflineNB,
+    PyoEmbedded
 } PyoAudioBackendType;
 
 typedef struct {
@@ -86,6 +91,7 @@ typedef struct {
     int server_booted;
     int stream_count;
     int record;
+    int thisServerID;       /* To keep the reference index in the array of servers */
     
     /* global amplitude */
     MYFLT amp;
