@@ -16,6 +16,10 @@
  *                                                                        *
  * You should have received a copy of the GNU General Public License      *
  * along with pyo.  If not, see <http://www.gnu.org/licenses/>.           *
+ *                                                                        *
+ * Octobre 2013 : Multiple servers facility and embeded backend added by  *
+ * Guillaume Barrette. See embeded possibilities at:                      *
+ * https://github.com/guibarrette/PyoPlug                                 *
  *************************************************************************/
 
 #include <Python.h>
@@ -35,7 +39,12 @@
 #include "pyomodule.h"
 #include "servermodule.h"
 
-static Server *my_server = NULL;
+
+#define MAX_NBR_SERVER 256
+
+static Server *my_server[MAX_NBR_SERVER];
+static int serverID = 0;
+
 static PyObject *Server_shut_down(Server *self);
 static PyObject *Server_stop(Server *self);
 static void Server_process_gui(Server *server);
@@ -1167,6 +1176,93 @@ Server_offline_stop(Server *self)
     return 0;
 }
 
+/******* Embedded Server *******/
+int
+Server_embedded_init(Server *self)
+{
+    return 0;
+}
+
+int
+Server_embedded_deinit(Server *self)
+{
+    return 0;
+}
+
+/* interleaved embedded callback */
+int
+Server_embedded_i_start(Server *self)
+{
+    Server_process_buffers(self);
+    return 0;
+}
+
+// To be easier to call without depending on the Server structure
+int
+Server_embedded_i_startIdx(int idx)
+{
+    Server_embedded_i_start(my_server[idx]);
+    return 0;
+}
+
+/* non-interleaved embedded callback */
+int
+Server_embedded_ni_start(Server *self)
+{
+    int i, j;
+    Server_process_buffers(self);
+    float *out = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
+    for (i=0; i<(self->bufferSize*self->nchnls); i++){
+        out[i] = self->output_buffer[i];
+    }
+
+    /* Non-Interleaved */
+    for (i=0; i<self->bufferSize; i++) {
+        for (j=0; j<=self->nchnls; j++) {
+            /* This could probably be more efficient (ob) */
+            self->output_buffer[i+(self->bufferSize*(j+1))-self->bufferSize] = out[(i*self->nchnls)+j];
+        }
+    }
+    
+    return 0;
+}
+
+int
+Server_embedded_ni_startIdx(int idx)
+{
+    Server_embedded_ni_start(my_server[idx]);
+    return 0;
+}
+
+void 
+*Server_embedded_thread(void *arg)
+{
+    Server *self;
+    self = (Server *)arg;
+    
+    Server_process_buffers(self);
+
+    return NULL;
+}
+
+int
+Server_embedded_nb_start(Server *self)
+{
+    pthread_t offthread;
+    pthread_create(&offthread, NULL, Server_embedded_thread, self);
+    return 0;
+}
+
+/* this stop function is not very useful since the processing is stopped at the end 
+of every processing callback, but function put to not break pyo */
+int
+Server_embedded_stop(Server *self)
+{
+    self->server_started = 0;
+    self->server_stopped = 1;
+    return 0;
+}
+
 /***************************************************/
 /*  Main Processing functions                      */
 
@@ -1315,7 +1411,7 @@ Server_process_time(Server *server)
 PyObject *
 PyServer_get_server()
 {
-    return (PyObject *)my_server;
+    return (PyObject *)my_server[serverID];
 }
 
 static PyObject *
@@ -1356,6 +1452,9 @@ Server_shut_down(Server *self)
         case PyoOfflineNB:
             ret = Server_offline_deinit(self);  
             break;         
+        case PyoEmbedded:
+            ret = Server_embedded_deinit(self);
+            break;    
     }
     self->server_booted = 0;
     if (ret < 0) {
@@ -1389,18 +1488,45 @@ Server_dealloc(Server* self)
     free(self->input_buffer);
     free(self->output_buffer);
     free(self->serverName);
-    my_server = NULL;
+    my_server[self->thisServerID] = NULL;
     self->ob_type->tp_free((PyObject*)self);
 }
 
 static PyObject *
 Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    if (PyServer_get_server() != NULL) {
-        Server_warning((Server *) PyServer_get_server(), "Warning: A Server is already created!\n"
-            "If you put this Server in a new variable, please delete it!\n");
-        return PyServer_get_server();
-    }    
+    /* Unused variables to allow the safety check of the embeded audio backend. */
+    double samplingRate = 44100.0;
+    int  nchnls = 2;
+    int  bufferSize = 256;
+    int  duplex = 0;
+    char *audioType = "portaudio";
+    char *serverName = "pyo";
+        
+    static char *kwlist[] = {"sr", "nchnls", "buffersize", "duplex", "audio", "jackname", NULL};
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|diiiss", kwlist, 
+            &samplingRate, &nchnls, &bufferSize, &duplex, &audioType, &serverName))
+        Py_RETURN_FALSE;
+        
+    if (strcmp(audioType, "embedded") != 0)
+    {
+        if (PyServer_get_server() != NULL) {
+            Server_warning((Server *) PyServer_get_server(), "Warning: A Server is already created!\n"
+                "If you put this Server in a new variable, please delete it!\n");
+            return PyServer_get_server();
+        }
+    }
+
+    /* find the first free serverID */
+    for(serverID = 0; serverID < MAX_NBR_SERVER; serverID++){
+        if(my_server[serverID] == NULL){
+            break;
+        }
+    }
+    if(serverID == MAX_NBR_SERVER){
+        return PyString_FromString("You are already using the maximum number of server allowed!");
+    }
+
     Server *self;
     self = (Server *)type->tp_alloc(type, 0);
     self->server_booted = 0;
@@ -1429,8 +1555,9 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->rectype = 0;
     self->startoffset = 0.0;
     self->globalSeed = 0;
-    Py_XDECREF(my_server);
-    my_server = (Server *)self;
+    self->thisServerID = serverID;
+    Py_XDECREF(my_server[serverID]);
+    my_server[serverID] = (Server *)self;
     return (PyObject *)self;
 }
 
@@ -1461,6 +1588,9 @@ Server_init(Server *self, PyObject *args, PyObject *kwds)
     else if (strcmp(audioType, "offline_nb") == 0) {
         self->audio_be_type = PyoOfflineNB;
     } 
+    else if (strcmp(audioType, "embedded") == 0) {
+        self->audio_be_type = PyoEmbedded;
+    }
     else {
         Server_warning(self, "Unknown audio type. Using Portaudio\n");
         self->audio_be_type = PyoPortaudio;
@@ -1912,7 +2042,103 @@ Server_pm_init(Server *self)
 
 
 static PyObject *
-Server_boot(Server *self)
+Server_boot(Server *self, PyObject *arg)
+{
+    int audioerr = 0;
+    int i;
+    if (self->server_booted == 1) {
+        Server_error(self, "Server already booted!\n");
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+    self->server_started = 0;
+    self->stream_count = 0;
+    self->elapsedSamples = 0;
+
+    int needNewBuffer = 0;
+    if (arg != NULL && PyBool_Check(arg)) {
+        needNewBuffer = PyObject_IsTrue(arg);
+    }
+    else {
+        Server_error(self, "The argument to set for a new buffer must be a boolean.\n");
+    }
+
+    self->streams = PyList_New(0);
+    switch (self->audio_be_type) {
+        case PyoPortaudio:
+            audioerr = Server_pa_init(self);
+            break;
+        case PyoJack:
+#ifdef USE_JACK
+            audioerr = Server_jack_init(self);
+            if (audioerr < 0) {
+                Server_jack_deinit(self);
+            }
+#else
+            audioerr = -1;
+            Server_error(self, "Pyo built without Jack support\n");
+#endif
+            break;
+        case PyoCoreaudio:
+#ifdef USE_COREAUDIO
+            audioerr = Server_coreaudio_init(self);
+            if (audioerr < 0) {
+                Server_coreaudio_deinit(self);
+            }
+#else
+            audioerr = -1;
+            Server_error(self, "Pyo built without Coreaudio support\n");
+#endif
+            break;
+        case PyoOffline:
+            audioerr = Server_offline_init(self);
+            if (audioerr < 0) {
+                Server_offline_deinit(self);
+            }
+            break;
+        case PyoOfflineNB:
+            audioerr = Server_offline_init(self);
+            if (audioerr < 0) {
+                Server_offline_deinit(self);
+            }
+            break;
+        case PyoEmbedded:
+            audioerr = Server_embedded_init(self);
+            if (audioerr < 0) {
+                Server_embedded_deinit(self);
+            }
+            break;
+    }
+    if (needNewBuffer == 1){
+        /* Must allocate buffer after initializing the audio backend in case parameters change there */
+        if (self->input_buffer) {
+            free(self->input_buffer);
+        }
+        self->input_buffer = (MYFLT *)calloc(self->bufferSize * self->nchnls, sizeof(MYFLT));
+        if (self->output_buffer) {
+            free(self->output_buffer);
+        }
+        self->output_buffer = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
+    }
+    for (i=0; i<self->bufferSize*self->nchnls; i++) {
+        self->input_buffer[i] = 0.0;
+        self->output_buffer[i] = 0.0;
+    }
+    if (audioerr == 0) {
+        self->server_booted = 1;
+    }
+    else {
+        self->server_booted = 0;
+        Server_error(self, "\nServer not booted.\n");
+    }    
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+/* Like the Server_boot() but without reinitializing the buffers */
+static PyObject *
+Server_flush(Server *self)
 {
     int audioerr = 0;
     int i;
@@ -1964,20 +2190,19 @@ Server_boot(Server *self)
                 Server_offline_deinit(self);
             }
             break;
+        case PyoEmbedded:
+            audioerr = Server_embedded_init(self);
+            if (audioerr < 0) {
+                Server_embedded_deinit(self);
+            }
+            break;
     }
-    // Must allocate buffer after initializing the audio backend in case parameters change there
-    if (self->input_buffer) {
-        free(self->input_buffer);
-    }
-    self->input_buffer = (MYFLT *)calloc(self->bufferSize * self->nchnls, sizeof(MYFLT));
-    if (self->output_buffer) {
-        free(self->output_buffer);
-    }
-    self->output_buffer = (float *)calloc(self->bufferSize * self->nchnls, sizeof(float));
+
     for (i=0; i<self->bufferSize*self->nchnls; i++) {
         self->input_buffer[i] = 0.0;
         self->output_buffer[i] = 0.0;
     }
+    
     if (audioerr == 0) {
         self->server_booted = 1;
     }
@@ -2053,6 +2278,9 @@ Server_start(Server *self)
         case PyoOfflineNB:
             err = Server_offline_nb_start(self);
             break;           
+        case PyoEmbedded:
+            err = Server_embedded_nb_start(self);
+            break;
     }
     if (err) {
         Server_error(self, "Error starting server.\n");
@@ -2091,6 +2319,9 @@ Server_stop(Server *self)
         case PyoOfflineNB:
             err = Server_offline_stop(self);
             break;    
+        case PyoEmbedded:
+            err = Server_embedded_stop(self);
+            break;
     }
 
     if (err < 0) {
@@ -2404,6 +2635,69 @@ Server_getStreams(Server *self)
     return self->streams;
 }
 
+static PyObject *
+Server_setServer(Server *self)
+{
+    serverID = self->thisServerID;
+    /* Should return a more conventional signal, like True or False */
+    return PyString_FromString("Server set");
+}
+
+
+static PyObject *
+Server_getInputAddr(Server *self)
+{
+    char address[32];
+    sprintf(address, "%p", &self->input_buffer[0]);
+    return PyString_FromString(address);
+}
+
+
+static PyObject *
+Server_getOutputAddr(Server *self)
+{
+    char address[32];
+    sprintf(address, "%p", &self->output_buffer[0]);
+    return PyString_FromString(address);
+}
+
+static PyObject *
+Server_getServerID(Server *self)
+{
+    return PyInt_FromLong(self->thisServerID);
+}
+
+static PyObject *
+Server_getServerAddr(Server *self)
+{
+    char address[32];
+    sprintf(address, "%p", &my_server[self->thisServerID]);
+    return PyString_FromString(address);
+}
+
+void
+Server_getThisServer(int id, Server *server)
+{
+    server = my_server[id];
+}
+
+/*
+static PyObject *
+Server_getThisServerFunc(Server *self)
+{
+    char address[32];
+    sprintf(address, "%p", &Server_getThisServer);
+    return PyString_FromString(address);
+}
+*/
+
+static PyObject *
+Server_getEmbedICallbackAddr(Server *self)
+{
+    char address[32];
+    sprintf(address, "%p", &Server_embedded_i_startIdx);
+    return PyString_FromString(address);
+}
 
 static PyMethodDef Server_methods[] = {
     {"setInputDevice", (PyCFunction)Server_setInputDevice, METH_O, "Sets audio input device."},
@@ -2424,7 +2718,7 @@ static PyMethodDef Server_methods[] = {
     {"setTimeCallable", (PyCFunction)Server_setTimeCallable, METH_O, "Sets the Server's TIME callable object."},
     {"setVerbosity", (PyCFunction)Server_setVerbosity, METH_O, "Sets the verbosity."},
     {"setStartOffset", (PyCFunction)Server_setStartOffset, METH_O, "Sets starting time offset."},
-    {"boot", (PyCFunction)Server_boot, METH_NOARGS, "Setup and boot the server."},
+    {"boot", (PyCFunction)Server_boot, METH_O, "Setup and boot the server."},
     {"shutdown", (PyCFunction)Server_shut_down, METH_NOARGS, "Shut down the server."},
     {"start", (PyCFunction)Server_start, METH_NOARGS, "Starts the server's callback loop."},
     {"stop", (PyCFunction)Server_stop, METH_NOARGS, "Stops the server's callback loop."},
@@ -2447,6 +2741,13 @@ static PyMethodDef Server_methods[] = {
     {"getIsStarted", (PyCFunction)Server_getIsStarted, METH_NOARGS, "Returns 1 if the server is started, otherwise returns 0."},
     {"getMidiActive", (PyCFunction)Server_getMidiActive, METH_NOARGS, "Returns 1 if midi callback is active, otherwise returns 0."},
     {"_setDefaultRecPath", (PyCFunction)Server_setDefaultRecPath, METH_VARARGS|METH_KEYWORDS, "Sets the default recording path."},
+    {"setServer", (PyCFunction)Server_setServer, METH_NOARGS, "Sets this server as the one to use for new objects when using the embedded device"},
+    {"flush", (PyCFunction)Server_flush, METH_NOARGS, "Flush the server objects"},
+    {"getInputAddr", (PyCFunction)Server_getInputAddr, METH_NOARGS, "Get the embedded device input buffer memory address"},
+    {"getOutputAddr", (PyCFunction)Server_getOutputAddr, METH_NOARGS, "Get the embedded device output buffer memory address"},
+    {"getServerID", (PyCFunction)Server_getServerID, METH_NOARGS, "Get the embedded device server memory address"},
+    {"getServerAddr", (PyCFunction)Server_getServerAddr, METH_NOARGS, "Get the embedded device server memory address"},
+    {"getEmbedICallbackAddr", (PyCFunction)Server_getEmbedICallbackAddr, METH_NOARGS, "Get the embedded device interleaved callback method memory address"},
     {NULL}  /* Sentinel */
 };
 

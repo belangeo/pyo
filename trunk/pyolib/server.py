@@ -412,14 +412,26 @@ class Server(object):
         """
         self._server.shutdown()
         
-    def boot(self):
+    def boot(self, newBuffer=True):
         """
         Boot the server. Must be called before defining any signal processing 
         chain. Server's parameters like `samplingrate`, `buffersize` or 
-        `nchnls` will be effective after a call to this method.
+        `nchnls` will be effective after a call to this method. 
+        
+        :Args:
+            
+            newBuffer : bool
+                Specify if the buffers need to be allocated or not. Useful to limit 
+                the allocation of new buffers when the buffer size hasn't change. 
+                
+                Therefore, this is useful to limit calls to the Python interpreter 
+                to get the buffers addresses when using Pyo inside a 
+                C/C++ application with the embedded server. 
+                
+                Defaults to True.
 
         """
-        self._server.boot()
+        self._server.boot(newBuffer)
         return self
         
     def start(self):
@@ -618,6 +630,55 @@ class Server(object):
         
         """
         return len(self._server.getStreams())
+
+    def setServer(self):
+        """
+        Sets this server as the one to use for new objects when using the embedded device
+        
+        """
+        return self._server.setServer()
+        
+    def flush(self):
+        """
+        Flush the server objects. Need a shutdown before working. This is useful if want to flush a script without freeing the buffers
+        
+        """
+        return self._server.flush()
+    
+    def getInputAddr(self):
+        """
+        Return the address of the input buffer
+        
+        """
+        return self._server.getInputAddr()
+        
+    def getOutputAddr(self):
+        """
+        Return the address of the output buffer
+        
+        """
+        return self._server.getOutputAddr()
+        
+    def getServerID(self):
+        """
+        Return the server ID
+        
+        """
+        return self._server.getServerID()
+        
+    def getServerAddr(self):
+        """
+        Return the address of the server
+        
+        """
+        return self._server.getServerAddr()
+        
+    def getEmbedICallbackAddr(self):
+        """
+        Return the address of the interleaved embedded callback function
+        
+        """
+        return self._server.getEmbedICallbackAddr()
 
     @property
     def amp(self):
