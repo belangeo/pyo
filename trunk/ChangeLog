@@ -1,3 +1,25 @@
+-------------------------------------------------------------------------------------
+
+2013-10-16 belangeo <belangeo@gmail.com>
+
+    * Release tag: 0.6.8.
+    - rev 1142
+
+2013-10-16 belangeo <belangeo@gmail.com>
+
+    * Added multi server facility and and embeded callback support for plugin development (code by Guillaume Barrette).
+    - rev 1141
+
+2013-10-06 belangeo <belangeo@gmail.com>
+
+    * Add a channel offset to the server physical inputs and outputs.
+    - rev 1136
+
+2013-10-03 belangeo <belangeo@gmail.com>
+
+    * Added support for reading/writing various soundfile formats. FLAC and OGG need libsndfile to be compiled with both of them enabled.
+    - rev 1133
+
 2013-07-25 belangeo <belangeo@gmail.com>
 
     * Added new object: PVMix, Mix the most prominent components from two phase vocoder streaming objects.
@@ -32,6 +54,11 @@
 
     * Added new objects: PVDelay, spectral delays and PVBuffer, phase vocoder recorder and playback. 
     - rev 1123
+
+2013-06-20 belangeo <belangeo@gmail.com>
+
+    * Added setJackAuto method to the Server to disable (enabled by default) Jack ports auto-connection.
+    - rev 1122
 
 2013-06-19 belangeo <belangeo@gmail.com>
 

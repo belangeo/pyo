@@ -1,8 +1,8 @@
 #!/bin/sh
 
-export PACKAGE_NAME=pyo_0.6.6_x86_64.pkg
-export DMG_DIR="pyo 0.6.6 Universal"
-export DMG_NAME="pyo_0.6.6_OSX-universal.dmg"
+export PACKAGE_NAME=pyo_0.6.8_x86_64.pkg
+export DMG_DIR="pyo 0.6.8 Universal"
+export DMG_NAME="pyo_0.6.8_OSX-universal.dmg"
 export INSTALLER_DIR=`pwd`/installer
 export PYO_MODULE_DIR=$INSTALLER_DIR/PyoModule/Package_Contents/tmp
 export SUPPORT_LIBS_DIR=$INSTALLER_DIR/SupportLibs/Package_Contents/usr/local/lib
@@ -45,10 +45,17 @@ sudo cp /usr/local/lib/liblo.7.dylib $SUPPORT_LIBS_DIR/liblo.7.dylib
 sudo cp /usr/local/lib/libportaudio.2.dylib $SUPPORT_LIBS_DIR/libportaudio.2.dylib
 sudo cp /usr/local/lib/libportmidi.dylib $SUPPORT_LIBS_DIR/libportmidi.dylib
 sudo cp /usr/local/lib/libsndfile.1.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
+<<<<<<< .mine
+sudo cp /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libFLAC.8.dylib
+sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
+sudo cp /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
+sudo cp /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
+=======
 sudo cp /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libFLAC.8.dylib
 sudo cp /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
 sudo cp /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
 sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
+>>>>>>> .r1141
 
 echo "setting permissions..."
 sudo chgrp -R admin PyoModule/Package_Contents/tmp
