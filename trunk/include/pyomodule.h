@@ -455,6 +455,7 @@ extern PyTypeObject PVBufTabLoopsType;
 extern PyTypeObject PVMixType;
 extern PyTypeObject GranuleType;
 extern PyTypeObject TableScaleType;
+extern PyTypeObject TrackHoldType;
 
 /* Constants */
 #define E M_E

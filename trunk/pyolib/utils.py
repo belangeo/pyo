@@ -430,7 +430,7 @@ class SampHold(PyoObject):
 
     SampHold performs a sample-and-hold operation on its input according 
     to the value of `controlsig`. If `controlsig` equals `value`, the input 
-    is sampled and holded until next sampling.
+    is sampled and held until next sampling.
 
     :Parent: :py:class:`PyoObject`
 
@@ -441,7 +441,7 @@ class SampHold(PyoObject):
         controlsig : PyoObject
             Controls when to sample the signal.
         value : float or PyoObject, optional
-            Sampling targeted value. Default to 0.0.
+            Sampling target value. Default to 0.0.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -521,7 +521,7 @@ class SampHold(PyoObject):
 
     @property
     def value(self):
-        """float or PyoObject. Targeted value.""" 
+        """float or PyoObject. Target value.""" 
         return self._value
     @value.setter
     def value(self, x): self.setValue(x)
@@ -1736,3 +1736,105 @@ class Between(PyoObject):
         return self._max
     @max.setter
     def max(self, x): self.setMax(x)
+
+class TrackHold(PyoObject):
+    """
+    Performs a track-and-hold operation on its input. 
+
+    TrackHold lets pass the signal in `input` without modification but hold
+    a sample according to the value of `controlsig`. If `controlsig` equals 
+    `value`, the input is sampled and held, otherwise, it passes thru.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal.
+        controlsig : PyoObject
+            Controls when to sample the signal.
+        value : float or PyoObject, optional
+            Sampling target value. Default to 0.0.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> ph = Phasor([3,4])
+    >>> lf = Sine(.2, mul=.5, add=.5)
+    >>> th = TrackHold(lf, ph > 0.5, 1, mul=500, add=300)
+    >>> a = Sine(th, mul=.3).out()
+
+    """
+    def __init__(self, input, controlsig, value=0.0, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._controlsig = controlsig
+        self._value = value
+        self._in_fader = InputFader(input)
+        self._in_fader2 = InputFader(controlsig)
+        in_fader, in_fader2, value, mul, add, lmax = convertArgsToLists(self._in_fader, self._in_fader2, value, mul, add)
+        self._base_objs = [TrackHold_base(wrap(in_fader,i), wrap(in_fader2,i), wrap(value,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setControlsig(self, x, fadetime=0.05):
+        """
+        Replace the `controlsig` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New control signal.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._controlsig = x
+        self._in_fader2.setInput(x, fadetime)
+        
+    def setValue(self, x):
+        """
+        Replace the `value` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `value` attribute.
+
+        """
+        self._value = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    @property
+    def input(self):
+        """PyoObject. Input signal.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def controlsig(self):
+        """PyoObject. Control signal.""" 
+        return self._controlsig
+    @controlsig.setter
+    def controlsig(self, x): self.setControlsig(x)
+
+    @property
+    def value(self):
+        """float or PyoObject. Target value.""" 
+        return self._value
+    @value.setter
+    def value(self, x): self.setValue(x)
