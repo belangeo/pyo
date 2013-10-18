@@ -219,6 +219,7 @@ Alphabetical class reference
 - :py:class:`Timer` :     Reports elapsed time between two trigs.
 - :py:class:`Tone` :     A first-order recursive low-pass filter with variable frequency response.
 - :py:class:`Touchin` :     Get the current value of an after-touch Midi controller.
+- :py:class:`TrackHold` :     Performs a track-and-hold operation on its input. 
 - :py:class:`TranspoToCents` :     Returns the cents value equivalent of a transposition factor.
 - :py:class:`TrigChoice` :     Random generator from user's defined values.
 - :py:class:`TrigEnv` :     Envelope reader generator.

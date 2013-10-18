@@ -125,3 +125,9 @@ Miscellaneous objects.
 .. autoclass:: TranspoToCents
    :members:
 
+*TrackHold*
+-----------------------------------
+
+.. autoclass:: TrackHold
+   :members:
+

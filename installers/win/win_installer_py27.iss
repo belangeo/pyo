@@ -26,8 +26,11 @@ ChangesEnvironment=yes
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+; One installer for both python version
+; functions to set which python directory in Setup section
+; Check: DirExists(ExpandConstant('{sd}\Python27')) 
 [Files]
-Source: "C:\Python27\Lib\site-packages\pyo.py"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
+Source: "C:\Python27\Lib\site-packages\pyo.py"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion 
 Source: "C:\Python27\Lib\site-packages\pyo64.py"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python27\Lib\site-packages\pyolib\*"; DestDir: "{sd}\Python27\Lib\site-packages\pyolib"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "C:\Python27\Lib\site-packages\_pyo.pyd"; DestDir: "{sd}\Python27\Lib\site-packages"; Flags: ignoreversion

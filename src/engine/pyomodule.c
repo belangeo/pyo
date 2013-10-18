@@ -2408,6 +2408,7 @@ init_pyo64(void)
     module_add_object(m, "PVMix_base", &PVMixType);
     module_add_object(m, "Granule_base", &GranuleType);
     module_add_object(m, "TableScale_base", &TableScaleType);
+    module_add_object(m, "TrackHold_base", &TrackHoldType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS
