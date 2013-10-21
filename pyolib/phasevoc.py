@@ -295,8 +295,8 @@ class PVAddSynth(PyoObject):
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH+"/transparent.aif", loop=True, mul=0.7)
-    >>> pva = PVAnal(a, size=1024, overlaps=4, pitch=2)
-    >>> pvs = PVAddSynth(pva, pitch=1.25, num=100, first=0, inc=2)
+    >>> pva = PVAnal(a, size=1024, overlaps=4, wintype=2)
+    >>> pvs = PVAddSynth(pva, pitch=1.25, num=100, first=0, inc=2).out()
 
     """
     def __init__(self, input, pitch=1, num=100, first=0, inc=1, mul=1, add=0):
