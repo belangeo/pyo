@@ -637,13 +637,6 @@ class Server(object):
         
         """
         return self._server.setServer()
-        
-    def flush(self):
-        """
-        Flush the server objects. Need a shutdown before working. This is useful if want to flush a script without freeing the buffers
-        
-        """
-        return self._server.flush()
     
     def getInputAddr(self):
         """

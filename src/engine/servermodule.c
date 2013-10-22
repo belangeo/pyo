@@ -2136,85 +2136,6 @@ Server_boot(Server *self, PyObject *arg)
     return Py_None;
 }
 
-/* Like the Server_boot() but without reinitializing the buffers */
-static PyObject *
-Server_flush(Server *self)
-{
-    int audioerr = 0;
-    int i;
-    if (self->server_booted == 1) {
-        Server_error(self, "Server already booted!\n");
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    self->server_started = 0;
-    self->stream_count = 0;
-    self->elapsedSamples = 0;
-
-    self->streams = PyList_New(0);
-    switch (self->audio_be_type) {
-        case PyoPortaudio:
-            audioerr = Server_pa_init(self);
-            break;
-        case PyoJack:
-#ifdef USE_JACK
-            audioerr = Server_jack_init(self);
-            if (audioerr < 0) {
-                Server_jack_deinit(self);
-            }
-#else
-            audioerr = -1;
-            Server_error(self, "Pyo built without Jack support\n");
-#endif
-            break;
-        case PyoCoreaudio:
-#ifdef USE_COREAUDIO
-            audioerr = Server_coreaudio_init(self);
-            if (audioerr < 0) {
-                Server_coreaudio_deinit(self);
-            }
-#else
-            audioerr = -1;
-            Server_error(self, "Pyo built without Coreaudio support\n");
-#endif
-            break;
-        case PyoOffline:
-            audioerr = Server_offline_init(self);
-            if (audioerr < 0) {
-                Server_offline_deinit(self);
-            }
-            break;
-        case PyoOfflineNB:
-            audioerr = Server_offline_init(self);
-            if (audioerr < 0) {
-                Server_offline_deinit(self);
-            }
-            break;
-        case PyoEmbedded:
-            audioerr = Server_embedded_init(self);
-            if (audioerr < 0) {
-                Server_embedded_deinit(self);
-            }
-            break;
-    }
-
-    for (i=0; i<self->bufferSize*self->nchnls; i++) {
-        self->input_buffer[i] = 0.0;
-        self->output_buffer[i] = 0.0;
-    }
-    
-    if (audioerr == 0) {
-        self->server_booted = 1;
-    }
-    else {
-        self->server_booted = 0;
-        Server_error(self, "\nServer not booted.\n");
-    }    
-    
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyObject *
 Server_start(Server *self)
 {
@@ -2742,7 +2663,6 @@ static PyMethodDef Server_methods[] = {
     {"getMidiActive", (PyCFunction)Server_getMidiActive, METH_NOARGS, "Returns 1 if midi callback is active, otherwise returns 0."},
     {"_setDefaultRecPath", (PyCFunction)Server_setDefaultRecPath, METH_VARARGS|METH_KEYWORDS, "Sets the default recording path."},
     {"setServer", (PyCFunction)Server_setServer, METH_NOARGS, "Sets this server as the one to use for new objects when using the embedded device"},
-    {"flush", (PyCFunction)Server_flush, METH_NOARGS, "Flush the server objects"},
     {"getInputAddr", (PyCFunction)Server_getInputAddr, METH_NOARGS, "Get the embedded device input buffer memory address"},
     {"getOutputAddr", (PyCFunction)Server_getOutputAddr, METH_NOARGS, "Get the embedded device output buffer memory address"},
     {"getServerID", (PyCFunction)Server_getServerID, METH_NOARGS, "Get the embedded device server memory address"},
