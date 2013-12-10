@@ -3361,3 +3361,109 @@ class ButBR(PyoObject):
         return self._q
     @q.setter
     def q(self, x): self.setQ(x)
+
+class ComplexRes(PyoObject):
+    """
+    Complex one-pole resonator filter. 
+    
+    ComplexRes implements a resonator derived from a complex 
+    multiplication, which is very similar to a digital filter.
+    
+    :Parent: :py:class:`PyoObject`
+    
+    :Args:
+    
+        input : PyoObject
+            Input signal to process.
+        freq : float or PyoObject, optional
+            Center frequency of the filter. Defaults to 1000.
+        decay : float or PyoObject, optional
+            Decay time, in seconds, for the filter's response.
+            Defaults to 0.25.
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> env = HannTable()
+    >>> trigs = Metro(.2, poly=4).play()
+    >>> amp = TrigEnv(trigs, table=env, dur=0.005, mul=2)
+    >>> im = Noise(mul=amp)
+    >>> res = ComplexRes(im, freq=[950,530,780,1490], decay=1).out()
+
+    """
+    def __init__(self, input, freq=1000, decay=.25, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._freq = freq
+        self._decay = decay
+        self._in_fader = InputFader(input)
+        in_fader, freq, decay, mul, add, lmax = convertArgsToLists(self._in_fader, freq, decay, mul, add)
+        self._base_objs = [ComplexRes_base(wrap(in_fader,i), wrap(freq,i), wrap(decay,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+        
+    def setFreq(self, x):
+        """
+        Replace the `freq` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `freq` attribute.
+
+        """
+        self._freq = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setDecay(self, x):
+        """
+        Replace the `decay` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `decay` attribute.
+
+        """
+        self._decay = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDecay(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapFreq(self._freq), SLMap(0.0001, 10, "log", "decay", self._decay), 
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to filter.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def freq(self):
+        """float or PyoObject. Center frequency of the filter.""" 
+        return self._freq
+    @freq.setter
+    def freq(self, x): self.setFreq(x)
+
+    @property
+    def decay(self):
+        """float or PyoObject. Decay time of the filter's response.""" 
+        return self._decay
+    @decay.setter
+    def decay(self, x): self.setDecay(x)

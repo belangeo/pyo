@@ -11024,3 +11024,510 @@ PyTypeObject ButBRType = {
     0,                                              /* tp_alloc */
     ButBR_new,                                     /* tp_new */
 };
+
+/****************/
+/** ComplexRes **/
+/****************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    PyObject *freq;
+    Stream *freq_stream;
+    PyObject *decay;
+    Stream *decay_stream;
+    int modebuffer[4]; // need at least 2 slots for mul & add 
+    MYFLT last_freq;
+    MYFLT last_decay;
+    MYFLT oneOnSr;
+    // variables
+    MYFLT res;
+    MYFLT norm;
+    MYFLT coeffx;
+    MYFLT coeffy;
+    // sample memories
+    MYFLT x;
+    MYFLT y;
+} ComplexRes;
+
+static void
+ComplexRes_filters_ii(ComplexRes *self) {
+    int i;
+    MYFLT ang, x, y;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq); 
+    MYFLT decay = PyFloat_AS_DOUBLE(self->decay);
+    
+    if (decay <= 0.0001)
+        decay = 0.0001;
+
+    if (decay != self->last_decay || freq != self->last_freq) {
+        self->res = MYEXP(-1.0/(decay*self->sr));
+        //self->norm = (1.0-self->res*self->res)/self->res;
+        self->last_decay = decay;
+        ang = (freq*self->oneOnSr)*TWOPI;
+        self->coeffx = self->res * MYCOS(ang);
+        self->coeffy = self->res * MYSIN(ang);
+        self->last_freq = freq;
+    }
+
+    for (i=0; i<self->bufsize; i++) {
+        x = self->coeffx * self->x - self->coeffy * self->y + in[i];
+        y = self->coeffy * self->x + self->coeffx * self->y;
+        self->data[i] = y * self->norm;        
+        self->x = x;
+        self->y = y;
+    }
+}
+
+static void
+ComplexRes_filters_ai(ComplexRes *self) {
+    int i, check = 0;
+    MYFLT freq, ang, x, y;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT decay = PyFloat_AS_DOUBLE(self->decay);
+
+    if (decay <= 0.0001)
+        decay = 0.0001;
+
+    if (decay != self->last_decay) {
+        self->res = MYEXP(-1.0/(decay*self->sr));
+        //self->norm = (1.0-self->res*self->res)/self->res;
+        self->last_decay = decay;
+        check = 1;
+    }
+    
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        if (freq != self->last_freq || check) {
+            ang = (freq*self->oneOnSr)*TWOPI;
+            self->coeffx = self->res * MYCOS(ang);
+            self->coeffy = self->res * MYSIN(ang);
+            self->last_freq = freq;
+            check = 0;
+        }
+        x = self->coeffx * self->x - self->coeffy * self->y + in[i];
+        y = self->coeffy * self->x + self->coeffx * self->y;
+        self->data[i] = y * self->norm;        
+        self->x = x;
+        self->y = y;
+    }
+}
+
+static void
+ComplexRes_filters_ia(ComplexRes *self) {
+    int i;
+    MYFLT decay, ang, x, y;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT freq = PyFloat_AS_DOUBLE(self->freq);
+    MYFLT *dec = Stream_getData((Stream *)self->decay_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        decay = dec[i];
+        if (decay <= 0.0001)
+            decay = 0.0001;
+        if (freq != self->last_freq || decay != self->last_decay) {
+            self->res = MYEXP(-1.0/(decay*self->sr));
+            //self->norm = (1.0-self->res*self->res)/self->res;
+            self->last_decay = decay;
+            ang = (freq*self->oneOnSr)*TWOPI;
+            self->coeffx = self->res * MYCOS(ang);
+            self->coeffy = self->res * MYSIN(ang);
+            self->last_freq = freq;
+        }
+        x = self->coeffx * self->x - self->coeffy * self->y + in[i];
+        y = self->coeffy * self->x + self->coeffx * self->y;
+        self->data[i] = y * self->norm;        
+        self->x = x;
+        self->y = y;
+    }
+}
+
+static void
+ComplexRes_filters_aa(ComplexRes *self) {
+    int i;
+    MYFLT freq, decay, ang, x, y;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    MYFLT *fr = Stream_getData((Stream *)self->freq_stream);
+    MYFLT *dec = Stream_getData((Stream *)self->decay_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        freq = fr[i];
+        decay = dec[i];
+        if (decay <= 0.0001)
+            decay = 0.0001;
+        if (freq != self->last_freq || decay != self->last_decay) {
+            self->res = MYEXP(-1.0/(decay*self->sr));
+            //self->norm = (1.0-self->res*self->res)/self->res;
+            self->last_decay = decay;
+            ang = (freq*self->oneOnSr)*TWOPI;
+            self->coeffx = self->res * MYCOS(ang);
+            self->coeffy = self->res * MYSIN(ang);
+            self->last_freq = freq;
+        }
+        x = self->coeffx * self->x - self->coeffy * self->y + in[i];
+        y = self->coeffy * self->x + self->coeffx * self->y;
+        self->data[i] = y * self->norm;        
+        self->x = x;
+        self->y = y;
+    }
+}
+
+static void ComplexRes_postprocessing_ii(ComplexRes *self) { POST_PROCESSING_II };
+static void ComplexRes_postprocessing_ai(ComplexRes *self) { POST_PROCESSING_AI };
+static void ComplexRes_postprocessing_ia(ComplexRes *self) { POST_PROCESSING_IA };
+static void ComplexRes_postprocessing_aa(ComplexRes *self) { POST_PROCESSING_AA };
+static void ComplexRes_postprocessing_ireva(ComplexRes *self) { POST_PROCESSING_IREVA };
+static void ComplexRes_postprocessing_areva(ComplexRes *self) { POST_PROCESSING_AREVA };
+static void ComplexRes_postprocessing_revai(ComplexRes *self) { POST_PROCESSING_REVAI };
+static void ComplexRes_postprocessing_revaa(ComplexRes *self) { POST_PROCESSING_REVAA };
+static void ComplexRes_postprocessing_revareva(ComplexRes *self) { POST_PROCESSING_REVAREVA };
+
+static void
+ComplexRes_setProcMode(ComplexRes *self)
+{
+    int procmode, muladdmode;
+    procmode = self->modebuffer[2] + self->modebuffer[3] * 10;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+	switch (procmode) {
+        case 0:    
+            self->proc_func_ptr = ComplexRes_filters_ii;
+            break;
+        case 1:    
+            self->proc_func_ptr = ComplexRes_filters_ai;
+            break;
+        case 10:        
+            self->proc_func_ptr = ComplexRes_filters_ia;
+            break;
+        case 11:    
+            self->proc_func_ptr = ComplexRes_filters_aa;
+            break;
+    } 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = ComplexRes_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = ComplexRes_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = ComplexRes_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = ComplexRes_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = ComplexRes_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = ComplexRes_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = ComplexRes_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = ComplexRes_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = ComplexRes_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+ComplexRes_compute_next_data_frame(ComplexRes *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+ComplexRes_traverse(ComplexRes *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    Py_VISIT(self->freq);    
+    Py_VISIT(self->freq_stream);    
+    Py_VISIT(self->decay);    
+    Py_VISIT(self->decay_stream);    
+    return 0;
+}
+
+static int 
+ComplexRes_clear(ComplexRes *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    Py_CLEAR(self->freq);    
+    Py_CLEAR(self->freq_stream);    
+    Py_CLEAR(self->decay);    
+    Py_CLEAR(self->decay_stream);    
+    return 0;
+}
+
+static void
+ComplexRes_dealloc(ComplexRes* self)
+{
+    pyo_DEALLOC
+    ComplexRes_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+ComplexRes_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *freqtmp=NULL, *decaytmp=NULL, *multmp=NULL, *addtmp=NULL;
+    ComplexRes *self;
+    self = (ComplexRes *)type->tp_alloc(type, 0);
+    
+    self->freq = PyFloat_FromDouble(1000);
+    self->decay = PyFloat_FromDouble(.25);
+    self->last_freq = self->last_decay = -1.0;
+    self->x = self->y = 0.0;
+    self->res = 1.0;
+    self->norm = 0.01; /* normalization factor fixed at -40 dB */
+    self->coeffx = self->coeffy = 0.0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+	self->modebuffer[2] = 0;
+	self->modebuffer[3] = 0;
+    
+    INIT_OBJECT_COMMON
+    
+    self->oneOnSr = 1.0 / self->sr;
+
+    Stream_setFunctionPtr(self->stream, ComplexRes_compute_next_data_frame);
+    self->mode_func_ptr = ComplexRes_setProcMode;
+
+    static char *kwlist[] = {"input", "freq", "decay", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OOOO", kwlist, &inputtmp, &freqtmp, &decaytmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    INIT_INPUT_STREAM
+    
+    if (freqtmp) {
+        PyObject_CallMethod((PyObject *)self, "setFreq", "O", freqtmp);
+    }
+    
+    if (decaytmp) {
+        PyObject_CallMethod((PyObject *)self, "setDecay", "O", decaytmp);
+    }
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * ComplexRes_getServer(ComplexRes* self) { GET_SERVER };
+static PyObject * ComplexRes_getStream(ComplexRes* self) { GET_STREAM };
+static PyObject * ComplexRes_setMul(ComplexRes *self, PyObject *arg) { SET_MUL };	
+static PyObject * ComplexRes_setAdd(ComplexRes *self, PyObject *arg) { SET_ADD };	
+static PyObject * ComplexRes_setSub(ComplexRes *self, PyObject *arg) { SET_SUB };	
+static PyObject * ComplexRes_setDiv(ComplexRes *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * ComplexRes_play(ComplexRes *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * ComplexRes_out(ComplexRes *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * ComplexRes_stop(ComplexRes *self) { STOP };
+
+static PyObject * ComplexRes_multiply(ComplexRes *self, PyObject *arg) { MULTIPLY };
+static PyObject * ComplexRes_inplace_multiply(ComplexRes *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * ComplexRes_add(ComplexRes *self, PyObject *arg) { ADD };
+static PyObject * ComplexRes_inplace_add(ComplexRes *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * ComplexRes_sub(ComplexRes *self, PyObject *arg) { SUB };
+static PyObject * ComplexRes_inplace_sub(ComplexRes *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * ComplexRes_div(ComplexRes *self, PyObject *arg) { DIV };
+static PyObject * ComplexRes_inplace_div(ComplexRes *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+ComplexRes_setFreq(ComplexRes *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->freq);
+	if (isNumber == 1) {
+		self->freq = PyNumber_Float(tmp);
+        self->modebuffer[2] = 0;
+	}
+	else {
+		self->freq = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->freq, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->freq_stream);
+        self->freq_stream = (Stream *)streamtmp;
+		self->modebuffer[2] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+ComplexRes_setDecay(ComplexRes *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_DECREF(self->decay);
+	if (isNumber == 1) {
+		self->decay = PyNumber_Float(tmp);
+        self->modebuffer[3] = 0;
+	}
+	else {
+		self->decay = tmp;
+        streamtmp = PyObject_CallMethod((PyObject *)self->decay, "_getStream", NULL);
+        Py_INCREF(streamtmp);
+        Py_XDECREF(self->decay_stream);
+        self->decay_stream = (Stream *)streamtmp;
+		self->modebuffer[3] = 1;
+	}
+    
+    (*self->mode_func_ptr)(self);
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyMemberDef ComplexRes_members[] = {
+{"server", T_OBJECT_EX, offsetof(ComplexRes, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(ComplexRes, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(ComplexRes, input), 0, "Input sound object."},
+{"freq", T_OBJECT_EX, offsetof(ComplexRes, freq), 0, "Center frequency in cycle per second."},
+{"decay", T_OBJECT_EX, offsetof(ComplexRes, decay), 0, "Decaying envelope time in seconds."},
+{"mul", T_OBJECT_EX, offsetof(ComplexRes, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(ComplexRes, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef ComplexRes_methods[] = {
+{"getServer", (PyCFunction)ComplexRes_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)ComplexRes_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)ComplexRes_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)ComplexRes_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)ComplexRes_stop, METH_NOARGS, "Stops computing."},
+{"setFreq", (PyCFunction)ComplexRes_setFreq, METH_O, "Sets filter center frequency in cycle per second."},
+{"setDecay", (PyCFunction)ComplexRes_setDecay, METH_O, "Sets filter decaying envelope time."},
+{"setMul", (PyCFunction)ComplexRes_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)ComplexRes_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)ComplexRes_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)ComplexRes_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods ComplexRes_as_number = {
+(binaryfunc)ComplexRes_add,                         /*nb_add*/
+(binaryfunc)ComplexRes_sub,                         /*nb_subtract*/
+(binaryfunc)ComplexRes_multiply,                    /*nb_multiply*/
+(binaryfunc)ComplexRes_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)ComplexRes_inplace_add,                 /*inplace_add*/
+(binaryfunc)ComplexRes_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)ComplexRes_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)ComplexRes_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject ComplexResType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.ComplexRes_base",                                   /*tp_name*/
+sizeof(ComplexRes),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)ComplexRes_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&ComplexRes_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"ComplexRes objects. Second order allpass filter.",           /* tp_doc */
+(traverseproc)ComplexRes_traverse,                  /* tp_traverse */
+(inquiry)ComplexRes_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+ComplexRes_methods,                                 /* tp_methods */
+ComplexRes_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+ComplexRes_new,                                     /* tp_new */
+};

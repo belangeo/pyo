@@ -456,6 +456,7 @@ extern PyTypeObject PVMixType;
 extern PyTypeObject GranuleType;
 extern PyTypeObject TableScaleType;
 extern PyTypeObject TrackHoldType;
+extern PyTypeObject ComplexResType;
 
 /* Constants */
 #define E M_E
