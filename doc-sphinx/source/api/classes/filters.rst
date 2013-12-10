@@ -180,4 +180,9 @@ sinusoidal component according to its frequency.
 .. autoclass:: ButBR
    :members:
 
+*ComplexRes*
+------------
+
+.. autoclass:: ComplexRes
+   :members:
 

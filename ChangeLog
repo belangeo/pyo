@@ -1,3 +1,8 @@
+2013-12-10 belangeo <belangeo@gmail.com>
+
+    * Added new object: ComplexRes, Complex one-pole resonator filter.
+    - rev 1148
+
 2013-10-18 belangeo <belangeo@gmail.com>
 
     * Added new object: TrackHold, Performs a 'thru' and hold on its input signal.
