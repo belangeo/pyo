@@ -1054,6 +1054,8 @@ OscDataReceive_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
 static PyObject * OscDataReceive_getServer(OscDataReceive* self) { GET_SERVER };
 static PyObject * OscDataReceive_getStream(OscDataReceive* self) { GET_STREAM };
+static PyObject * OscDataReceive_play(OscDataReceive *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * OscDataReceive_stop(OscDataReceive *self) { STOP };
 
 static PyObject *
 OscDataReceive_addAddress(OscDataReceive *self, PyObject *arg) {
@@ -1094,6 +1096,8 @@ static PyMemberDef OscDataReceive_members[] = {
 static PyMethodDef OscDataReceive_methods[] = {
     {"getServer", (PyCFunction)OscDataReceive_getServer, METH_NOARGS, "Returns server object."},
     {"_getStream", (PyCFunction)OscDataReceive_getStream, METH_NOARGS, "Returns stream object."},
+    {"play", (PyCFunction)OscDataReceive_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+    {"stop", (PyCFunction)OscDataReceive_stop, METH_NOARGS, "Stops computing."},
     {"addAddress", (PyCFunction)OscDataReceive_addAddress, METH_O, "Add new paths to the object."},
     {"delAddress", (PyCFunction)OscDataReceive_delAddress, METH_O, "Remove path from the object."},
     {NULL}  /* Sentinel */
