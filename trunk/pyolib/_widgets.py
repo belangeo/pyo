@@ -227,8 +227,8 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
     else:
         if wxnoserver or wx.GetApp() != None:
             root = createRootWindow()
-            if WITH_PIL: f = ViewTable_withPIL(None, samples, tableclass)
-            else: f = ViewTable_withoutPIL(None, samples, tableclass)
+            if WITH_PIL: f = ViewTable_withPIL(None, samples, tableclass, object)
+            else: f = ViewTable_withoutPIL(None, samples, tableclass, object)
             wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
@@ -267,8 +267,8 @@ It helps a lot to speed up matrix drawing!"""
     else:
         if wxnoserver or wx.GetApp() != None:
             root = createRootWindow()
-            if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size)
-            else: f = ViewMatrix_withoutPIL(None, samples, size)
+            if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size, object)
+            else: f = ViewMatrix_withoutPIL(None, samples, size, object)
             wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)
