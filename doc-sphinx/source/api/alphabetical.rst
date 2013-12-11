@@ -39,6 +39,7 @@ Alphabetical class reference
 - :py:class:`Clip` :     Clips a signal to a predefined limit.
 - :py:class:`Cloud` :     Generates random triggers.
 - :py:class:`Compare` :     Comparison object.
+- :py:class:`ComplexRes` :     Complex one-pole resonator filter. 
 - :py:class:`Compress` :     Reduces the dynamic range of an audio signal.
 - :py:class:`ControlRead` :     Reads control values previously stored in text files.
 - :py:class:`ControlRec` :     Records control values and writes them in a text file.
