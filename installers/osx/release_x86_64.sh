@@ -45,17 +45,10 @@ sudo cp /usr/local/lib/liblo.7.dylib $SUPPORT_LIBS_DIR/liblo.7.dylib
 sudo cp /usr/local/lib/libportaudio.2.dylib $SUPPORT_LIBS_DIR/libportaudio.2.dylib
 sudo cp /usr/local/lib/libportmidi.dylib $SUPPORT_LIBS_DIR/libportmidi.dylib
 sudo cp /usr/local/lib/libsndfile.1.dylib $SUPPORT_LIBS_DIR/libsndfile.1.dylib
-<<<<<<< .mine
-sudo cp /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libFLAC.8.dylib
-sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
-sudo cp /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
-sudo cp /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
-=======
 sudo cp /usr/local/lib/libFLAC.8.dylib $SUPPORT_LIBS_DIR/libFLAC.8.dylib
 sudo cp /usr/local/lib/libvorbisenc.2.dylib $SUPPORT_LIBS_DIR/libvorbisenc.2.dylib
 sudo cp /usr/local/lib/libvorbis.0.dylib $SUPPORT_LIBS_DIR/libvorbis.0.dylib
 sudo cp /usr/local/lib/libogg.0.dylib $SUPPORT_LIBS_DIR/libogg.0.dylib
->>>>>>> .r1141
 
 echo "setting permissions..."
 sudo chgrp -R admin PyoModule/Package_Contents/tmp
