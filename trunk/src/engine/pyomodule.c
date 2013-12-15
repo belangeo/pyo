@@ -1296,7 +1296,7 @@ downsamp(PyObject *self, PyObject *args, PyObject *kwds)
 
     for (i=0; i<samples_per_channels; i++) {
         for (j=0; j<snd_chnls; j++) {
-            if (i < snd_size)
+            if (i*down < snd_size)
                 downsamples[j][i] = samples[j][i*down];
             else
                 downsamples[j][i] = 0.0;            
