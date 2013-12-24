@@ -50,7 +50,7 @@ static const MYFLT allpass_delays[NUM_ALLPASS] = {
 
 static const MYFLT fixedGain   = 0.015;
 static const MYFLT scaleDamp   = 0.5;
-static const MYFLT scaleRoom   = 0.28;
+static const MYFLT scaleRoom   = 0.29;
 static const MYFLT offsetRoom  = 0.7;
 static const MYFLT allPassFeedBack = 0.5;
 
@@ -929,4 +929,3 @@ PyTypeObject FreeverbType = {
     0,                         /* tp_alloc */
     Freeverb_new,                 /* tp_new */
 };
-

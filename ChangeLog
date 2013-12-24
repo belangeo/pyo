@@ -1,3 +1,9 @@
+2013-12-24 belangeo <belangeo@gmail.com>
+
+    * Added new object: STRev, Stereo reverb.
+    * Added dataOnly argument to SLMap. User can now control parameters, in ctrl window, that do not accept audio signal but discreet values.
+    - rev 1152
+
 2013-12-10 belangeo <belangeo@gmail.com>
 
     * Added new object: ComplexRes, Complex one-pole resonator filter.

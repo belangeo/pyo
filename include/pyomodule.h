@@ -73,6 +73,7 @@
 #define TYPE__OFII "|Ofii"
 #define TYPE__FIIOO "|fiiOO"
 #define TYPE_O_OFOO "O|OfOO"
+#define TYPE_O_OOOOFF "O|OOOOff"
 #define TYPE_O_IFFO "O|iffO"
 #define TYPE_O_OOIF "O|OOif"
 #define TYPE_O_FFFFIOO "O|ffffiOO"
@@ -153,6 +154,7 @@
 #define TYPE__OFII "|Odii"
 #define TYPE__FIIOO "|diiOO"
 #define TYPE_O_OFOO "O|OdOO"
+#define TYPE_O_OOOOFF "O|OOOOdd"
 #define TYPE_O_IFFO "O|iddO"
 #define TYPE_O_OOIF "O|OOid"
 #define TYPE_O_FFFFIOO "O|ddddiOO"
@@ -457,6 +459,8 @@ extern PyTypeObject GranuleType;
 extern PyTypeObject TableScaleType;
 extern PyTypeObject TrackHoldType;
 extern PyTypeObject ComplexResType;
+extern PyTypeObject STReverbType;
+extern PyTypeObject STRevType;
 
 /* Constants */
 #define E M_E
@@ -494,6 +498,7 @@ extern PyTypeObject ComplexResType;
 #define FREEVERB_ID 24
 #define XNOISEDUR_ID 25
 #define URN_ID 26
+/* Do not forget to modify Server_generateSeed function */
 
 /* object headers */
 #define pyo_audio_HEAD \

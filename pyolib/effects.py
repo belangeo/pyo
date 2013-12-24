@@ -1247,3 +1247,220 @@ class Delay1(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class STRev(PyoObject):
+    """
+    Stereo reverb.
+
+    Stereo reverb based on WGVerb (8 delay line FDN reverb). A mono
+    input will produce two audio streams, left and right channels.
+    Therefore, a stereo input will produce four audio streams, left
+    and right channels for each input channel. Position of input 
+    streams can be set with the `inpos` argument. To achieve a stereo
+    reverb, delay line lengths are slightly differents on both channels,
+    but also, pre-delays length and filter cutoff of both channels will 
+    be affected to reflect the input position. 
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal to process.
+        inpos : float or PyoObject, optional
+            Position of the source, between 0 and 1. 0 means fully left
+            and 1 means fully right. Defaults to 0.5.
+        revtime : float or PyoObject, optional
+            Duration, in seconds, of the reverberated sound, defined as 
+            the time needed to the sound to drop 40 dB below its peak. 
+            Defaults to 1.
+        cutoff : float or PyoObject, optional
+            cutoff frequency, in Hz, of a first order lowpass filters in the 
+            feedback loop of delay lines. Defaults to 5000.
+        bal : float or PyoObject, optional
+            Balance between wet and dry signal, between 0 and 1. 0 means no 
+            reverb. Defaults to 0.5.
+        roomSize : float, optional
+            Delay line length scaler, between 0.25 and 4. Values higher than
+            1 make the delay lines longer and simulate larger rooms. Defaults to 1.
+        firstRefGain : float, optional
+            Gain, in dB, of the first reflexions of the room. Defaults to -3.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SndTable(SNDS_PATH + "/transparent.aif")
+    >>> sf = Looper(t, dur=t.getDur()*2, xfade=0, mul=0.5)
+    >>> rev = STRev(sf, inpos=0.25, revtime=2, cutoff=5000, bal=0.25, roomSize=1).out()
+
+    """
+    def __init__(self, input, inpos=0.5, revtime=1, cutoff=5000, bal=.5, roomSize=1, firstRefGain=-3, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._inpos = inpos
+        self._revtime = revtime
+        self._cutoff = cutoff
+        self._bal = bal
+        self._roomSize = roomSize
+        self._firstRefGain = firstRefGain
+        self._in_fader = InputFader(input)
+        in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add, lmax = convertArgsToLists(self._in_fader, inpos, revtime, cutoff, bal, roomSize, firstRefGain, mul, add)
+        self._base_players = [STReverb_base(wrap(in_fader,i), wrap(inpos,i), wrap(revtime,i), wrap(cutoff,i), wrap(bal,i), wrap(roomSize,i), wrap(firstRefGain,i)) for i in range(lmax)]
+        self._base_objs = [STRev_base(wrap(self._base_players,i), j, wrap(mul,i), wrap(add,i)) for i in range(lmax) for j in range(2)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Defaults to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setInpos(self, x):
+        """
+        Replace the `inpos` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `inpos` attribute.
+
+        """
+        self._inpos = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInpos(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+ 
+    def setRevtime(self, x):
+        """
+        Replace the `revtime` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `revtime` attribute.
+
+        """
+        self._revtime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRevtime(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setCutoff(self, x):
+        """
+        Replace the `cutoff` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `cutoff` attribute.
+
+        """
+        self._cutoff = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setBal(self, x):
+        """
+        Replace the `bal` attribute.
+        
+        :Args:
+
+            x : float or PyoObject
+                New `bal` attribute.
+
+        """
+        self._bal = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMix(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setRoomSize(self, x):
+        """
+        Set the room size scaler, between 0.25 and 4.
+        
+        :Args:
+
+            x : float
+                Room size scaler, between 0.25 and 4.0.
+
+        """
+        self._roomSize = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setRoomSize(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def setFirstRefGain(self, x):
+        """
+        Set the gain of the first reflexions.
+        
+        :Args:
+
+            x : float
+                Gain, in dB, of the first reflexions.
+
+        """
+        self._firstRefGain = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFirstRefGain(wrap(x,i)) for i, obj in enumerate(self._base_players)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 1., 'lin', 'inpos',  self._inpos),
+                          SLMap(0.01, 120., 'log', 'revtime',  self._revtime),
+                          SLMap(500., 15000., 'log', 'cutoff',  self._cutoff),
+                          SLMap(0., 1., 'lin', 'bal',  self._bal),
+                          SLMap(0.25, 4., 'lin', 'roomSize',  self._roomSize, dataOnly=True),
+                          SLMap(-48, 12, 'lin', 'firstRefGain', self._firstRefGain, dataOnly=True),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def inpos(self):
+        """float or PyoObject. Position of the source.""" 
+        return self._inpos
+    @inpos.setter
+    def inpos(self, x): self.setInpos(x)
+
+    @property
+    def revtime(self):
+        """float or PyoObject. Room size.""" 
+        return self._revtime
+    @revtime.setter
+    def revtime(self, x): self.setRevtime(x)
+
+    @property
+    def cutoff(self):
+        """float or PyoObject. High frequency damping.""" 
+        return self._cutoff
+    @cutoff.setter
+    def cutoff(self, x): self.setCutoff(x)
+
+    @property
+    def bal(self):
+        """float or PyoObject. Balance between wet and dry signal.""" 
+        return self._bal
+    @bal.setter
+    def bal(self, x): self.setBal(x)
+
+    @property
+    def roomSize(self):
+        """float. Room size scaler, between 0.25 and 4.0.""" 
+        return self._roomSize
+    @roomSize.setter
+    def roomSize(self, x): self.setRoomSize(x)
+
+    @property
+    def firstRefGain(self):
+        """float. Gain, in dB, of the first reflexions.""" 
+        return self._firstRefGain
+    @firstRefGain.setter
+    def firstRefGain(self, x): self.setFirstRefGain(x)
