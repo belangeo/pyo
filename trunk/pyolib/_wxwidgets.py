@@ -887,14 +887,17 @@ class PyoObjectControl(wx.Frame):
         self.box = wx.FlexGridSizer(10,2,5,5)
         
         for i, m in enumerate(self._map_list):
-            key, init, mini, maxi, scl, res = m.name, m.init, m.min, m.max, m.scale, m.res
+            key, init, mini, maxi, scl, res, dataOnly = m.name, m.init, m.min, m.max, m.scale, m.res, m.dataOnly
             # filters PyoObjects
             if type(init) not in [ListType, FloatType, IntType]:
                 self._excluded.append(key)
             else:    
                 self._maps[key] = m
                 # label (param name)
-                label = wx.StaticText(panel, -1, key)
+                if dataOnly:
+                    label = wx.StaticText(panel, -1, key+" *")
+                else:
+                    label = wx.StaticText(panel, -1, key)
                 # create and pack slider
                 if type(init) != ListType:
                     if scl == 'log': scl = True
@@ -907,15 +910,16 @@ class PyoObjectControl(wx.Frame):
                 else:
                     self._sliders.append(MultiSlider(panel, init, key, self.setval, m))
                     self.box.AddMany([(label, 0, wx.LEFT, 5), (self._sliders[-1], 1, wx.EXPAND | wx.LEFT, 5)])   
-                # set obj attribute to PyoObject SigTo  
-                self._values[key] = init
-                self._sigs[key] = SigTo(init, .025, init)
-                refStream = self._obj.getBaseObjects()[0]._getStream()
-                server = self._obj.getBaseObjects()[0].getServer()
-                for k in range(len(self._sigs[key].getBaseObjects())):
-                    curStream = self._sigs[key].getBaseObjects()[k]._getStream()
-                    server.changeStreamPosition(refStream, curStream)
-                setattr(self._obj, key, self._sigs[key])
+                # set obj attribute to PyoObject SigTo
+                if not dataOnly:
+                    self._values[key] = init
+                    self._sigs[key] = SigTo(init, .025, init)
+                    refStream = self._obj.getBaseObjects()[0]._getStream()
+                    server = self._obj.getBaseObjects()[0].getServer()
+                    for k in range(len(self._sigs[key].getBaseObjects())):
+                        curStream = self._sigs[key].getBaseObjects()[k]._getStream()
+                        server.changeStreamPosition(refStream, curStream)
+                    setattr(self._obj, key, self._sigs[key])
         self.box.AddGrowableCol(1, 1) 
         mainBox.Add(self.box, 1, wx.EXPAND | wx.TOP | wx.BOTTOM | wx.RIGHT, 10)
 
@@ -927,14 +931,17 @@ class PyoObjectControl(wx.Frame):
     def _destroy(self, event):
         for m in self._map_list:
             key = m.name
-            if key not in self._excluded:
+            if key not in self._excluded and key in self._values:
                 setattr(self._obj, key, self._values[key])
                 del self._sigs[key]
         self.Destroy()        
 
     def setval(self, key, x):
-        self._values[key] = x
-        setattr(self._sigs[key], "value", x)
+        if key in self._values:
+            self._values[key] = x
+            setattr(self._sigs[key], "value", x)
+        else:
+            setattr(self._obj, key, x)
 
 ######################################################################
 ### View window for PyoTableObject

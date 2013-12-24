@@ -1033,7 +1033,10 @@ class LFO(PyoObject):
 
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMap(0., 1., "lin", "sharp", self._sharp), SLMapMul(self._mul)]
+        self._map_list = [SLMapFreq(self._freq), 
+                          SLMap(0., 1., "lin", "sharp", self._sharp), 
+                          SLMap(0, 7, "lin", "type", self._type, "int", dataOnly=True), 
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property

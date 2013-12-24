@@ -184,6 +184,7 @@ Alphabetical class reference
 - :py:class:`SLMapPhase` :     SLMap with normalized values for a 'phase' slider.
 - :py:class:`SLMapQ` :     SLMap with normalized values for a 'q' slider.
 - :py:class:`SPan` :     Simple equal power panner.
+- :py:class:`STRev` :     Stereo reverb.
 - :py:class:`SVF` :     Fourth-order state variable filter allowing continuous change of the filter type. 
 - :py:class:`SampHold` :     Performs a sample-and-hold operation on its input. 
 - :py:class:`SawTable` :     Sawtooth waveform generator.

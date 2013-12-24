@@ -68,13 +68,13 @@ files = ['pyomodule.c', 'servermodule.c', 'pvstreammodule.c', 'streammodule.c', 
 source_files = [path + f for f in files]
 
 path = 'src/objects/'
-files = ['phasevocmodule.c', 'fftmodule.c', 'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
+files = ['wgverbmodule.c', 'freeverbmodule.c', 'phasevocmodule.c', 'fftmodule.c', 'oscilmodule.c', 'randommodule.c', 'oscmodule.c','analysismodule.c', 
         'sfplayermodule.c', 'oscbankmodule.c', 'lfomodule.c', 'tablemodule.c',
          'matrixmodule.c', 'filtremodule.c', 'noisemodule.c', 'distomodule.c',
         'inputmodule.c', 'fadermodule.c', 'midimodule.c', 'delaymodule.c','recordmodule.c', 'granulatormodule.c', 
         'metromodule.c', 'trigmodule.c', 'patternmodule.c', 'bandsplitmodule.c', 'hilbertmodule.c', 'panmodule.c',
-        'selectmodule.c', 'freeverbmodule.c', 'compressmodule.c', 'utilsmodule.c',
-        'convolvemodule.c', 'wgverbmodule.c', 'arithmeticmodule.c', 'sigmodule.c',
+        'selectmodule.c', 'compressmodule.c', 'utilsmodule.c',
+        'convolvemodule.c', 'arithmeticmodule.c', 'sigmodule.c',
         'matrixprocessmodule.c', 'harmonizermodule.c', 'chorusmodule.c']
 
 if compile_externals:

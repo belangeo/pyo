@@ -78,3 +78,9 @@ as distortions, delays, chorus and reverbs.
 .. autoclass:: FreqShift
    :members:
 
+*STRev*
+------------
+
+.. autoclass:: STRev
+   :members:
+

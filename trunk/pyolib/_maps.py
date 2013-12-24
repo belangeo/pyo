@@ -158,6 +158,10 @@ class SLMap(Map):
         ramp : float, optional
             Ramp time, in seconds, used to smooth the signal sent from slider 
             to object's attribute. Defaults to 0.025.
+        dataOnly : boolean, optional
+            Set this argument to True if the parameter does not accept audio 
+            signal as control but discreet values. If True, label will be 
+            marked with a star symbol (*). Defaults to False. 
 
     >>> s = Server().boot()
     >>> s.start()
@@ -167,9 +171,9 @@ class SLMap(Map):
     >>> a.ctrl(maps)
 
     """
-    def __init__(self, min, max, scale, name, init, res='float', ramp=0.025):
+    def __init__(self, min, max, scale, name, init, res='float', ramp=0.025, dataOnly=False):
         Map.__init__(self, min, max, scale)
-        self._name, self._init, self._res, self._ramp = name, init, res, ramp
+        self._name, self._init, self._res, self._ramp, self._dataOnly = name, init, res, ramp, dataOnly
 
     @property
     def name(self): 
@@ -187,6 +191,10 @@ class SLMap(Map):
     def ramp(self): 
         """float. Ramp time in seconds."""
         return self._ramp
+    @property
+    def dataOnly(self): 
+        """boolean. True if argument does not accept audio stream."""
+        return self._dataOnly
 
 class SLMapFreq(SLMap):
     """
