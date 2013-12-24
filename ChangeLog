@@ -2,7 +2,7 @@
 
     * Added new object: STRev, Stereo reverb.
     * Added dataOnly argument to SLMap. User can now control parameters, in ctrl window, that do not accept audio signal but discreet values.
-    - rev 1152
+    - rev 1153
 
 2013-12-10 belangeo <belangeo@gmail.com>
 
