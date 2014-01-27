@@ -40,6 +40,70 @@ APP_VERSION = PYO_VERSION
 OSX_APP_BUNDLED = False
 WIN_APP_BUNDLED = False
 
+################## Utility Functions ##################
+@contextlib.contextmanager
+def stdoutIO(stdout=None):
+    old = sys.stdout
+    if stdout is None:
+        stdout = StringIO.StringIO()
+    sys.stdout = stdout
+    yield stdout
+    sys.stdout = old
+
+def convert_line_endings(temp, mode):
+    #modes:  0 - Unix, 1 - Mac, 2 - DOS
+    if mode == 0:
+        temp = string.replace(temp, '\r\n', '\n')
+        temp = string.replace(temp, '\r', '\n')
+    elif mode == 1:
+        temp = string.replace(temp, '\r\n', '\r')
+        temp = string.replace(temp, '\n', '\r')
+    elif mode == 2:
+        import re
+        temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
+    return temp
+
+def ensureNFD(unistr):
+    if PLATFORM in ['linux2', 'win32']:
+        encodings = [DEFAULT_ENCODING, ENCODING,
+                     'cp1252', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    else:
+        encodings = [DEFAULT_ENCODING, ENCODING,
+                     'macroman', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    decstr = unistr
+    if type(decstr) != UnicodeType:
+        for encoding in encodings:
+            try:
+                decstr = decstr.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+            except:
+                decstr = "UnableToDecodeString"
+                print "Unicode encoding not in a recognized format..."
+                break
+    if decstr == "UnableToDecodeString":
+        return unistr
+    else:
+        return unicodedata.normalize(format, decstr)
+
+def toSysEncoding(unistr):
+    try:
+        if PLATFORM == "win32":
+            unistr = unistr.encode(ENCODING)
+        else:
+            unistr = unicode(unistr)
+    except:
+        pass
+    return unistr
+
+def hex_to_rgb(value):
+    value = value.lstrip('#')
+    lv = len(value)
+    return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
+
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
     os.mkdir(TEMP_PATH)
@@ -201,7 +265,7 @@ DEFAULT_STYLE = os.path.join(STYLES_PATH, "Default")
 if not os.path.isfile(os.path.join(STYLES_PATH, "Default")):
     shutil.copy(os.path.join(os.getcwd(), "styles", "Default"), DEFAULT_STYLE)
 if PREFERENCES.has_key("pref_style"):
-    PREF_STYLE = os.path.join(STYLES_PATH, PREFERENCES["pref_style"])
+    PREF_STYLE = os.path.join(ensureNFD(STYLES_PATH), PREFERENCES["pref_style"])
 else:
     PREF_STYLE = DEFAULT_STYLE
 
@@ -215,70 +279,6 @@ if not os.path.isfile(MARKERS_FILE):
 
 BACKGROUND_SERVER_DEFAULT_ARGS = 'sr=44100, nchnls=2, buffersize=256, duplex=1, audio="portaudio", jackname="pyo"'
 BACKGROUND_SERVER_ARGS = PREFERENCES.get("background_server_args", BACKGROUND_SERVER_DEFAULT_ARGS)
-
-################## Utility Functions ##################
-@contextlib.contextmanager
-def stdoutIO(stdout=None):
-    old = sys.stdout
-    if stdout is None:
-        stdout = StringIO.StringIO()
-    sys.stdout = stdout
-    yield stdout
-    sys.stdout = old
-
-def convert_line_endings(temp, mode):
-    #modes:  0 - Unix, 1 - Mac, 2 - DOS
-    if mode == 0:
-        temp = string.replace(temp, '\r\n', '\n')
-        temp = string.replace(temp, '\r', '\n')
-    elif mode == 1:
-        temp = string.replace(temp, '\r\n', '\r')
-        temp = string.replace(temp, '\n', '\r')
-    elif mode == 2:
-        import re
-        temp = re.sub("\r(?!\n)|(?<!\r)\n", "\r\n", temp)
-    return temp
-
-def ensureNFD(unistr):
-    if PLATFORM in ['linux2', 'win32']:
-        encodings = [DEFAULT_ENCODING, ENCODING,
-                     'cp1252', 'latin_1', 'utf-16']
-        format = 'NFC'
-    else:
-        encodings = [DEFAULT_ENCODING, ENCODING,
-                     'macroman', 'latin_1', 'utf-16']
-        format = 'NFC'
-    decstr = unistr
-    if type(decstr) != UnicodeType:
-        for encoding in encodings:
-            try:
-                decstr = decstr.decode(encoding)
-                break
-            except UnicodeDecodeError:
-                continue
-            except:
-                decstr = "UnableToDecodeString"
-                print "Unicode encoding not in a recognized format..."
-                break
-    if decstr == "UnableToDecodeString":
-        return unistr
-    else:
-        return unicodedata.normalize(format, decstr)
-
-def toSysEncoding(unistr):
-    try:
-        if PLATFORM == "win32":
-            unistr = unistr.encode(ENCODING)
-        else:
-            unistr = unicode(unistr)
-    except:
-        pass
-    return unistr
-
-def hex_to_rgb(value):
-    value = value.lstrip('#')
-    lv = len(value)
-    return tuple(int(value[i:i+lv/3], 16) for i in range(0, lv, lv/3))
 
 ################## TEMPLATES ##################
 HEADER_TEMPLATE = """#!/usr/bin/env python
@@ -702,7 +702,31 @@ STYLES_LABELS = {'default': 'Foreground', 'background': 'Background', 'selback':
 with open(PREF_STYLE) as f:
     text = f.read()
 exec text in locals()
-STYLES = copy.deepcopy(style)
+try:
+    STYLES = copy.deepcopy(style)
+except:
+    STYLES = {'background': {'colour': '#FFFFFF'},
+ 'bracebad': {'colour': '#DD0000'},
+ 'bracelight': {'colour': '#AABBDD'},
+ 'caret': {'colour': '#000000'},
+ 'class': {'bold': 1, 'colour': '#000097', 'italic': 0, 'underline': 0},
+ 'comment': {'bold': 0, 'colour': '#0066FF', 'italic': 1, 'underline': 0},
+ 'commentblock': {'bold': 0, 'colour': u'#468EFF', 'italic': 1, 'underline': 0},
+ 'default': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
+ 'foldmarginback': {'colour': '#D0D0D0'},
+ 'function': {'bold': 1, 'colour': '#0000A2', 'italic': 0, 'underline': 0},
+ 'keyword': {'bold': 1, 'colour': '#0000FF', 'italic': 0, 'underline': 0},
+ 'lineedge': {'colour': '#DDDDDD'},
+ 'linenumber': {'bold': 0, 'colour': '#000000', 'italic': 0, 'underline': 0},
+ 'marginback': {'colour': '#B0B0B0'},
+ 'markerbg': {'colour': '#000000'},
+ 'markerfg': {'colour': '#CCCCCC'},
+ 'number': {'bold': 1, 'colour': '#0000CD', 'italic': 0, 'underline': 0},
+ 'operator': {'bold': 1, 'colour': '#000000', 'italic': 0, 'underline': 0},
+ 'pyokeyword': {'bold': 1, 'colour': '#5555FF', 'italic': 0, 'underline': 0},
+ 'selback': {'colour': '#C0DFFF'},
+ 'string': {'bold': 0, 'colour': '#036A07', 'italic': 0, 'underline': 0},
+ 'triple': {'bold': 0, 'colour': '#03BA07', 'italic': 0, 'underline': 0}}
 if not STYLES.has_key('face'):
     STYLES['face'] = DEFAULT_FONT_FACE
 if not STYLES.has_key('size'):
@@ -1189,7 +1213,7 @@ class ColourEditor(wx.Frame):
         global STYLES
         stl = event.GetString()
         self.cur_style = stl
-        with open(os.path.join(STYLES_PATH, stl)) as f:
+        with open(os.path.join(ensureNFD(STYLES_PATH), stl)) as f:
             text = f.read()
         exec text in locals()
         STYLES = copy.deepcopy(style)
@@ -1550,10 +1574,10 @@ class SnippetFrame(wx.Frame):
             self.entry.InsertText(select[0], "`")
 
     def onLoad(self, name, category):
-        if os.path.isfile(os.path.join(SNIPPETS_PATH, category, name)):
+        if os.path.isfile(os.path.join(ensureNFD(SNIPPETS_PATH), category, name)):
             self.snippet_name = name
             self.category_name = category
-            with codecs.open(os.path.join(SNIPPETS_PATH, self.category_name, self.snippet_name), "r", encoding="utf-8") as f:
+            with codecs.open(os.path.join(ensureNFD(SNIPPETS_PATH), self.category_name, self.snippet_name), "r", encoding="utf-8") as f:
                 text = f.read()
             exec text in locals()
             try:
@@ -2461,7 +2485,7 @@ class MainFrame(wx.Frame):
         item = menu.FindItemById(id)
         name = item.GetLabel()
         category = item.GetMenu().GetTitle()
-        with codecs.open(os.path.join(SNIPPETS_PATH, category, name), "r", encoding="utf-8") as f:
+        with codecs.open(os.path.join(ensureNFD(SNIPPETS_PATH), category, name), "r", encoding="utf-8") as f:
             text = f.read()
         exec text in locals()
         self.panel.editor.insertSnippet(snippet["value"])
@@ -2478,7 +2502,7 @@ class MainFrame(wx.Frame):
         
     def setStyle(self, st, fromMenu=False):
         global STYLES
-        with open(os.path.join(STYLES_PATH, st)) as f:
+        with open(os.path.join(ensureNFD(STYLES_PATH), st)) as f:
             text = f.read()
         exec text in locals()
         STYLES = copy.deepcopy(style)
@@ -2658,7 +2682,7 @@ class MainFrame(wx.Frame):
         item = menu.FindItemById(id)
         filename = item.GetLabel()
         folder = item.GetMenu().GetTitle()
-        path = os.path.join(EXAMPLE_PATH, folder, filename)
+        path = os.path.join(ensureNFD(EXAMPLE_PATH), folder, filename)
         self.panel.addPage(ensureNFD(path))
 
     def openTutorial(self, event):
@@ -4905,7 +4929,7 @@ class PreferencesDialog(wx.Dialog):
 
         res_folder = self.entry_res.GetValue()
         if os.path.isdir(res_folder):
-            if res_folder != RESOURCES_PATH:
+            if res_folder != ensureNFD(RESOURCES_PATH):
                 RESOURCES_PATH = PREFERENCES["resources_path"] = res_folder
                 # snippets
                 old_snippets_path = SNIPPETS_PATH
