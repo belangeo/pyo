@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # encoding: utf-8
 from __future__ import with_statement
-import subprocess, threading, os
+import subprocess, threading, os, sys, unicodedata
 import wx
 import wx.stc  as  stc
 from wx.lib.embeddedimage import PyEmbeddedImage
 from pyo import *
 
 DOC_AS_SINGLE_APP = False
+
+PLATFORM = sys.platform
+DEFAULT_ENCODING = sys.getdefaultencoding()
+ENCODING = sys.getfilesystemencoding()
 
 TEMP_PATH = os.path.join(os.path.expanduser('~'), '.epyo')
 if not os.path.isdir(TEMP_PATH):
@@ -786,7 +790,7 @@ class ManualPanel(wx.Treebook):
                 if not panel.isLoad:
                     panel.isLoad = True
                     panel.win = stc.StyledTextCtrl(panel, -1, size=panel.GetSize(), style=wx.SUNKEN_BORDER)
-                    panel.win.LoadFile(os.path.join(DOC_PATH, word))
+                    panel.win.LoadFile(os.path.join(ensureNFD(DOC_PATH), word))
                     panel.win.SetMarginWidth(1, 0)
                     panel.win.Bind(wx.EVT_LEFT_DOWN, self.MouseDown)
                     if self.searchKey != None:
@@ -1079,6 +1083,42 @@ class RunningThread(threading.Thread):
 
         while self.proc.poll() == None and not self.terminated:
             time.sleep(.25)
+
+def ensureNFD(unistr):
+    if PLATFORM in ['linux2', 'win32']:
+        encodings = [DEFAULT_ENCODING, ENCODING,
+                     'cp1252', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    else:
+        encodings = [DEFAULT_ENCODING, ENCODING,
+                     'macroman', 'iso-8859-1', 'utf-16']
+        format = 'NFC'
+    decstr = unistr
+    if type(decstr) != UnicodeType:
+        for encoding in encodings:
+            try:
+                decstr = decstr.decode(encoding)
+                break
+            except UnicodeDecodeError:
+                continue
+            except:
+                decstr = "UnableToDecodeString"
+                print "Unicode encoding not in a recognized format..."
+                break
+    if decstr == "UnableToDecodeString":
+        return unistr
+    else:
+        return unicodedata.normalize(format, decstr)
+
+def toSysEncoding(unistr):
+    try:
+        if PLATFORM == "win32":
+            unistr = unistr.encode(ENCODING)
+        else:
+            unistr = unicode(unistr)
+    except:
+        pass
+    return unistr
 
 if __name__ == "__main__":
     DOC_AS_SINGLE_APP = True
