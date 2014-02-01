@@ -141,7 +141,9 @@ class Biquad(PyoObject):
         [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), 
+                          SLMap(0, 4, 'lin', 'type', self._type, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -297,7 +299,9 @@ class Biquadx(PyoObject):
         [obj.setStages(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), SLMapMul(self._mul)]
+        self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), 
+                          SLMap(0, 4, 'lin', 'type', self._type, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -684,6 +688,7 @@ class EQ(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq), SLMapQ(self._q), 
                           SLMap(-40.0, 40.0, "lin", "boost", self._boost), 
+                          SLMap(0, 2, 'lin', 'type', self._type, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1946,6 +1951,7 @@ class Vocoder(PyoObject):
                           SLMap(0.25, 2, "lin", "spread", self._spread),
                           SLMap(0.5, 200, "log", "q", self._q), 
                           SLMap(0, 1, "lin", "slope", self._slope),
+                          SLMap(2, 64, 'lin', 'stages',  self._stages, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -2125,7 +2131,8 @@ class IRWinSinc(PyoObject):
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq),
-                          SLMap(20., 10000., "log", "bw", self._bw)]
+                          SLMap(20., 10000., "log", "bw", self._bw),
+                          SLMap(0, 3, 'lin', 'type', self._type, res="int", dataOnly=True)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -2352,7 +2359,8 @@ class IRPulse(PyoObject):
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq),
-                          SLMap(20., 10000., "log", "bw", self._bw)]
+                          SLMap(20., 10000., "log", "bw", self._bw),
+                          SLMap(0, 3, 'lin', 'type', self._type, res="int", dataOnly=True)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -2738,7 +2746,8 @@ class Average(PyoObject):
         [obj.setSize(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
+        self._map_list = [SLMap(2, 256, 'lin', 'size', self._size, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
       
     @property

@@ -39,7 +39,8 @@ class Pan(PyoObject):
         input : PyoObject
             Input signal to process.
         outs : int, optional
-            Number of channels on the panning circle. Defaults to 2.
+            Number of channels on the panning circle. Available at 
+            initialization time only. Defaults to 2.
         pan : float or PyoObject
             Position of the sound on the panning circle, between 0 and 1. 
             Defaults to 0.5.
@@ -149,7 +150,8 @@ class SPan(PyoObject):
         input : PyoObject
             Input signal to process.
         outs : int, optional
-            Number of channels on the panning circle. Defaults to 2.
+            Number of channels on the panning circle. Available at 
+            initialization time only. Defaults to 2.
         pan : float or PyoObject
             Position of the sound on the panning circle, between 0 and 1. 
             Defaults to 0.5.
@@ -238,7 +240,8 @@ class Switch(PyoObject):
         input : PyoObject
             Input signal to process.
         outs : int, optional
-            Number of outputs. Defaults to 2.
+            Number of outputs. Available at initialization time only. 
+            Defaults to 2.
         voice : float or PyoObject
             Voice position pointer, between 0 and (outs-1) / len(input). 
             Defaults to 0.
@@ -684,7 +687,8 @@ class Mixer(PyoObject):
         return self._inputs.keys()
         
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapMul(self._mul)]
+        self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property

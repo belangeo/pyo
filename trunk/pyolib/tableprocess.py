@@ -136,6 +136,7 @@ class Osc(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq),
                           SLMapPhase(self._phase),
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -403,6 +404,7 @@ class OscTrig(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapFreq(self._freq),
                           SLMapPhase(self._phase),
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -854,7 +856,10 @@ class TableRead(PyoObject):
 
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMapFreq(self._freq), SLMapMul(self._mul)]
+        self._map_list = [SLMap(0.0001, 1000, 'log', 'freq', self._freq), 
+                          SLMap(0, 1, 'lin', 'loop', self._loop, res="int", dataOnly=True),
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -1030,6 +1035,7 @@ class Pulsar(PyoObject):
         self._map_list = [SLMapFreq(self._freq),
                           SLMap(0., 1., 'lin', 'frac', self._frac),
                           SLMapPhase(self._phase),
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -1710,6 +1716,8 @@ class Granulator(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
                           SLMap(0.01, 1., 'lin', 'dur', self._dur),
+                          SLMap(1, 256, 'lin', 'grains', self._grains, res="int", dataOnly=True),
+                          SLMap(0.001, 1, 'log', 'basedur', self._basedur, dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
@@ -2128,7 +2136,9 @@ class Looper(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.1, 2., 'lin', 'pitch', self._pitch),
                           SLMap(0., self._table.getDur(), 'lin', 'start', self._start),
-                          SLMap(0.01, 1., 'lin', 'dur', self._dur),
+                          SLMap(0.01, self._table.getDur(), 'lin', 'dur', self._dur),
+                          SLMap(0, 2, 'lin', 'xfadeshape', self._xfadeshape, res="int", dataOnly=True),
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 

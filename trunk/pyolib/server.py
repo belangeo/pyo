@@ -98,7 +98,7 @@ class Server(object):
         
     """
     def __init__(self, sr=44100, nchnls=2, buffersize=256, duplex=1, audio='portaudio', jackname='pyo'):
-        if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio:
+        if os.environ.has_key("PYO_SERVER_AUDIO") and "offline" not in audio and "embedded" not in audio:
             audio = os.environ["PYO_SERVER_AUDIO"]
         self._time = time
         self._nchnls = nchnls

@@ -333,9 +333,9 @@ typedef struct {
     pyo_audio_HEAD
     PyObject *value;
     Stream *value_stream;
-    MYFLT time;
     MYFLT lastValue;
     MYFLT currentValue;
+    MYFLT time;
     long timeStep;
     MYFLT stepVal;
     long timeCount;
@@ -346,20 +346,19 @@ static void
 SigTo_generates_i(SigTo *self) {
     int i;
     MYFLT value;
-    
     if (self->modebuffer[2] == 0) {
         value = PyFloat_AS_DOUBLE(self->value);
+        if (value != self->lastValue) {
+            self->timeCount = 0;
+            self->timeStep = (long)(self->time * self->sr);
+            self->stepVal = (value - self->currentValue) / self->timeStep;
+            self->lastValue = value;
+        }
         if (self->timeStep <= 0) {
             for (i=0; i<self->bufsize; i++)
                 self->data[i] = self->currentValue = self->lastValue = value;
         }
-        else {
-            if (value != self->lastValue) {
-                self->timeCount = 0;
-                self->stepVal = (value - self->currentValue) / self->timeStep;
-                self->lastValue = value;
-            }    
-        
+        else {        
             for (i=0; i<self->bufsize; i++) {
                 if (self->timeCount == (self->timeStep - 1)) {
                     self->currentValue = value;
@@ -386,6 +385,7 @@ SigTo_generates_i(SigTo *self) {
                 value = vals[i];
                 if (value != self->lastValue) {
                     self->timeCount = 0;
+                    self->timeStep = (long)(self->time * self->sr);
                     self->stepVal = (value - self->currentValue) / self->timeStep;
                     self->lastValue = value;
                 }    
@@ -497,7 +497,6 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     self->value = PyFloat_FromDouble(0.0);
     self->time = 0.025;
-    self->timeStep = (long)(self->time * self->sr);
     self->timeCount = 0;
     self->stepVal = 0.0;
 	self->modebuffer[0] = 0;
@@ -532,6 +531,7 @@ SigTo_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     self->lastValue = self->currentValue = inittmp;
+    self->timeStep = (long)(self->time * self->sr);
     
     (*self->mode_func_ptr)(self);
 
@@ -590,7 +590,6 @@ SigTo_setTime(SigTo *self, PyObject *arg)
 	Py_INCREF(tmp);
 	if (isNumber == 1) {
 		self->time = PyFloat_AS_DOUBLE(PyNumber_Float(tmp));
-        self->timeStep = (long)(self->time * self->sr);
 	}
     
 	Py_INCREF(Py_None);

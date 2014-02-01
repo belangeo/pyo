@@ -5792,6 +5792,7 @@ typedef struct {
     MYFLT factor;
     int stages;
     int last_stages;
+    int flag;
     MYFLT nyquist;
     MYFLT twoPiOnSr;
     int modebuffer[6]; // need at least 2 slots for mul & add 
@@ -5829,9 +5830,9 @@ Vocoder_allocate_memories(Vocoder *self)
         for (j=0; j<2; j++) {
             i2j = i * 2 + j;
             self->yy1[i2j] = self->yy2[i2j] = self->y1[i2j] = self->y2[i2j] = 0.0;
-
         }
-    }    
+    }
+    self->flag = 1; 
 }
 
 static void
@@ -5887,11 +5888,12 @@ Vocoder_filters_iii(Vocoder *self) {
         self->factor = MYEXP(-1.0 / (self->sr / ((slope * 48.0) + 2.0)));
     }
 
-    if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+    if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
         self->last_freq = freq;
         self->last_spread = spread;
         self->last_q = q;
         self->last_stages = self->stages;
+        self->flag = 0;
         Vocoder_compute_variables(self, freq, spread, q);
     }
     
@@ -5971,11 +5973,12 @@ Vocoder_filters_aii(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6053,11 +6056,12 @@ Vocoder_filters_iai(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6138,11 +6142,12 @@ Vocoder_filters_aai(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6220,11 +6225,12 @@ Vocoder_filters_iia(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6304,11 +6310,12 @@ Vocoder_filters_aia(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6388,11 +6395,12 @@ Vocoder_filters_iaa(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6474,11 +6482,12 @@ Vocoder_filters_aaa(Vocoder *self) {
         else if (count >= maxcount)
             count = 0;
         count++;
-        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages) {
+        if (freq != self->last_freq || spread != self->last_spread || q != self->last_q || self->stages != self->last_stages || self->flag) {
             self->last_freq = freq;
             self->last_spread = spread;
             self->last_q = q;
             self->last_stages = self->stages;
+            self->flag = 0;
             Vocoder_compute_variables(self, freq, spread, q);
         }
         output = 0.0;
@@ -6674,6 +6683,7 @@ Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->factor = 0.99;
     self->stages = 24;
     self->last_stages = -1;
+    self->flag = 0;
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
 	self->modebuffer[2] = 0;

@@ -208,7 +208,9 @@ class SfPlayer(PyoObject):
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_players)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
+        self._map_list = [SLMap(-2., 2., 'lin', 'speed', self._speed), 
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -354,7 +356,9 @@ class SfMarkerShuffler(PyoObject):
         return self._markers
         
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), SLMapMul(self._mul)]
+        self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), 
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
                     
     @property
@@ -492,6 +496,7 @@ class SfMarkerLooper(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(0.01, 2., 'lin', 'speed', self._speed), 
                           SLMap(0, len(self._markers)-1, 'lin', 'mark', self._mark, 'int'),
+                          SLMap(1, 4, 'lin', 'interp', self._interp, res="int", dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
