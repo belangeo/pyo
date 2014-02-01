@@ -627,7 +627,7 @@ class Xnoise(PyoObject):
                 new `x2` attribute.
 
         """
-        self._x2= x
+        self._x2 = x
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
@@ -644,6 +644,15 @@ class Xnoise(PyoObject):
         self._port = x
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 12, 'lin', 'dist', self._dist, res="int", dataOnly=True),
+                          SLMap(0.001, 200., 'log', 'freq', self._freq),
+                          SLMap(0, 1, 'lin', 'x1', self._x1),
+                          SLMap(0, 1, 'lin', 'x2', self._x2),
+                          SLMap(0, 2500, 'lin', 'mul', self._mul),
+                          SLMap(0, 2500, 'lin', 'add', self._add)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def dist(self): 
@@ -880,6 +889,14 @@ class XnoiseMidi(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 12, 'lin', 'dist', self._dist, res="int", dataOnly=True),
+                          SLMap(0.001, 200., 'log', 'freq', self._freq),
+                          SLMap(0, 1, 'lin', 'x1', self._x1),
+                          SLMap(0, 1, 'lin', 'x2', self._x2),
+                          SLMap(0, 2, 'lin', 'scale', self._scale, res="int", dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def dist(self): 
         """string or int. Distribution type."""
@@ -1097,6 +1114,14 @@ class XnoiseDur(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setX2(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 12, 'lin', 'dist', self._dist, res="int", dataOnly=True),
+                          SLMap(0, 20, 'lin', 'min', self._min),
+                          SLMap(0, 20, 'lin', 'max', self._max),
+                          SLMap(0, 1, 'lin', 'x1', self._x1),
+                          SLMap(0, 1, 'lin', 'x2', self._x2)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def dist(self): 
         """string or int. Distribution type."""
@@ -1208,7 +1233,7 @@ class Urn(PyoObject):
         [obj.setFreq(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(1., 2., 'lin', 'max', self._max),
+        self._map_list = [SLMap(1, 1000, 'lin', 'max', self._max, res="int", dataOnly=True),
                           SLMap(0.1, 20., 'lin', 'freq', self._freq),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)

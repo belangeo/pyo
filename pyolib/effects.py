@@ -1166,6 +1166,7 @@ class Harmonizer(PyoObject):
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMap(-24.0, 24.0, 'lin', 'transpo',  self._transpo),
                           SLMap(0., 1., 'lin', 'feedback', self._feedback),
+                          SLMap(0.001, 1, 'log', 'winsize',  self._winsize, dataOnly=True),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 

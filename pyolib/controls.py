@@ -129,6 +129,12 @@ class Fader(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 10., 'lin', 'fadein', self._fadein, dataOnly=True),
+                          SLMap(0, 10., 'lin', 'fadeout', self._fadeout, dataOnly=True),
+                          SLMap(0, 20., 'lin', 'dur', self._dur, dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def fadein(self):
         """float. Rising time of the envelope in seconds.""" 
@@ -280,6 +286,14 @@ class Adsr(PyoObject):
         self._dur = x
         x, lmax = convertArgsToLists(x)
         [obj.setDur(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 5, 'lin', 'attack', self._attack, dataOnly=True),
+                          SLMap(0, 5, 'lin', 'decay', self._decay, dataOnly=True),
+                          SLMap(0, 1, 'lin', 'sustain', self._sustain, dataOnly=True),
+                          SLMap(0, 10, 'lin', 'release', self._release, dataOnly=True),
+                          SLMap(0, 20., 'lin', 'dur', self._dur, dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def attack(self):
@@ -748,6 +762,10 @@ class SigTo(PyoObject):
         self._time = x
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 10, 'lin', 'time', self._time, dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def value(self):

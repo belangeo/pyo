@@ -676,7 +676,11 @@ class Beat(PyoObject):
         pass
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, 1., 'lin', 'time', self._time)]
+        self._map_list = [SLMap(0.001, 1., 'lin', 'time', self._time),
+                          SLMap(2, 64, 'lin', 'taps', self._taps, res="int", dataOnly=True),
+                          SLMap(0, 100, 'lin', 'w1', self._w1, res="int", dataOnly=True),
+                          SLMap(0, 100, 'lin', 'w2', self._w2, res="int", dataOnly=True),
+                          SLMap(0, 100, 'lin', 'w3', self._w3, res="int", dataOnly=True)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
@@ -2261,6 +2265,14 @@ class Counter(PyoObject):
         value, lmax = convertArgsToLists(value)
         [obj.reset(wrap(value,i)) for i, obj in enumerate(self._base_objs)]
 
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 100, 'lin', 'min', self._min, res="int", dataOnly=True),
+                          SLMap(0, 1000, 'lin', 'max', self._max, res="int", dataOnly=True),
+                          SLMap(0, 2, 'lin', 'dir', self._dir, res="int", dataOnly=True),
+                          SLMap(0, 1000, 'lin', 'mul', self._mul),
+                          SLMap(0, 1000, 'lin', 'add', self._add)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
     @property
     def input(self): 
         """PyoObject. Audio trigger signal."""
@@ -2366,6 +2378,10 @@ class Select(PyoObject):
         self._value = x
         x, lmax = convertArgsToLists(x)
         [obj.setValue(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 100, 'lin', 'value', self._value, res="int", dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): 
@@ -2922,6 +2938,12 @@ class Count(PyoObject):
         self._max = x
         x, lmax = convertArgsToLists(x)
         [obj.setMax(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 10000, 'lin', 'min', self._min, res="int", dataOnly=True),
+                          SLMap(10000, 1000000, 'lin', 'max', self._max, res="int", dataOnly=True),
+                          SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
 
     @property
     def input(self): 

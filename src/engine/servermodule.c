@@ -2161,7 +2161,7 @@ Server_start(Server *self)
     self->server_started = 1;
     self->timeStep = (int)(0.01 * self->samplingRate);
 
-    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB) {
+    if (self->audio_be_type != PyoOffline && self->audio_be_type != PyoOfflineNB && self->audio_be_type != PyoEmbedded) {
         midierr = Server_pm_init(self);
         Server_debug(self, "PortMidi initialization return code : %d.\n", midierr);
     }

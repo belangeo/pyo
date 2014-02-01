@@ -246,7 +246,7 @@ class ZCross(PyoObject):
         The out() method is bypassed. ZCross's signal can not be sent to 
         audio outs.
     
-    >>> s = Server(duplex=1).boot()
+    >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
     >>> b = ZCross(a, thresh=.02)
@@ -292,6 +292,10 @@ class ZCross(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0., 0.5, 'lin', 'thresh', self._thresh)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
      
     @property
     def input(self):
@@ -440,6 +444,13 @@ class Yin(PyoObject):
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         return self.play(dur, delay)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0, 1, 'lin', 'tolerance', self._tolerance, dataOnly=True),
+                          SLMap(20, 400, 'log', 'minfreq', self._minfreq, dataOnly=True),
+                          SLMap(500, 5000, 'log', 'maxfreq', self._maxfreq, dataOnly=True),
+                          SLMap(200, 15000, 'log', 'cutoff', self._cutoff, dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
      
     @property
     def input(self):
