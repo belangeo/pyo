@@ -1,7 +1,7 @@
 ## Pd library template version 1.0.13
 # For instructions on how to use this template, see:
 #  http://puredata.info/docs/developer/MakefileTemplate
-LIBRARY_NAME = 
+LIBRARY_NAME = pyo~
 
 # add your .c source files, one object per file, to the SOURCES
 # variable, help files will be included automatically, and for GUI
@@ -26,7 +26,6 @@ EXTRA_DIST = m_pyo.h
 
 # unit tests and related files here, in the 'unittests' subfolder
 UNITTESTS = 
-
 
 # added to support the multiple shared source files
 SHARED_SOURCE = 
@@ -441,3 +440,4 @@ showsetup:
 	@echo "pkglibdir: $(pkglibdir)"
 	@echo "DISTDIR: $(DISTDIR)"
 	@echo "ORIGDIR: $(ORIGDIR)"
+
