@@ -37,12 +37,18 @@ SHARED_LIB = lib$(LIBRARY_NAME).$(SHARED_EXTENSION)
 # things you might need to edit if you are using other C libraries
 #
 #------------------------------------------------------------------------------#
-
-ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(shell python-config --cflags)
-ALL_LDFLAGS =  $(shell python-config --ldflags)
-SHARED_LDFLAGS =
-ALL_LIBS = $(shell python-config --libs)
-
+UNAME := $(shell uname -s)
+ifeq (MINGW,$(findstring MINGW,$(UNAME)))
+    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter -IC:\Python27\include
+    ALL_LDFLAGS =  -lpython27
+    SHARED_LDFLAGS =
+    ALL_LIBS = -LC:\Python27\libs
+else
+    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(shell python-config --cflags)
+    ALL_LDFLAGS =  $(shell python-config --ldflags)
+    SHARED_LDFLAGS =
+    ALL_LIBS = $(shell python-config --libs)
+endif
 
 #------------------------------------------------------------------------------#
 #
