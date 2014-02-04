@@ -39,10 +39,10 @@ SHARED_LIB = lib$(LIBRARY_NAME).$(SHARED_EXTENSION)
 #
 #------------------------------------------------------------------------------#
 
-ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -I/usr/include/python2.7 -I/usr/include/i386-linux-gnu/python2.7  -fno-strict-aliasing -D_FORTIFY_SOURCE=2 -g -fstack-protector --param=ssp-buffer-size=4 -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -Wno-unused-parameter
-ALL_LDFLAGS =  -L/usr/lib/python2.7/config-i386-linux-gnu -L/usr/lib -lpthread -ldl  -lutil -lm  -lpython2.7 -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(shell python-config --cflags)
+ALL_LDFLAGS =  $(shell python-config --ldflags)
 SHARED_LDFLAGS =
-ALL_LIBS = -lpthread -ldl  -lutil -lm  -lpython2.7
+ALL_LIBS = $(shell python-config --libs)
 
 
 #------------------------------------------------------------------------------#
