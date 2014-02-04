@@ -1,0 +1,311 @@
+#N canvas 296 140 952 365 10;
+#X obj 28 108 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 144 108 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 13 234 *~;
+#X obj 51 234 *~;
+#X obj 13 256 dac~;
+#X obj 72 213 hsl 128 15 0 1 0 1 empty empty master_gain -2 -8 0 10
+-262144 -1 -1 6200 1;
+#X obj 274 223 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X msg 274 243 \; pd dsp \$1;
+#X obj 13 59 r msg_to_pyo;
+#X text 161 107 play;
+#X obj 13 166 pyo~ 2;
+#X text 66 168 argument sets the number of audio ins/outs (defaults
+to 2).;
+#N canvas 1 75 824 583 resonators_example 0;
+#X obj 35 103 hsl 128 15 0.01 30 1 0 empty empty resonance -2 -8 0
+10 -262144 -1 -1 11200 0;
+#X floatatom 32 120 5 0 0 0 - - -;
+#X obj 21 530 s msg_to_pyo;
+#X obj 98 387 hsl 128 15 0 1 0 0 empty empty delay_time -2 -8 0 10
+-262144 -1 -1 1300 0;
+#X floatatom 95 403 5 0 0 0 - - -;
+#X msg 95 418 value deltime \$1;
+#X obj 111 454 hsl 128 15 0 1 0 0 empty empty delay_feedback -2 -8
+0 10 -262144 -1 -1 10800 0;
+#X floatatom 108 470 5 0 0 0 - - -;
+#X msg 108 485 value delfeed \$1;
+#X msg 32 136 value reson \$1;
+#X obj 52 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 4700 0;
+#X obj 71 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 3200 0;
+#X obj 91 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 5800 0;
+#X obj 110 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 7100 0;
+#X obj 130 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 5500 0;
+#X obj 149 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 7100 0;
+#X obj 169 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 4400 0;
+#X obj 189 177 vsl 15 80 50 500 0 0 empty empty empty 0 -9 0 10 -262144
+-1 -1 1800 0;
+#X msg 52 306 value freqs \$1 \$2 \$3 \$4 \$5 \$6 \$7 \$8;
+#X obj 52 264 bondo 8 ____________;
+#X obj 52 285 pack f f f f f f f f;
+#X msg 21 66 read examples/resonators.py;
+#X msg 73 351 read -a examples/resonators_add_delays.py;
+#X text 52 159 resonator frequencies;
+#X text 20 30 load pyo processing file (audio signal must be given
+in pyo~ inputs).;
+#X text 168 103 adjust resonance in seconds;
+#X text 214 209 play with resonator frequencies;
+#X text 380 352 add a stereo delay taking resonator outputs as its
+input;
+#X text 234 387 adjust delay time;
+#X text 246 453 adjust delay feedback;
+#X connect 0 0 1 0;
+#X connect 1 0 9 0;
+#X connect 3 0 4 0;
+#X connect 4 0 5 0;
+#X connect 5 0 2 0;
+#X connect 6 0 7 0;
+#X connect 7 0 8 0;
+#X connect 8 0 2 0;
+#X connect 9 0 2 0;
+#X connect 10 0 19 0;
+#X connect 11 0 19 1;
+#X connect 12 0 19 2;
+#X connect 13 0 19 3;
+#X connect 14 0 19 4;
+#X connect 15 0 19 5;
+#X connect 16 0 19 6;
+#X connect 17 0 19 7;
+#X connect 18 0 2 0;
+#X connect 19 0 20 0;
+#X connect 19 1 20 1;
+#X connect 19 2 20 2;
+#X connect 19 3 20 3;
+#X connect 19 4 20 4;
+#X connect 19 5 20 5;
+#X connect 19 6 20 6;
+#X connect 19 7 20 7;
+#X connect 20 0 18 0;
+#X connect 21 0 2 0;
+#X connect 22 0 2 0;
+#X restore 531 60 pd resonators_example;
+#X msg 553 171 clear;
+#X obj 531 199 s msg_to_pyo;
+#X text 598 172 shutdown and reboot the server;
+#N canvas 1 75 450 300 synthesis_example 0;
+#N canvas 1 75 375 358 choose_sines 0;
+#X obj 57 77 metro 125;
+#X obj 78 109 hsl 128 15 0 36 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 4233 1;
+#X obj 127 144 hsl 128 15 0 36 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 4233 1;
+#X floatatom 75 125 5 0 0 0 - - -;
+#X floatatom 124 160 5 0 0 0 - - -;
+#X obj 124 209 +;
+#X obj 124 179 t b f;
+#X obj 75 144 t f f;
+#X obj 57 240 int;
+#X obj 124 232 int;
+#X msg 57 288 call choose \$1 \$2;
+#X obj 57 311 outlet;
+#X obj 57 54 inlet;
+#X obj 57 265 pack 24 24;
+#X text 7 3 Choose a random midi pitch between x and x+y;
+#X text 213 109 x;
+#X text 263 142 y;
+#X obj 224 42 loadbang;
+#X msg 224 64 12;
+#X obj 117 54 inlet speed;
+#X connect 0 0 8 0;
+#X connect 1 0 3 0;
+#X connect 2 0 4 0;
+#X connect 3 0 7 0;
+#X connect 4 0 6 0;
+#X connect 5 0 9 0;
+#X connect 6 0 5 0;
+#X connect 6 1 5 1;
+#X connect 7 0 8 1;
+#X connect 7 1 5 0;
+#X connect 8 0 13 0;
+#X connect 9 0 13 1;
+#X connect 10 0 11 0;
+#X connect 12 0 0 0;
+#X connect 13 0 10 0;
+#X connect 17 0 18 0;
+#X connect 18 0 1 0;
+#X connect 18 0 2 0;
+#X connect 19 0 0 1;
+#X restore 53 130 pd choose_sines;
+#X obj 41 246 s msg_to_pyo;
+#X obj 53 96 tgl 25 0 empty empty empty 17 7 0 10 -262144 -1 -1 0 1
+;
+#X obj 67 172 hsl 128 15 0 0.25 0 0 empty empty brightness -2 -8 0
+10 -262144 -1 -1 0 0;
+#X floatatom 64 188 5 0 0 0 - - -;
+#X msg 64 203 value feed \$1;
+#X obj 158 75 hsl 128 15 50 500 0 0 empty empty metro_speed -2 -8 0
+10 -262144 -1 -1 0 1;
+#X floatatom 155 93 5 0 0 0 - - -;
+#X floatatom 222 186 5 0 0 0 - - -;
+#X msg 222 216 set amp.fadeout \$1;
+#X msg 281 184 set amp.dur \$1;
+#X floatatom 281 165 5 0 0 0 - - -;
+#X obj 222 132 * 0.001;
+#X obj 221 111 - 20;
+#X obj 222 165 - 0.005;
+#X msg 41 33 read -a examples/random_waves.py;
+#X text 54 80 GO!;
+#X connect 0 0 1 0;
+#X connect 2 0 0 0;
+#X connect 3 0 4 0;
+#X connect 4 0 5 0;
+#X connect 5 0 1 0;
+#X connect 6 0 7 0;
+#X connect 7 0 0 1;
+#X connect 7 0 13 0;
+#X connect 8 0 9 0;
+#X connect 9 0 1 0;
+#X connect 10 0 1 0;
+#X connect 11 0 10 0;
+#X connect 12 0 11 0;
+#X connect 12 0 14 0;
+#X connect 13 0 12 0;
+#X connect 14 0 8 0;
+#X connect 15 0 1 0;
+#X restore 531 84 pd synthesis_example;
+#N canvas 1 75 629 295 loop_soundfile 0;
+#X obj 43 42 openpanel;
+#X obj 43 64 t a b;
+#X obj 43 170 soundfiler;
+#X obj 236 80 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 43 20 inlet open file;
+#X obj 392 16 inlet start;
+#X obj 236 52 sel 1;
+#X obj 236 205 outlet~;
+#X obj 347 163 spigot 1;
+#X obj 43 126 pack s s s;
+#X obj 71 86 symbol \$0-table_l;
+#X obj 100 105 symbol \$0-table_r;
+#X msg 43 148 read -resize \$1 \$2 \$3;
+#X obj 44 200 table \$0-table_l;
+#X obj 44 223 table \$0-table_r;
+#X obj 423 206 outlet~;
+#X obj 236 140 tabplay~ \$0-table_l;
+#X obj 424 140 tabplay~ \$0-table_r;
+#X connect 0 0 1 0;
+#X connect 1 0 9 0;
+#X connect 1 1 10 0;
+#X connect 1 1 11 0;
+#X connect 3 0 16 0;
+#X connect 3 0 17 0;
+#X connect 4 0 0 0;
+#X connect 5 0 6 0;
+#X connect 5 0 8 1;
+#X connect 6 0 3 0;
+#X connect 8 0 16 0;
+#X connect 8 0 17 0;
+#X connect 9 0 12 0;
+#X connect 10 0 9 1;
+#X connect 11 0 9 2;
+#X connect 12 0 2 0;
+#X connect 16 0 7 0;
+#X connect 16 1 8 0;
+#X connect 17 0 15 0;
+#X restore 28 126 pd loop_soundfile;
+#X text 44 108 load file;
+#N canvas 1 75 532 224 conv_reverb_example 0;
+#X obj 24 110 hsl 128 15 0 1 0 0 empty empty balance -2 -8 0 10 -262144
+-1 -1 0 0;
+#X floatatom 21 127 5 0 0 0 - - -;
+#X msg 21 143 value bal \$1;
+#X obj -3 170 s msg_to_pyo;
+#X msg -3 74 read examples/cvlverb.py;
+#X text -5 38 load pyo processing file (audio signal must be given
+in pyo~ inputs).;
+#X text 162 110 balance between dry and wet signal;
+#X connect 0 0 1 0;
+#X connect 1 0 2 0;
+#X connect 2 0 3 0;
+#X connect 4 0 3 0;
+#X restore 531 36 pd conv_reverb_example;
+#X text 26 86 play a soundfile to send audio signals to pyo;
+#N canvas 114 140 450 300 README 0;
+#X restore 406 227 pd README;
+#N canvas 198 75 1001 402 MESSAGES 0;
+#X text 20 53 read [-a] path/to/python/script;
+#X text 37 74 The message "read" executes the commands contained in
+the specified python script into the object's internal interpreter.
+If the "-a" flag is given \, new commands will be added to previously
+executed ones. Without the flag \, the server is shut down (this will
+erase actual processing) before the execution of the script.;
+#X text 18 164 value varname \$1 [\$2 \$3 ...];
+#X text 19 250 set varname.attribute \$1 [\$2 \$3 ...];
+#X text 499 43 call function [arg1 arg2 ...];
+#X text 499 229 clear;
+#X text 516 250 Shutdown and reboot pyo's server. This message will
+erase the current processing loaded into the object.;
+#X text 36 185 The messsage "value" sends value(s) to a pyo's Sig or
+SigTo object (with variable name "varname"). Values can be pyo's variables
+(already created in the loaded file) \, float or list (composed of
+floats and/or pyo objects).;
+#X text 516 63 The message "call" executes the function (or object's
+method) with optional arguments. If the callable is a method \, the
+syntax will looks like:;
+#X text 515 103 call varname.method [arg1 arg2 ...];
+#X text 36 351 set frequencies 100 200 300 400 500 600;
+#X text 499 130 create varname object [\$1 \$2 ...];
+#X text -16 3 Here are the messages that can be used to control the
+internal processing of the pyo~ object.;
+#X text 513 149 The message "create" creates a new python object of
+the class "object" \, stored in variable "varname" \, with optional
+initialization arguments. Arguments can be of the form freq=500 or
+mul=0.3 \, without spaces. Named arguments can't be followed by unamed
+arguments.;
+#X text 36 272 The messsage "set" sends value(s) to an attribute of
+any pyo object (with variable name "varname"). Values can be pyo's
+variables (already created in the loaded file) \, float or list (composed
+of floats and/or pyo objects). This message can be used to create a
+standard python variable like (to create a list of floats in variable
+"frequencies"):;
+#X text 499 291 debug \$1;
+#X text 516 312 If \$1 is positive \, messages to pyo will be sent
+through an Exception handler. This is safer and can help to debug messages
+to pyo but it is slower. For a faster execution \, turn off debug mode.
+;
+#X restore 406 248 pd MESSAGES;
+#X msg 553 297 call b.out;
+#X text 11 7 pyo~ object allows to execute processing with pyo (python
+dsp module) inside a puredata patch \, with any number of audio in/out
+channels.;
+#X obj 531 121 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X msg 531 144 debug \$1;
+#X text 549 113 Verbose mode. If on \, error messages from pyo will
+be printed to the Pd window.;
+#X obj 518 323 s msg_to_pyo;
+#X msg 553 234 set pits 0.001 0.002 0.003 0.004;
+#X msg 553 255 create fr Rossler pitch=pits chaos=0.9 mul=250 add=500
+;
+#X msg 553 276 create b SumOsc freq=fr ratio=0.499 index=0.4 mul=0.2
+;
+#X connect 0 0 17 0;
+#X connect 1 0 17 1;
+#X connect 2 0 4 0;
+#X connect 3 0 4 1;
+#X connect 5 0 3 1;
+#X connect 5 0 2 1;
+#X connect 6 0 7 0;
+#X connect 8 0 10 0;
+#X connect 10 0 2 0;
+#X connect 10 1 3 0;
+#X connect 13 0 14 0;
+#X connect 17 0 10 0;
+#X connect 17 1 10 1;
+#X connect 23 0 28 0;
+#X connect 25 0 26 0;
+#X connect 26 0 14 0;
+#X connect 29 0 28 0;
+#X connect 30 0 28 0;
+#X connect 31 0 28 0;
