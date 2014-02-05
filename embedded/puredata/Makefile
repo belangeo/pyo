@@ -39,11 +39,20 @@ SHARED_LIB = lib$(LIBRARY_NAME).$(SHARED_EXTENSION)
 #------------------------------------------------------------------------------#
 UNAME := $(shell uname -s)
 ifeq (MINGW,$(findstring MINGW,$(UNAME)))
-    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter -IC:\Python27\include
+    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter -I/c/Python27/include
     ALL_LDFLAGS =  -lpython27
     SHARED_LDFLAGS =
-    ALL_LIBS = -LC:\Python27\libs
-else
+    ALL_LIBS = -L/c/Python27/libs
+endif
+ifeq ($(UNAME),Darwin)
+    # OSX version works only with python 2.6 32-bit for now
+    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter -I/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -I/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -fno-strict-aliasing -fno-common -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch i386 -g -O2 -DNDEBUG -g -O3
+    # copy-paste above just to replace "10.4u" by "10.5" from $(shell python-config --cflags)
+    ALL_LDFLAGS = $(shell python-config --ldflags)
+    SHARED_LDFLAGS =
+    ALL_LIBS = $(shell python-config --libs)
+endif
+ifeq ($(UNAME),Linux)
     ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(shell python-config --cflags)
     ALL_LDFLAGS =  $(shell python-config --ldflags)
     SHARED_LDFLAGS =
@@ -115,9 +124,9 @@ ifeq ($(UNAME),Darwin)
     OPT_CFLAGS = -ftree-vectorize -ftree-vectorizer-verbose=2 -fast
 # build universal 32-bit on 10.4 and 32/64 on newer
     ifeq ($(shell uname -r | sed 's|\([0-9][0-9]*\)\.[0-9][0-9]*\.[0-9][0-9]*|\1|'), 8)
-      FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.4
+      FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.5
     else
-      FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.4
+      FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.5
       SOURCES += $(SOURCES_iphoneos)
     endif
     ALL_CFLAGS += $(FAT_FLAGS) -fPIC -I/sw/include
