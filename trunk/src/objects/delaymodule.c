@@ -35,6 +35,7 @@ typedef struct {
     PyObject *feedback;
     Stream *feedback_stream;
     MYFLT maxdelay;
+    MYFLT oneOverSr;
     long size;
     long in_count;
     int modebuffer[4];
@@ -50,8 +51,8 @@ Delay_process_ii(Delay *self) {
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
     MYFLT feed = PyFloat_AS_DOUBLE(self->feedback);
     
-    if (del < 0.)
-        del = 0.;
+    if (del < self->oneOverSr)
+        del = self->oneOverSr;
     else if (del > self->maxdelay)
         del = self->maxdelay;
     MYFLT sampdel = del * self->sr;
@@ -99,8 +100,8 @@ Delay_process_ai(Delay *self) {
     
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
-        if (del < 0.)
-            del = 0.;
+        if (del < self->oneOverSr)
+            del = self->oneOverSr;
         else if (del > self->maxdelay)
             del = self->maxdelay;
         sampdel = del * self->sr;
@@ -130,8 +131,8 @@ Delay_process_ia(Delay *self) {
     MYFLT del = PyFloat_AS_DOUBLE(self->delay);
     MYFLT *fdb = Stream_getData((Stream *)self->feedback_stream);    
     
-    if (del < 0.)
-        del = 0.;
+    if (del < self->oneOverSr)
+        del = self->oneOverSr;
     else if (del > self->maxdelay)
         del = self->maxdelay;
     MYFLT sampdel = del * self->sr;
@@ -175,8 +176,8 @@ Delay_process_aa(Delay *self) {
     
     for (i=0; i<self->bufsize; i++) {
         del = delobj[i];
-        if (del < 0.)
-            del = 0.;
+        if (del < self->oneOverSr)
+            del = self->oneOverSr;
         else if (del > self->maxdelay)
             del = self->maxdelay;
         sampdel = del * self->sr;
@@ -325,6 +326,9 @@ Delay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	self->modebuffer[3] = 0;
 
     INIT_OBJECT_COMMON
+    
+    self->oneOverSr = 1.0 / self->sr;
+
     Stream_setFunctionPtr(self->stream, Delay_compute_next_data_frame);
     self->mode_func_ptr = Delay_setProcMode;
 
@@ -615,7 +619,7 @@ SDelay_process_i(SDelay *self) {
         for (i=0; i<self->bufsize; i++) {
             ind = self->in_count - sampdel;
             if (ind < 0)
-                ind += (self->size-1);
+                ind += self->size;
             self->data[i] = self->buffer[ind];
         
             self->buffer[self->in_count] = in[i];
@@ -648,7 +652,7 @@ SDelay_process_a(SDelay *self) {
         else {
             ind = self->in_count - sampdel;
             if (ind < 0)
-                ind += (self->size-1);
+                ind += self->size;
             self->data[i] = self->buffer[ind];
         }
         self->buffer[self->in_count++] = in[i];

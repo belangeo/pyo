@@ -150,6 +150,17 @@ class Delay(PyoObject):
             Maximum delay length in seconds. Available only at initialization. 
             Defaults to 1.
 
+    .. note::
+
+        The minimum delay time allowed with Delay is one sample. It can be computed
+        with :
+            
+        onesamp = 1.0 / s.getSamplingRate()
+        
+    .. seealso::
+        
+        :py:class:`SDelay`, :py:class:`Waveguide`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.3).mix(2).out()
@@ -259,6 +270,10 @@ class SDelay(PyoObject):
             Maximum delay length in seconds. Available only at initialization. 
             Defaults to 1.
 
+    .. seealso::
+        
+        :py:class:`Delay`, :py:class:`Delay1`
+
     >>> s = Server().boot()
     >>> s.start()
     >>> srPeriod = 1. / s.getSamplingRate()
@@ -313,7 +328,7 @@ class SDelay(PyoObject):
         [obj.reset() for obj in self._base_objs]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
-        self._map_list = [SLMap(0.001, self._maxdelay, 'log', 'delay',  self._delay),
+        self._map_list = [SLMap(0.0001, self._maxdelay, 'log', 'delay',  self._delay),
                           SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
 

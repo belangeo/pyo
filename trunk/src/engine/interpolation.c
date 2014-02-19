@@ -38,7 +38,7 @@ MYFLT cosine(MYFLT *buf, int index, MYFLT frac, int size) {
     MYFLT x2 = buf[index+1];
     
     frac2 = (1.0 - MYCOS(frac * M_PI)) * 0.5;
-    return (x1 * (1.0 - frac2) + x2 * frac2);
+    return (x1 + (x2 - x1) * frac2);
 }
 
 MYFLT cubic(MYFLT *buf, int index, MYFLT frac, int size) {
