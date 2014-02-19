@@ -93,6 +93,8 @@ else:
     tsrt = time.strftime('"%d %b %Y %H:%M:%S"', time.localtime())
     macros.append(('TIMESTAMP', tsrt))
     include_dirs = ['include', '/usr/local/include']
+    if sys.platform == "darwin":
+        include_dirs.append('/opt/local/include')
     library_dirs = []
     libraries = ['portaudio', 'portmidi', 'sndfile', 'lo']
     if build_osx_with_jack_support:
