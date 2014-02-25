@@ -11,17 +11,17 @@ extern "C" {
 ** Creates a new python interpreter and starts a pyo server in it.
 ** Each instance of pyo, in order to be fully independent of other
 ** instances, must be started in its own interpreter. An instance
-** can be an object in a programming language or a plugin in a daw. 
+** can be an object in a programming language or a plugin in a daw.
 **
 ** arguments:
 **  chnls : int, number of in/out channels of the pyo server.
 **
 ** returns the new python thread's interpreter state.
 */
-PyThreadState * pyo_new_interpreter(int chnls) {
+inline PyThreadState * pyo_new_interpreter(int chnls) {
     char msg[64];
     PyThreadState *interp;
-    if(!Py_IsInitialized()) { 
+    if(!Py_IsInitialized()) {
         Py_Initialize();
         PyEval_InitThreads();
         PyEval_ReleaseLock();
@@ -41,7 +41,7 @@ PyThreadState * pyo_new_interpreter(int chnls) {
 }
 
 /*
-** Returns the address, as unsigned long, of the pyo input buffer. 
+** Returns the address, as unsigned long, of the pyo input buffer.
 ** Used this function if pyo's audio samples resolution is 32-bit.
 **
 ** arguments:
@@ -49,7 +49,7 @@ PyThreadState * pyo_new_interpreter(int chnls) {
 **
 ** returns an "unsigned long" that should be recast to a float pointer.
 */
-unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
+inline unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long uadd;
@@ -63,7 +63,7 @@ unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
 }
 
 /*
-** Returns the address, as unsigned long long, of the pyo input buffer. 
+** Returns the address, as unsigned long long, of the pyo input buffer.
 ** Used this function if pyo's audio samples resolution is 64-bit.
 **
 ** arguments:
@@ -71,7 +71,7 @@ unsigned long pyo_get_input_buffer_address(PyThreadState *interp) {
 **
 ** returns an "unsigned long long" that should be recast to a double pointer.
 */
-unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
+inline unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long long uadd;
@@ -85,7 +85,7 @@ unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
 }
 
 /*
-** Returns the address, as unsigned long, of the pyo output buffer. 
+** Returns the address, as unsigned long, of the pyo output buffer.
 ** Used this function if pyo's audio samples resolution is 32-bit.
 **
 ** arguments:
@@ -93,7 +93,7 @@ unsigned long long pyo_get_input_buffer_address_64(PyThreadState *interp) {
 **
 ** returns an "unsigned long" that should be recast to a float pointer.
 */
-unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
+inline unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long uadd;
@@ -107,7 +107,7 @@ unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
 }
 
 /*
-** Returns the address, as unsigned long, of the pyo embedded callback. 
+** Returns the address, as unsigned long, of the pyo embedded callback.
 ** This callback must be called in the host's perform routine whenever
 ** pyo has to compute a new buffer of samples.
 **
@@ -121,7 +121,7 @@ unsigned long pyo_get_output_buffer_address(PyThreadState *interp) {
 ** Prototype:
 ** void (*callback)(int);
 */
-unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
+inline unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
     PyObject *module, *obj;
     char *address;
     unsigned long uadd;
@@ -135,7 +135,7 @@ unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
 }
 
 /*
-** Returns the pyo server id of this thread, as an integer. 
+** Returns the pyo server id of this thread, as an integer.
 ** The id must be pass as argument to the callback function.
 **
 ** arguments:
@@ -143,7 +143,7 @@ unsigned long pyo_get_embedded_callback_address(PyThreadState *interp) {
 **
 ** returns an integer.
 */
-int pyo_get_server_id(PyThreadState *interp) {
+inline int pyo_get_server_id(PyThreadState *interp) {
     PyObject *module, *obj;
     int id;
     PyEval_AcquireThread(interp);
@@ -154,40 +154,40 @@ int pyo_get_server_id(PyThreadState *interp) {
     return id;
 }
 
-/* 
-** Closes the interpreter linked to the thread state given as argument. 
+/*
+** Closes the interpreter linked to the thread state given as argument.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 */
-void pyo_end_interpreter(PyThreadState *interp) {
+inline void pyo_end_interpreter(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     Py_EndInterpreter(interp);
     PyEval_ReleaseLock();
 }
 
-/* 
-** Shutdown and reboot the pyo server while keeping current in/out buffers. 
+/*
+** Shutdown and reboot the pyo server while keeping current in/out buffers.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 */
-void pyo_server_reboot(PyThreadState *interp) {
+inline void pyo_server_reboot(PyThreadState *interp) {
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
     PyRun_SimpleString("_s_.boot(newBuffer=False).start()");
     PyEval_ReleaseThread(interp);
 }
 
-/* 
-** Reboot the pyo server with new sampling rate and buffer size. 
+/*
+** Reboot the pyo server with new sampling rate and buffer size.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **  sr : float, host sampling rate.
 **  bufsize : int, host buffer size.
 */
-void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) {
+inline void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) {
     char msg[64];
     PyEval_AcquireThread(interp);
     PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
@@ -199,14 +199,14 @@ void pyo_set_server_params(PyThreadState *interp, float sr, int bufsize) {
     PyEval_ReleaseThread(interp);
 }
 
-/* 
+/*
 ** Returns 1 if the pyo server is started for the given thread,
-** Otherwise returns 0. 
+** Otherwise returns 0.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 */
-int pyo_is_server_started(PyThreadState *interp) {
+inline int pyo_is_server_started(PyThreadState *interp) {
     int started;
     PyObject *module, *obj;
     PyEval_AcquireThread(interp);
@@ -218,11 +218,11 @@ int pyo_is_server_started(PyThreadState *interp) {
     return started;
 }
 
-/* 
-** Execute a python script "file" in the given thread's interpreter (interp). 
+/*
+** Execute a python script "file" in the given thread's interpreter (interp).
 ** A pre-allocated string "msg" must be given to create the python command
-** used for error handling. An integer "add" is needed to indicate if the 
-** pyo server should be reboot or not. 
+** used for error handling. An integer "add" is needed to indicate if the
+** pyo server should be reboot or not.
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
@@ -235,18 +235,19 @@ int pyo_is_server_started(PyThreadState *interp) {
 **            is already running in the pyo server. If 0, the server will be
 **            shutdown and reboot before executing the file.
 */
-int pyo_exec_file(PyThreadState *interp, char *file, char *msg, int add) {
+inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int add) {
     int ok, err = 0;
     PyObject *module, *obj;
     PyEval_AcquireThread(interp);
     sprintf(msg, "import os\n_ok_ = os.path.isfile('./%s')", file);
     PyRun_SimpleString(msg);
     sprintf(msg, "if not _ok_:\n    _ok_ = os.path.isfile('%s')", file);
+    PyRun_SimpleString(msg);
     module = PyImport_AddModule("__main__");
     obj = PyObject_GetAttrString(module, "_ok_");
     ok = PyInt_AsLong(obj);
     if (ok) {
-        sprintf(msg, "try:\n    execfile('./%s')\nexcept:\n    execfile('%s')", 
+        sprintf(msg, "try:\n    execfile('./%s')\nexcept:\n    execfile('%s')",
                 file, file);
         if (!add) {
             PyRun_SimpleString("_s_.setServer()\n_s_.stop()\n_s_.shutdown()");
@@ -260,27 +261,27 @@ int pyo_exec_file(PyThreadState *interp, char *file, char *msg, int add) {
     return err;
 }
 
-/* 
+/*
 ** Execute a python statement "msg" in the thread's interpreter "interp".
 ** If "debug" is true, the statement will be executed in a try - except
 ** block. The error message, if any, will be write back in the *msg
-** pointer and the function will return 1. If no error occured, the 
+** pointer and the function will return 1. If no error occured, the
 ** function returned 0. If debug is false, the statement is executed
-** without any error checking (unsafe but faster). 
+** without any error checking (unsafe but faster).
 **
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **  msg : char *, pointer to a string containing the statement to execute.
-**                In debug mode, 
+**                In debug mode,
 **  add, int, if positive, the commands in the file will be added to whatever
 **            is already running in the pyo server. If 0, the server will be
 **            shutdown and reboot before executing the file.
 */
-int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
+inline int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
     int err = 0;
     if (debug) {
         PyObject *module, *obj;
-        char *pp = "_error_=None\ntry:\n    ";
+        char pp[26] = "_error_=None\ntry:\n    ";
         memmove(msg + strlen(pp), msg, strlen(msg)+1);
         memmove(msg, pp, strlen(pp));
         strcat(msg, "\nexcept Exception, _e_:\n    _error_=str(_e_)");
@@ -289,7 +290,7 @@ int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
         module = PyImport_AddModule("__main__");
         obj = PyObject_GetAttrString(module, "_error_");
         if (obj != Py_None) {
-            sprintf(msg, "%s", PyString_AsString(obj));
+            strcpy(msg, PyString_AsString(obj));
             err = 1;
         }
         PyEval_ReleaseThread(interp);
