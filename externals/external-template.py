@@ -41,12 +41,10 @@ class Gain(PyoObject):
     """
     # Do not forget "mul" and "add" attributes.
     def __init__(self, input, db=-3, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         # Keep trace of arguments (same name preceded by an underscore)
         self._input = input
         self._db = db
-        self._mul = mul
-        self._add = add
         # Always use InputFader for the input sound. That allows crossfade on input changes.  
         self._in_fader = InputFader(input)
         # Converts every arguments to lists (for multi-channel expansion).
