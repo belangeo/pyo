@@ -55,8 +55,10 @@ Fader_generate_auto(Fader *self) {
     for (i=0; i<self->bufsize; i++) {
         if (self->currentTime <= self->attack)
             val = self->currentTime / self->attack;
-        else if (self->currentTime > self->duration)
+        else if (self->currentTime > self->duration) {
             val = 0.;
+            Fader_internal_stop((Fader *)self);
+        }
         else if (self->currentTime >= (self->duration - self->release))
             val = (self->duration - self->currentTime) / self->release;
         else
@@ -427,8 +429,10 @@ Adsr_generate_auto(Adsr *self) {
             val = self->currentTime * invatt;
         else if (self->currentTime <= (self->attack + self->decay))
             val = (self->decay - (self->currentTime - self->attack)) * invdec * (1. - self->sustain) + self->sustain;
-        else if (self->currentTime > self->duration)
+        else if (self->currentTime > self->duration) {
             val = 0.;
+            Adsr_internal_stop((Adsr *)self);
+        }
         else if (self->currentTime >= (self->duration - self->release))
             val = (self->duration - self->currentTime) * invrel * self->sustain;
         else
