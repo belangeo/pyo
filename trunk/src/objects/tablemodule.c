@@ -4727,6 +4727,7 @@ TableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_Exit(1);
     }
     Py_XDECREF(self->table);
+    Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5217,9 +5218,11 @@ TableMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_Exit(1);
     }
     Py_XDECREF(self->table);
+    Py_INCREF(tabletmp);
     self->table = (PyObject *)tabletmp;
     
     Py_XDECREF(self->sources);
+    Py_INCREF(sourcestmp);
     self->sources = (PyObject *)sourcestmp;
     
     TableMorph_alloc_memories(self);
@@ -5521,6 +5524,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     Py_XDECREF(self->trigger);
+    Py_INCREF(trigtmp);
     self->trigger = trigtmp;
     trig_streamtmp = PyObject_CallMethod((PyObject *)self->trigger, "_getStream", NULL);
     Py_INCREF(trig_streamtmp);
@@ -5535,6 +5539,7 @@ TrigTableRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_Exit(1);
     }
     Py_XDECREF(self->table);
+    Py_INCREF(tabletmp);
     self->table = (NewTable *)tabletmp;
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -5996,6 +6001,7 @@ TablePut_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_Exit(1);
     }
     Py_XDECREF(self->table);
+    Py_INCREF(tabletmp);
     self->table = (DataTable *)tabletmp;
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);

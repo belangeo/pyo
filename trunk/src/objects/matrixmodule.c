@@ -595,6 +595,7 @@ MatrixRec_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     Py_XDECREF(self->matrix);
+    Py_INCREF(matrixtmp);
     self->matrix = (NewMatrix *)matrixtmp;
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -801,6 +802,7 @@ MatrixRecLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     Py_XDECREF(self->matrix);
+    Py_INCREF(matrixtmp);
     self->matrix = (NewMatrix *)matrixtmp;
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
@@ -1013,6 +1015,7 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     Py_XDECREF(self->matrix);
+    Py_INCREF(matrixtmp);
     self->matrix = (PyObject *)matrixtmp;
 
     width = NewMatrix_getWidth((NewMatrix *)self->matrix);
@@ -1021,6 +1024,7 @@ MatrixMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->buffer = (MYFLT *)realloc(self->buffer, (numsamps) * sizeof(MYFLT));
 
     Py_XDECREF(self->sources);
+    Py_INCREF(sourcestmp);
     self->sources = (PyObject *)sourcestmp;
     
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
