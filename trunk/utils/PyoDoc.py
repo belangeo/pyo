@@ -210,11 +210,10 @@ functions : Miscellaneous functions.
 """ % PYO_VERSION
 
 _DOC_KEYWORDS = ['Attributes', 'Examples', 'Methods', 'Notes', 'Methods details', 
-                 'Parentclass', 'Overview', 'Initline', 'Description']
+                 'Parentclass', 'Overview', 'Initline', 'Description', 'Parameters']
 _HEADERS = ["Server", "PyoObjectBase", "Map", "Stream", "TableStream", "functions"]
-_KEYWORDS_LIST = ['Parameters']
+_KEYWORDS_LIST = ['SLMap']
 _KEYWORDS_LIST.extend(_HEADERS)
-_KEYWORDS_LIST.append("SLMap")
 _NUM_PAGES = 1
 _NUM_PAGES += len(_HEADERS)
 for k1 in _HEADERS:

@@ -3864,17 +3864,37 @@ static PyObject * SndTable_get(SndTable *self, PyObject *args, PyObject *kwds) {
 
 static PyObject * 
 SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) { 
-    int i, j, y, w, h, h2, step;
+    int i, j, y, w, h, h2, step, size;
     int count = 0;
-    MYFLT absin;
-    PyObject *samples;
+    int yOffset = 0;
+    MYFLT absin, fstep;
+    MYFLT begin = 0.0;
+    MYFLT end = -1.0;
+    PyObject *samples, *tuple;
     PyObject *sizetmp = NULL;
 
-    static char *kwlist[] = {"size", NULL};
+    static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
     
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|O", kwlist, &sizetmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
         return PyInt_FromLong(-1); 
     
+    if (end <= 0.0)
+        end = self->size;
+    else {
+        end = end * self->sr;
+        if (end > self->size)
+            end = self->size;
+    }
+
+    if (begin < 0.0)
+        begin = 0;
+    else {
+        begin = begin * self->sr;
+        if (begin >= end)
+            begin = 0;
+    }
+    size = (int)(end - begin);
+
     if (sizetmp) {
         if (PyTuple_Check(sizetmp)) {
             w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
@@ -3894,20 +3914,52 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
         h = 200;
     }
     h2 = h/2;
-    step = (int)(self->size / (MYFLT)(w));
+    step = (int)(size / (MYFLT)(w));
+    fstep = (MYFLT)(w) / (size-1);
     
-    samples = PyList_New(w*4);
-    for(i=0; i<w; i++) {
-        absin = 0.0;
-        for (j=0; j<step; j++) {
-            if (MYFABS(self->data[count++]) > absin)
-                absin = self->data[count];
+    if (step == 0) {
+        samples = PyList_New(size);
+        for (i=0; i<size; i++) {
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i*fstep)));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(self->data[i+(int)(begin)]*h2+h2+yOffset));
+            PyList_SetItem(samples, i, tuple);
         }
-        y = (int)(absin * h2);
-        PyList_SetItem(samples, i*4, PyInt_FromLong(i));
-        PyList_SetItem(samples, i*4+1, PyInt_FromLong(h2-y));
-        PyList_SetItem(samples, i*4+2, PyInt_FromLong(i));
-        PyList_SetItem(samples, i*4+3, PyInt_FromLong(h2+y));
+    }
+    else if (step < 32) {
+        samples = PyList_New(w);
+        for(i=0; i<w; i++) {
+            absin = 0.0;
+            for (j=0; j<step; j++) {
+                absin += self->data[(int)(begin)+count];
+                count++;
+            }
+            y = (int)(absin / step * h2);
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
+            PyList_SetItem(samples, i, tuple);
+        }
+    }
+    else {
+        samples = PyList_New(w*2);
+        for(i=0; i<w; i++) {
+            absin = 0.0;
+            for (j=0; j<step; j++) {
+                if (MYFABS(self->data[(int)(begin)+count]) > absin)
+                    absin = self->data[(int)(begin)+count];
+                count++;
+            }
+            y = (int)(absin * h2);
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2-y+yOffset));
+            PyList_SetItem(samples, i*2, tuple);
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
+            PyList_SetItem(samples, i*2+1, tuple);
+        }
     }
     return samples;
 };
@@ -4148,6 +4200,7 @@ typedef struct {
     pyo_table_HEAD
     MYFLT length;
     MYFLT feedback;
+    MYFLT sr;
     int pointer;
 } NewTable;
 
@@ -4222,8 +4275,8 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F_OF, kwlist, &self->length, &inittmp, &self->feedback))
         Py_RETURN_NONE; 
 
-    double sr = PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
-    self->size = (int)(self->length * sr + 0.5);
+    self->sr = (MYFLT)PyFloat_AsDouble(PyObject_CallMethod(self->server, "getSamplingRate", NULL));
+    self->size = (int)(self->length * self->sr + 0.5);
     self->data = (MYFLT *)realloc(self->data, (self->size + 1) * sizeof(MYFLT));
 
     for (i=0; i<(self->size+1); i++) {
@@ -4237,7 +4290,7 @@ NewTable_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     
     TableStream_setData(self->tablestream, self->data);
-    TableStream_setSamplingRate(self->tablestream, sr);
+    TableStream_setSamplingRate(self->tablestream, self->sr);
     
     return (PyObject *)self;
 }
@@ -4257,17 +4310,37 @@ static PyObject * NewTable_get(NewTable *self, PyObject *args, PyObject *kwds) {
 
 static PyObject * 
 NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) { 
-    int i, j, y, w, h, h2, step;
+    int i, j, y, w, h, h2, step, size;
     int count = 0;
-    MYFLT absin;
-    PyObject *samples;
+    int yOffset = 0;
+    MYFLT absin, fstep;
+    MYFLT begin = 0.0;
+    MYFLT end = -1.0;
+    PyObject *samples, *tuple;
     PyObject *sizetmp = NULL;
+
+    static char *kwlist[] = {"size", "begin", "end", "yOffset", NULL};
     
-    static char *kwlist[] = {"size", NULL};
-    
-    if (! PyArg_ParseTupleAndKeywords(args, kwds, "|O", kwlist, &sizetmp))
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__OFFI, kwlist, &sizetmp, &begin, &end, &yOffset))
         return PyInt_FromLong(-1); 
     
+    if (end <= 0.0)
+        end = self->size;
+    else {
+        end = end * self->sr;
+        if (end > self->size)
+            end = self->size;
+    }
+
+    if (begin < 0.0)
+        begin = 0;
+    else {
+        begin = begin * self->sr;
+        if (begin >= end)
+            begin = 0;
+    }
+    size = (int)(end - begin);
+
     if (sizetmp) {
         if (PyTuple_Check(sizetmp)) {
             w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0));
@@ -4287,20 +4360,52 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
         h = 200;
     }
     h2 = h/2;
-    step = (int)(self->size / (MYFLT)(w));
+    step = (int)(size / (MYFLT)(w));
+    fstep = (MYFLT)(w) / (size-1);
     
-    samples = PyList_New(w*4);
-    for(i=0; i<w; i++) {
-        absin = 0.0;
-        for (j=0; j<step; j++) {
-            if (MYFABS(self->data[count++]) > absin)
-                absin = self->data[count];
+    if (step == 0) {
+        samples = PyList_New(size);
+        for (i=0; i<size; i++) {
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i*fstep)));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(self->data[i+(int)(begin)]*h2+h2+yOffset));
+            PyList_SetItem(samples, i, tuple);
         }
-        y = (int)(absin * h2);
-        PyList_SetItem(samples, i*4, PyInt_FromLong(i));
-        PyList_SetItem(samples, i*4+1, PyInt_FromLong(h2-y));
-        PyList_SetItem(samples, i*4+2, PyInt_FromLong(i));
-        PyList_SetItem(samples, i*4+3, PyInt_FromLong(h2+y));
+    }
+    else if (step < 32) {
+        samples = PyList_New(w);
+        for(i=0; i<w; i++) {
+            absin = 0.0;
+            for (j=0; j<step; j++) {
+                absin += self->data[(int)(begin)+count];
+                count++;
+            }
+            y = (int)(absin / step * h2);
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
+            PyList_SetItem(samples, i, tuple);
+        }
+    }
+    else {
+        samples = PyList_New(w*2);
+        for(i=0; i<w; i++) {
+            absin = 0.0;
+            for (j=0; j<step; j++) {
+                if (MYFABS(self->data[(int)(begin)+count]) > absin)
+                    absin = self->data[(int)(begin)+count];
+                count++;
+            }
+            y = (int)(absin * h2);
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2-y+yOffset));
+            PyList_SetItem(samples, i*2, tuple);
+            tuple = PyTuple_New(2);
+            PyTuple_SetItem(tuple, 0, PyInt_FromLong(i));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(h2+y+yOffset));
+            PyList_SetItem(samples, i*2+1, tuple);
+        }
     }
     return samples;
 };

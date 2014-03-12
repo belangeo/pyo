@@ -1028,7 +1028,7 @@ class ViewTable_withoutPIL(ViewTable):
 class SndViewTable(wx.Frame):
     def __init__(self, parent, obj=None, tableclass=None, mouse_callback=None):
         wx.Frame.__init__(self, parent, size=(500,250))
-        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.SetMinSize((300, 150))
         self.menubar = wx.MenuBar()        
         self.fileMenu = wx.Menu()
         closeItem = self.fileMenu.Append(-1, 'Close\tCtrl+W', kind=wx.ITEM_NORMAL)
@@ -1036,24 +1036,59 @@ class SndViewTable(wx.Frame):
         self.menubar.Append(self.fileMenu, "&File")
         self.SetMenuBar(self.menubar)
         self.Bind(wx.EVT_CLOSE, self._destroy)
-        self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_LEFT_DOWN, self.OnMouseDown)
-        self.Bind(wx.EVT_LEFT_UP, self.OnMouseUp)
-        self.Bind(wx.EVT_MOTION, self.OnMotion)
         self.obj = obj
         self.chnls = len(self.obj)
-        self.mouse_callback = mouse_callback
+        self.dur = self.obj.getDur(False)
+        self.panel = wx.Panel(self)
+        self.panel.SetBackgroundColour(BACKGROUND_COLOUR)
+        self.box = wx.BoxSizer(wx.VERTICAL)
+        self.wavePanel = SndViewTablePanel(self.panel, obj, mouse_callback)
+        self.box.Add(self.wavePanel, 1, wx.EXPAND|wx.ALL, 5)
+        self.zoomH = HRangeSlider(self.panel, minvalue=0, maxvalue=1, init=None, pos=(0,0), size=(200,15), 
+                 valtype='float', log=False, function=self.setZoomH)
+        self.box.Add(self.zoomH, 0, wx.EXPAND|wx.LEFT|wx.RIGHT, 5)
+        self.panel.SetSizer(self.box)
+
+    def setZoomH(self, values):
+        self.wavePanel.setBegin(self.dur * values[0])
+        self.wavePanel.setEnd(self.dur * values[1])
+        self.update()
 
     def update(self):
-        wx.CallAfter(self.setImage)
+        wx.CallAfter(self.wavePanel.setImage)
 
     def _destroy(self, evt):
         self.obj._setViewFrame(None)
         self.Destroy()
 
-    def OnSize(self, evt):
+class SndViewTablePanel(wx.Panel):
+    def __init__(self, parent, obj, mouse_callback=None):
+        wx.Panel.__init__(self, parent)
+        self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.Bind(wx.EVT_LEFT_DOWN, self.OnMouseDown)
+        self.Bind(wx.EVT_LEFT_UP, self.OnMouseUp)
+        self.Bind(wx.EVT_MOTION, self.OnMotion)
+        self.Bind(wx.EVT_SIZE, self.OnSize)
+        self.obj = obj
+        self.chnls = len(self.obj)
+        self.begin = 0
+        self.end = self.obj.getDur(False)
+        self.mouse_callback = mouse_callback
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
         self.setImage()
+
+    def setBegin(self, x):
+        self.begin = x
+
+    def setEnd(self, x):
+        self.end = x
+
+    def setImage(self):
+        self.img = self.obj.getViewTable(self.GetSize(), self.begin, self.end)
         self.Refresh()
 
     def clipPos(self, pos):
@@ -1063,6 +1098,7 @@ class SndViewTable(wx.Frame):
         if pos[1] < 0.0: y = 0.0
         elif pos[1] > 1.0: y = 1.0
         else: y = pos[1]
+        x = x * ((self.end - self.begin) / self.obj.getDur(False)) + (self.begin / self.obj.getDur(False))
         return (x, y)
 
     def OnMouseDown(self, evt):
@@ -1093,77 +1129,41 @@ class SndViewTable(wx.Frame):
         if self.HasCapture():
             self.ReleaseMouse()
 
-class SndViewTable_withPIL(SndViewTable):
-    def __init__(self, parent, obj=None, tableclass=None, mouse_callback=None):
-        SndViewTable.__init__(self, parent, obj, tableclass, mouse_callback)
-        self.setImage()
-
-    def setImage(self):
-        w, h = self.GetSize()
-        self.img = []
-        imgHeight = h/self.chnls
-        for i in range(self.chnls):
-            im = Image.new("L", (w, imgHeight), 255)
-            draw = ImageDraw.Draw(im)
-            samples = self.obj._base_objs[i].getViewTable((w, imgHeight))
-            draw.line(samples, fill=0, width=1)
-            image = wx.EmptyImage(w, imgHeight)
-            image.SetData(im.convert("RGB").tostring())
-            self.img.append(wx.BitmapFromImage(image))
-        self.Refresh()
-
-    def OnPaint(self, evt):
-        w, h = self.GetSize()
-        dc = wx.AutoBufferedPaintDC(self)
-        dc.SetPen(wx.Pen('#444444', width=1, style=wx.SHORT_DASH))
-        off = h/self.chnls/2
-        for i, img in enumerate(self.img):
-            y = h/self.chnls*i
-            dc.DrawBitmap(img, 0, y)
-            dc.DrawLine(0, y+off, w, y+off)
-
-class SndViewTable_withoutPIL(SndViewTable):
-    def __init__(self, parent, obj=None, tableclass=None, mouse_callback=None):
-        SndViewTable.__init__(self, parent, obj, tableclass, mouse_callback)
-        self.tableclass = tableclass
-        self.setImage()
-
-    def setImage(self):
-        w, h = self.GetSize()
-        self.img = []
-        imgHeight = h/self.chnls
-        for j in range(self.chnls):
-            off = h/self.chnls*j
-            samples = self.obj._base_objs[j].getViewTable((w, imgHeight))
-            if sys.platform == 'win32':
-                if self.tableclass == 'SndTable':
-                    samples = [(samples[i], samples[i+1]+off, samples[i+2], samples[i+3]+off) for i in range(0, len(samples), 4)]
-                else:
-                    samples = [(samples[i], samples[i+1]+off) for i in range(0, len(samples), 2)]
-            else:
-                samples = [(samples[i], samples[i+1]+off, samples[i+2], samples[i+3]+off) for i in range(0, len(samples), 4)]
-            self.img.append(samples)
-        self.Refresh()
-
     def OnPaint(self, evt):
         w,h = self.GetSize()
-        dc = wx.AutoBufferedPaintDC(self)
+        dc = self.dcref(self)
+        gc = wx.GraphicsContext_Create(dc)
         dc.SetBrush(wx.Brush("#FFFFFF"))
         dc.Clear()
         dc.DrawRectangle(0,0,w,h)
         off = h/self.chnls/2
+        gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
+        gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
+        dc.SetTextForeground("#444444")
+        tickstep = w / 10
+        if tickstep < 40:
+            timelabel = "%.1f"
+        elif tickstep < 80:
+            timelabel = "%.2f"
+        elif tickstep < 120:
+            timelabel = "%.3f"
+        else:
+            timelabel = "%.4f"
+        timestep = (self.end - self.begin) * 0.1
         for i, samples in enumerate(self.img):
-            dc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))  
             y = h/self.chnls*i
-            if sys.platform == 'win32':
-                if self.tableclass == 'SndTable':
-                    dc.DrawLineList(samples)
-                else:
-                    dc.DrawPointList(samples)
-            else:
-                dc.DrawLineList(samples)
-            dc.SetPen(wx.Pen('#444444', width=1, style=wx.SHORT_DASH))  
+            gc.DrawLines(samples)
+            dc.SetPen(wx.Pen('#666666', width=1, style=wx.SHORT_DASH))  
             dc.DrawLine(0, y+off, w, y+off)
+            for j in range(10):
+                dc.SetPen(wx.Pen('#888888', width=1, style=wx.SHORT_DASH))  
+                dc.DrawLine(j*tickstep, 0, j*tickstep, h)
+                dc.DrawText(timelabel % (self.begin+j*timestep), j*tickstep+2, h-y-12)
+            dc.SetPen(wx.Pen('#000000', width=1))  
+            dc.DrawLine(0, h-y, w, h-y)            
+
+    def OnSize(self, evt):
+        wx.CallAfter(self.setImage)
 
 ######################################################################
 ## View window for PyoMatrixObject
