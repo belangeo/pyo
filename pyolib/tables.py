@@ -1588,6 +1588,33 @@ class SndTable(PyoTableObject):
             else:
                 return _size
 
+    def getViewTable(self, size, begin=0, end=0):
+        """
+        Return a list of points (in X, Y pixel values) for each channel in the table.
+        These lists can be draw on a DC (WxPython) with a DrawLines method.
+
+        :Args:
+            
+            size : tuple
+                Size, (X, Y) pixel values, of the waveform container window.
+            begin : float, optional
+                First position in the the table, in seconds, where to get samples.
+                Defaults to 0.
+            end : float, optional
+                Last position in the table, in seconds, where to get samples. 
+                
+                if this value is set to 0, that means the end of the table. Defaults to 0.
+                 
+        """
+        w, h = size
+        chnls = len(self._base_objs)
+        img = []
+        imgHeight = h/chnls
+        for i in range(chnls):
+            off = h/chnls*i
+            img.append(self._base_objs[i].getViewTable((w, imgHeight), begin, end, off))
+        return img
+
     def getEnvelope(self, points):
         """
         Return the amplitude envelope of the table.
@@ -1759,9 +1786,12 @@ class NewTable(PyoTableObject):
         """
         return self._base_objs[0].getLength()
 
-    def getDur(self):
+    def getDur(self, all=True):
         """
         Returns the length of the table in seconds.
+        
+        The `all` argument is there for compatibility with SndTable but
+        is not used for now.
         
         """
         return self._base_objs[0].getLength()
@@ -1773,6 +1803,33 @@ class NewTable(PyoTableObject):
         
         """
         return self._base_objs[0].getRate()
+
+    def getViewTable(self, size, begin=0, end=0):
+        """
+        Return a list of points (in X, Y pixel values) for each channel in the table.
+        These lists can be draw on a DC (WxPython) with a DrawLines method.
+
+        :Args:
+            
+            size : tuple
+                Size, (X, Y) pixel values, of the waveform container window.
+            begin : float, optional
+                First position in the the table, in seconds, where to get samples.
+                Defaults to 0.
+            end : float, optional
+                Last position in the table, in seconds, where to get samples. 
+                
+                if this value is set to 0, that means the end of the table. Defaults to 0.
+
+        """
+        w, h = size
+        chnls = len(self._base_objs)
+        img = []
+        imgHeight = h/chnls
+        for i in range(chnls):
+            off = h/chnls*i
+            img.append(self._base_objs[i].getViewTable((w, imgHeight), begin, end, off))
+        return img
 
     def view(self, title="Sound waveform", wxnoserver=False, mouse_callback=None):
         """

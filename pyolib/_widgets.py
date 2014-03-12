@@ -151,8 +151,7 @@ def wxCreateDelayedTableWindows():
 def wxCreateDelayedSndTableWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in SNDTABLEWINDOWS:
-        if WITH_PIL: f = SndViewTable_withPIL(None, win[0], win[1], win[3])
-        else: f = SndViewTable_withoutPIL(None, win[0], win[1], win[3])
+        f = SndViewTable(None, win[0], win[1], win[3])
         win[0]._setViewFrame(f)
         wxDisplayWindow(f, win[2])
 
@@ -246,8 +245,7 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
     else:
         if wxnoserver or wx.GetApp() != None:
             root = createRootWindow()
-            if WITH_PIL: f = SndViewTable_withPIL(None, obj, tableclass, mouse_callback)
-            else: f = SndViewTable_withoutPIL(None, obj, tableclass, mouse_callback)
+            f = SndViewTable(None, obj, tableclass, mouse_callback)
             if title == None: title = obj.__class__.__name__
             wxShowWindow(f, title, root)
             obj._setViewFrame(f)
