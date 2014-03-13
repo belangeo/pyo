@@ -1,0 +1,21 @@
+To use pyo inside an OpenFrameworks project, first you need a 
+working install of pyo on your system. After installing pyo,
+you only need to copy these files in your project's sources:
+
+from this folder:
+- PyoClass.cpp
+- PyoClass.h
+
+from the folder "embedded":
+- m_pyo.h
+
+Make sure that your project includes flags for compiling and
+linking against Python and that's it. You can use the class
+"Pyo", defined in PyoClass.h and PyoClass.cpp.
+
+On *nix system, you can set the Python flags with (in the file
+config.make):
+
+PROJECT_CFLAGS = `python-config --cflags` # compiler flags for Python
+PROJECT_LDFLAGS = `python-config --ldflags` # linker flags for Python
+

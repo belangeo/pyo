@@ -272,10 +272,11 @@ inline int pyo_exec_file(PyThreadState *interp, const char *file, char *msg, int
 ** arguments:
 **  interp : pointer, pointer to the targeted Python thread state.
 **  msg : char *, pointer to a string containing the statement to execute.
-**                In debug mode,
-**  add, int, if positive, the commands in the file will be added to whatever
-**            is already running in the pyo server. If 0, the server will be
-**            shutdown and reboot before executing the file.
+**                In debug mode, if an error occured, the output log will
+**                be write back in this string.
+**  debug, int, if positive, the commands will be executed in a try-except
+**              statement. If 0, there will be no error checking, which is
+**              much faster.
 */
 inline int pyo_exec_statement(PyThreadState *interp, char *msg, int debug) {
     int err = 0;
