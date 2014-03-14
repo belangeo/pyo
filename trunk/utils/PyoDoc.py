@@ -30,7 +30,7 @@ if wx.Platform == '__WXMSW__':
 elif wx.Platform == '__WXMAC__':
   DOC_FACES = {'face': 'Monaco', 'size' : 12, 'size2': 9}
 else:
-  DOC_FACES = {'face': 'Courier New', 'size' : 8, 'size2': 7}
+  DOC_FACES = {'face': 'Monospace', 'size' : 8, 'size2': 7}
 DOC_FACES['size3'] = DOC_FACES['size2'] + 4
 for key, value in DOC_STYLES['Default'].items():
   DOC_FACES[key] = value

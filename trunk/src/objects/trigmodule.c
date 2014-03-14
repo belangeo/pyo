@@ -1394,7 +1394,7 @@ TrigFunc_setArg(TrigFunc *self, PyObject *arg)
 	PyObject *tmp;
 
     tmp = arg;
-    Py_DECREF(self->arg);
+    Py_XDECREF(self->arg);
     Py_INCREF(tmp);
     self->arg = tmp;
     
