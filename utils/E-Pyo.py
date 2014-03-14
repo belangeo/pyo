@@ -685,7 +685,7 @@ elif wx.Platform == '__WXMAC__':
 else:
     FONT_SIZE = 8
     FONT_SIZE2 = 7
-    DEFAULT_FONT_FACE = 'Courier New'
+    DEFAULT_FONT_FACE = 'Monospace'
 
 
 STYLES_GENERALS = ['default', 'background', 'selback', 'caret']
@@ -3970,7 +3970,7 @@ class Editor(stc.StyledTextCtrl):
         #     for i in range(self.GetLineCount()):
         #         pos = self.GetLineEndPosition(i)
         #         if self.GetCharAt(pos-1) != 172:
-        #             self.InsertTextUTF8(pos, "¬")
+        #             self.InsertTextUTF8(pos, "Â¬")
         self.checkScrollbar()
         self.OnModified()
         evt.Skip()

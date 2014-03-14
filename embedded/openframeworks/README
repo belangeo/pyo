@@ -1,21 +1,101 @@
+Introduction on how to use pyo inside an OpenFrameworks project.
+================================================================ 
+
 To use pyo inside an OpenFrameworks project, first you need a 
 working install of pyo on your system. After installing pyo,
-you only need to copy these files in your project's sources:
+you can go and create an OpenFrameworks project.
 
-from this folder:
-- PyoClass.cpp
-- PyoClass.h
+------------------------------------------------------------------------
+Step 1 - Create a default project with project generator.
 
-from the folder "embedded":
-- m_pyo.h
+------------------------------------------------------------------------
+Step 2 - Add pyo files to your project. You only need to copy 
+these files in your project's src folder:
 
-Make sure that your project includes flags for compiling and
-linking against Python and that's it. You can use the class
-"Pyo", defined in PyoClass.h and PyoClass.cpp.
+- from this folder:
+PyoClass.cpp
+PyoClass.h
 
-On *nix system, you can set the Python flags with (in the file
-config.make):
+- from the folder "embedded":
+m_pyo.h
 
-PROJECT_CFLAGS = `python-config --cflags` # compiler flags for Python
+------------------------------------------------------------------------
+Step 3 - Make sure that your project includes flags for compiling 
+and linking against Python. On Unix systems, you can set the Python 
+flags in the file config.make. Uncomment and complete these lines:
+
 PROJECT_LDFLAGS = `python-config --ldflags` # linker flags for Python
+PROJECT_CFLAGS = `python-config --cflags` # compiler flags for Python
+
+------------------------------------------------------------------------
+Step 4 - Make a scripts folder at the root level of your project and 
+create a python file, named "stereoDelay.py", with these lines in it:
+
+# Get the input sound and apply a stereo delay + reverb on it.
+st_input = Input([0,1])
+st_delay = Delay(st_input, delay=[.4, .5], feedback=0.7)
+st_rev = WGVerb(st_delay, feedback=0.8, cutoff=4000, bal=0.25).out()
+
+------------------------------------------------------------------------
+Step 5 - Edit src/testApp.h.
+
+- Include PyoClass definition:
+
+#include "PyoClass.h"
+
+- Add audio in/out callbacks to the public attributes of the testApp class:
+
+void audioIn(float * input, int bufferSize, int nChannels);
+void audioOut(float * input, int bufferSize, int nChannels);
+
+- Add an ofSoundStream object to the public attributes of the testApp class:
+
+ofSoundStream soundStream;
+
+- Add a Pyo object to the public attributes of the testApp class:
+
+Pyo pyo;
+
+------------------------------------------------------------------------
+Step 6 - Edit src/testApp.cpp.
+
+- Creates the setup() function:
+
+void testApp::setup(){
+    // define audio properties
+    int sampleRate = 44100;
+    int bufferSize = 256;
+    int nChannels = 2;
+    // initialize a pyo server
+    pyo.setup(nChannels, bufferSize, sampleRate);
+    // load a python file
+    pyo.loadfile("../scripts/stereoDelay.py", 0);
+    // initialize OpenFrameworks audio streaming channels 
+	soundStream.setup(this, nChannels, nChannels, sampleRate, bufferSize, 4);
+}
+
+- Creates audio in/out functions:
+
+void testApp::audioIn(float * input, int bufferSize, int nChannels){
+    // send audio samples to pyo
+    pyo.fillin(input);
+}
+
+void testApp::audioOut(float * output, int bufferSize, int nChannels){
+    // process and get new audio samples from pyo
+    pyo.process(output);
+}
+
+------------------------------------------------------------------------
+Here you go! Compile, Run and Enjoy!
+
+Documentation
+=============
+
+For a complete description of functions that can be used to communicate 
+with the pyo embedded processes, see documentation comments in the file 
+PyoClass.cpp.
+
+belangeo
+
 
