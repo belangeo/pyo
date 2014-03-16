@@ -45,12 +45,18 @@ ifeq (MINGW,$(findstring MINGW,$(UNAME)))
     ALL_LIBS = -L/c/Python27/libs
 endif
 ifeq ($(UNAME),Darwin)
-    # OSX version works only with python 2.6 32-bit for now
-    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter -I/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -I/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -fno-strict-aliasing -fno-common -isysroot /Developer/SDKs/MacOSX10.5.sdk -arch ppc -arch i386 -g -O2 -DNDEBUG -g -O3
-    # copy-paste above just to replace "10.4u" by "10.5" from $(shell python-config --cflags)
+    MAC_SDK =                # put the path to your base SDK if you have problem to compile with the one given by python (ex: /Developer/SDKs/MacOSX10.6.sdk)
+    ARCH_TYPE = i386         # can put multiple architectures if they are available with your environment (ex: ppc i386)
+    ifeq ($(MAC_SDK),)
+        PYTHONFLAGS = $(shell python-config --cflags)
+    else
+        PYTHONFLAGS = $(patsubst -isysroot /%, -isysroot $(MAC_SDK), $(shell python-config --cflags))
+    endif
+    ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(PYTHONFLAGS)
     ALL_LDFLAGS = $(shell python-config --ldflags)
     SHARED_LDFLAGS =
-    ALL_LIBS = $(shell python-config --libs)
+    # ALL_LIBS = $(shell python-config --libs)
+    ALL_LIBS = -ldl -framework CoreFoundation -framework Python
 endif
 ifeq ($(UNAME),Linux)
     ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(shell python-config --cflags)
@@ -124,9 +130,12 @@ ifeq ($(UNAME),Darwin)
     OPT_CFLAGS = -ftree-vectorize -ftree-vectorizer-verbose=2 -fast
 # build universal 32-bit on 10.4 and 32/64 on newer
     ifeq ($(shell uname -r | sed 's|\([0-9][0-9]*\)\.[0-9][0-9]*\.[0-9][0-9]*|\1|'), 8)
-      FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.5
+      # FAT_FLAGS = -arch ppc -arch i386 -mmacosx-version-min=10.5
+      ARCHWITHOUT64 := $(filter-out x86_64,$(ARCH_TYPE))
+      FAT_FLAGS = $(patsubst %,-arch %, $(ARCHWITHOUT64)) -mmacosx-version-min=10.5
     else
-      FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.5
+      # FAT_FLAGS = -arch ppc -arch i386 -arch x86_64 -mmacosx-version-min=10.5
+      FAT_FLAGS = $(patsubst %,-arch %, $(ARCH_TYPE)) -mmacosx-version-min=10.5
       SOURCES += $(SOURCES_iphoneos)
     endif
     ALL_CFLAGS += $(FAT_FLAGS) -fPIC -I/sw/include
