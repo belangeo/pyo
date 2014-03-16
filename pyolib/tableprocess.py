@@ -1098,14 +1098,6 @@ class Pointer(PyoObject):
         index : PyoObject
             Normalized position in the table between 0 and 1.
 
-    .. note::
-
-        Default interpolation method is linear and can be changed
-        with the `interp` attribute or the `setInterp` method.
-        
-        A quantization noise filter can be activated with the
-        `smoother` attribute or the `setSmoother` method.
-
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SndTable(SNDS_PATH + '/transparent.aif')
@@ -1118,10 +1110,96 @@ class Pointer(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
-        self._interp = 2
-        self._smoother = 0
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setTable(self, x):
+        """
+        Replace the `table` attribute.
+        
+        :Args:
+
+            x : PyoTableObject
+                new `table` attribute.
+        
+        """
+        self._table = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setTable(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setIndex(self, x):
+        """
+        Replace the `index` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                new `index` attribute.
+        
+        """
+        self._index = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMapMul(self._mul)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+
+    @property
+    def table(self):
+        """PyoTableObject. Table containing the waveform samples.""" 
+        return self._table
+    @table.setter
+    def table(self, x): self.setTable(x)
+
+    @property
+    def index(self):
+        """PyoObject. Index pointer position in the table.""" 
+        return self._index
+    @index.setter
+    def index(self, x): self.setIndex(x)
+
+class Pointer2(PyoObject):
+    """
+    High quality table reader with control on the pointer position.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        table : PyoTableObject
+            Table containing the waveform samples.
+        index : PyoObject
+            Normalized position in the table between 0 and 1.
+        interp : int {1, 2, 3, 4}, optional
+            Choice of the interpolation method. Defaults to 4.
+                1. no interpolation
+                2. linear
+                3. cosinus
+                4. cubic
+        autosmooth : boolean, optional
+            If True, a lowpass filter, following the pitch, is applied on 
+            
+            the output signal to reduce the quantization noise produced 
+            
+            by very low transpositions. Defaults to True.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = SndTable(SNDS_PATH + '/transparent.aif')
+    >>> freq = t.getRate()
+    >>> p = Phasor(freq=[freq*0.5, freq*0.45])
+    >>> a = Pointer2(table=t, index=p, mul=.3).out()
+
+    """
+    def __init__(self, table, index, interp=4, autosmooth=True, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._table = table
+        self._index = index
+        self._interp = interp
+        self._autosmooth = autosmooth
+        table, index, interp, autosmooth, mul, add, lmax = convertArgsToLists(table, index, interp, autosmooth, mul, add)
+        self._base_objs = [Pointer2_base(wrap(table,i), wrap(index,i), wrap(interp,i), wrap(autosmooth,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
     def setTable(self, x):
         """
@@ -1160,18 +1238,18 @@ class Pointer(PyoObject):
             x : int {1, 2, 3, 4}
                 new `interp` attribute.
                     1. no interpolation
-                    2. linear interpolation (default)
+                    2. linear interpolation
                     3. cosine interpolation
-                    4. cubic interpolation
+                    4. cubic interpolation (default)
         
         """
         self._interp = x
         x, lmax = convertArgsToLists(x)
         [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
-    def setSmoother(self, x):
+    def setAutoSmooth(self, x):
         """
-        Replace the `smoother` attribute.
+        Replace the `autosmooth` attribute.
         
         If True, a lowpass filter, following the playback speed, is applied on 
         the output signal to reduce the quantization noise produced by very 
@@ -1180,12 +1258,12 @@ class Pointer(PyoObject):
         :Args:
 
             x : boolean
-                new `smoother` attribute.
+                new `autosmooth` attribute.
         
         """
-        self._smoother = x
+        self._autosmooth = x
         x, lmax = convertArgsToLists(x)
-        [obj.setSmoother(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        [obj.setAutoSmooth(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
@@ -1213,11 +1291,11 @@ class Pointer(PyoObject):
     def interp(self, x): self.setInterp(x)
 
     @property
-    def smoother(self): 
+    def autosmooth(self): 
         """boolean. Quantization noise filter."""
-        return self._smoother
-    @smoother.setter
-    def smoother(self, x): self.setSmoother(x)
+        return self._autosmooth
+    @autosmooth.setter
+    def autosmooth(self, x): self.setAutoSmooth(x)
 
 class TableIndex(PyoObject):
     """

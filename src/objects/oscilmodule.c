@@ -3073,52 +3073,23 @@ typedef struct {
     PyObject *index;
     Stream *index_stream;
     int modebuffer[2];
-    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
-    int smoother; /* 0 = off, > 0 = on */
-    MYFLT y1;
-    MYFLT y2;
-    MYFLT c;
-    MYFLT lastPh;
-    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } Pointer;
 
 static void
 Pointer_readframes_a(Pointer *self) {
-    MYFLT fpart, phdiff, b, fr;
+    MYFLT fpart;
     double ph;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
-    double tableSr = TableStream_getSamplingRate(self->table);
     
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
 
-    if (!self->smoother) {
-        for (i=0; i<self->bufsize; i++) {
-            ph = Osc_clip(pha[i] * size, size);       
-            ipart = (int)ph;
-            fpart = ph - ipart;
-            self->y1 = self->y2 = self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
-        }
-    }
-    else {
-        for (i=0; i<self->bufsize; i++) {
-            ph = Osc_clip(pha[i] * size, size);
-            ipart = (int)ph;
-            fpart = ph - ipart;
-            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
-            phdiff = MYFABS(ph - self->lastPh);
-            self->lastPh = ph;
-            if (phdiff < 1) {
-                fr = phdiff * tableSr * 0.45;
-                b = 2.0 - MYCOS(TWOPI * fr / self->sr);
-                self->c = (b - MYSQRT(b * b - 1.0));
-                self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c;
-                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * self->c;
-            }
-            else
-                self->y1 = self->y2 = self->data[i];
-        }
+    for (i=0; i<self->bufsize; i++) {
+        ph = Osc_clip(pha[i] * size, size);       
+        ipart = (int)ph;
+        fpart = ph - ipart;
+        self->data[i] = tablelist[ipart] + (tablelist[ipart+1] - tablelist[ipart]) * fpart;
     }
 }
 
@@ -3216,9 +3187,6 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
-    self->interp = 2;
-    self->smoother = 0;
-    self->y1 = self->y2 = self->c = self->lastPh = 0.0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Pointer_compute_next_data_frame);
@@ -3252,8 +3220,6 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-  
-    SET_INTERP_POINTER
   
     return (PyObject *)self;
 }
@@ -3336,45 +3302,6 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
 	return Py_None;
 }	
 
-static PyObject *
-Pointer_setInterp(Pointer *self, PyObject *arg)
-{
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-    
-    int isNumber = PyNumber_Check(arg);
-    
-	if (isNumber == 1) {
-		self->interp = PyInt_AsLong(PyNumber_Int(arg));
-    }  
-    
-    SET_INTERP_POINTER
-    
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject *
-Pointer_setSmoother(Pointer *self, PyObject *arg)
-{
-	if (arg == NULL) {
-		Py_INCREF(Py_None);
-		return Py_None;
-	}
-    
-    int isNumber = PyNumber_Check(arg);
-    
-	if (isNumber == 1) {
-		self->smoother = PyInt_AsLong(PyNumber_Int(arg));
-        printf("%d\n", self->smoother);
-    }  
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
 static PyMemberDef Pointer_members[] = {
 {"server", T_OBJECT_EX, offsetof(Pointer, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Pointer, stream), 0, "Stream object."},
@@ -3394,8 +3321,6 @@ static PyMethodDef Pointer_methods[] = {
 {"stop", (PyCFunction)Pointer_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)Pointer_setTable, METH_O, "Sets oscillator table."},
 {"setIndex", (PyCFunction)Pointer_setIndex, METH_O, "Sets reader index."},
-{"setInterp", (PyCFunction)Pointer_setInterp, METH_O, "Sets oscillator interpolation mode."},
-{"setSmoother", (PyCFunction)Pointer_setSmoother, METH_O, "Activates auto smoother filter."},
 {"setMul", (PyCFunction)Pointer_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Pointer_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Pointer_setSub, METH_O, "Sets oscillator inverse add factor."},
@@ -3485,6 +3410,428 @@ Pointer_members,             /* tp_members */
 0,      /* tp_init */
 0,                         /* tp_alloc */
 Pointer_new,                 /* tp_new */
+};
+
+/**************/
+/* Pointer2 object */
+/**************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *table;
+    PyObject *index;
+    Stream *index_stream;
+    int modebuffer[2];
+    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
+    int autosmooth; /* 0 = off, > 0 = on */
+    MYFLT y1;
+    MYFLT y2;
+    MYFLT c;
+    MYFLT lastPh;
+    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
+} Pointer2;
+
+static void
+Pointer2_readframes_a(Pointer2 *self) {
+    MYFLT fpart, phdiff, b, fr;
+    double ph;
+    int i, ipart;
+    MYFLT *tablelist = TableStream_getData(self->table);
+    int size = TableStream_getSize(self->table);
+    double tableSr = TableStream_getSamplingRate(self->table);
+    
+    MYFLT *pha = Stream_getData((Stream *)self->index_stream);
+
+    if (!self->autosmooth) {
+        for (i=0; i<self->bufsize; i++) {
+            ph = Osc_clip(pha[i] * size, size);       
+            ipart = (int)ph;
+            fpart = ph - ipart;
+            self->y1 = self->y2 = self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            ph = Osc_clip(pha[i] * size, size);
+            ipart = (int)ph;
+            fpart = ph - ipart;
+            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
+            phdiff = MYFABS(ph - self->lastPh);
+            self->lastPh = ph;
+            if (phdiff < 1) {
+                fr = phdiff * tableSr * 0.45;
+                b = 2.0 - MYCOS(TWOPI * fr / self->sr);
+                self->c = (b - MYSQRT(b * b - 1.0));
+                self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c;
+                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * self->c;
+            }
+            else
+                self->y1 = self->y2 = self->data[i];
+        }
+    }
+}
+
+static void Pointer2_postprocessing_ii(Pointer2 *self) { POST_PROCESSING_II };
+static void Pointer2_postprocessing_ai(Pointer2 *self) { POST_PROCESSING_AI };
+static void Pointer2_postprocessing_ia(Pointer2 *self) { POST_PROCESSING_IA };
+static void Pointer2_postprocessing_aa(Pointer2 *self) { POST_PROCESSING_AA };
+static void Pointer2_postprocessing_ireva(Pointer2 *self) { POST_PROCESSING_IREVA };
+static void Pointer2_postprocessing_areva(Pointer2 *self) { POST_PROCESSING_AREVA };
+static void Pointer2_postprocessing_revai(Pointer2 *self) { POST_PROCESSING_REVAI };
+static void Pointer2_postprocessing_revaa(Pointer2 *self) { POST_PROCESSING_REVAA };
+static void Pointer2_postprocessing_revareva(Pointer2 *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Pointer2_setProcMode(Pointer2 *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = Pointer2_readframes_a;
+
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Pointer2_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Pointer2_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Pointer2_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Pointer2_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Pointer2_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Pointer2_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Pointer2_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Pointer2_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Pointer2_postprocessing_revareva;
+            break;
+    } 
+}
+
+static void
+Pointer2_compute_next_data_frame(Pointer2 *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Pointer2_traverse(Pointer2 *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->table);
+    Py_VISIT(self->index);    
+    Py_VISIT(self->index_stream);    
+    return 0;
+}
+
+static int 
+Pointer2_clear(Pointer2 *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->table);
+    Py_CLEAR(self->index);    
+    Py_CLEAR(self->index_stream);    
+    return 0;
+}
+
+static void
+Pointer2_dealloc(Pointer2* self)
+{
+    pyo_DEALLOC
+    Pointer2_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *tabletmp, *indextmp, *multmp=NULL, *addtmp=NULL;
+    Pointer2 *self;
+    self = (Pointer2 *)type->tp_alloc(type, 0);
+    
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    self->interp = 4;
+    self->autosmooth = 1;
+    self->y1 = self->y2 = self->c = self->lastPh = 0.0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Pointer2_compute_next_data_frame);
+    self->mode_func_ptr = Pointer2_setProcMode;
+
+    static char *kwlist[] = {"table", "index", "interp", "autosmooth", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "OO|iiOO", kwlist, &tabletmp, &indextmp, &self->interp, &self->autosmooth, &multmp, &addtmp))
+        Py_RETURN_NONE;
+    
+    if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
+        PySys_WriteStderr("TypeError: \"table\" argument of Pointer2 must be a PyoTableObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+    }
+    Py_XDECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
+    
+    if (indextmp) {
+        PyObject_CallMethod((PyObject *)self, "setIndex", "O", indextmp);
+    }
+
+    PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+  
+    SET_INTERP_POINTER
+  
+    return (PyObject *)self;
+}
+
+static PyObject * Pointer2_getServer(Pointer2* self) { GET_SERVER };
+static PyObject * Pointer2_getStream(Pointer2* self) { GET_STREAM };
+static PyObject * Pointer2_setMul(Pointer2 *self, PyObject *arg) { SET_MUL };	
+static PyObject * Pointer2_setAdd(Pointer2 *self, PyObject *arg) { SET_ADD };	
+static PyObject * Pointer2_setSub(Pointer2 *self, PyObject *arg) { SET_SUB };	
+static PyObject * Pointer2_setDiv(Pointer2 *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * Pointer2_play(Pointer2 *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Pointer2_out(Pointer2 *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * Pointer2_stop(Pointer2 *self) { STOP };
+
+static PyObject * Pointer2_multiply(Pointer2 *self, PyObject *arg) { MULTIPLY };
+static PyObject * Pointer2_inplace_multiply(Pointer2 *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Pointer2_add(Pointer2 *self, PyObject *arg) { ADD };
+static PyObject * Pointer2_inplace_add(Pointer2 *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Pointer2_sub(Pointer2 *self, PyObject *arg) { SUB };
+static PyObject * Pointer2_inplace_sub(Pointer2 *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Pointer2_div(Pointer2 *self, PyObject *arg) { DIV };
+static PyObject * Pointer2_inplace_div(Pointer2 *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+Pointer2_getTable(Pointer2* self)
+{
+    Py_INCREF(self->table);
+    return self->table;
+};
+
+static PyObject *
+Pointer2_setTable(Pointer2 *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	tmp = arg;
+	Py_DECREF(self->table);
+    self->table = PyObject_CallMethod((PyObject *)tmp, "getTableStream", "");
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pointer2_setIndex(Pointer2 *self, PyObject *arg)
+{
+	PyObject *tmp, *streamtmp;
+	
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	if (isNumber == 1) {
+		PySys_WriteStderr("TypeError: \"index\" attribute of Pointer2 must be a PyoObject.\n");
+        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
+            PyObject_CallMethod(self->server, "shutdown", NULL);
+        }
+        Py_Exit(1);
+	}
+	
+	tmp = arg;
+	Py_INCREF(tmp);
+	Py_XDECREF(self->index);
+
+    self->index = tmp;
+    streamtmp = PyObject_CallMethod((PyObject *)self->index, "_getStream", NULL);
+    Py_INCREF(streamtmp);
+    Py_XDECREF(self->index_stream);
+    self->index_stream = (Stream *)streamtmp;
+    
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
+static PyObject *
+Pointer2_setInterp(Pointer2 *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+    
+    SET_INTERP_POINTER
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Pointer2_setAutoSmooth(Pointer2 *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->autosmooth = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyMemberDef Pointer2_members[] = {
+{"server", T_OBJECT_EX, offsetof(Pointer2, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Pointer2, stream), 0, "Stream object."},
+{"table", T_OBJECT_EX, offsetof(Pointer2, table), 0, "Waveform table."},
+{"index", T_OBJECT_EX, offsetof(Pointer2, index), 0, "Reader index."},
+{"mul", T_OBJECT_EX, offsetof(Pointer2, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Pointer2, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Pointer2_methods[] = {
+{"getTable", (PyCFunction)Pointer2_getTable, METH_NOARGS, "Returns waveform table object."},
+{"getServer", (PyCFunction)Pointer2_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Pointer2_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Pointer2_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"out", (PyCFunction)Pointer2_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"stop", (PyCFunction)Pointer2_stop, METH_NOARGS, "Stops computing."},
+{"setTable", (PyCFunction)Pointer2_setTable, METH_O, "Sets oscillator table."},
+{"setIndex", (PyCFunction)Pointer2_setIndex, METH_O, "Sets reader index."},
+{"setInterp", (PyCFunction)Pointer2_setInterp, METH_O, "Sets oscillator interpolation mode."},
+{"setAutoSmooth", (PyCFunction)Pointer2_setAutoSmooth, METH_O, "Activates auto smoother filter."},
+{"setMul", (PyCFunction)Pointer2_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)Pointer2_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)Pointer2_setSub, METH_O, "Sets oscillator inverse add factor."},
+{"setDiv", (PyCFunction)Pointer2_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Pointer2_as_number = {
+(binaryfunc)Pointer2_add,                      /*nb_add*/
+(binaryfunc)Pointer2_sub,                 /*nb_subtract*/
+(binaryfunc)Pointer2_multiply,                 /*nb_multiply*/
+(binaryfunc)Pointer2_div,                   /*nb_divide*/
+0,                /*nb_remainder*/
+0,                   /*nb_divmod*/
+0,                   /*nb_power*/
+0,                  /*nb_neg*/
+0,                /*nb_pos*/
+0,                  /*(unaryfunc)array_abs,*/
+0,                    /*nb_nonzero*/
+0,                    /*nb_invert*/
+0,               /*nb_lshift*/
+0,              /*nb_rshift*/
+0,              /*nb_and*/
+0,              /*nb_xor*/
+0,               /*nb_or*/
+0,                                          /*nb_coerce*/
+0,                       /*nb_int*/
+0,                      /*nb_long*/
+0,                     /*nb_float*/
+0,                       /*nb_oct*/
+0,                       /*nb_hex*/
+(binaryfunc)Pointer2_inplace_add,              /*inplace_add*/
+(binaryfunc)Pointer2_inplace_sub,         /*inplace_subtract*/
+(binaryfunc)Pointer2_inplace_multiply,         /*inplace_multiply*/
+(binaryfunc)Pointer2_inplace_div,           /*inplace_divide*/
+0,        /*inplace_remainder*/
+0,           /*inplace_power*/
+0,       /*inplace_lshift*/
+0,      /*inplace_rshift*/
+0,      /*inplace_and*/
+0,      /*inplace_xor*/
+0,       /*inplace_or*/
+0,             /*nb_floor_divide*/
+0,              /*nb_true_divide*/
+0,     /*nb_inplace_floor_divide*/
+0,      /*nb_inplace_true_divide*/
+0,                     /* nb_index */
+};
+
+PyTypeObject Pointer2Type = {
+PyObject_HEAD_INIT(NULL)
+0,                         /*ob_size*/
+"_pyo.Pointer2_base",         /*tp_name*/
+sizeof(Pointer2),         /*tp_basicsize*/
+0,                         /*tp_itemsize*/
+(destructor)Pointer2_dealloc, /*tp_dealloc*/
+0,                         /*tp_print*/
+0,                         /*tp_getattr*/
+0,                         /*tp_setattr*/
+0,                         /*tp_compare*/
+0,                         /*tp_repr*/
+&Pointer2_as_number,             /*tp_as_number*/
+0,                         /*tp_as_sequence*/
+0,                         /*tp_as_mapping*/
+0,                         /*tp_hash */
+0,                         /*tp_call*/
+0,                         /*tp_str*/
+0,                         /*tp_getattro*/
+0,                         /*tp_setattro*/
+0,                         /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Pointer2 objects. High quality table reader with a pointer index.",           /* tp_doc */
+(traverseproc)Pointer2_traverse,   /* tp_traverse */
+(inquiry)Pointer2_clear,           /* tp_clear */
+0,		               /* tp_richcompare */
+0,		               /* tp_weaklistoffset */
+0,		               /* tp_iter */
+0,		               /* tp_iternext */
+Pointer2_methods,             /* tp_methods */
+Pointer2_members,             /* tp_members */
+0,                      /* tp_getset */
+0,                         /* tp_base */
+0,                         /* tp_dict */
+0,                         /* tp_descr_get */
+0,                         /* tp_descr_set */
+0,                         /* tp_dictoffset */
+0,      /* tp_init */
+0,                         /* tp_alloc */
+Pointer2_new,                 /* tp_new */
 };
 
 /**************/

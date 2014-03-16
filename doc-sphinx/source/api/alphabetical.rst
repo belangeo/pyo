@@ -159,6 +159,7 @@ Alphabetical class reference
 - :py:class:`Phaser` :     Multi-stages second-order phase shifter allpass filters. 
 - :py:class:`Phasor` :     A simple phase incrementor.
 - :py:class:`PinkNoise` :     A pink noise generator.
+- :py:class:`Pointer2` :     High quality table reader with control on the pointer position.
 - :py:class:`Pointer` :     Table reader with control on the pointer position.
 - :py:class:`PolToCar` :     Performs the polar to cartesian conversion.
 - :py:class:`Port` :     Exponential portamento.
