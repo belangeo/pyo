@@ -62,6 +62,12 @@ store audio samples or algorithmic sequences for future uses.
 .. autoclass:: Pointer
    :members:
 
+*Pointer2*
+-----------------------------------
+
+.. autoclass:: Pointer2
+   :members:
+
 *Pulsar*
 -----------------------------------
 

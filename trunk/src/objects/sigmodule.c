@@ -991,6 +991,26 @@ VarPort_setTime(VarPort *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+VarPort_setFunction(VarPort *self, PyObject *arg)
+{
+	PyObject *tmp;
+	
+	if (! PyCallable_Check(arg)) {
+        PyErr_SetString(PyExc_TypeError, "The function attribute must be callable.");
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    tmp = arg;
+    Py_XDECREF(self->callable);
+    Py_INCREF(tmp);
+    self->callable = tmp;
+  
+	Py_INCREF(Py_None);
+	return Py_None;
+}	
+
 static PyObject * VarPort_getServer(VarPort* self) { GET_SERVER };
 static PyObject * VarPort_getStream(VarPort* self) { GET_STREAM };
 static PyObject * VarPort_setMul(VarPort *self, PyObject *arg) { SET_MUL };	
@@ -1025,6 +1045,7 @@ static PyMethodDef VarPort_methods[] = {
     {"stop", (PyCFunction)VarPort_stop, METH_NOARGS, "Stops computing."},
     {"setValue", (PyCFunction)VarPort_setValue, METH_O, "Sets VarPort value."},
     {"setTime", (PyCFunction)VarPort_setTime, METH_O, "Sets ramp time in seconds."},
+    {"setFunction", (PyCFunction)VarPort_setFunction, METH_O, "Sets function to be called."},
     {"setMul", (PyCFunction)VarPort_setMul, METH_O, "Sets VarPort mul factor."},
     {"setAdd", (PyCFunction)VarPort_setAdd, METH_O, "Sets VarPort add factor."},
     {"setSub", (PyCFunction)VarPort_setSub, METH_O, "Sets inverse add factor."},

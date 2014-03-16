@@ -223,6 +223,9 @@ def getVersion():
     major, minor, rev = PYO_VERSION.split('.')
     return (int(major), int(minor), int(rev))
 
+def dumpref():
+    pass
+
 class PyoError(Exception):
     """Base class for all pyo exceptions."""
 
@@ -285,6 +288,20 @@ class PyoObjectBase(object):
 
         """
         return self._base_objs
+
+    def cleanFuncRefs(self):
+        """
+        Method used to remove internal references to callback functions.
+        
+        An internal reference to a callback function (ex. the function
+        called by the TrigFunc object) may prevent the object to be
+        properly deleted when its reference count drop to zero. Calling
+        this function just before deleting the last reference will replace
+        the callback reference by a dump ref.
+
+        """
+        if hasattr(self, "_function"):
+            self.setFunction(dumpref)
 
     def __getitem__(self, i):
         if i == 'trig':
@@ -1779,6 +1796,7 @@ class VarPort(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._value = value
         self._time = time
+        self._function = function
         value, time, init, function, arg, mul ,add, lmax = convertArgsToLists(value, time, init, function, arg, mul, add)
         self._base_objs = [VarPort_base(wrap(value,i), wrap(time,i), wrap(init,i), wrap(function,i), wrap(arg,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1810,6 +1828,20 @@ class VarPort(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setTime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setFunction(self, x):
+        """
+        Replace the `function` attribute.
+        
+        :Args:
+
+            x : Python function
+                new `function` attribute.
+        
+        """
+        self._function = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setFunction(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     @property
     def value(self):
         """float. Numerical value to convert.""" 
@@ -1823,6 +1855,13 @@ class VarPort(PyoObject):
         return self._time
     @time.setter
     def time(self, x): self.setTime(x)
+
+    @property
+    def function(self): 
+        """Python callable. Function to be called."""
+        return self._function
+    @function.setter
+    def function(self, x): self.setFunction(x)
 
 class Pow(PyoObject):
     """

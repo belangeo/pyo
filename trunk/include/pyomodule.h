@@ -461,6 +461,7 @@ extern PyTypeObject TrackHoldType;
 extern PyTypeObject ComplexResType;
 extern PyTypeObject STReverbType;
 extern PyTypeObject STRevType;
+extern PyTypeObject Pointer2Type;
 
 /* Constants */
 #define E M_E
