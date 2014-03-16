@@ -3073,24 +3073,52 @@ typedef struct {
     PyObject *index;
     Stream *index_stream;
     int modebuffer[2];
+    int interp; /* 0 = default to 2, 1 = nointerp, 2 = linear, 3 = cos, 4 = cubic */
+    int smoother; /* 0 = off, > 0 = on */
+    MYFLT y1;
+    MYFLT y2;
+    MYFLT c;
+    MYFLT lastPh;
+    MYFLT (*interp_func_ptr)(MYFLT *, int, MYFLT, int);
 } Pointer;
 
 static void
 Pointer_readframes_a(Pointer *self) {
-    MYFLT fpart;
+    MYFLT fpart, phdiff, b, fr;
     double ph;
     int i, ipart;
     MYFLT *tablelist = TableStream_getData(self->table);
     int size = TableStream_getSize(self->table);
+    double tableSr = TableStream_getSamplingRate(self->table);
     
     MYFLT *pha = Stream_getData((Stream *)self->index_stream);
-    
-    for (i=0; i<self->bufsize; i++) {
-        ph = Osc_clip(pha[i] * size, size);
-   
-        ipart = (int)ph;
-        fpart = ph - ipart;
-        self->data[i] = tablelist[ipart] * (1.0 - fpart) + tablelist[ipart+1] * fpart;
+
+    if (!self->smoother) {
+        for (i=0; i<self->bufsize; i++) {
+            ph = Osc_clip(pha[i] * size, size);       
+            ipart = (int)ph;
+            fpart = ph - ipart;
+            self->y1 = self->y2 = self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
+        }
+    }
+    else {
+        for (i=0; i<self->bufsize; i++) {
+            ph = Osc_clip(pha[i] * size, size);
+            ipart = (int)ph;
+            fpart = ph - ipart;
+            self->data[i] = (*self->interp_func_ptr)(tablelist, ipart, fpart, size);
+            phdiff = MYFABS(ph - self->lastPh);
+            self->lastPh = ph;
+            if (phdiff < 1) {
+                fr = phdiff * tableSr * 0.45;
+                b = 2.0 - MYCOS(TWOPI * fr / self->sr);
+                self->c = (b - MYSQRT(b * b - 1.0));
+                self->y1 = self->data[i] + (self->y1 - self->data[i]) * self->c;
+                self->data[i] = self->y2 = self->y1 + (self->y2 - self->y1) * self->c;
+            }
+            else
+                self->y1 = self->y2 = self->data[i];
+        }
     }
 }
 
@@ -3188,6 +3216,9 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     
 	self->modebuffer[0] = 0;
 	self->modebuffer[1] = 0;
+    self->interp = 2;
+    self->smoother = 0;
+    self->y1 = self->y2 = self->c = self->lastPh = 0.0;
     
     INIT_OBJECT_COMMON
     Stream_setFunctionPtr(self->stream, Pointer_compute_next_data_frame);
@@ -3221,7 +3252,9 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     PyObject_CallMethod(self->server, "addStream", "O", self->stream);
     
     (*self->mode_func_ptr)(self);
-    
+  
+    SET_INTERP_POINTER
+  
     return (PyObject *)self;
 }
 
@@ -3303,6 +3336,45 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
 	return Py_None;
 }	
 
+static PyObject *
+Pointer_setInterp(Pointer *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->interp = PyInt_AsLong(PyNumber_Int(arg));
+    }  
+    
+    SET_INTERP_POINTER
+    
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Pointer_setSmoother(Pointer *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+    int isNumber = PyNumber_Check(arg);
+    
+	if (isNumber == 1) {
+		self->smoother = PyInt_AsLong(PyNumber_Int(arg));
+        printf("%d\n", self->smoother);
+    }  
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMemberDef Pointer_members[] = {
 {"server", T_OBJECT_EX, offsetof(Pointer, server), 0, "Pyo server."},
 {"stream", T_OBJECT_EX, offsetof(Pointer, stream), 0, "Stream object."},
@@ -3322,6 +3394,8 @@ static PyMethodDef Pointer_methods[] = {
 {"stop", (PyCFunction)Pointer_stop, METH_NOARGS, "Stops computing."},
 {"setTable", (PyCFunction)Pointer_setTable, METH_O, "Sets oscillator table."},
 {"setIndex", (PyCFunction)Pointer_setIndex, METH_O, "Sets reader index."},
+{"setInterp", (PyCFunction)Pointer_setInterp, METH_O, "Sets oscillator interpolation mode."},
+{"setSmoother", (PyCFunction)Pointer_setSmoother, METH_O, "Activates auto smoother filter."},
 {"setMul", (PyCFunction)Pointer_setMul, METH_O, "Sets oscillator mul factor."},
 {"setAdd", (PyCFunction)Pointer_setAdd, METH_O, "Sets oscillator add factor."},
 {"setSub", (PyCFunction)Pointer_setSub, METH_O, "Sets oscillator inverse add factor."},

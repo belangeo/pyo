@@ -1024,7 +1024,11 @@ class Pulsar(PyoObject):
         :Args:
 
             x : int {1, 2, 3, 4}
-                new `interp` attribute.
+                Choice of the interpolation method.
+                    1. no interpolation
+                    2. linear
+                    3. cosinus
+                    4. cubic
         
         """
         self._interp = x
@@ -1094,6 +1098,14 @@ class Pointer(PyoObject):
         index : PyoObject
             Normalized position in the table between 0 and 1.
 
+    .. note::
+
+        Default interpolation method is linear and can be changed
+        with the `interp` attribute or the `setInterp` method.
+        
+        A quantization noise filter can be activated with the
+        `smoother` attribute or the `setSmoother` method.
+
     >>> s = Server().boot()
     >>> s.start()
     >>> t = SndTable(SNDS_PATH + '/transparent.aif')
@@ -1106,6 +1118,8 @@ class Pointer(PyoObject):
         PyoObject.__init__(self, mul, add)
         self._table = table
         self._index = index
+        self._interp = 2
+        self._smoother = 0
         table, index, mul, add, lmax = convertArgsToLists(table, index, mul, add)
         self._base_objs = [Pointer_base(wrap(table,i), wrap(index,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
 
@@ -1137,6 +1151,42 @@ class Pointer(PyoObject):
         x, lmax = convertArgsToLists(x)
         [obj.setIndex(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
+    def setInterp(self, x):
+        """
+        Replace the `interp` attribute.
+        
+        :Args:
+
+            x : int {1, 2, 3, 4}
+                new `interp` attribute.
+                    1. no interpolation
+                    2. linear interpolation (default)
+                    3. cosine interpolation
+                    4. cubic interpolation
+        
+        """
+        self._interp = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setInterp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setSmoother(self, x):
+        """
+        Replace the `smoother` attribute.
+        
+        If True, a lowpass filter, following the playback speed, is applied on 
+        the output signal to reduce the quantization noise produced by very 
+        low transpositions.
+        
+        :Args:
+
+            x : boolean
+                new `smoother` attribute.
+        
+        """
+        self._smoother = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setSmoother(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
     def ctrl(self, map_list=None, title=None, wxnoserver=False):
         self._map_list = [SLMapMul(self._mul)]
         PyoObject.ctrl(self, map_list, title, wxnoserver)
@@ -1154,6 +1204,20 @@ class Pointer(PyoObject):
         return self._index
     @index.setter
     def index(self, x): self.setIndex(x)
+
+    @property
+    def interp(self): 
+        """int {1, 2, 3, 4}. Interpolation method."""
+        return self._interp
+    @interp.setter
+    def interp(self, x): self.setInterp(x)
+
+    @property
+    def smoother(self): 
+        """boolean. Quantization noise filter."""
+        return self._smoother
+    @smoother.setter
+    def smoother(self, x): self.setSmoother(x)
 
 class TableIndex(PyoObject):
     """
