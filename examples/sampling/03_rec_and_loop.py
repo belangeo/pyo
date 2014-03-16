@@ -22,7 +22,7 @@ def cp():
 
 mic = Input([0,1])
 t = NewTable(length=buffer_length, chnls=2)
-r = TableRec(mic, table=t, fadetime=0.1)
+r = TrigTableRec(mic, table=t, fadetime=0.1)
 tr = TrigFunc(r["trig"], function=cp)
 
 s.gui(locals())
