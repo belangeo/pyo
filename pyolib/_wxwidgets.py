@@ -1152,7 +1152,8 @@ class SndViewTablePanel(wx.Panel):
         timestep = (self.end - self.begin) * 0.1
         for i, samples in enumerate(self.img):
             y = h/self.chnls*i
-            gc.DrawLines(samples)
+            if len(samples):
+                gc.DrawLines(samples)
             dc.SetPen(wx.Pen('#666666', width=1, style=wx.SHORT_DASH))  
             dc.DrawLine(0, y+off, w, y+off)
             for j in range(10):
