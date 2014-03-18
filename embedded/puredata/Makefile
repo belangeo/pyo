@@ -50,7 +50,7 @@ ifeq ($(UNAME),Darwin)
     ifeq ($(MAC_SDK),)
         PYTHONFLAGS = $(shell python-config --cflags)
     else
-        PYTHONFLAGS = $(patsubst -isysroot /%, -isysroot $(MAC_SDK), $(shell python-config --cflags))
+        PYTHONFLAGS = $(patsubst /%, $(MAC_SDK), $(shell python-config --cflags))
     endif
     ALL_CFLAGS = -I"$(PD_INCLUDE)" -I.. -Wno-unused-parameter $(PYTHONFLAGS)
     ALL_LDFLAGS = $(shell python-config --ldflags)
