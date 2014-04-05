@@ -99,7 +99,6 @@ if WITH_EXTERNALS:
     import pyolib.external as external
     from pyolib.external import *
 
-# Temporary objects, need to be coded in C
 class FreqShift(PyoObject):
     """
     Frequency shifting using single sideband amplitude modulation.
@@ -110,26 +109,14 @@ class FreqShift(PyoObject):
     100, 200, 300, 400 and 500 Hz, shifted up by 50 Hz, will have harmonics 
     at 150, 250, 350, 450, and 550 Hz.
 
-    Parent class : PyoObject
+    :Parent: :py:class:`PyoObject`
 
-    Parameters:
+    :Args:
 
-    input : PyoObject
-        Input signal to process.
-    shift : float or PyoObject, optional
-        Amount of shifting in Hertz. Defaults to 100.
-
-    Methods:
-
-    setInput(x, fadetime) : Replace the `input` attribute.
-    setShift(x) : Replace the `shift` attribute.
-
-    Attributes:
-
-    input : PyoObject. Input signal to process.
-    shift : float or PyoObject. Amount of shifting in Hertz.
-
-    Examples:
+        input : PyoObject
+            Input signal to process.
+        shift : float or PyoObject, optional
+            Amount of shifting in Hertz. Defaults to 100.
 
     >>> s = Server().boot()
     >>> s.start()
@@ -141,11 +128,9 @@ class FreqShift(PyoObject):
 
     """
     def __init__(self, input, shift=100, mul=1, add=0):
-        PyoObject.__init__(self)
+        PyoObject.__init__(self, mul, add)
         self._input = input
         self._shift = shift
-        self._mul = mul
-        self._add = add
         self._in_fader = InputFader(input)
         in_fader, shift, mul, add, lmax = convertArgsToLists(self._in_fader, shift, mul, add)
 
@@ -162,25 +147,20 @@ class FreqShift(PyoObject):
                                       mul=wrap(mul,i), add=wrap(add,i)))
             self._base_objs.extend(self._mod_objs[-1].getBaseObjects())
 
-    def __dir__(self):
-        return ["input", "shift", "mul", "add"]
-
     def play(self, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._hilb_objs)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._sin_objs)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._cos_objs)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._mod_objs)]
-        self._base_objs = [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
+        return PyoObject.play(self, dur, delay)
 
     def stop(self):
         [obj.stop() for obj in self._hilb_objs]
         [obj.stop() for obj in self._sin_objs]
         [obj.stop() for obj in self._cos_objs]
         [obj.stop() for obj in self._mod_objs]
-        [obj.stop() for obj in self._base_objs]
-        return self
+        return PyoObject.stop(self)
 
     def out(self, chnl=0, inc=1, dur=0, delay=0):
         dur, delay, lmax = convertArgsToLists(dur, delay)
@@ -188,14 +168,7 @@ class FreqShift(PyoObject):
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._sin_objs)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._cos_objs)]
         [obj.play(wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._mod_objs)]
-        if type(chnl) == ListType:
-            self._base_objs = [obj.out(wrap(chnl,i), wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        else:
-            if chnl < 0:    
-                self._base_objs = [obj.out(i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(random.sample(self._base_objs, len(self._base_objs)))]
-            else:
-                self._base_objs = [obj.out(chnl+i*inc, wrap(dur,i), wrap(delay,i)) for i, obj in enumerate(self._base_objs)]
-        return self
+        return PyoObject.out(self, chnl, inc, dur, delay)
 
     def setInput(self, x, fadetime=0.05):
         """
@@ -245,6 +218,98 @@ class FreqShift(PyoObject):
     @shift.setter
     def shift(self, x): self.setShift(x)
 
+class PartialTable(PyoTableObject):
+    """
+    Inharmonic waveform generator.
+
+    Generates waveforms made of inharmonic components. Partials are
+    given as a list of 2-values tuple, where the first one is the
+    partial number (can be float) and the second one is the strength
+    of the partial.
+    
+    The object uses the first two decimal values of each partial to 
+    compute a higher harmonic at a multiple of 100 (so each component
+    is in reality truly harmonic). If the oscillator has a frequency
+    divided by 100, the real desired partials will be restituted.
+    
+    The list:
+        
+    [(1, 1), (1.1, 0.7), (1.15, 0.5)] will draw a table with:
+        
+    harmonic 100 : amplitude = 1
+    harmonic 110 : amplitude = 0.7
+    harmonic 115 : amplitude = 0.5
+    
+    To listen to a signal composed of 200, 220 and 230 Hz, one should
+    declared an oscillator like this (frequency of 200Hz divided by 100):
+        
+    a = Osc(t, freq=2, mul=0.5).out()
+
+    :Parent: :py:class:`PyoTableObject`
+
+    :Args:
+
+        list : list of tuple, optional
+            List of 2-values tuples. First value is the partial number (float up 
+            to two decimal values) and second value is its amplitude (relative to
+            the other harmonics). Defaults to [(1,1), (1.33,0.5),(1.67,0.3)].
+        size : int, optional
+            Table size in samples. Because computed harmonics are very high in
+            frequency, the table size must be bigger than a classic HarmTable.
+            Defaults to 65536.
+
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> t = PartialTable([(1,1), (2.37, 0.5), (4.55, 0.3)]).normalize()
+    >>> # Play with fundamentals 199 and 200 Hz
+    >>> a = Osc(table=t, freq=[1.99,2], mul=.2).out()
+
+    """
+    def __init__(self, list=[(1,1), (1.33,0.5),(1.67,0.3)], size=65536):
+        PyoTableObject.__init__(self, size)
+        self._list = list
+        self._par_table = HarmTable(self._create_list(), size)
+        self._base_objs = self._par_table.getBaseObjects()
+        self.normalize()
+
+    def _create_list(self):
+        # internal method used to compute the harmonics's weight
+        hrms = [(int(x*100.), y) for x, y in self._list]
+        l = []
+        ind = 0
+        for i in range(10000):
+            if i == hrms[ind][0]:
+                l.append(hrms[ind][1])
+                ind += 1
+                if ind == len(hrms):
+                    break
+            else:
+                l.append(0)
+        return l
+    
+    def replace(self, list):
+        """
+        Redraw the waveform according to a new set of harmonics 
+        relative strengths.
+        
+        :Args:
+        
+            list : list of tuples
+                Each tuple contains the partial number, as a float,
+                and its strength.
+
+        """      
+        self._list = list
+        [obj.replace(self._create_list()) for obj in self._base_objs]
+        self.normalize()
+        self.refreshView()
+
+    @property
+    def list(self): 
+        """list. List of partial numbers and strength."""
+        return self._list
+    @list.setter
+    def list(self, x): self.replace(x)
 
 OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input', 'pa_get_default_output', 'pm_get_input_devices',
                                     'pa_list_devices', 'pa_count_host_apis', 'pa_list_host_apis', 'pa_get_default_host_api', 
@@ -257,7 +322,7 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
                 'PyoObjectBase': {
                     'PyoMatrixObject': sorted(['NewMatrix']),                        
                     'PyoTableObject': sorted(['LinTable', 'NewTable', 'SndTable', 'HannTable', 'HarmTable', 'SawTable', 'ParaTable', 'LogTable', 'CosLogTable',
-                                            'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable', 'ExpTable', 'DataTable', 'WinTable', 'SincTable']),
+                                            'SquareTable', 'ChebyTable', 'CosTable', 'CurveTable', 'ExpTable', 'DataTable', 'WinTable', 'SincTable', 'PartialTable']),
                     'PyoPVObject' : sorted(['PVAnal', 'PVSynth', 'PVTranspose', 'PVVerb', 'PVGate', 'PVAddSynth', 'PVCross', 'PVMult', 'PVMorph', 'PVFilter', 'PVDelay', 'PVBuffer', 'PVShift', 'PVAmpMod', 'PVFreqMod', 'PVBufLoops', 'PVBufTabLoops', 'PVMix']),
                     'PyoObject': {'analysis': sorted(['Follower', 'Follower2', 'ZCross', 'Yin']),
                                   'arithmetic': sorted(['Sin', 'Cos', 'Tan', 'Abs', 'Sqrt', 'Log', 'Log2', 'Log10', 'Pow', 'Atan2', 'Floor', 'Round',
@@ -295,5 +360,4 @@ OBJECTS_TREE = {'functions': sorted(['pa_count_devices', 'pa_get_default_input',
         'TableStream': []}
 
 DOC_KEYWORDS = ['Attributes', 'Examples', 'Parameters', 'Methods', 'Notes', 'Methods details', 'See also', 'Parentclass']
-
 DEMOS_PATH = SNDS_PATH
