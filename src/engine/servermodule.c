@@ -203,7 +203,7 @@ pa_callback_interleaved( const void *inputBuffer, void *outputBuffer,
         return paContinue;
     }    
     else {
-        return paComplete;
+        return paAbort;
     }
 }
 
@@ -251,7 +251,7 @@ pa_callback_nonInterleaved( const void *inputBuffer, void *outputBuffer,
         return paContinue;
     }    
     else {
-        return paComplete;
+        return paAbort;
     }
 }
 
