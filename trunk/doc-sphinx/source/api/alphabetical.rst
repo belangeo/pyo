@@ -154,6 +154,7 @@ Alphabetical class reference
 - :py:class:`PVVerb` :     Spectral domain reverberation.
 - :py:class:`Pan` :     Cosinus panner with control on the spread factor.
 - :py:class:`ParaTable` :     Generates parabola window function. 
+- :py:class:`PartialTable` :     Inharmonic waveform generator.
 - :py:class:`Pattern` :     Periodically calls a Python function.
 - :py:class:`Percent` :     Lets pass a certain percentage of the input triggers.
 - :py:class:`Phaser` :     Multi-stages second-order phase shifter allpass filters. 

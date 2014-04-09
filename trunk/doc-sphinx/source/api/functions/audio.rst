@@ -3,6 +3,16 @@ Audio Setup
 
 .. module:: pyo
 
+*pa_get_version*
+---------------------------------
+
+.. autofunction:: pa_get_version
+
+*pa_get_version_text*
+---------------------------------
+
+.. autofunction:: pa_get_version_text
+
 *pa_count_host_apis*
 ---------------------------------
 
