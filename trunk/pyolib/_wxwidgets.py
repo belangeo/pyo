@@ -2289,13 +2289,13 @@ class ServerGUI(wx.Frame):
             if not justSet:
                 self.startf()
             self._started = True
-            self.startButton.SetLabel('Stop')
-            self.quitButton.Disable()
+            wx.CallAfter(self.startButton.SetLabel, 'Stop')
+            wx.CallAfter(self.quitButton.Disable)
         else:
             self.stopf()
             self._started = False
-            self.startButton.SetLabel('Start')
-            self.quitButton.Enable()
+            wx.CallAfter(self.startButton.SetLabel, 'Start')
+            wx.CallAfter(self.quitButton.Enable)
 
     def record(self, evt):
         if self._recstarted == False:
