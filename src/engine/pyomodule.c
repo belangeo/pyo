@@ -52,6 +52,28 @@ static void portaudio_assert(PaError ecode, const char* cmdName) {
 >>> print c\n\
 1\n\n"
 
+#define portaudio_get_version_info \
+"\nReturns the version number, as an integer, of the current portaudio installation.\n\n\
+>>> v = pa_get_version()\n\
+>>> print v\n\
+1899\n\n"
+
+static PyObject *
+portaudio_get_version() {
+    return PyInt_FromLong(Pa_GetVersion());
+}
+
+#define portaudio_get_version_text_info \
+"\nReturns the textual description of the current portaudio installation.\n\n\
+>>> desc = pa_get_version_text()\n\
+>>> print desc\n\
+PortAudio V19-devel (built Oct 8 2012 16:25:16)\n\n"
+
+static PyObject *
+portaudio_get_version_text() {
+    return PyString_FromString(Pa_GetVersionText());
+}
+
 static PyObject *
 portaudio_count_host_apis(){
     PaError err;
@@ -2077,6 +2099,8 @@ serverBooted(PyObject *self) {
 }
 
 static PyMethodDef pyo_functions[] = {
+{"pa_get_version", (PyCFunction)portaudio_get_version, METH_NOARGS, portaudio_get_version_info},
+{"pa_get_version_text", (PyCFunction)portaudio_get_version_text, METH_NOARGS, portaudio_get_version_text_info},
 {"pa_count_devices", (PyCFunction)portaudio_count_devices, METH_NOARGS, portaudio_count_devices_info},
 {"pa_count_host_apis", (PyCFunction)portaudio_count_host_apis, METH_NOARGS, portaudio_count_host_apis_info},
 {"pa_list_devices", (PyCFunction)portaudio_list_devices, METH_NOARGS, portaudio_list_devices_info},
