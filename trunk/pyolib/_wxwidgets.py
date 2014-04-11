@@ -1140,9 +1140,13 @@ class SndViewTablePanel(wx.Panel):
         gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
         gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
         dc.SetTextForeground("#444444")
-        if sys.platform == "darwin":
+        if sys.platform in "darwin":
             font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
             font.SetPointSize(ptsize - 3)
+            dc.SetFont(font)
+        elif sys.platform == "win32":
+            font = dc.GetFont()
+            font.SetPointSize(8)
             dc.SetFont(font)
         tickstep = w / 10
         if tickstep < 40:
