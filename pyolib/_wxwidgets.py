@@ -1140,6 +1140,10 @@ class SndViewTablePanel(wx.Panel):
         gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
         gc.SetBrush(wx.Brush("#FFFFFF", style=wx.TRANSPARENT))
         dc.SetTextForeground("#444444")
+        if sys.platform == "darwin":
+            font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
+            font.SetPointSize(ptsize - 3)
+            dc.SetFont(font)
         tickstep = w / 10
         if tickstep < 40:
             timelabel = "%.1f"
@@ -1154,10 +1158,10 @@ class SndViewTablePanel(wx.Panel):
             y = h/self.chnls*i
             if len(samples):
                 gc.DrawLines(samples)
-            dc.SetPen(wx.Pen('#666666', width=1, style=wx.SHORT_DASH))  
+            dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))  
             dc.DrawLine(0, y+off, w, y+off)
             for j in range(10):
-                dc.SetPen(wx.Pen('#888888', width=1, style=wx.SHORT_DASH))  
+                dc.SetPen(wx.Pen('#888888', width=1, style=wx.DOT))  
                 dc.DrawLine(j*tickstep, 0, j*tickstep, h)
                 dc.DrawText(timelabel % (self.begin+j*timestep), j*tickstep+2, h-y-12)
             dc.SetPen(wx.Pen('#000000', width=1))  
