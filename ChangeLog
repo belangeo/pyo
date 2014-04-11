@@ -1,6 +1,25 @@
+2014-04-11 belangeo <belangeo@gmail.com>
+
+    * Added lot of methods to PyoTableObject (retify, bipolarGain, invert, lowpass, fadein, fadeout, pow).
+    - rev 1182
+
+2014-04-04 belangeo <belangeo@gmail.com>
+
+    * Added new object: PartialTable, generates waveforms made of inharmonic components.
+    - rev 1177
+
+2014-03-12 belangeo <belangeo@gmail.com>
+
+    * Added a Scope example in examples/utilities.
+    - rev 1168
+
 2013-12-24 belangeo <belangeo@gmail.com>
 
     * Added new object: STRev, Stereo reverb.
+    - rev 1154
+
+2013-12-24 belangeo <belangeo@gmail.com>
+
     * Added dataOnly argument to SLMap. User can now control parameters, in ctrl window, that do not accept audio signal but discreet values.
     - rev 1153
 

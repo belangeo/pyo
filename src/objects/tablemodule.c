@@ -231,6 +231,13 @@ static PyObject * HarmTable_reset(HarmTable *self) { TABLE_RESET };
 static PyObject * HarmTable_normalize(HarmTable *self) { NORMALIZE };
 static PyObject * HarmTable_removeDC(HarmTable *self) { REMOVE_DC };
 static PyObject * HarmTable_reverse(HarmTable *self) { REVERSE };
+static PyObject * HarmTable_invert(HarmTable *self) { INVERT };
+static PyObject * HarmTable_rectify(HarmTable *self) { RECTIFY };
+static PyObject * HarmTable_bipolarGain(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * HarmTable_lowpass(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * HarmTable_fadein(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * HarmTable_fadeout(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * HarmTable_pow(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * HarmTable_copy(HarmTable *self, PyObject *arg) { COPY };
 static PyObject * HarmTable_setTable(HarmTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
@@ -307,7 +314,14 @@ static PyMethodDef HarmTable_methods[] = {
 {"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)HarmTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
-{"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"reverse", (PyCFunction)HarmTable_reverse, METH_NOARGS, "Reverse the table's data in time."},
+{"invert", (PyCFunction)HarmTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)HarmTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)HarmTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)HarmTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)HarmTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)HarmTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)HarmTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"copy", (PyCFunction)HarmTable_copy, METH_O, "Copy data from table given in argument."},
 {"setData", (PyCFunction)HarmTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)HarmTable_setSize, METH_O, "Sets the size of the table in samples"},
@@ -505,6 +519,13 @@ static PyObject * ChebyTable_normalize(ChebyTable *self) { NORMALIZE };
 static PyObject * ChebyTable_reset(ChebyTable *self) { TABLE_RESET };
 static PyObject * ChebyTable_removeDC(ChebyTable *self) { REMOVE_DC };
 static PyObject * ChebyTable_reverse(ChebyTable *self) { REVERSE };
+static PyObject * ChebyTable_invert(ChebyTable *self) { INVERT };
+static PyObject * ChebyTable_rectify(ChebyTable *self) { RECTIFY };
+static PyObject * ChebyTable_bipolarGain(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * ChebyTable_lowpass(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * ChebyTable_fadein(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * ChebyTable_fadeout(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * ChebyTable_pow(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * ChebyTable_copy(ChebyTable *self, PyObject *arg) { COPY };
 static PyObject * ChebyTable_setTable(ChebyTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
@@ -657,6 +678,13 @@ static PyMethodDef ChebyTable_methods[] = {
 {"reset", (PyCFunction)ChebyTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)ChebyTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)ChebyTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)ChebyTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)ChebyTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)ChebyTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)ChebyTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)ChebyTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)ChebyTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)ChebyTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"setSize", (PyCFunction)ChebyTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)ChebyTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"put", (PyCFunction)ChebyTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -787,6 +815,13 @@ static PyObject * HannTable_normalize(HannTable *self) { NORMALIZE };
 static PyObject * HannTable_reset(HannTable *self) { TABLE_RESET };
 static PyObject * HannTable_removeDC(HannTable *self) { REMOVE_DC };
 static PyObject * HannTable_reverse(HannTable *self) { REVERSE };
+static PyObject * HannTable_invert(HannTable *self) { INVERT };
+static PyObject * HannTable_rectify(HannTable *self) { RECTIFY };
+static PyObject * HannTable_bipolarGain(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * HannTable_lowpass(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * HannTable_fadein(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * HannTable_fadeout(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * HannTable_pow(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * HannTable_copy(HannTable *self, PyObject *arg) { COPY };
 static PyObject * HannTable_setTable(HannTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
@@ -842,6 +877,13 @@ static PyMethodDef HannTable_methods[] = {
 {"reset", (PyCFunction)HannTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)HannTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)HannTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)HannTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)HannTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)HannTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)HannTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)HannTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)HannTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)HannTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"setSize", (PyCFunction)HannTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)HannTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"put", (PyCFunction)HannTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -991,6 +1033,13 @@ static PyObject * SincTable_normalize(SincTable *self) { NORMALIZE };
 static PyObject * SincTable_reset(SincTable *self) { TABLE_RESET };
 static PyObject * SincTable_removeDC(SincTable *self) { REMOVE_DC };
 static PyObject * SincTable_reverse(SincTable *self) { REVERSE };
+static PyObject * SincTable_invert(SincTable *self) { INVERT };
+static PyObject * SincTable_rectify(SincTable *self) { RECTIFY };
+static PyObject * SincTable_bipolarGain(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * SincTable_lowpass(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * SincTable_fadein(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * SincTable_fadeout(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * SincTable_pow(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * SincTable_copy(SincTable *self, PyObject *arg) { COPY };
 static PyObject * SincTable_setTable(SincTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SincTable_getTable(SincTable *self) { GET_TABLE };
@@ -1080,6 +1129,13 @@ static PyMethodDef SincTable_methods[] = {
     {"reset", (PyCFunction)SincTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)SincTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)SincTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)SincTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)SincTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)SincTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)SincTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)SincTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)SincTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)SincTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)SincTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)SincTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"setFreq", (PyCFunction)SincTable_setFreq, METH_O, "Sets the frequency, in radians, of the sinc function."},
@@ -1203,6 +1259,13 @@ static PyObject * WinTable_normalize(WinTable *self) { NORMALIZE };
 static PyObject * WinTable_reset(WinTable *self) { TABLE_RESET };
 static PyObject * WinTable_removeDC(WinTable *self) { REMOVE_DC };
 static PyObject * WinTable_reverse(WinTable *self) { REVERSE };
+static PyObject * WinTable_invert(WinTable *self) { INVERT };
+static PyObject * WinTable_rectify(WinTable *self) { RECTIFY };
+static PyObject * WinTable_bipolarGain(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * WinTable_lowpass(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * WinTable_fadein(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * WinTable_fadeout(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * WinTable_pow(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * WinTable_copy(WinTable *self, PyObject *arg) { COPY };
 static PyObject * WinTable_setTable(WinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * WinTable_getTable(WinTable *self) { GET_TABLE };
@@ -1279,6 +1342,13 @@ static PyMethodDef WinTable_methods[] = {
 {"reset", (PyCFunction)WinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)WinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)WinTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)WinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)WinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)WinTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)WinTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)WinTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)WinTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)WinTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"setSize", (PyCFunction)WinTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)WinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"setType", (PyCFunction)WinTable_setType, METH_O, "Sets the type of the table."},
@@ -1415,6 +1485,13 @@ static PyObject * ParaTable_normalize(ParaTable *self) { NORMALIZE };
 static PyObject * ParaTable_reset(ParaTable *self) { TABLE_RESET };
 static PyObject * ParaTable_removeDC(ParaTable *self) { REMOVE_DC };
 static PyObject * ParaTable_reverse(ParaTable *self) { REVERSE };
+static PyObject * ParaTable_invert(ParaTable *self) { INVERT };
+static PyObject * ParaTable_rectify(ParaTable *self) { RECTIFY };
+static PyObject * ParaTable_bipolarGain(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * ParaTable_lowpass(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * ParaTable_fadein(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * ParaTable_fadeout(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * ParaTable_pow(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * ParaTable_copy(ParaTable *self, PyObject *arg) { COPY };
 static PyObject * ParaTable_setTable(ParaTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ParaTable_getTable(ParaTable *self) { GET_TABLE };
@@ -1470,6 +1547,13 @@ static PyMethodDef ParaTable_methods[] = {
     {"reset", (PyCFunction)ParaTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)ParaTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)ParaTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)ParaTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)ParaTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)ParaTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)ParaTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)ParaTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)ParaTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)ParaTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)ParaTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)ParaTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"put", (PyCFunction)ParaTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -1639,6 +1723,13 @@ static PyObject * LinTable_normalize(LinTable *self) { NORMALIZE };
 static PyObject * LinTable_reset(LinTable *self) { TABLE_RESET };
 static PyObject * LinTable_removeDC(LinTable *self) { REMOVE_DC };
 static PyObject * LinTable_reverse(LinTable *self) { REVERSE };
+static PyObject * LinTable_invert(LinTable *self) { INVERT };
+static PyObject * LinTable_rectify(LinTable *self) { RECTIFY };
+static PyObject * LinTable_bipolarGain(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * LinTable_lowpass(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * LinTable_fadein(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * LinTable_fadeout(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * LinTable_pow(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * LinTable_copy(LinTable *self, PyObject *arg) { COPY };
 static PyObject * LinTable_setTable(LinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
@@ -1748,6 +1839,13 @@ static PyMethodDef LinTable_methods[] = {
 {"reset", (PyCFunction)LinTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)LinTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)LinTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)LinTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)LinTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)LinTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)LinTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)LinTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)LinTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)LinTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"setSize", (PyCFunction)LinTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)LinTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"put", (PyCFunction)LinTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -1943,6 +2041,13 @@ static PyObject * LogTable_normalize(LogTable *self) { NORMALIZE };
 static PyObject * LogTable_reset(LogTable *self) { TABLE_RESET };
 static PyObject * LogTable_removeDC(LogTable *self) { REMOVE_DC };
 static PyObject * LogTable_reverse(LogTable *self) { REVERSE };
+static PyObject * LogTable_invert(LogTable *self) { INVERT };
+static PyObject * LogTable_rectify(LogTable *self) { RECTIFY };
+static PyObject * LogTable_bipolarGain(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * LogTable_lowpass(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * LogTable_fadein(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * LogTable_fadeout(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * LogTable_pow(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * LogTable_copy(LogTable *self, PyObject *arg) { COPY };
 static PyObject * LogTable_setTable(LogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LogTable_getTable(LogTable *self) { GET_TABLE };
@@ -2052,6 +2157,13 @@ static PyMethodDef LogTable_methods[] = {
     {"reset", (PyCFunction)LogTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)LogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)LogTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)LogTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)LogTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)LogTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)LogTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)LogTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)LogTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)LogTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)LogTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)LogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"put", (PyCFunction)LogTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -2225,6 +2337,13 @@ static PyObject * CosTable_normalize(CosTable *self) { NORMALIZE };
 static PyObject * CosTable_reset(CosTable *self) { TABLE_RESET };
 static PyObject * CosTable_removeDC(CosTable *self) { REMOVE_DC };
 static PyObject * CosTable_reverse(CosTable *self) { REVERSE };
+static PyObject * CosTable_invert(CosTable *self) { INVERT };
+static PyObject * CosTable_rectify(CosTable *self) { RECTIFY };
+static PyObject * CosTable_bipolarGain(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * CosTable_lowpass(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * CosTable_fadein(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * CosTable_fadeout(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * CosTable_pow(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * CosTable_copy(CosTable *self, PyObject *arg) { COPY };
 static PyObject * CosTable_setTable(CosTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
@@ -2334,6 +2453,13 @@ static PyMethodDef CosTable_methods[] = {
 {"reset", (PyCFunction)CosTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)CosTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)CosTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)CosTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)CosTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)CosTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)CosTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)CosTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)CosTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)CosTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"setSize", (PyCFunction)CosTable_setSize, METH_O, "Sets the size of the table in samples"},
 {"getSize", (PyCFunction)CosTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
 {"put", (PyCFunction)CosTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -2531,6 +2657,13 @@ static PyObject * CosLogTable_normalize(CosLogTable *self) { NORMALIZE };
 static PyObject * CosLogTable_reset(CosLogTable *self) { TABLE_RESET };
 static PyObject * CosLogTable_removeDC(CosLogTable *self) { REMOVE_DC };
 static PyObject * CosLogTable_reverse(CosLogTable *self) { REVERSE };
+static PyObject * CosLogTable_invert(CosLogTable *self) { INVERT };
+static PyObject * CosLogTable_rectify(CosLogTable *self) { RECTIFY };
+static PyObject * CosLogTable_bipolarGain(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * CosLogTable_lowpass(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * CosLogTable_fadein(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * CosLogTable_fadeout(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * CosLogTable_pow(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * CosLogTable_copy(CosLogTable *self, PyObject *arg) { COPY };
 static PyObject * CosLogTable_setTable(CosLogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosLogTable_getTable(CosLogTable *self) { GET_TABLE };
@@ -2640,6 +2773,13 @@ static PyMethodDef CosLogTable_methods[] = {
     {"reset", (PyCFunction)CosLogTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)CosLogTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)CosLogTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)CosLogTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)CosLogTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)CosLogTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)CosLogTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)CosLogTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)CosLogTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)CosLogTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"setSize", (PyCFunction)CosLogTable_setSize, METH_O, "Sets the size of the table in samples"},
     {"getSize", (PyCFunction)CosLogTable_getSize, METH_NOARGS, "Return the size of the table in samples"},
     {"put", (PyCFunction)CosLogTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
@@ -2840,6 +2980,13 @@ static PyObject * CurveTable_normalize(CurveTable * self) { NORMALIZE };
 static PyObject * CurveTable_reset(CurveTable * self) { TABLE_RESET };
 static PyObject * CurveTable_removeDC(CurveTable *self) { REMOVE_DC };
 static PyObject * CurveTable_reverse(CurveTable *self) { REVERSE };
+static PyObject * CurveTable_invert(CurveTable *self) { INVERT };
+static PyObject * CurveTable_rectify(CurveTable *self) { RECTIFY };
+static PyObject * CurveTable_bipolarGain(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * CurveTable_lowpass(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * CurveTable_fadein(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * CurveTable_fadeout(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * CurveTable_pow(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * CurveTable_copy(CurveTable *self, PyObject *arg) { COPY };
 static PyObject * CurveTable_setTable(CurveTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
@@ -2999,6 +3146,13 @@ static PyMethodDef CurveTable_methods[] = {
 {"reset", (PyCFunction)CurveTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)CurveTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)CurveTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)CurveTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)CurveTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)CurveTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)CurveTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)CurveTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)CurveTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)CurveTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {NULL}  /* Sentinel */
 };
 
@@ -3190,6 +3344,13 @@ static PyObject * ExpTable_normalize(ExpTable * self) { NORMALIZE };
 static PyObject * ExpTable_reset(ExpTable * self) { TABLE_RESET };
 static PyObject * ExpTable_removeDC(ExpTable *self) { REMOVE_DC };
 static PyObject * ExpTable_reverse(ExpTable *self) { REVERSE };
+static PyObject * ExpTable_invert(ExpTable *self) { INVERT };
+static PyObject * ExpTable_rectify(ExpTable *self) { RECTIFY };
+static PyObject * ExpTable_bipolarGain(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * ExpTable_lowpass(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * ExpTable_fadein(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * ExpTable_fadeout(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * ExpTable_pow(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * ExpTable_copy(ExpTable *self, PyObject *arg) { COPY };
 static PyObject * ExpTable_setTable(ExpTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ExpTable_getTable(ExpTable *self) { GET_TABLE };
@@ -3348,6 +3509,13 @@ static PyMethodDef ExpTable_methods[] = {
 {"reset", (PyCFunction)ExpTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)ExpTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)ExpTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)ExpTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)ExpTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)ExpTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)ExpTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)ExpTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)ExpTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)ExpTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {NULL}  /* Sentinel */
 };
 
@@ -3856,6 +4024,13 @@ static PyObject * SndTable_normalize(SndTable *self) { NORMALIZE };
 static PyObject * SndTable_reset(SndTable *self) { TABLE_RESET };
 static PyObject * SndTable_removeDC(SndTable *self) { REMOVE_DC };
 static PyObject * SndTable_reverse(SndTable *self) { REVERSE };
+static PyObject * SndTable_invert(SndTable *self) { INVERT };
+static PyObject * SndTable_rectify(SndTable *self) { RECTIFY };
+static PyObject * SndTable_bipolarGain(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * SndTable_lowpass(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * SndTable_fadein(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * SndTable_fadeout(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * SndTable_pow(SndTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * SndTable_copy(SndTable *self, PyObject *arg) { COPY };
 static PyObject * SndTable_setTable(SndTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SndTable_getTable(SndTable *self) { GET_TABLE };
@@ -3922,7 +4097,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
         for (i=0; i<size; i++) {
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i*fstep)));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(self->data[i+(int)(begin)]*h2+h2+yOffset));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i+(int)(begin)]*h2+h2+yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
@@ -3931,7 +4106,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
         for(i=0; i<w; i++) {
             absin = 0.0;
             for (j=0; j<step; j++) {
-                absin += self->data[(int)(begin)+count];
+                absin += -self->data[(int)(begin)+count];
                 count++;
             }
             y = (int)(absin / step * h2);
@@ -3947,7 +4122,7 @@ SndTable_getViewTable(SndTable *self, PyObject *args, PyObject *kwds) {
             absin = 0.0;
             for (j=0; j<step; j++) {
                 if (MYFABS(self->data[(int)(begin)+count]) > absin)
-                    absin = self->data[(int)(begin)+count];
+                    absin = -self->data[(int)(begin)+count];
                 count++;
             }
             y = (int)(absin * h2);
@@ -4132,6 +4307,13 @@ static PyMethodDef SndTable_methods[] = {
 {"reset", (PyCFunction)SndTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)SndTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)SndTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)SndTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)SndTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)SndTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)SndTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)SndTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)SndTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)SndTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"put", (PyCFunction)SndTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)SndTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"setSound", (PyCFunction)SndTable_setSound, METH_VARARGS|METH_KEYWORDS, "Load a new sound in the table."},
@@ -4302,6 +4484,13 @@ static PyObject * NewTable_normalize(NewTable *self) { NORMALIZE };
 static PyObject * NewTable_reset(NewTable *self) { TABLE_RESET };
 static PyObject * NewTable_removeDC(NewTable *self) { REMOVE_DC };
 static PyObject * NewTable_reverse(NewTable *self) { REVERSE };
+static PyObject * NewTable_invert(NewTable *self) { INVERT };
+static PyObject * NewTable_rectify(NewTable *self) { RECTIFY };
+static PyObject * NewTable_bipolarGain(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * NewTable_lowpass(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * NewTable_fadein(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * NewTable_fadeout(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * NewTable_pow(NewTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * NewTable_copy(NewTable *self, PyObject *arg) { COPY };
 static PyObject * NewTable_setTable(NewTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * NewTable_getTable(NewTable *self) { GET_TABLE };
@@ -4368,7 +4557,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
         for (i=0; i<size; i++) {
             tuple = PyTuple_New(2);
             PyTuple_SetItem(tuple, 0, PyInt_FromLong((int)(i*fstep)));
-            PyTuple_SetItem(tuple, 1, PyInt_FromLong(self->data[i+(int)(begin)]*h2+h2+yOffset));
+            PyTuple_SetItem(tuple, 1, PyInt_FromLong(-self->data[i+(int)(begin)]*h2+h2+yOffset));
             PyList_SetItem(samples, i, tuple);
         }
     }
@@ -4377,7 +4566,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
         for(i=0; i<w; i++) {
             absin = 0.0;
             for (j=0; j<step; j++) {
-                absin += self->data[(int)(begin)+count];
+                absin += -self->data[(int)(begin)+count];
                 count++;
             }
             y = (int)(absin / step * h2);
@@ -4393,7 +4582,7 @@ NewTable_getViewTable(NewTable *self, PyObject *args, PyObject *kwds) {
             absin = 0.0;
             for (j=0; j<step; j++) {
                 if (MYFABS(self->data[(int)(begin)+count]) > absin)
-                    absin = self->data[(int)(begin)+count];
+                    absin = -self->data[(int)(begin)+count];
                 count++;
             }
             y = (int)(absin * h2);
@@ -4465,6 +4654,13 @@ static PyMethodDef NewTable_methods[] = {
 {"reset", (PyCFunction)NewTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
 {"removeDC", (PyCFunction)NewTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
 {"reverse", (PyCFunction)NewTable_reverse, METH_NOARGS, "Reverse the table's data."},
+{"invert", (PyCFunction)NewTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+{"rectify", (PyCFunction)NewTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+{"bipolarGain", (PyCFunction)NewTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+{"lowpass", (PyCFunction)NewTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+{"fadein", (PyCFunction)NewTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+{"fadeout", (PyCFunction)NewTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+{"pow", (PyCFunction)NewTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
 {"put", (PyCFunction)NewTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
 {"get", (PyCFunction)NewTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
 {"getSize", (PyCFunction)NewTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
@@ -4597,6 +4793,13 @@ static PyObject * DataTable_normalize(DataTable *self) { NORMALIZE };
 static PyObject * DataTable_reset(DataTable *self) { TABLE_RESET };
 static PyObject * DataTable_removeDC(DataTable *self) { REMOVE_DC };
 static PyObject * DataTable_reverse(DataTable *self) { REVERSE };
+static PyObject * DataTable_invert(DataTable *self) { INVERT };
+static PyObject * DataTable_rectify(DataTable *self) { RECTIFY };
+static PyObject * DataTable_bipolarGain(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_BIPOLAR_GAIN };
+static PyObject * DataTable_lowpass(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_LOWPASS };
+static PyObject * DataTable_fadein(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEIN };
+static PyObject * DataTable_fadeout(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_FADEOUT };
+static PyObject * DataTable_pow(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_POWER };
 static PyObject * DataTable_copy(DataTable *self, PyObject *arg) { COPY };
 static PyObject * DataTable_setTable(DataTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * DataTable_getTable(DataTable *self) { GET_TABLE };
@@ -4635,6 +4838,13 @@ static PyMethodDef DataTable_methods[] = {
     {"reset", (PyCFunction)DataTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
     {"removeDC", (PyCFunction)DataTable_removeDC, METH_NOARGS, "Filter out DC offset from the table's data."},
     {"reverse", (PyCFunction)DataTable_reverse, METH_NOARGS, "Reverse the table's data."},
+    {"invert", (PyCFunction)DataTable_invert, METH_NOARGS, "Reverse the table's data in amplitude."},
+    {"rectify", (PyCFunction)DataTable_rectify, METH_NOARGS, "Positive rectification of the table's data."},
+    {"bipolarGain", (PyCFunction)DataTable_bipolarGain, METH_VARARGS|METH_KEYWORDS, "Apply different amp values to positive and negative samples."},
+    {"lowpass", (PyCFunction)DataTable_lowpass, METH_VARARGS|METH_KEYWORDS, "Apply a one-pole lowpass filter on table's samples."},
+    {"fadein", (PyCFunction)DataTable_fadein, METH_VARARGS|METH_KEYWORDS, "Apply a gradual increase in the level of the table's samples."},
+    {"fadeout", (PyCFunction)DataTable_fadeout, METH_VARARGS|METH_KEYWORDS, "Apply a gradual decrease in the level of the table's samples."},
+    {"pow", (PyCFunction)DataTable_pow, METH_VARARGS|METH_KEYWORDS, "Apply a power function on each sample in the table."},
     {"put", (PyCFunction)DataTable_put, METH_VARARGS|METH_KEYWORDS, "Puts a value at specified position in the table."},
     {"get", (PyCFunction)DataTable_get, METH_VARARGS|METH_KEYWORDS, "Gets the value at specified position in the table."},
     {"getSize", (PyCFunction)DataTable_getSize, METH_NOARGS, "Return the size of the table in samples."},
