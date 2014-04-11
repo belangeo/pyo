@@ -4,37 +4,46 @@
 This script demonstrates how to use pyo to do offline batch processing.
 
 """
-import os
 from pyo import *
-s = Server(duplex=0, audio="offline").boot()
+import os
 
-# input sound
-sndpath = SNDS_PATH + "/accord.aif"
-# output folder
-recpath = os.path.join(os.path.expanduser("~"), "Desktop", "pyo_batch")
-if not os.path.isdir(recpath):
-    os.mkdir(recpath)
+s = Server(audio="offline")
 
-# output file duration
-dur = sndinfo(sndpath)[1]
+# path to your sound folder
+folder_path = SNDS_PATH
+# path to the processed sounds folder (user's home directory/batch)
+output_folder = os.path.join(os.path.expanduser("~"), "pyo_batch_fx")
+# create it if it does not exist
+if not os.path.isdir(output_folder):
+    os.mkdir(output_folder)
 
-NUM = 10
-for i in range(NUM):
-    note = 12 + i
-    noteFreq = midiToHz(note)
-    s.recordOptions(dur=dur+.1, filename=os.path.join(recpath, "file_%02d.wav" % note), fileformat=0, sampletype=0)
+# get the list of files to process
+sounds = [file for file in os.listdir(folder_path) if sndinfo(os.path.join(folder_path, file)) != None]
 
-    ### processing goes here ###
-    osc = Sine(freq=noteFreq, mul=i*0.01+.02, add=1)
-    a = SfPlayer(sndpath, speed=osc, loop=False, mul=0.7).mix(2).out()
+# enter the batch processing loop
+for sound in sounds:
+    # retrieve info about the sound
+    path = os.path.join(folder_path, sound)
+    info = sndinfo(path)
+    dur, sr, chnls = info[1], info[2], info[3]
+    fformat = ['WAVE', 'AIFF', 'AU', 'RAW', 'SD2', 'FLAC', 'CAF', 'OGG'].index(info[4])
+    samptype = ['16 bit int', '24 bit int', '32 bit int', '32 bit float', 
+                '64 bits float', 'U-Law encoded', 'A-Law encoded'].index(info[5])
 
-    ############################
-
-    s.start() # s.stop() is automatically called when rendering is done
-    # do not reboot the server after the last pass
-    if i < (NUM-1):
-        s.shutdown()
-        s.boot()
-
-print "Batch processing done"
-
+    # set server parameters
+    s.setSamplingRate(sr)
+    s.setNchnls(chnls)
+    s.boot()
+    s.recordOptions(dur=dur, filename=os.path.join(output_folder, sound), 
+                    fileformat=fformat, sampletype=samptype)
+    
+    # processing
+    sf = SfPlayer(path)
+    bp = ButBP(sf, 1000, 2)
+    dt = Disto(bp, drive=0.9, slope=0.8)
+    mx = Interp(sf, dt, interp=0.5, mul=0.5).out()
+    
+    # start the render
+    s.start()
+    # cleanup
+    s.shutdown()
