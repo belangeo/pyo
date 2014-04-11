@@ -1,3 +1,10 @@
+-------------------------------------------------------------------------------------
+
+2013-10-16 belangeo <belangeo@gmail.com>
+
+    * Release tag: 0.6.9.
+    - rev 1185
+
 2014-04-11 belangeo <belangeo@gmail.com>
 
     * Added lot of methods to PyoTableObject (retify, bipolarGain, invert, lowpass, fadein, fadeout, pow).
