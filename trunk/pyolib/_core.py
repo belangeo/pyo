@@ -46,6 +46,7 @@ FILE_FORMATS = {'wav': 0, 'wave': 0, 'aif': 1, 'aiff': 1, 'au': 2, '': 3, 'sd2':
 FUNCTIONS_INIT_LINES = {"pa_count_host_apis": "pa_count_host_apis()", "pa_list_host_apis": "pa_list_host_apis()",
                         "pa_get_default_host_api": "pa_get_default_host_api()", "pa_count_devices": "pa_count_devices()",
                         "pa_list_devices": "pa_list_devices()", "pa_get_devices_infos": "pa_get_devices_infos()",
+                        "pa_get_version": "pa_get_version()", "pa_get_version_text": "pa_get_version_text()",
                         "pa_get_input_devices": "pa_get_input_devices()", "pa_get_output_devices": "pa_get_output_devices()",
                         "pa_get_default_input": "pa_get_default_input()", "pa_get_default_output": "pa_get_default_output()",
                         "pa_get_input_max_channels": "pa_get_input_max_channels(x)", "pa_get_output_max_channels": "pa_get_output_max_channels(x)",
@@ -1140,10 +1141,100 @@ class PyoTableObject(PyoObjectBase):
 
     def reverse(self):
         """
-        Reverse the table's data.
+        Reverse the table's data in time.
 
         """
         [obj.reverse() for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def invert(self):
+        """
+        Reverse the table's data in amplitude.
+
+        """
+        [obj.invert() for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def rectify(self):
+        """
+        Positive rectification of the table's data.
+
+        """
+        [obj.rectify() for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def pow(self, exp=10):
+        """
+        Apply a power function on each sample in the table.
+
+        :Args:
+
+            exp : float, optional
+                Exponent factor. Defaults to 10.
+
+        """
+        [obj.pow(exp) for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def bipolarGain(self, gpos=1, gneg=1):
+        """
+        Apply different gain factor for positive and negative samples.
+
+        :Args:
+
+            gpos : float, optional
+                Gain factor for positive samples. Defaults to 1.
+            gneg : float, optional
+                Gain factor for negative samples. Defaults to 1.
+
+        """
+        [obj.bipolarGain(gpos, gneg) for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def lowpass(self, freq=1000):
+        """
+        Apply a one-pole lowpass filter on table's samples.
+
+        :Args:
+
+            freq : float, optional
+                Filter's cutoff, in Hertz. Defaults to 1000.
+
+        """
+        [obj.lowpass(freq) for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def fadein(self, dur=0.1):
+        """
+        Apply a gradual increase in the level of the table's samples.
+
+        :Args:
+
+            dur : float, optional
+                Fade in duration, in seconds. Defaults to 0.1.
+
+        """
+        [obj.fadein(dur) for obj in self._base_objs]
+        self.refreshView()
+        return self
+
+    def fadeout(self, dur=0.1):
+        """
+        Apply a gradual decrease in the level of the table's samples.
+
+        :Args:
+
+            dur : float, optional
+                Fade out duration, in seconds. Defaults to 0.1.
+
+        """
+        [obj.fadeout(dur) for obj in self._base_objs]
         self.refreshView()
         return self
 

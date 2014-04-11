@@ -784,6 +784,128 @@ extern PyTypeObject Pointer2Type;
     Py_INCREF(Py_None); \
     return Py_None; \
 
+/* Table amplitude reverse */
+#define INVERT \
+    int i; \
+    for (i=0; i<self->size+1; i++) { \
+        self->data[i] = -self->data[i]; \
+    } \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
+/* Table positive rectify */
+#define RECTIFY \
+    int i; \
+    MYFLT x; \
+    for (i=0; i<self->size+1; i++) { \
+        x = self->data[i]; \
+        if (x < 0) \
+            self->data[i] = -x; \
+    } \
+    Py_INCREF(Py_None); \
+    return Py_None; \
+
+/* Table bipolar gain */
+#define TABLE_BIPOLAR_GAIN \
+    MYFLT gpos = 1.0, gneg = 1.0; \
+    int i; \
+    static char *kwlist[] = {"gpos", "gneg", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE__FF, kwlist, &gpos, &gneg)) \
+        return PyInt_FromLong(-1); \
+ \
+    for (i=0; i<self->size+1; i++) { \
+        if (self->data[i] < 0) \
+            self->data[i] *= gneg; \
+        else \
+            self->data[i] *= gpos; \
+    } \
+ \
+    Py_RETURN_NONE;
+
+/* Table power function */
+#define TABLE_POWER \
+    MYFLT x, exp; \
+    int i, sign; \
+    static char *kwlist[] = {"exp", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &exp)) \
+        return PyInt_FromLong(-1); \
+ \
+    for (i=0; i<self->size+1; i++) { \
+        x = self->data[i]; \
+        sign = 1; \
+        if (x < 0) \
+            sign = -1; \
+        x = MYPOW(x, exp); \
+        if (sign == -1 && x > 0) \
+            x = -x; \
+        self->data[i] = x; \
+    } \
+ \
+    Py_RETURN_NONE;
+
+/* Table one-pole lowpass filter */
+#define TABLE_LOWPASS \
+    MYFLT freq, b, c, x, y; \
+    int i; \
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
+    static char *kwlist[] = {"freq", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &freq)) \
+        return PyInt_FromLong(-1); \
+ \
+    b = 2.0 - MYCOS(TWOPI * freq / sr); \
+    c = b - MYSQRT(b * b - 1.0); \
+    y = 0; \
+    for (i=0; i<self->size+1; i++) { \
+        x = self->data[i]; \
+        self->data[i] = y = x + (y - x) * c; \
+    } \
+ \
+    Py_RETURN_NONE;
+
+/* FADE IN, FADE OUT */
+#define TABLE_FADEIN \
+    MYFLT dur, inc; \
+    int i, samp; \
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
+    static char *kwlist[] = {"dur", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &dur)) \
+        return PyInt_FromLong(-1); \
+ \
+    samp = (int)(dur * sr); \
+    if (samp < 0 || samp >= self->size) \
+        Py_RETURN_NONE; \
+ \
+    inc = 1.0 / samp; \
+    for (i=0; i<samp; i++) { \
+        self->data[i] = self->data[i] * MYSQRT(inc * i); \
+    } \
+ \
+    Py_RETURN_NONE;
+
+#define TABLE_FADEOUT \
+    MYFLT dur, inc; \
+    int i, samp; \
+    double sr = PyFloat_AsDouble(PyObject_CallMethod(PyServer_get_server(), "getSamplingRate", NULL)); \
+    static char *kwlist[] = {"dur", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_F, kwlist, &dur)) \
+        return PyInt_FromLong(-1); \
+ \
+    samp = (int)(dur * sr); \
+    if (samp < 0 || samp >= self->size) \
+        Py_RETURN_NONE; \
+ \
+    inc = 1.0 / samp; \
+    for (i=self->size; i>(self->size-samp); i--) { \
+        self->data[i] = self->data[i] * MYSQRT(inc * (self->size - i)); \
+    } \
+ \
+    Py_RETURN_NONE;
+
 /* Normalize */
 #define NORMALIZE \
 	int i; \
