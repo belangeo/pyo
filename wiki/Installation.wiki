@@ -3,7 +3,7 @@
 =Dependencies=
 To install pyo, you will need the following dependencies:
   * [http://www.python.org/download/releases/ Python 2.6.x or 2.7.x]
-  * [http://sourceforge.net/projects/wxpython/files/wxPython/2.8.12.1/ WxPython 2.8.12.1]
+  * [http://sourceforge.net/projects/wxpython/files/wxPython/2.8.12.1/ WxPython 2.8.12.1] (be sure to get the one matching your python architecture)
   * [http://www.portaudio.com portaudio]
   * [http://portmedia.sourceforge.net/portmidi/ portmidi]
   * [http://www.mega-nerd.com/libsndfile libsndfile]
@@ -11,18 +11,18 @@ To install pyo, you will need the following dependencies:
   * Ubuntu: python-tk (doesn't come installed by default on Ubuntu)
   * Ubuntu: python-dev package
 
-Under Mac OS X, to retrieve necessary dependency librairies and headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder in pyo sources, it will download them to /usr/local/lib and /usr/local/include directory.
+Under Mac OS X, you can use Homebrew to retrieve necessary dependency librairies and headers (except for wxpython 2.8.12.1) to compile pyo.
 
-For i386 architecture (32-bit python):
+First, install Homebrew with this command:
 
 {{{
-sh scripts/get_dependencies.sh
+ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
 }}}
 
-For i386/x86_64 architectures (64-bit python):
+Then, install packages:
 
 {{{
-sh scripts/get_dependencies_x86_64.sh
+brew install python liblo libsndfile portaudio portmidi
 }}}
 
 =Get sources=
@@ -66,7 +66,19 @@ If you want to be able to use a 64-bit pyo (All platforms):
 --use-double
 }}}
 
-32-bit and 64-bit sample precision can live side-by-side without conflict.
+(32-bit and 64-bit sample precision can live side-by-side without conflict)
+
+To remove pyo's printing messages to the console:
+
+{{{
+--no-messages
+}}}
+
+To build pyo with custom externals:
+
+{{{
+--compile-externals
+}}}
 
 ==Compilation scripts==
 
@@ -88,9 +100,9 @@ To compile both 32-bit and 64-bit resolutions on OS X (with Jack):
 sudo sh scripts/compile_OSX_withJack.sh
 }}}
 
-=Ubuntu 10.04=
+=Debian-based distros=
 
-Under Ubuntu 10.04 you can type the following commands to get pyo up and running:
+Under Debian (Ubuntu) you can type the following commands to get pyo up and running:
 
 {{{
 sudo apt-get install libportmidi-dev portaudio19-dev liblo-dev libsndfile-dev python-dev python-tk subversion python-imaging-tk python-wxgtk2.8
@@ -99,6 +111,4 @@ cd pyo-read-only
 sudo python setup.py install --install-layout=deb
 }}}
 
-=Ubuntu 9.10=
-
-Under Ubuntu 9.10, the default portmidi package is broken, get the one from November 2009 available here : [http://dl.dropbox.com/u/149476/portmidi.zip] (for 32 bit systems)
+From Ubuntu 14.04 (Trusty), pyo can be installed from the Synaptic Package Manager. Package name is "python-pyo".
