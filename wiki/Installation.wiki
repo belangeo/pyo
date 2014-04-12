@@ -3,8 +3,9 @@
 =Dependencies=
 To install pyo, you will need the following dependencies:
   * [http://www.python.org/download/releases/ Python 2.6.x or 2.7.x]
+  * [http://sourceforge.net/projects/wxpython/files/wxPython/2.8.12.1/ WxPython 2.8.12.1]
   * [http://www.portaudio.com portaudio]
-  * [http://sourceforge.net/apps/trac/portmedia/wiki/portmidi portmidi]
+  * [http://portmedia.sourceforge.net/portmidi/ portmidi]
   * [http://www.mega-nerd.com/libsndfile libsndfile]
   * [http://liblo.sourceforge.net/ liblo]
   * Ubuntu: python-tk (doesn't come installed by default on Ubuntu)
