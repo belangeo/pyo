@@ -3771,3 +3771,268 @@ PyTypeObject M_RoundType = {
     0,                                              /* tp_alloc */
     M_Round_new,                                     /* tp_new */
 };
+
+/************/
+/* M_Tanh */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} M_Tanh;
+
+static void
+M_Tanh_process(M_Tanh *self) {
+    int i;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = MYTANH(in[i]);
+    }
+}
+
+static void M_Tanh_postprocessing_ii(M_Tanh *self) { POST_PROCESSING_II };
+static void M_Tanh_postprocessing_ai(M_Tanh *self) { POST_PROCESSING_AI };
+static void M_Tanh_postprocessing_ia(M_Tanh *self) { POST_PROCESSING_IA };
+static void M_Tanh_postprocessing_aa(M_Tanh *self) { POST_PROCESSING_AA };
+static void M_Tanh_postprocessing_ireva(M_Tanh *self) { POST_PROCESSING_IREVA };
+static void M_Tanh_postprocessing_areva(M_Tanh *self) { POST_PROCESSING_AREVA };
+static void M_Tanh_postprocessing_revai(M_Tanh *self) { POST_PROCESSING_REVAI };
+static void M_Tanh_postprocessing_revaa(M_Tanh *self) { POST_PROCESSING_REVAA };
+static void M_Tanh_postprocessing_revareva(M_Tanh *self) { POST_PROCESSING_REVAREVA };
+
+static void
+M_Tanh_setProcMode(M_Tanh *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = M_Tanh_process;
+ 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = M_Tanh_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = M_Tanh_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = M_Tanh_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = M_Tanh_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = M_Tanh_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = M_Tanh_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = M_Tanh_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = M_Tanh_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = M_Tanh_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+M_Tanh_compute_next_data_frame(M_Tanh *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+M_Tanh_traverse(M_Tanh *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+M_Tanh_clear(M_Tanh *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+M_Tanh_dealloc(M_Tanh* self)
+{
+    pyo_DEALLOC
+    M_Tanh_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+M_Tanh_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    M_Tanh *self;
+    self = (M_Tanh *)type->tp_alloc(type, 0);
+
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, M_Tanh_compute_next_data_frame);
+    self->mode_func_ptr = M_Tanh_setProcMode;
+
+    static char *kwlist[] = {"input", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|OO", kwlist, &inputtmp, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * M_Tanh_getServer(M_Tanh* self) { GET_SERVER };
+static PyObject * M_Tanh_getStream(M_Tanh* self) { GET_STREAM };
+static PyObject * M_Tanh_setMul(M_Tanh *self, PyObject *arg) { SET_MUL };	
+static PyObject * M_Tanh_setAdd(M_Tanh *self, PyObject *arg) { SET_ADD };	
+static PyObject * M_Tanh_setSub(M_Tanh *self, PyObject *arg) { SET_SUB };	
+static PyObject * M_Tanh_setDiv(M_Tanh *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * M_Tanh_play(M_Tanh *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * M_Tanh_out(M_Tanh *self, PyObject *args, PyObject *kwds) { OUT };
+static PyObject * M_Tanh_stop(M_Tanh *self) { STOP };
+
+static PyObject * M_Tanh_multiply(M_Tanh *self, PyObject *arg) { MULTIPLY };
+static PyObject * M_Tanh_inplace_multiply(M_Tanh *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * M_Tanh_add(M_Tanh *self, PyObject *arg) { ADD };
+static PyObject * M_Tanh_inplace_add(M_Tanh *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * M_Tanh_sub(M_Tanh *self, PyObject *arg) { SUB };
+static PyObject * M_Tanh_inplace_sub(M_Tanh *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * M_Tanh_div(M_Tanh *self, PyObject *arg) { DIV };
+static PyObject * M_Tanh_inplace_div(M_Tanh *self, PyObject *arg) { INPLACE_DIV };
+
+static PyMemberDef M_Tanh_members[] = {
+{"server", T_OBJECT_EX, offsetof(M_Tanh, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(M_Tanh, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(M_Tanh, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(M_Tanh, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(M_Tanh, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef M_Tanh_methods[] = {
+{"getServer", (PyCFunction)M_Tanh_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)M_Tanh_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)M_Tanh_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)M_Tanh_stop, METH_NOARGS, "Stops computing."},
+{"out", (PyCFunction)M_Tanh_out, METH_VARARGS|METH_KEYWORDS, "Starts computing and sends sound to soundcard channel speficied by argument."},
+{"setMul", (PyCFunction)M_Tanh_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)M_Tanh_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)M_Tanh_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)M_Tanh_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods M_Tanh_as_number = {
+(binaryfunc)M_Tanh_add,                         /*nb_add*/
+(binaryfunc)M_Tanh_sub,                         /*nb_subtract*/
+(binaryfunc)M_Tanh_multiply,                    /*nb_multiply*/
+(binaryfunc)M_Tanh_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)M_Tanh_inplace_add,                 /*inplace_add*/
+(binaryfunc)M_Tanh_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)M_Tanh_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)M_Tanh_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject M_TanhType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.M_Tanh_base",                                   /*tp_name*/
+sizeof(M_Tanh),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)M_Tanh_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&M_Tanh_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"M_Tanh objects. Performs tanh function on audio samples.",           /* tp_doc */
+(traverseproc)M_Tanh_traverse,                  /* tp_traverse */
+(inquiry)M_Tanh_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+M_Tanh_methods,                                 /* tp_methods */
+M_Tanh_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+M_Tanh_new,                                     /* tp_new */
+};

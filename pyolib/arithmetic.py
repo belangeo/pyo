@@ -673,3 +673,53 @@ class Round(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class Tanh(PyoObject):
+    """
+    Performs a hyperbolic tangent function on audio signal.
+
+    Returns the hyperbolic tangent of audio signal as input.
+
+    :Parent: :py:class:`PyoObject`
+
+    :Args:
+
+        input : PyoObject
+            Input signal, angle in radians.
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> import math
+    >>> a = Phasor(250, mul=math.pi*2)
+    >>> b = Tanh(Sin(a, mul=10), mul=0.3).mix(2).out()
+
+    """
+
+    def __init__(self, input, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._in_fader = InputFader(input)
+        in_fader, mul, add, lmax = convertArgsToLists(self._in_fader, mul, add)
+        self._base_objs = [M_Tanh_base(wrap(in_fader,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
