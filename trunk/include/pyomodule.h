@@ -106,6 +106,7 @@
 #define MYATAN2 atan2f
 #define MYEXP expf
 #define MYROUND roundf
+#define MYTANH tanhf
 
 #else
 #define LIB_BASE_NAME "_pyo64"
@@ -187,7 +188,7 @@
 #define MYATAN2 atan2
 #define MYEXP exp
 #define MYROUND round
-
+#define MYTANH tanh
 
 #endif
 #endif
@@ -411,6 +412,7 @@ extern PyTypeObject M_Atan2Type;
 extern PyTypeObject M_FloorType;
 extern PyTypeObject M_CeilType;
 extern PyTypeObject M_RoundType;
+extern PyTypeObject M_TanhType;
 extern PyTypeObject FFTMainType;
 extern PyTypeObject FFTType;
 extern PyTypeObject IFFTType;

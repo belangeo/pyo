@@ -1,6 +1,11 @@
+2014-04-24 belangeo <belangeo@gmail.com>
+
+    * Added new object: Tanh, hyperbolic tangent function on audio signal.
+    - rev 1188
+
 -------------------------------------------------------------------------------------
 
-2013-10-16 belangeo <belangeo@gmail.com>
+2014-04-11 belangeo <belangeo@gmail.com>
 
     * Release tag: 0.6.9.
     - rev 1185
