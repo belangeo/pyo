@@ -600,9 +600,10 @@ class VuMeter(wx.Panel):
             db = math.log10(self.amplitude[i]+0.00001) * 0.2 + 1.
             width = int(db*w)
             dc.DrawBitmap(self.backBitmap, 0, i*5)
-            dc.SetClippingRegion(0, i*5, width, 5)
-            dc.DrawBitmap(self.bitmap, 0, i*5)
-            dc.DestroyClippingRegion()
+            if width > 0:
+                dc.SetClippingRegion(0, i*5, width, 5)
+                dc.DrawBitmap(self.bitmap, 0, i*5)
+                dc.DestroyClippingRegion()
         event.Skip()
         
     def OnClose(self, evt):
@@ -2200,7 +2201,7 @@ class DataTableGrapher(wx.Frame):
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
                 recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
-        wx.Frame.__init__(self, parent)
+        wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
         self.SetTitle("pyo server")
         
@@ -2253,7 +2254,7 @@ class ServerGUI(wx.Frame):
 
         box.Add(wx.StaticText(panel, -1, "Amplitude (dB)"), 0, wx.LEFT, leftMargin)
         ampBox = wx.BoxSizer(wx.HORIZONTAL)
-        self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(203, 16), outFunction=self.setAmp)
+        self.ampScale = ControlSlider(panel, -60, 18, 20.0 * math.log10(amp), size=(202, 16), outFunction=self.setAmp)
         ampBox.Add(self.ampScale, 0, wx.LEFT, leftMargin-10)
         box.Add(ampBox, 0, wx.LEFT | wx.RIGHT, 8)
         
@@ -2275,16 +2276,15 @@ class ServerGUI(wx.Frame):
             box.AddSpacer(10)
             t = wx.StaticText(panel, -1, "Interpreter")
             box.Add(t, 0, wx.LEFT, leftMargin)
-            self.text = wx.TextCtrl(panel, -1, "", size=(200, -1), style=wx.TE_PROCESS_ENTER)
+            tw, th = self.GetTextExtent("|")
+            self.text = wx.TextCtrl(panel, -1, "", size=(202, th+8), style=wx.TE_PROCESS_ENTER)
             self.text.Bind(wx.EVT_TEXT_ENTER, self.getText)
             self.text.Bind(wx.EVT_CHAR, self.onChar)
-            box.Add(self.text, 0, wx.LEFT, leftMargin)
+            box.Add(self.text, 0, wx.LEFT, leftMargin-1)
 
         box.AddSpacer(10)
         panel.SetSizerAndFit(box)
         self.SetClientSize(panel.GetSize())
-        self.SetMinSize(self.GetSize())
-        self.SetMaxSize(self.GetSize())
 
         if started == 1:
             self.start(None, True)
@@ -2358,12 +2358,3 @@ class ServerGUI(wx.Frame):
     def setRms(self, *args):
         self.meter.setRms(*args)
 
-if __name__ == "__main__":
-    def pprint(values):
-        print values
-
-    app = wx.App(False)
-    values = [random.uniform(10, 25) for i in range(10)]
-    f = DataTableGrapher(init=values, yrange=(2, 50))
-    f.Show()
-    app.MainLoop()
