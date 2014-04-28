@@ -2300,7 +2300,7 @@ class ServerGUI(wx.Frame):
             wx.CallAfter(self.startButton.SetLabel, 'Stop')
             wx.CallAfter(self.quitButton.Disable)
         else:
-            self.stopf()
+            wx.CallLater(100, self.stopf)
             self._started = False
             wx.CallAfter(self.startButton.SetLabel, 'Start')
             wx.CallAfter(self.quitButton.Enable)
