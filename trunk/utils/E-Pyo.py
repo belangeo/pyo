@@ -1127,7 +1127,7 @@ class ColourEditor(wx.Frame):
         self.buttonRefs = {}
 
         section1Sizer = wx.BoxSizer(wx.HORIZONTAL)
-        buttonSizer1 = wx.FlexGridSizer(1, 2, 25, 5)
+        buttonSizer1 = wx.FlexGridSizer(0, 2, 25, 5)
         for name, color, size, label in buttonData[:2]:
             b = csel.ColourSelect(self.panel, -1, "", hex_to_rgb(color), size=size)
             b.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
@@ -1136,7 +1136,7 @@ class ColourEditor(wx.Frame):
                                 (b, 0, wx.LEFT|wx.RIGHT, 5)])
         section1Sizer.Add(buttonSizer1, 0, wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP|wx.ALIGN_LEFT, 10)
         section1Sizer.AddSpacer(110)
-        buttonSizer2 = wx.FlexGridSizer(1, 2, 25, 5)
+        buttonSizer2 = wx.FlexGridSizer(0, 2, 25, 5)
         for name, color, size, label in buttonData[2:4]:
             b = csel.ColourSelect(self.panel, -1, "", hex_to_rgb(color), size=size)
             b.Bind(csel.EVT_COLOURSELECT, self.OnSelectColour)
