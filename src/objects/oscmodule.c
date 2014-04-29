@@ -976,6 +976,8 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
         if (result == NULL)
             PyErr_Print();
     }
+    Py_XDECREF(tup);
+    Py_XDECREF(result);
     return 0;
 }
 
