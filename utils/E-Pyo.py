@@ -3199,19 +3199,12 @@ class Editor(stc.StyledTextCtrl):
         self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
         self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
         self.Bind(wx.EVT_CLOSE, self.OnClose)
-        self.Bind(wx.EVT_FIND, self.OnFind)
-        self.Bind(wx.EVT_FIND_NEXT, self.OnFind)
-        self.Bind(wx.EVT_FIND_REPLACE, self.OnFind)
-        self.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFind)
-        self.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
 
         self.EmptyUndoBuffer()
         self.SetFocus()
         self.setStyle()
 
         # Remove unwanted KeyCommands
-        self.CmdKeyClear(stc.STC_KEY_UP, stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(stc.STC_KEY_DOWN, stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_ALT)
         self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_ALT)
         self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_ALT)
@@ -3220,20 +3213,10 @@ class Editor(stc.StyledTextCtrl):
         self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_RIGHT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_LEFT, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(stc.STC_KEY_HOME, 0)
-        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_ALT)
-        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_SHIFT)
-        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_ALT | stc.STC_SCMOD_SHIFT)
-        self.CmdKeyClear(stc.STC_KEY_HOME, stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
-        self.CmdKeyClear(stc.STC_KEY_END, 0)
-        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_ALT)
-        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_SHIFT)
-        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_ALT | stc.STC_SCMOD_SHIFT)
-        self.CmdKeyClear(stc.STC_KEY_END, stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
         self.CmdKeyClear(stc.STC_KEY_DELETE, 0)
         self.CmdKeyClear(stc.STC_KEY_DELETE, stc.STC_SCMOD_SHIFT)
+        self.CmdKeyClear(stc.STC_KEY_DELETE, stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(stc.STC_KEY_DELETE, stc.STC_SCMOD_SHIFT | stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_ALT)
         self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_SHIFT)
         self.CmdKeyClear(stc.STC_KEY_BACK, stc.STC_SCMOD_CTRL)
@@ -3241,21 +3224,18 @@ class Editor(stc.StyledTextCtrl):
         self.CmdKeyClear(stc.STC_KEY_INSERT, 0)
         self.CmdKeyClear(stc.STC_KEY_INSERT, stc.STC_SCMOD_SHIFT)
         self.CmdKeyClear(stc.STC_KEY_INSERT, stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(ord('Z'), stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(ord('Y'), stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(ord('X'), stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(ord('C'), stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(ord('V'), stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(ord('A'), stc.STC_SCMOD_CTRL)
+        self.CmdKeyClear(ord('D'), stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(ord('L'), stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(ord('T'), stc.STC_SCMOD_CTRL)
-        self.CmdKeyClear(ord('U'), stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(ord('L'), stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
-        self.CmdKeyClear(ord('U'), stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT)
         self.CmdKeyClear(stc.STC_KEY_RETURN, stc.STC_SCMOD_SHIFT)
         self.CmdKeyClear(stc.STC_KEY_ADD, stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_SUBTRACT, stc.STC_SCMOD_CTRL)
         self.CmdKeyClear(stc.STC_KEY_DIVIDE, stc.STC_SCMOD_CTRL)
+
+        self.CmdKeyAssign(ord('U'), stc.STC_SCMOD_CTRL, stc.STC_CMD_UPPERCASE)
+        self.CmdKeyAssign(ord('U'), stc.STC_SCMOD_CTRL | stc.STC_SCMOD_SHIFT, stc.STC_CMD_LOWERCASE)
 
         wx.CallAfter(self.SetAnchor, 0)
         self.Refresh()
@@ -3376,10 +3356,14 @@ class Editor(stc.StyledTextCtrl):
         self.ScrollToLine(line - halfNumLinesOnScreen)
 
     def OnShowFindReplace(self):
-        data = wx.FindReplaceData()
-        self.findReplace = wx.FindReplaceDialog(self, data, "Find & Replace", wx.FR_REPLACEDIALOG | wx.FR_NOUPDOWN)
-        self.findReplace.data = data  # save a reference to it...
-        self.findReplace.Show(True)
+        self.data = wx.FindReplaceData()
+        dlg = wx.FindReplaceDialog(self, self.data, "Find & Replace", wx.FR_REPLACEDIALOG | wx.FR_NOUPDOWN)
+        dlg.Bind(wx.EVT_FIND, self.OnFind)
+        dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
+        dlg.Bind(wx.EVT_FIND_REPLACE, self.OnFind)
+        dlg.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFind)
+        dlg.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
+        dlg.Show(True)
 
     def OnFind(self, evt):
         map = { wx.wxEVT_COMMAND_FIND : "FIND",
@@ -3417,11 +3401,14 @@ class Editor(stc.StyledTextCtrl):
             startpos = selection[0]
             while startpos != -1:
                 startpos = self.FindText(self.anchor1, self.anchor2, findTxt)
-                endpos = startpos+len(findTxt)
-                self.anchor1 = endpos
                 if startpos != -1:
+                    endpos = startpos+len(findTxt)
                     self.SetSelection(startpos, endpos)
                     self.ReplaceSelection(evt.GetReplaceString())
+                    self.anchor1 = endpos + 1
+        line = self.GetCurrentLine()
+        halfNumLinesOnScreen = self.LinesOnScreen() / 2
+        self.ScrollToLine(line - halfNumLinesOnScreen)
 
     def OnFindClose(self, evt):
         evt.GetDialog().Destroy()
@@ -3860,6 +3847,11 @@ class Editor(stc.StyledTextCtrl):
             self.CmdKeyExecute(stc.STC_CMD_LINEEND)
             propagate = False
 
+        # Delete forward DELETE
+        elif evt.GetKeyCode() == wx.WXK_DELETE:
+            self.CmdKeyExecute(stc.STC_CMD_CHARRIGHT)
+            self.CmdKeyExecute(stc.STC_CMD_DELETEBACK)
+            propagate = False
         # Delete the word to the right of the caret --- Shift+Alt+BACK
         elif evt.GetKeyCode() == wx.WXK_BACK and evt.AltDown() and evt.ShiftDown():
             self.DelWordRight()
@@ -3889,6 +3881,19 @@ class Editor(stc.StyledTextCtrl):
             elif evt.GetKeyCode() == ord('V'):
                 self.GotoPos(self.PositionFromLine(self.GetCurrentLine()))
                 self.Paste()
+            propagate = False
+
+        # Show documentation for pyo object under the caret
+        elif evt.GetKeyCode() == ord('D') and ControlDown():
+            self.GetParent().GetParent().GetParent().GetParent().GetParent().showDoc(None)
+            propagate = False
+        # Goto line
+        elif evt.GetKeyCode() == ord('L') and ControlDown():
+            self.GetParent().GetParent().GetParent().GetParent().GetParent().gotoLine(None)
+            propagate = False
+        # Send line/selection to pyo background server
+        elif evt.GetKeyCode() == ord('T') and ControlDown():
+            self.GetParent().GetParent().GetParent().GetParent().GetParent().sendSelectionToBackgroundServer(None)
             propagate = False
 
         # Process Return key --- automatic indentation
@@ -4605,11 +4610,11 @@ class ProjectTree(wx.Panel):
                 filename = os.path.join(parent, filename)
             dirPath = os.path.split(self.projectDict[parent])[0]
             path = os.path.join(dirPath, filename)
-#            for root, dirs, files in os.walk(dirPath):
-#                if files:
-#                    for file in files:
-#                        if file == self.tree.GetItemText(item):
-#                            path = os.path.join(root, file)
+            #for root, dirs, files in os.walk(dirPath):
+            #    if files:
+            #        for file in files:
+            #            if file == self.tree.GetItemText(item):
+            #                path = os.path.join(root, file)
             self.mainPanel.addPage(path)
 
     def select(self, item):
