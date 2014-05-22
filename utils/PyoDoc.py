@@ -23,7 +23,7 @@ DOC_STYLES = {'Default': {'default': '#000000', 'comment': '#007F7F', 'commentbl
                     'number': '#005000', 'string': '#7F007F', 'triple': '#7F0000', 'keyword': '#00007F', 'keyword2': '#007F9F',
                     'class': '#0000FF', 'function': '#007F7F', 'identifier': '#000000', 'caret': '#00007E',
                     'background': '#EEEEEE', 'linenumber': '#000000', 'marginback': '#B0B0B0', 'markerfg': '#CCCCCC',
-                      'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
+                    'markerbg': '#000000', 'bracelight': '#AABBDD', 'bracebad': '#DD0000', 'lineedge': '#CCCCCC'}}
 
 if wx.Platform == '__WXMSW__':
   DOC_FACES = {'face': 'Verdana', 'size' : 8, 'size2': 7}

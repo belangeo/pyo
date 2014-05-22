@@ -3,13 +3,23 @@
 """
 E-Pyo is a simple text editor especially configured to edit pyo audio programs.
 
-You can do absolutely everything you want to with this piece of software.
+You can do absolutely everything you want with this piece of software.
 
 Olivier Belanger - 2012
 
+TODO:
+    - Fix printing to pdf
+    - Fix status bar on OSX and Windows
+
 """
 from __future__ import with_statement
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata, contextlib, StringIO, shutil, copy, pprint, random, time, threading
+
+WX_VERSION = '3.0'
+import wxversion
+wxversion.select(WX_VERSION)
+
+import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
+import contextlib, StringIO, shutil, copy, pprint, random, time, threading
 from types import UnicodeType, MethodType, ListType
 from wx.lib.wordwrap import wordwrap
 from wx.lib.embeddedimage import PyEmbeddedImage
@@ -17,7 +27,7 @@ import wx.lib.colourselect as csel
 import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.combo
-import wx.stc  as  stc
+import wx.stc  as stc
 import FlatNotebook as FNB
 from pyo import *
 from PyoDoc import ManualFrame
@@ -378,7 +388,7 @@ class MyFrame(wx.Frame):
         self.frTxt.SetLabel("Freq: %.2f" % x)
         self.freqPort.value = x
         
-app = wx.PySimpleApp()
+app = wx.App(False)
 mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
 mainFrame.Show()
 app.MainLoop()
@@ -396,7 +406,7 @@ class MyFrame(wx.Frame):
 
 
 if __name__ == "__main__":
-    app = wx.PySimpleApp()
+    app = wx.App(False)
     mainFrame = MyFrame(None, title='Simple App', pos=(100,100), size=(500,300))
     mainFrame.Show()
     app.MainLoop()
@@ -984,6 +994,9 @@ class EditorPreview(stc.StyledTextCtrl):
         self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
         self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
         self.SetEdgeColumn(60)
+
+        # WxPython 3 needs the lexer to be set before folding property
+        self.SetProperty("fold", "1")
 
 class ComponentPanel(scrolled.ScrolledPanel):
     def __init__(self, parent, size):
@@ -1789,6 +1802,14 @@ class MainFrame(wx.Frame):
 
         EVT_DATA_EVENT(self, self.format_outputLog)
 
+        if sys.platform == "darwin":
+            accel_ctrl = wx.ACCEL_CMD
+        else:
+            accel_ctrl = wx.ACCEL_CTRL
+        # To set up an accelerator key
+        #aEntry = wx.AcceleratorEntry(accel_ctrl|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
+        # "\t%s" % aEntry.ToString()
+
         self.snippet_frame = SnippetFrame(self, title='Snippet Editor', pos=(25,25), size=(700,450))
         self.style_frame = ColourEditor(self, title='Style Editor', pos=(100,100), size=(500,550))
         self.style_frame.setCurrentStyle(PREF_STYLE)
@@ -1849,11 +1870,12 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.save, id=wx.ID_SAVE)
         menu1.Append(wx.ID_SAVEAS, "Save As...\tShift+Ctrl+S")
         self.Bind(wx.EVT_MENU, self.saveas, id=wx.ID_SAVEAS)
-        menu1.AppendSeparator()
-        menu1.Append(wx.ID_PREVIEW, "Print Preview")
-        self.Bind(wx.EVT_MENU, self.OnPrintPreview, id=wx.ID_PREVIEW)
-        menu1.Append(wx.ID_PRINT, "Print\tCtrl+P")
-        self.Bind(wx.EVT_MENU, self.OnPrint, id=wx.ID_PRINT)
+        # TODO : printing not working well enough
+        #menu1.AppendSeparator()
+        #menu1.Append(wx.ID_PREVIEW, "Print Preview")
+        #self.Bind(wx.EVT_MENU, self.OnPrintPreview, id=wx.ID_PREVIEW)
+        #menu1.Append(wx.ID_PRINT, "Print\tCtrl+P")
+        #self.Bind(wx.EVT_MENU, self.OnPrint, id=wx.ID_PRINT)
         if sys.platform != "darwin":
             menu1.AppendSeparator()
         prefItem = menu1.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+;")
@@ -1892,8 +1914,12 @@ class MainFrame(wx.Frame):
         menu2.Append(107, "Remove Trailing White Space")
         self.Bind(wx.EVT_MENU, self.removeTrailingWhiteSpace, id=107)
         menu2.AppendSeparator()
-        menu2.Append(103, "Collapse/Expand\tCtrl+I")
+        menu2.Append(103, "Fold All\tCtrl+I")
         self.Bind(wx.EVT_MENU, self.fold, id=103)
+        menu2.Append(104, "Expand All\tShift+Ctrl+I")
+        self.Bind(wx.EVT_MENU, self.fold, id=104)
+        menu2.Append(105, "Fold/Expand Current Scope\tCtrl+8")
+        self.Bind(wx.EVT_MENU, self.foldExpandScope, id=105)
         menu2.Append(108, "Un/Comment Selection\tCtrl+J")
         self.Bind(wx.EVT_MENU, self.OnComment, id=108)
         menu2.Append(114, "Show AutoCompletion\tCtrl+K")
@@ -1987,11 +2013,6 @@ class MainFrame(wx.Frame):
         self.makeSnippetMenu()
         self.menuBar.Append(self.menu7, "Snippets")
 
-        if sys.platform == "darwin":
-            accel_ctrl = wx.ACCEL_CMD
-        else:
-            accel_ctrl = wx.ACCEL_CTRL
-
         menu8 = wx.Menu()
         menu8.Append(600, "Add Marker to Current Line\tShift+Ctrl+M")
         self.Bind(wx.EVT_MENU, self.addMarker, id=600)
@@ -2000,10 +2021,8 @@ class MainFrame(wx.Frame):
         menu8.Append(604, "Delete All Markers")
         self.Bind(wx.EVT_MENU, self.deleteAllMarkers, id=604)
         menu8.AppendSeparator()
-        aEntry = wx.AcceleratorEntry(accel_ctrl|wx.ACCEL_SHIFT, wx.WXK_UP, 602)
-        menu8.Append(602, 'Navigate Markers Upward\t%s' % aEntry.ToString())
-        aEntry = wx.AcceleratorEntry(accel_ctrl|wx.ACCEL_SHIFT, wx.WXK_DOWN, 603)
-        menu8.Append(603, 'Navigate Markers Downward\t%s' % aEntry.ToString())
+        menu8.Append(602, 'Navigate Markers Upward\tCtrl+9')
+        menu8.Append(603, 'Navigate Markers Downward\tCtrl+0')
         self.Bind(wx.EVT_MENU, self.navigateMarkers, id=602, id2=603)
         self.menuBar.Append(menu8, "Markers")
 
@@ -2052,22 +2071,24 @@ class MainFrame(wx.Frame):
 
         self.SetMenuBar(self.menuBar)
 
+        self.status = self.CreateStatusBar()
+        self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
+        self.status.SetFieldsCount(3)
+        
+        # TODO: Fix status bar on OSX and Windows
         if PLATFORM == "darwin":
             ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
             sth = 17
             cch = -1
         elif PLATFORM == "linux2":
             ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
-            sth = 20
-            cch = 21
+            sth = self.status.GetSize()[1]+1 #20
+            cch = self.status.GetSize()[1] #21
         elif PLATFORM == "win32":
             ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
             sth = 20
             cch = 20
 
-        self.status = self.CreateStatusBar()
-        self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
-        self.status.SetFieldsCount(3)
         self.field1X, field1Y = self.status.GetTextExtent("Quick Search:")
         self.status.SetStatusWidths([self.field1X+9,-1,-2])
         self.status.SetStatusText("Quick Search:", 0)
@@ -2104,8 +2125,8 @@ class MainFrame(wx.Frame):
             yoff1 = -1
             yoff2 = -5
         elif PLATFORM == "linux2":
-            yoff1 = 1
-            yoff2 = 0
+            yoff1 = -2
+            yoff2 = -1
         elif PLATFORM == "win32":
             yoff1 = -2
             yoff2 = -2
@@ -2353,7 +2374,13 @@ class MainFrame(wx.Frame):
         self.panel.editor.OnComment()
 
     def fold(self, event):
-        self.panel.editor.FoldAll()
+        if event.GetId() == 103:
+            self.panel.editor.FoldAll()
+        else:
+            self.panel.editor.ExpandAll()
+
+    def foldExpandScope(self, evt):
+        self.panel.editor.foldExpandCurrentScope()
 
     def autoComp(self, evt):
         try:
@@ -3016,7 +3043,6 @@ class MainPanel(wx.Panel):
 
         self.left_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
         self.right_splitter = wx.SplitterWindow(self.splitter, -1, style=wx.SP_LIVE_UPDATE|wx.SP_3DSASH)
-        #self.right_splitter.SetMinimumPaneSize(150)
 
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
@@ -3063,6 +3089,11 @@ class MainPanel(wx.Panel):
                 except:
                     continue
         editor.setText(ensureNFD(text))
+
+        # Scan the entire document (needed for FoldAll to fold everything)
+        editor.GotoLine(editor.GetLineCount())
+        wx.CallAfter(editor.GotoLine, 0)
+
         editor.path = file
         editor.saveMark = True
         editor.EmptyUndoBuffer()
@@ -3256,6 +3287,7 @@ class Editor(stc.StyledTextCtrl):
                 if STYLES[forekey]['underline']:
                     st += ",underline"
             return st
+
         self.StyleSetSpec(stc.STC_STYLE_DEFAULT, buildStyle('default', 'background'))
         self.StyleClearAll()  # Reset all to be like the default
 
@@ -3330,6 +3362,9 @@ class Editor(stc.StyledTextCtrl):
         self.SetSelBackground(1, STYLES['selback']['colour'])
         self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
         self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
+
+        # WxPython 3 needs the lexer to be set before folding property
+        self.SetProperty("fold", "1")
 
     def OnQuickSearch(self, str, next=True):
         if self.GetSelection() != (0,0):
@@ -4059,40 +4094,50 @@ class Editor(stc.StyledTextCtrl):
                     self.addMarkerComment(lineClicked)
         elif evt.GetMargin() == 2:
             if evt.GetShift() and evt.GetControl():
-                self.FoldAll()
+                self.ToggleFoldAll()
             else:
                 lineClicked = self.LineFromPosition(evt.GetPosition())
-
                 if self.GetFoldLevel(lineClicked) & stc.STC_FOLDLEVELHEADERFLAG:
-                    if evt.GetShift():
-                        self.SetFoldExpanded(lineClicked, True)
-                        self.Expand(lineClicked, True, True, 1)
-                    elif evt.GetControl():
-                        if self.GetFoldExpanded(lineClicked):
-                            self.SetFoldExpanded(lineClicked, False)
-                            self.Expand(lineClicked, False, True, 0)
-                        else:
-                            self.SetFoldExpanded(lineClicked, True)
-                            self.Expand(lineClicked, True, True, 100)
-                    else:
-                        self.ToggleFold(lineClicked)
+                    self.ToggleFold(lineClicked)
 
     def FoldAll(self):
         lineCount = self.GetLineCount()
-        expanding = True
-
-        # find out if we are folding or unfolding
-        for lineNum in range(lineCount):
-            if self.GetFoldLevel(lineNum) & stc.STC_FOLDLEVELHEADERFLAG:
-                expanding = not self.GetFoldExpanded(lineNum)
-                break
-
         lineNum = 0
         while lineNum < lineCount:
             level = self.GetFoldLevel(lineNum)
             if level & stc.STC_FOLDLEVELHEADERFLAG and \
                (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+                lastChild = self.GetLastChild(lineNum, -1)
+                self.SetFoldExpanded(lineNum, False)
+                if lastChild > lineNum:
+                    self.HideLines(lineNum+1, lastChild)
+            lineNum = lineNum + 1
 
+    def ExpandAll(self):
+        lineCount = self.GetLineCount()
+        lineNum = 0
+        while lineNum < lineCount:
+            level = self.GetFoldLevel(lineNum)
+            if level & stc.STC_FOLDLEVELHEADERFLAG and \
+               (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+                self.SetFoldExpanded(lineNum, True)
+                lineNum = self.Expand(lineNum, True)
+                lineNum = lineNum - 1
+            lineNum = lineNum + 1
+
+    def ToggleFoldAll(self):
+        lineCount = self.GetLineCount()
+        expanding = True
+        # find out if we are folding or unfolding
+        for lineNum in range(lineCount):
+            if self.GetFoldLevel(lineNum) & stc.STC_FOLDLEVELHEADERFLAG:
+                expanding = not self.GetFoldExpanded(lineNum)
+                break
+        lineNum = 0
+        while lineNum < lineCount:
+            level = self.GetFoldLevel(lineNum)
+            if level & stc.STC_FOLDLEVELHEADERFLAG and \
+               (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
                 if expanding:
                     self.SetFoldExpanded(lineNum, True)
                     lineNum = self.Expand(lineNum, True)
@@ -4103,6 +4148,16 @@ class Editor(stc.StyledTextCtrl):
                     if lastChild > lineNum:
                         self.HideLines(lineNum+1, lastChild)
             lineNum = lineNum + 1
+
+    def foldExpandCurrentScope(self):
+        line = self.GetCurrentLine()
+        while (line >= 0):
+            level = self.GetFoldLevel(line)
+            if level & stc.STC_FOLDLEVELHEADERFLAG and (level & stc.STC_FOLDLEVELNUMBERMASK) == stc.STC_FOLDLEVELBASE:
+                self.ToggleFold(line)
+                self.GotoLine(line)
+                break
+            line -= 1
 
     def Expand(self, line, doExpand, force=False, visLevels=0, level=-1):
         lastChild = self.GetLastChild(line, level)
@@ -4216,8 +4271,9 @@ class OutputLogPanel(wx.Panel):
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
+        # TODO : check toolbar on OSX and Windows
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar = wx.ToolBar(self, -1, size=(-1,32))
         self.toolbar.SetMargins((5, 0))
         font, psize = self.toolbar.GetFont(), self.toolbar.GetFont().GetPointSize()
         if PLATFORM == "darwin":
@@ -4226,7 +4282,7 @@ class OutputLogPanel(wx.Panel):
         
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
-        title = wx.StaticText(self.toolbar, -1, "Output panel")
+        title = wx.StaticText(self.toolbar, -1, " Output panel")
         title.SetFont(font)
         self.toolbar.AddControl(title)
         self.toolbar.AddSeparator()
@@ -4237,17 +4293,17 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.AddControl(self.processPopup)
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
-        self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40,-1))
+        self.processKill = wx.Button(self.toolbar, -1, label="Kill", size=(40,self.processPopup.GetSize()[1]))
         self.processKill.SetFont(font)        
         self.toolbar.AddControl(self.processKill)
         self.processKill.Bind(wx.EVT_BUTTON, self.killProcess)
         if PLATFORM == "win32":
             self.toolbar.AddSeparator()
-        self.runningLabel = wx.StaticText(self.toolbar, -1, "Running: 0")
+        self.runningLabel = wx.StaticText(self.toolbar, -1, " Running: 0")
         self.runningLabel.SetFont(font)
         self.toolbar.AddControl(self.runningLabel)
         self.toolbar.AddSeparator()
-        self.copyLog = wx.Button(self.toolbar, -1, label="Copy log", size=(70,-1))
+        self.copyLog = wx.Button(self.toolbar, -1, label="Copy log", size=(70,self.processPopup.GetSize()[1]))
         self.copyLog.SetFont(font)
         self.toolbar.AddControl(self.copyLog)
         self.copyLog.Bind(wx.EVT_BUTTON, self.onCopy)
@@ -4264,7 +4320,7 @@ class OutputLogPanel(wx.Panel):
         self.toolbar.Realize()
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
-        tb2 = wx.ToolBar(self, -1, size=(-1,36))
+        tb2 = wx.ToolBar(self, -1, size=(-1,32))
         tb2.SetToolBitmapSize(tsize)
         tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
@@ -4774,7 +4830,7 @@ class PreferencesDialog(wx.Dialog):
         
         font.SetWeight(wx.BOLD)
         if PLATFORM == "linux2":
-            entryfont.SetPointSize(pointsize-1)
+            entryfont.SetPointSize(pointsize)
         elif PLATFORM == "win32":
             entryfont.SetPointSize(pointsize)
         else:
@@ -4992,9 +5048,10 @@ class STCPrintout(wx.Printout):
     a wrapped line, so it may be a difficult task to ever implement printing
     with line wrapping using the wx.StyledTextCtrl.FormatRange method.
     """
-    debuglevel = 0
+    debuglevel = 1
 
-    def __init__(self, stc, page_setup_data=None, print_mode=None, title=None, border=False, lines_per_page=None, output_point_size=None):
+    def __init__(self, stc, page_setup_data=None, print_mode=None, title=None, 
+                 border=False, lines_per_page=None, output_point_size=None):
         """Constructor.
 
         @param stc: wx.StyledTextCtrl to print
@@ -5055,6 +5112,7 @@ class STCPrintout(wx.Printout):
         except (TypeError, ValueError):
             self.user_lines_per_page = None
 
+        self.page_count = 2
         self.border_around_text = border
 
         self.setHeaderFont()
