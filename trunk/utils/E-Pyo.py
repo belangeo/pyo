@@ -1449,7 +1449,7 @@ class SnippetTree(wx.Panel):
             name = self.tree.GetItemText(item)
             ritem = self.tree.GetItemParent(item)
             category = self.tree.GetItemText(ritem)
-        self.GetParent().GetParent().onLoad(name, category)
+            self.GetParent().GetParent().onLoad(name, category)
 
     def select(self, item):
         self.tree.SelectItem(item)
@@ -1607,6 +1607,7 @@ class SnippetFrame(wx.Frame):
     def onSave(self, evt):
         dlg = wx.SingleChoiceDialog(self, 'Choose the Snippet Category', 
                                     'Snippet Category', SNIPPETS_CATEGORIES, wx.OK)
+        dlg.SetSize((250,300))
         dlg.CenterOnParent()
         if dlg.ShowModal() == wx.ID_OK:
             category = dlg.GetStringSelection()
@@ -2163,6 +2164,7 @@ class MainFrame(wx.Frame):
 
     def makeSnippetMenu(self):
         itemId = 30000
+        accel_entries = []
         for cat in SNIPPETS_CATEGORIES:
             submenu = wx.Menu(title=cat)
             files = [f for f in os.listdir(os.path.join(SNIPPETS_PATH, cat))]
@@ -2192,6 +2194,7 @@ class MainFrame(wx.Frame):
                 short = short.replace("-", "")
                 if short != "":
                     accel_tuple = wx.AcceleratorEntry(accel, ord(short), itemId)
+                    accel_entries.append(accel_tuple)
                     short = accel_tuple.ToString()
                     submenu.Append(itemId, "%s\t%s" % (file, short))
                 else:
@@ -2200,6 +2203,10 @@ class MainFrame(wx.Frame):
                 itemId += 1
             self.menu7.AppendMenu(itemId, cat, submenu)
             itemId += 1
+        if accel_entries != []:            
+            accel_table  = wx.AcceleratorTable(accel_entries)
+            self.SetAcceleratorTable(accel_table)
+        
         self.menu7.AppendSeparator()
         self.menu7.Append(51, "Open Snippet Editor")
         self.Bind(wx.EVT_MENU, self.showSnippetEditor, id=51)
@@ -2508,7 +2515,7 @@ class MainFrame(wx.Frame):
 
     def insertSnippet(self, evt):
         id = evt.GetId()
-        menu = self.menu7 #event.GetEventObject()
+        menu = self.menu7
         item = menu.FindItemById(id)
         name = item.GetLabel()
         category = item.GetMenu().GetTitle()
