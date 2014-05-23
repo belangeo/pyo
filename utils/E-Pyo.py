@@ -802,34 +802,43 @@ class RunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
+        # TODO: check real time logging on OSX and Windows
         if OSX_APP_BUNDLED:
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s%s "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                self.proc = subprocess.Popen(['%s%s%s -u "%s"' % (prelude, SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen(['%s%s "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(['%s%s -u "%s"' % (prelude, WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                     shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif PLATFORM == "darwin":
             if CALLER_NEED_TO_INVOKE_32_BIT:
-                self.proc = subprocess.Popen(['%s%s "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
+                self.proc = subprocess.Popen(['%s%s -u "%s"' % (SET_32_BIT_ARCH, WHICH_PYTHON, self.path)], 
                                 shell=True, cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.proc = subprocess.Popen(['%s "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
+                self.proc = subprocess.Popen(['%s -u "%s"' % (WHICH_PYTHON, self.path)], cwd=self.cwd, 
                                 shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif PLATFORM == "win32":
-            self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, shell=False, 
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, shell=False, 
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         else:
-            self.proc = subprocess.Popen([WHICH_PYTHON, self.path], cwd=self.cwd, 
+            self.proc = subprocess.Popen([WHICH_PYTHON, "-u", self.path], cwd=self.cwd, 
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        while self.proc.poll() == None and not self.terminated:
-            time.sleep(.25)
-        stdout, stderr = self.proc.communicate()
         header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, time.strftime('"%d %b %Y %H:%M:%S"', time.localtime()))
-        output = header + stdout + stderr
+        data_event = DataEvent({"log": header, "pid": self.pid, "filename": self.filename, "active": True})
+        wx.PostEvent(self.event_receiver, data_event)            
+        while self.proc.poll() == None and not self.terminated:
+            log = ""
+            for line in self.proc.stdout.readline():
+                log = log + line
+                sys.stdout.flush()
+            data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
+            wx.PostEvent(self.event_receiver, data_event)            
+            time.sleep(.025)
+        stdout, stderr = self.proc.communicate()
+        output = stdout + stderr
         if "StartNotification name = default" in output:
             output = output.replace("StartNotification name = default", "")
         if "epyo_tempfile.py" in output:
@@ -851,12 +860,12 @@ class RunningThread(threading.Thread):
                     pos += 1
                 elinepos = pos
                 linenum = int(output[slinepos:elinepos].strip())
-                output = output[:slinepos] + str(linenum-2) + output[elinepos:]
+                output = output[:slinepos] + str(linenum-3) + output[elinepos:]
             except:
                 pass
         if self.terminated:
             output = output + "\n=== Process killed. ==="
-        data_event = DataEvent({"log": output, "pid": self.pid, "filename": self.filename})
+        data_event = DataEvent({"log": output, "pid": self.pid, "filename": self.filename, "active": False})
         wx.PostEvent(self.event_receiver, data_event)
 
 class KeyCommandsFrame(wx.Frame):
@@ -2362,6 +2371,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.navigateMarkers(down=True)
 
     def gotoLine(self, evt):
+        # TODO: Check this function on OSX and Windows
         dlg = wx.TextEntryDialog(self, "Enter a line number:", "Go to Line")
         val = -1
         if dlg.ShowModal() == wx.ID_OK:
@@ -2369,12 +2379,19 @@ class MainFrame(wx.Frame):
                 val = int(dlg.GetValue())
             except:
                 val = -1
-            dlg.Destroy()
+        dlg.Destroy()
         if val != -1:
-            pos = self.panel.editor.FindColumn(val-1, 0)
-            self.panel.editor.SetCurrentPos(pos)
-            self.panel.editor.EnsureVisible(val)
-            self.panel.editor.EnsureCaretVisible()
+            val -= 1
+            pos = self.panel.editor.FindColumn(val, 0)
+            self.panel.editor.GotoLine(val)
+            first = self.panel.editor.GetFirstVisibleLine()
+            if val == first:
+                self.panel.editor.LineScroll(0, -self.panel.editor.LinesOnScreen()/2)
+            else:
+                self.panel.editor.LineScroll(0, self.panel.editor.LinesOnScreen()/2)
+            #self.panel.editor.SetCurrentPos(pos)
+            #self.panel.editor.EnsureVisible(val)
+            #self.panel.editor.EnsureCaretVisible()
             wx.CallAfter(self.panel.editor.SetAnchor, pos)
 
     def OnComment(self, evt):
@@ -2807,8 +2824,9 @@ class MainFrame(wx.Frame):
 
     def format_outputLog(self, evt):
         data = evt.data
-        self.panel.outputlog.setLog(data["log"])
-        self.panel.outputlog.removeProcess(data["pid"], data["filename"])
+        self.panel.outputlog.appendToLog(data["log"])
+        if not data["active"]:
+            self.panel.outputlog.removeProcess(data["pid"], data["filename"])
 
     def run(self, path):
         cwd = self.getCurrentWorkingDirectory()
@@ -4262,6 +4280,12 @@ class OutputLogEditor(SimpleEditor):
     def __init__(self, parent, ID=wx.ID_ANY, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER):
         SimpleEditor.__init__(self, parent=parent, ID=ID, pos=pos, size=size, style=style)
 
+    def appendToLog(self, text):
+        self.SetReadOnly(False)
+        self.AppendText(text)
+        self.GotoLine(self.GetLineCount())
+        self.SetReadOnly(True)
+
     def setLog(self, text):
         self.SetReadOnly(False)
         self.SetText(text)
@@ -4355,6 +4379,7 @@ class OutputLogPanel(wx.Panel):
         self.processPopup.SetStringSelection("%d :: %s" % (procID, filename))
         self.running += 1
         self.runningLabel.SetLabel("Running: %d" % self.running)
+        self.editor.setLog("")
 
     def removeProcess(self, procID, filename):
         str = "%d :: %s" % (procID, filename)
@@ -4369,6 +4394,9 @@ class OutputLogPanel(wx.Panel):
             procID = int(str.split("::")[0].strip())
             thread = self.mainPanel.mainFrame.processes[procID][0]
             thread.kill()
+
+    def appendToLog(self, text):
+        self.editor.appendToLog(text)
 
     def setLog(self, text):
         self.editor.setLog(text)
