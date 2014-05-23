@@ -786,12 +786,12 @@ class PyoObject(PyoObjectBase):
 
     def setSub(self, x):
         """
-        Replace and inverse the `mul` attribute.
+        Replace and inverse the `add` attribute.
         
         :Args:
 
             x : float or PyoObject
-                New inversed `mul` attribute.
+                New inversed `add` attribute.
         
         """
         self._add = x
@@ -800,12 +800,12 @@ class PyoObject(PyoObjectBase):
 
     def setDiv(self, x):
         """
-        Replace and inverse the `add` attribute.
+        Replace and inverse the `mul` attribute.
                 
         :Args:
 
             x : float or PyoObject
-                New inversed `add` attribute.
+                New inversed `mul` attribute.
 
         """
         self._mul = x
