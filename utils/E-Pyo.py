@@ -828,14 +828,14 @@ class RunningThread(threading.Thread):
 
         header = '=== Output log of process "%s", launched: %s ===\n' % (self.filename, time.strftime('"%d %b %Y %H:%M:%S"', time.localtime()))
         data_event = DataEvent({"log": header, "pid": self.pid, "filename": self.filename, "active": True})
-        wx.PostEvent(self.event_receiver, data_event)            
+        wx.PostEvent(self.event_receiver, data_event)
         while self.proc.poll() == None and not self.terminated:
             log = ""
             for line in self.proc.stdout.readline():
                 log = log + line
-                sys.stdout.flush()
             data_event = DataEvent({"log": log, "pid": self.pid, "filename": self.filename, "active": True})
             wx.PostEvent(self.event_receiver, data_event)            
+            sys.stdout.flush()
             time.sleep(.025)
         stdout, stderr = self.proc.communicate()
         output = stdout + stderr
@@ -2001,6 +2001,10 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.showDocFrame, id=190)
         menu4.Append(180, "Open Documentation for Pyo Object Under Caret\tCtrl+D")
         self.Bind(wx.EVT_MENU, self.showDoc, id=180)
+        menu4.Append(181, "Show args for Pyo Object Under Caret\tShift+Return")
+        self.Bind(wx.EVT_MENU, self.showArgs, id=181)
+        menu4.Append(182, "Show __doc__ String for Word Under Caret\tCtrl+Return")
+        self.Bind(wx.EVT_MENU, self.showDocString, id=182)
         menu4.AppendSeparator()
         menu4.Append(185, "Rebuild Documentation")
         self.Bind(wx.EVT_MENU, self.rebuildDoc, id=185)
@@ -2979,6 +2983,12 @@ class MainFrame(wx.Frame):
         except:
             pass
         self.buildDoc()
+
+    def showArgs(self, evt):
+        self.panel.editor.onShowTip()
+
+    def showDocString(self, evt):
+        self.panel.editor.onShowDocString()
         
     def onShowEditorKeyCommands(self, evt):
         if not self.keyCommandsFrame.IsShown():
@@ -3180,6 +3190,21 @@ class MainPanel(wx.Panel):
         for i in range(self.notebook.GetPageCount()):
             ed = self.notebook.GetPage(i)
             ed.Close()
+
+#######################################################
+### The idea of EditorPanel is to allow multiple views
+### at the same time in a single notebook page.
+### Not yet implemented... ( TODO )
+#######################################################
+class EditorPanel(wx.Panel):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, -1)
+        self.editor = Editor(parent, -1, size=(0, -1))
+        self.editor2 = Editor(parent, -1, size=(0, -1))
+        box = wx.BoxSizer(wx.HORIZONTAL)
+        box.Add(self.editor, 1, wx.ALL|wx.EXPAND, 5)
+        box.Add(self.editor2, 1, wx.ALL|wx.EXPAND, 5)
+        self.SetSizerAndFit(box)
 
 class Editor(stc.StyledTextCtrl):
     def __init__(self, parent, ID, pos=wx.DefaultPosition, size=wx.DefaultSize, style= wx.NO_BORDER | wx.WANTS_CHARS,
@@ -3387,6 +3412,8 @@ class Editor(stc.StyledTextCtrl):
         self.SetSelBackground(1, STYLES['selback']['colour'])
         self.SetFoldMarginColour(True, STYLES['foldmarginback']['colour'])
         self.SetFoldMarginHiColour(True, STYLES['foldmarginback']['colour'])
+        self.CallTipSetForeground(STYLES['default']['colour'])
+        self.CallTipSetBackground(STYLES['background']['colour'])
 
         # WxPython 3 needs the lexer to be set before folding property
         self.SetProperty("fold", "1")
@@ -3850,6 +3877,36 @@ class Editor(stc.StyledTextCtrl):
         except:
             pass
 
+    def onShowDocString(self):
+        if self.GetSelectedText() != "":
+            currentword = self.GetSelectedText()
+        else:
+            currentword = self.getWordUnderCaret()
+            firstCaretPos = self.GetCurrentPos()
+            caretPos = self.GetCurrentPos()
+            startpos = self.WordStartPosition(caretPos, True)
+            while chr(self.GetCharAt(startpos-1)) == ".":
+                self.GotoPos(startpos-2)
+                parent = self.getWordUnderCaret()
+                currentword = parent + "." + currentword
+                caretPos = self.GetCurrentPos()
+                startpos = self.WordStartPosition(caretPos, True)
+            self.GotoPos(firstCaretPos)
+        lineCount = self.GetLineCount()
+        text = ""
+        for i in range(lineCount):
+            line = self.GetLine(i)
+            if "import " in line:
+                text = text + line
+        try:
+            exec text in locals()
+            docstr = eval(currentword).__doc__
+            dlg = wx.lib.dialogs.ScrolledMessageDialog(self, docstr, "__doc__ string for %s" % currentword, size=(700,500))
+            dlg.CenterOnParent()
+            dlg.ShowModal()
+        except:
+            pass
+
     def navigateMarkers(self, down=True):
         if self.markers_dict != {}:
             llen = len(self.markers_dict)
@@ -3881,6 +3938,10 @@ class Editor(stc.StyledTextCtrl):
         # Stop propagation on Tip Show of pyo keyword --- Shift+Return
         elif evt.GetKeyCode() == wx.WXK_RETURN and evt.ShiftDown():
             self.onShowTip()
+            propagate = False
+        # Stop propagation on Tip Show of __doc__ string --- Ctrl+Return
+        elif evt.GetKeyCode() == wx.WXK_RETURN and ControlDown():
+            self.onShowDocString()
             propagate = False
 
         # Move and/or Select one word left or right --- (Shift+)Alt+Arrows left/right
