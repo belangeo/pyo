@@ -3356,6 +3356,16 @@ class Editor(stc.StyledTextCtrl):
         self.StyleSetSpec(stc.STC_STYLE_BRACEBAD, buildStyle('default', 'bracebad') + ",bold")
 
         ext = os.path.splitext(self.path)[1].strip(".")
+        if ext == "":
+            try:
+                with open(self.path, "r") as f:
+                    fline = f.readline()
+                    if fline.startswith("#!"):
+                        fline = fline.replace("/", " ")
+                        last = fline.split()[-1]
+                        ext = {"python": "py", "bash": "sh", "sh": "sh"}.get(last, "")
+            except:
+                pass
         if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
             self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
@@ -3374,7 +3384,7 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_P_OPERATOR, buildStyle('operator'))
             self.StyleSetSpec(stc.STC_P_IDENTIFIER, buildStyle('default'))
             self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, buildStyle('commentblock'))
-        elif ext in ["c", "cc", "cpp", "cxx", "cs", "h", "hh", "hpp", "hxx"]:
+        elif ext in ["c", "cc", "cpp", "cxx", "cs", "h", "hh", "hpp", "hxx", "jsfx-inc"]:
             self.SetLexer(stc.STC_LEX_CPP)
             self.SetKeyWords(0, "auto break case char const continue default do double else enum extern float for goto if int long \
             register return short signed sizeof static struct switch typedef union unsigned void volatile while ")
