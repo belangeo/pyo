@@ -1752,6 +1752,7 @@ typedef struct {
     int hopsize;
     int overcount;
     MYFLT *l_magn;
+    MYFLT *l_freq;
     MYFLT **magn;
     MYFLT **freq;
     int *count;
@@ -1766,8 +1767,9 @@ PVVerb_realloc_memories(PVVerb *self) {
     inputLatency = self->size - self->hopsize;
     self->overcount = 0;
     self->l_magn = (MYFLT *)realloc(self->l_magn, self->hsize * sizeof(MYFLT)); 
+    self->l_freq = (MYFLT *)realloc(self->l_freq, self->hsize * sizeof(MYFLT)); 
     for (i=0; i<self->hsize; i++)
-        self->l_magn[i] = 0.0;
+        self->l_magn[i] = self->l_freq[i] = 0.0;
     self->magn = (MYFLT **)realloc(self->magn, self->olaps * sizeof(MYFLT *));
     self->freq = (MYFLT **)realloc(self->freq, self->olaps * sizeof(MYFLT *));
     for (i=0; i<self->olaps; i++) {
@@ -1788,7 +1790,7 @@ PVVerb_realloc_memories(PVVerb *self) {
 static void
 PVVerb_process_ii(PVVerb *self) {
     int i, k;
-    MYFLT revtime, damp, mag, amp;
+    MYFLT revtime, damp, mag, amp, fre;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
     MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
     int *count = PVStream_getCount((PVStream *)self->input_stream);
@@ -1819,11 +1821,15 @@ PVVerb_process_ii(PVVerb *self) {
             amp = 1.0;
             for (k=0; k<self->hsize; k++) {
                 mag = magn[self->overcount][k];
-                if (mag > self->l_magn[k])
+                fre = freq[self->overcount][k];
+                if (mag > self->l_magn[k]) {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag;
-                else
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre;
+                }
+                else {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag + (self->l_magn[k] - mag) * revtime * amp;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre + (self->l_freq[k] - fre) * revtime * amp;
+                }
                 amp *= damp;
             }
             self->overcount++;
@@ -1836,7 +1842,7 @@ PVVerb_process_ii(PVVerb *self) {
 static void
 PVVerb_process_ai(PVVerb *self) {
     int i, k;
-    MYFLT revtime, damp, mag, amp;
+    MYFLT revtime, damp, mag, amp, fre;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
     MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
     int *count = PVStream_getCount((PVStream *)self->input_stream);
@@ -1868,11 +1874,15 @@ PVVerb_process_ai(PVVerb *self) {
             amp = 1.0;
             for (k=0; k<self->hsize; k++) {
                 mag = magn[self->overcount][k];
-                if (mag > self->l_magn[k])
+                fre = freq[self->overcount][k];
+                if (mag > self->l_magn[k]) {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag;
-                else
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre;
+                }
+                else {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag + (self->l_magn[k] - mag) * revtime * amp;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre + (self->l_freq[k] - fre) * revtime * amp;
+                }
                 amp *= damp;
             }
             self->overcount++;
@@ -1885,7 +1895,7 @@ PVVerb_process_ai(PVVerb *self) {
 static void
 PVVerb_process_ia(PVVerb *self) {
     int i, k;
-    MYFLT revtime, damp, mag, amp;
+    MYFLT revtime, damp, mag, amp, fre;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
     MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
     int *count = PVStream_getCount((PVStream *)self->input_stream);
@@ -1917,11 +1927,15 @@ PVVerb_process_ia(PVVerb *self) {
             amp = 1.0;
             for (k=0; k<self->hsize; k++) {
                 mag = magn[self->overcount][k];
-                if (mag > self->l_magn[k])
+                fre = freq[self->overcount][k];
+                if (mag > self->l_magn[k]) {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag;
-                else
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre;
+                }
+                else {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag + (self->l_magn[k] - mag) * revtime * amp;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre + (self->l_freq[k] - fre) * revtime * amp;
+                }
                 amp *= damp;
             }
             self->overcount++;
@@ -1934,7 +1948,7 @@ PVVerb_process_ia(PVVerb *self) {
 static void
 PVVerb_process_aa(PVVerb *self) {
     int i, k;
-    MYFLT revtime, damp, mag, amp;
+    MYFLT revtime, damp, mag, amp, fre;
     MYFLT **magn = PVStream_getMagn((PVStream *)self->input_stream);
     MYFLT **freq = PVStream_getFreq((PVStream *)self->input_stream);
     int *count = PVStream_getCount((PVStream *)self->input_stream);
@@ -1967,11 +1981,15 @@ PVVerb_process_aa(PVVerb *self) {
             amp = 1.0;
             for (k=0; k<self->hsize; k++) {
                 mag = magn[self->overcount][k];
-                if (mag > self->l_magn[k])
+                fre = freq[self->overcount][k];
+                if (mag > self->l_magn[k]) {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag;
-                else
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre;
+                }
+                else {
                     self->magn[self->overcount][k] = self->l_magn[k] = mag + (self->l_magn[k] - mag) * revtime * amp;
-                self->freq[self->overcount][k] = freq[self->overcount][k];
+                    self->freq[self->overcount][k] = self->l_freq[k] = fre + (self->l_freq[k] - fre) * revtime * amp;
+                }
                 amp *= damp;
             }
             self->overcount++;
@@ -2049,6 +2067,7 @@ PVVerb_dealloc(PVVerb* self)
     free(self->magn);
     free(self->freq);
     free(self->l_magn);
+    free(self->l_freq);
     free(self->count);
     PVVerb_clear(self);
     self->ob_type->tp_free((PyObject*)self);
