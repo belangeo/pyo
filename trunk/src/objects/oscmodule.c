@@ -937,7 +937,7 @@ int OscDataReceive_handler(const char *path, const char *types, lo_arg **argv, i
                         void *data, void *user_data)
 {
     OscDataReceive *self = user_data;
-    PyObject *tup, *result;
+    PyObject *tup, *result=NULL;
     tup = PyTuple_New(argc+1);
     int i, ok = 0;
     
