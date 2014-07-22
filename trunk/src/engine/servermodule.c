@@ -578,19 +578,19 @@ int
 Server_jack_autoconnect (Server *self)
 {
     const char **ports;
-    int i, ret = 0;
+    int i, j, num = 0, ret = 0;
     PyoJackBackendData *be_data = (PyoJackBackendData *) self->audio_be_data;
     
     if (self->jackautoin) {
-        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, JackPortIsOutput)) == NULL) {
-            Server_error(self, "Jack: Cannot find any physical capture ports\n");
+        if ((ports = jack_get_ports (be_data->jack_client, "system", NULL, JackPortIsOutput)) == NULL) {
+            Server_error(self, "Jack: Cannot find any physical capture ports called 'system'\n");
             ret = -1;
         }
 
         i=0;
         while(ports[i]!=NULL && be_data->jack_in_ports[i] != NULL){
             if (jack_connect (be_data->jack_client, ports[i], jack_port_name(be_data->jack_in_ports[i]))) {
-                Server_error(self, "Jack: cannot connect input ports\n");
+                Server_error(self, "Jack: cannot connect input ports to 'system'\n");
                 ret = -1;
             }
             i++;
@@ -599,21 +599,62 @@ Server_jack_autoconnect (Server *self)
     }
     
     if (self->jackautoout) {
-        if ((ports = jack_get_ports (be_data->jack_client, NULL, NULL, JackPortIsInput)) == NULL) {
-            Server_error(self, "Jack: Cannot find any physical playback ports\n");
+        if ((ports = jack_get_ports (be_data->jack_client, "system", NULL, JackPortIsInput)) == NULL) {
+            Server_error(self, "Jack: Cannot find any physical playback ports called 'system'\n");
             ret = -1;
         }
         
         i=0;
         while(ports[i]!=NULL && be_data->jack_out_ports[i] != NULL){
             if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
-                Server_error(self, "Jack: cannot connect output ports\n");
+                Server_error(self, "Jack: cannot connect output ports to 'system'\n");
                 ret = -1;
             }
             i++;
         }
         free (ports);
     }
+
+    num = PyList_Size(self->jackAutoConnectInputPorts);
+    if (num > 0) {
+        for (j=0; j<num; j++) {
+            if ((ports = jack_get_ports (be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)), NULL, JackPortIsOutput)) == NULL) {
+                Server_error(self, "Jack: cannot connect input ports to %s\n", PyString_AsString(PyList_GetItem(self->jackAutoConnectInputPorts, j)));
+            }
+            else {
+                i = 0;
+                while(ports[i] != NULL && be_data->jack_in_ports[i] != NULL){
+                    if (jack_connect (be_data->jack_client, ports[i], jack_port_name (be_data->jack_in_ports[i]))) {
+                        Server_error(self, "Jack: cannot connect input ports\n");
+                        ret = -1;
+                    }
+                    i++;
+                }
+                free (ports);
+            }
+        }
+    }
+
+    num = PyList_Size(self->jackAutoConnectOutputPorts);
+    if (num > 0) {
+        for (j=0; j<num; j++) {
+            if ((ports = jack_get_ports (be_data->jack_client, PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)), NULL, JackPortIsInput)) == NULL) {
+                Server_error(self, "Jack: cannot connect output ports to %s\n", PyString_AsString(PyList_GetItem(self->jackAutoConnectOutputPorts, j)));
+            }
+            else {
+                i = 0;
+                while(ports[i] != NULL && be_data->jack_out_ports[i] != NULL){
+                    if (jack_connect (be_data->jack_client, jack_port_name (be_data->jack_out_ports[i]), ports[i])) {
+                        Server_error(self, "Jack: cannot connect output ports\n");
+                        ret = -1;
+                    }
+                    i++;
+                }
+                free (ports);
+            }
+        }
+    }
+
     return ret;
 }
 
@@ -989,19 +1030,19 @@ Server_coreaudio_init(Server *self)
     
     /* Get output device stream configuration */
     count = sizeof(AudioStreamBasicDescription);
-	err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
+    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
     if (err != kAudioHardwareNoError)
         Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
 
     /*
     outputStreamDescription.mSampleRate = (Float64)self->samplingRate;
     
-	err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &outputStreamDescription);
+    err = AudioDeviceSetProperty(mOutputDevice, &now, 0, false, kAudioDevicePropertyStreamFormat, count, &outputStreamDescription);
     if (err != kAudioHardwareNoError)
         Server_debug(self, "Set kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
     
     // Print new output stream description
-	err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
+    err = AudioDeviceGetProperty(mOutputDevice, 0, false, kAudioDevicePropertyStreamFormat, &count, &outputStreamDescription);
     if (err != kAudioHardwareNoError)
         Server_debug(self, "Get kAudioDevicePropertyStreamFormat error %s\n", (char*)&err);
     */
@@ -1014,7 +1055,7 @@ Server_coreaudio_init(Server *self)
     /********* Set input and output callbacks *********/
     /**************************************************/
     if (self->duplex == 1) {
-        err = AudioDeviceAddIOProc(self->input, coreaudio_input_callback, (void *) self);	// setup our device with an IO proc
+        err = AudioDeviceAddIOProc(self->input, coreaudio_input_callback, (void *) self);    // setup our device with an IO proc
         if (err != kAudioHardwareNoError) {
             Server_error(self, "Input AudioDeviceAddIOProc failed %d\n", (int)err);
             return -1;
@@ -1029,7 +1070,7 @@ Server_coreaudio_init(Server *self)
         err = AudioDeviceSetProperty(self->input, &now, 0, true, kAudioDevicePropertyIOProcStreamUsage, propertySize, input_su);
     }
     
-    err = AudioDeviceAddIOProc(self->output, coreaudio_output_callback, (void *) self);	// setup our device with an IO proc
+    err = AudioDeviceAddIOProc(self->output, coreaudio_output_callback, (void *) self);    // setup our device with an IO proc
     if (err != kAudioHardwareNoError) {
         Server_error(self, "Output AudioDeviceAddIOProc failed %d\n", (int)err);
         return -1;
@@ -1219,7 +1260,7 @@ Server_embedded_ni_start(Server *self)
     /* Non-Interleaved */
     for (i=0; i<self->bufferSize; i++) {
         for (j=0; j<=self->nchnls; j++) {
-            /* This could probably be more efficient (ob) */
+            /* TODO: This could probably be more efficient (ob) */
             self->output_buffer[i+(self->bufferSize*(j+1))-self->bufferSize] = out[(i*self->nchnls)+j];
         }
     }
@@ -1465,10 +1506,14 @@ Server_shut_down(Server *self)
     return Py_None;
 }
 
+/* handling of PyObjects */
 static int
 Server_traverse(Server *self, visitproc visit, void *arg)
 {
+    /* GUI and TIME ? */
     Py_VISIT(self->streams);
+    Py_VISIT(self->jackAutoConnectInputPorts);
+    Py_VISIT(self->jackAutoConnectOutputPorts);
     return 0;
 }
 
@@ -1476,6 +1521,8 @@ static int
 Server_clear(Server *self)
 {    
     Py_CLEAR(self->streams);
+    Py_CLEAR(self->jackAutoConnectInputPorts);
+    Py_CLEAR(self->jackAutoConnectOutputPorts);
     return 0;
 }
 
@@ -1534,6 +1581,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->serverName = (char *) calloc(32, sizeof(char));
     self->jackautoin = 1;
     self->jackautoout = 1;
+    self->jackAutoConnectInputPorts = PyList_New(0);
+    self->jackAutoConnectOutputPorts = PyList_New(0);
     self->samplingRate = 44100.0;
     self->nchnls = 2;
     self->record = 0;
@@ -1623,7 +1672,7 @@ Server_setInputOffset(Server *self, PyObject *arg)
         Py_INCREF(Py_None);
         return Py_None;
     }
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->input_offset = PyInt_AsLong(arg);
     }
@@ -1639,7 +1688,7 @@ Server_setOutputOffset(Server *self, PyObject *arg)
         Py_INCREF(Py_None);
         return Py_None;
     }
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->output_offset = PyInt_AsLong(arg);
     }
@@ -1650,7 +1699,7 @@ Server_setOutputOffset(Server *self, PyObject *arg)
 static PyObject *
 Server_setInputDevice(Server *self, PyObject *arg)
 {
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->input = PyInt_AsLong(arg);
     }
@@ -1661,7 +1710,7 @@ Server_setInputDevice(Server *self, PyObject *arg)
 static PyObject *
 Server_setInOutDevice(Server *self, PyObject *arg)
 {
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->input = PyInt_AsLong(arg);
             self->output = PyInt_AsLong(arg);
@@ -1673,7 +1722,7 @@ Server_setInOutDevice(Server *self, PyObject *arg)
 static PyObject *
 Server_setOutputDevice(Server *self, PyObject *arg)
 {
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->output = PyInt_AsLong(arg);
     }
@@ -1684,7 +1733,7 @@ Server_setOutputDevice(Server *self, PyObject *arg)
 static PyObject *
 Server_setMidiInputDevice(Server *self, PyObject *arg)
 {
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->midi_input = PyInt_AsLong(arg);
     }
@@ -1695,7 +1744,7 @@ Server_setMidiInputDevice(Server *self, PyObject *arg)
 static PyObject *
 Server_setMidiOutputDevice(Server *self, PyObject *arg)
 {
-	if (arg != NULL) {
+    if (arg != NULL) {
         if (PyInt_Check(arg))
             self->midi_output = PyInt_AsLong(arg);
     }
@@ -1785,6 +1834,42 @@ Server_setJackAuto(Server *self, PyObject *args)
 
     self->jackautoin = in;
     self->jackautoout = out;
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setJackAutoConnectInputPorts(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PyList_Check(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackAutoConnectInputPorts);
+            Py_INCREF(tmp);
+            self->jackAutoConnectInputPorts = tmp;
+        }
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+static PyObject *
+Server_setJackAutoConnectOutputPorts(Server *self, PyObject *arg)
+{
+    PyObject *tmp;
+
+    if (arg != NULL) {
+        if (PyList_Check(arg)) {
+            tmp = arg;
+            Py_XDECREF(self->jackAutoConnectOutputPorts);
+            Py_INCREF(tmp);
+            self->jackAutoConnectOutputPorts = tmp;
+        }
+    }
 
     Py_INCREF(Py_None);
     return Py_None;
@@ -2633,6 +2718,8 @@ static PyMethodDef Server_methods[] = {
     {"setNchnls", (PyCFunction)Server_setNchnls, METH_O, "Sets the server's number of channels."},
     {"setDuplex", (PyCFunction)Server_setDuplex, METH_O, "Sets the server's duplex mode (0 = only out, 1 = in/out)."},
     {"setJackAuto", (PyCFunction)Server_setJackAuto, METH_VARARGS, "Tells the server to auto-connect Jack ports (0 = disable, 1 = enable)."},
+    {"setJackAutoConnectInputPorts", (PyCFunction)Server_setJackAutoConnectInputPorts, METH_O, "Sets a list of ports to auto-connect inputs when using Jack."},
+    {"setJackAutoConnectOutputPorts", (PyCFunction)Server_setJackAutoConnectOutputPorts, METH_O, "Sets a list of ports to auto-connect outputs when using Jack."},
     {"setGlobalSeed", (PyCFunction)Server_setGlobalSeed, METH_O, "Sets the server's global seed for random objects."},
     {"setAmp", (PyCFunction)Server_setAmp, METH_O, "Sets the overall amplitude."},
     {"setAmpCallable", (PyCFunction)Server_setAmpCallable, METH_O, "Sets the Server's GUI callable object."},
@@ -2701,10 +2788,10 @@ PyTypeObject ServerType = {
     "Pyo Server object. Handles communication with Portaudio and processing callback loop.",           /* tp_doc */
     (traverseproc)Server_traverse,   /* tp_traverse */
     (inquiry)Server_clear,           /* tp_clear */
-    0,		               /* tp_richcompare */
-    0,		               /* tp_weaklistoffset */
-    0,		               /* tp_iter */
-    0,		               /* tp_iternext */
+    0,                       /* tp_richcompare */
+    0,                       /* tp_weaklistoffset */
+    0,                       /* tp_iter */
+    0,                       /* tp_iternext */
     Server_methods,             /* tp_methods */
     Server_members,             /* tp_members */
     0,                      /* tp_getset */

@@ -349,7 +349,7 @@ class Server(object):
 
     def setJackAuto(self, xin=True, xout=True):
         """
-        Tells the server to auto-connect (or not) Jack ports.
+        Tells the server to auto-connect (or not) Jack ports to System ports.
         
         :Args:
 
@@ -361,6 +361,32 @@ class Server(object):
         """        
         self._server.setJackAuto(xin, xout)
 
+    def setJackAutoConnectInputPorts(self, ports):
+        """
+        Tells the server to auto-connect Jack input ports to pre-defined Jack ports.
+        
+        :Args:
+
+            ports : string or list of strings
+                Name of the Jack port(s) to auto-connect. Regular Expressions are allowed.
+
+        """
+        ports, lmax = convertArgsToLists(ports)
+        self._server.setJackAutoConnectInputPorts(ports)
+
+    def setJackAutoConnectOutputPorts(self, ports):
+        """
+        Tells the server to auto-connect Jack output ports to pre-defined Jack ports.
+        
+        :Args:
+
+            ports : string or list of strings
+                Name of the Jack port(s) to auto-connect. Regular Expressions are allowed.
+
+        """
+        ports, lmax = convertArgsToLists(ports)
+        self._server.setJackAutoConnectOutputPorts(ports)
+        
     def setGlobalSeed(self, x):
         """
         Set the server's global seed used by random objects.
