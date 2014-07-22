@@ -70,6 +70,8 @@ typedef struct {
     char *serverName; /* Only used for jack client name */
     int jackautoin; /* jack port auto-connection (on by default) */
     int jackautoout; /* jack port auto-connection (on by default) */
+    PyObject *jackAutoConnectInputPorts; /* list of regex to match for jack auto-connection */
+    PyObject *jackAutoConnectOutputPorts; /* list of regex to match for jack auto-connection */
     PmStream *in;
     PmStream *out;
     PmEvent midiEvents[200];

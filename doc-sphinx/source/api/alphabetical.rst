@@ -219,6 +219,7 @@ Alphabetical class reference
 - :py:class:`TableRec` :     TableRec is for writing samples into a previously created NewTable.
 - :py:class:`TableScale` :     Scales all the values contained in a PyoTableObject.
 - :py:class:`Tan` :     Performs a tangent function on audio signal.
+- :py:class:`Tanh` :     Performs a hyperbolic tangent function on audio signal.
 - :py:class:`Thresh` :     Informs when a signal crosses a threshold.
 - :py:class:`Timer` :     Reports elapsed time between two trigs.
 - :py:class:`Tone` :     A first-order recursive low-pass filter with variable frequency response.

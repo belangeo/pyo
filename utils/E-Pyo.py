@@ -3368,6 +3368,7 @@ class Editor(stc.StyledTextCtrl):
                 pass
         if ext in ["py", "pyw", "c5"]:
             self.SetLexer(stc.STC_LEX_PYTHON)
+            self.SetStyleBits(self.GetStyleBitsNeeded())
             self.SetKeyWords(0, " ".join(keyword.kwlist) + " None True False ")
             self.SetKeyWords(1, " ".join(PYO_WORDLIST))
             self.StyleSetSpec(stc.STC_P_DEFAULT, buildStyle('default'))
@@ -3386,6 +3387,11 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_P_COMMENTBLOCK, buildStyle('commentblock'))
         elif ext in ["c", "cc", "cpp", "cxx", "cs", "h", "hh", "hpp", "hxx", "jsfx-inc"]:
             self.SetLexer(stc.STC_LEX_CPP)
+            self.SetStyleBits(self.GetStyleBitsNeeded())
+            self.SetProperty('fold.comment', '1')
+            self.SetProperty('fold.preprocessor', '1')
+            self.SetProperty('fold.compact', '1')
+            self.SetProperty('styling.within.preprocessor', '0')
             self.SetKeyWords(0, "auto break case char const continue default do double else enum extern float for goto if int long \
             register return short signed sizeof static struct switch typedef union unsigned void volatile while ")
             self.StyleSetSpec(stc.STC_C_DEFAULT, buildStyle('default'))
@@ -3402,6 +3408,7 @@ class Editor(stc.StyledTextCtrl):
             self.StyleSetSpec(stc.STC_C_PREPROCESSOR, buildStyle('commentblock'))
         elif ext == "sh":
             self.SetLexer(stc.STC_LEX_BASH)
+            self.SetStyleBits(self.GetStyleBitsNeeded())
             self.SetKeyWords(0, "! [[ ]] case do done elif else esac fi for function if in select then time until while { } \
             alias bg bind break builtin caller cd command compgen complete compopt continue declare dirs disown echo enable \
             eval exec exit export fc fg getopts hash help history jobs kill let local logout mapfile popd printf pushd pwd \
