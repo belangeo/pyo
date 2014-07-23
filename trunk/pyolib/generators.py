@@ -1019,10 +1019,9 @@ class LFO(PyoObject):
             
 
         """
-        if x >= 0 and x < 8:
-            self._type = x
-            x, lmax = convertArgsToLists(x)
-            [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+        self._type = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setType(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
 
     def reset(self):
         """

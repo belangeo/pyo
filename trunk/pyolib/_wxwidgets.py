@@ -524,7 +524,10 @@ class MultiSlider(wx.Panel):
         slide = pos[1] / self._height
         if 0 <= slide < self._nchnls:
             self._values[slide] = pos[0] / float(w)
-            self._labels = [self._slmap.get(x) for x in self._values]
+            if self._slmap._res == 'int':
+                self._labels = [int(self._slmap.get(x)) for x in self._values]
+            else:
+                self._labels = [self._slmap.get(x) for x in self._values]
             self._command(self._key, self._labels)
             self.CaptureMouse()
         self.Refresh()
@@ -541,7 +544,10 @@ class MultiSlider(wx.Panel):
             slide = pos[1] / self._height
             if 0 <= slide < self._nchnls:
                 self._values[slide] = pos[0] / float(w)
-                self._labels = [self._slmap.get(x) for x in self._values]
+                if self._slmap._res == 'int':
+                    self._labels = [int(self._slmap.get(x)) for x in self._values]
+                else:
+                    self._labels = [self._slmap.get(x) for x in self._values]
                 self._command(self._key, self._labels)
             self.Refresh()
         
