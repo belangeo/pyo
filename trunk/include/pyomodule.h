@@ -730,21 +730,44 @@ extern PyTypeObject Pointer2Type;
     return samples;
 
 #define GET_VIEW_TABLE \
-    int i, y; \
-    int w = 500; \
-    int h = 200; \
-    int h2 = h/2; \
-    int amp = h2 - 2; \
-    float step = (float)self->size / (float)(w); \
-    PyObject *samples; \
+    int i, y, w, h, h2, amp; \
+    float step; \
+    PyObject *samples, *tuple, *sizetmp = NULL; \
  \
-    samples = PyList_New(w*4); \
+    static char *kwlist[] = {"size", NULL}; \
+ \
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O", kwlist, &sizetmp)) \
+        return PyInt_FromLong(-1); \
+ \
+    if (sizetmp) { \
+        if (PyTuple_Check(sizetmp)) { \
+            w = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 0)); \
+            h = PyInt_AsLong(PyTuple_GET_ITEM(sizetmp, 1)); \
+        } \
+        else if (PyList_Check(sizetmp)) { \
+            w = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 0)); \
+            h = PyInt_AsLong(PyList_GET_ITEM(sizetmp, 1)); \
+        } \
+        else { \
+            w = 500; \
+            h = 200; \
+        } \
+    } \
+    else { \
+        w = 500; \
+        h = 200; \
+    } \
+    h2 = h/2; \
+    amp = h2 - 2; \
+    step = (float)self->size / (float)(w); \
+ \
+    samples = PyList_New(w); \
     for(i=0; i<w; i++) { \
-        y = self->data[(int)(i*step)] * amp + amp; \
-        PyList_SetItem(samples, i*4, PyInt_FromLong(i)); \
-        PyList_SetItem(samples, i*4+1, PyInt_FromLong(h-y)); \
-        PyList_SetItem(samples, i*4+2, PyInt_FromLong(i)); \
-        PyList_SetItem(samples, i*4+3, PyInt_FromLong(h-y)); \
+        y = self->data[(int)(i*step)] * amp + amp + 2; \
+        tuple = PyTuple_New(2); \
+        PyTuple_SetItem(tuple, 0, PyInt_FromLong(i)); \
+        PyTuple_SetItem(tuple, 1, PyInt_FromLong(h-y)); \
+        PyList_SetItem(samples, i, tuple); \
     } \
  \
     return samples;
