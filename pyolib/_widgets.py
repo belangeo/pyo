@@ -142,8 +142,7 @@ def wxCreateDelayedTableWindows():
     global CURRENT_X, MAX_X, NEXT_Y
     for win in TABLEWINDOWS:
         object = win[3]
-        if WITH_PIL: f = ViewTable_withPIL(None, win[0], win[1], object)
-        else: f = ViewTable_withoutPIL(None, win[0], win[1], object)
+        f = ViewTable(None, win[0], win[1], object)
         if object != None:
             object._setViewFrame(f)
         wxDisplayWindow(f, win[2])
@@ -226,8 +225,7 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
     else:
         if wxnoserver or wx.GetApp() != None:
             root = createRootWindow()
-            if WITH_PIL: f = ViewTable_withPIL(None, samples, tableclass, object)
-            else: f = ViewTable_withoutPIL(None, samples, tableclass, object)
+            f = ViewTable(None, samples, tableclass, object)
             wxShowWindow(f, title, root)
             if object != None:
                 object._setViewFrame(f)

@@ -241,7 +241,7 @@ static PyObject * HarmTable_pow(HarmTable *self, PyObject *args, PyObject *kwds)
 static PyObject * HarmTable_copy(HarmTable *self, PyObject *arg) { COPY };
 static PyObject * HarmTable_setTable(HarmTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HarmTable_getTable(HarmTable *self) { GET_TABLE };
-static PyObject * HarmTable_getViewTable(HarmTable *self) { GET_VIEW_TABLE };
+static PyObject * HarmTable_getViewTable(HarmTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * HarmTable_put(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * HarmTable_get(HarmTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -309,7 +309,7 @@ static PyMethodDef HarmTable_methods[] = {
 {"getServer", (PyCFunction)HarmTable_getServer, METH_NOARGS, "Returns server object."},
 {"setTable", (PyCFunction)HarmTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)HarmTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)HarmTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)HarmTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)HarmTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"normalize", (PyCFunction)HarmTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
 {"reset", (PyCFunction)HarmTable_reset, METH_NOARGS, "Resets table samples to 0.0"},
@@ -529,7 +529,7 @@ static PyObject * ChebyTable_pow(ChebyTable *self, PyObject *args, PyObject *kwd
 static PyObject * ChebyTable_copy(ChebyTable *self, PyObject *arg) { COPY };
 static PyObject * ChebyTable_setTable(ChebyTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ChebyTable_getTable(ChebyTable *self) { GET_TABLE };
-static PyObject * ChebyTable_getViewTable(ChebyTable *self) { GET_VIEW_TABLE };
+static PyObject * ChebyTable_getViewTable(ChebyTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * ChebyTable_put(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ChebyTable_get(ChebyTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -671,7 +671,7 @@ static PyMethodDef ChebyTable_methods[] = {
 {"copy", (PyCFunction)ChebyTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)ChebyTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)ChebyTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)ChebyTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)ChebyTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)ChebyTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)ChebyTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -825,7 +825,7 @@ static PyObject * HannTable_pow(HannTable *self, PyObject *args, PyObject *kwds)
 static PyObject * HannTable_copy(HannTable *self, PyObject *arg) { COPY };
 static PyObject * HannTable_setTable(HannTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * HannTable_getTable(HannTable *self) { GET_TABLE };
-static PyObject * HannTable_getViewTable(HannTable *self) { GET_VIEW_TABLE };
+static PyObject * HannTable_getViewTable(HannTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * HannTable_put(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * HannTable_get(HannTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -870,7 +870,7 @@ static PyMethodDef HannTable_methods[] = {
 {"copy", (PyCFunction)HannTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)HannTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)HannTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)HannTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)HannTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)HannTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)HannTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)HannTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1043,7 +1043,7 @@ static PyObject * SincTable_pow(SincTable *self, PyObject *args, PyObject *kwds)
 static PyObject * SincTable_copy(SincTable *self, PyObject *arg) { COPY };
 static PyObject * SincTable_setTable(SincTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * SincTable_getTable(SincTable *self) { GET_TABLE };
-static PyObject * SincTable_getViewTable(SincTable *self) { GET_VIEW_TABLE };
+static PyObject * SincTable_getViewTable(SincTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * SincTable_put(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * SincTable_get(SincTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -1122,7 +1122,7 @@ static PyMethodDef SincTable_methods[] = {
     {"copy", (PyCFunction)SincTable_copy, METH_O, "Copy data from table given in argument."},
     {"setTable", (PyCFunction)SincTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)SincTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)SincTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)SincTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)SincTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)SincTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1269,7 +1269,7 @@ static PyObject * WinTable_pow(WinTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * WinTable_copy(WinTable *self, PyObject *arg) { COPY };
 static PyObject * WinTable_setTable(WinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * WinTable_getTable(WinTable *self) { GET_TABLE };
-static PyObject * WinTable_getViewTable(WinTable *self) { GET_VIEW_TABLE };
+static PyObject * WinTable_getViewTable(WinTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * WinTable_put(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * WinTable_get(WinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -1335,7 +1335,7 @@ static PyMethodDef WinTable_methods[] = {
 {"copy", (PyCFunction)WinTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)WinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)WinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)WinTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)WinTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)WinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)WinTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)WinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1495,7 +1495,7 @@ static PyObject * ParaTable_pow(ParaTable *self, PyObject *args, PyObject *kwds)
 static PyObject * ParaTable_copy(ParaTable *self, PyObject *arg) { COPY };
 static PyObject * ParaTable_setTable(ParaTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ParaTable_getTable(ParaTable *self) { GET_TABLE };
-static PyObject * ParaTable_getViewTable(ParaTable *self) { GET_VIEW_TABLE };
+static PyObject * ParaTable_getViewTable(ParaTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * ParaTable_put(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ParaTable_get(ParaTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -1540,7 +1540,7 @@ static PyMethodDef ParaTable_methods[] = {
     {"copy", (PyCFunction)ParaTable_copy, METH_O, "Copy data from table given in argument."},
     {"setTable", (PyCFunction)ParaTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)ParaTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)ParaTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)ParaTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)ParaTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)ParaTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -1733,7 +1733,7 @@ static PyObject * LinTable_pow(LinTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * LinTable_copy(LinTable *self, PyObject *arg) { COPY };
 static PyObject * LinTable_setTable(LinTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LinTable_getTable(LinTable *self) { GET_TABLE };
-static PyObject * LinTable_getViewTable(LinTable *self) { GET_VIEW_TABLE };
+static PyObject * LinTable_getViewTable(LinTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * LinTable_put(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * LinTable_get(LinTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -1832,7 +1832,7 @@ static PyMethodDef LinTable_methods[] = {
 {"copy", (PyCFunction)LinTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)LinTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)LinTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)LinTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)LinTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)LinTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)LinTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)LinTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2051,7 +2051,7 @@ static PyObject * LogTable_pow(LogTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * LogTable_copy(LogTable *self, PyObject *arg) { COPY };
 static PyObject * LogTable_setTable(LogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * LogTable_getTable(LogTable *self) { GET_TABLE };
-static PyObject * LogTable_getViewTable(LogTable *self) { GET_VIEW_TABLE };
+static PyObject * LogTable_getViewTable(LogTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * LogTable_put(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * LogTable_get(LogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -2150,7 +2150,7 @@ static PyMethodDef LogTable_methods[] = {
     {"copy", (PyCFunction)LogTable_copy, METH_O, "Copy data from table given in argument."},
     {"setTable", (PyCFunction)LogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)LogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)LogTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)LogTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)LogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)LogTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)LogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2347,7 +2347,7 @@ static PyObject * CosTable_pow(CosTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * CosTable_copy(CosTable *self, PyObject *arg) { COPY };
 static PyObject * CosTable_setTable(CosTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosTable_getTable(CosTable *self) { GET_TABLE };
-static PyObject * CosTable_getViewTable(CosTable *self) { GET_VIEW_TABLE };
+static PyObject * CosTable_getViewTable(CosTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * CosTable_put(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CosTable_get(CosTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -2446,7 +2446,7 @@ static PyMethodDef CosTable_methods[] = {
 {"copy", (PyCFunction)CosTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)CosTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)CosTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)CosTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)CosTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)CosTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)CosTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"normalize", (PyCFunction)CosTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2667,7 +2667,7 @@ static PyObject * CosLogTable_pow(CosLogTable *self, PyObject *args, PyObject *k
 static PyObject * CosLogTable_copy(CosLogTable *self, PyObject *arg) { COPY };
 static PyObject * CosLogTable_setTable(CosLogTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CosLogTable_getTable(CosLogTable *self) { GET_TABLE };
-static PyObject * CosLogTable_getViewTable(CosLogTable *self) { GET_VIEW_TABLE };
+static PyObject * CosLogTable_getViewTable(CosLogTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * CosLogTable_put(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CosLogTable_get(CosLogTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -2766,7 +2766,7 @@ static PyMethodDef CosLogTable_methods[] = {
     {"copy", (PyCFunction)CosLogTable_copy, METH_O, "Copy data from table given in argument."},
     {"setTable", (PyCFunction)CosLogTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)CosLogTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)CosLogTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)CosLogTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)CosLogTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)CosLogTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},
@@ -2990,7 +2990,7 @@ static PyObject * CurveTable_pow(CurveTable *self, PyObject *args, PyObject *kwd
 static PyObject * CurveTable_copy(CurveTable *self, PyObject *arg) { COPY };
 static PyObject * CurveTable_setTable(CurveTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * CurveTable_getTable(CurveTable *self) { GET_TABLE };
-static PyObject * CurveTable_getViewTable(CurveTable *self) { GET_VIEW_TABLE };
+static PyObject * CurveTable_getViewTable(CurveTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * CurveTable_put(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * CurveTable_get(CurveTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -3131,7 +3131,7 @@ static PyMethodDef CurveTable_methods[] = {
 {"copy", (PyCFunction)CurveTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)CurveTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)CurveTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)CurveTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)CurveTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)CurveTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)CurveTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)CurveTable_setSize, METH_O, "Sets the size of the table in samples"},
@@ -3354,7 +3354,7 @@ static PyObject * ExpTable_pow(ExpTable *self, PyObject *args, PyObject *kwds) {
 static PyObject * ExpTable_copy(ExpTable *self, PyObject *arg) { COPY };
 static PyObject * ExpTable_setTable(ExpTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * ExpTable_getTable(ExpTable *self) { GET_TABLE };
-static PyObject * ExpTable_getViewTable(ExpTable *self) { GET_VIEW_TABLE };
+static PyObject * ExpTable_getViewTable(ExpTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * ExpTable_put(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * ExpTable_get(ExpTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -3494,7 +3494,7 @@ static PyMethodDef ExpTable_methods[] = {
 {"copy", (PyCFunction)ExpTable_copy, METH_O, "Copy data from table given in argument."},
 {"setTable", (PyCFunction)ExpTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
 {"getTable", (PyCFunction)ExpTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-{"getViewTable", (PyCFunction)ExpTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+{"getViewTable", (PyCFunction)ExpTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
 {"getTableStream", (PyCFunction)ExpTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
 {"setData", (PyCFunction)ExpTable_setData, METH_O, "Sets the table from samples in a text file."},
 {"setSize", (PyCFunction)ExpTable_setSize, METH_O, "Sets the size of the table in samples"},
@@ -4803,7 +4803,7 @@ static PyObject * DataTable_pow(DataTable *self, PyObject *args, PyObject *kwds)
 static PyObject * DataTable_copy(DataTable *self, PyObject *arg) { COPY };
 static PyObject * DataTable_setTable(DataTable *self, PyObject *arg) { SET_TABLE };
 static PyObject * DataTable_getTable(DataTable *self) { GET_TABLE };
-static PyObject * DataTable_getViewTable(DataTable *self) { GET_VIEW_TABLE };
+static PyObject * DataTable_getViewTable(DataTable *self, PyObject *args, PyObject *kwds) { GET_VIEW_TABLE };
 static PyObject * DataTable_put(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_PUT };
 static PyObject * DataTable_get(DataTable *self, PyObject *args, PyObject *kwds) { TABLE_GET };
 
@@ -4831,7 +4831,7 @@ static PyMethodDef DataTable_methods[] = {
     {"copy", (PyCFunction)DataTable_copy, METH_O, "Copy data from table given in argument."},
     {"setTable", (PyCFunction)DataTable_setTable, METH_O, "Sets the table content from a list of floats (must be the same size as the object size)."},
     {"getTable", (PyCFunction)DataTable_getTable, METH_NOARGS, "Returns a list of table samples."},
-    {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_NOARGS, "Returns a list of pixel coordinates for drawing the table."},
+    {"getViewTable", (PyCFunction)DataTable_getViewTable, METH_VARARGS|METH_KEYWORDS, "Returns a list of pixel coordinates for drawing the table."},
     {"getTableStream", (PyCFunction)DataTable_getTableStream, METH_NOARGS, "Returns table stream object created by this table."},
     {"setData", (PyCFunction)DataTable_setData, METH_O, "Sets the table from samples in a text file."},
     {"normalize", (PyCFunction)DataTable_normalize, METH_NOARGS, "Normalize table samples between -1 and 1"},

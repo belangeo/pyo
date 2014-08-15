@@ -1275,7 +1275,7 @@ class PyoTableObject(PyoObjectBase):
         the server GUI before showing the controller window. 
         
         """
-        samples = self._base_objs[0].getViewTable()
+        samples = self._base_objs[0].getViewTable((500,200))
         createViewTableWindow(samples, title, wxnoserver, self.__class__.__name__, self)
 
     def _setViewFrame(self, frame):
@@ -1287,7 +1287,8 @@ class PyoTableObject(PyoObjectBase):
 
         """
         if self.viewFrame != None:
-            samples = self._base_objs[0].getViewTable()
+            size = self.viewFrame.wavePanel.GetSize()
+            samples = self._base_objs[0].getViewTable((size[0], size[1]))
             self.viewFrame.update(samples)
 
     @property
