@@ -2929,6 +2929,7 @@ class MainFrame(wx.Frame):
                 if midiInDriverIndex != -1:
                     f.write("s.setMidiInputDevice(%d)\n" % midiInDriverIndex)
                 f.write("s.boot()\ns.start()\n")
+            # TODO: Test on OSX and Windows
             if PLATFORM == "win32":
                 self.server_pipe = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
                                         shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
@@ -2950,15 +2951,25 @@ class MainFrame(wx.Frame):
             self.sendToServerItem.Enable(False)
 
     def sendSelectionToBackgroundServer(self, evt):
+        end = None
         text = self.panel.editor.GetSelectedTextUTF8()
         if text == "":
             pos = self.panel.editor.GetCurrentPos()
             line = self.panel.editor.LineFromPosition(pos)
             text = self.panel.editor.GetLineUTF8(line)
+        else:
+            end = self.panel.editor.GetSelectionEnd()
         if self.server_pipe != None:
             for line in text.splitlines():
                 self.server_pipe.write(line + "\n")
             self.server_pipe.write("\n")
+        if end != None:
+            self.panel.editor.SetCurrentPos(end)
+        self.panel.editor.LineDown()
+        line = self.panel.editor.GetCurrentLine()
+        pos = self.panel.editor.PositionFromLine(line)
+        self.panel.editor.SetCurrentPos(pos)
+        self.panel.editor.SetSelectionEnd(pos)
 
     def buildDoc(self):
         self.doc_frame = ManualFrame(osx_app_bundled=OSX_APP_BUNDLED, which_python=WHICH_PYTHON,
