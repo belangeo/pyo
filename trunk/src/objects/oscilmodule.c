@@ -1207,11 +1207,8 @@ Osc_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of Osc must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of Osc must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -1742,11 +1739,8 @@ OscLoop_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of OscLoop must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of OscLoop must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -2268,11 +2262,8 @@ OscTrig_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of OscTrig must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of OscTrig must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -3198,11 +3189,8 @@ Pointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of Pointer must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of Pointer must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -3279,16 +3267,12 @@ Pointer_setIndex(Pointer *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("TypeError: \"index\" attribute of Pointer must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+	tmp = arg;
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"index\" argument of Pointer must be a PyoObject.\n");
+        Py_RETURN_NONE;
 	}
 	
-	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->index);
 
@@ -3578,11 +3562,8 @@ Pointer2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of Pointer2 must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of Pointer2 must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -3661,16 +3642,12 @@ Pointer2_setIndex(Pointer2 *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("TypeError: \"index\" attribute of Pointer2 must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+	tmp = arg;
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"index\" argument of Pointer2 must be a PyoObject.\n");
+        Py_RETURN_NONE;
 	}
 	
-	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->index);
 
@@ -3969,11 +3946,8 @@ TableIndex_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of TableIndex must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableIndex must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -4050,16 +4024,12 @@ TableIndex_setIndex(TableIndex *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("TypeError: \"index\" attribute of TableIndex must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+	tmp = arg;
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"index\" argument of TableIndex must be a PyoObject.\n");
+        Py_RETURN_NONE;
 	}
 	
-	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->index);
     
@@ -4326,11 +4296,8 @@ Lookup_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of Lookup must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of Lookup must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -4407,16 +4374,12 @@ Lookup_setIndex(Lookup *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("TypeError: \"index\" attribute of Lookup must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
-	}
-	
 	tmp = arg;
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"index\" argument of Lookup must be a PyoObject.\n");
+        Py_RETURN_NONE;
+	}
+
 	Py_INCREF(tmp);
 	Py_XDECREF(self->index);
     
@@ -5055,21 +5018,15 @@ Pulsar_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of Pulsar must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of Pulsar must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
 
     if ( PyObject_HasAttrString((PyObject *)envtmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"env\" argument of Pulsar must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"env\" argument of Pulsar must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->env);
     self->env = PyObject_CallMethod((PyObject *)envtmp, "getTableStream", "");
@@ -5637,11 +5594,8 @@ TableRead_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of TableRead must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableRead must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
@@ -11397,21 +11351,15 @@ TableScale_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
     
     if ( PyObject_HasAttrString((PyObject *)tabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"table\" argument of TableScale must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"table\" argument of TableScale must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->table);
     self->table = PyObject_CallMethod((PyObject *)tabletmp, "getTableStream", "");
     
     if ( PyObject_HasAttrString((PyObject *)outtabletmp, "getTableStream") == 0 ) {
-        PySys_WriteStderr("TypeError: \"outtable\" argument of TableScale must be a PyoTableObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"outtable\" argument of TableScale must be a PyoTableObject.\n");
+        Py_RETURN_NONE;
     }
     Py_XDECREF(self->outtable);
     self->outtable = PyObject_CallMethod((PyObject *)outtabletmp, "getTableStream", "");

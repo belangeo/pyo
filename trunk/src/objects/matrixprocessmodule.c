@@ -159,6 +159,10 @@ MatrixPointer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (! PyArg_ParseTupleAndKeywords(args, kwds, "OOO|OO", kwlist, &matrixtmp, &xtmp, &ytmp, &multmp, &addtmp))
         Py_RETURN_NONE;
     
+    if ( PyObject_HasAttrString((PyObject *)matrixtmp, "getMatrixStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of MatrixPointer must be a PyoMatrixObject.\n");
+        Py_RETURN_NONE;
+    }
     Py_XDECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)matrixtmp, "getMatrixStream", "");
     
@@ -221,6 +225,11 @@ MatrixPointer_setMatrix(MatrixPointer *self, PyObject *arg)
 	}
     
 	tmp = arg;
+    if ( PyObject_HasAttrString((PyObject *)tmp, "getMatrixStream") == 0 ) {
+        PyErr_SetString(PyExc_TypeError, "\"matrix\" argument of MatrixPointer must be a PyoMatrixObject.\n");
+        Py_RETURN_NONE;
+    }
+
 	Py_DECREF(self->matrix);
     self->matrix = PyObject_CallMethod((PyObject *)tmp, "getMatrixStream", "");
     
@@ -238,16 +247,13 @@ MatrixPointer_setX(MatrixPointer *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("MatrixPointer x attributes must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+	tmp = arg;
+
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"x\" attribute of MatrixPointer must be a PyoObject.\n");
+        Py_RETURN_NONE;
 	}
 	
-	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->x);
 
@@ -271,16 +277,13 @@ MatrixPointer_setY(MatrixPointer *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("MatrixPointer y attributes must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+	tmp = arg;
+
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"y\" attribute of MatrixPointer must be a PyoObject.\n");
+        Py_RETURN_NONE;
 	}
 	
-	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->y);
     

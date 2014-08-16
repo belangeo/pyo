@@ -140,7 +140,7 @@ class Server(object):
         self._globalseed = 0
         self._server.__init__(sr, nchnls, buffersize, duplex, audio, jackname)
 
-    def gui(self, locals=None, meter=True, timer=True):
+    def gui(self, locals=None, meter=True, timer=True, exit=True):
         """
         Show the server's user interface.
         
@@ -155,10 +155,15 @@ class Server(object):
             timer : boolean, optional
                 If True, the interface will show a clock of the current time.
                 Defaults to True.
+            exit : boolean, optional
+                If True, the python interpreter will exit when the 'Quit' button is pressed,
+                Otherwise, the GUI will be closed leaving the interpreter alive.
+                Defaults to True.
             
         """
         f, win = createServerGUI(self._nchnls, self.start, self.stop, self.recstart, self.recstop,
-                                 self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer, self._amp)
+                                 self.setAmp, self.getIsStarted(), locals, self.shutdown, meter, timer, self._amp, exit)
+        print f, win
         if meter:
             self._server.setAmpCallable(f)
         if timer:

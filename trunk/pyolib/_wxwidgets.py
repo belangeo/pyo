@@ -984,6 +984,7 @@ class ViewTablePanel(wx.Panel):
         wx.Panel.__init__(self, parent)
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
         self.obj = obj
+        self.samples = []
         self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         if sys.platform == "win32":
@@ -1003,11 +1004,11 @@ class ViewTablePanel(wx.Panel):
         dc.SetPen(wx.Pen('#BBBBBB', width=1, style=wx.SOLID))  
         dc.Clear()
         dc.DrawRectangle(0,0,w,h)
-        dc.DrawLine(0, h/2+1, w, h/2+1)
         gc.SetPen(wx.Pen('#000000', width=1, style=wx.SOLID))
         gc.SetBrush(wx.Brush("#FFFFFF"))
         if len(self.samples) > 1:
             gc.DrawLines(self.samples)
+        dc.DrawLine(0, h/2+1, w, h/2+1)
 
     def OnSize(self, evt):
         wx.CallAfter(self.obj.refreshView)
@@ -2186,7 +2187,7 @@ class DataTableGrapher(wx.Frame):
 
 class ServerGUI(wx.Frame):
     def __init__(self, parent=None, nchnls=2, startf=None, stopf=None, recstartf=None, 
-                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1.):
+                recstopf=None, ampf=None, started=0, locals=None, shutdown=None, meter=True, timer=True, amp=1., exit=True):
         wx.Frame.__init__(self, parent, style=wx.DEFAULT_FRAME_STYLE ^ wx.RESIZE_BORDER)
 
         self.SetTitle("pyo server")
@@ -2208,6 +2209,7 @@ class ServerGUI(wx.Frame):
         self.recstartf = recstartf
         self.recstopf = recstopf
         self.ampf = ampf
+        self.exit = exit
         self._started = False
         self._recstarted = False
         self._history = []
@@ -2284,12 +2286,14 @@ class ServerGUI(wx.Frame):
                 self.startf()
             self._started = True
             wx.CallAfter(self.startButton.SetLabel, 'Stop')
-            wx.CallAfter(self.quitButton.Disable)
+            if self.exit:
+                wx.CallAfter(self.quitButton.Disable)
         else:
             wx.CallLater(100, self.stopf)
             self._started = False
             wx.CallAfter(self.startButton.SetLabel, 'Start')
-            wx.CallAfter(self.quitButton.Enable)
+            if self.exit:
+                wx.CallAfter(self.quitButton.Enable)
 
     def record(self, evt):
         if self._recstarted == False:
@@ -2302,9 +2306,11 @@ class ServerGUI(wx.Frame):
             self.recButton.SetLabel('Rec Start')
 
     def on_quit(self, evt):
-        self.shutdown()
+        if self.exit:
+            self.shutdown()
         self.Destroy()
-        sys.exit()
+        if self.exit:
+            sys.exit()
 
     def getPrev(self):
         self.text.Clear()
