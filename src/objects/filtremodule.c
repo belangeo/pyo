@@ -6707,11 +6707,8 @@ Vocoder_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     INIT_INPUT_STREAM
 
     if ( PyObject_HasAttrString((PyObject *)input2tmp, "server") == 0 ) {
-        PySys_WriteStderr("TypeError: \"input2\" argument of Vocoder must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of Vocoder must be a PyoObject.\n");
+        Py_RETURN_NONE;
     }    
     Py_XDECREF(self->input2);
     self->input2 = input2tmp;

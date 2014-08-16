@@ -285,7 +285,7 @@ def createSpectrumWindow(object, title, wxnoserver=False):
         else:
             SPECTRUMWINDOWS.append([object, title])   
         
-def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp):
+def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit):
     global X, Y, MAX_X, NEXT_Y
     if not PYO_USE_WX:
         createRootWindow()
@@ -295,7 +295,7 @@ def createServerGUI(nchnls, start, stop, recstart, recstop, setAmp, started, loc
         f.focus_set()
     else:
         win = createRootWindow()
-        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp) 
+        f = ServerGUI(None, nchnls, start, stop, recstart, recstop, setAmp, started, locals, shutdown, meter, timer, amp, exit) 
         f.SetTitle("pyo server")
         f.SetPosition((30, 30))
         f.Show()

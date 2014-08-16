@@ -612,11 +612,8 @@ PVSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVSynth \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVSynth must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -653,9 +650,8 @@ PVSynth_setInput(PVSynth *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVSynth \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVSynth must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -1087,11 +1083,8 @@ PVAddSynth_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVAddSynth \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVAddSynth must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -1137,9 +1130,8 @@ PVAddSynth_setInput(PVAddSynth *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVAddSynth \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVAddSynth must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -1573,11 +1565,8 @@ PVTranspose_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVTranspose \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVTranspose must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -1621,9 +1610,8 @@ PVTranspose_setInput(PVTranspose *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVTranspose \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVTranspose must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -2095,11 +2083,8 @@ PVVerb_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVVerb \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVVerb must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -2147,9 +2132,8 @@ PVVerb_setInput(PVVerb *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVVerb \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVVerb must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -2589,11 +2573,8 @@ PVGate_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVGate \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVGate must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -2641,9 +2622,8 @@ PVGate_setInput(PVGate *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVGate \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVGate must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -2989,11 +2969,8 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVCross \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVCross must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -3004,11 +2981,8 @@ PVCross_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input_stream = (PVStream *)input_streamtmp;
 
     if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVCross \"input2\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVCross must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(input2tmp);
     Py_XDECREF(self->input2);
@@ -3052,9 +3026,8 @@ PVCross_setInput(PVCross *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVCross \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVCross must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -3076,9 +3049,8 @@ PVCross_setInput2(PVCross *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVCross \"input2\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVCross must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -3337,11 +3309,8 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMult \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVMult must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -3352,11 +3321,8 @@ PVMult_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input_stream = (PVStream *)input_streamtmp;
 
     if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMult \"input2\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVMult must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(input2tmp);
     Py_XDECREF(self->input2);
@@ -3396,9 +3362,8 @@ PVMult_setInput(PVMult *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMult \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVMult must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -3420,9 +3385,8 @@ PVMult_setInput2(PVMult *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMult \"input2\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVMult must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -3708,11 +3672,8 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMorph \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVMorph must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -3723,11 +3684,8 @@ PVMorph_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input_stream = (PVStream *)input_streamtmp;
 
     if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMorph \"input2\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVMorph must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(input2tmp);
     Py_XDECREF(self->input2);
@@ -3771,9 +3729,8 @@ PVMorph_setInput(PVMorph *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMorph \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVMorph must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -3795,9 +3752,8 @@ PVMorph_setInput2(PVMorph *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMorph \"input2\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVMorph must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -4157,11 +4113,8 @@ PVFilter_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVFilter \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVFilter must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -4208,9 +4161,8 @@ PVFilter_setInput(PVFilter *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVFilter \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVFilter must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -4643,11 +4595,8 @@ PVDelay_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVDelay \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVDelay must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -4694,9 +4643,8 @@ PVDelay_setInput(PVDelay *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVDelay \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVDelay must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -5107,11 +5055,8 @@ PVBuffer_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVBuffer \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVBuffer must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -5163,9 +5108,8 @@ PVBuffer_setInput(PVBuffer *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVBuffer \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVBuffer must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -5190,16 +5134,12 @@ PVBuffer_setIndex(PVBuffer *self, PyObject *arg)
 		return Py_None;
 	}
     
-	int isNumber = PyNumber_Check(arg);
-	if (isNumber == 1) {
-		PySys_WriteStderr("TypeError: \"index\" attribute of PVBuffer must be a PyoObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+	tmp = arg;
+	if (PyObject_HasAttrString((PyObject *)tmp, "server") == 0) {
+        PyErr_SetString(PyExc_TypeError, "\"index\" argument of PVBuffer must be a PyoObject.\n");
+        Py_RETURN_NONE;
 	}
 	
-	tmp = arg;
 	Py_INCREF(tmp);
 	Py_XDECREF(self->index);
 
@@ -5520,11 +5460,8 @@ PVShift_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVShift \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVShift must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -5568,9 +5505,8 @@ PVShift_setInput(PVShift *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVShift \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVShift must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -5999,11 +5935,8 @@ PVAmpMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVAmpMod \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVAmpMod must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -6056,9 +5989,8 @@ PVAmpMod_setInput(PVAmpMod *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVAmpMod \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVAmpMod must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -6608,11 +6540,8 @@ PVFreqMod_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVFreqMod \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVFreqMod must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -6669,9 +6598,8 @@ PVFreqMod_setInput(PVFreqMod *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVFreqMod \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVFreqMod must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -7156,11 +7084,8 @@ PVBufLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVBufLoops \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVBufLoops must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -7215,9 +7140,8 @@ PVBufLoops_setInput(PVBufLoops *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVBufLoops \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVBufLoops must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -7589,11 +7513,8 @@ PVBufTabLoops_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVBufTabLoops \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVBufTabLoops must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -7643,9 +7564,8 @@ PVBufTabLoops_setInput(PVBufTabLoops *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVBufTabLoops \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVBufTabLoops must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -7903,11 +7823,8 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         Py_RETURN_NONE;
 
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMix \"input\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVMix must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(inputtmp);
     Py_XDECREF(self->input);
@@ -7918,11 +7835,8 @@ PVMix_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->input_stream = (PVStream *)input_streamtmp;
 
     if ( PyObject_HasAttrString((PyObject *)input2tmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMix \"input2\" argument must be a PyoPVObject.\n");
-        if (PyInt_AsLong(PyObject_CallMethod(self->server, "getIsBooted", NULL))) {
-            PyObject_CallMethod(self->server, "shutdown", NULL);
-        }
-        Py_Exit(1);
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVMix must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
     Py_INCREF(input2tmp);
     Py_XDECREF(self->input2);
@@ -7962,9 +7876,8 @@ PVMix_setInput(PVMix *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMix \"input\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input\" argument of PVMix must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);
@@ -7986,9 +7899,8 @@ PVMix_setInput2(PVMix *self, PyObject *arg)
 
     inputtmp = arg;
     if ( PyObject_HasAttrString((PyObject *)inputtmp, "pv_stream") == 0 ) {
-        PySys_WriteStderr("TypeError: PVMix \"input2\" argument must be a PyoPVObject.\n");
-        Py_INCREF(Py_None);
-        return Py_None;
+        PyErr_SetString(PyExc_TypeError, "\"input2\" argument of PVMix must be a PyoPVObject.\n");
+        Py_RETURN_NONE;
     }
 
     Py_INCREF(inputtmp);

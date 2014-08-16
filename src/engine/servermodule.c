@@ -1558,9 +1558,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     if (strcmp(audioType, "embedded") != 0)
     {
         if (PyServer_get_server() != NULL) {
-            Server_warning((Server *) PyServer_get_server(), "Warning: A Server is already created!\n"
-                "If you put this Server in a new variable, please delete it!\n");
-            return PyServer_get_server();
+            PyErr_SetString(PyExc_RuntimeError, "Warning: Trying to create a new Server object while one is already created!\n");
+            Py_RETURN_NONE;
         }
     }
 
@@ -1571,7 +1570,8 @@ Server_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
         }
     }
     if(serverID == MAX_NBR_SERVER){
-        return PyString_FromString("You are already using the maximum number of server allowed!");
+        PyErr_SetString(PyExc_RuntimeError, "You are already using the maximum number of server allowed!\n");
+        Py_RETURN_NONE;
     }
 
     Server *self;
