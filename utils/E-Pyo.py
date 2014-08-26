@@ -14,6 +14,9 @@ TODO:
 """
 from __future__ import with_statement
 
+import __builtin__
+__builtin__.EPYO_APP_OPENED = True
+
 WX_VERSION = '3.0'
 import wxversion
 wxversion.select(WX_VERSION)
@@ -772,7 +775,6 @@ class DataEvent(wx.PyEvent):
 
     def Clone (self): 
         self.__class__ (self.GetId())
-
 
 class RunningThread(threading.Thread):
     def __init__(self, path, cwd, event_receiver):
