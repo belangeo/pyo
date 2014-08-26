@@ -658,7 +658,9 @@ KEY_COMMANDS = {
 "29. Alt + 'D'": "Line Duplicate",
 "30. Alt + 'X'": "Line Cut",
 "31. Alt + 'V'": "Line Paste",
-"32. Alt + CLICK + DRAG": "Rectangular selection"
+"32. Alt + CLICK + DRAG": "Rectangular selection",
+"33. Shit + Return": "Show the init line of a pyo object in a tooltip",
+"34. Ctrl/Cmd + Return": "Show the __doc__ string of a python object, module or function"
 }
 
 ############## Allowed Extensions ##############
