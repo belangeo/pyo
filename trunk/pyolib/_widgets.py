@@ -20,6 +20,7 @@ along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 """
 from types import ListType, FloatType, IntType
 import math, sys, os, random
+import __builtin__
 
 try:
     from PIL import Image, ImageDraw, ImageTk
@@ -37,19 +38,30 @@ try:
 except:
     PYO_USE_WX = False
 
+if hasattr(__builtin__, 'EPYO_APP_OPENED'):
+    PYO_USE_WX = True
+
+PYO_USE_TK = False
 if not PYO_USE_WX:
     try:
         from Tkinter import *
         from _tkwidgets import *
+        PYO_USE_TK = True
+        print """
+WxPython is not found for the current python version. 
+Pyo will use a minimal GUI toolkit written with Tkinter. 
+This toolkit has limited functionnalities and is no more 
+maintained or updated. If you want to use all of pyo's
+GUI features, you should install WxPython, available here: 
+http://www.wxpython.org/
+"""
     except:
-        if sys.platform == "linux2":
-            response = raw_input("""python-tk package is missing! It is needed to use pyo graphical interfaces.
-Do you want to install it? (yes/no): """)
-            if response == 'yes':
-                os.system('sudo apt-get install python-tk')
-        else:
-            print "Tkinter is missing! It is needed to use pyo graphical interfaces. Please install it!"
-        sys.exit()
+        PYO_USE_TK = False
+        print """
+Neither WxPython nor Tkinter are found for the current python version.
+Pyo's GUI features are disabled. For a complete GUI toolkit, you should 
+consider installing WxPython, available here: http://www.wxpython.org/
+"""
 
 X, Y, CURRENT_X, MAX_X, NEXT_Y = 800, 700, 30, 30, 30
 WINDOWS = []
