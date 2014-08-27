@@ -9,7 +9,6 @@ Olivier Belanger - 2012
 
 TODO:
     - Fix printing to pdf
-    - Fix status bar on OSX and Windows
 
 """
 from __future__ import with_statement
@@ -805,7 +804,7 @@ class RunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
-        # TODO: check real time logging on OSX and Windows
+        # TODO: check real time logging on OSX
         if OSX_APP_BUNDLED:
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
@@ -1343,7 +1342,7 @@ class SnippetTree(wx.Panel):
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.toolbar = wx.ToolBar(self, -1, size=(-1,36))
+        self.toolbar = wx.ToolBar(self, -1)
         self.toolbar.SetToolBitmapSize(tsize)
         self.toolbar.AddLabelTool(SNIPPET_ADD_FOLDER_ID, "Add Category", folder_add_bmp, shortHelp="Add a New Category")
         self.toolbar.AddLabelTool(SNIPPET_DEL_FILE_ID, "Delete", file_add_bmp, shortHelp="Delete Snippet or Category")
@@ -1556,13 +1555,12 @@ class SnippetFrame(wx.Frame):
         saveButton = wx.Button(self.toolbar, wx.ID_ANY, label="Save Snippet")
         self.toolbar.AddControl(saveButton)
         self.Bind(wx.EVT_BUTTON, self.onSave, id=saveButton.GetId())
-
+        self.toolbar.Realize()
+		
         toolbarBox.Add(self.toolbar, 1, wx.ALIGN_LEFT|wx.EXPAND|wx.LEFT, 5)
 
         toolbar2 = wx.ToolBar(self.panel, -1)
         self.tagButton = wx.Button(toolbar2, wx.ID_ANY, label="Tag Selection")
-        X = self.tagButton.GetSize()[0]
-        toolbar2.SetSize((X+8, 40))
         toolbar2.AddControl(self.tagButton)
         self.Bind(wx.EVT_BUTTON, self.onTagSelection, id=self.tagButton.GetId())
         toolbar2.Realize()
@@ -2092,7 +2090,7 @@ class MainFrame(wx.Frame):
         self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
         self.status.SetFieldsCount(3)
         
-        # TODO: Fix status bar on OSX and Windows
+        # TODO: Fix status bar on OSX
         if PLATFORM == "darwin":
             ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
             sth = 17
@@ -2145,8 +2143,8 @@ class MainFrame(wx.Frame):
             yoff1 = -2
             yoff2 = -1
         elif PLATFORM == "win32":
-            yoff1 = -2
-            yoff2 = -2
+            yoff1 = 0
+            yoff2 = -1
 
         self.status.SetStatusText("Quick Search:", 0)
         rect = self.status.GetFieldRect(1)
@@ -2378,7 +2376,7 @@ class MainFrame(wx.Frame):
             self.panel.editor.navigateMarkers(down=True)
 
     def gotoLine(self, evt):
-        # TODO: Check this function on OSX and Windows
+        # TODO: Check this function on OSX
         dlg = wx.TextEntryDialog(self, "Enter a line number:", "Go to Line")
         val = -1
         if dlg.ShowModal() == wx.ID_OK:
@@ -2932,7 +2930,7 @@ class MainFrame(wx.Frame):
                 if midiInDriverIndex != -1:
                     f.write("s.setMidiInputDevice(%d)\n" % midiInDriverIndex)
                 f.write("s.boot()\ns.start()\n")
-            # TODO: Test on OSX and Windows
+            # TODO: Test on OSX
             if PLATFORM == "win32":
                 self.server_pipe = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
                                         shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
@@ -4394,9 +4392,9 @@ class OutputLogPanel(wx.Panel):
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
-        # TODO : check toolbar on OSX and Windows
+        # TODO : check toolbar on OSX
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
-        self.toolbar = wx.ToolBar(self, -1, size=(-1,32))
+        self.toolbar = wx.ToolBar(self, -1)
         self.toolbar.SetMargins((5, 0))
         font, psize = self.toolbar.GetFont(), self.toolbar.GetFont().GetPointSize()
         if PLATFORM == "darwin":

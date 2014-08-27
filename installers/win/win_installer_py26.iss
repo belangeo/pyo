@@ -16,7 +16,7 @@ DefaultDirName={sd}\Python26
 DisableDirPage=yes
 DefaultGroupName=pyo
 AllowNoIcons=yes
-InfoBeforeFile=C:\Documents and Settings\user\svn\pyo\installers\win\\README-win32-py26.txt
+InfoBeforeFile=C:\Users\olipet\svn\pyo\installers\win\\README-win32-py26.txt
 OutputBaseFilename=pyo_0.6.9_py2.6_setup
 Compression=lzma
 SolidCompression=yes
@@ -43,13 +43,13 @@ Source: "C:\Python26\Lib\site-packages\msvcr90.dll"; DestDir: "{sd}\Python26\Lib
 Source: "C:\MinGW\bin\libgcc_s_dw2-1.dll"; DestDir: "{sd}\Python26\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\MinGW\bin\libstdc++-6.dll"; DestDir: "{sd}\Python26\Lib\site-packages"; Flags: ignoreversion
 Source: "C:\Python26\Lib\site-packages\pyo-0.6.9-py2.6.egg-info"; DestDir: "{sd}\Python26\Lib\site-packages"; Flags: ignoreversion
-Source: "C:\Documents and Settings\user\svn\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples\"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "C:\Documents and Settings\user\svn\pyo\installers\win\README-win32-py26.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
+Source: "C:\Users\olipet\svn\pyo\examples\*"; DestDir: "{userdesktop}\pyo_examples\"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\olipet\svn\pyo\installers\win\README-win32-py26.txt"; DestDir: "{userdesktop}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 ; E-Pyo stuff
-Source: "C:\Documents and Settings\user\svn\pyo\utils\E-Pyo_py26\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
-Source: "C:\Documents and Settings\user\svn\pyo\utils\E-Pyo_py26\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\olipet\svn\pyo\utils\E-Pyo_py26\E-Pyo.exe"; DestDir: "{pf}\E-Pyo"; Flags: ignoreversion
+Source: "C:\Users\olipet\svn\pyo\utils\E-Pyo_py26\Resources\*"; DestDir: "{pf}\E-Pyo\Resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
