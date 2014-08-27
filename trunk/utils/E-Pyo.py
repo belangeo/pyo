@@ -13,15 +13,14 @@ TODO:
 
 """
 from __future__ import with_statement
+import sys
 
-import __builtin__
-__builtin__.EPYO_APP_OPENED = True
+if sys.platform != "win32":
+	WX_VERSION = '3.0'
+	import wxversion
+	wxversion.select(WX_VERSION)
 
-WX_VERSION = '3.0'
-import wxversion
-wxversion.select(WX_VERSION)
-
-import sys, os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
+import os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
 import contextlib, StringIO, shutil, copy, pprint, random, time, threading
 from types import UnicodeType, MethodType, ListType
 from wx.lib.wordwrap import wordwrap
