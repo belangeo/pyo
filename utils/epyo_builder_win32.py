@@ -15,9 +15,9 @@ os.system("svn export ../examples Resources/examples/")
 os.system("svn export snippets Resources/snippets/")
 os.system("svn export styles Resources/styles/")
 
-os.system("C:\Python%d%d\python ..\..\pyinstaller\Configure.py" % version)
-os.system('C:\Python%d%d\python ..\..\pyinstaller\Makespec.py -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
-os.system('C:\Python%d%d\python ..\..\pyinstaller\Build.py "E-Pyo.spec"' % version)
+#os.system("C:\Python%d%d\python ..\..\pyinstaller\Configure.py" % version)
+os.system('C:\Python%d%d\Scripts\pyi-makespec -F -c --icon=Resources\E-PyoIcon.ico "E-Pyo.py"' % version)
+os.system('C:\Python%d%d\Scripts\pyi-build "E-Pyo.spec"' % version)
 
 os.mkdir("E-Pyo_py%d%d" % version)
 shutil.copytree("Resources", "E-Pyo_py%d%d/Resources" % version)
