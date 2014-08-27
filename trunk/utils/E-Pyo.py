@@ -13,7 +13,9 @@ TODO:
 """
 from __future__ import with_statement
 import sys
-
+import __builtin__
+__builtin__.EPYO_APP_OPENED = True
+        
 if sys.platform != "win32":
 	WX_VERSION = '3.0'
 	import wxversion
