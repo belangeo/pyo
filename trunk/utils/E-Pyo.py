@@ -9,14 +9,14 @@ Olivier Belanger - 2012
 
 TODO:
     - Fix printing to pdf
-
+    - Output panel close button on OSX (display only) 
 """
 from __future__ import with_statement
 import sys
 import __builtin__
 __builtin__.EPYO_APP_OPENED = True
         
-if sys.platform != "win32":
+if sys.platform == "linux2":
 	WX_VERSION = '3.0'
 	import wxversion
 	wxversion.select(WX_VERSION)
@@ -806,7 +806,6 @@ class RunningThread(threading.Thread):
             self.proc.kill()
 
     def run(self):
-        # TODO: check real time logging on OSX
         if OSX_APP_BUNDLED:
             vars_to_remove = "PYTHONHOME PYTHONPATH EXECUTABLEPATH RESOURCEPATH ARGVZERO PYTHONOPTIMIZE"
             prelude = "export -n %s;export PATH=/usr/local/bin:/usr/local/lib:$PATH;" % vars_to_remove
@@ -2092,10 +2091,9 @@ class MainFrame(wx.Frame):
         self.status.Bind(wx.EVT_SIZE, self.StatusOnSize)
         self.status.SetFieldsCount(3)
         
-        # TODO: Fix status bar on OSX
         if PLATFORM == "darwin":
             ststyle = wx.TE_PROCESS_ENTER|wx.NO_BORDER
-            sth = 17
+            sth = self.status.GetSize()[1] #16
             cch = -1
         elif PLATFORM == "linux2":
             ststyle = wx.TE_PROCESS_ENTER|wx.SIMPLE_BORDER
@@ -2378,7 +2376,6 @@ class MainFrame(wx.Frame):
             self.panel.editor.navigateMarkers(down=True)
 
     def gotoLine(self, evt):
-        # TODO: Check this function on OSX
         dlg = wx.TextEntryDialog(self, "Enter a line number:", "Go to Line")
         val = -1
         if dlg.ShowModal() == wx.ID_OK:
@@ -2932,7 +2929,6 @@ class MainFrame(wx.Frame):
                 if midiInDriverIndex != -1:
                     f.write("s.setMidiInputDevice(%d)\n" % midiInDriverIndex)
                 f.write("s.boot()\ns.start()\n")
-            # TODO: Test on OSX
             if PLATFORM == "win32":
                 self.server_pipe = subprocess.Popen([WHICH_PYTHON, '-i', 'background_server.py'], 
                                         shell=True, cwd=TEMP_PATH, stdin=subprocess.PIPE).stdin
