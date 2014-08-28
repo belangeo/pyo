@@ -4441,7 +4441,8 @@ class OutputLogPanel(wx.Panel):
         toolbarbox.Add(self.toolbar, 1, wx.ALIGN_LEFT | wx.ALIGN_CENTER_VERTICAL | wx.EXPAND, 0)
 
         tb2 = wx.ToolBar(self, -1, size=(-1,32))
-        tb2.SetToolBitmapSize(tsize)
+        if PLATFORM == "darwin":
+            tb2.SetToolBitmapSize(tsize)
         tb2.AddSeparator()
         tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
