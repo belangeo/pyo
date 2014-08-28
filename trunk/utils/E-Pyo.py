@@ -4392,7 +4392,6 @@ class OutputLogPanel(wx.Panel):
 
         self.sizer = wx.BoxSizer(wx.VERTICAL)
 
-        # TODO : check toolbar on OSX
         toolbarbox = wx.BoxSizer(wx.HORIZONTAL)
         self.toolbar = wx.ToolBar(self, -1)
         self.toolbar.SetMargins((5, 0))
@@ -4443,6 +4442,7 @@ class OutputLogPanel(wx.Panel):
 
         tb2 = wx.ToolBar(self, -1, size=(-1,32))
         tb2.SetToolBitmapSize(tsize)
+        tb2.AddSeparator()
         tb2.AddLabelTool(17, "Close Panel", close_panel_bmp, shortHelp="Close Panel")
         tb2.Realize()
         toolbarbox.Add(tb2, 0, wx.ALIGN_RIGHT, 0)
