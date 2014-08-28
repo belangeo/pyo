@@ -5586,6 +5586,36 @@ class MyFileDropTarget(wx.FileDropTarget):
             else:
                 pass
 
+class EPyoApp(wx.App):
+    def __init__(self, *args, **kwargs):
+        wx.App.__init__(self, *args, **kwargs)
+
+    def OnInit(self):
+        X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
+        if X < 850: X -= 50
+        else: X = 850
+        if Y < 750: Y -= 50
+        else: Y = 750
+        self.frame = MainFrame(None, -1, title='E-Pyo Editor', pos=(10,25), size=(X, Y))
+        self.frame.Show()
+        return True
+
+    def MacOpenFiles(self, filenames):
+        if type(filenames) != ListType:
+            filenames = [filenames]
+        for filename in filenames:
+            if os.path.isdir(filename):
+                self.frame.panel.project.loadFolder(filename)
+                sys.path.append(filename)
+            elif os.path.isfile(filename):
+                self.frame.panel.addPage(filename)
+
+    def MacReopenApp(self):
+        try:
+            self.frame.Raise()
+        except:
+            pass
+
 if __name__ == '__main__':
     filesToOpen = []
     foldersToOpen = []
@@ -5599,12 +5629,5 @@ if __name__ == '__main__':
             else:
                 pass
 
-    app = wx.App(False)
-    X,Y = wx.SystemSettings.GetMetric(wx.SYS_SCREEN_X), wx.SystemSettings.GetMetric(wx.SYS_SCREEN_Y)
-    if X < 850: X -= 50
-    else: X = 850
-    if Y < 750: Y -= 50
-    else: Y = 750
-    frame = MainFrame(None, -1, title='E-Pyo Editor', pos=(10,25), size=(X, Y))
-    frame.Show()
+    app = EPyoApp(redirect=False)
     app.MainLoop()
