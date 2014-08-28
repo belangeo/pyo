@@ -1023,17 +1023,17 @@ class ComponentPanel(scrolled.ScrolledPanel):
             box = wx.BoxSizer(wx.HORIZONTAL)
             label = wx.StaticText(self, wx.ID_ANY, label=STYLES_LABELS[component])
             box.Add(label, 1, wx.EXPAND|wx.TOP|wx.LEFT, 3)
-            btog = wx.ToggleButton(self, wx.ID_ANY, label="B", size=(20,20))
+            btog = wx.ToggleButton(self, wx.ID_ANY, label="B", size=(24,20))
             btog.SetValue(STYLES[component]['bold'])
             box.Add(btog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)
             btog.Bind(wx.EVT_TOGGLEBUTTON, self.OnBToggleButton)
             self.bTogRefs[btog] = component          
-            itog = wx.ToggleButton(self, wx.ID_ANY, label="I", size=(20,20))
+            itog = wx.ToggleButton(self, wx.ID_ANY, label="I", size=(24,20))
             itog.SetValue(STYLES[component]['italic'])
             box.Add(itog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)            
             itog.Bind(wx.EVT_TOGGLEBUTTON, self.OnIToggleButton)
             self.iTogRefs[itog] = component          
-            utog = wx.ToggleButton(self, wx.ID_ANY, label="U", size=(20,20))
+            utog = wx.ToggleButton(self, wx.ID_ANY, label="U", size=(24,20))
             utog.SetValue(STYLES[component]['underline'])
             box.Add(utog, 0, wx.TOP|wx.ALIGN_RIGHT, 1)  
             utog.Bind(wx.EVT_TOGGLEBUTTON, self.OnUToggleButton)
@@ -1117,7 +1117,12 @@ class ColourEditor(wx.Frame):
 
         self.cur_style = ""
 
-        toolbar = self.CreateToolBar()
+        self.panel = wx.Panel(self)
+        self.panel.SetAutoLayout(True)
+        mainSizer = wx.BoxSizer(wx.VERTICAL)
+        self.panel.SetSizer(mainSizer)
+
+        toolbar = wx.ToolBar(self.panel, -1)
         saveButton = wx.Button(toolbar, wx.ID_ANY, label="Save Style")
         saveButton.Bind(wx.EVT_BUTTON, self.OnSave)
         toolbar.AddControl(saveButton)
@@ -1134,20 +1139,17 @@ class ColourEditor(wx.Frame):
         toolbar.AddControl(deleteButton)
         toolbar.Realize()
 
-        self.panel = wx.Panel(self)
-        self.panel.SetAutoLayout(True)
-        mainSizer = wx.BoxSizer(wx.VERTICAL)
-        self.panel.SetSizer(mainSizer)
+        mainSizer.Add(toolbar, 1, wx.EXPAND, 5)
 
         enum = wx.FontEnumerator()
         enum.EnumerateFacenames(fixedWidthOnly=True)
         facelist = enum.GetFacenames()
         facelist.sort()
 
-        buttonData = [  (STYLES_GENERALS[0], STYLES['default']['colour'], (50, 20), STYLES_LABELS['default']),
-                        (STYLES_GENERALS[1], STYLES['background']['colour'], (50, 20), STYLES_LABELS['background']),
-                        (STYLES_GENERALS[2], STYLES['selback']['colour'], (50, 20), STYLES_LABELS['selback']),
-                        (STYLES_GENERALS[3], STYLES['caret']['colour'], (50, 20), STYLES_LABELS['caret']) ]
+        buttonData = [  (STYLES_GENERALS[0], STYLES['default']['colour'], (50, 24), STYLES_LABELS['default']),
+                        (STYLES_GENERALS[1], STYLES['background']['colour'], (50, 24), STYLES_LABELS['background']),
+                        (STYLES_GENERALS[2], STYLES['selback']['colour'], (50, 24), STYLES_LABELS['selback']),
+                        (STYLES_GENERALS[3], STYLES['caret']['colour'], (50, 24), STYLES_LABELS['caret']) ]
 
         self.buttonRefs = {}
 
