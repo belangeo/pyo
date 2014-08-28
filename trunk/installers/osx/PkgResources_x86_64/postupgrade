@@ -1,15 +1,6 @@
 #! /bin/sh
 
-VERSION=`sw_vers -productVersion | sed -e 's/\.//g'`
-
-if [ $VERSION -ge '1070' ]; then
-    echo "Install pyo on OSX 10.7";
-else
-    echo "Install pyo on OSX 10.6";
-fi
-
-# Removed older versions in the python site-packages builtin directories
-# Removed older versions in the python site-packages from python.org install directories
+# Removed older versions in the python site-packages builtin and in the python site-packages from python.org directories
 PATHS=/Library/Python/2.6/site-packages/:/Library/Python/2.7/site-packages/:/Library/Frameworks/Python.framework/Versions/2.6/lib/python2.6/site-packages/:/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/
 for path in ${PATHS//:/ }; do
     if cd $path; then
@@ -42,22 +33,20 @@ for path in ${PATHS//:/ }; do
 done
 
 # Install pyo in the python site-packages builtin directories
-if [ $VERSION -ge '1070' ]; then
-    if cd /Library/Python/2.7/site-packages/; then
-        sudo cp -r /tmp/python27/* .
-    else
-        sudo mkdir -p /Library/Python/2.7/site-packages/
-        cd /Library/Python/2.7/site-packages/
-        sudo cp -r /tmp/python27/* .
-    fi
+if cd /Library/Python/2.7/site-packages/; then
+    sudo cp -r /tmp/python27/* .
 else
-    if cd /Library/Python/2.6/site-packages/; then
-        sudo cp -r /tmp/python26/* .
-    else
-        sudo mkdir -p /Library/Python/2.6/site-packages/
-        cd /Library/Python/2.6/site-packages/
-        sudo cp -r /tmp/python26/* .
-    fi
+    sudo mkdir -p /Library/Python/2.7/site-packages/
+    cd /Library/Python/2.7/site-packages/
+    sudo cp -r /tmp/python27/* .
+fi
+
+if cd /Library/Python/2.6/site-packages/; then
+    sudo cp -r /tmp/python26/* .
+else
+    sudo mkdir -p /Library/Python/2.6/site-packages/
+    cd /Library/Python/2.6/site-packages/
+    sudo cp -r /tmp/python26/* .
 fi
 
 # Install pyo in the python.org site-packages directories
