@@ -78,17 +78,16 @@
 	<array/>
 	<key>PyRuntimeLocations</key>
 	<array>
-		<string>@executable_path/../Frameworks/Python.framework/Versions/2.6/Python</string>
+		<string>@executable_path/../Frameworks/Python.framework/Versions/2.7/Python</string>
 	</array>
 	<key>PythonInfoDict</key>
 	<dict>
 		<key>PythonExecutable</key>
-		<string>@executable_path/../Frameworks/Python.framework/Versions/2.6/Python</string>
+		<string>@executable_path/../Frameworks/Python.framework/Versions/2.7/Python</string>
 		<key>PythonLongVersion</key>
-		<string>2.6.5 (r265:79359, Mar 24 2010, 01:32:55) 
-[GCC 4.0.1 (Apple Inc. build 5493)]</string>
+		<string>2.7.8 (v2.7.8:ee879c0ffa11, Jun 29 2014, 21:07:35) \n[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)]</string>
 		<key>PythonShortVersion</key>
-		<string>2.6</string>
+		<string>2.7</string>
 		<key>py2app</key>
 		<dict>
 			<key>alias</key>
@@ -96,7 +95,7 @@
 			<key>template</key>
 			<string>app</string>
 			<key>version</key>
-			<string>0.4.4</string>
+			<string>0.9</string>
 		</dict>
 	</dict>
 </dict>

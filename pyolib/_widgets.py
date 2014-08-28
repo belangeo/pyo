@@ -72,8 +72,10 @@ TABLEWINDOWS = []
 SNDTABLEWINDOWS = []
 MATRIXWINDOWS = []
 SPECTRUMWINDOWS = []
+WX_APP = False
 
 def createRootWindow():
+    global WX_APP
     if not PYO_USE_WX:
         if len(WINDOWS) == 0:
             root = Tk()
@@ -82,8 +84,9 @@ def createRootWindow():
         else:
             return None
     else:        
-        if wx.GetApp() == None: 
-            win = wx.App(False) 
+        if not WX_APP: 
+            win = wx.App(False)
+            WX_APP = True 
             return win
         else:
             return None
@@ -194,7 +197,7 @@ def createCtrlWindow(obj, map_list, title, wxnoserver=False):
         if title == None: title = obj.__class__.__name__
         win.title(title)
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             f = PyoObjectControl(None, obj, map_list)
             if title == None: title = obj.__class__.__name__
@@ -206,7 +209,7 @@ def createGraphWindow(obj, mode, xlen, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the 'graph()' method."
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             f = TableGrapher(None, obj, mode, xlen, yrange)
             if title == None: title = obj.__class__.__name__
@@ -218,7 +221,7 @@ def createDataGraphWindow(obj, yrange, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the 'graph()' method."
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             f = DataTableGrapher(None, obj, yrange)
             if title == None: title = obj.__class__.__name__
@@ -235,7 +238,7 @@ def createViewTableWindow(samples, title="Table waveform", wxnoserver=False, tab
         win.resizable(False, False)
         win.title(title)
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             f = ViewTable(None, samples, tableclass, object)
             wxShowWindow(f, title, root)
@@ -253,7 +256,7 @@ def createSndViewTableWindow(obj, title="Table waveform", wxnoserver=False, tabl
         win.resizable(False, False)
         win.title(title)
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             f = SndViewTable(None, obj, tableclass, mouse_callback)
             if title == None: title = obj.__class__.__name__
@@ -273,7 +276,7 @@ It helps a lot to speed up matrix drawing!"""
         win.resizable(False, False)
         win.title(title)
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             if WITH_PIL: f = ViewMatrix_withPIL(None, samples, size, object)
             else: f = ViewMatrix_withoutPIL(None, samples, size, object)
@@ -287,7 +290,7 @@ def createSpectrumWindow(object, title, wxnoserver=False):
     if not PYO_USE_WX:
         print "WxPython must be installed to use the Spectrum display."
     else:
-        if wxnoserver or wx.GetApp() != None:
+        if wxnoserver or WX_APP:
             root = createRootWindow()
             f = SpectrumDisplay(None, object)
             if title == None: title = object.__class__.__name__
