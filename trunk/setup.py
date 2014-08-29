@@ -23,7 +23,7 @@ from distutils.core import setup, Extension
 import os, sys, getopt
 import time
 
-pyo_version = "0.6.9"
+pyo_version = "0.7.0"
 build_osx_with_jack_support = False
 compile_externals = False
 

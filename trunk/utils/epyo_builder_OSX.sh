@@ -27,7 +27,7 @@ else
     exit;
 fi
 
-# ???
+# keep only 64-bit arch
 ditto --rsrc --arch x86_64 E-Pyo.app E-Pyo-x86_64.app
 rm -rf E-Pyo.app
 mv E-Pyo-x86_64.app E-Pyo.app
@@ -40,8 +40,6 @@ cp -R E-Pyo_OSX/E-Pyo.app .
 #awk '{gsub("Library/Frameworks/Python.framework/Versions/2.7/Resources/Python.app/Contents/MacOS/Python", "@executable_path/../Frameworks/Python.framework/Versions/2.7/Python")}1' Info.plist > Info.plist_tmp && mv Info.plist_tmp Info.plist
 #cd ../..
 
-#tar -cjvf E-Pyo_OSX-0.6.1.tar.bz2 E-Pyo.app
-#rm -rf E-Pyo.app
 rm -rf E-Pyo_OSX
 rm -rf Resources
 rm -rf examples

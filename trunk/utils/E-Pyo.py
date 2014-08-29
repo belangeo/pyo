@@ -1139,7 +1139,7 @@ class ColourEditor(wx.Frame):
         toolbar.AddControl(deleteButton)
         toolbar.Realize()
 
-        mainSizer.Add(toolbar, 1, wx.EXPAND, 5)
+        mainSizer.Add(toolbar, 0, wx.EXPAND)
 
         enum = wx.FontEnumerator()
         enum.EnumerateFacenames(fixedWidthOnly=True)
