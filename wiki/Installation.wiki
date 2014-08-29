@@ -3,7 +3,7 @@
 =Dependencies=
 To install pyo, you will need the following dependencies:
   * [http://www.python.org/download/releases/ Python 2.6.x or 2.7.x]
-  * [http://sourceforge.net/projects/wxpython/files/wxPython/2.8.12.1/ WxPython 2.8.12.1] (be sure to get the one matching your python architecture)
+  * [http://www.wxpython.org/download.php WxPython 3.0] (be sure to get the one matching your python architecture)
   * [http://www.portaudio.com portaudio]
   * [http://portmedia.sourceforge.net/portmidi/ portmidi]
   * [http://www.mega-nerd.com/libsndfile libsndfile]
@@ -11,7 +11,7 @@ To install pyo, you will need the following dependencies:
   * Ubuntu: python-tk (doesn't come installed by default on Ubuntu)
   * Ubuntu: python-dev package
 
-Under Mac OS X, you can use Homebrew to retrieve necessary dependency librairies and headers (except for wxpython 2.8.12.1) to compile pyo.
+Under Mac OS X, you can use Homebrew to retrieve necessary dependency librairies and headers (except for wxpython 3.0) to compile pyo.
 
 First, install Homebrew with this command:
 
