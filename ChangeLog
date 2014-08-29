@@ -1,3 +1,23 @@
+2014-08-29 belangeo <belangeo@gmail.com>
+
+    * Release tag: 0.7.0.
+    - rev 1224
+
+2014-08-26 belangeo <belangeo@gmail.com>
+
+    * pyo can now be used without any GUI toolkit (WxPython or TKinter). Widgets are simply disabled.
+    - rev 1208
+
+2014-06-22 belangeo <belangeo@gmail.com>
+
+    * Added Server methods to auto-connect Jack ports to already opened ports.
+    - rev 1201
+
+2014-05-23 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: output log now in realtime.
+    - rev 1197
+
 2014-04-24 belangeo <belangeo@gmail.com>
 
     * Added new object: Tanh, hyperbolic tangent function on audio signal.
