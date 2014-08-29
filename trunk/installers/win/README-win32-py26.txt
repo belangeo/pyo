@@ -4,7 +4,7 @@ Pyo is a Python module written in C to help digital signal processing script cre
 
 http://www.python.org/download/releases/2.6.6/
 
-To use the WxPython toolkit for widgets, you need to install wxPython2.8-win32-unicode-py26:
+To use the WxPython toolkit for widgets, you need to install wxPython 3.0 for python 2.6:
 
 http://www.wxpython.org/download.php#stable
 
@@ -13,8 +13,8 @@ it's a good starting point to explore the library!
 
 In a Command Prompt:
 
-cd Desktop\pyo_examples
-python xnoise_example.py
+cd Desktop\pyo_examples\algorithmic
+python 01_music_box.py
 
 Please, send comments and bugs to:
 
