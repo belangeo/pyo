@@ -23,6 +23,12 @@ Tools to perform arithmetic operations on audio signals.
 .. autoclass:: Tan
    :members:
 
+*Tanh*
+------------
+
+.. autoclass:: Tanh
+   :members:
+
 *Abs*
 ------------
 
