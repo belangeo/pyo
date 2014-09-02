@@ -12,4 +12,4 @@ For questions and comments, please subscribe to the `pyo-discuss <http://groups.
 To report a bug or to request a feature, use the `issues tracker <http://code.google.com/p/pyo/issues/list>`_ on googlecode.
 
 Sources and binaries can be downloaded at:
-http://code.google.com/p/pyo/
+http://ajaxsoundstudio.com/software/pyo/

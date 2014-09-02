@@ -9,26 +9,25 @@ Dependencies
 To compile pyo, you will need the following dependencies: 
 
 - `Python 2.6 or 2.7 <http://www.python.org/download/releases/>`_
+- `WxPython 3.0 <http://www.wxpython.org/download.php/>`_
 - `Portaudio <http://www.portaudio.com/>`_
 - `Portmidi <http://portmedia.sourceforge.net/portmidi/>`_
 - `libsndfile <http://www.mega-nerd.com/libsndfile/>`_
 - `liblo <http://liblo.sourceforge.net/>`_
 
+Under Mac OS X, you can use Homebrew to retrieve necessary dependency librairies and headers (except for wxpython 3.0) to compile pyo.
 
-Under Mac OS X, to retrieve necessary dependency librairies and headers to compile pyo, you can run the "get_dependencies.sh" script from the scripts folder in pyo sources, it will download them to /usr/local/lib and /usr/local/include directory. 
-
-For i386 architecture (32-bit python): 
-
-.. code-block:: bash
-
-    sh scripts/get_dependencies.sh
-
-For i386/x86_64 architectures (64-bit python): 
+First, install Homebrew with this command: 
 
 .. code-block:: bash
 
-    sh scripts/get_dependencies_x86_64.sh
+    ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
 
+Then, install packages: 
+
+.. code-block:: bash
+
+    brew install python liblo libsndfile portaudio portmidi
 
 Getting sources
 -------------------
