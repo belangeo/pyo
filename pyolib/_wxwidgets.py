@@ -1582,6 +1582,11 @@ class Grapher(wx.Panel):
         self.init = [tup for tup in init]
         self.points = init
         self.outFunction = outFunction
+
+        if sys.platform == "win32":
+            self.dcref = wx.BufferedPaintDC
+        else:
+            self.dcref = wx.PaintDC
         
         self.SetFocus()
 
@@ -1718,7 +1723,7 @@ class Grapher(wx.Panel):
                 if self.mode == 4 and y <= 0:
                     y = 0.000001
                 self.points[self.selected] = (x, y)
-        self.Refresh()
+            self.Refresh()
 
     def getLogPoints(self, pt1, pt2):
         tmp = []
@@ -1854,7 +1859,10 @@ class Grapher(wx.Panel):
     def OnPaint(self, evt):
         w,h = self.GetSize()
         corners = [(OFF,OFF),(w-OFF,OFF),(w-OFF,h-OFF),(OFF,h-OFF)]
-        dc = wx.AutoBufferedPaintDC(self)
+        dc = self.dcref(self)
+        gc = wx.GraphicsContext_Create(dc)
+        gc.SetBrush(wx.Brush("#000000"))
+        gc.SetPen(wx.Pen("#000000"))
         if sys.platform == "darwin":
             font, ptsize = dc.GetFont(), dc.GetFont().GetPointSize()
         else:
@@ -1908,44 +1916,44 @@ class Grapher(wx.Panel):
         if len(tmp) > 1:
             if self.mode == 0:
                 for i in range(len(tmp)-1):
-                    dc.DrawLinePoint(tmp[i], tmp[i+1])
+                    gc.DrawLines([tmp[i], tmp[i+1]])
             elif self.mode == 1:
                 for i in range(len(tmp)-1):
                     tmp2 = self.getCosPoints(tmp[i], tmp[i+1])
                     if i == 0 and len(tmp2) < 2:
-                        dc.DrawLinePoint(tmp[i], tmp[i+1])
+                        gc.DrawLines([tmp[i], tmp[i+1]])
                     if last_p != None:
-                        dc.DrawLinePoint(last_p, tmp[i])
+                        gc.DrawLines([last_p, tmp[i]])
                     for j in range(len(tmp2)-1):
-                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
                 if last_p != None:
-                    dc.DrawLinePoint(last_p, tmp[-1])
+                    gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 2:
                 for i in range(len(tmp)-1):
                     tmp2 = self.getExpPoints(tmp[i], tmp[i+1])
                     if i == 0 and len(tmp2) < 2:
-                        dc.DrawLinePoint(tmp[i], tmp[i+1])
+                        gc.DrawLines([tmp[i], tmp[i+1]])
                     if last_p != None:
-                        dc.DrawLinePoint(last_p, tmp[i])
+                        gc.DrawLines([last_p, tmp[i]])
                     for j in range(len(tmp2)-1):
-                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
                 if last_p != None:
-                    dc.DrawLinePoint(last_p, tmp[-1])
+                    gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 3:
                 curvetmp = self.addImaginaryPoints(tmp)
                 for i in range(1, len(curvetmp)-2):
                     tmp2 = self.getCurvePoints(curvetmp[i-1], curvetmp[i], curvetmp[i+1], curvetmp[i+2])
                     if i == 1 and len(tmp2) < 2:
-                        dc.DrawLinePoint(curvetmp[i], curvetmp[i+1])
+                        gc.DrawLines([curvetmp[i], curvetmp[i+1]])
                     if last_p != None:
-                        dc.DrawLinePoint(last_p, curvetmp[i])
+                        gc.DrawLines([last_p, curvetmp[i]])
                     for j in range(len(tmp2)-1):
-                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
                 if last_p != None:
-                    dc.DrawLinePoint(last_p, tmp[-1])
+                    gc.DrawLines([last_p, tmp[-1]])
             elif self.mode == 4:
                 back_tmp = [p for p in tmp]
                 for i in range(len(tmp)):
@@ -1955,14 +1963,14 @@ class Grapher(wx.Panel):
                     for j in range(len(tmp2)):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
-                        dc.DrawLinePoint(back_tmp[i], back_tmp[i+1])
+                        gc.DrawLines([back_tmp[i], back_tmp[i+1]])
                     if last_p != None:
-                        dc.DrawLinePoint(last_p, back_tmp[i])
+                        gc.DrawLines([last_p, back_tmp[i]])
                     for j in range(len(tmp2)-1):
-                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
                 if last_p != None:
-                    dc.DrawLinePoint(last_p, back_tmp[-1])
+                    gc.DrawLines([last_p, back_tmp[-1]])
                 tmp = [p for p in back_tmp]
             elif self.mode == 5:
                 back_tmp = [p for p in tmp]
@@ -1973,23 +1981,25 @@ class Grapher(wx.Panel):
                     for j in range(len(tmp2)):
                         tmp2[j] = (tmp2[j][0], int(round((1.0-tmp2[j][1]) * h)) + OFF + RAD)
                     if i == 0 and len(tmp2) < 2:
-                        dc.DrawLinePoint(back_tmp[i], back_tmp[i+1])
+                        gc.DrawLines([back_tmp[i], back_tmp[i+1]])
                     if last_p != None:
-                        dc.DrawLinePoint(last_p, back_tmp[i])
+                        gc.DrawLines([last_p, back_tmp[i]])
                     for j in range(len(tmp2)-1):
-                        dc.DrawLinePoint(tmp2[j], tmp2[j+1])
+                        gc.DrawLines([tmp2[j], tmp2[j+1]])
                         last_p = tmp2[j+1]
                 if last_p != None:
-                    dc.DrawLinePoint(last_p, back_tmp[-1])
+                    gc.DrawLines([last_p, back_tmp[-1]])
                 tmp = [p for p in back_tmp]
 
         # Draw points
         for i,p in enumerate(tmp):
             if i == self.selected:
+                gc.SetBrush(wx.Brush("#FFFFFF"))
                 dc.SetBrush(wx.Brush("#FFFFFF"))
             else:
+                gc.SetBrush(wx.Brush("#000000"))
                 dc.SetBrush(wx.Brush("#000000"))
-            dc.DrawCircle(p[0],p[1],RAD)
+            gc.DrawEllipse(p[0]-RAD,p[1]-RAD,RAD2,RAD2)
         
         # Draw position values
         font.SetPointSize(ptsize-3)
