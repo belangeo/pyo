@@ -1685,6 +1685,7 @@ class Grapher(wx.Panel):
             self.points = [(pt[0], pt[1]-0.002) for pt in self.points]
             self.sendValues()
             self.Refresh()
+        evt.Skip()
 
     def MouseDown(self, evt):
         self.CaptureMouse()
