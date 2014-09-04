@@ -17,9 +17,11 @@ import __builtin__
 __builtin__.EPYO_APP_OPENED = True
         
 if sys.platform == "linux2":
-	WX_VERSION = '3.0'
-	import wxversion
-	wxversion.select(WX_VERSION)
+    import wxversion
+    if wxversion.checkInstalled("3.0"):
+        wxversion.select("3.0")
+    elif wxversion.checkInstalled("2.8"):
+        wxversion.select("2.8")
 
 import os, string, inspect, keyword, wx, codecs, subprocess, unicodedata
 import contextlib, StringIO, shutil, copy, pprint, random, time, threading
