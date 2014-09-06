@@ -3207,7 +3207,8 @@ class MainPanel(wx.Panel):
 
 #######################################################
 ### The idea of EditorPanel is to allow multiple views
-### at the same time in a single notebook page.
+### at the same time in a single notebook page. 
+### Also: A tree view of classes and functions of the file
 ### Not yet implemented... ( TODO )
 #######################################################
 class EditorPanel(wx.Panel):
