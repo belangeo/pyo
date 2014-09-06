@@ -2351,9 +2351,12 @@ class ServerGUI(wx.Frame):
         key = evt.GetKeyCode()
         if key == 315:
             self.getPrev()
+            evt.StopPropagation()
         elif key == 317:
-            self.getNext()  
-        evt.Skip()      
+            self.getNext()
+            evt.StopPropagation()
+        else:
+            evt.Skip()      
 
     def setAmp(self, value):
         self.ampf(math.pow(10.0, float(value) * 0.05))
