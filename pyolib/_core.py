@@ -19,7 +19,7 @@ You should have received a copy of the GNU General Public License
 along with pyo.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-from types import ListType, SliceType, FloatType, StringType, UnicodeType
+from types import ListType, SliceType, FloatType, StringType, UnicodeType, NoneType
 import random, os, sys, inspect, tempfile
 from subprocess import call
 
@@ -2171,7 +2171,11 @@ class Compare(PyoObject):
     def __init__(self, input, comp, mode="<", mul=1, add=0):
         PyoObject.__init__(self, mul, add)
         self._input = input
-        self._comp = comp
+        if type(comp) in [StringType, UnicodeType, NoneType]:
+            print 'TypeError: "comp" argument of %s must be a float or a PyoObject. Set to 0.\n' % self.__class__.__name__
+            comp = self._comp = 0
+        else:
+            self._comp = comp
         self._mode = mode
         self._in_fader = InputFader(input)
         self.comp_dict = {"<": 0, "<=": 1, ">": 2, ">=": 3, "==": 4, "!=": 5}
@@ -2202,10 +2206,13 @@ class Compare(PyoObject):
         
         :Args:
 
-            x : PyoObject
+            x : float or PyoObject
                 New comparison signal.
 
         """
+        if type(x) in [StringType, UnicodeType, NoneType]:
+            print >> sys.stderr, 'TypeError: "comp" argument of %s must be a float or a PyoObject.\n' % self.__class__.__name__
+            return
         self._comp = x
         x, lmax = convertArgsToLists(x)
         [obj.setComp(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
