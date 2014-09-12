@@ -1,5 +1,35 @@
 2014-08-29 belangeo <belangeo@gmail.com>
 
+    * Release tag: 0.7.1.
+    - rev 1236
+
+2014-09-12 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Added RadioPyo to the template choices.  
+    - rev 1234
+
+2014-09-09 belangeo <belangeo@gmail.com>
+
+    * Fixed Compare when used with None or a string. Print a warning and set 'comp' attribute to 0. 
+    - rev 1229
+
+2014-09-05 belangeo <belangeo@gmail.com>
+
+    * Fixed live interpreter of the server window when using arrow keys navigation.
+    - rev 1228
+
+2014-09-04 belangeo <belangeo@gmail.com>
+
+    * E-Pyo: Check if WxPython 3.0 is installed, otherwise uses 2.8.
+    - rev 1227
+
+2014-09-02 belangeo <belangeo@gmail.com>
+
+    * Added anti-aliasing to PyoTableObject's grapher widget. Fixed Ctrl+W on the grapher.
+    - rev 1225, 1226
+
+2014-08-29 belangeo <belangeo@gmail.com>
+
     * Release tag: 0.7.0.
     - rev 1224
 
