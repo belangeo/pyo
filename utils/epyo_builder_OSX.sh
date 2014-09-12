@@ -1,6 +1,5 @@
 mkdir Resources
 cp PyoDoc.py Resources/
-cp FlatNoteBook.py Resources/
 cp Tutorial_01_RingMod.py Resources/
 cp Tutorial_02_Flanger.py Resources/
 cp Tutorial_03_TriTable.py Resources/
