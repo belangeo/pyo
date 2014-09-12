@@ -2797,9 +2797,11 @@ class MainFrame(wx.Frame):
     def close(self, event):
         action = self.panel.editor.close()
         if action == 'delete':
+            self.panel.close_from_menu = True
             self.panel.deletePage()
         else:
             pass
+        self.panel.close_from_menu = False
 
     def closeAll(self, event):
         count = self.panel.notebook.GetPageCount()
@@ -3084,6 +3086,7 @@ class MainPanel(wx.Panel):
         wx.Panel.__init__(self, parent, size=size, style=wx.SUNKEN_BORDER)
 
         self.new_inc = 0
+        self.close_from_menu = False
         self.mainFrame = parent
         mainBox = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -3165,9 +3168,10 @@ class MainPanel(wx.Panel):
             self.editor.setMarkers(copy.deepcopy(markers))
 
     def onClosingPage(self, evt):
-        action = self.editor.close()
-        if action == "keep":
-            evt.Veto()
+        if not self.close_from_menu:
+            action = self.editor.close()
+            if action == "keep":
+                evt.Veto()
 
     def deletePage(self):
         select = self.notebook.GetSelection()
