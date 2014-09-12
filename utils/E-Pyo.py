@@ -33,7 +33,7 @@ import wx.lib.scrolledpanel as scrolled
 import wx.lib.dialogs
 import wx.combo
 import wx.stc  as stc
-import FlatNotebook as FNB
+import wx.lib.agw.flatnotebook as FNB
 from pyo import *
 from PyoDoc import ManualFrame
 
@@ -3096,8 +3096,8 @@ class MainPanel(wx.Panel):
         self.project = ProjectTree(self.left_splitter, self, (-1, -1))
         self.markers = MarkersPanel(self.left_splitter, self, (-1, -1))
 
-        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1,-1), 
-                        style=FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
+        self.notebook = FNB.FlatNotebook(self.right_splitter, size=(-1,-1))
+        self.notebook.SetAGWWindowStyleFlag(FNB.FNB_FF2|FNB.FNB_X_ON_TAB|FNB.FNB_NO_X_BUTTON|FNB.FNB_DROPDOWN_TABS_LIST|FNB.FNB_HIDE_ON_SINGLE_TAB)
         self.addNewPage()
         self.outputlog = OutputLogPanel(self.right_splitter, self, size=(-1,150))
 
@@ -3109,8 +3109,8 @@ class MainPanel(wx.Panel):
         mainBox.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(mainBox)
 
-        self.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
-        self.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
+        self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CHANGED, self.onPageChange)
+        self.notebook.Bind(FNB.EVT_FLATNOTEBOOK_PAGE_CLOSING, self.onClosingPage)
 
     def addNewPage(self):
         title = "Untitled-%i.py" % self.new_inc
