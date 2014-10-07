@@ -25,6 +25,8 @@
 #include "servermodule.h"
 #include "dummymodule.h"
 #include "interpolation.h"
+#include "fft.h"
+#include "wind.h"
 
 /************/
 /* Follower */
@@ -1630,4 +1632,341 @@ Yin_members,                                 /* tp_members */
 0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Yin_new,                                     /* tp_new */
+};
+
+
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    int size;
+    int hsize;
+    int incount;
+    MYFLT centroid;
+    MYFLT *inframe;
+    MYFLT *outframe;
+    MYFLT **twiddle;
+    MYFLT *input_buffer;
+    MYFLT *window;
+    int modebuffer[2];
+} Centroid;
+
+static void
+Centroid_alloc_memories(Centroid *self) {
+    int i, n8;
+    self->hsize = self->size / 2;
+    n8 = self->size >> 3;
+    self->inframe = (MYFLT *)realloc(self->inframe, self->size * sizeof(MYFLT));
+    self->outframe = (MYFLT *)realloc(self->outframe, self->size * sizeof(MYFLT));       
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));    
+    for (i=0; i<self->size; i++)
+        self->inframe[i] = self->outframe[i] = self->input_buffer[i] = 0.0;
+    self->twiddle = (MYFLT **)realloc(self->twiddle, 4 * sizeof(MYFLT *));
+    for(i=0; i<4; i++)
+        self->twiddle[i] = (MYFLT *)malloc(n8 * sizeof(MYFLT));
+    fft_compute_split_twiddle(self->twiddle, self->size);
+    self->window = (MYFLT *)realloc(self->window, self->size * sizeof(MYFLT));
+    gen_window(self->window, self->size, 2);
+}
+
+static void
+Centroid_process_i(Centroid *self) {
+    int i;
+    MYFLT re, im, tmp, sum1, sum2;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+
+    for (i=0; i<self->bufsize; i++) {
+        self->input_buffer[self->incount] = in[i];
+        self->data[i] = self->centroid;
+        
+        self->incount++;
+        if (self->incount == self->size) {
+            self->incount = self->hsize;
+            
+            for (i=0; i<self->size; i++) {
+                self->inframe[i] = self->input_buffer[i] * self->window[i];
+            }
+            realfft_split(self->inframe, self->outframe, self->size, self->twiddle);
+            sum1 = sum2 = 0.0;
+            for (i=1; i<self->hsize; i++) {
+                re = self->outframe[i];
+                im = self->outframe[self->size - i];
+                tmp = MYSQRT(re*re + im*im);
+                sum1 += tmp * i;
+                sum2 += tmp;
+            }
+            tmp = sum1 / sum2;
+            self->centroid += tmp * self->sr / self->size;
+            self->centroid *= 0.5;
+            for (i=0; i<self->hsize; i++) {
+                self->input_buffer[i] = self->input_buffer[i + self->hsize];
+            }            
+        }
+    } 
+}
+
+static void Centroid_postprocessing_ii(Centroid *self) { POST_PROCESSING_II };
+static void Centroid_postprocessing_ai(Centroid *self) { POST_PROCESSING_AI };
+static void Centroid_postprocessing_ia(Centroid *self) { POST_PROCESSING_IA };
+static void Centroid_postprocessing_aa(Centroid *self) { POST_PROCESSING_AA };
+static void Centroid_postprocessing_ireva(Centroid *self) { POST_PROCESSING_IREVA };
+static void Centroid_postprocessing_areva(Centroid *self) { POST_PROCESSING_AREVA };
+static void Centroid_postprocessing_revai(Centroid *self) { POST_PROCESSING_REVAI };
+static void Centroid_postprocessing_revaa(Centroid *self) { POST_PROCESSING_REVAA };
+static void Centroid_postprocessing_revareva(Centroid *self) { POST_PROCESSING_REVAREVA };
+
+static void
+Centroid_setProcMode(Centroid *self)
+{        
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+
+    self->proc_func_ptr = Centroid_process_i;
+      
+    switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = Centroid_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = Centroid_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = Centroid_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = Centroid_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = Centroid_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = Centroid_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = Centroid_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = Centroid_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = Centroid_postprocessing_revareva;
+            break;
+    }
+}
+
+static void
+Centroid_compute_next_data_frame(Centroid *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+Centroid_traverse(Centroid *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+Centroid_clear(Centroid *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+Centroid_dealloc(Centroid* self)
+{
+    int i;
+    pyo_DEALLOC
+    free(self->inframe);
+    free(self->outframe);
+    free(self->input_buffer);
+    for(i=0; i<4; i++) {
+        free(self->twiddle[i]);
+    }
+    free(self->twiddle);
+    free(self->window);
+    Centroid_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+Centroid_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i, k;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    Centroid *self;
+    self = (Centroid *)type->tp_alloc(type, 0);
+    
+    self->centroid = 0;
+    self->size = 1024;
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, Centroid_compute_next_data_frame);
+    self->mode_func_ptr = Centroid_setProcMode;
+
+    static char *kwlist[] = {"input", "size", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, "O|iOO", kwlist, &inputtmp, &self->size, &multmp, &addtmp))
+        Py_RETURN_NONE;
+
+    if (self->size < self->bufsize) {
+        printf("Warning : Centroid size less than buffer size!\nCentroid size set to buffersize: %d\n", self->bufsize);
+        self->size = self->bufsize;
+    }
+    
+    k = 1;
+    while (k < self->size)
+        k <<= 1;
+    self->size = k;
+
+    INIT_INPUT_STREAM
+
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+ 
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+    
+    Centroid_alloc_memories(self);
+
+    self->incount = self->hsize;
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * Centroid_getServer(Centroid* self) { GET_SERVER };
+static PyObject * Centroid_getStream(Centroid* self) { GET_STREAM };
+static PyObject * Centroid_setMul(Centroid *self, PyObject *arg) { SET_MUL };    
+static PyObject * Centroid_setAdd(Centroid *self, PyObject *arg) { SET_ADD };    
+static PyObject * Centroid_setSub(Centroid *self, PyObject *arg) { SET_SUB };    
+static PyObject * Centroid_setDiv(Centroid *self, PyObject *arg) { SET_DIV };    
+
+static PyObject * Centroid_play(Centroid *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * Centroid_stop(Centroid *self) { STOP };
+
+static PyObject * Centroid_multiply(Centroid *self, PyObject *arg) { MULTIPLY };
+static PyObject * Centroid_inplace_multiply(Centroid *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * Centroid_add(Centroid *self, PyObject *arg) { ADD };
+static PyObject * Centroid_inplace_add(Centroid *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * Centroid_sub(Centroid *self, PyObject *arg) { SUB };
+static PyObject * Centroid_inplace_sub(Centroid *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * Centroid_div(Centroid *self, PyObject *arg) { DIV };
+static PyObject * Centroid_inplace_div(Centroid *self, PyObject *arg) { INPLACE_DIV };
+
+
+static PyMemberDef Centroid_members[] = {
+{"server", T_OBJECT_EX, offsetof(Centroid, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(Centroid, stream), 0, "Stream object."},
+{"mul", T_OBJECT_EX, offsetof(Centroid, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(Centroid, add), 0, "Add factor."},
+{"input", T_OBJECT_EX, offsetof(Centroid, input), 0, "Input sound object."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef Centroid_methods[] = {
+{"getServer", (PyCFunction)Centroid_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)Centroid_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)Centroid_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)Centroid_stop, METH_NOARGS, "Stops computing."},
+{"setMul", (PyCFunction)Centroid_setMul, METH_O, "Sets Centroid mul factor."},
+{"setAdd", (PyCFunction)Centroid_setAdd, METH_O, "Sets Centroid add factor."},
+{"setSub", (PyCFunction)Centroid_setSub, METH_O, "Sets Centroid add factor."},
+{"setDiv", (PyCFunction)Centroid_setDiv, METH_O, "Sets Centroid mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods Centroid_as_number = {
+    (binaryfunc)Centroid_add,                      /*nb_add*/
+    (binaryfunc)Centroid_sub,                 /*nb_subtract*/
+    (binaryfunc)Centroid_multiply,                 /*nb_multiply*/
+    (binaryfunc)Centroid_div,                   /*nb_divide*/
+    0,                /*nb_remainder*/
+    0,                   /*nb_divmod*/
+    0,                   /*nb_power*/
+    0,                  /*nb_neg*/
+    0,                /*nb_pos*/
+    0,                  /*(unaryfunc)array_abs,*/
+    0,                    /*nb_nonzero*/
+    0,                    /*nb_invert*/
+    0,               /*nb_lshift*/
+    0,              /*nb_rshift*/
+    0,              /*nb_and*/
+    0,              /*nb_xor*/
+    0,               /*nb_or*/
+    0,                                          /*nb_coerce*/
+    0,                       /*nb_int*/
+    0,                      /*nb_long*/
+    0,                     /*nb_float*/
+    0,                       /*nb_oct*/
+    0,                       /*nb_hex*/
+    (binaryfunc)Centroid_inplace_add,              /*inplace_add*/
+    (binaryfunc)Centroid_inplace_sub,         /*inplace_subtract*/
+    (binaryfunc)Centroid_inplace_multiply,         /*inplace_multiply*/
+    (binaryfunc)Centroid_inplace_div,           /*inplace_divide*/
+    0,        /*inplace_remainder*/
+    0,           /*inplace_power*/
+    0,       /*inplace_lshift*/
+    0,      /*inplace_rshift*/
+    0,      /*inplace_and*/
+    0,      /*inplace_xor*/
+    0,       /*inplace_or*/
+    0,             /*nb_floor_divide*/
+    0,              /*nb_true_divide*/
+    0,     /*nb_inplace_floor_divide*/
+    0,      /*nb_inplace_true_divide*/
+    0,                     /* nb_index */
+};
+
+PyTypeObject CentroidType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.Centroid_base",                                   /*tp_name*/
+sizeof(Centroid),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)Centroid_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&Centroid_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"Centroid objects. FFT transform.",           /* tp_doc */
+(traverseproc)Centroid_traverse,                  /* tp_traverse */
+(inquiry)Centroid_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+Centroid_methods,                                 /* tp_methods */
+Centroid_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+Centroid_new,                                     /* tp_new */
 };

@@ -2438,6 +2438,7 @@ init_pyo64(void)
     module_add_object(m, "STReverb_base", &STReverbType);
     module_add_object(m, "STRev_base", &STRevType);
     module_add_object(m, "Pointer2_base", &Pointer2Type);
+    module_add_object(m, "Centroid_base", &CentroidType);
 
     PyModule_AddStringConstant(m, "PYO_VERSION", PYO_VERSION);
 #ifdef COMPILE_EXTERNALS

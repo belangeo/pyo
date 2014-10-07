@@ -3279,7 +3279,7 @@ CvlVerb_alloc_memories(CvlVerb *self) {
     self->inframe = (MYFLT *)realloc(self->inframe, self->size2 * sizeof(MYFLT));
     self->outframe = (MYFLT *)realloc(self->outframe, self->size2 * sizeof(MYFLT));       
     self->last_half_frame = (MYFLT *)realloc(self->last_half_frame, self->size * sizeof(MYFLT));    
-    self->input_buffer = (MYFLT *)realloc(self->output_buffer, self->size * sizeof(MYFLT));    
+    self->input_buffer = (MYFLT *)realloc(self->input_buffer, self->size * sizeof(MYFLT));    
     self->output_buffer = (MYFLT *)realloc(self->output_buffer, self->size2 * sizeof(MYFLT));    
     for (i=0; i<self->size2; i++)
         self->inframe[i] = self->outframe[i] = self->output_buffer[i] = 0.0;

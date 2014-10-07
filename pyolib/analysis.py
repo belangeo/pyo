@@ -486,3 +486,76 @@ class Yin(PyoObject):
         return self._cutoff
     @cutoff.setter
     def cutoff(self, x): self.setCutoff(x)
+
+class Centroid(PyoObject):
+    """
+    Computes the spectral centroid of an input signal.
+    
+    Output signal is the spectral centroid, in Hz, of the input signal.
+    It indicates where the "center of mass" of the spectrum is. Perceptually, 
+    it has a robust connection with the impression of "brightness" of a sound.
+    
+    Centroid does its computation with two overlaps, so a new output value 
+    comes every half of the FFT window size.
+ 
+    :Parent: :py:class:`PyoObject`
+   
+    :Args:
+    
+        input : PyoObject
+            Input signal to process.
+        size : int, optional
+            Size, as a power-of-two, of the FFT used to compute the centroid.
+
+            Available at initialization time only.  Defaults to 1024.
+            
+
+    .. note::
+
+        The out() method is bypassed. Centroid's signal can not be sent to 
+        audio outs.
+    
+    >>> s = Server().boot()
+    >>> s.start()
+    >>> a = SfPlayer(SNDS_PATH + "/transparent.aif", loop=True, mul=.4).out()
+    >>> b = Centroid(a, 1024)
+    >>> c = Port(b, 0.05, 0.05)
+    >>> d = ButBP(Noise(0.2), freq=c, q=5).out(1)
+
+    """
+    def __init__(self, input, size=1024, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._size = size
+        self._in_fader = InputFader(input)
+        in_fader, size, mul, add, lmax = convertArgsToLists(self._in_fader, size, mul, add)
+        self._base_objs = [Centroid_base(wrap(in_fader,i), wrap(size,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = []
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+     
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
