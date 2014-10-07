@@ -464,6 +464,7 @@ extern PyTypeObject ComplexResType;
 extern PyTypeObject STReverbType;
 extern PyTypeObject STRevType;
 extern PyTypeObject Pointer2Type;
+extern PyTypeObject CentroidType;
 
 /* Constants */
 #define E M_E

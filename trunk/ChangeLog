@@ -1,3 +1,10 @@
+2014-10-07 belangeo <belangeo@gmail.com>
+
+    * Added new object : Centroid, Computes the spectral centroid of an input signal.
+    - rev 1237
+
+-------------------------------------------------------------------------------------
+
 2014-08-29 belangeo <belangeo@gmail.com>
 
     * Release tag: 0.7.1.
@@ -27,6 +34,8 @@
 
     * Added anti-aliasing to PyoTableObject's grapher widget. Fixed Ctrl+W on the grapher.
     - rev 1225, 1226
+
+-------------------------------------------------------------------------------------
 
 2014-08-29 belangeo <belangeo@gmail.com>
 
