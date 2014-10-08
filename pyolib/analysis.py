@@ -559,3 +559,195 @@ class Centroid(PyoObject):
         return self._input
     @input.setter
     def input(self, x): self.setInput(x)
+
+class AttackDetector(PyoObject):
+    """
+    Audio signal onset detection.
+    
+    AttackDetector anaylises an audio signal in input an output a trigger each
+    time an onset is detected. An onset is a sharp amplitude rising while the
+    signal had previously fall below a minimum threshold. Parameters must be
+    carefully tuned depending on the nature of the analysed signal and the level
+    of the background noise. 
+
+    :Parent: :py:class:`PyoObject`
+   
+    :Args:
+    
+        input : PyoObject
+            Input signal to process.
+        deltime : float, optional
+            Delay time, in seconds, between previous and current rms analysis to compare.
+            Defaults to 0.005.
+        cutoff : float, optional
+            Cutoff frequency, in Hz, of the amplitude follower's lowpass filter. 
+            Defaults to 10.
+            
+            Higher values are more responsive and also more likely to give false onsets. 
+        maxthresh : float, optional
+            Attack threshold in positive dB (current rms must be higher than previous 
+            rms + maxthresh to be reported as an attack). Defaults to 3.0.
+        minthresh : float, optional
+            Minimum threshold in dB (signal must fall below this threshold to allow 
+            a new attack to be detected). Defaults to -30.0.
+        reltime : float, optional
+            Time, in seconds, to wait before reporting a new attack. Defaults to 0.1.
+            
+
+    >>> s = Server(duplex=1).boot()
+    >>> s.start()
+    >>> a = Input()
+    >>> d = AttackDetector(a, deltime=0.005, cutoff=10, maxthresh=4, minthresh=-20, reltime=0.05)
+    >>> exc = TrigEnv(d, HannTable(), dur=0.005, mul=BrownNoise(0.3))
+    >>> wgs = Waveguide(exc, freq=[100,200.1,300.3,400.5], dur=30).out()
+
+    """
+    def __init__(self, input, deltime=0.005, cutoff=10, maxthresh=3, minthresh=-30, reltime=0.1, mul=1, add=0):
+        PyoObject.__init__(self, mul, add)
+        self._input = input
+        self._deltime = deltime
+        self._cutoff = cutoff
+        self._maxthresh = maxthresh
+        self._minthresh = minthresh
+        self._reltime = reltime
+        self._in_fader = InputFader(input)
+        in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add, lmax = convertArgsToLists(self._in_fader, deltime, cutoff, maxthresh, minthresh, reltime, mul, add)
+        self._base_objs = [AttackDetector_base(wrap(in_fader,i), wrap(deltime,i), wrap(cutoff,i), wrap(maxthresh,i), wrap(minthresh,i), wrap(reltime,i), wrap(mul,i), wrap(add,i)) for i in range(lmax)]
+
+    def setInput(self, x, fadetime=0.05):
+        """
+        Replace the `input` attribute.
+        
+        :Args:
+
+            x : PyoObject
+                New signal to process.
+            fadetime : float, optional
+                Crossfade time between old and new input. Default to 0.05.
+
+        """
+        self._input = x
+        self._in_fader.setInput(x, fadetime)
+
+    def setDeltime(self, x):
+        """
+        Replace the `deltime` attribute.
+        
+        :Args:
+
+            x : float
+                New delay between rms analysis.
+
+        """
+        self._deltime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setDeltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setCutoff(self, x):
+        """
+        Replace the `cutoff` attribute.
+        
+        :Args:
+
+            x : float
+                New cutoff for the follower lowpass filter.
+
+        """
+        self._cutoff = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setCutoff(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMaxthresh(self, x):
+        """
+        Replace the `maxthresh` attribute.
+        
+        :Args:
+
+            x : float
+                New attack threshold in dB.
+
+        """
+        self._maxthresh = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMaxthresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setMinthresh(self, x):
+        """
+        Replace the `minthresh` attribute.
+        
+        :Args:
+
+            x : float
+                New minimum threshold in dB.
+
+        """
+        self._minthresh = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setMinthresh(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def setReltime(self, x):
+        """
+        Replace the `reltime` attribute.
+        
+        :Args: 
+
+            x : float
+                Time, in seconds, to wait before reporting a new attack.
+
+        """
+        self._reltime = x
+        x, lmax = convertArgsToLists(x)
+        [obj.setReltime(wrap(x,i)) for i, obj in enumerate(self._base_objs)]
+
+    def out(self, chnl=0, inc=1, dur=0, delay=0):
+        return self.play(dur, delay)
+
+    def ctrl(self, map_list=None, title=None, wxnoserver=False):
+        self._map_list = [SLMap(0.001, 0.05, 'lin', 'deltime', self._deltime, dataOnly=True),
+                          SLMap(1.0, 1000.0, 'log', 'cutoff', self._cutoff, dataOnly=True),
+                          SLMap(0.0, 18.0, 'lin', 'maxthresh', self._maxthresh, dataOnly=True),
+                          SLMap(-90.0, 0.0, 'lin', 'minthresh', self._minthresh, dataOnly=True),
+                          SLMap(0.001, 1.0, 'log', 'reltime', self._reltime, dataOnly=True)]
+        PyoObject.ctrl(self, map_list, title, wxnoserver)
+     
+    @property
+    def input(self):
+        """PyoObject. Input signal to process.""" 
+        return self._input
+    @input.setter
+    def input(self, x): self.setInput(x)
+
+    @property
+    def deltime(self):
+        """float. Delay between rms analysis.""" 
+        return self._deltime
+    @deltime.setter
+    def deltime(self, x): self.setDeltime(x)
+
+    @property
+    def cutoff(self):
+        """float. Cutoff for the follower lowpass filter.""" 
+        return self._cutoff
+    @cutoff.setter
+    def cutoff(self, x): self.setCutoff(x)
+
+    @property
+    def maxthresh(self):
+        """float. Attack threshold in dB.""" 
+        return self._maxthresh
+    @maxthresh.setter
+    def maxthresh(self, x): self.setMaxthresh(x)
+
+    @property
+    def minthresh(self):
+        """float. Minimum threshold in dB.""" 
+        return self._minthresh
+    @minthresh.setter
+    def minthresh(self, x): self.setMinthresh(x)
+
+    @property
+    def reltime(self):
+        """float. Time to wait before reporting a new attack.""" 
+        return self._reltime
+    @reltime.setter
+    def reltime(self, x): self.setReltime(x)
