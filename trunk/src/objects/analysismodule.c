@@ -1634,6 +1634,9 @@ Yin_members,                                 /* tp_members */
 Yin_new,                                     /* tp_new */
 };
 
+/********************/
+/* Centroid */
+/********************/
 
 typedef struct {
     pyo_audio_HEAD
@@ -1969,4 +1972,462 @@ Centroid_members,                                 /* tp_members */
 0,                          /* tp_init */
 0,                                              /* tp_alloc */
 Centroid_new,                                     /* tp_new */
+};
+
+/************/
+/* AttackDetector */
+/************/
+typedef struct {
+    pyo_audio_HEAD
+    PyObject *input;
+    Stream *input_stream;
+    MYFLT deltime;
+    MYFLT cutoff;
+    MYFLT maxthresh;
+    MYFLT minthresh;
+    MYFLT reltime;
+    MYFLT folfactor;
+    MYFLT follow;
+    MYFLT followdb;
+    MYFLT *buffer;
+    MYFLT previous;
+    int memsize;
+    int sampdel;
+    int incount;
+    int overminok;
+    int belowminok;
+    long maxtime;
+    long timer;
+    int modebuffer[2]; // need at least 2 slots for mul & add
+} AttackDetector;
+
+static void
+AttackDetector_process(AttackDetector *self) {
+    int i, ind;
+    MYFLT absin;
+    MYFLT *in = Stream_getData((Stream *)self->input_stream);
+    
+    for (i=0; i<self->bufsize; i++) {
+        self->data[i] = 0.0;
+        absin = in[i];
+        // envelope follower
+        if (absin < 0.0)
+            absin = -absin;
+        self->follow = absin + self->folfactor * (self->follow - absin);
+        // follower in dB
+        if (self->follow <= 0.000001)
+            self->followdb = -120.0;
+        else
+            self->followdb = 20.0 * MYLOG10(self->follow);
+        // previous analysis
+        ind = self->incount - self->sampdel;
+        if (ind < 0)
+            ind += self->memsize;
+        self->previous = self->buffer[ind];
+        self->buffer[self->incount] = self->followdb;
+        self->incount++;
+        if (self->incount >= self->memsize)
+            self->incount = 0;
+        // if release time has past
+        if (self->timer >= self->maxtime) {
+            // if rms is over min threshold
+            if (self->overminok) {
+                // if rms is greater than previous + maxthresh
+                if (self->followdb > (self->previous + self->maxthresh)) {
+                    self->data[i] = 1.0;
+                    self->overminok = self->belowminok = 0;
+                    self->timer = 0;
+                }
+            }
+        }
+        if (self->belowminok == 0 && self->followdb < self->minthresh)
+            self->belowminok = 1;
+        else if (self->belowminok == 1 && self->followdb > self->minthresh)
+            self->overminok = 1;
+        self->timer++;
+    }
+}
+
+static void AttackDetector_postprocessing_ii(AttackDetector *self) { POST_PROCESSING_II };
+static void AttackDetector_postprocessing_ai(AttackDetector *self) { POST_PROCESSING_AI };
+static void AttackDetector_postprocessing_ia(AttackDetector *self) { POST_PROCESSING_IA };
+static void AttackDetector_postprocessing_aa(AttackDetector *self) { POST_PROCESSING_AA };
+static void AttackDetector_postprocessing_ireva(AttackDetector *self) { POST_PROCESSING_IREVA };
+static void AttackDetector_postprocessing_areva(AttackDetector *self) { POST_PROCESSING_AREVA };
+static void AttackDetector_postprocessing_revai(AttackDetector *self) { POST_PROCESSING_REVAI };
+static void AttackDetector_postprocessing_revaa(AttackDetector *self) { POST_PROCESSING_REVAA };
+static void AttackDetector_postprocessing_revareva(AttackDetector *self) { POST_PROCESSING_REVAREVA };
+
+static void
+AttackDetector_setProcMode(AttackDetector *self)
+{
+    int muladdmode;
+    muladdmode = self->modebuffer[0] + self->modebuffer[1] * 10;
+    
+    self->proc_func_ptr = AttackDetector_process;
+ 
+	switch (muladdmode) {
+        case 0:        
+            self->muladd_func_ptr = AttackDetector_postprocessing_ii;
+            break;
+        case 1:    
+            self->muladd_func_ptr = AttackDetector_postprocessing_ai;
+            break;
+        case 2:    
+            self->muladd_func_ptr = AttackDetector_postprocessing_revai;
+            break;
+        case 10:        
+            self->muladd_func_ptr = AttackDetector_postprocessing_ia;
+            break;
+        case 11:    
+            self->muladd_func_ptr = AttackDetector_postprocessing_aa;
+            break;
+        case 12:    
+            self->muladd_func_ptr = AttackDetector_postprocessing_revaa;
+            break;
+        case 20:        
+            self->muladd_func_ptr = AttackDetector_postprocessing_ireva;
+            break;
+        case 21:    
+            self->muladd_func_ptr = AttackDetector_postprocessing_areva;
+            break;
+        case 22:    
+            self->muladd_func_ptr = AttackDetector_postprocessing_revareva;
+            break;
+    }   
+}
+
+static void
+AttackDetector_compute_next_data_frame(AttackDetector *self)
+{
+    (*self->proc_func_ptr)(self); 
+    (*self->muladd_func_ptr)(self);
+}
+
+static int
+AttackDetector_traverse(AttackDetector *self, visitproc visit, void *arg)
+{
+    pyo_VISIT
+    Py_VISIT(self->input);
+    Py_VISIT(self->input_stream);
+    return 0;
+}
+
+static int 
+AttackDetector_clear(AttackDetector *self)
+{
+    pyo_CLEAR
+    Py_CLEAR(self->input);
+    Py_CLEAR(self->input_stream);
+    return 0;
+}
+
+static void
+AttackDetector_dealloc(AttackDetector* self)
+{
+    pyo_DEALLOC
+    free(self->buffer);
+    AttackDetector_clear(self);
+    self->ob_type->tp_free((PyObject*)self);
+}
+
+static PyObject *
+AttackDetector_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    int i;
+    PyObject *inputtmp, *input_streamtmp, *multmp=NULL, *addtmp=NULL;
+    AttackDetector *self;
+    self = (AttackDetector *)type->tp_alloc(type, 0);
+    
+    self->deltime = 0.005;
+    self->cutoff = 10.0;
+    self->maxthresh = 3.0;
+    self->minthresh = -30.0;
+    self->reltime = 0.1;
+    self->follow = 0.0;
+    self->followdb = -120.0;
+    self->previous = 0.0;
+    self->incount = 0;
+    self->overminok = 0;
+    self->belowminok = 0;
+    self->timer = 0;
+	self->modebuffer[0] = 0;
+	self->modebuffer[1] = 0;
+    
+    INIT_OBJECT_COMMON
+    Stream_setFunctionPtr(self->stream, AttackDetector_compute_next_data_frame);
+    self->mode_func_ptr = AttackDetector_setProcMode;
+
+    static char *kwlist[] = {"input", "deltime", "cutoff", "maxthresh", "minthresh", "reltime", "mul", "add", NULL};
+    
+    if (! PyArg_ParseTupleAndKeywords(args, kwds, TYPE_O_FFFFFOO, kwlist, &inputtmp, &self->deltime, &self->cutoff, &self->maxthresh, &self->minthresh, &self->reltime, &multmp, &addtmp))
+        Py_RETURN_NONE; 
+
+    INIT_INPUT_STREAM
+    
+    if (multmp) {
+        PyObject_CallMethod((PyObject *)self, "setMul", "O", multmp);
+    }
+    
+    if (addtmp) {
+        PyObject_CallMethod((PyObject *)self, "setAdd", "O", addtmp);
+    }
+    
+    PyObject_CallMethod(self->server, "addStream", "O", self->stream);
+
+    self->memsize = (int)(0.055 * self->sr + 0.5);
+    self->buffer = (MYFLT *)realloc(self->buffer, (self->memsize+1) * sizeof(MYFLT));
+    for (i=0; i<(self->memsize+1); i++) {
+        self->buffer[i] = 0.0;
+    }    
+       
+    if (self->deltime < 0.001) self->deltime = 0.001;
+    else if (self->deltime > 0.05) self->deltime = 0.05;
+    self->sampdel = (int)(self->deltime * self->sr);
+
+    if (self->cutoff < 1.0) self->cutoff = 1.0;
+    else if (self->cutoff > 1000.0) self->cutoff = 1000.0;
+    self->folfactor = MYEXP(-TWOPI * self->cutoff / self->sr);
+
+    if (self->cutoff < 1.0) self->cutoff = 1.0;
+    else if (self->cutoff > 1000.0) self->cutoff = 1000.0;
+
+    if (self->maxthresh < 0.0) self->maxthresh = 0.0;
+    else if (self->maxthresh > 18.0) self->maxthresh = 18.0;
+
+    if (self->minthresh < -90.0) self->minthresh = -90.0;
+    else if (self->minthresh > 0.0) self->minthresh = 0.0;
+
+    if (self->reltime < 0.001) self->reltime = 0.001;
+    self->maxtime = (long)(self->reltime * self->sr + 0.5);
+
+    (*self->mode_func_ptr)(self);
+
+    return (PyObject *)self;
+}
+
+static PyObject * AttackDetector_getServer(AttackDetector* self) { GET_SERVER };
+static PyObject * AttackDetector_getStream(AttackDetector* self) { GET_STREAM };
+static PyObject * AttackDetector_setMul(AttackDetector *self, PyObject *arg) { SET_MUL };	
+static PyObject * AttackDetector_setAdd(AttackDetector *self, PyObject *arg) { SET_ADD };	
+static PyObject * AttackDetector_setSub(AttackDetector *self, PyObject *arg) { SET_SUB };	
+static PyObject * AttackDetector_setDiv(AttackDetector *self, PyObject *arg) { SET_DIV };	
+
+static PyObject * AttackDetector_play(AttackDetector *self, PyObject *args, PyObject *kwds) { PLAY };
+static PyObject * AttackDetector_stop(AttackDetector *self) { STOP };
+
+static PyObject * AttackDetector_multiply(AttackDetector *self, PyObject *arg) { MULTIPLY };
+static PyObject * AttackDetector_inplace_multiply(AttackDetector *self, PyObject *arg) { INPLACE_MULTIPLY };
+static PyObject * AttackDetector_add(AttackDetector *self, PyObject *arg) { ADD };
+static PyObject * AttackDetector_inplace_add(AttackDetector *self, PyObject *arg) { INPLACE_ADD };
+static PyObject * AttackDetector_sub(AttackDetector *self, PyObject *arg) { SUB };
+static PyObject * AttackDetector_inplace_sub(AttackDetector *self, PyObject *arg) { INPLACE_SUB };
+static PyObject * AttackDetector_div(AttackDetector *self, PyObject *arg) { DIV };
+static PyObject * AttackDetector_inplace_div(AttackDetector *self, PyObject *arg) { INPLACE_DIV };
+
+static PyObject *
+AttackDetector_setDeltime(AttackDetector *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		self->deltime = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->deltime < 0.001) self->deltime = 0.001;
+        else if (self->deltime > 0.05) self->deltime = 0.05;
+        self->sampdel = (int)(self->deltime * self->sr);
+	}
+  
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+AttackDetector_setCutoff(AttackDetector *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		self->cutoff = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->cutoff < 1.0) self->cutoff = 1.0;
+        else if (self->cutoff > 1000.0) self->cutoff = 1000.0;
+        self->folfactor = MYEXP(-TWOPI * self->cutoff / self->sr);
+	}
+  
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+AttackDetector_setMaxthresh(AttackDetector *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		self->maxthresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->maxthresh < 0.0) self->maxthresh = 0.0;
+        else if (self->maxthresh > 18.0) self->maxthresh = 18.0;
+	}
+  
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+AttackDetector_setMinthresh(AttackDetector *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		self->minthresh = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->minthresh < -90.0) self->minthresh = -90.0;
+        else if (self->minthresh > 0.0) self->minthresh = 0.0;
+	}
+  
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+AttackDetector_setReltime(AttackDetector *self, PyObject *arg)
+{
+	if (arg == NULL) {
+		Py_INCREF(Py_None);
+		return Py_None;
+	}
+    
+	int isNumber = PyNumber_Check(arg);
+	
+	if (isNumber == 1) {
+		self->reltime = PyFloat_AS_DOUBLE(PyNumber_Float(arg));
+        if (self->reltime < 0.001) self->reltime = 0.001;
+        self->maxtime = (long)(self->reltime * self->sr + 0.5);
+	}
+  
+	Py_RETURN_NONE;
+}
+
+static PyMemberDef AttackDetector_members[] = {
+{"server", T_OBJECT_EX, offsetof(AttackDetector, server), 0, "Pyo server."},
+{"stream", T_OBJECT_EX, offsetof(AttackDetector, stream), 0, "Stream object."},
+{"input", T_OBJECT_EX, offsetof(AttackDetector, input), 0, "Input sound object."},
+{"mul", T_OBJECT_EX, offsetof(AttackDetector, mul), 0, "Mul factor."},
+{"add", T_OBJECT_EX, offsetof(AttackDetector, add), 0, "Add factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyMethodDef AttackDetector_methods[] = {
+{"getServer", (PyCFunction)AttackDetector_getServer, METH_NOARGS, "Returns server object."},
+{"_getStream", (PyCFunction)AttackDetector_getStream, METH_NOARGS, "Returns stream object."},
+{"play", (PyCFunction)AttackDetector_play, METH_VARARGS|METH_KEYWORDS, "Starts computing without sending sound to soundcard."},
+{"stop", (PyCFunction)AttackDetector_stop, METH_NOARGS, "Stops computing."},
+{"setDeltime", (PyCFunction)AttackDetector_setDeltime, METH_O, "Sets the delay time between current and previous analysis."},
+{"setCutoff", (PyCFunction)AttackDetector_setCutoff, METH_O, "Sets the frequency of the internal lowpass filter."},
+{"setMaxthresh", (PyCFunction)AttackDetector_setMaxthresh, METH_O, "Sets the higher threshold."},
+{"setMinthresh", (PyCFunction)AttackDetector_setMinthresh, METH_O, "Sets the lower threshold."},
+{"setReltime", (PyCFunction)AttackDetector_setReltime, METH_O, "Sets the release time (min time between two detected attacks)."},
+{"setMul", (PyCFunction)AttackDetector_setMul, METH_O, "Sets oscillator mul factor."},
+{"setAdd", (PyCFunction)AttackDetector_setAdd, METH_O, "Sets oscillator add factor."},
+{"setSub", (PyCFunction)AttackDetector_setSub, METH_O, "Sets inverse add factor."},
+{"setDiv", (PyCFunction)AttackDetector_setDiv, METH_O, "Sets inverse mul factor."},
+{NULL}  /* Sentinel */
+};
+
+static PyNumberMethods AttackDetector_as_number = {
+(binaryfunc)AttackDetector_add,                         /*nb_add*/
+(binaryfunc)AttackDetector_sub,                         /*nb_subtract*/
+(binaryfunc)AttackDetector_multiply,                    /*nb_multiply*/
+(binaryfunc)AttackDetector_div,                                              /*nb_divide*/
+0,                                              /*nb_remainder*/
+0,                                              /*nb_divmod*/
+0,                                              /*nb_power*/
+0,                                              /*nb_neg*/
+0,                                              /*nb_pos*/
+0,                                              /*(unaryfunc)array_abs,*/
+0,                                              /*nb_nonzero*/
+0,                                              /*nb_invert*/
+0,                                              /*nb_lshift*/
+0,                                              /*nb_rshift*/
+0,                                              /*nb_and*/
+0,                                              /*nb_xor*/
+0,                                              /*nb_or*/
+0,                                              /*nb_coerce*/
+0,                                              /*nb_int*/
+0,                                              /*nb_long*/
+0,                                              /*nb_float*/
+0,                                              /*nb_oct*/
+0,                                              /*nb_hex*/
+(binaryfunc)AttackDetector_inplace_add,                 /*inplace_add*/
+(binaryfunc)AttackDetector_inplace_sub,                 /*inplace_subtract*/
+(binaryfunc)AttackDetector_inplace_multiply,            /*inplace_multiply*/
+(binaryfunc)AttackDetector_inplace_div,                                              /*inplace_divide*/
+0,                                              /*inplace_remainder*/
+0,                                              /*inplace_power*/
+0,                                              /*inplace_lshift*/
+0,                                              /*inplace_rshift*/
+0,                                              /*inplace_and*/
+0,                                              /*inplace_xor*/
+0,                                              /*inplace_or*/
+0,                                              /*nb_floor_divide*/
+0,                                              /*nb_true_divide*/
+0,                                              /*nb_inplace_floor_divide*/
+0,                                              /*nb_inplace_true_divide*/
+0,                                              /* nb_index */
+};
+
+PyTypeObject AttackDetectorType = {
+PyObject_HEAD_INIT(NULL)
+0,                                              /*ob_size*/
+"_pyo.AttackDetector_base",                                   /*tp_name*/
+sizeof(AttackDetector),                                 /*tp_basicsize*/
+0,                                              /*tp_itemsize*/
+(destructor)AttackDetector_dealloc,                     /*tp_dealloc*/
+0,                                              /*tp_print*/
+0,                                              /*tp_getattr*/
+0,                                              /*tp_setattr*/
+0,                                              /*tp_compare*/
+0,                                              /*tp_repr*/
+&AttackDetector_as_number,                              /*tp_as_number*/
+0,                                              /*tp_as_sequence*/
+0,                                              /*tp_as_mapping*/
+0,                                              /*tp_hash */
+0,                                              /*tp_call*/
+0,                                              /*tp_str*/
+0,                                              /*tp_getattro*/
+0,                                              /*tp_setattro*/
+0,                                              /*tp_as_buffer*/
+Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC | Py_TPFLAGS_CHECKTYPES, /*tp_flags*/
+"AttackDetector objects. Audio signal peak detection.",           /* tp_doc */
+(traverseproc)AttackDetector_traverse,                  /* tp_traverse */
+(inquiry)AttackDetector_clear,                          /* tp_clear */
+0,                                              /* tp_richcompare */
+0,                                              /* tp_weaklistoffset */
+0,                                              /* tp_iter */
+0,                                              /* tp_iternext */
+AttackDetector_methods,                                 /* tp_methods */
+AttackDetector_members,                                 /* tp_members */
+0,                                              /* tp_getset */
+0,                                              /* tp_base */
+0,                                              /* tp_dict */
+0,                                              /* tp_descr_get */
+0,                                              /* tp_descr_set */
+0,                                              /* tp_dictoffset */
+0,                          /* tp_init */
+0,                                              /* tp_alloc */
+AttackDetector_new,                                     /* tp_new */
 };

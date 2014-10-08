@@ -33,3 +33,14 @@ can use them for controlling parameters of others objects.
 .. autoclass:: Yin
    :members:
 
+*Centroid*
+------------
+
+.. autoclass:: Centroid
+   :members:
+
+*AttackDetector*
+------------
+
+.. autoclass:: AttackDetector
+   :members:
