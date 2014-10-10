@@ -1,5 +1,10 @@
 2014-10-10 belangeo <belangeo@gmail.com>
 
+    * E-Pyo: Fixed inconsistencies in Find/Replace behaviours.
+    - rev 1240
+
+2014-10-10 belangeo <belangeo@gmail.com>
+
     * Added new object : SmoothDelay, a delay line that does not produce clicks or pitch shifting when the delay time is changing.
     - rev 1239
 
