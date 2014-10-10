@@ -1822,6 +1822,7 @@ class TreeCtrlComboPopup(wx.combo.ComboPopup):
         root = self.tree.GetRootItem()
         if not root:
             return
+        # TODO: where does come from FindItem()
         found = self.FindItem(root, value)
         if found:
             self.value = found
@@ -3556,41 +3557,47 @@ class Editor(stc.StyledTextCtrl):
                 wx.wxEVT_COMMAND_FIND_REPLACE : "REPLACE",
                 wx.wxEVT_COMMAND_FIND_REPLACE_ALL : "REPLACE_ALL" }
 
-        et = evt.GetEventType()
+        evtType = evt.GetEventType()
         findTxt = evt.GetFindString()
+        newTxt = evt.GetReplaceString()
+        findStrLen = len(findTxt)
+        newStrLen = len(newTxt)
+        diffLen = newStrLen - findStrLen
 
         selection = self.GetSelection()
         if selection[0] == selection[1]:
             selection = (0, self.GetLength())
 
-        if map[et] == 'FIND':
+        if map[evtType] == 'FIND':
             startpos = self.FindText(selection[0], selection[1], findTxt, evt.GetFlags())
             endpos = startpos+len(findTxt)
             self.anchor1 = endpos
             self.anchor2 = selection[1]
             self.SetSelection(startpos, endpos)
-        elif map[et] == 'FIND_NEXT':
+        elif map[evtType] == 'FIND_NEXT':
             startpos = self.FindText(self.anchor1, self.anchor2, findTxt, evt.GetFlags())
             endpos = startpos+len(findTxt)
             self.anchor1 = endpos
             self.SetSelection(startpos, endpos)
-        elif map[et] == 'REPLACE':
-            startpos = self.FindText(selection[0], selection[1], findTxt)
-            endpos = startpos+len(findTxt)
+        elif map[evtType] == 'REPLACE':
+            startpos = self.FindText(selection[0], selection[1], findTxt, evt.GetFlags())
             if startpos != -1:
+                endpos = startpos+len(findTxt)
                 self.SetSelection(startpos, endpos)
-                self.ReplaceSelection(evt.GetReplaceString())
-        elif map[et] == 'REPLACE_ALL':
-            self.anchor1 = selection[0]
+                self.ReplaceSelection(newTxt)
+                self.anchor1 = startpos + newStrLen + 1
+                self.anchor2 += diffLen
+        elif map[evtType] == 'REPLACE_ALL':
+            self.anchor1 = startpos = selection[0]
             self.anchor2 = selection[1]
-            startpos = selection[0]
             while startpos != -1:
-                startpos = self.FindText(self.anchor1, self.anchor2, findTxt)
+                startpos = self.FindText(self.anchor1, self.anchor2, findTxt, evt.GetFlags())
                 if startpos != -1:
                     endpos = startpos+len(findTxt)
                     self.SetSelection(startpos, endpos)
-                    self.ReplaceSelection(evt.GetReplaceString())
-                    self.anchor1 = endpos + 1
+                    self.ReplaceSelection(newTxt)
+                    self.anchor1 = startpos + newStrLen + 1
+                    self.anchor2 += diffLen
         line = self.GetCurrentLine()
         halfNumLinesOnScreen = self.LinesOnScreen() / 2
         self.ScrollToLine(line - halfNumLinesOnScreen)
